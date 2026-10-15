@@ -1,0 +1,22 @@
+# Dépendances et builds
+node_modules/
+.next/
+out/
+build/
+dist/
+coverage/
+
+# Secrets : ne jamais envoyer sur GitHub
+.env
+.env.*
+!.env.example
+
+# Réglages personnels
+_bmad/custom/*.user.toml
+.claude/settings.local.json
+
+# Système
+.DS_Store
+Thumbs.db
+*.log
+.vercel
