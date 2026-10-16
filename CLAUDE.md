@@ -2,26 +2,30 @@
 
 ## Le produit
 Boutique en ligne pour otakus, tenue par un seul créateur : Jonathan Manduara Tshimpaka, NATHANGROUP SARL, Goma, RDC.
+Domaine : komashop.com. Cible : d'abord les otakus africains, l'international ensuite.
 Trois familles de produits :
 - cosplay : costume complet fait main, physique, en stock ou sur commande (tailles XS à XXL ou sur mesure)
 - accessoire : perruque, arme factice, masque, armure, bijou ; physique
 - kit : numérique = fichiers (PDF A4 et US Letter, SVG, STL) + tutoriel vidéo en chapitres, accès à vie
 Un cosplay peut être lié à son kit : la fiche propose « Prêt à porter » et « Le fabriquer moi-même ».
+Le site comprend aussi un blog et une section Événements, avec vente de pass nominatifs à code QR.
 
 ## Stack
-Next.js (App Router, TypeScript, Server Components par défaut), Tailwind CSS, Supabase (Auth, Postgres avec RLS, Storage), hébergement Vercel, paiement K-Pay (mobile money et carte), emails Resend.
+Next.js (App Router, TypeScript, Server Components par défaut), Tailwind CSS, Supabase (Auth, Postgres avec RLS, Storage), hébergement Vercel, paiement : couche commune avec un adaptateur par prestataire. Mobile money via PawaPay, K-Pay, MaishaPay et GeniusPay ; carte via K-Pay pour les paniers avec produit physique, via Polar pour les paniers 100 % kits. Emails Resend.
 Référence design : [LIEN DU DÉPÔT DE RÉFÉRENCE]. Photos : [DOSSIER OU LIEN DES PHOTOS].
 
 ## Langues
-[FRANÇAIS SEUL] ou [FRANÇAIS ET ANGLAIS, via /fr et /en]. Aucun texte visible en dur hors des fichiers de traduction.
+Français et anglais, via /fr et /en. Aucun texte visible en dur hors des fichiers de traduction.
 
 ## Prix et livraison
-Prix en USD, identique dans tous les pays, toujours affiché en USD.
-Frais de livraison par zone (Goma, RDC, Afrique, monde) et par famille, fixés dans l'admin. Les kits n'ont pas de livraison.
+Prix en USD, identique dans tous les pays, toujours affiché en USD. Chaque prix est fixé par l'admin, produit par produit. La conversion en devise locale est faite par l'agrégateur ; le site n'affiche que l'USD.
+Livraison des produits physiques au lancement : Goma et Bukavu uniquement. Un forfait de livraison par ville, fixé dans l'admin. Goma est livrée en moins d'un jour, Bukavu (de l'autre côté du lac Kivu) en un jour au plus. À Goma, le client peut aussi retirer sa commande gratuitement.
+Délai de fabrication propre à chaque produit ou variante, affiché avant le paiement.
+Les kits n'ont pas de livraison et se vendent dans tous les pays.
 
 ## Règles absolues
 1. Les fichiers de kit et les vidéos complètes sont dans le bucket privé kits-private. Ils ne s'ouvrent que par un lien signé, créé côté serveur après vérification d'un accès payé. RLS sur toutes les tables.
-2. Seule la route serveur de notification de paiement passe une commande en paid, après vérification auprès du prestataire. Jamais le navigateur.
+2. Seules les routes serveur de notification de paiement (une par prestataire) passent une commande en paid, après vérification de la notification (signature ou contre-vérification auprès du prestataire). Jamais le navigateur. Une même référence de paiement ne valide jamais deux fois une commande. Chaque commande enregistre le prestataire, sa référence de transaction, le montant et la devise.
 3. Prix, stock et frais de livraison sont toujours calculés côté serveur, depuis la base.
 4. Les secrets sont dans les variables d'environnement (.env.local, Vercel), jamais dans le code commité. Tenir .env.example à jour.
 5. Honnêteté : aucun avis, chiffre, logo ou témoignage inventé.
@@ -30,9 +34,9 @@ Frais de livraison par zone (Goma, RDC, Afrique, monde) et par famille, fixés d
 8. SEO : metadata, Open Graph et données structurées JSON-LD sur chaque page publique.
 
 ## Paiement : qui encaisse quoi (règle stricte)
-9. K-Pay encaisse tout panier qui contient au moins un produit physique (cosplay ou accessoire), par mobile money ou par carte. Au lancement, K-Pay encaisse aussi les paniers de kits.
-10. Polar sert UNIQUEMENT aux paniers 100 % numériques (kits), et seulement quand la phase Polar est demandée. Ne jamais proposer Polar, créer un produit Polar ni envoyer une commande à Polar si le panier contient un produit physique, même un seul. Ne jamais présenter un produit physique comme numérique.
-11. La route serveur qui choisit le prestataire vérifie la famille de chaque article en base ; un panier mixte part toujours chez K-Pay. Un test automatique doit le prouver.
+9. Mobile money : quatre agrégateurs en parallèle (PawaPay, K-Pay, MaishaPay, GeniusPay), chacun branché par son propre adaptateur. Le client choisit son pays et son opérateur ; le serveur choisit l'agrégateur actif qui couvre ce couple, selon l'ordre de priorité réglé dans l'admin. Si l'agrégateur prioritaire échoue ou est désactivé, il propose le suivant qui couvre le même couple. La couverture pays-opérateur de chaque agrégateur vient de sa documentation officielle et des contrats marchands : ne jamais la supposer.
+10. Carte : un panier qui contient au moins un produit physique (cosplay ou accessoire) se paie par carte via K-Pay, jamais via Polar. Polar sert uniquement aux paniers 100 % numériques (kits) : dès qu'un produit physique entre dans le panier, Polar disparaît des choix. Ne jamais créer de produit Polar pour un article physique ni présenter un produit physique comme numérique. MaishaPay et GeniusPay acceptent aussi la carte : solutions de secours possibles pour plus tard, non branchées au lancement. Les pass d'événement se paient par mobile money (quatre agrégateurs) ou par carte via K-Pay, jamais via Polar sans accord écrit de Polar.
+11. La route serveur qui choisit le prestataire vérifie en base la famille de chaque article, ainsi que le moyen de paiement, le pays et l'opérateur choisis. Des tests automatiques prouvent qu'un panier mixte ne part jamais chez Polar, qu'un pass ne part jamais chez Polar, que le repli passe bien à l'agrégateur suivant et qu'une référence déjà utilisée est refusée.
 
 ## Livraison
 12. La livraison des produits physiques est faite à la main par le créateur. Aucune intégration de transporteur, aucun suivi automatique : l'admin change le statut et saisit le numéro de suivi lui-même.

@@ -1,6 +1,8 @@
 # KOMA SHOP — boutique otaku (cosplays, kits, accessoires) — guide A→Z
 
-Version du 15 octobre 2026 · Jonathan Manduara Tshimpaka
+Version du 15 octobre 2026, alignée sur le brief produit le 16 octobre 2026 · Jonathan Manduara Tshimpaka
+
+> **Avertissement (2026-10-16).** Ce guide a servi de base au PRD du 2026-10-16 (`_bmad-output/planning-artifacts/prds/prd-KOMA SHOP-2026-10-16/prd.md`). En cas de différence, le PRD et CLAUDE.md font foi.
 
 Une boutique en ligne pour les otakus, tenue par une seule personne : des cosplays et des accessoires prêts à porter, et des kits numériques pour les fabriquer soi-même. Paiement par mobile money ou par carte. Ce guide est écrit pour que n'importe quel développeur, et d'abord Claude Code, puisse construire la plateforme.
 
@@ -14,7 +16,7 @@ Chaque costume existe en deux versions : prêt à porter, fabriqué et expédié
 
 | Famille | Ce que c'est | Type | Après le paiement |
 | --- | --- | --- | --- |
-| Cosplay prêt à porter | Costume complet fait main, en tailles standard ou sur mesure | Physique | Fabrication ou préparation, puis expédition depuis Goma, avec suivi par email |
+| Cosplay prêt à porter | Costume complet fait main, en tailles standard ou sur mesure | Physique | Fabrication ou préparation, puis livraison à Goma ou Bukavu par le créateur, avec suivi par email |
 | Accessoire prêt à porter | Perruque, arme factice, masque, armure, bijou, objet de scène | Physique | Même chose |
 | Kit de fabrication | Patrons PDF (A4 et US Letter), gabarits, fichiers 3D si besoin, liste du matériel, tutoriel vidéo en chapitres | Numérique | Débloqué aussitôt dans « Ma bibliothèque », à vie |
 
@@ -24,14 +26,16 @@ Chaque costume existe en deux versions : prêt à porter, fabriqué et expédié
 - Un réglage admin limite le nombre de commandes physiques en cours. Au-delà, la fiche affiche « Carnet de commandes complet » et propose le kit.
 - Les kits numériques se vendent sans limite : c'est ta source de revenus qui ne dépend pas de ton temps.
 
-**Modèle de vente :** un prix unique en dollars, identique dans tous les pays, comme pour SwitchPro. Les pièces physiques ajoutent des frais de livraison selon la zone. Paiement par mobile money ou par carte (détails dans la section Paiement et livraison).
+**Modèle de vente :** un prix unique en dollars, identique dans tous les pays, comme pour SwitchPro. Les pièces physiques ajoutent un forfait de livraison selon la ville (Goma ou Bukavu). Paiement par mobile money ou par carte (détails dans la section Paiement et livraison).
 
-**Questions ouvertes :**
+**Décisions prises (brief produit du 16 octobre 2026) :**
 
-- Nom de la boutique et nom de domaine.
-- Langues : français seul, ou français et anglais ?
-- Zones de livraison au départ : Goma, toute la RDC, l'Afrique, le monde ?
-- Délai moyen de fabrication d'un cosplay complet et d'un accessoire.
+- Nom et domaine : KOMA SHOP, komashop.com (disponibilité à vérifier avant l'achat).
+- Langues : français et anglais, via /fr et /en.
+- Livraison des pièces physiques au lancement : Goma et Bukavu uniquement, un forfait par ville fixé dans l'admin. Bukavu, de l'autre côté du lac Kivu, est livrée en moins d'un jour.
+- Délai de fabrication : trop variable pour un chiffre unique ; saisi pour chaque produit ou variante et affiché avant le paiement.
+- Prix : fixés librement par l'admin, produit par produit. Le prix des kits reste ouvert : le lancement est un test.
+- Cible : d'abord les otakus africains, l'international ensuite pour les kits.
 
 ## Ce qu'on garde du guide SwitchPro
 
@@ -71,7 +75,7 @@ La fonctionnalité cœur : trouver un costume, choisir « prêt à porter » ou 
 | Panier et ligne de panier | Client ou visiteur, variante, quantité |
 | Commande | Client, lignes, sous-total, frais de livraison, total, moyen de paiement, référence de paiement, statut |
 | Adresse de livraison | Commande, nom, téléphone, pays, ville, adresse, point de repère |
-| Zone de livraison | Nom (Goma, RDC, Afrique, monde), pays inclus, tarif, délai indicatif |
+| Zone de livraison | Ville (Goma, Bukavu), forfait, délai indicatif |
 | Expédition | Commande, transporteur, numéro de suivi, date d'envoi |
 | Accès | Client, kit, commande d'origine (pour les kits) |
 | Téléchargement et progression vidéo | Client, fichier ou vidéo, date, position |
@@ -143,6 +147,8 @@ Le navigateur ne fait que lancer le paiement. La commande n'est validée que par
 
 ## Paiement et livraison
 
+> **Partie paiement remplacée par la décision de Jonathan du 2026-10-16.** Mobile money via quatre agrégateurs (PawaPay, K-Pay, MaishaPay, GeniusPay) ; carte via K-Pay pour les paniers avec produit physique ; Polar pour les paniers 100 % kits. Voir le PRD (`_bmad-output/planning-artifacts/prds/prd-KOMA SHOP-2026-10-16/prd.md`) et CLAUDE.md, règles 2 et 9 à 11. Le texte paiement ci-dessous est conservé pour mémoire et ne fait plus foi.
+
 Au lancement, tout passe par K-Pay : il accepte à la fois le mobile money et les cartes Visa et Mastercard ([doc K-Pay](https://www.kpay.africa/docs/)). Polar ne peut pas servir pour les costumes et accessoires : il ne vend que des produits numériques ([politique Polar](https://docs.polar.sh/merchant-of-record/acceptable-use)).
 
 ### Qui encaisse quoi
@@ -158,14 +164,15 @@ Au lancement, tout passe par K-Pay : il accepte à la fois le mobile money et le
 
 ### Livraison depuis Goma
 
-| Zone | Mode possible | Tarif |
-| --- | --- | --- |
-| Goma | Retrait en main propre ou livreur à moto | Forfait fixe, ou gratuit en retrait |
-| Reste de la RDC | Agence de messagerie ou fret aérien | Forfait par zone |
-| Afrique et monde | Transporteur international (DHL, Aramex ou la poste, à comparer depuis Goma) | Forfait par zone ; droits de douane à la charge du client, écrit clairement avant le paiement |
+Au lancement, les pièces physiques ne sont livrées qu'à Goma et Bukavu. Le reste de la RDC, l'Afrique et le monde viendront plus tard ; d'ici là, ces clients peuvent acheter les kits.
 
-- L'admin fixe dans le site un tarif par zone et par famille (un cosplay complet pèse plus qu'un bijou).
-- La fiche affiche le délai total : fabrication + livraison (par exemple « Expédié sous 12 jours, livré en 3 à 7 jours en RDC »).
+| Ville | Mode possible | Tarif | Délai de livraison |
+| --- | --- | --- | --- |
+| Goma | Retrait en main propre ou livraison par le créateur | Forfait fixé dans l'admin, ou gratuit en retrait | À préciser par Jonathan |
+| Bukavu | Livraison organisée par le créateur, de l'autre côté du lac Kivu | Forfait fixé dans l'admin | Moins d'un jour |
+
+- L'admin fixe dans le site un forfait par ville. Un tarif différent selon la famille (un cosplay complet pèse plus qu'un bijou) reste à trancher dans le PRD.
+- La fiche affiche le délai total : fabrication + livraison (par exemple « Fabriqué sous 12 jours, livré en moins d'un jour à Bukavu »).
 - Chaque étape envoie un email : payée, en fabrication, expédiée (avec le numéro de suivi), livrée.
 - Les kits numériques n'ont jamais de frais de livraison.
 
@@ -216,7 +223,7 @@ Le référencement se construit dès la première ligne de code : une page par p
 - [ ] Image et texte de partage (Open Graph) pour chaque page : l'aperçu est soigné sur WhatsApp, Facebook et X.
 - [ ] Données structurées schema.org : Product avec Offer (prix, devise, disponibilité, livraison) sur chaque fiche, BreadcrumbList, Organization, FAQPage, VideoObject pour l'extrait vidéo.
 - [ ] sitemap.xml et robots.txt générés automatiquement ; adresse canonique sur chaque page.
-- [ ] Si le site est bilingue : /fr et /en, balises hreflang.
+- [ ] Site bilingue : /fr et /en, balises hreflang.
 - [ ] Texte alternatif sur chaque image, une seule balise H1 par page.
 - [ ] Vitesse : image du héros prioritaire, images compressées, scores Core Web Vitals au vert sur mobile.
 
@@ -249,7 +256,7 @@ Claude Code travaille dans ton dépôt GitHub. Il lit d'abord le fichier CLAUDE.
 - [ ] Claude Code installé et connecté à ce dépôt.
 - [ ] Des comptes Supabase, Vercel et Resend ; l'accès marchand K-Pay (clés API et documentation).
 - [ ] Tes photos rangées par produit, et les fichiers et vidéos des premiers kits.
-- [ ] Les crochets `[…]` complétés partout dans ce guide : nom, domaine, langues, identifiants de NATHANGROUP SARL, emails, zones de livraison.
+- [ ] Les crochets `[…]` complétés partout dans ce guide : identifiants de NATHANGROUP SARL, emails, numéros et liens (nom, domaine, langues et livraison sont déjà décidés).
 
 ### Mode d'emploi
 
@@ -261,11 +268,14 @@ Claude Code travaille dans ton dépôt GitHub. Il lit d'abord le fichier CLAUDE.
 
 ### Le fichier CLAUDE.md
 
+> **Copie périmée (2026-10-16).** Le paiement, la livraison et le périmètre ont changé par la décision du 2026-10-16. Le fichier `CLAUDE.md` à la racine du projet fait foi ; voir aussi le PRD.
+
 ```markdown
 # KOMA SHOP — instructions pour Claude Code
 
 ## Le produit
 Boutique en ligne pour otakus, tenue par un seul créateur : Jonathan Manduara Tshimpaka, NATHANGROUP SARL, Goma, RDC.
+Domaine : komashop.com. Cible : d'abord les otakus africains, l'international ensuite.
 Trois familles de produits :
 - cosplay : costume complet fait main, physique, en stock ou sur commande (tailles XS à XXL ou sur mesure)
 - accessoire : perruque, arme factice, masque, armure, bijou ; physique
@@ -277,11 +287,13 @@ Next.js (App Router, TypeScript, Server Components par défaut), Tailwind CSS, S
 Référence design : [LIEN DU DÉPÔT DE RÉFÉRENCE]. Photos : [DOSSIER OU LIEN DES PHOTOS].
 
 ## Langues
-[FRANÇAIS SEUL] ou [FRANÇAIS ET ANGLAIS, via /fr et /en]. Aucun texte visible en dur hors des fichiers de traduction.
+Français et anglais, via /fr et /en. Aucun texte visible en dur hors des fichiers de traduction.
 
 ## Prix et livraison
-Prix en USD, identique dans tous les pays, toujours affiché en USD.
-Frais de livraison par zone (Goma, RDC, Afrique, monde) et par famille, fixés dans l'admin. Les kits n'ont pas de livraison.
+Prix en USD, identique dans tous les pays, toujours affiché en USD. Chaque prix est fixé par l'admin, produit par produit.
+Livraison des produits physiques au lancement : Goma et Bukavu uniquement. Un forfait de livraison par ville, fixé dans l'admin. Bukavu (de l'autre côté du lac Kivu) est livrée en moins d'un jour.
+Délai de fabrication propre à chaque produit ou variante, affiché avant le paiement.
+Les kits n'ont pas de livraison et se vendent dans tous les pays.
 
 ## Règles absolues
 1. Les fichiers de kit et les vidéos complètes sont dans le bucket privé kits-private. Ils ne s'ouvrent que par un lien signé, créé côté serveur après vérification d'un accès payé. RLS sur toutes les tables.
@@ -338,7 +350,7 @@ OBJECTIF : un projet Next.js propre, relié à Supabase, avec la base de donnée
 - orders : id, user_id, subtotal_usd, shipping_usd, total_usd, provider, provider_ref unique, status (pending, paid, in_production, shipped, delivered, cancelled, refunded), created_at, paid_at
 - order_items : id, order_id, variant_id, unit_price_usd, quantity, measurements (JSON, pour le sur-mesure)
 - shipping_addresses : order_id, name, phone, country, city, address, landmark
-- shipping_zones : id, name, countries, price_cosplay_usd, price_accessory_usd, delay_text
+- shipping_zones : id, name (Goma, Bukavu), price_usd, delay_text
 - shipments : order_id, carrier, tracking_number, shipped_at
 - entitlements : id, user_id, product_id (kit), order_id, granted_at, revoked_at ; unique (user_id, product_id)
 - downloads, video_progress, events, settings (max_open_physical_orders)
@@ -396,7 +408,7 @@ OBJECTIF : un visiteur trouve un produit et comprend exactement ce qu'il achète
 
 ## B. Fiche produit (/cosplays/[slug], /accessoires/[slug], /kits/[slug])
 1. Galerie de photos (zoom sur mobile), titre, prix en USD, description.
-2. Cosplay et accessoire : choix de la taille ou « sur mesure » (formulaire de mesures avec un schéma explicatif) ; disponibilité : « En stock » ou « Sur commande, expédié sous X jours » ; frais et délais de livraison par zone.
+2. Cosplay et accessoire : choix de la taille ou « sur mesure » (formulaire de mesures avec un schéma explicatif) ; disponibilité : « En stock » ou « Sur commande, expédié sous X jours » ; forfait et délai de livraison pour Goma et Bukavu.
 3. Si le carnet de commandes est plein (réglage max_open_physical_orders atteint) : « Carnet de commandes complet » et lien vers le kit.
 4. Cosplay avec un kit lié : deux options côte à côte, « Prêt à porter » et « Le fabriquer moi-même (kit) ».
 5. Kit : contenu (fichiers, formats, tailles), plan des chapitres, extrait vidéo, niveau, matériel. Aucun lien vers kits-private.
@@ -432,7 +444,7 @@ OBJECTIF : gérer tout le catalogue et les commandes sans toucher au code. Rése
 4. Remettre à zéro les téléchargements d'un client pour un kit.
 
 ## C. Réglages (/admin/reglages)
-Zones de livraison et tarifs, nombre maximal de commandes physiques en cours, numéro WhatsApp affiché.
+Forfaits de livraison par ville (Goma, Bukavu), nombre maximal de commandes physiques en cours, numéro WhatsApp affiché.
 
 ## TESTS DE VALIDATION
 - Un compte client qui ouvre /admin est redirigé.
@@ -452,7 +464,7 @@ OBJECTIF : passer du panier à une commande prête à payer, avec un total juste
 
 ## B. Commande (/commande)
 1. Email (création de compte automatique s'il n'en a pas), téléphone.
-2. Adresse de livraison seulement s'il y a une pièce physique ; choix de la zone ou du retrait à Goma.
+2. Adresse de livraison seulement s'il y a une pièce physique ; choix de la ville (Goma ou Bukavu) ou du retrait à Goma.
 3. Mesures obligatoires pour chaque article sur mesure.
 4. Cases : CGV acceptées ; pour un panier avec kit, « J'accepte l'accès immédiat au contenu numérique et je renonce à mon droit de rétractation » ; pour une pièce sur mesure, « Je comprends qu'une pièce faite sur mesure ne peut être ni reprise ni échangée ».
 5. Une route serveur recalcule sous-total, livraison et total depuis la base, vérifie le stock et la capacité, puis crée la commande en pending.
@@ -464,6 +476,8 @@ OBJECTIF : passer du panier à une commande prête à payer, avec un total juste
 ```
 
 ### Phase 6 — Paiement K-Pay
+
+> **Remplacée par la décision du 2026-10-16.** Mobile money via quatre agrégateurs (PawaPay, K-Pay, MaishaPay, GeniusPay), carte via K-Pay (produits physiques et pass) ou Polar (paniers 100 % kits). Voir le PRD (§4.4) et CLAUDE.md, règles 2 et 9 à 11.
 
 Colle dans cette phase la documentation K-Pay de ton compte marchand, ou le code d'intégration déjà fait pour SwitchPro : Claude Code ne peut pas le deviner.
 
@@ -587,7 +601,7 @@ Je ne suis pas juriste : fais valider cette ligne par un avocat en propriété i
 
 - **Mentions légales :** NATHANGROUP SARL, Goma, RCCM, Id. Nat., NIF, contact (comme pour SwitchPro).
 - **CGV :** produits numériques (accès à vie, usage personnel, pas de revente ni de partage des fichiers) et produits physiques (fabrication sur commande, délais indicatifs, transfert des risques à la livraison).
-- **Livraison :** zones, tarifs, délais, droits de douane à la charge du client hors RDC.
+- **Livraison :** villes desservies (Goma, Bukavu), forfaits, délais.
 - **Retours et remboursements :** par exemple, pièce en stock retournable sous 14 jours, non portée, frais de retour à la charge du client ; pièce sur mesure ni reprise ni échangée, sauf défaut de fabrication ; kit remboursé si un fichier est illisible et non corrigé sous 7 jours.
 - **Confidentialité et cookies.**
 
@@ -628,7 +642,7 @@ Sept semaines pour ouvrir avec un petit catalogue complet, puis une boucle hebdo
 - [ ] Parler à 5 à 10 otakus et cosplayeurs : achètent-ils prêt à porter ou préfèrent-ils fabriquer ? À quel prix ?
 - [ ] Choisir le catalogue de lancement, par exemple 3 cosplays, 5 accessoires, 2 kits payants et 1 kit gratuit, dans la ligne « sûr » côté droits.
 - [ ] Confirmer avec K-Pay : carte activée, objets physiques acceptés, pays couverts.
-- [ ] Fixer les zones et tarifs de livraison après avoir demandé les prix aux transporteurs depuis Goma.
+- [ ] Fixer les forfaits de livraison pour Goma et Bukavu.
 
 ### Semaine 2 — Produire le contenu
 
