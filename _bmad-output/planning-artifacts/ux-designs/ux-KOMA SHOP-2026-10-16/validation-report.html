@@ -1,0 +1,1213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Validation UX : KOMA SHOP</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --muted: #78716c;
+
+    --verdict-strong: #16a34a;
+    --verdict-adequate: #65a30d;
+    --verdict-thin: #d97706;
+    --verdict-broken: #dc2626;
+
+    --sev-low: #64748b;
+    --sev-medium: #ca8a04;
+    --sev-high: #ea580c;
+    --sev-critical: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  header.report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .title h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .title .subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; word-break: break-all; }
+
+  .synthesis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--muted);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 15.5px;
+  }
+  .synthesis p { margin: 0 0 10px; }
+  .synthesis p:last-child { margin-bottom: 0; }
+
+  .dimension-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .dim-card .dim-name { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .dim-card .dim-verdict { font-size: 14px; font-weight: 600; }
+
+  section.dimension, section.reviewer-section { margin-bottom: 14px; }
+  section.dimension details, section.reviewer-section details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  section summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  section summary::-webkit-details-marker { display: none; }
+  section summary::before {
+    content: "▸";
+    display: inline-block;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
+  section details[open] summary::before { transform: rotate(90deg); }
+  section summary h2 {
+    display: inline;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    flex: 1;
+  }
+  .verdict-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: white;
+  }
+  .verdict-strong { background: var(--verdict-strong); }
+  .verdict-adequate { background: var(--verdict-adequate); }
+  .verdict-thin { background: var(--verdict-thin); }
+  .verdict-broken { background: var(--verdict-broken); }
+
+  .dim-body { padding: 4px 20px 18px; }
+  .dim-judgment { color: var(--text); font-size: 14.5px; }
+  .dim-judgment p { margin: 0 0 10px; }
+
+  .findings-list { padding: 0 20px 4px; }
+  article.finding {
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  article.finding:first-child { border-top: none; }
+  article.finding header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .badge {
+    font-size: 10.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .badge-sev-low { background: rgba(100, 116, 139, 0.12); color: var(--sev-low); }
+  .badge-sev-medium { background: rgba(202, 138, 4, 0.14); color: var(--sev-medium); }
+  .badge-sev-high { background: rgba(234, 88, 12, 0.14); color: var(--sev-high); }
+  .badge-sev-critical { background: rgba(220, 38, 38, 0.14); color: var(--sev-critical); }
+  .finding-title { margin: 0; font-size: 15px; font-weight: 500; flex: 1; min-width: 200px; }
+  .finding-location { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--muted); }
+  .finding-note, .finding-fix { margin-top: 6px; font-size: 14px; }
+  .finding-fix strong { color: var(--muted); font-weight: 500; }
+
+  .reviewer-source {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .mechanical {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+  .mechanical h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .mechanical ul { margin: 0; padding-left: 20px; }
+  .mechanical li { margin-bottom: 4px; color: var(--text); }
+
+  footer.report-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  footer .meta { display: flex; gap: 24px; flex-wrap: wrap; word-break: break-all; }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <header class="report-header">
+      <div class="title">
+        <h1>KOMA SHOP — Rapport de validation UX</h1>
+        <div class="subtitle">C:\Users\mandu\Desktop\KOMA SHOP\_bmad-output\planning-artifacts\ux-designs\ux-KOMA SHOP-2026-10-16\DESIGN.md · EXPERIENCE.md</div>
+      </div>
+    </header>
+
+    <div class="synthesis">
+      <p>La paire est un contrat solide et exploitable pour l'architecture et les stories : les parcours du PRD (UJ-1 à UJ-6 + UJ-3b) sont repris mot pour mot avec protagoniste, étapes, moment fort et échecs ; tous les tokens couleur ont un hex et une paire sombre ; toutes les références <code>{chemin.token}</code> se résolvent ; la logique de paiement (Polar, repli, « en cours de vérification ») est fidèle aux règles 2, 10, 11 et 13. Les manques du rubric sont ciblés : une ligne de composant périmée (contour des champs), des bordures décoratives à 1,24:1 sur des contrôles interactifs, quelques composants et états absents (galerie photo, filtres, Panier vide, erreurs du code de connexion, Kit gratuit) et des références visuelles qui reposent sur <code>.working/</code>.</p>
+      <p>Les deux relecteurs supplémentaires changent le tableau : là où le rubric ne voyait « rien de critique », ils en trouvent trois. Le verre dépoli à 6 % posé sur la vidéo et les photos fait tomber le texte à 1,0–2,8:1 en thème sombre ; les vidéos de kit, produit payant principal, n'ont aucun sous-titre ; et l'admin, tel que décrit, peut passer une Commande en <code>payée</code> à la main, contre la règle 2. S'ajoutent des trous d'états de paiement (Commande <code>offerte</code>, double soumission, carte indisponible, Trop-perçu) qui laissent le développeur inventer un comportement. Verdict consolidé : prêt pour l'essentiel après corrections, <strong>non prêt pour les stories de paiement, d'accueil (héros) et de lecteur vidéo</strong> tant que les critiques et les high ne sont pas traités.</p>
+      <p>Après dédoublonnage (96 findings bruts, 8 fusionnés) : <strong>88 findings — 3 critical, 15 high, 41 medium, 29 low.</strong></p>
+    </div>
+
+    <div class="dimension-summary">
+      <div class="dim-card"><div class="dim-name">Couverture des parcours</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
+      <div class="dim-card"><div class="dim-name">Complétude des tokens</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
+      <div class="dim-card"><div class="dim-name">Couverture des composants</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
+      <div class="dim-card"><div class="dim-name">Couverture des états</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
+      <div class="dim-card"><div class="dim-name">Références visuelles</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
+      <div class="dim-card"><div class="dim-name">Surcharge &amp; surspécification</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
+      <div class="dim-card"><div class="dim-name">Discipline d'héritage</div><div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div></div>
+      <div class="dim-card"><div class="dim-name">Conformité de forme</div><div class="dim-verdict" style="color: var(--verdict-strong)">strong</div></div>
+    </div>
+
+    <!-- 1. Flow coverage -->
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>1. Couverture des parcours (Flow coverage)</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Les 7 parcours du PRD §2.3 ont chacun une Key Flow avec protagoniste nommé, étapes numérotées, <strong>Moment fort</strong> et chemin d'échec ; titres identiques au PRD. Les FR orientés client hors UJ ont été recherchés.</p>
+            <p>Le finding « FR-58 Kit gratuit sans flow, composant ni état » (medium, rubric) est fusionné dans <strong>H-1</strong> (Paiement &amp; confiance, high).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">UJ-3b n'a pas de chemin d'échec</h3>
+              <span class="finding-location">EXPERIENCE.md › Key Flows › UJ-3b</span>
+            </header>
+            <div class="finding-note">UJ-3 en a un, UJ-3b non.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> « Échec : carte refusée par K-Pay → Réessayer, sans proposer Polar ».</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Questions d'accueil après création de Compte (FR-12) sans règle</h3>
+              <span class="finding-location">EXPERIENCE.md › IA</span>
+            </header>
+            <div class="finding-note">Les 3 questions facultatives n'apparaissent que dans l'IA : rien sur passer, revenir plus tard, retour au Panier quitté.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> une ligne Component Patterns ou une phrase dans UJ-2 étape 3 : les questions ne retardent pas le retour au Panier.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- 2. Token completeness -->
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>2. Complétude des tokens (Token completeness)</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>41 tokens couleur (tous en hex, paires <code>-dark</code> complètes), 11 rôles typographiques, 6 rayons, 11 espacements, 30 composants ; ≈ 60 références distinctes, toutes résolues. Les ratios publiés sont exacts (recalculés par le rubric et par la revue accessibilité).</p>
+            <p>Le finding « Contrastes non déclarés, verre sur vidéo du héros non garanti » (medium, rubric) est fusionné dans <strong>A11Y-01</strong> (critical) : la revue accessibilité a mesuré l'échec.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Ligne « Champ de formulaire » périmée, contredit le frontmatter</h3>
+              <span class="finding-location">DESIGN.md › Components › Champ de formulaire</span>
+              <span class="reviewer-source">rubric §2 + A11Y-19</span>
+            </header>
+            <div class="finding-note">La table dit « filet <code>{colors.text-secondary}</code> [HYPOTHÈSE pour 3:1] », alors que <code>form-field.border</code> utilise <code>{colors.border-field}</code> et que D-4 est résolu. Un développeur qui lit la table implémente le mauvais token.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> remplacer par <code>{colors.border-field}</code> / <code>{colors.border-field-dark}</code>, retirer [HYPOTHÈSE].</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title"><code>{colors.border}</code> (1,24:1, décoratif) est le seul contour de contrôles interactifs</h3>
+              <span class="finding-location">DESIGN.md frontmatter components : button-secondary, segmented-choice, payment-option-card</span>
+            </header>
+            <div class="finding-note">Contradiction avec la règle « ne délimite jamais un champ » ; risque WCAG 1.4.11 / règle 7 sur « Prêt à porter / Le fabriquer moi-même » et sur le choix du moyen de paiement. Voir aussi A11Y-13 (sélection perdue en couleurs forcées).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> passer ces contours à <code>{colors.border-field}</code> (ou indicateur radio ≥ 3:1 sur la carte de paiement et fond distinct ≥ 3:1 pour le segment inactif), et l'écrire dans Do's and Don'ts.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Tokens typographiques incomplets</h3>
+              <span class="finding-location">DESIGN.md › Typography (price, display-brush, display, button)</span>
+            </header>
+            <div class="finding-note"><code>price</code> sans <code>fontSize</code>/<code>lineHeight</code> [HYPOTHÈSE], <code>display-brush</code> sans taille rendue (D-3), aucune échelle ordinateur (D-2), italique de <code>display</code> en note seulement, <code>button</code> sans <code>lineHeight</code>. Le prix est sur chaque carte et chaque fiche. Voir aussi A11Y-24 (label 14 px minimum).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> définir <code>price-card</code> (= h3) et <code>price-page</code> (= h1) ; ajouter des tokens <code>*-desktop</code> ou une règle d'échelle (×1,25 à <code>lg</code>).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Composants référencés en tokens crème seulement</h3>
+              <span class="finding-location">DESIGN.md › Components</span>
+            </header>
+            <div class="finding-note">La correspondance <code>{colors.x}</code> → <code>{colors.x-dark}</code> n'est énoncée que pour <code>form-field</code> ; l'exception <code>scan-result</code> n'est pas tranchée (voir A11Y-10).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> une phrase en tête de Components : « en thème sombre, chaque <code>{colors.x}</code> se lit <code>{colors.x-dark}</code> » ; préciser l'exception <code>scan-result</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Valeurs brutes hors tokens</h3>
+              <span class="finding-location">DESIGN.md frontmatter (glass-panel, pass-card, button-primary)</span>
+            </header>
+            <div class="finding-note">« text-primary à 14 % », <code>'#FFFFFF'</code> du QR, <code>'12px 18px'</code>, opacité de repli 92 %, ombre de survol.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> tokens nommés (<code>qr-background</code>, <code>glass-border</code>, <code>shadow-hover</code>) ou références <code>{spacing.*}</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title"><code>glass-blur</code> rangé sous <code>spacing</code></h3>
+              <span class="finding-location">DESIGN.md frontmatter</span>
+            </header>
+            <div class="finding-note">Ce n'est pas un espacement.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> groupe <code>effects</code> ou note du composant <code>glass-panel</code>.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- 3. Component coverage -->
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>3. Couverture des composants (Component coverage)</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Les 35 composants de DESIGN.md ont une ligne de comportement réelle dans EXPERIENCE.md. Les manques sont des composants utilisés sans spécification.</p>
+            <p>Fusions : « Sélection des Pass sans composant » (medium) → <strong>M-7</strong> ; « Composants cités sans spec (lien d'évitement, pause vidéo, dialogue, focus-ring) » (low) → <strong>A11Y-04, A11Y-11, A11Y-14, A11Y-15</strong>.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Galerie photo de la fiche produit : ni spec, ni alternative aux gestes</h3>
+              <span class="finding-location">EXPERIENCE.md › Interaction Primitives › Gestes ; DESIGN.md › Photographie</span>
+              <span class="reviewer-source">rubric §3 + A11Y-09</span>
+            </header>
+            <div class="finding-note">Élément principal de la Fiche Produit physique (FR-6 : face, dos, profil, détail, porté), cité seulement dans les gestes. Balayage et pincement n'ont aucune alternative (WCAG 2.5.1 A, 2.5.7 AA).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> ajouter « Galerie photo produit » dans les deux spines : ratio, <code>{rounded.lg}</code>, indicateur « Photo 2 sur 5 », ordre défini dans l'admin, alt obligatoire ; boutons précédent/suivant ≥ 44 px et vignettes au clavier ; zoom par boutons +/− ou vue agrandie en <code>dialog</code> modal (piège de focus, Échap, retour du focus) ; zoom natif jamais bloqué.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Filtres et tri des catalogues non spécifiés</h3>
+              <span class="finding-location">DESIGN.md › Shapes (« filtres » en pilule) ; FR-5</span>
+            </header>
+            <div class="finding-note">Pilules ? feuille mobile ? multi-sélection ? URL partageable ? Voir aussi A11Y-26 (annonce du nombre de résultats) et M-11 (filtre « univers » et noms de franchise).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> ajouter « Filtres de catalogue » dans les deux spines.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Emails transactionnels et commerciaux sans spec visuelle</h3>
+              <span class="finding-location">FR-44, FR-45, FR-59 ; hanko en signature [HYPOTHÈSE]</span>
+            </header>
+            <div class="finding-note">Surface de marque visible. Voir aussi M-5 (emails transactionnels sans argot ni emoji) et A11Y-23.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> ligne « Gabarit d'email » (logo, couleurs sûres en client mail, bouton, pied avec désinscription) ou déclarer le sujet hors périmètre UX.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title"><code>hero.headline</code> incohérent avec la table</h3>
+              <span class="finding-location">DESIGN.md frontmatter hero vs Components</span>
+            </header>
+            <div class="finding-note">Frontmatter <code>{typography.display}</code>, table <code>display-brush</code> ou <code>display</code>.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> <code>headline: '{typography.display-brush}'</code> + <code>headline-fallback: '{typography.display}'</code>.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- 4. State coverage -->
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>4. Couverture des états (State coverage)</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>États de paiement, stock, zone, Kit possédé, Scan et admin très complets côté rubric. Les relecteurs supplémentaires ajoutent des trous de paiement (voir H-1, H-2, H-3, H-5).</p>
+            <p>Fusion : « Kit gratuit et Pass acheté sans être connecté » (low) → <strong>H-1</strong> (Kit gratuit) et <strong>M-7</strong> (connexion requise pour un Pass).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Connexion par code à 6 chiffres : saisie et états d'erreur absents</h3>
+              <span class="finding-location">EXPERIENCE.md › Connexion / création de Compte ; State Patterns « Navigateur intégré » ; UJ-2 étape 3</span>
+              <span class="reviewer-source">rubric §4 + A11Y-06</span>
+            </header>
+            <div class="finding-note">Passage obligé de tout acheteur, seul moyen de connexion dans le navigateur intégré. Ni code faux, ni expiré, ni renvoi, ni email non reçu ; rien sur la saisie (WCAG 3.3.8).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> un seul champ <code>&lt;input inputmode="numeric" autocomplete="one-time-code" maxlength="6"&gt;</code> avec libellé visible, collage permis (pas 6 cases) ; validité annoncée ; « Renvoyer le code » avec délai réel ; erreur reliée au champ ; pas de soumission automatique non annoncée ; code en texte dans l'email ; retour au Panier conservé.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Listes vides non traitées</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns</span>
+            </header>
+            <div class="finding-note">Panier vide, Mes commandes, Ma bibliothèque, Mes Pass, Événements sans Événement à venir, Blog sans Article.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> une ligne chacune (phrase + lien vers le catalogue ou les Événements), rien d'inventé (règle 5).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Erreurs d'accès au contenu payé</h3>
+              <span class="finding-location">Ligne de fichier de kit ; Lecteur vidéo à chapitres</span>
+            </header>
+            <div class="finding-note">Lien signé expiré, échec de téléchargement, vidéo qui ne charge pas. Voir aussi A11Y-31.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> état « Le lien a expiré, réessaie » (nouveau lien demandé au serveur, règle 1) et erreur de lecture avec reprise.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Écran de Scan : refus d'accès à la caméra</h3>
+              <span class="finding-location">EXPERIENCE.md › Écran de Scan</span>
+            </header>
+            <div class="finding-note">Permission refusée non couverte alors que le Scan en dépend. A11Y-25 propose un code court saisissable à la main.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> état « Autorise la caméra » + saisie manuelle si l'architecture la prévoit (sinon question ouverte).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Envoi de photo / Réalisation : échecs de téléversement</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns (seul l'admin est couvert)</span>
+            </header>
+            <div class="finding-note">Échec, fichier trop lourd, format refusé non couverts côté client.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> progression, reprise et limite affichée, comme côté admin.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Hors ligne et erreur serveur (500) non couverts</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns</span>
+            </header>
+            <div class="finding-note">Au-delà du « réseau lent ».</div>
+            <div class="finding-fix"><strong>Correctif :</strong> une ligne chacune ; pour le paiement, renvoyer à « en cours de vérification ».</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- 5. Visual reference coverage -->
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>5. Références visuelles (Visual reference coverage)</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p><code>imports/</code> listé (planche, 3 captures 1win, 5 JPG de logo, pack SVG/PNG de 41 fichiers, police Sakura Town) ; pas de <code>mockups/</code> ni <code>wireframes/</code>. « Les spines priment » est énoncé.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Aucune maquette d'écran clé ; références composées dans <code>.working/</code></h3>
+              <span class="finding-location">DESIGN.md sources, Colors, Typography ; EXPERIENCE.md › IA</span>
+            </header>
+            <div class="finding-note"><code>.working/color-themes-1.html</code> et <code>.working/typography-1.html</code> sont dans un espace de travail susceptible d'être nettoyé.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> les copier dans <code>mockups/</code> et mettre à jour les liens ; envisager 3-4 écrans clés (accueil mobile, fiche Cosplay double option, récapitulatif + paiement, attente de paiement).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Fichiers orphelins dans <code>imports/</code></h3>
+              <span class="finding-location">imports/*.jpg ; imports/fonts/Cover.png</span>
+            </header>
+            <div class="finding-note">Les 5 JPG à la racine et <code>Cover.png</code> ne sont cités nulle part.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> une ligne dans DESIGN.md › Logo : « JPG d'origine remplacés par le pack SVG/PNG, ne pas utiliser ».</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Références peu spécifiques aux captures 1win</h3>
+              <span class="finding-location">EXPERIENCE.md (glob <code>imports/gofullpage-*.png</code>)</span>
+            </header>
+            <div class="finding-note">Ce qu'illustre chaque capture n'est pas dit.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> accueil = héros + tuiles ; bonuses = rangées de cartes à dégradés ; casino-play = accordéons FAQ / pied de page.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- 6. Bloat -->
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>6. Surcharge &amp; surspécification (Bloat &amp; overspecification)</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Peu de surcharge ; les redondances relevées sont à faible coût.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">« Paiement &amp; confiance » restate CLAUDE.md et FR-16/FR-20</h3>
+              <span class="finding-location">EXPERIENCE.md › Paiement &amp; confiance</span>
+            </header>
+            <div class="finding-note">Seules les phrases sur le repli (jamais automatique, jamais après délai) et le délai 24 h non affiché sont nouvelles.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> réduire à ces décisions + renvoi aux règles, ou accepter la redondance (section très lue).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">« Bilingue FR/EN » recoupe Foundation et IA › Navigation</h3>
+              <span class="finding-location">EXPERIENCE.md › Bilingue FR/EN</span>
+            </header>
+            <div class="finding-note">Doublon de section.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> fusionner dans Foundation.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Photographie restate le PRD §10 et le Guide</h3>
+              <span class="finding-location">DESIGN.md › Photographie</span>
+            </header>
+            <div class="finding-note">Utile au photographe, peu au dev ; acceptable en voix éditoriale.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> aucun requis.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- 7. Inheritance -->
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>7. Discipline d'héritage (Inheritance discipline)</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Sources résolues, titres d'UJ verbatim, Glossaire employé tel quel, noms de composants cohérents, références de tokens résolues.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Mises à jour du PRD nécessaires (décisions du memlog)</h3>
+              <span class="finding-location">PRD FR-1, §4.1, §4.2, FR-7, Glossaire, UJ-4, §10</span>
+            </header>
+            <div class="finding-note">(a) « Le porter » → « Prêt à porter » (le PRD est déjà incohérent en interne) ; (b) §10 sombre par défaut → crème par défaut ; (c) <strong>non listé</strong> : « un ou deux accents vifs » → un seul rouge, prix en <code>text-primary</code>.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> ajouter (c) à E-5/D-13 et passer les trois mises à jour par bmad-prd avant les epics.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Termes du Glossaire abrégés</h3>
+              <span class="finding-location">Sélecteur à deux options, UJ-1 ; IA › Préférences, Admin</span>
+            </header>
+            <div class="finding-note">« Zone » pour « Zone de remise », « Alertes » pour « Alerte événement ».</div>
+            <div class="finding-fix"><strong>Correctif :</strong> terme complet au moins à la première occurrence.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Intermédiaires <code>.working/</code> listés dans <code>sources</code></h3>
+              <span class="finding-location">frontmatter des deux spines</span>
+            </header>
+            <div class="finding-note"><code>extract-sources.md</code> et les rendus HTML ne sont pas des sources amont.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> promouvoir les rendus (voir §5) ; retirer <code>extract-sources.md</code> ou le garder en note de traçabilité.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- 8. Shape fit -->
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>8. Conformité de forme (Shape fit)</h2>
+          <span class="verdict-pill verdict-strong">strong</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Ordre canonique de DESIGN.md respecté ; les 8 défauts d'EXPERIENCE.md présents, Responsive et Inspiration présents comme requis. Sections inventées (« Paiement &amp; confiance », « Admin », « Questions ouvertes ») justifiées.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">« Motifs manga » rangé sous Shapes</h3>
+              <span class="finding-location">DESIGN.md › Shapes</span>
+            </header>
+            <div class="finding-note">Relève de Brand &amp; Style ou de Do's and Don'ts.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> déplacer, sans autre changement.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- Reviewer: Accessibilité -->
+    <section class="reviewer-section">
+      <details>
+        <summary>
+          <h2>Accessibilité (WCAG 2.2 AA)</h2>
+          <span class="reviewer-source">review-accessibility.md</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p><strong>Non conforme en l'état : à corriger avant les epics.</strong> La base est saine : contrastes de texte sur fonds unis justes, règle du rouge correcte, champs à 3:1, socle clavier, alt et aria-live posés. Mais le système <strong>verre dépoli + vidéo</strong>, choisi pour l'effet « waouh », casse le contraste dans les deux thèmes, jusqu'à 1,0:1 en sombre. Le produit payant principal (vidéos de kit) n'a <strong>aucun sous-titre</strong>. Des garde-fous que WCAG exige sont encore en [HYPOTHÈSE] : pause de la vidéo, lien d'évitement, taille des cibles.</p>
+            <p>Bruts : 2 critical, 8 high, 19 medium, 9 low. A11Y-06 (code à 6 chiffres) et A11Y-09 (gestes de la galerie) sont fusionnés dans les findings high des catégories 4 et 3. A11Y-01 absorbe le medium « contrastes non déclarés » du rubric ; A11Y-07 absorbe L-1 (Paiement).</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">critical</span>
+              <h3 class="finding-title">A11Y-01 — Verre sombre à 6 % : texte illisible sur la vidéo, les photos et le contenu qui défile (1,0 à 2,8:1)</h3>
+              <span class="finding-location">DESIGN.md surface-glass-dark ; Elevation &amp; Depth ; hero, header, mobile-menu-panel, hero-option-tile, button-secondary</span>
+              <span class="reviewer-source">A11Y-01 + rubric §2</span>
+            </header>
+            <div class="finding-note">Un voile à 6 % ne change pratiquement pas la luminance du fond, et le flou ne change pas la luminance moyenne. <code>text-primary-dark</code> tombe à 1,00–2,83:1, <code>text-secondary-dark</code> à 1,04–2,17:1 : accroche, surtitre, « Le fabriquer moi-même », menu, compteur du panier (1.4.3, 1.4.11). Le rubric notait déjà ce contraste comme « seul cas réellement non garanti ».</div>
+            <div class="finding-fix"><strong>Correctif :</strong> deux niveaux de verre. Sur fond uni : 55 % / 6 %. Sur média ou contenu défilant (héros, en-tête collant, pilules sur image) : opacité minimale <strong>0,85</strong> dans les deux thèmes (≥ 0,80 et ≥ 0,81 calculés). Panneau ☰ opaque. Tokens <code>surface-glass-strong</code>, <code>surface-glass-strong-dark</code>. Test sur blanc pur et noir pur.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">critical</span>
+              <h3 class="finding-title">A11Y-02 — Vidéos de kit (produit payant) sans sous-titres ni transcription</h3>
+              <span class="finding-location">EXPERIENCE.md › Lecteur vidéo à chapitres, UJ-2 étapes 6–7 ; DESIGN.md video-chapter-player</span>
+            </header>
+            <div class="finding-note">Échec 1.2.2 (niveau A) et 1.2.5 (AA) pour un produit vendu. Le public regarde souvent sans son, sur réseau lent : les sous-titres servent tout le monde. L'extrait de la Fiche Kit est concerné.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> WebVTT FR obligatoires, EN si /en vend le kit ; gestes montrés décrits dans la narration ou une transcription par chapitre ; l'admin refuse une vidéo sans piste (comme l'alt, FR-50) ; lecteur entièrement au clavier (slider ARIA, chapitres en <code>&lt;button&gt;</code> avec <code>aria-current</code>, bouton sous-titres).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">A11Y-03 — Accroche et textes du héros en rouge ou secondaire sur le halo et la vidéo</h3>
+              <span class="finding-location">DESIGN.md › Dégradés, hero, Règle du rouge</span>
+            </header>
+            <div class="finding-note">Rouge en grand texte : 2,46:1 sur halo crème, 2,60:1 sur halo sombre, 1,37:1 sur vidéo. <code>text-secondary</code> sur halo crème : 3,91:1 pour un surtitre de 13 px.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> interdire le rouge en couleur de texte dans le héros et sur tout dégradé ou média ; accroche et surtitre en <code>text-primary</code> ; rouge réservé au soulignement, au sceau, au bouton. Écrire « Rouge texte : uniquement sur <code>background</code>/<code>surface</code> unis ».</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">A11Y-04 — Vidéo du héros : bouton pause encore en [HYPOTHÈSE] (2.2.2, niveau A)</h3>
+              <span class="finding-location">EXPERIENCE.md › Accessibility Floor, Interaction Primitives, Héros vidéo</span>
+            </header>
+            <div class="finding-note">Une vidéo en boucle de plus de 5 s <strong>doit</strong> pouvoir être mise en pause. Ce n'est pas une option.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> bouton Pause/Lecture visible, clavier, ≥ 44 × 44 px, <code>aria-label</code> traduit, <code>aria-pressed</code>, choix mémorisé ; sous <code>prefers-reduced-motion</code>, photo de repli sans charger la vidéo ; vidéo <code>aria-hidden</code> sans audio, ≤ 3 flashs/s ; parallaxe coupée aussi.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">A11Y-05 — Le sélecteur à deux options change de page à la sélection (3.2.2, niveau A)</h3>
+              <span class="finding-location">EXPERIENCE.md › Sélecteur à deux options ; DESIGN.md segmented-choice</span>
+            </header>
+            <div class="finding-note">Un choix qui navigue dès qu'on le sélectionne fait quitter la page au clavier avec les flèches.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> « Le fabriquer moi-même » devient un <strong>lien</strong> stylé en segment, ou affiche sur place un panneau « Kit lié » avec un lien « Voir le kit ». Vrais choix (tailles, Retrait/Livraison) : <code>radiogroup</code>, aucune action à la seule sélection.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">A11Y-07 — États de paiement : annonces, focus et délais insuffisamment définis (4.1.3, 2.2.1, 3.3.4)</h3>
+              <span class="finding-location">EXPERIENCE.md › Accessibility Floor, Écran d'attente de paiement, State Patterns, E-9</span>
+              <span class="reviewer-source">A11Y-07 + L-1</span>
+            </header>
+            <div class="finding-note">Avec le sondage serveur, une région polie répète ou rate les annonces ; l'échec ne doit pas être poli. Le Délai de paiement est une limite de temps imposée. Le client revient de son app USSD sur une page qui a changé. Paiement &amp; confiance (L-1) demande de trancher E-9 : pas de compte à rebours animé.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> <code>role="status"</code> une seule fois par changement réel d'état ; <code>role="alert"</code> pour l'échec ; focus sur le titre du nouvel état ; durée affichée en texte avant le lancement (« À payer avant [heure] », lue du serveur, sans couleur d'alerte ni compte à rebours) ; relance sans ressaisie ; indicateur statique en mouvement réduit ; <code>&lt;title&gt;</code> reflète l'état.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">A11Y-08 — Tuiles de catégorie à 2 colonnes : débordement à 375 et 320 px (1.4.10, règle 7)</h3>
+              <span class="finding-location">DESIGN.md › Layout &amp; Spacing, category-tile ; EXPERIENCE.md › Responsive</span>
+            </header>
+            <div class="finding-note">≈ 133 px utiles par tuile à 375 px ; « ACCESSOIRES » en Barlow Condensed 700 30 px majuscules occupe 150–165 px : <strong>débordement ou défilement horizontal</strong>.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> titre en <code>clamp(20px, 6vw, 30px)</code>, <code>overflow-wrap: anywhere</code>, <code>hyphens: auto</code> ; 1 colonne sous 360 px ou à zoom ≥ 200 % ; tester les chaînes FR/EN les plus longues.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">A11Y-10 — Écran de Scan : couleur seule rouge/vert, texte non défini, échec en sombre</h3>
+              <span class="finding-location">DESIGN.md scan-result, D-11 ; EXPERIENCE.md › Écran de Scan, E-14</span>
+            </header>
+            <div class="finding-note">Vert et rouge confondus par environ 8 % des hommes, 1,33 de différence de luminance. Texte blanc sur <code>success-dark</code>/<code>danger-dark</code> : 2,05 / 2,77:1. Couleurs par Type de pass = information par la couleur seule.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> forcer <code>success</code>/<code>danger</code> crème avec texte blanc (5,24 / 6,97:1) quel que soit le thème ; grand mot « VALIDE » / « REFUSÉ » + icône de forme distincte ; vibration ou son (E-14) ; Type écrit en toutes lettres ; <code>role="alert"</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-11 — Anneau de focus rouge 2 px : confondu avec la sélection, invisible sur média</h3>
+              <span class="finding-location">DESIGN.md focus-ring [HYPOTHÈSE], D-5 ; active-ring, selected-ring</span>
+            </header>
+            <div class="finding-note">Sélection (rouge 1,5 px) et focus (rouge 2 px) se ressemblent ; sur vidéo ou verre le rouge tombe à 1,4–2,5:1.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> anneau double 2 px <code>text-primary</code> + halo 2 px <code>background</code>, <code>outline-offset: 2px</code>, <code>:focus-visible</code> ; rouge gardé pour la sélection, avec une coche.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-12 — Focus masqué par l'en-tête collant (2.4.11)</h3>
+              <span class="finding-location">EXPERIENCE.md › En-tête ; bandeau « Ouvrir dans Chrome »</span>
+            </header>
+            <div class="finding-note">En-tête collant [HYPOTHÈSE] + bandeau peuvent recouvrir l'élément focalisé.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> <code>scroll-padding-top</code> = en-tête + bandeau ; en-tête non collant à zoom ≥ 200 % ou sous 500 px de haut.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-13 — Couleurs forcées : sélection perdue</h3>
+              <span class="finding-location">DESIGN.md segmented-choice.active-ring, payment-option-card.selected-ring, glass-panel</span>
+            </header>
+            <div class="finding-note">Les <code>box-shadow</code> sont supprimés : segment ou carte sélectionnés identiques aux autres.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> sélection par <code>border</code>/<code>outline</code> réels + icône ; <code>@media (forced-colors: active)</code> ; SVG en <code>currentColor</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-14 — Panneau ☰ et dialogues : piège de focus insuffisamment spécifié</h3>
+              <span class="finding-location">EXPERIENCE.md › Panneau ☰, Accessibility Floor</span>
+            </header>
+            <div class="finding-note">Absorbe aussi la mention rubric « boîte de dialogue sans spec ».</div>
+            <div class="finding-fix"><strong>Correctif :</strong> <code>&lt;button aria-expanded aria-controls&gt;</code> libellé « Menu » ; focus à l'ouverture ; reste en <code>inert</code> ; Échap / ✕ / choix ferment et rendent le focus au ☰ ; <code>&lt;dialog&gt;</code> ou <code>aria-modal</code> ; idem galerie et confirmation d'annulation.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-15 — Lien d'évitement encore en [HYPOTHÈSE] (2.4.1, niveau A)</h3>
+              <span class="finding-location">EXPERIENCE.md › Accessibility Floor</span>
+              <span class="reviewer-source">A11Y-15 + rubric §3</span>
+            </header>
+            <div class="finding-note">Exigence de niveau A laissée en hypothèse.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> décision ferme : premier focalisable, visible au focus, cible <code>&lt;main id="contenu" tabindex="-1"&gt;</code> ; repères <code>header</code>, <code>nav</code>, <code>main</code>, <code>footer</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-16 — Cibles tactiles : 44 px en [HYPOTHÈSE], plusieurs petites cibles prévues</h3>
+              <span class="finding-location">Accessibility Floor ; pilules thème/langue, case 24 px, ✕, chapitres, quantités de Pass</span>
+            </header>
+            <div class="finding-note">Public sur téléphone d'entrée de gamme.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> ≥ 44 × 44 px pour toute commande isolée ; case de 24 px si tout le libellé est cliquable ; liens de consentement espacés de 24 px ; zone de touche étendue des pilules.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-17 — Reflow à 320 px non exigé, apparitions au défilement</h3>
+              <span class="finding-location">EXPERIENCE.md › Accessibility Floor, Interaction Primitives</span>
+            </header>
+            <div class="finding-note">Les apparitions qui partent d'<code>opacity: 0</code> cachent le contenu si le JS échoue (réseau lent en RDC).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> reflow à 320 px sans défilement horizontal ; contenu visible par défaut dans le rendu serveur ; aucune hauteur fixe qui couperait le texte (1.4.12).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-18 — Information portée par la couleur seule : frise, chapitres, badges</h3>
+              <span class="finding-location">DESIGN.md order-timeline, video-chapter-player ; EXPERIENCE.md › Frise des statuts</span>
+            </header>
+            <div class="finding-note">Fait (vert) et en cours (rouge) : 1,14:1, indiscernables. Le rouge d'erreur sert pour « en cours ».</div>
+            <div class="finding-fix"><strong>Correctif :</strong> icônes distinctes + libellés texte ; <code>aria-current="step"</code> ; textes jamais en rouge ; chapitre actif avec icône et <code>aria-current</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-19 — Formulaires : autocomplete, Mesures, ressaisie, résumé d'erreurs</h3>
+              <span class="finding-location">EXPERIENCE.md › Champ de formulaire, Schéma des Mesures, Étape de commande, Sélecteur pays + opérateur</span>
+            </header>
+            <div class="finding-note">Le sous-point « filet <code>text-secondary</code> périmé » est traité dans la catégorie 2 (high).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> <code>autocomplete</code> et <code>inputmode="tel"</code> ; rien n'est ressaisi après échec, « Réessayer » ou expiration (3.3.7) ; Mesures numérotées avec unité, bornes, instructions en texte ; résumé d'erreurs en tête avec focus ; validation à la perte de focus seulement si modifié ; pas de placeholder comme libellé.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-20 — Bouton principal désactivé : raison inatteignable au clavier</h3>
+              <span class="finding-location">EXPERIENCE.md › Bouton principal ; DESIGN.md « opacité réduite »</span>
+            </header>
+            <div class="finding-note"><code>disabled</code> sort de la tabulation ; rouge à 50 % avec blanc : 2,48:1.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> <code>aria-disabled</code> + <code>aria-describedby</code> ; au clic, focus sur le premier champ manquant ; fond <code>surface</code>, bordure <code>border-field</code>, texte <code>text-secondary</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-21 — Cartes entièrement cliquables : noms de lien verbeux, liens imbriqués</h3>
+              <span class="finding-location">EXPERIENCE.md › Carte produit, Tuile d'option du héros, Carte Événement</span>
+            </header>
+            <div class="finding-note">Le nom du lien lit image, prix, badge et délai, et interdit tout lien interne.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> lien sur le titre (<code>h3 &gt; a</code>) étendu par pseudo-élément ; image <code>alt=""</code> si le titre la nomme.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-22 — Langue des passages (3.1.2) et noms de langue</h3>
+              <span class="finding-location">EXPERIENCE.md › Bilingue FR/EN, Voice and Tone ; DESIGN.md katakana, hanko</span>
+            </header>
+            <div class="finding-note">Titres anglais en page /fr, mots japonais, sélecteur de langue.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> <code>lang="en"</code> sur les passages anglais ; « English » / « Français » dans leur langue avec <code>hreflang</code> ; alt du logo « KOMA SHOP » ; jamais de japonais sans <code>lang="ja"</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-23 — Emojis et glyphes lus par les lecteurs d'écran</h3>
+              <span class="finding-location">EXPERIENCE.md › Voice and Tone ; boutons ☰ et ✕</span>
+            </header>
+            <div class="finding-note">TalkBack lit « visage qui pleure de rire », « trigramme du ciel ».</div>
+            <div class="finding-fix"><strong>Correctif :</strong> jamais d'emoji dans un nom accessible ; au plus un par phrase, <code>aria-hidden</code> ; ☰ et ✕ avec <code>aria-label</code> traduit ; vérifier les objets d'email.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-24 — Lisibilité de Sakura Town et des capitales condensées</h3>
+              <span class="finding-location">DESIGN.md › Typography (display-brush, label 13 px)</span>
+            </header>
+            <div class="finding-note">Pinceau irrégulier, majuscules condensées sur plusieurs lignes, <code>label</code> 13 px, majuscules tapées épelées par les lecteurs d'écran.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> Sakura Town 1–4 mots, ≥ 40 px, jamais sur lien, bouton, prix ; texte HTML réel ; <code>font-display: swap</code> ; majuscules par <code>text-transform</code> seulement ; <code>label</code> ≥ 14 px ; ≤ 3 lignes en capitales.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-25 — Code QR des Pass : alternative et robustesse</h3>
+              <span class="finding-location">DESIGN.md pass-card ; EXPERIENCE.md › Pass, Mes Pass</span>
+            </header>
+            <div class="finding-note">Aucune alternative si le QR est illisible.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> alt descriptif ; code alphanumérique court lisible sous le QR ; zone de silence 4 modules, ≈ 200 px ; bouton « Agrandir » ; même alt et code dans l'email.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-26 — Annonces manquantes : panier, copie de lien, filtres</h3>
+              <span class="finding-location">EXPERIENCE.md › En-tête, Bouton de partage, Catalogues</span>
+            </header>
+            <div class="finding-note">Changements d'état silencieux pour les lecteurs d'écran.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> « Panier, 2 articles » ; « Ajouté au panier » et « Lien copié » en <code>role="status"</code> ; « 12 produits » après filtre ; squelettes en <code>aria-busy</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-27 — Verre crème 55 % sur média : texte secondaire et rouge en échec</h3>
+              <span class="finding-location">DESIGN.md surface-glass ; hero-option-tile, pilules sur image, tuile de galerie</span>
+            </header>
+            <div class="finding-note">Sur image sombre : <code>text-secondary</code> 2,17:1, rouge 1,37:1.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> « verre fort » de A11Y-01 dès que le verre recouvre un média ; voile de galerie <code>brand-ink</code> ≥ 60 % ou bandeau opaque.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-28 — Sélecteur pays et opérateur : listes dépendantes et logos</h3>
+              <span class="finding-location">EXPERIENCE.md › Sélecteur pays + opérateur ; DESIGN.md logos [HYPOTHÈSE]</span>
+            </header>
+            <div class="finding-note">Voir aussi H-4 (logos non autorisés).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> <code>&lt;select&gt;</code> natifs ; changement de pays annoncé (« 3 opérateurs disponibles ») ; aucune navigation au changement ; nom en texte, logo décoratif ; message « couple non couvert » relié au champ.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">A11Y-29 — Critère de validation trop faible : « Lighthouse ≥ 90 »</h3>
+              <span class="finding-location">EXPERIENCE.md › Accessibility Floor (NFR-2)</span>
+            </header>
+            <div class="finding-note">Lighthouse détecte 30–40 % des problèmes ; il ne voit ni le verre sur vidéo, ni le focus, ni les annonces.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> axe-core sans violation, clavier seul, TalkBack Android et VoiceOver (y compris navigateur Instagram), 320 px, 200 %, mouvement réduit, couleurs forcées, contraste du verre aux extrêmes.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">A11Y-30 — Bandeau « Ouvrir dans Chrome »</h3>
+              <span class="finding-location">EXPERIENCE.md › Bandeau d'information</span>
+            </header>
+            <div class="finding-note">Rôle et fermeture non définis.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> <code>role="region"</code> libellé (pas <code>alert</code>) ; « Fermer le bandeau » ≥ 44 px ; focus suivant logique ; choix mémorisé.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">A11Y-31 — Boutons « Télécharger » répétés</h3>
+              <span class="finding-location">DESIGN.md › Ligne de fichier de kit</span>
+            </header>
+            <div class="finding-note">Noms identiques.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> « Télécharger Patron A4 (PDF, 2,4 Mo) » ; taille affichée ; « préparation du lien… » annoncé.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">A11Y-32 — Bascule de thème</h3>
+              <span class="finding-location">EXPERIENCE.md › Bascule de thème</span>
+            </header>
+            <div class="finding-note">État non exposé, risque de flash.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> <code>aria-pressed</code> ou libellé d'état ; script en ligne avant rendu ; option <code>prefers-color-scheme</code> (décision produit).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">A11Y-33 — Hiérarchie des titres et H1 du héros</h3>
+              <span class="finding-location">EXPERIENCE.md › Un seul H1</span>
+            </header>
+            <div class="finding-note">Niveaux non fixés.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> accroche = H1 en texte réel ; sections H2 ; produits H3 ; FAQ en <code>&lt;button aria-expanded&gt;</code> dans des H3.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">A11Y-34 — Accordéon FAQ « une question ouverte à la fois »</h3>
+              <span class="finding-location">EXPERIENCE.md [HYPOTHÈSE]</span>
+            </header>
+            <div class="finding-note">La fermeture automatique déplace le contenu et désoriente au zoom.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> accordéons indépendants, <code>&lt;details&gt;</code>/<code>&lt;summary&gt;</code> natifs.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">A11Y-35 — Admin</h3>
+              <span class="finding-location">EXPERIENCE.md › Admin</span>
+            </header>
+            <div class="finding-note">Graphiques, cartes de tâche, téléversement.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> tableau de données équivalent ; « 3 Mesures à vérifier » ; <code>role="progressbar"</code> ; mêmes règles clavier que la vitrine.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">A11Y-36 — Mouvement résiduel</h3>
+              <span class="finding-location">EXPERIENCE.md › Interaction Primitives</span>
+            </header>
+            <div class="finding-note">Survol −4 px acceptable.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> aucune transition &gt; 5 s ni carrousel sans pause ; indicateur d'attente statique en mouvement réduit.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">A11Y-37 — Motifs manga</h3>
+              <span class="finding-location">DESIGN.md › Motifs manga, D-10</span>
+            </header>
+            <div class="finding-note">Trame derrière le texte.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> opacité ≤ 6 %, jamais derrière un petit texte ; ≥ 4,5:1 sur la zone la plus dense.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">A11Y-38 — Marge de contraste serrée</h3>
+              <span class="finding-location">DESIGN.md › Contrastes</span>
+            </header>
+            <div class="finding-note"><code>success</code> sur <code>background</code> = 4,53:1, 0,03 au-dessus du seuil ; rouge sur <code>surface-dark</code> (3,67) insuffisant pour un trait fin seul indicateur.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> jamais en petit texte sur verre, <code>hero-wash-end</code> ou avec opacité ; préférer <code>surface</code> (4,94).</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <!-- Reviewer: Paiement & confiance -->
+    <section class="reviewer-section">
+      <details>
+        <summary>
+          <h2>Paiement &amp; confiance</h2>
+          <span class="reviewer-source">review-payment-trust.md</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p><strong>NON PRÊT pour les stories de paiement, prêt pour le reste avec corrections.</strong> Les fondations sont saines : le serveur décide du Prestataire, Polar est exclu pour un Produit physique, un Panier mixte et un Pass ; la page de retour lit l'état serveur ; « en cours de vérification » ne propose ni repli ni repaiement ; USD seul ; urgence artificielle, avis et compteurs inventés interdits.</p>
+            <p>Mais une faille critique (l'admin peut, tel que décrit, passer une Commande en <code>payée</code> à la main) et plusieurs trous d'états (Commande <code>offerte</code>, double soumission / onglet fermé / retour arrière, carte indisponible, Trop-perçu) laissent au développeur la liberté d'inventer un comportement, ce qu'interdisent les règles 2, 13 et 15.</p>
+            <p>Bruts : 1 critical, 5 high, 12 medium, 7 low. L-1 (compte à rebours) est fusionné dans A11Y-07. H-1 absorbe le medium rubric FR-58 ; M-7 absorbe le medium rubric « Sélection des Pass » et la partie Pass du low rubric §4.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">critical</span>
+              <h3 class="finding-title">C-1 — L'admin peut passer une Commande en <code>payée</code> à la main : rien ne l'interdit dans l'UX</h3>
+              <span class="finding-location">EXPERIENCE.md › Admin « avancement manuel » ; UJ-6 étape 4</span>
+            </header>
+            <div class="finding-note">« Avancement manuel » sans liste des transitions conduit à un sélecteur qui propose tous les Statuts, <code>payée</code> et <code>offerte</code> compris. L'admin est un navigateur : règle 2 et NFR-5 violées, avec faux décompte de stock, fausse ouverture de Kit et fausse émission de Pass.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> table « Transitions manuelles autorisées » : <code>payée → en fabrication → expédiée → livrée</code> ; <code>en attente → annulée</code> sur demande validée ; <code>annulée → remboursée</code> seulement avec preuve saisie (FR-25, FR-38). Jamais proposés : <code>payée</code>, <code>offerte</code>, <code>échouée</code>, <code>expirée</code>. Pas de <code>en fabrication</code> sans Mesures validées (FR-23). « Transition interdite → action absente, pas désactivée ».</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H-1 — Commande <code>offerte</code> et Kit gratuit : aucun état, aucun flow, risque d'affichage « Payée »</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns, Frise des statuts, Mes commandes ; FR-58, FR-42</span>
+              <span class="reviewer-source">H-1 + rubric §1 + rubric §4</span>
+            </header>
+            <div class="finding-note">Kit gratuit (lancement + 4 semaines) et opération « 10 pass » créent des Commandes <code>offerte</code>. Sans état dédié, la frise affichera « Payée » (statut simulé, règle 13). Le flux « d'un clic, sans Panier ni Prestataire » n'est pas décrit : un développeur le fera passer par le Récapitulatif à 0 USD, voire par un Prestataire. Le rubric note aussi : non connecté, déjà obtenu, période terminée non spécifiés.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> état <strong>Offerte</strong> (« Offert », sans montant, Prestataire ni référence) dans Mes commandes, Frise, email, Mes Pass ; composant « Bouton Obtenir le Kit gratuit » (connexion requise puis retour, sans Panier ni paiement ; « déjà obtenu » → « Ouvrir dans ma bibliothèque » ; période terminée) ; alternative dans UJ-4 ; le Kit gratuit ne compte pas comme premier achat.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H-2 — Double soumission, retour arrière, onglet fermé, multi-onglets : non traités</h3>
+              <span class="finding-location">EXPERIENCE.md › Bouton principal, Écran d'attente de paiement ; State Patterns</span>
+            </header>
+            <div class="finding-note">Double toucher très probable (Instagram in-app, réseau lent). Rien sur le retour depuis la page carte, la réouverture après validation USSD, deux onglets. Risque R-6 (double débit) et tentation d'inventer (règle 15).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> <strong>Paiement lancé</strong> : bouton verrouillé au premier toucher, clé d'idempotence (à confirmer par l'architecte) ; <strong>Tentative en cours retrouvée</strong> : état serveur, aucun nouveau « Payer » ; <strong>Onglet fermé</strong> : Commande <code>en attente</code> dans Mes commandes avec « Voir l'état du paiement » ; pas de changement de moyen pendant une Tentative.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H-3 — Aucun état « carte indisponible » : risque de Polar en repli ou de bouton carte mort</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns ; UJ-3 ; PRD Q-13, §6.1, FR-16</span>
+            </header>
+            <div class="finding-note">Polar peut ne pas être activé au lancement, K-Pay carte peut être coupé. Un développeur pourrait proposer Polar quand K-Pay est coupé (violation règle 10). UJ-3 suppose Polar actif.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> état <strong>Carte indisponible pour ce panier</strong>, aucune substitution ; jamais Polar pour un Produit physique ou un Pass ; jamais MaishaPay/GeniusPay carte. Question ouverte : Panier 100 % kits + Polar inactif → K-Pay carte ? Annoter UJ-3 « suppose Polar activé (Q-13) ».</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H-4 — Logos d'opérateurs mobile money prévus en hypothèse : logos non contractualisés</h3>
+              <span class="finding-location">DESIGN.md › Sélecteur pays + opérateur ; D-9</span>
+            </header>
+            <div class="finding-note">Les contrats sont avec les Agrégateurs, pas avec M-Pesa, Airtel, Orange, Africell. Leurs logos = marques tierces non autorisées (règle 5, esprit de la règle 6). Rien n'interdit non plus Visa/Mastercard/K-Pay/Polar.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> noms en texte ; logos seulement après autorisation écrite listée dans l'admin ; ligne Do's and Don'ts ; D-9 <strong>bloquant</strong> si des logos sont envisagés.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">H-5 — Trop-perçu côté client classé non bloquant : le pire moment de confiance est laissé vide</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns « Trop-perçu » ; E-13 ; FR-19, R-6</span>
+            </header>
+            <div class="finding-note">Un client débité voit « expirée » ou « échouée ». Soit il ne voit rien, soit un développeur invente un message ou un remboursement (règles 13, 15 ; Q-4).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> E-13 bloquant pour la story Page de retour / Mes commandes. Proposition à valider : « Nous avons reçu un paiement pour cette commande alors qu'elle était [expirée / déjà payée]. Jonathan va te contacter pour le remboursement. » + WhatsApp, sans promesse de délai.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M-1 — Page de retour : la lecture serveur est affirmée mais pas cadrée</h3>
+              <span class="finding-location">EXPERIENCE.md › Component Patterns, State Patterns « Payée »</span>
+            </header>
+            <div class="finding-note">« En attente » (retour carte avant Notification) non décrit ; rien n'interdit de lire <code>?status=success</code>.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> ignorer tout paramètre de statut de l'URL ; interroger le serveur par numéro de Commande et vérifier le Compte ; retour avant Notification = « en cours de vérification », <code>warning</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M-2 — Origine de la liste des opérateurs non précisée ; épuisement des Agrégateurs non traité</h3>
+              <span class="finding-location">EXPERIENCE.md › Sélecteur pays + opérateur ; Couple non couvert, Échec confirmé</span>
+            </header>
+            <div class="finding-note">Une liste codée en dur serait une couverture supposée (règle 9).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> pays et opérateurs = union des couples de la table Couverture ; état <strong>Plus aucun service pour cet opérateur</strong> (autre opérateur ou carte + WhatsApp).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M-3 — Classification échec client / échec Agrégateur non sourcée</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns (deux lignes d'échec)</span>
+            </header>
+            <div class="finding-note">Les deux mènent à des actions différentes ; code inconnu non traité ; « annulation » ambiguë.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> classification serveur depuis une table de codes par Adaptateur ; code inconnu → « en cours de vérification », jamais repli ; question ouverte sur l'annulation par le client.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M-4 — Repli : ce que voit le client n'est pas spécifié (E-6)</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns « Échec confirmé » ; E-6</span>
+            </header>
+            <div class="finding-note">Une nouvelle demande arrive peut-être d'un autre émetteur ; le client croit à un double débit.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> E-6 bloquant ; « Une nouvelle demande de paiement va arriver sur ton téléphone. La première n'a pas été débitée. », affiché seulement après échec confirmé.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M-5 — Zone sans argot ni emoji incomplète</h3>
+              <span class="finding-location">EXPERIENCE.md › Voice and Tone ; DESIGN.md › Brand &amp; Style</span>
+            </header>
+            <div class="finding-note">Le « Moment fort » de la page payée invite au ton festif ; emails transactionnels, Frise, Mes Pass, Scan non listés.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> liste exhaustive : Panier, Étape de commande, Récapitulatif, paiement, attente, page de retour (succès compris), Mes commandes, Frise, Mes Pass, bibliothèque, annulation, réclamation, emails transactionnels, bandeau de zone, badges, Mesures, consentements, Scan, erreurs, légal, admin.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M-6 — Q-3 / E-7 peut faire entrer une devise locale à l'écran, contre CLAUDE.md</h3>
+              <span class="finding-location">EXPERIENCE.md › Paiement &amp; confiance ; E-7</span>
+            </header>
+            <div class="finding-note">« Le site n'affiche que l'USD ».</div>
+            <div class="finding-fix"><strong>Correctif :</strong> tant que Q-3 n'est pas tranchée et CLAUDE.md modifié : aucun montant hors USD, aucune conversion, aucune phrase inventée sur la devise débitée.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M-7 — Achat de Pass : sélecteur, récapitulatif, Code promo, connexion, Capacité non décrits</h3>
+              <span class="finding-location">EXPERIENCE.md › IA « Achat de Pass » ; UJ-5 ; FR-33, FR-47</span>
+              <span class="reviewer-source">M-7 + rubric §3 + rubric §4</span>
+            </header>
+            <div class="finding-note">Aucun composant pour Types, quantités, noms par personne (Pass Stand = 2 noms) ; pas de Récapitulatif USD ; pas d'état « Capacité atteinte pendant le paiement » ; connexion requise (FR-33) non traduite en état ; « jamais dans le Panier » non énoncé.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> « Sélecteur de Pass » (compteur par Type, champs de noms générés, Capacité côté serveur) ; Récapitulatif de Pass serveur ; état « Connexion requise » avec retour sur l'Événement ; état <strong>Événement complet entre-temps</strong> ; aucun bouton Panier sur un Pass ; carte = K-Pay seulement.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M-8 — Panier sans Compte : prix potentiellement servis par le navigateur ; changement de prix et fusion</h3>
+              <span class="finding-location">EXPERIENCE.md › Article devenu indisponible ; Récapitulatif</span>
+            </header>
+            <div class="finding-note">Seule l'indisponibilité est revérifiée (règle 3).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> navigateur = identifiants et quantités seulement ; prix, forfait, délais relus au serveur ; états <strong>Montant modifié</strong> (reconfirmation) et <strong>Kit déjà possédé après fusion</strong>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M-9 — Remise : lieu de retrait, délai de livraison et <code>expédiée</code> en retrait non sourcés</h3>
+              <span class="finding-location">EXPERIENCE.md › Récapitulatif, UJ-1 étape 5 ; FR-51</span>
+            </header>
+            <div class="finding-note">Délai de livraison additionné sans réglage défini (règle 15) ; lieu de retrait non affiché avant paiement.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> lieu et modalités du retrait lus du Réglage ; questions ouvertes : source du délai par Zone, libellé client de <code>expédiée</code> pour un retrait (sans nouveau statut).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M-10 — Pied de page « moyens de paiement (texte) » : risque de liste statique</h3>
+              <span class="finding-location">DESIGN.md › Components › Pied de page</span>
+            </header>
+            <div class="finding-note">Afficherait MaishaPay, GeniusPay ou Polar non branchés.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> liste lue au serveur depuis les Prestataires actifs, ou formulation générique « Mobile money, carte ».</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M-11 — Filtre « univers » et question d'accueil : noms de franchise</h3>
+              <span class="finding-location">EXPERIENCE.md › Catalogues ; E-15 ; FR-5, FR-12 vs PRD §9, règle 6</span>
+            </header>
+            <div class="finding-note">Un univers porte presque toujours le nom d'une franchise ; contradiction non signalée.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> question ouverte <strong>bloquante</strong> pour la story Catalogue, liée à Q-7 ; pas de liste d'univers par défaut.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">M-12 — Annulation d'une Commande mixte et preuve de remboursement non décrites</h3>
+              <span class="finding-location">EXPERIENCE.md › Frise des statuts, Annulation hors délai</span>
+            </header>
+            <div class="finding-note">Kit déjà ouvert non remboursable ? montant ? (règle 15).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> question ouverte à Jonathan ; <code>remboursée</code> impossible sans preuve (voir C-1).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L-2 — « Dernières places !! sans Capacité réelle » laisse entendre qu'avec Capacité ce serait permis</h3>
+              <span class="finding-location">EXPERIENCE.md › Voice and Tone, À éviter</span>
+            </header>
+            <div class="finding-note">Formulation ambiguë.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> aucun compteur de places ni de stock, même réel ; seulement « Complet » (FR-31).</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L-3 — JSON-LD Product : interdiction d'<code>aggregateRating</code> / <code>review</code> non écrite</h3>
+              <span class="finding-location">EXPERIENCE.md (SEO) ; règles 5 et 8</span>
+            </header>
+            <div class="finding-note">Rien n'empêche un faux avis structuré.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> prix USD en base, <code>availability</code> réelle, jamais <code>aggregateRating</code> ni <code>review</code>.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L-4 — UJ-1 et UJ-2 citent M-Pesa et Airtel Money comme acquis</h3>
+              <span class="finding-location">UJ-1 étape 7, UJ-2 étape 5</span>
+            </header>
+            <div class="finding-note">Couverture non vérifiée.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> annoter « exemple ; couverture réelle selon Q-1 ».</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L-5 — Référence de transaction déjà utilisée : aucun comportement client écrit</h3>
+              <span class="finding-location">EXPERIENCE.md › State Patterns</span>
+            </header>
+            <div class="finding-note">Comportement à figer.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> aucun écran client ; Commande inchangée ; aucune erreur technique affichée ; visible dans l'admin seulement.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L-6 — Numéro de suivi : forme non cadrée</h3>
+              <span class="finding-location">EXPERIENCE.md › Frise des statuts ; Q-9</span>
+            </header>
+            <div class="finding-note">Risque de lien transporteur ou de suivi calculé (règle 12).</div>
+            <div class="finding-fix"><strong>Correctif :</strong> texte libre affiché tel quel, jamais un lien de transporteur ; aucun état « en transit » calculé.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">L-7 — Écran d'attente : bascule vers « en cours de vérification » et promesses non bornées</h3>
+              <span class="finding-location">EXPERIENCE.md › Écran d'attente de paiement</span>
+            </header>
+            <div class="finding-note">Durée de bascule et promesses d'email/SMS non cadrées.</div>
+            <div class="finding-fix"><strong>Correctif :</strong> durée renvoyée à l'architecture ; interdire « Tu vas recevoir un email/SMS » tant que l'envoi n'est pas réel ; montant USD et numéro masqué lus du serveur.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <div class="mechanical">
+      <h3>Notes mécaniques</h3>
+      <ul>
+        <li>Numérotation des questions ouvertes d'EXPERIENCE.md : <strong>E-19 manque</strong> (E-18 → E-20).</li>
+        <li>Questions ouvertes bloquantes avant les stories concernées : E-1, E-2, E-6, E-7 / Q-3, E-8 / Q-1, E-10, E-22 / Q-5, D-1 / E-21 (licence Sakura Town, bloque la mise en ligne). Paiement &amp; confiance demande d'y ajouter E-13 et D-9 (si logos).</li>
+        <li>Frontmatter DESIGN.md complet ; EXPERIENCE.md sans <code>description</code> (acceptable). <code>surface-glass</code> en hex à 8 chiffres (<code>#FFFFFF8C</code>) : valide CSS, à confirmer côté outil de tokens.</li>
+        <li>Aucun diagramme Mermaid.</li>
+        <li>Nommage : <code>hero.headline</code> vs table Components ; ligne « Champ de formulaire » périmée.</li>
+        <li>Toutes les références <code>{colors.*}</code>, <code>{typography.*}</code>, <code>{rounded.*}</code>, <code>{spacing.*}</code>, <code>{components.*}</code> se résolvent.</li>
+        <li>Dédoublonnage : 96 findings bruts → 88 (8 fusions, sévérité la plus haute conservée, sources citées sur chaque finding fusionné).</li>
+      </ul>
+    </div>
+
+    <footer class="report-footer">
+      <div class="meta">
+        <span>Rubric : C:\Users\mandu\Desktop\KOMA SHOP\_bmad-output\planning-artifacts\ux-designs\ux-KOMA SHOP-2026-10-16\review-rubric.md</span>
+        <span>Relecteurs : review-accessibility.md, review-payment-trust.md</span>
+        <span>DESIGN.md : C:\Users\mandu\Desktop\KOMA SHOP\_bmad-output\planning-artifacts\ux-designs\ux-KOMA SHOP-2026-10-16\DESIGN.md</span>
+        <span>EXPERIENCE.md : C:\Users\mandu\Desktop\KOMA SHOP\_bmad-output\planning-artifacts\ux-designs\ux-KOMA SHOP-2026-10-16\EXPERIENCE.md</span>
+        <span>Généré : 2026-10-16</span>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

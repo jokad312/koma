@@ -12,7 +12,7 @@ Le site comprend aussi un blog et une section Événements, avec vente de pass n
 
 ## Stack
 Next.js (App Router, TypeScript, Server Components par défaut), Tailwind CSS, Supabase (Auth, Postgres avec RLS, Storage), hébergement Vercel, paiement : couche commune avec un adaptateur par prestataire. Mobile money via PawaPay, K-Pay, MaishaPay et GeniusPay ; carte via K-Pay pour les paniers avec produit physique, via Polar pour les paniers 100 % kits. Emails Resend.
-Référence design : [LIEN DU DÉPÔT DE RÉFÉRENCE]. Photos : [DOSSIER OU LIEN DES PHOTOS].
+Référence design : `_bmad-output/planning-artifacts/ux-designs/ux-KOMA SHOP-2026-10-16/DESIGN.md` (apparence : thème Sumi & washi, crème par défaut et sombre au choix, un seul rouge #E3261C, Sakura Town pour les grands titres en majuscules sans accents, Barlow pour le texte) et `EXPERIENCE.md` (fonctionnement, états, parcours, accessibilité), dans le même dossier. Les maquettes de `mockups/` sont une inspiration ; en cas de conflit, les deux documents priment. Photos : [DOSSIER OU LIEN DES PHOTOS].
 
 ## Langues
 Français et anglais, via /fr et /en. Aucun texte visible en dur hors des fichiers de traduction.

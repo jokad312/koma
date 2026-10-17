@@ -1,0 +1,289 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>KOMA SHOP : typographie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=DM+Sans:wght@400;500;700&family=Unbounded:wght@500;600;700&family=Manrope:wght@400;500;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600&family=Zen+Maru+Gothic:wght@500;700&family=Nunito+Sans:wght@400;600;700&family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+*{box-sizing:border-box}html{-webkit-text-size-adjust:100%}
+body{margin:0;background:#D8D2C7;color:#16130F;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
+main{max-width:1100px;margin:0 auto;padding:28px 16px 72px}
+.top h1{font-size:28px;line-height:1.2;margin:0 0 8px}.top p{max-width:780px;margin:0 0 8px;color:#3F3830}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 0;padding:0;list-style:none}.toc a{display:inline-block;padding:8px 14px;border-radius:999px;background:#F3EEE4;color:#16130F;text-decoration:none;font-size:14px;border:1px solid #CFC4B2}
+.toc a:focus-visible,.btn:focus-visible,.seg span:focus-visible{outline:3px solid #16130F;outline-offset:2px}
+.var{background:#ECE7DE;border-radius:28px;padding:22px 18px;margin:32px 0}
+.vhead{display:flex;gap:14px;align-items:flex-start}.num{margin:0;font:700 14px/1 system-ui;background:#16130F;color:#F3EEE4;border-radius:999px;padding:8px 10px}
+.vname{margin:0;font-family:var(--fh);font-size:30px;line-height:1.1;font-weight:700}.d5 .vname{text-transform:uppercase;font-size:36px}.d3 .vname{font-weight:600}
+.reg{margin:4px 0 0;color:#4A433B}
+.fonts{display:flex;flex-wrap:wrap;gap:10px 28px;margin:14px 0 6px}.fonts div{min-width:0}.fonts dt{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#5E554A}.fonts dd{margin:0;font-size:18px}
+.fonts .fh{font-family:var(--fh);font-weight:600}.fonts .fb{font-family:var(--fb);font-weight:500}.fonts small{color:#5E554A;font-size:13px}
+.why{max-width:820px;margin:6px 0 18px;font-size:14px;color:#4A433B}
+.cols{display:flex;flex-wrap:wrap;gap:24px}.col{flex:1 1 340px;max-width:400px;min-width:0}
+.ctl{margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4A433B}
+
+/* Tokens Sumi & washi (repris de color-themes-1.html, variation 1) */
+.sumi-dark{--bg:#16130F;--surface:#211C17;--glass:rgba(243,238,228,0.06);--text:#F3EEE4;--text2:#B9AE9E;--primary:#E3261C;--border:#3A322A;--blur:10px;--hero:radial-gradient(circle at 20% 25%, #E3261C66 0, transparent 45%), radial-gradient(circle at 85% 80%, #6B4A3388 0, transparent 50%), linear-gradient(160deg,#2A221B,#16130F);--orb1:#E3261C;--orb2:#8A6446;--orb3:#F3EEE4}
+.sumi-cream{--bg:#F3EEE4;--surface:#FBF8F2;--glass:rgba(255,255,255,0.55);--text:#16130F;--text2:#5E554A;--primary:#E3261C;--border:#E0D6C5;--blur:10px;--hero:radial-gradient(circle at 20% 25%, #E3261C40 0, transparent 45%), radial-gradient(circle at 85% 80%, #C9B79C99 0, transparent 50%), linear-gradient(160deg,#FBF8F2,#EADFCC);--orb1:#E3261C;--orb2:#C9B79C;--orb3:#FFFFFF}
+
+.phone{width:100%;max-width:375px;background:var(--bg);color:var(--text);border-radius:30px;padding:14px;display:flex;flex-direction:column;gap:14px;box-shadow:0 22px 50px #0003;font-family:var(--fb);overflow:hidden}
+.phone p,.phone h2,.phone h3,.phone h4{margin:0}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:2px 2px 4px}.bar svg{display:block;flex:none}.bar nav{display:flex;gap:6px;text-transform:none!important;letter-spacing:.02em!important}
+.pill{padding:7px 11px;border-radius:999px;background:var(--glass);border:1px solid var(--border);color:var(--text);backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur))}
+.hero{position:relative;background:var(--hero);border-radius:24px;padding:64px 14px 14px;border:1px solid var(--border);overflow:hidden;isolation:isolate}
+.orb{position:absolute;border-radius:50%;z-index:-1}
+.o1{width:150px;height:150px;right:-30px;top:-34px;border:22px solid var(--orb1);opacity:.55}
+.o2{width:90px;height:90px;left:-20px;bottom:40px;background:var(--orb2);opacity:.6}
+.o3{width:22px;height:22px;right:72px;top:50px;background:var(--orb3);opacity:.8}
+.glass{background:var(--glass);backdrop-filter:blur(var(--blur)) saturate(140%);-webkit-backdrop-filter:blur(var(--blur)) saturate(140%);border:1px solid color-mix(in srgb,var(--text) 14%,transparent);border-radius:20px;padding:18px 16px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.eyebrow,.muted{color:var(--text2)}
+.sub{color:var(--text2)}
+.btn{display:inline-block;background:#E3261C;color:#FFFFFF;text-decoration:none;padding:13px 20px;border-radius:999px;font-size:16px;line-height:20px;margin-top:4px;box-shadow:0 6px 18px #E3261C40}
+.sec{padding:4px 2px 0}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.ph{height:130px;border-radius:16px;margin-bottom:6px;background:radial-gradient(circle at 70% 35%, #E3261C33 0, transparent 40%),linear-gradient(135deg,color-mix(in srgb,var(--text) 12%,transparent),color-mix(in srgb,var(--text) 3%,transparent))}
+.price{font-size:28px;line-height:34px;color:#E3261C;letter-spacing:-.01em;margin-top:2px!important}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border:1px solid var(--border);border-radius:999px;padding:4px;gap:4px;text-align:center;margin-top:8px!important}
+.seg span{padding:9px 6px;border-radius:999px;color:var(--text2);cursor:pointer}.seg .on{background:var(--glass);color:var(--text);font-weight:700;box-shadow:inset 0 0 0 1.5px var(--text)}
+.blog{display:flex;flex-direction:column;gap:8px;padding:6px 4px 4px;border-top:1px solid var(--border)}
+.blog .en{margin-top:6px!important}.en-line{color:var(--text)}
+
+.scale{margin-top:22px;background:var(--bg);color:var(--text);border-radius:22px;padding:16px;border:1px solid var(--border);font-family:var(--fb)}
+.scale-h{margin:0 0 10px;font:700 12px/1.3 system-ui;letter-spacing:.1em;text-transform:uppercase;color:#4A433B}
+.scale ul{list-style:none;margin:0;padding:0}
+.scale li{display:grid;grid-template-columns:72px minmax(0,1fr);gap:2px 12px;padding:10px 0;border-top:1px solid var(--border);align-items:baseline}
+.scale li:first-child{border-top:0}
+.role{font:700 12px/1.4 system-ui;text-transform:uppercase;letter-spacing:.08em;color:#5E554A}
+.spec{font:12px/1.4 ui-monospace,Consolas,monospace;color:#5E554A}
+.smp{grid-column:1/-1;overflow-wrap:anywhere}
+.note{background:#FFF;border-left:6px solid #E3261C;padding:12px 16px;border-radius:12px;margin:16px 0 0;font-size:14px;max-width:820px}
+@media (max-width:420px){.var{padding:18px 12px}.phone{padding:12px}.vname{font-size:26px}.d5 .vname{font-size:32px}}
+
+.d1{--fh:"Outfit",system-ui,sans-serif;--fb:"DM Sans",system-ui,sans-serif}
+.d1 .t-display{font-family:var(--fh);font-size:40px;line-height:44px;font-weight:700;letter-spacing:-.02em}
+.d1 .t-h1{font-family:var(--fh);font-size:30px;line-height:36px;font-weight:600;letter-spacing:-.015em}
+.d1 .t-h2{font-family:var(--fh);font-size:24px;line-height:30px;font-weight:600;letter-spacing:-.01em}
+.d1 .t-h3{font-family:var(--fh);font-size:18px;line-height:24px;font-weight:600;}
+.d1 .t-body{font-family:var(--fb);font-size:16px;line-height:26px;font-weight:400;}
+.d1 .t-small{font-family:var(--fb);font-size:14px;line-height:20px;font-weight:400;}
+.d1 .t-label{font-family:var(--fb);font-size:12px;line-height:16px;font-weight:500;text-transform:uppercase;letter-spacing:.1em}
+.d1 .btn{font-weight:500;}
+.d1 .price{font-family:var(--fh);font-weight:600}
+.d1 .t-display em{font-style:italic;font-weight:400}
+.d2{--fh:"Unbounded",system-ui,sans-serif;--fb:"Manrope",system-ui,sans-serif}
+.d2 .t-display{font-family:var(--fh);font-size:32px;line-height:38px;font-weight:700;letter-spacing:-.025em}
+.d2 .t-h1{font-family:var(--fh);font-size:25px;line-height:32px;font-weight:600;letter-spacing:-.02em}
+.d2 .t-h2{font-family:var(--fh);font-size:20px;line-height:26px;font-weight:600;letter-spacing:-.01em}
+.d2 .t-h3{font-family:var(--fh);font-size:16px;line-height:22px;font-weight:500;}
+.d2 .t-body{font-family:var(--fb);font-size:16px;line-height:26px;font-weight:400;}
+.d2 .t-small{font-family:var(--fb);font-size:14px;line-height:20px;font-weight:500;}
+.d2 .t-label{font-family:var(--fb);font-size:12px;line-height:16px;font-weight:700;text-transform:uppercase;letter-spacing:.12em}
+.d2 .btn{font-weight:700;}
+.d2 .price{font-family:var(--fh);font-weight:700}
+.d2 .t-display em{font-style:italic;font-weight:400}
+.d3{--fh:"Fraunces",system-ui,sans-serif;--fb:"Plus Jakarta Sans",system-ui,sans-serif}
+.d3 .t-display{font-family:var(--fh);font-size:42px;line-height:46px;font-weight:600;letter-spacing:-.02em}
+.d3 .t-h1{font-family:var(--fh);font-size:32px;line-height:38px;font-weight:600;letter-spacing:-.015em}
+.d3 .t-h2{font-family:var(--fh);font-size:26px;line-height:32px;font-weight:600;letter-spacing:-.01em}
+.d3 .t-h3{font-family:var(--fb);font-size:18px;line-height:25px;font-weight:600;}
+.d3 .t-body{font-family:var(--fb);font-size:16px;line-height:26px;font-weight:400;}
+.d3 .t-small{font-family:var(--fb);font-size:14px;line-height:21px;font-weight:400;}
+.d3 .t-label{font-family:var(--fb);font-size:12px;line-height:16px;font-weight:600;text-transform:uppercase;letter-spacing:.12em}
+.d3 .btn{font-weight:600;}
+.d3 .price{font-family:var(--fh);font-weight:600}
+.d3 .t-display em{font-style:italic;font-weight:400}
+.d4{--fh:"Zen Maru Gothic",system-ui,sans-serif;--fb:"Nunito Sans",system-ui,sans-serif}
+.d4 .t-display{font-family:var(--fh);font-size:36px;line-height:44px;font-weight:700;letter-spacing:-.01em}
+.d4 .t-h1{font-family:var(--fh);font-size:28px;line-height:36px;font-weight:700;}
+.d4 .t-h2{font-family:var(--fh);font-size:22px;line-height:30px;font-weight:700;}
+.d4 .t-h3{font-family:var(--fh);font-size:18px;line-height:26px;font-weight:500;}
+.d4 .t-body{font-family:var(--fb);font-size:16px;line-height:26px;font-weight:400;}
+.d4 .t-small{font-family:var(--fb);font-size:14px;line-height:21px;font-weight:400;}
+.d4 .t-label{font-family:var(--fb);font-size:12px;line-height:16px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.d4 .btn{font-weight:700;}
+.d4 .price{font-family:var(--fh);font-weight:700}
+.d4 .t-display em{font-style:italic;font-weight:400}
+.d5{--fh:"Barlow Condensed",system-ui,sans-serif;--fb:"Barlow",system-ui,sans-serif}
+.d5 .t-display{font-family:var(--fh);font-size:52px;line-height:50px;font-weight:800;text-transform:uppercase;font-style:italic;letter-spacing:-.005em}
+.d5 .t-h1{font-family:var(--fh);font-size:38px;line-height:40px;font-weight:700;text-transform:uppercase}
+.d5 .t-h2{font-family:var(--fh);font-size:30px;line-height:34px;font-weight:700;text-transform:uppercase;letter-spacing:.01em}
+.d5 .t-h3{font-family:var(--fh);font-size:20px;line-height:24px;font-weight:600;}
+.d5 .t-body{font-family:var(--fb);font-size:16px;line-height:26px;font-weight:400;}
+.d5 .t-small{font-family:var(--fb);font-size:14px;line-height:20px;font-weight:400;}
+.d5 .t-label{font-family:var(--fh);font-size:13px;line-height:16px;font-weight:600;text-transform:uppercase;letter-spacing:.14em}
+.d5 .btn{font-weight:600;text-transform:uppercase;letter-spacing:.06em;font-family:var(--fh);font-size:18px}
+.d5 .price{font-family:var(--fh);font-weight:700}
+.d5 .t-display em{font-style:italic;font-weight:400}
+</style></head><body><main>
+<header class="top"><h1>KOMA SHOP : 5 duos typographiques</h1>
+<p>Palette retenue : <b>Sumi &amp; washi</b>, crème par défaut et sombre en bascule ; verre dépoli discret (flou 10 px). Chaque duo associe une police de titres et une police de texte, toutes sur Google Fonts, avec accents français et poids variés. Les aperçus sont à 375 px de large. Fonds en dégradés abstraits, aucune image de franchise.</p>
+<p>Règle couleur appliquée : bouton rouge <code>#E3261C</code> avec texte <code>#FFFFFF</code> ; le rouge en couleur de texte n’apparaît que sur les grands textes (prix en 28 px).</p>
+<ul class="toc"><li><a href="#d1">1. Atelier géométrique</a></li><li><a href="#d2">2. Manga large</a></li><li><a href="#d3">3. Washi éditorial</a></li><li><a href="#d4">4. Maru doux</a></li><li><a href="#d5">5. Affiche shōnen</a></li></ul>
+<p class="note">Choix à faire : un duo. Les tailles de l’échelle pourront ensuite être ajustées pour l’ordinateur (les grands titres grandissent, le texte courant reste à 16 px).</p></header>
+<section class="var d1" id="d1"><div class="vhead"><p class="num">01</p><div><h2 class="vname">Atelier géométrique</h2><p class="reg">Géométrique premium : net, lumineux, moderne ; le cousin le plus direct du logo.</p></div></div>
+<dl class="fonts"><div><dt>Titres</dt><dd><span class="fh">Outfit</span> <small>500 · 600 · 700</small></dd></div><div><dt>Texte</dt><dd><span class="fb">DM Sans</span> <small>400 · 500 · 700</small></dd></div></dl>
+<p class="why">Outfit a des formes construites au compas et à la règle, comme le K et le M du logo ; DM Sans, très lisible en petit, garde des proportions géométriques sans fatiguer l’œil.</p>
+<div class="cols"><div class="col"><p class="ctl">Crème (défaut)</p><div class="phone sumi-cream" aria-label="Aperçu mobile, thème crème">
+ <header class="bar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 513 180" width="108" height="38" role="img" aria-label="KOMA SHOP"><g transform="translate(40,40) scale(1.0)"><defs><clipPath id="capw1"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#capw1)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="awo1"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bwo1"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#awo1)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bwo1)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g></svg><nav class="t-label"><span class="pill">FR</span><span class="pill">Panier · 0</span></nav></header>
+ <section class="hero"><span class="orb o1" aria-hidden="true"></span><span class="orb o2" aria-hidden="true"></span><span class="orb o3" aria-hidden="true"></span>
+  <div class="glass"><p class="t-label eyebrow">Fait main à Goma</p><h2 class="t-display">Deviens ton personnage.</h2>
+  <p class="t-body sub">Cosplays faits main à Goma, kits pour les fabriquer toi-même, partout dans le monde.</p>
+  <a class="btn t-body" href="#" onclick="return false">Découvrir les cosplays</a></div></section>
+ <h3 class="t-h2 sec">Nouveautés</h3>
+ <article class="card"><div class="ph" aria-hidden="true"></div><p class="t-label muted">Cosplay · Sur mesure</p>
+  <h4 class="t-h3">Cosplay sur mesure — Guerrière du désert</h4>
+  <p class="price">120 USD</p><p class="t-small muted">Fabrication : 10 jours</p>
+  <div class="seg t-small" role="radiogroup" aria-label="Option d’achat"><span class="on" role="radio" aria-checked="true" tabindex="0">Prêt à porter</span><span role="radio" aria-checked="false" tabindex="-1">Le fabriquer moi-même</span></div></article>
+ <article class="blog"><p class="t-label muted">Blog · Tutoriel</p><h4 class="t-h3">Bien démarrer son premier patron</h4>
+  <p class="t-body">Tout commence par le patron : imprime-le en A4 ou en US Letter, assemble les feuilles, puis reporte chaque pièce sur ta mousse avant de découper. Prends ton temps, mesure deux fois.</p>
+  <p class="t-small muted en"><span class="t-label">EN</span></p><p class="t-h1 en-line" lang="en">Become your character.</p></article>
+</div></div><div class="col"><p class="ctl">Sombre</p><div class="phone sumi-dark" aria-label="Aperçu mobile, thème sombre">
+ <header class="bar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 513 180" width="108" height="38" role="img" aria-label="KOMA SHOP"><g transform="translate(40,40) scale(1.0)"><defs><clipPath id="capw2"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#capw2)" fill="none" stroke="#F3EEE4" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#F3EEE4"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="awo2"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bwo2"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#awo2)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bwo2)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#16130F"/></g></g></svg><nav class="t-label"><span class="pill">FR</span><span class="pill">Panier · 0</span></nav></header>
+ <section class="hero"><span class="orb o1" aria-hidden="true"></span><span class="orb o2" aria-hidden="true"></span><span class="orb o3" aria-hidden="true"></span>
+  <div class="glass"><p class="t-label eyebrow">Fait main à Goma</p><h2 class="t-display">Deviens ton personnage.</h2>
+  <p class="t-body sub">Cosplays faits main à Goma, kits pour les fabriquer toi-même, partout dans le monde.</p>
+  <a class="btn t-body" href="#" onclick="return false">Découvrir les cosplays</a></div></section>
+ <h3 class="t-h2 sec">Nouveautés</h3>
+ <article class="card"><div class="ph" aria-hidden="true"></div><p class="t-label muted">Cosplay · Sur mesure</p>
+  <h4 class="t-h3">Cosplay sur mesure — Guerrière du désert</h4>
+  <p class="price">120 USD</p><p class="t-small muted">Fabrication : 10 jours</p>
+  <div class="seg t-small" role="radiogroup" aria-label="Option d’achat"><span class="on" role="radio" aria-checked="true" tabindex="0">Prêt à porter</span><span role="radio" aria-checked="false" tabindex="-1">Le fabriquer moi-même</span></div></article>
+ <article class="blog"><p class="t-label muted">Blog · Tutoriel</p><h4 class="t-h3">Bien démarrer son premier patron</h4>
+  <p class="t-body">Tout commence par le patron : imprime-le en A4 ou en US Letter, assemble les feuilles, puis reporte chaque pièce sur ta mousse avant de découper. Prends ton temps, mesure deux fois.</p>
+  <p class="t-small muted en"><span class="t-label">EN</span></p><p class="t-h1 en-line" lang="en">Become your character.</p></article>
+</div></div></div>
+<div class="scale sumi-cream"><p class="scale-h">Échelle typographique (mobile 375 px)</p><ul><li><span class="role">display</span><span class="spec">40px / 44px · Outfit 700 · interlettrage -.02em</span><span class="t-display smp">Deviens ton personnage.</span></li><li><span class="role">h1</span><span class="spec">30px / 36px · Outfit 600 · interlettrage -.015em</span><span class="t-h1 smp">Cosplays faits main</span></li><li><span class="role">h2</span><span class="spec">24px / 30px · Outfit 600 · interlettrage -.01em</span><span class="t-h2 smp">Nouveautés</span></li><li><span class="role">h3</span><span class="spec">18px / 24px · Outfit 600</span><span class="t-h3 smp">Guerrière du désert</span></li><li><span class="role">body</span><span class="spec">16px / 26px · DM Sans 400</span><span class="t-body smp">Kits pour les fabriquer toi-même, partout dans le monde.</span></li><li><span class="role">small</span><span class="spec">14px / 20px · DM Sans 400</span><span class="t-small smp">Fabrication : 10 jours · Livraison Goma et Bukavu</span></li><li><span class="role">label</span><span class="spec">12px / 16px · DM Sans 500 · majuscules, interlettrage .1em</span><span class="t-label smp">Prêt à porter</span></li></ul></div></section>
+<section class="var d2" id="d2"><div class="vhead"><p class="num">02</p><div><h2 class="vname">Manga large</h2><p class="reg">Grotesque large et affirmé : énergie street, présence forte, titres qui claquent.</p></div></div>
+<dl class="fonts"><div><dt>Titres</dt><dd><span class="fh">Unbounded</span> <small>500 · 600 · 700</small></dd></div><div><dt>Texte</dt><dd><span class="fb">Manrope</span> <small>400 · 500 · 700</small></dd></div></dl>
+<p class="why">Unbounded, très large et anguleux, prolonge la largeur du wordmark ; Manrope, semi-condensé et ouvert, équilibre la masse des titres et reste net sur petit écran.</p>
+<div class="cols"><div class="col"><p class="ctl">Crème (défaut)</p><div class="phone sumi-cream" aria-label="Aperçu mobile, thème crème">
+ <header class="bar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 513 180" width="108" height="38" role="img" aria-label="KOMA SHOP"><g transform="translate(40,40) scale(1.0)"><defs><clipPath id="capw3"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#capw3)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="awo3"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bwo3"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#awo3)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bwo3)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g></svg><nav class="t-label"><span class="pill">FR</span><span class="pill">Panier · 0</span></nav></header>
+ <section class="hero"><span class="orb o1" aria-hidden="true"></span><span class="orb o2" aria-hidden="true"></span><span class="orb o3" aria-hidden="true"></span>
+  <div class="glass"><p class="t-label eyebrow">Fait main à Goma</p><h2 class="t-display">Deviens ton personnage.</h2>
+  <p class="t-body sub">Cosplays faits main à Goma, kits pour les fabriquer toi-même, partout dans le monde.</p>
+  <a class="btn t-body" href="#" onclick="return false">Découvrir les cosplays</a></div></section>
+ <h3 class="t-h2 sec">Nouveautés</h3>
+ <article class="card"><div class="ph" aria-hidden="true"></div><p class="t-label muted">Cosplay · Sur mesure</p>
+  <h4 class="t-h3">Cosplay sur mesure — Guerrière du désert</h4>
+  <p class="price">120 USD</p><p class="t-small muted">Fabrication : 10 jours</p>
+  <div class="seg t-small" role="radiogroup" aria-label="Option d’achat"><span class="on" role="radio" aria-checked="true" tabindex="0">Prêt à porter</span><span role="radio" aria-checked="false" tabindex="-1">Le fabriquer moi-même</span></div></article>
+ <article class="blog"><p class="t-label muted">Blog · Tutoriel</p><h4 class="t-h3">Bien démarrer son premier patron</h4>
+  <p class="t-body">Tout commence par le patron : imprime-le en A4 ou en US Letter, assemble les feuilles, puis reporte chaque pièce sur ta mousse avant de découper. Prends ton temps, mesure deux fois.</p>
+  <p class="t-small muted en"><span class="t-label">EN</span></p><p class="t-h1 en-line" lang="en">Become your character.</p></article>
+</div></div><div class="col"><p class="ctl">Sombre</p><div class="phone sumi-dark" aria-label="Aperçu mobile, thème sombre">
+ <header class="bar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 513 180" width="108" height="38" role="img" aria-label="KOMA SHOP"><g transform="translate(40,40) scale(1.0)"><defs><clipPath id="capw4"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#capw4)" fill="none" stroke="#F3EEE4" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#F3EEE4"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="awo4"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bwo4"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#awo4)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bwo4)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#16130F"/></g></g></svg><nav class="t-label"><span class="pill">FR</span><span class="pill">Panier · 0</span></nav></header>
+ <section class="hero"><span class="orb o1" aria-hidden="true"></span><span class="orb o2" aria-hidden="true"></span><span class="orb o3" aria-hidden="true"></span>
+  <div class="glass"><p class="t-label eyebrow">Fait main à Goma</p><h2 class="t-display">Deviens ton personnage.</h2>
+  <p class="t-body sub">Cosplays faits main à Goma, kits pour les fabriquer toi-même, partout dans le monde.</p>
+  <a class="btn t-body" href="#" onclick="return false">Découvrir les cosplays</a></div></section>
+ <h3 class="t-h2 sec">Nouveautés</h3>
+ <article class="card"><div class="ph" aria-hidden="true"></div><p class="t-label muted">Cosplay · Sur mesure</p>
+  <h4 class="t-h3">Cosplay sur mesure — Guerrière du désert</h4>
+  <p class="price">120 USD</p><p class="t-small muted">Fabrication : 10 jours</p>
+  <div class="seg t-small" role="radiogroup" aria-label="Option d’achat"><span class="on" role="radio" aria-checked="true" tabindex="0">Prêt à porter</span><span role="radio" aria-checked="false" tabindex="-1">Le fabriquer moi-même</span></div></article>
+ <article class="blog"><p class="t-label muted">Blog · Tutoriel</p><h4 class="t-h3">Bien démarrer son premier patron</h4>
+  <p class="t-body">Tout commence par le patron : imprime-le en A4 ou en US Letter, assemble les feuilles, puis reporte chaque pièce sur ta mousse avant de découper. Prends ton temps, mesure deux fois.</p>
+  <p class="t-small muted en"><span class="t-label">EN</span></p><p class="t-h1 en-line" lang="en">Become your character.</p></article>
+</div></div></div>
+<div class="scale sumi-cream"><p class="scale-h">Échelle typographique (mobile 375 px)</p><ul><li><span class="role">display</span><span class="spec">32px / 38px · Unbounded 700 · interlettrage -.025em</span><span class="t-display smp">Deviens ton personnage.</span></li><li><span class="role">h1</span><span class="spec">25px / 32px · Unbounded 600 · interlettrage -.02em</span><span class="t-h1 smp">Cosplays faits main</span></li><li><span class="role">h2</span><span class="spec">20px / 26px · Unbounded 600 · interlettrage -.01em</span><span class="t-h2 smp">Nouveautés</span></li><li><span class="role">h3</span><span class="spec">16px / 22px · Unbounded 500</span><span class="t-h3 smp">Guerrière du désert</span></li><li><span class="role">body</span><span class="spec">16px / 26px · Manrope 400</span><span class="t-body smp">Kits pour les fabriquer toi-même, partout dans le monde.</span></li><li><span class="role">small</span><span class="spec">14px / 20px · Manrope 500</span><span class="t-small smp">Fabrication : 10 jours · Livraison Goma et Bukavu</span></li><li><span class="role">label</span><span class="spec">12px / 16px · Manrope 700 · majuscules, interlettrage .12em</span><span class="t-label smp">Prêt à porter</span></li></ul></div></section>
+<section class="var d3" id="d3"><div class="vhead"><p class="num">03</p><div><h2 class="vname">Washi éditorial</h2><p class="reg">Serif d’affichage élégant + sans : classe, chaleureux, esprit magazine de mode.</p></div></div>
+<dl class="fonts"><div><dt>Titres</dt><dd><span class="fh">Fraunces</span> <small>400 italique · 600 (axe optique)</small></dd></div><div><dt>Texte</dt><dd><span class="fb">Plus Jakarta Sans</span> <small>400 · 500 · 600</small></dd></div></dl>
+<p class="why">Le contraste entre un serif doux à grand œil et un sans géométrique crée le côté « classe » ; le logo reste le seul élément strictement angulaire, ce qui le met en valeur. Le serif est réservé aux grands titres, jamais au texte courant.</p>
+<div class="cols"><div class="col"><p class="ctl">Crème (défaut)</p><div class="phone sumi-cream" aria-label="Aperçu mobile, thème crème">
+ <header class="bar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 513 180" width="108" height="38" role="img" aria-label="KOMA SHOP"><g transform="translate(40,40) scale(1.0)"><defs><clipPath id="capw5"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#capw5)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="awo5"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bwo5"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#awo5)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bwo5)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g></svg><nav class="t-label"><span class="pill">FR</span><span class="pill">Panier · 0</span></nav></header>
+ <section class="hero"><span class="orb o1" aria-hidden="true"></span><span class="orb o2" aria-hidden="true"></span><span class="orb o3" aria-hidden="true"></span>
+  <div class="glass"><p class="t-label eyebrow">Fait main à Goma</p><h2 class="t-display">Deviens ton <em>personnage.</em></h2>
+  <p class="t-body sub">Cosplays faits main à Goma, kits pour les fabriquer toi-même, partout dans le monde.</p>
+  <a class="btn t-body" href="#" onclick="return false">Découvrir les cosplays</a></div></section>
+ <h3 class="t-h2 sec">Nouveautés</h3>
+ <article class="card"><div class="ph" aria-hidden="true"></div><p class="t-label muted">Cosplay · Sur mesure</p>
+  <h4 class="t-h3">Cosplay sur mesure — Guerrière du désert</h4>
+  <p class="price">120 USD</p><p class="t-small muted">Fabrication : 10 jours</p>
+  <div class="seg t-small" role="radiogroup" aria-label="Option d’achat"><span class="on" role="radio" aria-checked="true" tabindex="0">Prêt à porter</span><span role="radio" aria-checked="false" tabindex="-1">Le fabriquer moi-même</span></div></article>
+ <article class="blog"><p class="t-label muted">Blog · Tutoriel</p><h4 class="t-h3">Bien démarrer son premier patron</h4>
+  <p class="t-body">Tout commence par le patron : imprime-le en A4 ou en US Letter, assemble les feuilles, puis reporte chaque pièce sur ta mousse avant de découper. Prends ton temps, mesure deux fois.</p>
+  <p class="t-small muted en"><span class="t-label">EN</span></p><p class="t-h1 en-line" lang="en">Become your character.</p></article>
+</div></div><div class="col"><p class="ctl">Sombre</p><div class="phone sumi-dark" aria-label="Aperçu mobile, thème sombre">
+ <header class="bar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 513 180" width="108" height="38" role="img" aria-label="KOMA SHOP"><g transform="translate(40,40) scale(1.0)"><defs><clipPath id="capw6"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#capw6)" fill="none" stroke="#F3EEE4" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#F3EEE4"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="awo6"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bwo6"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#awo6)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bwo6)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#16130F"/></g></g></svg><nav class="t-label"><span class="pill">FR</span><span class="pill">Panier · 0</span></nav></header>
+ <section class="hero"><span class="orb o1" aria-hidden="true"></span><span class="orb o2" aria-hidden="true"></span><span class="orb o3" aria-hidden="true"></span>
+  <div class="glass"><p class="t-label eyebrow">Fait main à Goma</p><h2 class="t-display">Deviens ton <em>personnage.</em></h2>
+  <p class="t-body sub">Cosplays faits main à Goma, kits pour les fabriquer toi-même, partout dans le monde.</p>
+  <a class="btn t-body" href="#" onclick="return false">Découvrir les cosplays</a></div></section>
+ <h3 class="t-h2 sec">Nouveautés</h3>
+ <article class="card"><div class="ph" aria-hidden="true"></div><p class="t-label muted">Cosplay · Sur mesure</p>
+  <h4 class="t-h3">Cosplay sur mesure — Guerrière du désert</h4>
+  <p class="price">120 USD</p><p class="t-small muted">Fabrication : 10 jours</p>
+  <div class="seg t-small" role="radiogroup" aria-label="Option d’achat"><span class="on" role="radio" aria-checked="true" tabindex="0">Prêt à porter</span><span role="radio" aria-checked="false" tabindex="-1">Le fabriquer moi-même</span></div></article>
+ <article class="blog"><p class="t-label muted">Blog · Tutoriel</p><h4 class="t-h3">Bien démarrer son premier patron</h4>
+  <p class="t-body">Tout commence par le patron : imprime-le en A4 ou en US Letter, assemble les feuilles, puis reporte chaque pièce sur ta mousse avant de découper. Prends ton temps, mesure deux fois.</p>
+  <p class="t-small muted en"><span class="t-label">EN</span></p><p class="t-h1 en-line" lang="en">Become your character.</p></article>
+</div></div></div>
+<div class="scale sumi-cream"><p class="scale-h">Échelle typographique (mobile 375 px)</p><ul><li><span class="role">display</span><span class="spec">42px / 46px · Fraunces 600 · interlettrage -.02em</span><span class="t-display smp">Deviens ton personnage.</span></li><li><span class="role">h1</span><span class="spec">32px / 38px · Fraunces 600 · interlettrage -.015em</span><span class="t-h1 smp">Cosplays faits main</span></li><li><span class="role">h2</span><span class="spec">26px / 32px · Fraunces 600 · interlettrage -.01em</span><span class="t-h2 smp">Nouveautés</span></li><li><span class="role">h3</span><span class="spec">18px / 25px · Plus Jakarta Sans 600</span><span class="t-h3 smp">Guerrière du désert</span></li><li><span class="role">body</span><span class="spec">16px / 26px · Plus Jakarta Sans 400</span><span class="t-body smp">Kits pour les fabriquer toi-même, partout dans le monde.</span></li><li><span class="role">small</span><span class="spec">14px / 21px · Plus Jakarta Sans 400</span><span class="t-small smp">Fabrication : 10 jours · Livraison Goma et Bukavu</span></li><li><span class="role">label</span><span class="spec">12px / 16px · Plus Jakarta Sans 600 · majuscules, interlettrage .12em</span><span class="t-label smp">Prêt à porter</span></li></ul></div></section>
+<section class="var d4" id="d4"><div class="vhead"><p class="num">04</p><div><h2 class="vname">Maru doux</h2><p class="reg">Arrondi japonisant : doux, chaleureux, kawaii sans être enfantin.</p></div></div>
+<dl class="fonts"><div><dt>Titres</dt><dd><span class="fh">Zen Maru Gothic</span> <small>500 · 700</small></dd></div><div><dt>Texte</dt><dd><span class="fb">Nunito Sans</span> <small>400 · 600 · 700</small></dd></div></dl>
+<p class="why">Zen Maru Gothic est un gothique arrondi japonais : il dessine aussi les kana (コマ) avec la même voix que le latin. Nunito Sans prolonge la douceur en texte courant, avec une très bonne lisibilité mobile. Le contraste avec le logo anguleux est assumé : la marque tranche, l’interface caresse.</p>
+<div class="cols"><div class="col"><p class="ctl">Crème (défaut)</p><div class="phone sumi-cream" aria-label="Aperçu mobile, thème crème">
+ <header class="bar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 513 180" width="108" height="38" role="img" aria-label="KOMA SHOP"><g transform="translate(40,40) scale(1.0)"><defs><clipPath id="capw7"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#capw7)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="awo7"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bwo7"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#awo7)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bwo7)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g></svg><nav class="t-label"><span class="pill">FR</span><span class="pill">Panier · 0</span></nav></header>
+ <section class="hero"><span class="orb o1" aria-hidden="true"></span><span class="orb o2" aria-hidden="true"></span><span class="orb o3" aria-hidden="true"></span>
+  <div class="glass"><p class="t-label eyebrow">コマ · Fait main à Goma</p><h2 class="t-display">Deviens ton personnage.</h2>
+  <p class="t-body sub">Cosplays faits main à Goma, kits pour les fabriquer toi-même, partout dans le monde.</p>
+  <a class="btn t-body" href="#" onclick="return false">Découvrir les cosplays</a></div></section>
+ <h3 class="t-h2 sec">Nouveautés</h3>
+ <article class="card"><div class="ph" aria-hidden="true"></div><p class="t-label muted">Cosplay · Sur mesure</p>
+  <h4 class="t-h3">Cosplay sur mesure — Guerrière du désert</h4>
+  <p class="price">120 USD</p><p class="t-small muted">Fabrication : 10 jours</p>
+  <div class="seg t-small" role="radiogroup" aria-label="Option d’achat"><span class="on" role="radio" aria-checked="true" tabindex="0">Prêt à porter</span><span role="radio" aria-checked="false" tabindex="-1">Le fabriquer moi-même</span></div></article>
+ <article class="blog"><p class="t-label muted">Blog · Tutoriel</p><h4 class="t-h3">Bien démarrer son premier patron</h4>
+  <p class="t-body">Tout commence par le patron : imprime-le en A4 ou en US Letter, assemble les feuilles, puis reporte chaque pièce sur ta mousse avant de découper. Prends ton temps, mesure deux fois.</p>
+  <p class="t-small muted en"><span class="t-label">EN</span></p><p class="t-h1 en-line" lang="en">Become your character.</p></article>
+</div></div><div class="col"><p class="ctl">Sombre</p><div class="phone sumi-dark" aria-label="Aperçu mobile, thème sombre">
+ <header class="bar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 513 180" width="108" height="38" role="img" aria-label="KOMA SHOP"><g transform="translate(40,40) scale(1.0)"><defs><clipPath id="capw8"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#capw8)" fill="none" stroke="#F3EEE4" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#F3EEE4"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="awo8"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bwo8"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#awo8)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bwo8)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#16130F"/></g></g></svg><nav class="t-label"><span class="pill">FR</span><span class="pill">Panier · 0</span></nav></header>
+ <section class="hero"><span class="orb o1" aria-hidden="true"></span><span class="orb o2" aria-hidden="true"></span><span class="orb o3" aria-hidden="true"></span>
+  <div class="glass"><p class="t-label eyebrow">コマ · Fait main à Goma</p><h2 class="t-display">Deviens ton personnage.</h2>
+  <p class="t-body sub">Cosplays faits main à Goma, kits pour les fabriquer toi-même, partout dans le monde.</p>
+  <a class="btn t-body" href="#" onclick="return false">Découvrir les cosplays</a></div></section>
+ <h3 class="t-h2 sec">Nouveautés</h3>
+ <article class="card"><div class="ph" aria-hidden="true"></div><p class="t-label muted">Cosplay · Sur mesure</p>
+  <h4 class="t-h3">Cosplay sur mesure — Guerrière du désert</h4>
+  <p class="price">120 USD</p><p class="t-small muted">Fabrication : 10 jours</p>
+  <div class="seg t-small" role="radiogroup" aria-label="Option d’achat"><span class="on" role="radio" aria-checked="true" tabindex="0">Prêt à porter</span><span role="radio" aria-checked="false" tabindex="-1">Le fabriquer moi-même</span></div></article>
+ <article class="blog"><p class="t-label muted">Blog · Tutoriel</p><h4 class="t-h3">Bien démarrer son premier patron</h4>
+  <p class="t-body">Tout commence par le patron : imprime-le en A4 ou en US Letter, assemble les feuilles, puis reporte chaque pièce sur ta mousse avant de découper. Prends ton temps, mesure deux fois.</p>
+  <p class="t-small muted en"><span class="t-label">EN</span></p><p class="t-h1 en-line" lang="en">Become your character.</p></article>
+</div></div></div>
+<div class="scale sumi-cream"><p class="scale-h">Échelle typographique (mobile 375 px)</p><ul><li><span class="role">display</span><span class="spec">36px / 44px · Zen Maru Gothic 700 · interlettrage -.01em</span><span class="t-display smp">Deviens ton personnage.</span></li><li><span class="role">h1</span><span class="spec">28px / 36px · Zen Maru Gothic 700</span><span class="t-h1 smp">Cosplays faits main</span></li><li><span class="role">h2</span><span class="spec">22px / 30px · Zen Maru Gothic 700</span><span class="t-h2 smp">Nouveautés</span></li><li><span class="role">h3</span><span class="spec">18px / 26px · Zen Maru Gothic 500</span><span class="t-h3 smp">Guerrière du désert</span></li><li><span class="role">body</span><span class="spec">16px / 26px · Nunito Sans 400</span><span class="t-body smp">Kits pour les fabriquer toi-même, partout dans le monde.</span></li><li><span class="role">small</span><span class="spec">14px / 21px · Nunito Sans 400</span><span class="t-small smp">Fabrication : 10 jours · Livraison Goma et Bukavu</span></li><li><span class="role">label</span><span class="spec">12px / 16px · Nunito Sans 700 · majuscules, interlettrage .1em</span><span class="t-label smp">Prêt à porter</span></li></ul></div></section>
+<section class="var d5" id="d5"><div class="vhead"><p class="num">05</p><div><h2 class="vname">Affiche shōnen</h2><p class="reg">Condensé « affiche anime » : majuscules serrées, dynamique, très graphique.</p></div></div>
+<dl class="fonts"><div><dt>Titres</dt><dd><span class="fh">Barlow Condensed</span> <small>600 · 700 · 800 · 800 italique</small></dd></div><div><dt>Texte</dt><dd><span class="fb">Barlow</span> <small>400 · 500 · 600</small></dd></div></dl>
+<p class="why">Barlow Condensed reprend les fûts droits et les coupes nettes du logo, et tient de longs titres sur 375 px. Barlow, la même famille en largeur normale, garantit une cohérence parfaite en texte courant.</p>
+<div class="cols"><div class="col"><p class="ctl">Crème (défaut)</p><div class="phone sumi-cream" aria-label="Aperçu mobile, thème crème">
+ <header class="bar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 513 180" width="108" height="38" role="img" aria-label="KOMA SHOP"><g transform="translate(40,40) scale(1.0)"><defs><clipPath id="capw9"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#capw9)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="awo9"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bwo9"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#awo9)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bwo9)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g></svg><nav class="t-label"><span class="pill">FR</span><span class="pill">Panier · 0</span></nav></header>
+ <section class="hero"><span class="orb o1" aria-hidden="true"></span><span class="orb o2" aria-hidden="true"></span><span class="orb o3" aria-hidden="true"></span>
+  <div class="glass"><p class="t-label eyebrow">Fait main à Goma</p><h2 class="t-display">Deviens ton personnage.</h2>
+  <p class="t-body sub">Cosplays faits main à Goma, kits pour les fabriquer toi-même, partout dans le monde.</p>
+  <a class="btn t-body" href="#" onclick="return false">Découvrir les cosplays</a></div></section>
+ <h3 class="t-h2 sec">Nouveautés</h3>
+ <article class="card"><div class="ph" aria-hidden="true"></div><p class="t-label muted">Cosplay · Sur mesure</p>
+  <h4 class="t-h3">Cosplay sur mesure — Guerrière du désert</h4>
+  <p class="price">120 USD</p><p class="t-small muted">Fabrication : 10 jours</p>
+  <div class="seg t-small" role="radiogroup" aria-label="Option d’achat"><span class="on" role="radio" aria-checked="true" tabindex="0">Prêt à porter</span><span role="radio" aria-checked="false" tabindex="-1">Le fabriquer moi-même</span></div></article>
+ <article class="blog"><p class="t-label muted">Blog · Tutoriel</p><h4 class="t-h3">Bien démarrer son premier patron</h4>
+  <p class="t-body">Tout commence par le patron : imprime-le en A4 ou en US Letter, assemble les feuilles, puis reporte chaque pièce sur ta mousse avant de découper. Prends ton temps, mesure deux fois.</p>
+  <p class="t-small muted en"><span class="t-label">EN</span></p><p class="t-h1 en-line" lang="en">Become your character.</p></article>
+</div></div><div class="col"><p class="ctl">Sombre</p><div class="phone sumi-dark" aria-label="Aperçu mobile, thème sombre">
+ <header class="bar"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 513 180" width="108" height="38" role="img" aria-label="KOMA SHOP"><g transform="translate(40,40) scale(1.0)"><defs><clipPath id="capw10"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#capw10)" fill="none" stroke="#F3EEE4" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#F3EEE4"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="awo10"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bwo10"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#awo10)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bwo10)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#16130F"/></g></g></svg><nav class="t-label"><span class="pill">FR</span><span class="pill">Panier · 0</span></nav></header>
+ <section class="hero"><span class="orb o1" aria-hidden="true"></span><span class="orb o2" aria-hidden="true"></span><span class="orb o3" aria-hidden="true"></span>
+  <div class="glass"><p class="t-label eyebrow">Fait main à Goma</p><h2 class="t-display">Deviens ton personnage.</h2>
+  <p class="t-body sub">Cosplays faits main à Goma, kits pour les fabriquer toi-même, partout dans le monde.</p>
+  <a class="btn t-body" href="#" onclick="return false">Découvrir les cosplays</a></div></section>
+ <h3 class="t-h2 sec">Nouveautés</h3>
+ <article class="card"><div class="ph" aria-hidden="true"></div><p class="t-label muted">Cosplay · Sur mesure</p>
+  <h4 class="t-h3">Cosplay sur mesure — Guerrière du désert</h4>
+  <p class="price">120 USD</p><p class="t-small muted">Fabrication : 10 jours</p>
+  <div class="seg t-small" role="radiogroup" aria-label="Option d’achat"><span class="on" role="radio" aria-checked="true" tabindex="0">Prêt à porter</span><span role="radio" aria-checked="false" tabindex="-1">Le fabriquer moi-même</span></div></article>
+ <article class="blog"><p class="t-label muted">Blog · Tutoriel</p><h4 class="t-h3">Bien démarrer son premier patron</h4>
+  <p class="t-body">Tout commence par le patron : imprime-le en A4 ou en US Letter, assemble les feuilles, puis reporte chaque pièce sur ta mousse avant de découper. Prends ton temps, mesure deux fois.</p>
+  <p class="t-small muted en"><span class="t-label">EN</span></p><p class="t-h1 en-line" lang="en">Become your character.</p></article>
+</div></div></div>
+<div class="scale sumi-cream"><p class="scale-h">Échelle typographique (mobile 375 px)</p><ul><li><span class="role">display</span><span class="spec">52px / 50px · Barlow Condensed 800 · majuscules, italique, interlettrage -.005em</span><span class="t-display smp">Deviens ton personnage.</span></li><li><span class="role">h1</span><span class="spec">38px / 40px · Barlow Condensed 700 · majuscules</span><span class="t-h1 smp">Cosplays faits main</span></li><li><span class="role">h2</span><span class="spec">30px / 34px · Barlow Condensed 700 · majuscules, interlettrage .01em</span><span class="t-h2 smp">Nouveautés</span></li><li><span class="role">h3</span><span class="spec">20px / 24px · Barlow Condensed 600</span><span class="t-h3 smp">Guerrière du désert</span></li><li><span class="role">body</span><span class="spec">16px / 26px · Barlow 400</span><span class="t-body smp">Kits pour les fabriquer toi-même, partout dans le monde.</span></li><li><span class="role">small</span><span class="spec">14px / 20px · Barlow 400</span><span class="t-small smp">Fabrication : 10 jours · Livraison Goma et Bukavu</span></li><li><span class="role">label</span><span class="spec">13px / 16px · Barlow Condensed 600 · majuscules, interlettrage .14em</span><span class="t-label smp">Prêt à porter</span></li></ul></div></section>
+</main>
+<script>
+document.querySelectorAll('.seg').forEach(function(g){var it=g.querySelectorAll('[role=radio]');it.forEach(function(s,i){function pick(){it.forEach(function(o){o.classList.remove('on');o.setAttribute('aria-checked','false');o.tabIndex=-1});s.classList.add('on');s.setAttribute('aria-checked','true');s.tabIndex=0;s.focus()}s.addEventListener('click',pick);s.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();var n=it[(i+(e.key==='ArrowRight'?1:it.length-1))%it.length];n.click()}if(e.key===' '||e.key==='Enter'){e.preventDefault();pick()}})})});
+</script>
+</body></html>

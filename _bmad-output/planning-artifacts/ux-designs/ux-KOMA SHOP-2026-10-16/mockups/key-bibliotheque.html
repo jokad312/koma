@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ma bibliothèque</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/*
+  KEY SCREEN — MA BIBLIOTHÈQUE ET KIT EN BIBLIOTHÈQUE (mobile 375 px crème, ordinateur 1280 px)
+  Spines qui gouvernent cet écran :
+  - EXPERIENCE.md › Component Patterns : Lecteur vidéo à chapitres (sous-titres WebVTT FR obligatoires, entièrement au clavier,
+    slider ARIA avec valeur en texte, chapitres en <button> aria-current, aucun bouton de téléchargement, reprise), Ligne de fichier de kit
+    (lien signé à chaque clic, nom accessible complet, « Préparation du lien… » annoncé), Message d'état
+  - EXPERIENCE.md › State Patterns › Après-vente, bibliothèque, Pass : Lien expiré, Échec de téléchargement, Vidéo qui ne charge pas,
+    Reprise ; Ma bibliothèque vide (non rendu : « Aucun kit dans ta bibliothèque. »)
+  - Décisions : E-32 transcription par chapitre (téléchargeable avec les fichiers) ; FR-28 filigrane PDF ; FR-30 accès à vie ; règle 1 (kits-private, lien signé)
+  - DESIGN.md › Components : video-chapter-player (chapitre en cours = icône + gras, pas de rouge seul ; sous-titres washi sur bandeau encre 85 %),
+    Ligne de fichier de kit (icône de format, nom, taille, bouton secondaire)
+  Écarts : la progression en bibliothèque est rendue en TEXTE (« Chapitre 3 sur 8 · 2 chapitres terminés ») : aucun composant barre de progression
+  dans les spines. Liste « Ma bibliothèque » en lignes kit (vignette + titre + progression) : pas de composant dédié, anatomie de Carte produit réduite.
+  Ordinateur : lecteur 2/3 + chapitres 1/3 = [HYPOTHÈSE de mise en page]. Tailles de fichiers fictives. Aucun lien kits-private dans le HTML.
+*/
+
+@font-face{font-family:"Sakura Town";src:url("../imports/fonts/Sakura%20Town.otf") format("opentype");font-display:swap}
+:root{--fh:"Barlow Condensed",system-ui,sans-serif;--fb:"Barlow",system-ui,sans-serif;--fbrush:"Sakura Town","Barlow Condensed",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:#D9D2C5;color:#16130F;font-family:var(--fb);font-size:16px;line-height:26px}
+/* ---------- Toile de présentation (hors produit) ---------- */
+.mock-banner{background:#16130F;color:#F3EEE4;padding:14px 24px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline}
+.mock-banner strong{font:700 20px/24px var(--fh);text-transform:uppercase;letter-spacing:.06em}
+.mock-banner span{font-size:14px;line-height:20px;color:#D8CFC1}
+.canvas-intro{max-width:1100px;padding:20px 32px 0;font-size:15px;line-height:23px;color:#2B241D}
+.canvas-intro h1{font:700 30px/34px var(--fh);text-transform:uppercase;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;gap:40px;padding:28px 32px 48px;align-items:flex-start}
+.frame-wrap{display:flex;flex-direction:column;gap:12px}
+.cap{max-width:395px;font-size:14px;line-height:20px;color:#2B241D}
+.cap b.state{display:block;font:700 18px/22px var(--fh);text-transform:uppercase;letter-spacing:.04em;color:#16130F;margin-bottom:2px}
+.cap code{font-size:12px;background:#EFE8DC;padding:0 4px;border-radius:4px}
+.desk-wrap .cap{max-width:1280px}
+/* ---------- Cadres ---------- */
+.phone{box-sizing:content-box;width:375px;border:10px solid #1E1A15;border-radius:42px;overflow:hidden;background:var(--bg);color:var(--text);box-shadow:0 18px 40px rgba(22,19,15,.25);position:relative}
+.browser{width:1280px;border-radius:14px;overflow:hidden;border:1px solid #9C9283;box-shadow:0 18px 40px rgba(22,19,15,.25);background:var(--bg);color:var(--text)}
+.chrome{display:flex;align-items:center;gap:14px;background:#E6E0D6;padding:10px 16px;border-bottom:1px solid #C9C0B2}
+.chrome i{width:12px;height:12px;border-radius:50%;background:#B8AE9F;display:inline-block}
+.chrome .url{flex:1;max-width:520px;margin-left:12px;background:#FBF8F2;border-radius:9999px;padding:4px 16px;font-size:14px;line-height:20px;color:#5E554A}
+/* ---------- Thèmes (tokens DESIGN.md) ---------- */
+.cream{--bg:#F3EEE4;--surface:#FBF8F2;--glass:rgba(255,255,255,.55);--glass-strong:rgba(255,255,255,.85);--glass-border:rgba(22,19,15,.14);--text:#16130F;--text2:#5E554A;--primary:#E3261C;--on-primary:#FFFFFF;--border:#E0D6C5;--field:#857A6B;--success:#2E7A4E;--warning:#8F5E10;--danger:#B01B13;--on-state:#FFFFFF;
+ --hero:radial-gradient(circle at 20% 25%,rgba(227,38,28,.25) 0,transparent 45%),linear-gradient(160deg,#FBF8F2,#EADFCC);
+ --tile-red:linear-gradient(150deg,#E3261C,#9E1A12);--tile-ink:linear-gradient(150deg,#5A4C3E,#2B241D)}
+.dark{--bg:#16130F;--surface:#211C17;--glass:rgba(243,238,228,.06);--glass-strong:rgba(22,19,15,.85);--glass-border:rgba(243,238,228,.14);--text:#F3EEE4;--text2:#B9AE9E;--primary:#E3261C;--on-primary:#FFFFFF;--border:#3A322A;--field:#7A6E5E;--success:#7CC49A;--warning:#E2B566;--danger:#F2766B;--on-state:#16130F;
+ --hero:radial-gradient(circle at 20% 25%,rgba(227,38,28,.40) 0,transparent 45%),linear-gradient(160deg,#2A221B,#16130F);
+ --tile-red:linear-gradient(150deg,#E3261C,#7A1A12);--tile-ink:linear-gradient(150deg,#4A3D31,#211C17)}
+/* ---------- Anneau de focus (double : text-primary + halo background) ---------- */
+.phone :focus-visible,.browser :focus-visible,.is-focus{outline:2px solid var(--text)!important;outline-offset:2px;box-shadow:0 0 0 2px var(--bg)}
+a{color:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* ---------- Typo ---------- */
+.t-brush{font-family:var(--fbrush);font-weight:400;line-height:1;letter-spacing:.01em;text-transform:uppercase}
+.t-display{font:italic 800 52px/50px var(--fh);text-transform:uppercase;letter-spacing:-.005em}
+.t-h1{font:700 38px/40px var(--fh);text-transform:uppercase}
+.t-h2{font:700 30px/34px var(--fh);text-transform:uppercase;letter-spacing:.01em}
+.t-h3{font:600 20px/24px var(--fh)}
+.t-small{font-size:14px;line-height:20px}
+.t-label{font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.14em}
+.t-price-card{font:700 20px/24px var(--fh)}
+.t-price-page{font:700 38px/40px var(--fh)}
+.muted{color:var(--text2)}
+.link{color:var(--text);text-decoration:underline;text-decoration-color:var(--primary);text-decoration-thickness:2px;text-underline-offset:3px;font-weight:600}
+/* ---------- Boutons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:12px 20px;border-radius:9999px;font:600 18px/20px var(--fh);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid transparent;cursor:pointer;text-align:center}
+.btn-primary{background:var(--primary);color:var(--on-primary)}
+.btn-secondary{background:var(--surface);color:var(--text);border-color:var(--field)}
+.btn-primary[aria-disabled="true"]{background:var(--surface);color:var(--text2);border-color:var(--field);cursor:not-allowed}
+.btn-block{display:flex;width:100%}
+.icon-btn{width:44px;height:44px;display:inline-grid;place-items:center;border-radius:9999px;background:transparent;border:0;color:var(--text);position:relative;cursor:pointer;font-size:22px;line-height:1}
+.icon-btn svg,.btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.count{position:absolute;top:4px;right:2px;min-width:18px;height:18px;padding:0 4px;border-radius:9999px;background:var(--primary);color:#FFFFFF;font:600 12px/18px var(--fb);text-align:center}
+/* ---------- En-tête : logo horizontal dans le COIN GAUCHE (logo | panier + ☰) ---------- */
+.hdr{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;height:64px;padding:0 8px 0 16px;background:var(--glass-strong);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--glass-border)}
+.hdr .logo{display:flex;align-items:center;min-height:44px;min-width:44px}
+.hdr .logo svg{display:block}
+.hdr .actions{display:flex;gap:2px}
+/* ---------- Médias simulés (aucune image de franchise) ---------- */
+.media{position:relative;overflow:hidden;background:#3B2C22}
+.ph-a{background:radial-gradient(circle at 70% 30%,#C9A27A 0,transparent 40%),radial-gradient(circle at 30% 80%,#7E3B28 0,transparent 45%),linear-gradient(160deg,#8C6A4F,#3B2C22)}
+.ph-b{background:radial-gradient(circle at 35% 35%,#D9C7A8 0,transparent 42%),radial-gradient(circle at 80% 75%,#4E5A52 0,transparent 45%),linear-gradient(200deg,#6E6455,#2B241D)}
+.ph-c{background:radial-gradient(circle at 60% 40%,#B98D5C 0,transparent 40%),linear-gradient(140deg,#5A4C3E,#1E1A15)}
+.ph-d{background:radial-gradient(circle at 40% 30%,#E8DCC6 0,transparent 45%),radial-gradient(circle at 75% 80%,#9A6B45 0,transparent 45%),linear-gradient(170deg,#A58B70,#4A3D31)}
+.ph-e{background:radial-gradient(circle at 50% 50%,#7E8C80 0,transparent 45%),linear-gradient(120deg,#4A3D31,#16130F)}
+.ph-video{background:radial-gradient(circle at 75% 20%,rgba(227,38,28,.55) 0,transparent 40%),radial-gradient(circle at 25% 60%,#C9A27A 0,transparent 38%),radial-gradient(circle at 70% 85%,#5A4C3E 0,transparent 45%),linear-gradient(165deg,#6B4A33,#1E1A15)}
+.media-tag{position:absolute;left:10px;top:10px;padding:2px 10px;border-radius:10px;background:var(--glass-strong);color:var(--text);border:1px solid var(--glass-border);font-size:12px;line-height:18px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+/* ---------- Composants ---------- */
+.glass-strong{background:var(--glass-strong);-webkit-backdrop-filter:blur(10px) saturate(140%);backdrop-filter:blur(10px) saturate(140%);border:1px solid var(--glass-border);border-radius:18px}
+.pause{position:absolute;top:12px;right:12px;width:44px;height:44px;border-radius:9999px;background:var(--surface);border:1px solid var(--field);color:var(--text);display:grid;place-items:center;cursor:pointer}
+.pause svg{width:18px;height:18px;fill:currentColor}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:10px;position:relative}
+.card .media{border-radius:14px;aspect-ratio:4/5}
+.card h3{margin-top:10px}
+.card h3 a{text-decoration:none}
+.card h3 a::after{content:"";position:absolute;inset:0;border-radius:20px}
+.card .price{margin-top:4px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:9999px;border:1px solid currentColor;background:var(--surface);font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.14em}
+.badge svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;flex:none}
+.b-stock{color:var(--success)} .b-order{color:var(--text2)} .b-full{color:var(--danger)}
+.section{padding:28px 16px 8px}
+.section .lead{margin-top:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.seg{display:flex;gap:4px;padding:3px;border:1px solid var(--field);border-radius:9999px;background:var(--bg)}
+.seg label{flex:1;position:relative;min-height:44px;display:flex;align-items:center;justify-content:center;gap:6px;padding:4px 10px;border-radius:9999px;border:2px solid transparent;color:var(--text2);font:600 17px/20px var(--fh);text-align:center;cursor:pointer}
+.seg input,.sizes input,.pay-card input.vh{position:absolute;opacity:0;width:1px;height:1px}
+.ck{display:none;font-weight:700}
+.seg label:has(input:checked),.sizes label:has(input:checked){background:var(--surface);border-color:var(--primary);color:var(--text)}
+.seg label:has(input:checked) .ck,.sizes label:has(input:checked) .ck{display:inline}
+.seg label:has(input:focus-visible),.sizes label:has(input:focus-visible){outline:2px solid var(--text);outline-offset:2px;box-shadow:0 0 0 2px var(--bg)}
+.sizes{display:flex;flex-wrap:wrap;gap:8px;border:0}
+.sizes label{min-width:52px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 12px;border-radius:9999px;border:1px solid var(--field);background:var(--bg);color:var(--text);font:600 17px/20px var(--fh);cursor:pointer}
+.sizes label:has(input:checked){border-width:2px}
+.sizes label:has(input:disabled){color:var(--text2);border-style:dashed;cursor:not-allowed;text-decoration:line-through}
+fieldset{border:0;min-width:0}
+legend{padding:0;margin-bottom:8px}
+.info-banner{background:var(--surface);border-left:4px solid var(--primary);border-radius:14px;padding:12px 14px;font-size:14px;line-height:20px;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.msg{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;font-size:14px;line-height:20px}
+.msg .dot{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:var(--on-state)}
+.msg .dot svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.msg.warn .dot{background:var(--warning)} .msg.err .dot{background:var(--danger)} .msg.ok .dot{background:var(--success)}
+.msg.warn strong{color:var(--warning)} .msg.err strong{color:var(--danger)}
+.kit-panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px;display:grid;grid-template-columns:72px 1fr;gap:12px}
+.kit-panel .media{width:72px;height:90px;border-radius:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label,.field .flabel{font:600 14px/20px var(--fb)}
+.field select,.field input{min-height:44px;width:100%;border:1px solid var(--field);border-radius:14px;background:var(--surface);color:var(--text);font:400 16px/24px var(--fb);padding:8px 14px}
+.field .help{font-size:14px;line-height:20px;color:var(--text2)}
+.field.has-error select{border:2px solid var(--danger)}
+.field .error{display:flex;gap:8px;font-size:14px;line-height:20px;color:var(--danger);font-weight:600}
+.field .error svg{flex:none;width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5;margin-top:1px}
+.pay-card{border:1px solid var(--field);border-radius:20px;background:var(--surface);padding:12px 14px}
+.pay-card.selected{border:2px solid var(--primary);padding:11px 13px}
+.pay-card .head{display:flex;align-items:center;gap:12px;min-height:44px;cursor:pointer}
+.radio{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--field);display:grid;place-items:center;background:var(--surface)}
+.pay-card.selected .radio{border-color:var(--primary)}
+.pay-card.selected .radio::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--primary)}
+.pay-card .ttl{font:600 20px/24px var(--fh);flex:1}
+.pay-card .chosen{font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.14em;display:inline-flex;gap:4px;align-items:center}
+.pay-card .body{display:grid;gap:14px;margin-top:10px;padding-top:12px;border-top:1px solid var(--border)}
+.recap{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px}
+.recap .line{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.recap .line:last-child{border-bottom:0}
+.recap .total{align-items:baseline}
+.stack{display:grid;gap:14px}
+.var{border-bottom:1px dashed currentColor;font-style:normal}
+.wa svg{width:20px;height:20px}
+.crumbs{font-size:14px;line-height:20px;padding:12px 16px 0}
+.crumbs a{color:var(--text)}
+.crumbs ol{list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.crumbs li+li::before{content:"›";margin-right:6px;color:var(--text2)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+
+/* ---------- En-tête ordinateur (identique à key-accueil) ---------- */
+.d-hdr{display:flex;align-items:center;gap:32px;height:84px;padding:0 32px;background:var(--glass-strong);border-bottom:1px solid var(--glass-border)}
+.d-hdr .logo{display:flex;align-items:center;min-height:44px;flex:none}
+.d-hdr .logo svg{display:block}
+.d-hdr nav ul{list-style:none;display:flex;gap:24px}
+.d-hdr nav a{font:600 19px/24px var(--fh);text-transform:uppercase;letter-spacing:.06em;text-decoration:none;display:inline-flex;min-height:44px;align-items:center;white-space:nowrap}
+.d-hdr .tools{margin-left:auto;display:flex;gap:4px;align-items:center}
+.lang-btn{font:600 16px/20px var(--fh);letter-spacing:.06em;text-decoration:none}
+.icon-btn[aria-current="page"]{box-shadow:inset 0 -3px 0 var(--text)}
+/* ---------- Écrans transactionnels (Barlow Condensed, jamais Sakura Town) ---------- */
+.scr{padding:20px 16px 28px;display:grid;gap:18px;align-content:start}
+.h2t{font:700 24px/28px var(--fh);text-transform:uppercase;letter-spacing:.01em}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;font-size:14px;line-height:20px;font-weight:600;color:var(--text);text-decoration:underline;text-decoration-color:var(--primary);text-decoration-thickness:2px;text-underline-offset:3px;margin:-12px 0 -8px}
+.back svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5}
+.links{display:flex;flex-wrap:wrap;gap:4px 20px}
+.links a{display:inline-flex;align-items:center;min-height:44px}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px}
+.note{font-size:14px;line-height:20px;color:var(--text2)}
+.fict{font-style:normal;border-bottom:1px dashed currentColor}
+.field textarea{min-height:88px;width:100%;border:1px solid var(--field);border-radius:14px;background:var(--surface);color:var(--text);font:400 16px/24px var(--fb);padding:8px 14px;resize:vertical}
+.field.has-error input{border:2px solid var(--danger)}
+.field input[type=file]{padding:9px 10px;font-size:14px}
+.otp input{font:600 26px/32px var(--fh);letter-spacing:.35em;text-align:center;min-height:56px}
+.or{display:flex;align-items:center;gap:12px;color:var(--text2);font-size:14px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--border)}
+/* Case de consentement : case 24 px, libellé entier cliquable */
+.ck-row{display:grid;grid-template-columns:24px 1fr;gap:12px;align-items:start;font-size:14px;line-height:20px;cursor:pointer;padding:10px 0}
+.ck-row input{width:24px;height:24px;margin:0;accent-color:#16130F}
+.ck-row .ck-links{display:block;margin-top:8px}
+.ck-row .ck-links a+a{margin-left:24px}
+/* Sélecteur à deux options : libellés longs, retour à la ligne permis */
+.seg label{white-space:normal;line-height:20px}
+/* Panier */
+.item{display:grid;grid-template-columns:76px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+.item:last-of-type{border-bottom:0}
+.item .media{width:76px;height:96px;border-radius:14px}
+.item .media .media-tag{display:none}
+.item h2{font:600 20px/24px var(--fh)}
+.item .ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-top:6px}
+.item .ctl select{min-height:44px;border:1px solid var(--field);border-radius:14px;background:var(--surface);color:var(--text);font:400 16px/24px var(--fb);padding:6px 10px}
+.item .ctl .rm{min-height:44px;display:inline-flex;align-items:center;font-size:14px}
+.item .msg{grid-column:1/-1;margin-top:4px}
+.item.gone h2,.item.gone .t-price-card{color:var(--text2)}
+.line .neg{white-space:nowrap}
+/* Statuts de commande : icône + texte, jamais la couleur seule */
+.st{display:inline-flex;align-items:center;gap:6px;font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.12em}
+.st svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;flex:none}
+.st-ok{color:var(--success)} .st-cur{color:var(--text)} .st-warn{color:var(--warning)} .st-mute{color:var(--text2)} .st-err{color:var(--danger)}
+.order{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px;display:grid;gap:4px}
+.order h2{font:600 20px/24px var(--fh)}
+.order h2 a{text-decoration:none}
+.order h2 a::after{content:"";position:absolute;inset:0;border-radius:20px}
+.order .act{position:relative;z-index:1;justify-self:start}
+/* Frise des statuts */
+.tl{list-style:none;display:grid}
+.tl li{display:grid;grid-template-columns:28px 1fr;gap:12px;padding-bottom:18px;position:relative}
+.tl li:not(:last-child)::after{content:"";position:absolute;left:13px;top:30px;bottom:2px;width:2px;background:var(--border)}
+.tl .ic{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--field);background:var(--surface)}
+.tl .ic svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.tl .done .ic{background:var(--success);border-color:var(--success);color:var(--on-state)}
+.tl .cur .ic{background:var(--text);border-color:var(--text)}
+.tl .cur .ic::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--bg)}
+.tl .lab{font:600 18px/22px var(--fh)}
+.tl .todo .lab{color:var(--text2);font-weight:600}
+.tl .cur .lab{font-weight:700}
+.tl .meta{font-size:14px;line-height:20px;color:var(--text2)}
+.track{font-size:14px;line-height:20px}
+.track b{font:600 18px/22px var(--fh);letter-spacing:.04em;display:block;color:var(--text)}
+/* Boîte de dialogue (surface opaque sur voile encre 60 %) */
+.veil{position:absolute;inset:0;background:rgba(22,19,15,.6);display:grid;align-items:center;padding:16px;z-index:8}
+.dialog{background:var(--surface);border-radius:20px;padding:18px 16px 16px;display:grid;gap:12px;position:relative}
+.dialog h2{font:600 20px/24px var(--fh);padding-right:44px}
+.dialog .close{position:absolute;top:8px;right:8px}
+/* Compte : navigation */
+.acc-list{list-style:none;display:grid;gap:10px}
+.acc-list a{display:grid;grid-template-columns:40px 1fr 20px;gap:12px;align-items:center;min-height:64px;padding:10px 14px;border-radius:20px;background:var(--surface);border:1px solid var(--border);text-decoration:none}
+.acc-list .ico{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--bg);border:1px solid var(--border)}
+.acc-list svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.acc-list .t{font:600 20px/24px var(--fh);display:block}
+.acc-list .s{font-size:14px;line-height:20px;color:var(--text2);display:block}
+.acc-list a[aria-current="page"]{border:2px solid var(--text);padding:9px 13px}
+.signout{justify-self:start}
+/* Ordinateur : colonne compte + contenu [HYPOTHÈSE de mise en page, voir commentaire] */
+.d-acc{display:grid;grid-template-columns:300px 1fr;gap:32px;padding:28px 32px 40px;align-items:start}
+.d-acc .acc-list a{min-height:56px}
+.d-two{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.d-form{display:grid;grid-template-columns:1fr 400px;gap:32px;padding:28px 32px 40px;align-items:start}
+.d-center{display:grid;justify-items:center;padding:48px 32px 64px}
+.d-center .scr{width:440px;padding:0}
+/* Bibliothèque */
+.kit-row{position:relative;display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:10px}
+.kit-row .media{width:72px;height:72px;border-radius:14px}
+.kit-row .media .media-tag{display:none}
+.kit-row h2{font:600 20px/24px var(--fh)}
+.kit-row h2 a{text-decoration:none}
+.kit-row h2 a::after{content:"";position:absolute;inset:0;border-radius:20px}
+.player{border-radius:20px;overflow:hidden;background:#16130F;color:#F3EEE4}
+.player .screen{position:relative;aspect-ratio:16/9}
+.player .screen>.media{position:absolute;inset:0}
+.player .cc{position:absolute;left:10px;right:10px;bottom:10px;background:rgba(22,19,15,.85);color:#F3EEE4;border-radius:10px;padding:6px 10px;font-size:15px;line-height:21px;text-align:center}
+.player .ctrls{display:flex;align-items:center;gap:4px;padding:6px 6px 8px}
+.player .pbtn{width:44px;height:44px;display:grid;place-items:center;border-radius:9999px;background:transparent;border:0;color:#F3EEE4;cursor:pointer;flex:none}
+.player .pbtn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.player .pbtn.on{box-shadow:inset 0 0 0 2px #F3EEE4}
+.player .ccl{font:700 13px/1 var(--fb);border:2px solid currentColor;border-radius:4px;padding:2px 3px}
+.slider{flex:1;min-width:0;min-height:44px;display:grid;align-content:center;gap:2px}
+.slider .bar{height:6px;border-radius:9999px;background:#5E554A;position:relative}
+.slider .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:9999px;background:#F3EEE4}
+.slider .bar b{position:absolute;top:-6px;width:18px;height:18px;border-radius:50%;background:#F3EEE4;border:2px solid #16130F}
+.slider .tm{font-size:12px;line-height:16px;color:#D8CFC1}
+.chap{list-style:none;display:grid;gap:8px}
+.chap button{width:100%;display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;min-height:52px;padding:8px 12px;border-radius:14px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:400 15px/20px var(--fb);text-align:left;cursor:pointer}
+.chap button svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.chap button[aria-current="true"]{border:2px solid var(--text);padding:7px 11px;font-weight:600}
+.chap .st2{font-size:13px;line-height:18px;color:var(--text2);white-space:nowrap}
+.chap .done svg{color:var(--success)}
+.file{display:grid;grid-template-columns:48px 1fr;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.file:last-child{border-bottom:0}
+.fmt{width:48px;height:56px;border-radius:10px;border:2px solid var(--text);display:grid;place-items:center;font:700 14px/1 var(--fh);letter-spacing:.06em}
+.file .nm{font-weight:600}
+.file .btn{grid-column:2;justify-self:start;min-height:44px;padding:10px 18px;font-size:16px}
+.file .msg{grid-column:1/-1}
+/* Pass */
+.pass{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px;display:grid;gap:10px;justify-items:center;text-align:center}
+.qr{background:#FFFFFF;padding:16px;border-radius:14px;border:1px solid var(--border);position:relative}
+.qr svg{display:block;width:200px;height:200px}
+.qr .media-tag{left:6px;top:6px}
+.code{font:700 24px/28px var(--fh);letter-spacing:.14em}
+.pass .who{font:600 20px/24px var(--fh)}
+.pass-sel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px;display:grid;gap:10px}
+.pass-sel .top{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.pass-sel h3{font:600 20px/24px var(--fh)}
+.stepper{display:flex;align-items:center;gap:12px}
+.stepper .btn{width:44px;padding:0;font-size:24px}
+.stepper output{min-width:24px;text-align:center;font:700 22px/26px var(--fh)}
+.ev{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:center}
+.ev .media{width:64px;height:64px;border-radius:14px}
+.ev .media .media-tag{display:none}
+.ev h2{font:600 20px/24px var(--fh)}
+progress{width:100%;height:10px;accent-color:#16130F}
+@media (max-width:420px){.d-acc,.d-form{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div class="mock-banner" role="note"><strong>Maquette — prix et produits fictifs</strong><span>Noms de produits, prix, numéros, heures, opérateurs et références sont des exemples inventés pour la maquette (règles 5 et 13). Photos et vidéo simulées par des dégradés abstraits : seules les vraies photos du créateur seront utilisées.</span></div>
+<div class="canvas-intro"><h1>Ma bibliothèque — écran clé</h1><p>Le moment fort d’UJ-2 : le kit s’ouvre, les patrons se téléchargent, le chapitre 1 démarre sous-titré, et la lecture reprend sur un autre appareil. Fichiers et vidéo complète ne s’ouvrent que par lien signé créé par le serveur.</p></div>
+<div class="row"><div class="frame-wrap"><div class="phone cream">
+<header class="hdr">
+  <a class="logo" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="156" height="36.5" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_23"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_23)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_23"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_23"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_23)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_23)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <div class="actions">
+    <a class="icon-btn" href="#" aria-label="Panier, vide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></a>
+    <button class="icon-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span></button>
+  </div>
+</header>
+<main class="scr">
+    <a class="back" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Mon compte</a>
+    <h1 class="t-h1" tabindex="-1">Ma bibliothèque</h1>
+    <p class="note">Tes kits restent accessibles à vie, mises à jour comprises.</p>
+    <div class="stack"><article class="kit-row"><div class="media ph-d" role="img" aria-label="" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div><div><h2><a href="#">Kit Plastron en mousse</a></h2><p class="t-small muted">Chapitre 3 sur 8 · 2 chapitres terminés</p><p class="t-small"><b>Reprendre au chapitre 3</b></p></div></article><article class="kit-row"><div class="media ph-e" role="img" aria-label="" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div><div><h2><a href="#">Kit Spalières du ronin</a></h2><p class="t-small muted">Pas encore commencé</p><p class="t-small"><b>Commencer le chapitre 1</b></p></div></article><article class="kit-row"><div class="media ph-b" role="img" aria-label="" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div><div><h2><a href="#">Kit gratuit Bandeau de ninja</a></h2><p class="t-small muted">Terminé · 5 chapitres sur 5 · Offert</p><p class="t-small"><b>Revoir</b></p></div></article></div>
+  </main>
+</div>
+<p class="cap"><b class="state">1 · Ma bibliothèque</b>Kits achetés et offert, progression en texte, action suivante (« Reprendre au chapitre 3 »). Lien étendu à toute la ligne. <b>Ligne de kit et progression : pas de composant dédié</b> (voir commentaire).</p></div><div class="frame-wrap"><div class="phone cream">
+<header class="hdr">
+  <a class="logo" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="156" height="36.5" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_24"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_24)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_24"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_24"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_24)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_24)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <div class="actions">
+    <a class="icon-btn" href="#" aria-label="Panier, vide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></a>
+    <button class="icon-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span></button>
+  </div>
+</header>
+<main class="scr">
+    <a class="back" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Ma bibliothèque</a>
+    <h1 class="t-h1" tabindex="-1">Kit Plastron en mousse</h1>
+    <div class="msg " role="status"><span class="dot" style="background:var(--text);color:var(--bg)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11v6M12 7.5v.5"/></svg></span><p>Reprise à 4 min 12 s du chapitre 3, là où tu t’étais arrêté.</p></div>
+    <section class="player" aria-label="Vidéo du kit">
+      <div class="screen">
+        <div class="media ph-c" aria-hidden="true"><span class="media-tag">[Vidéo du créateur — chapitre 3]</span></div>
+        <p class="cc" lang="fr">On trace le patron sur la mousse avant de découper.</p>
+      </div>
+      <div class="ctrls">
+        <button class="pbtn" type="button" aria-label="Lire"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg></button>
+        <div class="slider" role="slider" tabindex="0" aria-label="Position dans la vidéo" aria-valuemin="0" aria-valuemax="690" aria-valuenow="252" aria-valuetext="4 min 12 s sur 11 min 30 s">
+          <div class="bar"><i style="width:36%"></i><b style="left:calc(36% - 9px)"></b></div>
+          <span class="tm" aria-hidden="true">4:12 / 11:30</span>
+        </div>
+        <button class="pbtn on" type="button" aria-pressed="true" aria-label="Sous-titres français"><span class="ccl" aria-hidden="true">FR</span></button>
+        <button class="pbtn" type="button" aria-label="Plein écran"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      </div>
+    </section>
+    <section aria-labelledby="chap-h" class="stack" style="gap:10px"><h2 id="chap-h" class="h2t">Chapitres</h2><ol class="chap"><li><button type="button" class="done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>1. Matériel et patron</span><span class="st2">Terminé</span></button></li><li><button type="button" class="done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>2. Report du patron</span><span class="st2">Terminé</span></button></li><li><button type="button" class="cur" aria-current="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg><span>3. Découpe de la mousse</span><span class="st2">En lecture</span></button></li><li><button type="button" class="todo"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>4. Collage et formes</span><span class="st2">11 min</span></button></li><li><button type="button" class="todo"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>5. Peinture</span><span class="st2">14 min</span></button></li></ol><p class="note">Chapitres 6 à 8 plus bas.</p></section>
+    <section aria-labelledby="fh" class="box"><h2 id="fh" class="h2t" style="margin-bottom:4px">Fichiers du kit</h2><p class="note">Téléchargements illimités. Les PDF portent ton nom en filigrane discret.</p><div class="file"><span class="fmt" aria-hidden="true">PDF</span><div><p class="nm">Patron A4</p><p class="t-small muted">PDF, 2,4 Mo</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Patron A4 (PDF, 2,4 Mo)">Télécharger</button></div><div class="file"><span class="fmt" aria-hidden="true">PDF</span><div><p class="nm">Patron US Letter</p><p class="t-small muted">PDF, 2,4 Mo</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Patron US Letter (PDF, 2,4 Mo)">Télécharger</button></div><div class="file"><span class="fmt" aria-hidden="true">SVG</span><div><p class="nm">Patron vectoriel</p><p class="t-small muted">SVG, 380 Ko</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Patron vectoriel (SVG, 380 Ko)">Télécharger</button></div><div class="file"><span class="fmt" aria-hidden="true">STL</span><div><p class="nm">Gabarit d’impression 3D</p><p class="t-small muted">STL, 6,1 Mo</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Gabarit d’impression 3D (STL, 6,1 Mo)">Télécharger</button></div><div class="file"><span class="fmt" aria-hidden="true">TXT</span><div><p class="nm">Transcription du chapitre 3</p><p class="t-small muted">Texte, 12 Ko</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Transcription du chapitre 3 (Texte, 12 Ko)">Télécharger</button></div></section>
+  </main>
+</div>
+<p class="cap"><b class="state">2 · Kit : lecteur, chapitres, fichiers</b>Reprise annoncée ; sous-titres FR activés (bouton pressé) ; piste temporelle en slider ARIA « 4 min 12 s sur 11 min 30 s » ; chapitre en cours = icône + gras + « En lecture ». Fichiers : un bouton « Télécharger » par fichier, nom accessible complet ; transcription par chapitre (E-32). Aucun bouton de téléchargement de la vidéo.</p></div><div class="frame-wrap"><div class="phone cream">
+<header class="hdr">
+  <a class="logo" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="156" height="36.5" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_25"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_25)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_25"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_25"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_25)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_25)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <div class="actions">
+    <a class="icon-btn" href="#" aria-label="Panier, vide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></a>
+    <button class="icon-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span></button>
+  </div>
+</header>
+<main class="scr">
+    <a class="back" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Ma bibliothèque</a>
+    <h1 class="t-h1" tabindex="-1">Kit Plastron en mousse</h1>
+    <section class="player" aria-label="Vidéo du kit"><div class="screen" style="display:grid;place-items:center;padding:16px">
+      <div class="msg err" role="alert" style="background:#211C17;border-color:#3A322A;color:#F3EEE4"><span class="dot" style="background:#F2766B;color:#16130F"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v8M12 18v.5"/></svg></span><p><strong style="color:#F2766B">La vidéo ne charge pas.</strong> Vérifie ta connexion puis réessaie. Tu reprendras à 4 min 12 s.</p></div>
+    </div><div class="ctrls" style="padding:8px"><button class="btn btn-secondary" type="button" style="margin:auto">Réessayer</button></div></section>
+    <section aria-labelledby="fh" class="box"><h2 id="fh" class="h2t" style="margin-bottom:4px">Fichiers du kit</h2><p class="note">Téléchargements illimités. Les PDF portent ton nom en filigrane discret.</p><div class="file"><span class="fmt" aria-hidden="true">PDF</span><div><p class="nm">Patron A4</p><p class="t-small muted">PDF, 2,4 Mo</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Patron A4 (PDF, 2,4 Mo)">Télécharger</button><div class="msg err" role="alert"><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v8M12 18v.5"/></svg></span><p>Le lien a expiré. Touche à nouveau Télécharger.</p></div></div><div class="file"><span class="fmt" aria-hidden="true">PDF</span><div><p class="nm">Patron US Letter</p><p class="t-small muted">PDF, 2,4 Mo</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Patron US Letter (PDF, 2,4 Mo)">Télécharger</button><div class="msg " role="status"><span class="dot" style="background:var(--text);color:var(--bg)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11v6M12 7.5v.5"/></svg></span><p>Préparation du lien…</p></div></div><div class="file"><span class="fmt" aria-hidden="true">SVG</span><div><p class="nm">Patron vectoriel</p><p class="t-small muted">SVG, 380 Ko</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Patron vectoriel (SVG, 380 Ko)">Télécharger</button></div><div class="file"><span class="fmt" aria-hidden="true">STL</span><div><p class="nm">Gabarit d’impression 3D</p><p class="t-small muted">STL, 6,1 Mo</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Gabarit d’impression 3D (STL, 6,1 Mo)">Télécharger</button><div class="msg err" role="alert"><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v8M12 18v.5"/></svg></span><p>Le téléchargement n’a pas abouti. Réessaie.</p></div></div><div class="file"><span class="fmt" aria-hidden="true">TXT</span><div><p class="nm">Transcription du chapitre 3</p><p class="t-small muted">Texte, 12 Ko</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Transcription du chapitre 3 (Texte, 12 Ko)">Télécharger</button></div></section>
+  </main>
+</div>
+<p class="cap"><b class="state">3 · Lien expiré, préparation, échec, vidéo</b>« Le lien a expiré. Touche à nouveau Télécharger. » : un nouveau lien signé est créé au clic (règle 1) ; « Préparation du lien… » annoncé ; échec de téléchargement ; vidéo qui ne charge pas avec « Réessayer » et reprise.</p></div></div>
+<div class="row"><div class="frame-wrap desk-wrap"><div class="browser cream">
+<div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span class="url">komashop.com/fr/compte/bibliotheque/kit-plastron</span></div>
+<header class="d-hdr">
+  <a href="#" class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="190" height="44.5" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_26"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_26)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_26"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_26"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_26)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_26)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <nav aria-label="Menu principal"><ul><li><a href="#">Cosplays</a></li><li><a href="#">Accessoires</a></li><li><a href="#">Kits</a></li><li><a href="#">Événements</a></li><li><a href="#">Blog</a></li><li><a href="#">À propos</a></li></ul></nav>
+  <div class="tools">
+    <button class="icon-btn" type="button" aria-label="Thème sombre" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg></button>
+    <a class="icon-btn lang-btn" href="#" lang="en" hreflang="en" aria-label="English">EN</a>
+    <a class="icon-btn" href="#" aria-label="Mon compte" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></a>
+    <a class="icon-btn" href="#" aria-label="Panier, vide"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></a>
+  </div>
+</header>
+<main style="padding:28px 32px 40px;display:grid;gap:20px">
+    <a class="back" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Ma bibliothèque</a>
+    <h1 class="t-h1" tabindex="-1">Kit Plastron en mousse</h1>
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:start">
+      <div class="stack"><div class="msg " role="status"><span class="dot" style="background:var(--text);color:var(--bg)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11v6M12 7.5v.5"/></svg></span><p>Reprise à 4 min 12 s du chapitre 3, là où tu t’étais arrêté.</p></div><section class="player" aria-label="Vidéo du kit">
+      <div class="screen">
+        <div class="media ph-c" aria-hidden="true"><span class="media-tag">[Vidéo du créateur — chapitre 3]</span></div>
+        <p class="cc" lang="fr">On trace le patron sur la mousse avant de découper.</p>
+      </div>
+      <div class="ctrls">
+        <button class="pbtn" type="button" aria-label="Lire"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg></button>
+        <div class="slider" role="slider" tabindex="0" aria-label="Position dans la vidéo" aria-valuemin="0" aria-valuemax="690" aria-valuenow="252" aria-valuetext="4 min 12 s sur 11 min 30 s">
+          <div class="bar"><i style="width:36%"></i><b style="left:calc(36% - 9px)"></b></div>
+          <span class="tm" aria-hidden="true">4:12 / 11:30</span>
+        </div>
+        <button class="pbtn on" type="button" aria-pressed="true" aria-label="Sous-titres français"><span class="ccl" aria-hidden="true">FR</span></button>
+        <button class="pbtn" type="button" aria-label="Plein écran"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      </div>
+    </section></div>
+      <section aria-labelledby="chap-h" class="stack" style="gap:10px"><h2 id="chap-h" class="h2t">Chapitres</h2><ol class="chap"><li><button type="button" class="done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>1. Matériel et patron</span><span class="st2">Terminé</span></button></li><li><button type="button" class="done"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>2. Report du patron</span><span class="st2">Terminé</span></button></li><li><button type="button" class="cur" aria-current="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg><span>3. Découpe de la mousse</span><span class="st2">En lecture</span></button></li><li><button type="button" class="todo"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>4. Collage et formes</span><span class="st2">11 min</span></button></li><li><button type="button" class="todo"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>5. Peinture</span><span class="st2">14 min</span></button></li></ol><p class="note">Chapitres 6 à 8 plus bas.</p></section>
+    </div>
+    <section aria-labelledby="fh" class="box"><h2 id="fh" class="h2t" style="margin-bottom:4px">Fichiers du kit</h2><p class="note">Téléchargements illimités. Les PDF portent ton nom en filigrane discret.</p><div class="file"><span class="fmt" aria-hidden="true">PDF</span><div><p class="nm">Patron A4</p><p class="t-small muted">PDF, 2,4 Mo</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Patron A4 (PDF, 2,4 Mo)">Télécharger</button></div><div class="file"><span class="fmt" aria-hidden="true">PDF</span><div><p class="nm">Patron US Letter</p><p class="t-small muted">PDF, 2,4 Mo</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Patron US Letter (PDF, 2,4 Mo)">Télécharger</button></div><div class="file"><span class="fmt" aria-hidden="true">SVG</span><div><p class="nm">Patron vectoriel</p><p class="t-small muted">SVG, 380 Ko</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Patron vectoriel (SVG, 380 Ko)">Télécharger</button></div><div class="file"><span class="fmt" aria-hidden="true">STL</span><div><p class="nm">Gabarit d’impression 3D</p><p class="t-small muted">STL, 6,1 Mo</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Gabarit d’impression 3D (STL, 6,1 Mo)">Télécharger</button></div><div class="file"><span class="fmt" aria-hidden="true">TXT</span><div><p class="nm">Transcription du chapitre 3</p><p class="t-small muted">Texte, 12 Ko</p></div><button class="btn btn-secondary" type="button" aria-label="Télécharger Transcription du chapitre 3 (Texte, 12 Ko)">Télécharger</button></div></section>
+  </main>
+</div>
+<p class="cap"><b class="state">4 · Ordinateur : kit en bibliothèque</b>Lecteur à gauche (2/3), chapitres à droite, fichiers en dessous [HYPOTHÈSE de mise en page].</p></div></div>
+</body>
+</html>

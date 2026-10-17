@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accueil KOMA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/*
+  KEY SCREEN — ACCUEIL (mobile 375 px crème, ordinateur ~1280 px, mobile sombre)
+  Spines qui gouvernent cet écran :
+  - EXPERIENCE.md › Information Architecture › Navigation ; Accueil — ordre des blocs (FR-2) : héros → 1 → 2 → 3
+  - EXPERIENCE.md › Component Patterns : Héros vidéo, Bouton Pause du héros, Tuile d'option du héros, Carte produit,
+    Badge de disponibilité, En-tête, Panneau ☰ (bouton seulement), Bascule de thème, Sélecteur de langue, Anneau de focus
+  - EXPERIENCE.md › Voice and Tone (argot + 1 emoji max, vitrine seulement) ; Key Flows › UJ-4 étapes 2-4
+  - DESIGN.md › Colors (règle du rouge, verre renforcé 85 % sur média), Typography (Sakura Town = police principale des grands titres de vitrine, rédigés sans accent ; bascule ENTIÈRE en Barlow Condensed si accent ; >= 40 px),
+    Layout & Spacing (héros mobile / ordinateur), Shapes, Components (hero, hero-pause-button, hero-option-tile, product-card, header)
+  Notes : bloc 1 « Porte-le ou fabrique-le » (titre reformulé sans accent pour Sakura Town, décision memlog ; PRD à aligner) rendu avec des Cartes produit étiquetées (aucun composant dédié au bloc 1 dans les spines).
+  Échelle ordinateur x1,25 = [HYPOTHÈSE D-2]. Accroche mobile Sakura Town ramenée à 42 px (52 px déborde à 375 px ; plancher 40 px respecté, D-3). Pas de boutons dans le panneau vidéo ordinateur : les deux tuiles SONT la double option (memlog).
+  Badge « Sur commande » = forme courte de « Fabrication sur commande » sur carte étroite (validé).
+  En-tête : logo principal horizontal (KOMA + コマ) dans le COIN GAUCHE — mobile logo | panier + ☰ ; ordinateur logo | 6 rubriques | icônes thème, langue, compte, panier (override memlog).
+  Grands titres de vitrine en Sakura Town, sans accent, en MAJUSCULES (text-transform).
+  Titres de cartes et de tuiles (h3, saisis par l'admin, 20-22 px) restent en Barlow Condensed : ce ne sont pas des grands titres.
+*/
+
+@font-face{font-family:"Sakura Town";src:url("../imports/fonts/Sakura%20Town.otf") format("opentype");font-display:swap}
+:root{--fh:"Barlow Condensed",system-ui,sans-serif;--fb:"Barlow",system-ui,sans-serif;--fbrush:"Sakura Town","Barlow Condensed",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:#D9D2C5;color:#16130F;font-family:var(--fb);font-size:16px;line-height:26px}
+/* ---------- Toile de présentation (hors produit) ---------- */
+.mock-banner{background:#16130F;color:#F3EEE4;padding:14px 24px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline}
+.mock-banner strong{font:700 20px/24px var(--fh);text-transform:uppercase;letter-spacing:.06em}
+.mock-banner span{font-size:14px;line-height:20px;color:#D8CFC1}
+.canvas-intro{max-width:1100px;padding:20px 32px 0;font-size:15px;line-height:23px;color:#2B241D}
+.canvas-intro h1{font:700 30px/34px var(--fh);text-transform:uppercase;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;gap:40px;padding:28px 32px 48px;align-items:flex-start}
+.frame-wrap{display:flex;flex-direction:column;gap:12px}
+.cap{max-width:395px;font-size:14px;line-height:20px;color:#2B241D}
+.cap b.state{display:block;font:700 18px/22px var(--fh);text-transform:uppercase;letter-spacing:.04em;color:#16130F;margin-bottom:2px}
+.cap code{font-size:12px;background:#EFE8DC;padding:0 4px;border-radius:4px}
+.desk-wrap .cap{max-width:1280px}
+/* ---------- Cadres ---------- */
+.phone{box-sizing:content-box;width:375px;border:10px solid #1E1A15;border-radius:42px;overflow:hidden;background:var(--bg);color:var(--text);box-shadow:0 18px 40px rgba(22,19,15,.25);position:relative}
+.browser{width:1280px;border-radius:14px;overflow:hidden;border:1px solid #9C9283;box-shadow:0 18px 40px rgba(22,19,15,.25);background:var(--bg);color:var(--text)}
+.chrome{display:flex;align-items:center;gap:14px;background:#E6E0D6;padding:10px 16px;border-bottom:1px solid #C9C0B2}
+.chrome i{width:12px;height:12px;border-radius:50%;background:#B8AE9F;display:inline-block}
+.chrome .url{flex:1;max-width:520px;margin-left:12px;background:#FBF8F2;border-radius:9999px;padding:4px 16px;font-size:14px;line-height:20px;color:#5E554A}
+/* ---------- Thèmes (tokens DESIGN.md) ---------- */
+.cream{--bg:#F3EEE4;--surface:#FBF8F2;--glass:rgba(255,255,255,.55);--glass-strong:rgba(255,255,255,.85);--glass-border:rgba(22,19,15,.14);--text:#16130F;--text2:#5E554A;--primary:#E3261C;--on-primary:#FFFFFF;--border:#E0D6C5;--field:#857A6B;--success:#2E7A4E;--warning:#8F5E10;--danger:#B01B13;--on-state:#FFFFFF;
+ --hero:radial-gradient(circle at 20% 25%,rgba(227,38,28,.25) 0,transparent 45%),linear-gradient(160deg,#FBF8F2,#EADFCC);
+ --tile-red:linear-gradient(150deg,#E3261C,#9E1A12);--tile-ink:linear-gradient(150deg,#5A4C3E,#2B241D)}
+.dark{--bg:#16130F;--surface:#211C17;--glass:rgba(243,238,228,.06);--glass-strong:rgba(22,19,15,.85);--glass-border:rgba(243,238,228,.14);--text:#F3EEE4;--text2:#B9AE9E;--primary:#E3261C;--on-primary:#FFFFFF;--border:#3A322A;--field:#7A6E5E;--success:#7CC49A;--warning:#E2B566;--danger:#F2766B;--on-state:#16130F;
+ --hero:radial-gradient(circle at 20% 25%,rgba(227,38,28,.40) 0,transparent 45%),linear-gradient(160deg,#2A221B,#16130F);
+ --tile-red:linear-gradient(150deg,#E3261C,#7A1A12);--tile-ink:linear-gradient(150deg,#4A3D31,#211C17)}
+/* ---------- Anneau de focus (double : text-primary + halo background) ---------- */
+.phone :focus-visible,.browser :focus-visible,.is-focus{outline:2px solid var(--text)!important;outline-offset:2px;box-shadow:0 0 0 2px var(--bg)}
+a{color:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* ---------- Typo ---------- */
+.t-brush{font-family:var(--fbrush);font-weight:400;line-height:1;letter-spacing:.01em;text-transform:uppercase}
+.t-display{font:italic 800 52px/50px var(--fh);text-transform:uppercase;letter-spacing:-.005em}
+.t-h1{font:700 38px/40px var(--fh);text-transform:uppercase}
+.t-h2{font:700 30px/34px var(--fh);text-transform:uppercase;letter-spacing:.01em}
+.t-h3{font:600 20px/24px var(--fh)}
+.t-small{font-size:14px;line-height:20px}
+.t-label{font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.14em}
+.t-price-card{font:700 20px/24px var(--fh)}
+.t-price-page{font:700 38px/40px var(--fh)}
+.muted{color:var(--text2)}
+.link{color:var(--text);text-decoration:underline;text-decoration-color:var(--primary);text-decoration-thickness:2px;text-underline-offset:3px;font-weight:600}
+/* ---------- Boutons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:12px 20px;border-radius:9999px;font:600 18px/20px var(--fh);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid transparent;cursor:pointer;text-align:center}
+.btn-primary{background:var(--primary);color:var(--on-primary)}
+.btn-secondary{background:var(--surface);color:var(--text);border-color:var(--field)}
+.btn-primary[aria-disabled="true"]{background:var(--surface);color:var(--text2);border-color:var(--field);cursor:not-allowed}
+.btn-block{display:flex;width:100%}
+.icon-btn{width:44px;height:44px;display:inline-grid;place-items:center;border-radius:9999px;background:transparent;border:0;color:var(--text);position:relative;cursor:pointer;font-size:22px;line-height:1}
+.icon-btn svg,.btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.count{position:absolute;top:4px;right:2px;min-width:18px;height:18px;padding:0 4px;border-radius:9999px;background:var(--primary);color:#FFFFFF;font:600 12px/18px var(--fb);text-align:center}
+/* ---------- En-tête : logo horizontal dans le COIN GAUCHE (logo | panier + ☰) ---------- */
+.hdr{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;height:64px;padding:0 8px 0 16px;background:var(--glass-strong);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--glass-border)}
+.hdr .logo{display:flex;align-items:center;min-height:44px;min-width:44px}
+.hdr .logo svg{display:block}
+.hdr .actions{display:flex;gap:2px}
+/* ---------- Médias simulés (aucune image de franchise) ---------- */
+.media{position:relative;overflow:hidden;background:#3B2C22}
+.ph-a{background:radial-gradient(circle at 70% 30%,#C9A27A 0,transparent 40%),radial-gradient(circle at 30% 80%,#7E3B28 0,transparent 45%),linear-gradient(160deg,#8C6A4F,#3B2C22)}
+.ph-b{background:radial-gradient(circle at 35% 35%,#D9C7A8 0,transparent 42%),radial-gradient(circle at 80% 75%,#4E5A52 0,transparent 45%),linear-gradient(200deg,#6E6455,#2B241D)}
+.ph-c{background:radial-gradient(circle at 60% 40%,#B98D5C 0,transparent 40%),linear-gradient(140deg,#5A4C3E,#1E1A15)}
+.ph-d{background:radial-gradient(circle at 40% 30%,#E8DCC6 0,transparent 45%),radial-gradient(circle at 75% 80%,#9A6B45 0,transparent 45%),linear-gradient(170deg,#A58B70,#4A3D31)}
+.ph-e{background:radial-gradient(circle at 50% 50%,#7E8C80 0,transparent 45%),linear-gradient(120deg,#4A3D31,#16130F)}
+.ph-video{background:radial-gradient(circle at 75% 20%,rgba(227,38,28,.55) 0,transparent 40%),radial-gradient(circle at 25% 60%,#C9A27A 0,transparent 38%),radial-gradient(circle at 70% 85%,#5A4C3E 0,transparent 45%),linear-gradient(165deg,#6B4A33,#1E1A15)}
+.media-tag{position:absolute;left:10px;top:10px;padding:2px 10px;border-radius:10px;background:var(--glass-strong);color:var(--text);border:1px solid var(--glass-border);font-size:12px;line-height:18px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+/* ---------- Composants ---------- */
+.glass-strong{background:var(--glass-strong);-webkit-backdrop-filter:blur(10px) saturate(140%);backdrop-filter:blur(10px) saturate(140%);border:1px solid var(--glass-border);border-radius:18px}
+.pause{position:absolute;top:12px;right:12px;width:44px;height:44px;border-radius:9999px;background:var(--surface);border:1px solid var(--field);color:var(--text);display:grid;place-items:center;cursor:pointer}
+.pause svg{width:18px;height:18px;fill:currentColor}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:10px;position:relative}
+.card .media{border-radius:14px;aspect-ratio:4/5}
+.card h3{margin-top:10px}
+.card h3 a{text-decoration:none}
+.card h3 a::after{content:"";position:absolute;inset:0;border-radius:20px}
+.card .price{margin-top:4px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:9999px;border:1px solid currentColor;background:var(--surface);font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.14em}
+.badge svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;flex:none}
+.b-stock{color:var(--success)} .b-order{color:var(--text2)} .b-full{color:var(--danger)}
+.section{padding:28px 16px 8px}
+.section .lead{margin-top:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.seg{display:flex;gap:4px;padding:3px;border:1px solid var(--field);border-radius:9999px;background:var(--bg)}
+.seg label{flex:1;position:relative;min-height:44px;display:flex;align-items:center;justify-content:center;gap:6px;padding:4px 10px;border-radius:9999px;border:2px solid transparent;color:var(--text2);font:600 17px/20px var(--fh);text-align:center;cursor:pointer}
+.seg input,.sizes input,.pay-card input.vh{position:absolute;opacity:0;width:1px;height:1px}
+.ck{display:none;font-weight:700}
+.seg label:has(input:checked),.sizes label:has(input:checked){background:var(--surface);border-color:var(--primary);color:var(--text)}
+.seg label:has(input:checked) .ck,.sizes label:has(input:checked) .ck{display:inline}
+.seg label:has(input:focus-visible),.sizes label:has(input:focus-visible){outline:2px solid var(--text);outline-offset:2px;box-shadow:0 0 0 2px var(--bg)}
+.sizes{display:flex;flex-wrap:wrap;gap:8px;border:0}
+.sizes label{min-width:52px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 12px;border-radius:9999px;border:1px solid var(--field);background:var(--bg);color:var(--text);font:600 17px/20px var(--fh);cursor:pointer}
+.sizes label:has(input:checked){border-width:2px}
+.sizes label:has(input:disabled){color:var(--text2);border-style:dashed;cursor:not-allowed;text-decoration:line-through}
+fieldset{border:0;min-width:0}
+legend{padding:0;margin-bottom:8px}
+.info-banner{background:var(--surface);border-left:4px solid var(--primary);border-radius:14px;padding:12px 14px;font-size:14px;line-height:20px;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.msg{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;font-size:14px;line-height:20px}
+.msg .dot{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:var(--on-state)}
+.msg .dot svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.msg.warn .dot{background:var(--warning)} .msg.err .dot{background:var(--danger)} .msg.ok .dot{background:var(--success)}
+.msg.warn strong{color:var(--warning)} .msg.err strong{color:var(--danger)}
+.kit-panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px;display:grid;grid-template-columns:72px 1fr;gap:12px}
+.kit-panel .media{width:72px;height:90px;border-radius:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label,.field .flabel{font:600 14px/20px var(--fb)}
+.field select,.field input{min-height:44px;width:100%;border:1px solid var(--field);border-radius:14px;background:var(--surface);color:var(--text);font:400 16px/24px var(--fb);padding:8px 14px}
+.field .help{font-size:14px;line-height:20px;color:var(--text2)}
+.field.has-error select{border:2px solid var(--danger)}
+.field .error{display:flex;gap:8px;font-size:14px;line-height:20px;color:var(--danger);font-weight:600}
+.field .error svg{flex:none;width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5;margin-top:1px}
+.pay-card{border:1px solid var(--field);border-radius:20px;background:var(--surface);padding:12px 14px}
+.pay-card.selected{border:2px solid var(--primary);padding:11px 13px}
+.pay-card .head{display:flex;align-items:center;gap:12px;min-height:44px;cursor:pointer}
+.radio{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--field);display:grid;place-items:center;background:var(--surface)}
+.pay-card.selected .radio{border-color:var(--primary)}
+.pay-card.selected .radio::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--primary)}
+.pay-card .ttl{font:600 20px/24px var(--fh);flex:1}
+.pay-card .chosen{font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.14em;display:inline-flex;gap:4px;align-items:center}
+.pay-card .body{display:grid;gap:14px;margin-top:10px;padding-top:12px;border-top:1px solid var(--border)}
+.recap{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px}
+.recap .line{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.recap .line:last-child{border-bottom:0}
+.recap .total{align-items:baseline}
+.stack{display:grid;gap:14px}
+.var{border-bottom:1px dashed currentColor;font-style:normal}
+.wa svg{width:20px;height:20px}
+.crumbs{font-size:14px;line-height:20px;padding:12px 16px 0}
+.crumbs a{color:var(--text)}
+.crumbs ol{list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.crumbs li+li::before{content:"›";margin-right:6px;color:var(--text2)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+
+.m-hero{position:relative;margin:10px;height:600px;border-radius:22px;overflow:hidden;background:var(--hero)}
+.m-hero>.media{position:absolute;inset:0}
+.m-hero .media-tag{top:12px;left:12px}
+.m-hero .panel{position:absolute;left:12px;right:12px;bottom:12px;padding:18px 16px 16px}
+.m-hero h1{font-size:42px;margin:8px 0 16px}
+.m-hero .btns{display:grid;gap:10px}
+.duo .opt{display:block;margin-bottom:8px}
+.more{display:inline-flex;align-items:center;min-height:44px;margin-top:8px}
+.section h2.t-brush{font-size:44px}
+.d-block h2.t-brush{font-size:60px}
+.kit-meta{margin-top:2px}
+/* Ordinateur : échelle x1,25 [HYPOTHÈSE D-2] */
+.d-hdr{display:flex;align-items:center;gap:32px;height:84px;padding:0 32px;background:var(--glass-strong);border-bottom:1px solid var(--glass-border)}
+.d-hdr .logo{display:flex;align-items:center;min-height:44px;flex:none}
+.d-hdr .logo svg{display:block}
+.d-hdr nav ul{list-style:none;display:flex;gap:24px}
+.d-hdr nav a{font:600 19px/24px var(--fh);text-transform:uppercase;letter-spacing:.06em;text-decoration:none;display:inline-flex;min-height:44px;align-items:center;white-space:nowrap}
+.d-hdr .tools{margin-left:auto;display:flex;gap:4px;align-items:center}
+.lang-btn{font:600 16px/20px var(--fh);letter-spacing:.06em;text-decoration:none}
+.pill{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 16px;border-radius:9999px;background:var(--surface);border:1px solid var(--field);color:var(--text);font:600 15px/20px var(--fb);text-decoration:none;cursor:pointer}
+.pill svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2}
+.d-hero{display:grid;grid-template-columns:2fr 1fr;gap:14px;padding:24px 32px}
+.d-video{position:relative;height:540px;border-radius:22px;overflow:hidden;background:var(--hero)}
+.d-video>.media{position:absolute;inset:0}
+.d-video .media-tag{top:14px;left:14px}
+.d-video .panel{position:absolute;left:24px;bottom:24px;width:540px;padding:26px 28px}
+.d-video h1{font-size:72px;margin-top:10px}
+.d-tiles{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.d-tile{position:relative;border-radius:20px;overflow:hidden;height:540px}
+.d-tile>.media{position:absolute;inset:0}
+.d-tile .band{position:absolute;left:8px;right:8px;bottom:8px;padding:14px 14px 12px;border-radius:18px}
+.d-tile h2{font:600 22px/26px var(--fh);margin:6px 0 4px}
+.d-tile h2 a{text-decoration:none}
+.d-tile h2 a::after{content:"";position:absolute;inset:0}
+.d-tile .t-price-card{font-size:24px;line-height:28px}
+.d-block{padding:16px 32px 36px}
+.d-block .duo-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}
+
+</style>
+</head>
+<body>
+<div class="mock-banner" role="note"><strong>Maquette — prix et produits fictifs</strong><span>Noms de produits, prix, numéros, heures, opérateurs et références sont des exemples inventés pour la maquette (règles 5 et 13). Photos et vidéo simulées par des dégradés abstraits : seules les vraies photos du créateur seront utilisées.</span></div>
+<div class="canvas-intro"><h1>Accueil — écran clé</h1><p>Entrée canonique (UJ-4). Mobile crème (défaut), version ordinateur, puis le même mobile en thème sombre. Le cadre mobile montre la page défilée : héros plein écran puis blocs 1 à 3 (blocs 4 à 8 hors cadre ; Kit gratuit et Galerie masqués au lancement faute de contenu réel).</p></div>
+<div class="row">
+  <div class="frame-wrap"><div class="phone cream">
+<header class="hdr">
+  <a class="logo" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="156" height="36.5" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_1"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_1)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_1"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_1"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_1)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_1)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <div class="actions">
+    <a class="icon-btn" href="#" aria-label="Panier, 2 articles"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="count" aria-hidden="true">2</span></a>
+    <button class="icon-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span></button>
+  </div>
+</header>
+<main id="contenu-cream" tabindex="-1">
+  <section class="m-hero" aria-labelledby="h-cream">
+    <!-- Vidéo du héros : muted playsinline loop, aria-hidden, aucune information indispensable. Simulée par un dégradé. Photo de repli en mouvement réduit. -->
+    <div class="media ph-video" aria-hidden="true"><span class="media-tag">[Vidéo du créateur — boucle sans son]</span></div>
+    <button class="pause is-focus" type="button" aria-label="Mettre la vidéo en pause" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1"/><rect x="14" y="4" width="5" height="16" rx="1"/></svg></button>
+    <div class="panel glass-strong">
+      <p class="t-label">Fait main à Goma</p>
+      <h1 id="h-cream" class="t-brush">Deviens ton personnage.</h1>
+      <div class="btns">
+        <a class="btn btn-primary btn-block" href="#">Prêt à porter</a>
+        <a class="btn btn-secondary btn-block" href="#">Le fabriquer moi-même</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section duo" aria-labelledby="b1-cream">
+    <h2 id="b1-cream" class="t-brush">Porte-le ou fabrique-le</h2>
+    <p class="lead">Le même costume, deux façons de le vivre : tu le reçois prêt, ou tu le fabriques toi-même avec son kit.</p>
+    <div class="grid2">
+      <article class="card">
+        <span class="opt t-label">Prêt à porter</span>
+        <div class="media ph-a" role="img" aria-label="Guerrière du désert portée, de face, en lumière naturelle" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div>
+        <h3 class="t-h3"><a href="#">Guerrière du désert</a></h3>
+        <p class="price t-price-card">120 USD</p>
+        <p class="t-small muted">Fabrication : 10 jours</p>
+      </article>
+      <article class="card">
+        <span class="opt t-label">Le fabriquer moi-même</span>
+        <div class="media ph-d" role="img" aria-label="Plastron en mousse en cours de fabrication sur l’établi" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div>
+        <h3 class="t-h3"><a href="#">Kit Plastron en mousse</a></h3>
+        <p class="price t-price-card">18 USD</p>
+        <p class="t-small muted">Accès immédiat, à vie</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="b2-cream">
+    <p class="t-label">Fait main à Goma</p>
+    <h2 id="b2-cream" class="t-brush">Cosplays</h2>
+    <p class="lead">Chaque costume est fait main dans l’atelier de Jonathan, à Goma.</p>
+    <div class="grid2">
+      <article class="card">
+        <div class="media ph-a" role="img" aria-label="Guerrière du désert, vue de face" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div>
+        <h3 class="t-h3"><a href="#">Guerrière du désert</a></h3>
+        <p class="price t-price-card">120 USD</p>
+        <p style="margin-top:6px"><span class="badge b-order"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Sur commande</span></p>
+      </article>
+      <article class="card">
+        <div class="media ph-c" role="img" aria-label="Ronin des cendres, vue de trois quarts" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div>
+        <h3 class="t-h3"><a href="#">Ronin des cendres</a></h3>
+        <p class="price t-price-card">95 USD</p>
+        <p style="margin-top:6px"><span class="badge b-stock"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>En stock</span></p>
+      </article>
+    </div>
+    <a class="link more" href="#">Voir tous les cosplays</a>
+  </section>
+
+  <section class="section" aria-labelledby="b3-cream" style="padding-bottom:28px">
+    <h2 id="b3-cream" class="t-brush">Kits</h2>
+    <p class="lead">Patrons, fichiers et tuto vidéo en chapitres : ton prochain prop, c’est toi qui le fais, nakama. <span aria-hidden="true">✂️</span></p>
+    <div class="grid2">
+      <article class="card">
+        <div class="media ph-d" role="img" aria-label="Plastron en mousse terminé, posé à plat" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div>
+        <h3 class="t-h3"><a href="#">Kit Plastron en mousse</a></h3>
+        <p class="price t-price-card">18 USD</p>
+        <p class="t-small muted kit-meta">PDF, SVG, STL + vidéo</p>
+      </article>
+      <article class="card">
+        <div class="media ph-b" role="img" aria-label="Masque de renard peint, vue de face" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div>
+        <h3 class="t-h3"><a href="#">Kit Masque de renard</a></h3>
+        <p class="price t-price-card">12 USD</p>
+        <p class="t-small muted kit-meta">PDF, SVG, STL + vidéo</p>
+      </article>
+    </div>
+    <a class="link more" href="#">Voir tous les kits</a>
+    <!-- Kit gratuit : masqué tant qu'aucun Kit gratuit n'existe (FR-2, FR-58). Blocs 4 à 8 hors cadre. -->
+  </section>
+</main>
+</div>
+    <p class="cap"><b class="state">1 · Mobile crème (défaut)</b>En-tête : logo principal horizontal dans le coin gauche, panier + ☰ à droite. Héros vidéo plein écran, panneau en verre renforcé 85 %, accroche Sakura Town en H1 texte réel ; titres de section « Porte-le ou fabrique-le », « Cosplays », « Kits » en Sakura Town, boutons « Prêt à porter » (principal) / « Le fabriquer moi-même » (secondaire). Le bouton Pause montre l’anneau de focus double (état clavier).</p></div>
+  <div class="frame-wrap desk-wrap"><div class="browser cream">
+<div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span class="url">komashop.com/fr</span></div>
+<header class="d-hdr">
+  <a href="#" class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="190" height="44.5" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_2"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_2)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_2"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_2"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_2)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_2)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <nav aria-label="Menu principal"><ul><li><a href="#">Cosplays</a></li><li><a href="#">Accessoires</a></li><li><a href="#">Kits</a></li><li><a href="#">Événements</a></li><li><a href="#">Blog</a></li><li><a href="#">À propos</a></li></ul></nav>
+  <div class="tools">
+    <button class="icon-btn" type="button" aria-label="Thème sombre" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg></button>
+    <a class="icon-btn lang-btn" href="#" lang="en" hreflang="en" aria-label="English">EN</a>
+    <a class="icon-btn" href="#" aria-label="Compte"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></a>
+    <a class="icon-btn" href="#" aria-label="Panier, 2 articles"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="count" aria-hidden="true">2</span></a>
+  </div>
+</header>
+<main>
+  <section class="d-hero" aria-labelledby="dh1">
+    <div class="d-video">
+      <div class="media ph-video" aria-hidden="true"><span class="media-tag">[Vidéo du créateur — boucle sans son]</span></div>
+      <button class="pause" type="button" aria-label="Mettre la vidéo en pause" aria-pressed="false" style="top:14px;right:14px"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1"/><rect x="14" y="4" width="5" height="16" rx="1"/></svg></button>
+      <div class="panel glass-strong">
+        <p class="t-label">Fait main à Goma</p>
+        <h1 id="dh1" class="t-brush">Deviens ton personnage.</h1>
+      </div>
+    </div>
+    <div class="d-tiles">
+      <article class="d-tile">
+        <div class="media ph-a" role="img" aria-label="Guerrière du désert portée en pleine lumière, cape en mouvement" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div>
+        <div class="band glass-strong">
+          <p class="t-label">Prêt à porter</p>
+          <h2><a href="#">Guerrière du désert</a></h2>
+          <p class="t-price-card">120 USD</p>
+          <p class="t-small muted">Fabrication : 10 jours</p>
+        </div>
+      </article>
+      <article class="d-tile">
+        <div class="media ph-d" role="img" aria-label="Plastron en mousse découpé et peint sur l’établi de l’atelier" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div>
+        <div class="band glass-strong">
+          <p class="t-label">Le fabriquer moi-même</p>
+          <h2><a href="#">Kit Plastron en mousse</a></h2>
+          <p class="t-price-card">18 USD</p>
+          <p class="t-small muted">Accès immédiat, à vie</p>
+        </div>
+      </article>
+    </div>
+  </section>
+  <section class="d-block" aria-labelledby="db1">
+    <h2 id="db1" class="t-brush">Porte-le ou fabrique-le</h2>
+    <div class="duo-row">
+      <article class="card"><span class="t-label" style="display:block;margin-bottom:8px">Prêt à porter</span><div class="media ph-a" role="img" aria-label="Guerrière du désert portée, de face" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div><h3 class="t-h3"><a href="#">Guerrière du désert</a></h3><p class="t-price-card">120 USD</p><p class="t-small muted">Fabrication : 10 jours</p></article>
+      <article class="card"><span class="t-label" style="display:block;margin-bottom:8px">Le fabriquer moi-même</span><div class="media ph-d" role="img" aria-label="Plastron en mousse en cours de fabrication" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div><h3 class="t-h3"><a href="#">Kit Plastron en mousse</a></h3><p class="t-price-card">18 USD</p><p class="t-small muted">Accès immédiat, à vie</p></article>
+      <article class="card"><span class="t-label" style="display:block;margin-bottom:8px">Prêt à porter</span><div class="media ph-c" role="img" aria-label="Ronin des cendres porté, vue de trois quarts" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div><h3 class="t-h3"><a href="#">Ronin des cendres</a></h3><p class="t-price-card">95 USD</p><p class="t-small muted">En stock</p></article>
+      <article class="card"><span class="t-label" style="display:block;margin-bottom:8px">Le fabriquer moi-même</span><div class="media ph-e" role="img" aria-label="Patron imprimé et pièces de mousse découpées" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div><h3 class="t-h3"><a href="#">Kit Spalières du ronin</a></h3><p class="t-price-card">15 USD</p><p class="t-small muted">Accès immédiat, à vie</p></article>
+    </div>
+  </section>
+</main>
+</div>
+    <p class="cap"><b class="state">2 · Ordinateur ~1280 px</b>Barre du haut unique : logo principal horizontal dans le coin gauche, 6 rubriques, puis icônes thème, langue (EN), compte, panier à droite. Vidéo ~2/3 + deux tuiles verticales = la double option (cosplay vedette : prix USD + délai ; kit lié : prix). Lien sur le titre de chaque tuile, étendu à toute la tuile. Bloc 1 en dessous.</p></div>
+  <div class="frame-wrap"><div class="phone dark">
+<header class="hdr">
+  <a class="logo" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="156" height="36.5" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_3"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_3)" fill="none" stroke="#F3EEE4" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#F3EEE4"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_3"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_3"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_3)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_3)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#16130F"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#F3EEE4" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <div class="actions">
+    <a class="icon-btn" href="#" aria-label="Panier, 2 articles"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="count" aria-hidden="true">2</span></a>
+    <button class="icon-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span></button>
+  </div>
+</header>
+<main id="contenu-dark" tabindex="-1">
+  <section class="m-hero" aria-labelledby="h-dark">
+    <!-- Vidéo du héros : muted playsinline loop, aria-hidden, aucune information indispensable. Simulée par un dégradé. Photo de repli en mouvement réduit. -->
+    <div class="media ph-video" aria-hidden="true"><span class="media-tag">[Vidéo du créateur — boucle sans son]</span></div>
+    <button class="pause" type="button" aria-label="Mettre la vidéo en pause" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="5" height="16" rx="1"/><rect x="14" y="4" width="5" height="16" rx="1"/></svg></button>
+    <div class="panel glass-strong">
+      <p class="t-label">Fait main à Goma</p>
+      <h1 id="h-dark" class="t-brush">Deviens ton personnage.</h1>
+      <div class="btns">
+        <a class="btn btn-primary btn-block" href="#">Prêt à porter</a>
+        <a class="btn btn-secondary btn-block" href="#">Le fabriquer moi-même</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section duo" aria-labelledby="b1-dark">
+    <h2 id="b1-dark" class="t-brush">Porte-le ou fabrique-le</h2>
+    <p class="lead">Le même costume, deux façons de le vivre : tu le reçois prêt, ou tu le fabriques toi-même avec son kit.</p>
+    <div class="grid2">
+      <article class="card">
+        <span class="opt t-label">Prêt à porter</span>
+        <div class="media ph-a" role="img" aria-label="Guerrière du désert portée, de face, en lumière naturelle" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div>
+        <h3 class="t-h3"><a href="#">Guerrière du désert</a></h3>
+        <p class="price t-price-card">120 USD</p>
+        <p class="t-small muted">Fabrication : 10 jours</p>
+      </article>
+      <article class="card">
+        <span class="opt t-label">Le fabriquer moi-même</span>
+        <div class="media ph-d" role="img" aria-label="Plastron en mousse en cours de fabrication sur l’établi" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div>
+        <h3 class="t-h3"><a href="#">Kit Plastron en mousse</a></h3>
+        <p class="price t-price-card">18 USD</p>
+        <p class="t-small muted">Accès immédiat, à vie</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="b2-dark">
+    <p class="t-label">Fait main à Goma</p>
+    <h2 id="b2-dark" class="t-brush">Cosplays</h2>
+    <p class="lead">Chaque costume est fait main dans l’atelier de Jonathan, à Goma.</p>
+    <div class="grid2">
+      <article class="card">
+        <div class="media ph-a" role="img" aria-label="Guerrière du désert, vue de face" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div>
+        <h3 class="t-h3"><a href="#">Guerrière du désert</a></h3>
+        <p class="price t-price-card">120 USD</p>
+        <p style="margin-top:6px"><span class="badge b-order"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Sur commande</span></p>
+      </article>
+      <article class="card">
+        <div class="media ph-c" role="img" aria-label="Ronin des cendres, vue de trois quarts" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div>
+        <h3 class="t-h3"><a href="#">Ronin des cendres</a></h3>
+        <p class="price t-price-card">95 USD</p>
+        <p style="margin-top:6px"><span class="badge b-stock"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>En stock</span></p>
+      </article>
+    </div>
+    <a class="link more" href="#">Voir tous les cosplays</a>
+  </section>
+
+  <section class="section" aria-labelledby="b3-dark" style="padding-bottom:28px">
+    <h2 id="b3-dark" class="t-brush">Kits</h2>
+    <p class="lead">Patrons, fichiers et tuto vidéo en chapitres : ton prochain prop, c’est toi qui le fais, nakama. <span aria-hidden="true">✂️</span></p>
+    <div class="grid2">
+      <article class="card">
+        <div class="media ph-d" role="img" aria-label="Plastron en mousse terminé, posé à plat" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div>
+        <h3 class="t-h3"><a href="#">Kit Plastron en mousse</a></h3>
+        <p class="price t-price-card">18 USD</p>
+        <p class="t-small muted kit-meta">PDF, SVG, STL + vidéo</p>
+      </article>
+      <article class="card">
+        <div class="media ph-b" role="img" aria-label="Masque de renard peint, vue de face" style=""><span class="media-tag" aria-hidden="true">[Photo du créateur]</span></div>
+        <h3 class="t-h3"><a href="#">Kit Masque de renard</a></h3>
+        <p class="price t-price-card">12 USD</p>
+        <p class="t-small muted kit-meta">PDF, SVG, STL + vidéo</p>
+      </article>
+    </div>
+    <a class="link more" href="#">Voir tous les kits</a>
+    <!-- Kit gratuit : masqué tant qu'aucun Kit gratuit n'existe (FR-2, FR-58). Blocs 4 à 8 hors cadre. -->
+  </section>
+</main>
+</div>
+    <p class="cap"><b class="state">3 · Mobile sombre (bascule)</b>Mêmes rôles, tokens <code>-dark</code> ; logo horizontal inverse (<code>KOMA_horizontal_inverse.svg</code>) à gauche ; verre renforcé encre 85 %. Le rouge reste réservé aux boutons et au compteur du panier.</p></div>
+</div>
+</body>
+</html>

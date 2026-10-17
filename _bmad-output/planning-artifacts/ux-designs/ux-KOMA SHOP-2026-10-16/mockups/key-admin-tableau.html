@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin tableau de bord</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/*
+  KEY SCREEN — ADMIN › TABLEAU DE BORD (ordinateur 1280 crème, mobile 375 crème, état vide mobile sombre)
+  Spines : EXPERIENCE.md › Admin (Tableau de bord : payées d'abord, puis graphiques, puis tâches et indicateurs ; graphiques doublés
+  d'un tableau de données) ; Component Patterns : Carte de tâche admin, Message d'état, Badge (forme reprise pour les statuts) ;
+  Key Flows › UJ-6 étapes 1-2 ; PRD FR-49, §7 (SM-1 à SM-9, aucun objectif chiffré).
+  DESIGN.md : Colors (crème défaut + sombre, Sumi & washi), Components › Carte de tâche admin (compteur h1, libellé label).
+  Décision memlog : ordinateur = barre latérale gauche ; mobile = 4 onglets bas + ☰ ; sans motifs manga ni Sakura Town.
+  HORS CATALOGUE (à ajouter aux Component Patterns) : Barre latérale admin, Barre d'onglets admin, Graphique en barres simples,
+  Tableau de données admin. Données 100 % fictives, étiquetées « fictif ».*/
+
+@font-face{font-family:"Sakura Town";src:url("../imports/fonts/Sakura%20Town.otf") format("opentype");font-display:swap}
+:root{--fh:"Barlow Condensed",system-ui,sans-serif;--fb:"Barlow",system-ui,sans-serif;--fbrush:"Sakura Town","Barlow Condensed",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:#D9D2C5;color:#16130F;font-family:var(--fb);font-size:16px;line-height:26px}
+/* ---------- Toile de présentation (hors produit) ---------- */
+.mock-banner{background:#16130F;color:#F3EEE4;padding:14px 24px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline}
+.mock-banner strong{font:700 20px/24px var(--fh);text-transform:uppercase;letter-spacing:.06em}
+.mock-banner span{font-size:14px;line-height:20px;color:#D8CFC1}
+.canvas-intro{max-width:1100px;padding:20px 32px 0;font-size:15px;line-height:23px;color:#2B241D}
+.canvas-intro h1{font:700 30px/34px var(--fh);text-transform:uppercase;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;gap:40px;padding:28px 32px 48px;align-items:flex-start}
+.frame-wrap{display:flex;flex-direction:column;gap:12px}
+.cap{max-width:395px;font-size:14px;line-height:20px;color:#2B241D}
+.cap b.state{display:block;font:700 18px/22px var(--fh);text-transform:uppercase;letter-spacing:.04em;color:#16130F;margin-bottom:2px}
+.cap code{font-size:12px;background:#EFE8DC;padding:0 4px;border-radius:4px}
+.desk-wrap .cap{max-width:1280px}
+/* ---------- Cadres ---------- */
+.phone{box-sizing:content-box;width:375px;border:10px solid #1E1A15;border-radius:42px;overflow:hidden;background:var(--bg);color:var(--text);box-shadow:0 18px 40px rgba(22,19,15,.25);position:relative}
+.browser{width:1280px;border-radius:14px;overflow:hidden;border:1px solid #9C9283;box-shadow:0 18px 40px rgba(22,19,15,.25);background:var(--bg);color:var(--text)}
+.chrome{display:flex;align-items:center;gap:14px;background:#E6E0D6;padding:10px 16px;border-bottom:1px solid #C9C0B2}
+.chrome i{width:12px;height:12px;border-radius:50%;background:#B8AE9F;display:inline-block}
+.chrome .url{flex:1;max-width:520px;margin-left:12px;background:#FBF8F2;border-radius:9999px;padding:4px 16px;font-size:14px;line-height:20px;color:#5E554A}
+/* ---------- Thèmes (tokens DESIGN.md) ---------- */
+.cream{--bg:#F3EEE4;--surface:#FBF8F2;--glass:rgba(255,255,255,.55);--glass-strong:rgba(255,255,255,.85);--glass-border:rgba(22,19,15,.14);--text:#16130F;--text2:#5E554A;--primary:#E3261C;--on-primary:#FFFFFF;--border:#E0D6C5;--field:#857A6B;--success:#2E7A4E;--warning:#8F5E10;--danger:#B01B13;--on-state:#FFFFFF;
+ --hero:radial-gradient(circle at 20% 25%,rgba(227,38,28,.25) 0,transparent 45%),linear-gradient(160deg,#FBF8F2,#EADFCC);
+ --tile-red:linear-gradient(150deg,#E3261C,#9E1A12);--tile-ink:linear-gradient(150deg,#5A4C3E,#2B241D)}
+.dark{--bg:#16130F;--surface:#211C17;--glass:rgba(243,238,228,.06);--glass-strong:rgba(22,19,15,.85);--glass-border:rgba(243,238,228,.14);--text:#F3EEE4;--text2:#B9AE9E;--primary:#E3261C;--on-primary:#FFFFFF;--border:#3A322A;--field:#7A6E5E;--success:#7CC49A;--warning:#E2B566;--danger:#F2766B;--on-state:#16130F;
+ --hero:radial-gradient(circle at 20% 25%,rgba(227,38,28,.40) 0,transparent 45%),linear-gradient(160deg,#2A221B,#16130F);
+ --tile-red:linear-gradient(150deg,#E3261C,#7A1A12);--tile-ink:linear-gradient(150deg,#4A3D31,#211C17)}
+/* ---------- Anneau de focus (double : text-primary + halo background) ---------- */
+.phone :focus-visible,.browser :focus-visible,.is-focus{outline:2px solid var(--text)!important;outline-offset:2px;box-shadow:0 0 0 2px var(--bg)}
+a{color:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* ---------- Typo ---------- */
+.t-brush{font-family:var(--fbrush);font-weight:400;line-height:1;letter-spacing:.01em;text-transform:uppercase}
+.t-display{font:italic 800 52px/50px var(--fh);text-transform:uppercase;letter-spacing:-.005em}
+.t-h1{font:700 38px/40px var(--fh);text-transform:uppercase}
+.t-h2{font:700 30px/34px var(--fh);text-transform:uppercase;letter-spacing:.01em}
+.t-h3{font:600 20px/24px var(--fh)}
+.t-small{font-size:14px;line-height:20px}
+.t-label{font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.14em}
+.t-price-card{font:700 20px/24px var(--fh)}
+.t-price-page{font:700 38px/40px var(--fh)}
+.muted{color:var(--text2)}
+.link{color:var(--text);text-decoration:underline;text-decoration-color:var(--primary);text-decoration-thickness:2px;text-underline-offset:3px;font-weight:600}
+/* ---------- Boutons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:12px 20px;border-radius:9999px;font:600 18px/20px var(--fh);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid transparent;cursor:pointer;text-align:center}
+.btn-primary{background:var(--primary);color:var(--on-primary)}
+.btn-secondary{background:var(--surface);color:var(--text);border-color:var(--field)}
+.btn-primary[aria-disabled="true"]{background:var(--surface);color:var(--text2);border-color:var(--field);cursor:not-allowed}
+.btn-block{display:flex;width:100%}
+.icon-btn{width:44px;height:44px;display:inline-grid;place-items:center;border-radius:9999px;background:transparent;border:0;color:var(--text);position:relative;cursor:pointer;font-size:22px;line-height:1}
+.icon-btn svg,.btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.count{position:absolute;top:4px;right:2px;min-width:18px;height:18px;padding:0 4px;border-radius:9999px;background:var(--primary);color:#FFFFFF;font:600 12px/18px var(--fb);text-align:center}
+/* ---------- En-tête : logo horizontal dans le COIN GAUCHE (logo | panier + ☰) ---------- */
+.hdr{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;height:64px;padding:0 8px 0 16px;background:var(--glass-strong);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--glass-border)}
+.hdr .logo{display:flex;align-items:center;min-height:44px;min-width:44px}
+.hdr .logo svg{display:block}
+.hdr .actions{display:flex;gap:2px}
+/* ---------- Médias simulés (aucune image de franchise) ---------- */
+.media{position:relative;overflow:hidden;background:#3B2C22}
+.ph-a{background:radial-gradient(circle at 70% 30%,#C9A27A 0,transparent 40%),radial-gradient(circle at 30% 80%,#7E3B28 0,transparent 45%),linear-gradient(160deg,#8C6A4F,#3B2C22)}
+.ph-b{background:radial-gradient(circle at 35% 35%,#D9C7A8 0,transparent 42%),radial-gradient(circle at 80% 75%,#4E5A52 0,transparent 45%),linear-gradient(200deg,#6E6455,#2B241D)}
+.ph-c{background:radial-gradient(circle at 60% 40%,#B98D5C 0,transparent 40%),linear-gradient(140deg,#5A4C3E,#1E1A15)}
+.ph-d{background:radial-gradient(circle at 40% 30%,#E8DCC6 0,transparent 45%),radial-gradient(circle at 75% 80%,#9A6B45 0,transparent 45%),linear-gradient(170deg,#A58B70,#4A3D31)}
+.ph-e{background:radial-gradient(circle at 50% 50%,#7E8C80 0,transparent 45%),linear-gradient(120deg,#4A3D31,#16130F)}
+.ph-video{background:radial-gradient(circle at 75% 20%,rgba(227,38,28,.55) 0,transparent 40%),radial-gradient(circle at 25% 60%,#C9A27A 0,transparent 38%),radial-gradient(circle at 70% 85%,#5A4C3E 0,transparent 45%),linear-gradient(165deg,#6B4A33,#1E1A15)}
+.media-tag{position:absolute;left:10px;top:10px;padding:2px 10px;border-radius:10px;background:var(--glass-strong);color:var(--text);border:1px solid var(--glass-border);font-size:12px;line-height:18px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+/* ---------- Composants ---------- */
+.glass-strong{background:var(--glass-strong);-webkit-backdrop-filter:blur(10px) saturate(140%);backdrop-filter:blur(10px) saturate(140%);border:1px solid var(--glass-border);border-radius:18px}
+.pause{position:absolute;top:12px;right:12px;width:44px;height:44px;border-radius:9999px;background:var(--surface);border:1px solid var(--field);color:var(--text);display:grid;place-items:center;cursor:pointer}
+.pause svg{width:18px;height:18px;fill:currentColor}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:10px;position:relative}
+.card .media{border-radius:14px;aspect-ratio:4/5}
+.card h3{margin-top:10px}
+.card h3 a{text-decoration:none}
+.card h3 a::after{content:"";position:absolute;inset:0;border-radius:20px}
+.card .price{margin-top:4px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:9999px;border:1px solid currentColor;background:var(--surface);font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.14em}
+.badge svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;flex:none}
+.b-stock{color:var(--success)} .b-order{color:var(--text2)} .b-full{color:var(--danger)}
+.section{padding:28px 16px 8px}
+.section .lead{margin-top:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.seg{display:flex;gap:4px;padding:3px;border:1px solid var(--field);border-radius:9999px;background:var(--bg)}
+.seg label{flex:1;position:relative;min-height:44px;display:flex;align-items:center;justify-content:center;gap:6px;padding:4px 10px;border-radius:9999px;border:2px solid transparent;color:var(--text2);font:600 17px/20px var(--fh);text-align:center;cursor:pointer}
+.seg input,.sizes input,.pay-card input.vh{position:absolute;opacity:0;width:1px;height:1px}
+.ck{display:none;font-weight:700}
+.seg label:has(input:checked),.sizes label:has(input:checked){background:var(--surface);border-color:var(--primary);color:var(--text)}
+.seg label:has(input:checked) .ck,.sizes label:has(input:checked) .ck{display:inline}
+.seg label:has(input:focus-visible),.sizes label:has(input:focus-visible){outline:2px solid var(--text);outline-offset:2px;box-shadow:0 0 0 2px var(--bg)}
+.sizes{display:flex;flex-wrap:wrap;gap:8px;border:0}
+.sizes label{min-width:52px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 12px;border-radius:9999px;border:1px solid var(--field);background:var(--bg);color:var(--text);font:600 17px/20px var(--fh);cursor:pointer}
+.sizes label:has(input:checked){border-width:2px}
+.sizes label:has(input:disabled){color:var(--text2);border-style:dashed;cursor:not-allowed;text-decoration:line-through}
+fieldset{border:0;min-width:0}
+legend{padding:0;margin-bottom:8px}
+.info-banner{background:var(--surface);border-left:4px solid var(--primary);border-radius:14px;padding:12px 14px;font-size:14px;line-height:20px;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.msg{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;font-size:14px;line-height:20px}
+.msg .dot{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:var(--on-state)}
+.msg .dot svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.msg.warn .dot{background:var(--warning)} .msg.err .dot{background:var(--danger)} .msg.ok .dot{background:var(--success)}
+.msg.warn strong{color:var(--warning)} .msg.err strong{color:var(--danger)}
+.kit-panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px;display:grid;grid-template-columns:72px 1fr;gap:12px}
+.kit-panel .media{width:72px;height:90px;border-radius:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label,.field .flabel{font:600 14px/20px var(--fb)}
+.field select,.field input{min-height:44px;width:100%;border:1px solid var(--field);border-radius:14px;background:var(--surface);color:var(--text);font:400 16px/24px var(--fb);padding:8px 14px}
+.field .help{font-size:14px;line-height:20px;color:var(--text2)}
+.field.has-error select{border:2px solid var(--danger)}
+.field .error{display:flex;gap:8px;font-size:14px;line-height:20px;color:var(--danger);font-weight:600}
+.field .error svg{flex:none;width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5;margin-top:1px}
+.pay-card{border:1px solid var(--field);border-radius:20px;background:var(--surface);padding:12px 14px}
+.pay-card.selected{border:2px solid var(--primary);padding:11px 13px}
+.pay-card .head{display:flex;align-items:center;gap:12px;min-height:44px;cursor:pointer}
+.radio{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--field);display:grid;place-items:center;background:var(--surface)}
+.pay-card.selected .radio{border-color:var(--primary)}
+.pay-card.selected .radio::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--primary)}
+.pay-card .ttl{font:600 20px/24px var(--fh);flex:1}
+.pay-card .chosen{font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.14em;display:inline-flex;gap:4px;align-items:center}
+.pay-card .body{display:grid;gap:14px;margin-top:10px;padding-top:12px;border-top:1px solid var(--border)}
+.recap{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px}
+.recap .line{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.recap .line:last-child{border-bottom:0}
+.recap .total{align-items:baseline}
+.stack{display:grid;gap:14px}
+.var{border-bottom:1px dashed currentColor;font-style:normal}
+.wa svg{width:20px;height:20px}
+.crumbs{font-size:14px;line-height:20px;padding:12px 16px 0}
+.crumbs a{color:var(--text)}
+.crumbs ol{list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.crumbs li+li::before{content:"›";margin-right:6px;color:var(--text2)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+
+/* ===== Admin (nouveaux éléments notés « HORS CATALOGUE » quand ils ne figurent pas dans Component Patterns) ===== */
+.mock-banner strong{white-space:nowrap}
+/* HORS CATALOGUE : Barre latérale admin (décision memlog « admin ordinateur = barre latérale gauche », pas encore dans Component Patterns) */
+.adm{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:860px}
+.side{background:var(--surface);border-right:1px solid var(--border);padding:18px 12px;display:flex;flex-direction:column;gap:10px}
+.side .logo{display:flex;align-items:center;min-height:44px;padding:0 8px}
+.side .logo svg{display:block}
+.side .role{padding:0 12px;color:var(--text2)}
+.side ul{list-style:none;display:grid;gap:2px}
+.side a.nv{display:flex;align-items:center;gap:12px;min-height:44px;padding:8px 12px;border-radius:14px;text-decoration:none;color:var(--text);font:600 18px/22px var(--fh)}
+.side a.nv svg,.tabbar svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.side a.nv[aria-current="page"]{background:var(--bg);box-shadow:inset 4px 0 0 var(--primary);font-weight:700}
+.side a.nv .n{margin-left:auto;min-width:26px;padding:0 8px;border-radius:9999px;border:1px solid var(--field);font:600 14px/22px var(--fb);text-align:center}
+.side .foot{margin-top:auto;display:flex;gap:4px;border-top:1px solid var(--border);padding-top:10px}
+.amain{padding:24px 32px 40px;display:grid;gap:22px;align-content:start;min-width:0}
+.atop{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:18px;min-width:0}
+.panel>h2,.ph2{font:700 24px/28px var(--fh);text-transform:uppercase;letter-spacing:.01em}
+.phead{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.fict{display:inline-block;font:600 12px/16px var(--fb);border:1px dashed var(--field);border-radius:9999px;padding:2px 8px;color:var(--text2);white-space:nowrap}
+.cols2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
+.cols-main{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:22px;align-items:start}
+/* Tableau de données (doublure des graphiques, listes) — HORS CATALOGUE : « Tableau de données admin » */
+table.dt{width:100%;border-collapse:collapse;font-size:15px;line-height:20px}
+.dt caption{text-align:left;font-size:14px;line-height:20px;color:var(--text2);padding-bottom:6px}
+.dt th{text-align:left;font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.08em;color:var(--text2);padding:8px 10px;border-bottom:1px solid var(--field);white-space:nowrap}
+.dt td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.dt tr:last-child td{border-bottom:0}
+.dt .num,.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.dt a{font-weight:600}
+.dt input[type=text],.dt input[type=number],.dt select{min-height:44px;width:100%;border:1px solid var(--field);border-radius:12px;background:var(--surface);color:var(--text);font:400 15px/20px var(--fb);padding:8px 10px}
+/* Statut de commande : forme du Badge de disponibilité (icône + mot) */
+.st{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border-radius:9999px;border:1px solid currentColor;background:var(--surface);font:600 13px/18px var(--fh);text-transform:uppercase;letter-spacing:.1em;white-space:nowrap}
+.st svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;flex:none}
+.s-ok{color:var(--success)} .s-run{color:var(--text)} .s-wait{color:var(--warning)} .s-bad{color:var(--danger)} .s-mute{color:var(--text2)}
+/* Carte de tâche admin (Component Patterns) */
+.tasks{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
+.task{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px}
+.task .n{display:block;font:700 38px/40px var(--fh)}
+.task a{text-decoration:none;color:var(--text)}
+.task a::after{content:"";position:absolute;inset:0;border-radius:20px}
+.task .lb{display:block;margin-top:4px;font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.1em}
+.task.zero .n{color:var(--text2)}
+.task.zero{background:var(--bg)}
+/* HORS CATALOGUE : Graphique en barres simples (valeur toujours écrite, doublé d'un tableau) */
+.bars{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.bar-row{display:grid;grid-template-columns:150px minmax(0,1fr) 120px;align-items:center;gap:10px;font-size:15px;line-height:20px}
+.bar{height:16px;border-radius:9999px;background:var(--bg);border:1px solid var(--border);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--text);border-radius:9999px}
+.cols7{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:130px;padding-top:8px}
+.cols7 div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;font-size:13px;line-height:16px}
+.cols7 i{display:block;width:100%;max-width:38px;background:var(--text);border-radius:8px 8px 2px 2px}
+details.data summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:600}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.kpi{border:1px solid var(--border);border-radius:16px;padding:12px;background:var(--bg)}
+.kpi b{display:block;font:700 30px/34px var(--fh)}
+dl.ro{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:15px;line-height:22px}
+dl.ro dt{color:var(--text2)}
+dl.ro dd{font-weight:600;overflow-wrap:anywhere}
+.ro-box{border:1px dashed var(--field);border-radius:16px;padding:14px;background:var(--bg)}
+.lock-note{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:20px;color:var(--text2);margin-top:10px}
+.lock-note svg{flex:none;width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2}
+.actions-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.field textarea{min-height:88px;width:100%;border:1px solid var(--field);border-radius:14px;background:var(--surface);color:var(--text);font:400 16px/24px var(--fb);padding:8px 14px;resize:vertical}
+.field.has-error input,.field.has-error textarea{border:2px solid var(--danger)}
+.grid-f{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.suffix{display:flex;align-items:center;gap:8px}
+.suffix span{font-weight:600}
+.icon-sq{width:44px;height:44px;display:inline-grid;place-items:center;border-radius:12px;border:1px solid var(--field);background:var(--surface);color:var(--text);cursor:pointer;flex:none}
+.icon-sq svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.icon-sq[aria-disabled="true"]{color:var(--text2);border-style:dashed}
+/* HORS CATALOGUE : Interrupteur (case native role="switch", mot « Actif / Désactivé » écrit) */
+.sw{display:inline-flex;align-items:center;gap:10px;min-height:44px;cursor:pointer;font-weight:600}
+.sw input{appearance:none;-webkit-appearance:none;width:46px;height:28px;border-radius:9999px;border:2px solid var(--field);background:var(--bg);position:relative;cursor:pointer;flex:none;margin:0}
+.sw input::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:var(--field)}
+.sw input:checked{background:var(--text);border-color:var(--text)}
+.sw input:checked::after{left:21px;background:var(--bg)}
+/* Progression de téléversement (role="progressbar" + valeur en texte) — State Patterns « téléversement » */
+.prog{display:grid;gap:6px}
+.prog .track{height:12px;border-radius:9999px;background:var(--bg);border:1px solid var(--field);overflow:hidden}
+.prog .track i{display:block;height:100%;background:var(--text)}
+.prog .pt{display:flex;justify-content:space-between;gap:10px;font-size:14px;line-height:20px;flex-wrap:wrap}
+.filerow{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.filerow:last-child{border-bottom:0}
+.filerow>svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.8}
+.photo-row{display:grid;grid-template-columns:auto 76px minmax(0,1fr) auto;gap:12px;align-items:start;padding:12px 0;border-bottom:1px solid var(--border)}
+.photo-row .media{width:76px;height:95px;border-radius:12px}
+.photo-row .pos{font:700 20px/44px var(--fh);min-width:24px;text-align:center}
+.photo-row .mv{display:flex;flex-direction:column;gap:6px}
+.chk{display:inline-flex;align-items:center;gap:10px;min-height:44px;cursor:pointer}
+.chk input{width:22px;height:22px;accent-color:var(--text)}
+.pubbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:flex-end;border-top:1px solid var(--border);padding-top:16px}
+.msg ul{margin:4px 0 0 18px}
+.msg.info .dot{background:var(--text2)}
+.thumb{width:44px;height:55px;border-radius:8px;display:block}
+.chiprow{display:flex;flex-wrap:wrap;gap:8px}
+/* ===== Mobile admin ===== */
+.mhdr{display:flex;align-items:center;justify-content:space-between;gap:8px;height:64px;padding:0 8px 0 16px;background:var(--glass-strong);border-bottom:1px solid var(--glass-border)}
+.mhdr .logo{display:flex;align-items:center;gap:10px;min-height:44px;text-decoration:none;color:var(--text)}
+.mhdr .logo svg{display:block}
+.mhdr .tag{font:600 13px/18px var(--fh);text-transform:uppercase;letter-spacing:.14em;color:var(--text2)}
+.mmain{padding:18px 16px 24px;display:grid;gap:18px;min-width:0}
+.mmain>h1{font:700 30px/34px var(--fh);text-transform:uppercase}
+/* HORS CATALOGUE : Barre d'onglets admin mobile (décision memlog : 4 onglets + ☰) */
+.tabbar{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border-top:1px solid var(--border);background:var(--surface);padding:6px 4px 12px}
+.tabbar a{position:relative;min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:600 13px/15px var(--fb);color:var(--text2);text-decoration:none;text-align:center;border-radius:14px;padding:4px 2px}
+.tabbar a[aria-current="page"]{color:var(--text);font-weight:700;background:var(--bg)}
+.tabbar a[aria-current="page"]::before{content:"";position:absolute;top:0;left:24%;right:24%;height:3px;border-radius:0 0 3px 3px;background:var(--primary)}
+.tabbar .n{position:absolute;top:2px;right:16%;min-width:20px;height:20px;padding:0 5px;border-radius:9999px;background:var(--text);color:var(--bg);font:700 12px/20px var(--fb)}
+.ocard{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:12px 14px;display:grid;gap:4px}
+.ocard .l1{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.ocard a{font:700 20px/24px var(--fh);text-decoration:none;color:var(--text)}
+.ocard a::after{content:"";position:absolute;inset:0;border-radius:18px}
+.ocard .l3{display:flex;justify-content:space-between;gap:8px;font-size:14px;line-height:20px;color:var(--text2)}
+.ocard .l3 b{color:var(--text);font-size:16px}
+.mtasks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mtasks .task .n{font-size:32px;line-height:34px}
+.mtasks .task .lb{font-size:13px;line-height:17px;letter-spacing:.06em}
+.mbar-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;font-size:14px;line-height:20px}
+.mbar-row .bar{grid-column:1/-1}
+.back{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-weight:600;text-decoration:underline;text-decoration-color:var(--primary);text-decoration-thickness:2px;text-underline-offset:3px;color:var(--text)}
+.back svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5}
+.tl{list-style:none;display:grid;gap:0}
+.tl li{display:grid;grid-template-columns:28px 1fr;gap:10px;padding-bottom:12px;position:relative}
+.tl li::before{content:"";position:absolute;left:13px;top:28px;bottom:0;width:2px;background:var(--border)}
+.tl li:last-child::before{display:none}
+.tl .dotc{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--field);background:var(--surface)}
+.tl .dotc svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:3}
+.tl .done .dotc{background:var(--success);border-color:var(--success);color:var(--on-state)}
+.tl .cur .dotc{border-color:var(--text)} .tl .cur .dotc::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--text)}
+.tl .todo{color:var(--text2)}
+.tl .cur b{font-weight:700}
+@media (forced-colors:active){.st,.task,.panel{border:1px solid CanvasText}.bar i,.cols7 i,.prog .track i{background:CanvasText}}
+
+
+</style>
+</head>
+<body>
+<div class="mock-banner" role="note"><strong>Maquette — données fictives</strong><span>Commandes, clients, montants, compteurs, graphiques, références de transaction, codes et dates sont inventés pour la maquette (règles 5 et 13) : aucun chiffre n’est réel. Photos simulées par des dégradés abstraits. Aucun logo de prestataire ni d’opérateur.</span></div>
+<div class="canvas-intro"><h1>Admin — tableau de bord</h1><p>Jonathan voit d’abord ce qui demande une action : les nouvelles commandes payées, puis les paiements par prestataire, puis ses tâches.</p></div>
+<div class="row"><div class="frame-wrap desk-wrap"><div class="browser cream">
+<div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span class="url">komashop.com/fr/admin/</span></div>
+<div class="adm">
+<aside class="side">
+  <a class="logo" href="#" aria-label="KOMA SHOP, administration"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="176" height="41.2" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_1"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_1)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_1"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_1"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_1)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_1)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <p class="t-label role">Administration</p>
+  <nav aria-label="Menu de l’administration"><ul><li><a class="nv" href="#" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Tableau de bord</span></a></li><li><a class="nv" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span>Commandes</span><span class="sr">, 3 en attente</span><span class="n" aria-hidden="true">3</span></a></li><li><a class="nv" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/></svg><span>Produits</span></a></li><li><a class="nv" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg><span>Événements</span></a></li><li><a class="nv" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2"/><circle cx="9.5" cy="10" r="1.6"/><path d="M5 17l5-4 3 2.5 2.5-2 3.5 3"/></svg><span>Galerie</span><span class="sr">, 4 en attente</span><span class="n" aria-hidden="true">4</span></a></li><li><a class="nv" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19l1-4 10-10 3 3-10 10z"/><path d="M14 7l3 3"/></svg><span>Blog</span></a></li><li><a class="nv" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12V5h7l9 9-7 7z"/><circle cx="8" cy="8.5" r="1.3"/></svg><span>Codes promo</span></a></li><li><a class="nv" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg><span>Prestataires</span></a></li><li><a class="nv" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></svg><span>Réglages</span></a></li></ul></nav>
+  <div class="foot">
+    <button class="icon-btn" type="button" aria-label="Thème sombre" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg></button>
+    <a class="icon-btn" href="#" lang="en" hreflang="en" aria-label="English" style="font:600 16px/1 var(--fh)">EN</a>
+    <a class="icon-btn" href="#" aria-label="Mon compte"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></a>
+  </div>
+</aside>
+<main class="amain" id="contenu" tabindex="-1">
+<div class="atop"><div><p class="t-label muted">Vendredi 17 octobre</p><h1 class="t-h1">Tableau de bord</h1></div><span class="fict">Exemple fictif</span></div>
+<section class="panel" aria-labelledby="h-paid">
+  <div class="phead"><h2 id="h-paid" class="ph2">Nouvelles commandes payées</h2><a class="link" href="#">Toutes les commandes payées</a></div>
+  <table class="dt"><caption>4 commandes payées depuis ta dernière visite. Statut posé par la notification vérifiée du prestataire.</caption>
+  <thead><tr><th scope="col">Commande</th><th scope="col">Client</th><th scope="col">Famille</th><th scope="col">Remise</th><th scope="col">Prestataire</th><th scope="col" class="num">Total</th><th scope="col" class="num">Payée à</th></tr></thead>
+  <tbody><tr><td><a class="link" href="#">N° 10421</a></td><td>Grâce K.</td><td>Cosplay · Sur-mesure</td><td>Bukavu · livraison</td><td>MaishaPay</td><td class="num">125 USD</td><td class="num">07:42</td></tr><tr><td><a class="link" href="#">N° 10420</a></td><td>Patrick N.</td><td>Kit</td><td>—</td><td>PawaPay</td><td class="num">18 USD</td><td class="num">07:15</td></tr><tr><td><a class="link" href="#">N° 10419</a></td><td>Amina S.</td><td>Kit</td><td>—</td><td>Polar</td><td class="num">18 USD</td><td class="num">06:58</td></tr><tr><td><a class="link" href="#">N° 10418</a></td><td>Kevin B.</td><td>Accessoire</td><td>Goma · retrait</td><td>K-Pay · carte</td><td class="num">38 USD</td><td class="num">06:30</td></tr></tbody></table>
+</section>
+<div class="cols2">
+  <section class="panel" aria-labelledby="h-prov">
+    <div class="phead"><h2 id="h-prov" class="ph2">Paiements par prestataire</h2><span class="fict">7 derniers jours · fictif</span></div>
+    <ul class="bars" aria-label="Paiements par prestataire, 7 derniers jours, données fictives"><li class="bar-row"><span>PawaPay</span><span class="bar" aria-hidden="true"><i style="width:77%"></i></span><span class="num">9 · 186 USD</span></li><li class="bar-row"><span>K-Pay · mobile money</span><span class="bar" aria-hidden="true"><i style="width:40%"></i></span><span class="num">4 · 96 USD</span></li><li class="bar-row"><span>K-Pay · carte</span><span class="bar" aria-hidden="true"><i style="width:100%"></i></span><span class="num">3 · 241 USD</span></li><li class="bar-row"><span>MaishaPay</span><span class="bar" aria-hidden="true"><i style="width:89%"></i></span><span class="num">5 · 214 USD</span></li><li class="bar-row"><span>GeniusPay</span><span class="bar" aria-hidden="true"><i style="width:0%"></i></span><span class="num">0 · 0 USD</span></li><li class="bar-row"><span>Polar</span><span class="bar" aria-hidden="true"><i style="width:15%"></i></span><span class="num">2 · 36 USD</span></li></ul>
+    <details class="data"><summary>Voir les données en tableau</summary>
+<table class="dt"><caption>Paiements vérifiés par prestataire, 7 derniers jours (fictif)</caption>
+<thead><tr><th scope="col">Prestataire</th><th scope="col" class="num">Paiements</th><th scope="col" class="num">Montant</th></tr></thead><tbody><tr><th scope="row" style="text-transform:none;letter-spacing:0;font:400 15px/20px var(--fb);color:var(--text)">PawaPay</th><td class="num">9</td><td class="num">186 USD</td></tr><tr><th scope="row" style="text-transform:none;letter-spacing:0;font:400 15px/20px var(--fb);color:var(--text)">K-Pay · mobile money</th><td class="num">4</td><td class="num">96 USD</td></tr><tr><th scope="row" style="text-transform:none;letter-spacing:0;font:400 15px/20px var(--fb);color:var(--text)">K-Pay · carte</th><td class="num">3</td><td class="num">241 USD</td></tr><tr><th scope="row" style="text-transform:none;letter-spacing:0;font:400 15px/20px var(--fb);color:var(--text)">MaishaPay</th><td class="num">5</td><td class="num">214 USD</td></tr><tr><th scope="row" style="text-transform:none;letter-spacing:0;font:400 15px/20px var(--fb);color:var(--text)">GeniusPay</th><td class="num">0</td><td class="num">0 USD</td></tr><tr><th scope="row" style="text-transform:none;letter-spacing:0;font:400 15px/20px var(--fb);color:var(--text)">Polar</th><td class="num">2</td><td class="num">36 USD</td></tr></tbody></table></details>
+  </section>
+  <section class="panel" aria-labelledby="h-time">
+    <div class="phead"><h2 id="h-time" class="ph2">Ventes payées par jour</h2><span class="fict">fictif</span></div>
+    <div class="cols7" aria-hidden="true"><div><span class="num">2</span><i style="height:36px"></i><span>Sam.</span></div><div><span class="num">1</span><i style="height:18px"></i><span>Dim.</span></div><div><span class="num">4</span><i style="height:72px"></i><span>Lun.</span></div><div><span class="num">3</span><i style="height:54px"></i><span>Mar.</span></div><div><span class="num">5</span><i style="height:90px"></i><span>Mer.</span></div><div><span class="num">3</span><i style="height:54px"></i><span>Jeu.</span></div><div><span class="num">4</span><i style="height:72px"></i><span>Ven.</span></div></div>
+    <p class="t-small muted" style="margin-top:8px">Par famille sur la période : Cosplays 6 · Accessoires 4 · Kits 13 · Pass 0.</p>
+    <details class="data"><summary>Voir les données en tableau</summary><table class="dt"><caption>Ventes payées par jour (fictif)</caption><thead><tr><th scope="col">Jour</th><th scope="col" class="num">Ventes</th></tr></thead><tbody><tr><td>Sam.</td><td class='num'>2</td></tr><tr><td>Dim.</td><td class='num'>1</td></tr><tr><td>Lun.</td><td class='num'>4</td></tr><tr><td>Mar.</td><td class='num'>3</td></tr><tr><td>Mer.</td><td class='num'>5</td></tr><tr><td>Jeu.</td><td class='num'>3</td></tr><tr><td>Ven.</td><td class='num'>4</td></tr></tbody></table></details>
+  </section>
+</div>
+<section class="panel" aria-labelledby="h-tasks">
+  <div class="phead"><h2 id="h-tasks" class="ph2">Tâches en attente</h2><span class="t-small muted">Chaque carte ouvre la liste filtrée.</span></div>
+  <div class="tasks"><div class="task"><a href="#"><span class="n">2</span><span class="lb">Mesures à vérifier</span></a></div><div class="task"><a href="#"><span class="n">1</span><span class="lb">Demande d’annulation</span></a></div><div class="task"><a href="#"><span class="n">1</span><span class="lb">Remboursement à confirmer</span></a></div><div class="task zero"><a href="#"><span class="n">0</span><span class="lb">Remplacement</span></a></div><div class="task"><a href="#"><span class="n">1</span><span class="lb">Trop-perçu à rembourser</span></a></div><div class="task"><a href="#"><span class="n">3</span><span class="lb">Photos à valider</span></a></div><div class="task"><a href="#"><span class="n">1</span><span class="lb">Réalisation à valider</span></a></div></div>
+</section>
+<section class="panel" aria-labelledby="h-kpi">
+  <div class="phead"><h2 id="h-kpi" class="ph2">Indicateurs</h2><span class="fict">fictif · aucun objectif fixé avant la revue à 4 semaines</span></div>
+  <div class="kpis">
+    <div class="kpi"><span class="t-label">Ventes payées (SM-1)</span><b>23</b><span class="t-small muted">ce mois-ci</span></div>
+    <div class="kpi"><span class="t-label">Clics héros (SM-2)</span><b>— %</b><span class="t-small muted">pas encore de mesure</span></div>
+    <div class="kpi"><span class="t-label">Alertes événement (SM-4)</span><b>41</b><span class="t-small muted">inscrits</span></div>
+    <div class="kpi"><span class="t-label">Photos et Réalisations (SM-5)</span><b>7</b><span class="t-small muted">envoyées</span></div>
+    <div class="kpi"><span class="t-label">Kit terminé (SM-8)</span><b>12 %</b><span class="t-small muted">des acheteurs de kit</span></div>
+    <div class="kpi"><span class="t-label">Deuxième achat (SM-9)</span><b>4 %</b><span class="t-small muted">des clients</span></div>
+  </div>
+</section>
+</main>
+</div>
+</div><p class="cap"><b class="state">Ordinateur 1280 · crème</b>Ordre FR-49 : nouvelles commandes payées (statut posé par la notification vérifiée), graphiques de paiement par prestataire et par jour (valeurs écrites + tableau de données repliable), cartes de tâche avec compteur et lien vers la liste filtrée, indicateurs §7 sans objectif.</p></div></div><div class="row"><div class="frame-wrap"><div class="phone cream">
+<header class="mhdr">
+  <a class="logo" href="#" aria-label="KOMA SHOP, administration"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="128" height="29.9" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_2"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_2)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_2"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_2"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_2)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_2)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg><span class="tag" aria-hidden="true">Admin</span></a>
+  <button class="icon-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu-admin"><span aria-hidden="true">☰</span></button>
+</header>
+<main class="mmain" id="contenu" tabindex="-1">
+<div><p class="t-label muted">Vendredi 17 octobre</p><h1 class="t-h1" style="font-size:30px;line-height:34px">Tableau de bord</h1></div>
+<section aria-labelledby="mh-paid" class="stack">
+  <h2 id="mh-paid" class="ph2">Nouvelles commandes payées</h2>
+  <article class="ocard"><div class="l1"><a href="#">N° 10421</a><span class="st s-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Payée</span></div><p class="t-small">Grâce K. · Cosplay · Sur-mesure</p><p class="l3"><span>MaishaPay · 07:42</span><b>125 USD</b></p></article><article class="ocard"><div class="l1"><a href="#">N° 10420</a><span class="st s-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Payée</span></div><p class="t-small">Patrick N. · Kit</p><p class="l3"><span>PawaPay · 07:15</span><b>18 USD</b></p></article><article class="ocard"><div class="l1"><a href="#">N° 10419</a><span class="st s-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Payée</span></div><p class="t-small">Amina S. · Kit</p><p class="l3"><span>Polar · 06:58</span><b>18 USD</b></p></article>
+  <a class="link" href="#">Voir les 4 commandes payées</a>
+</section>
+<section aria-labelledby="mh-prov" class="panel">
+  <div class="phead"><h2 id="mh-prov" class="ph2" style="font-size:22px;line-height:26px">Paiements par prestataire</h2><span class="fict">fictif</span></div>
+  <ul class="bars" aria-label="Paiements par prestataire, 7 derniers jours, données fictives"><li class="mbar-row"><span>PawaPay</span><span class="num">9 · 186 USD</span><span class="bar" aria-hidden="true"><i style="width:77%"></i></span></li><li class="mbar-row"><span>K-Pay · mobile money</span><span class="num">4 · 96 USD</span><span class="bar" aria-hidden="true"><i style="width:40%"></i></span></li><li class="mbar-row"><span>K-Pay · carte</span><span class="num">3 · 241 USD</span><span class="bar" aria-hidden="true"><i style="width:100%"></i></span></li><li class="mbar-row"><span>MaishaPay</span><span class="num">5 · 214 USD</span><span class="bar" aria-hidden="true"><i style="width:89%"></i></span></li><li class="mbar-row"><span>GeniusPay</span><span class="num">0 · 0 USD</span><span class="bar" aria-hidden="true"><i style="width:0%"></i></span></li><li class="mbar-row"><span>Polar</span><span class="num">2 · 36 USD</span><span class="bar" aria-hidden="true"><i style="width:15%"></i></span></li></ul>
+  <details class="data"><summary>Voir les données en tableau</summary>
+<table class="dt"><caption>Paiements vérifiés par prestataire, 7 derniers jours (fictif)</caption>
+<thead><tr><th scope="col">Prestataire</th><th scope="col" class="num">Paiements</th><th scope="col" class="num">Montant</th></tr></thead><tbody><tr><th scope="row" style="text-transform:none;letter-spacing:0;font:400 15px/20px var(--fb);color:var(--text)">PawaPay</th><td class="num">9</td><td class="num">186 USD</td></tr><tr><th scope="row" style="text-transform:none;letter-spacing:0;font:400 15px/20px var(--fb);color:var(--text)">K-Pay · mobile money</th><td class="num">4</td><td class="num">96 USD</td></tr><tr><th scope="row" style="text-transform:none;letter-spacing:0;font:400 15px/20px var(--fb);color:var(--text)">K-Pay · carte</th><td class="num">3</td><td class="num">241 USD</td></tr><tr><th scope="row" style="text-transform:none;letter-spacing:0;font:400 15px/20px var(--fb);color:var(--text)">MaishaPay</th><td class="num">5</td><td class="num">214 USD</td></tr><tr><th scope="row" style="text-transform:none;letter-spacing:0;font:400 15px/20px var(--fb);color:var(--text)">GeniusPay</th><td class="num">0</td><td class="num">0 USD</td></tr><tr><th scope="row" style="text-transform:none;letter-spacing:0;font:400 15px/20px var(--fb);color:var(--text)">Polar</th><td class="num">2</td><td class="num">36 USD</td></tr></tbody></table></details>
+</section>
+<section aria-labelledby="mh-tasks" class="stack">
+  <h2 id="mh-tasks" class="ph2">Tâches en attente</h2>
+  <div class="mtasks"><div class="task"><a href="#"><span class="n">2</span><span class="lb">Mesures à vérifier</span></a></div><div class="task"><a href="#"><span class="n">1</span><span class="lb">Demande d’annulation</span></a></div><div class="task"><a href="#"><span class="n">1</span><span class="lb">Remboursement à confirmer</span></a></div><div class="task zero"><a href="#"><span class="n">0</span><span class="lb">Remplacement</span></a></div><div class="task"><a href="#"><span class="n">1</span><span class="lb">Trop-perçu à rembourser</span></a></div><div class="task"><a href="#"><span class="n">3</span><span class="lb">Photos à valider</span></a></div><div class="task"><a href="#"><span class="n">1</span><span class="lb">Réalisation à valider</span></a></div></div>
+</section>
+</main>
+<nav class="tabbar" aria-label="Onglets de l’administration"><a href="#" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Tableau de bord</span></a><a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span>Commandes</span><span class="n" aria-hidden="true">3</span><span class="sr">, 3 en attente</span></a><a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM8.5 13l2.5 2.5 4.5-5"/></svg><span>Mesures et tâches</span><span class="n" aria-hidden="true">9</span><span class="sr">, 9 en attente</span></a><a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg><span>Scan</span></a></nav>
+</div><p class="cap"><b class="state">Mobile 375 · matin de Jonathan (UJ-6)</b>Commandes payées en cartes, barres avec valeur écrite au-dessus, tâches en grille 2 colonnes. Onglets bas : Tableau de bord · Commandes · Mesures et tâches · Scan ; ☰ pour Produits, Événements, Galerie, Blog, Codes promo, Prestataires, Réglages.</p></div><div class="frame-wrap"><div class="phone dark">
+<header class="mhdr">
+  <a class="logo" href="#" aria-label="KOMA SHOP, administration"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="128" height="29.9" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_3"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_3)" fill="none" stroke="#F3EEE4" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#F3EEE4"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_3"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_3"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_3)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_3)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#16130F"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#F3EEE4" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg><span class="tag" aria-hidden="true">Admin</span></a>
+  <button class="icon-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu-admin"><span aria-hidden="true">☰</span></button>
+</header>
+<main class="mmain" id="contenu" tabindex="-1">
+<div><p class="t-label muted">Dimanche 19 octobre</p><h1 class="t-h1" style="font-size:30px;line-height:34px">Tableau de bord</h1></div>
+<section aria-labelledby="me-paid" class="stack">
+  <h2 id="me-paid" class="ph2">Nouvelles commandes payées</h2>
+  <div class="msg info"><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg></span><div><strong>Aucune nouvelle commande payée aujourd’hui.</strong> Les commandes apparaissent ici dès que le prestataire confirme le paiement.</div></div>
+  <a class="link" href="#">Voir toutes les commandes</a>
+</section>
+<section aria-labelledby="me-tasks" class="stack">
+  <h2 id="me-tasks" class="ph2">Tâches en attente</h2>
+  <div class="msg ok"><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><div><strong>Aucune tâche en attente.</strong> Mesures, annulations, remboursements, remplacements, trop-perçus, photos et Réalisations sont à jour.</div></div>
+</section>
+<section aria-labelledby="me-prov" class="panel">
+  <h2 id="me-prov" class="ph2" style="font-size:22px;line-height:26px">Paiements par prestataire</h2>
+  <p class="t-small muted" style="margin-top:6px">Aucun paiement vérifié aujourd’hui. <a class="link" href="#">Voir les 7 derniers jours</a></p>
+</section>
+</main>
+<nav class="tabbar" aria-label="Onglets de l’administration"><a href="#" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Tableau de bord</span></a><a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg><span>Commandes</span><span class="n" aria-hidden="true">3</span><span class="sr">, 3 en attente</span></a><a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM8.5 13l2.5 2.5 4.5-5"/></svg><span>Mesures et tâches</span><span class="n" aria-hidden="true">9</span><span class="sr">, 9 en attente</span></a><a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2"/></svg><span>Scan</span></a></nav>
+</div><p class="cap"><b class="state">Mobile 375 · sombre · état vide du jour</b>Aucun zéro décoratif : messages d’état « Aucune nouvelle commande payée aujourd’hui » (information) et « Aucune tâche en attente » (succès, icône + texte).</p></div></div>
+</body>
+</html>

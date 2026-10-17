@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connexion KOMA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,700;0,800;1,800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/*
+  KEY SCREEN — CONNEXION ET CRÉATION DE COMPTE (mobile 375 px crème, ordinateur 1280 px)
+  Spines qui gouvernent cet écran :
+  - EXPERIENCE.md › Component Patterns : Champ du code de connexion (un seul champ one-time-code, collage permis, pas d'envoi auto),
+    Champ de formulaire, Bouton principal / secondaire, Bandeau d'information (navigateur intégré, non bloquant), Message d'état,
+    Sélecteur à deux options (question « porter ou fabriquer »)
+  - EXPERIENCE.md › State Patterns › Fiche, Panier et Compte : Navigateur intégré (Google masqué), Code faux, Code expiré, Code renvoyé
+    (seulement après envoi réel, règle 13), Email non reçu, Moins de 13 ans / Compte mineur, Retour après connexion
+  - EXPERIENCE.md › Information Architecture : Connexion / création de Compte, Questions d'accueil (FR-12) ; Key Flows UJ-1 étape 6, UJ-2 étape 3
+  - DESIGN.md › Components : otp-field, form-field, info-banner, status-message ; Typography : écrans transactionnels en Barlow Condensed
+  Écarts / hypothèses : saisie de l'âge = champ numérique (le PRD dit « déclare son âge », la forme n'est pas fixée) ;
+  durée de validité du code = {durée} (E-34) ; options des questions d'accueil = exemples ; « Continuer avec Google » en texte seul,
+  sans logo (le logo officiel exige l'accord des règles de marque Google — à trancher). Aucun nom de franchise dans les univers (E-29).
+  Le message « Compte non créé » sous 13 ans est une proposition de formulation.
+*/
+
+@font-face{font-family:"Sakura Town";src:url("../imports/fonts/Sakura%20Town.otf") format("opentype");font-display:swap}
+:root{--fh:"Barlow Condensed",system-ui,sans-serif;--fb:"Barlow",system-ui,sans-serif;--fbrush:"Sakura Town","Barlow Condensed",system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:#D9D2C5;color:#16130F;font-family:var(--fb);font-size:16px;line-height:26px}
+/* ---------- Toile de présentation (hors produit) ---------- */
+.mock-banner{background:#16130F;color:#F3EEE4;padding:14px 24px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:baseline}
+.mock-banner strong{font:700 20px/24px var(--fh);text-transform:uppercase;letter-spacing:.06em}
+.mock-banner span{font-size:14px;line-height:20px;color:#D8CFC1}
+.canvas-intro{max-width:1100px;padding:20px 32px 0;font-size:15px;line-height:23px;color:#2B241D}
+.canvas-intro h1{font:700 30px/34px var(--fh);text-transform:uppercase;margin-bottom:6px}
+.row{display:flex;flex-wrap:wrap;gap:40px;padding:28px 32px 48px;align-items:flex-start}
+.frame-wrap{display:flex;flex-direction:column;gap:12px}
+.cap{max-width:395px;font-size:14px;line-height:20px;color:#2B241D}
+.cap b.state{display:block;font:700 18px/22px var(--fh);text-transform:uppercase;letter-spacing:.04em;color:#16130F;margin-bottom:2px}
+.cap code{font-size:12px;background:#EFE8DC;padding:0 4px;border-radius:4px}
+.desk-wrap .cap{max-width:1280px}
+/* ---------- Cadres ---------- */
+.phone{box-sizing:content-box;width:375px;border:10px solid #1E1A15;border-radius:42px;overflow:hidden;background:var(--bg);color:var(--text);box-shadow:0 18px 40px rgba(22,19,15,.25);position:relative}
+.browser{width:1280px;border-radius:14px;overflow:hidden;border:1px solid #9C9283;box-shadow:0 18px 40px rgba(22,19,15,.25);background:var(--bg);color:var(--text)}
+.chrome{display:flex;align-items:center;gap:14px;background:#E6E0D6;padding:10px 16px;border-bottom:1px solid #C9C0B2}
+.chrome i{width:12px;height:12px;border-radius:50%;background:#B8AE9F;display:inline-block}
+.chrome .url{flex:1;max-width:520px;margin-left:12px;background:#FBF8F2;border-radius:9999px;padding:4px 16px;font-size:14px;line-height:20px;color:#5E554A}
+/* ---------- Thèmes (tokens DESIGN.md) ---------- */
+.cream{--bg:#F3EEE4;--surface:#FBF8F2;--glass:rgba(255,255,255,.55);--glass-strong:rgba(255,255,255,.85);--glass-border:rgba(22,19,15,.14);--text:#16130F;--text2:#5E554A;--primary:#E3261C;--on-primary:#FFFFFF;--border:#E0D6C5;--field:#857A6B;--success:#2E7A4E;--warning:#8F5E10;--danger:#B01B13;--on-state:#FFFFFF;
+ --hero:radial-gradient(circle at 20% 25%,rgba(227,38,28,.25) 0,transparent 45%),linear-gradient(160deg,#FBF8F2,#EADFCC);
+ --tile-red:linear-gradient(150deg,#E3261C,#9E1A12);--tile-ink:linear-gradient(150deg,#5A4C3E,#2B241D)}
+.dark{--bg:#16130F;--surface:#211C17;--glass:rgba(243,238,228,.06);--glass-strong:rgba(22,19,15,.85);--glass-border:rgba(243,238,228,.14);--text:#F3EEE4;--text2:#B9AE9E;--primary:#E3261C;--on-primary:#FFFFFF;--border:#3A322A;--field:#7A6E5E;--success:#7CC49A;--warning:#E2B566;--danger:#F2766B;--on-state:#16130F;
+ --hero:radial-gradient(circle at 20% 25%,rgba(227,38,28,.40) 0,transparent 45%),linear-gradient(160deg,#2A221B,#16130F);
+ --tile-red:linear-gradient(150deg,#E3261C,#7A1A12);--tile-ink:linear-gradient(150deg,#4A3D31,#211C17)}
+/* ---------- Anneau de focus (double : text-primary + halo background) ---------- */
+.phone :focus-visible,.browser :focus-visible,.is-focus{outline:2px solid var(--text)!important;outline-offset:2px;box-shadow:0 0 0 2px var(--bg)}
+a{color:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* ---------- Typo ---------- */
+.t-brush{font-family:var(--fbrush);font-weight:400;line-height:1;letter-spacing:.01em;text-transform:uppercase}
+.t-display{font:italic 800 52px/50px var(--fh);text-transform:uppercase;letter-spacing:-.005em}
+.t-h1{font:700 38px/40px var(--fh);text-transform:uppercase}
+.t-h2{font:700 30px/34px var(--fh);text-transform:uppercase;letter-spacing:.01em}
+.t-h3{font:600 20px/24px var(--fh)}
+.t-small{font-size:14px;line-height:20px}
+.t-label{font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.14em}
+.t-price-card{font:700 20px/24px var(--fh)}
+.t-price-page{font:700 38px/40px var(--fh)}
+.muted{color:var(--text2)}
+.link{color:var(--text);text-decoration:underline;text-decoration-color:var(--primary);text-decoration-thickness:2px;text-underline-offset:3px;font-weight:600}
+/* ---------- Boutons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:12px 20px;border-radius:9999px;font:600 18px/20px var(--fh);letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border:1px solid transparent;cursor:pointer;text-align:center}
+.btn-primary{background:var(--primary);color:var(--on-primary)}
+.btn-secondary{background:var(--surface);color:var(--text);border-color:var(--field)}
+.btn-primary[aria-disabled="true"]{background:var(--surface);color:var(--text2);border-color:var(--field);cursor:not-allowed}
+.btn-block{display:flex;width:100%}
+.icon-btn{width:44px;height:44px;display:inline-grid;place-items:center;border-radius:9999px;background:transparent;border:0;color:var(--text);position:relative;cursor:pointer;font-size:22px;line-height:1}
+.icon-btn svg,.btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.count{position:absolute;top:4px;right:2px;min-width:18px;height:18px;padding:0 4px;border-radius:9999px;background:var(--primary);color:#FFFFFF;font:600 12px/18px var(--fb);text-align:center}
+/* ---------- En-tête : logo horizontal dans le COIN GAUCHE (logo | panier + ☰) ---------- */
+.hdr{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:8px;height:64px;padding:0 8px 0 16px;background:var(--glass-strong);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-bottom:1px solid var(--glass-border)}
+.hdr .logo{display:flex;align-items:center;min-height:44px;min-width:44px}
+.hdr .logo svg{display:block}
+.hdr .actions{display:flex;gap:2px}
+/* ---------- Médias simulés (aucune image de franchise) ---------- */
+.media{position:relative;overflow:hidden;background:#3B2C22}
+.ph-a{background:radial-gradient(circle at 70% 30%,#C9A27A 0,transparent 40%),radial-gradient(circle at 30% 80%,#7E3B28 0,transparent 45%),linear-gradient(160deg,#8C6A4F,#3B2C22)}
+.ph-b{background:radial-gradient(circle at 35% 35%,#D9C7A8 0,transparent 42%),radial-gradient(circle at 80% 75%,#4E5A52 0,transparent 45%),linear-gradient(200deg,#6E6455,#2B241D)}
+.ph-c{background:radial-gradient(circle at 60% 40%,#B98D5C 0,transparent 40%),linear-gradient(140deg,#5A4C3E,#1E1A15)}
+.ph-d{background:radial-gradient(circle at 40% 30%,#E8DCC6 0,transparent 45%),radial-gradient(circle at 75% 80%,#9A6B45 0,transparent 45%),linear-gradient(170deg,#A58B70,#4A3D31)}
+.ph-e{background:radial-gradient(circle at 50% 50%,#7E8C80 0,transparent 45%),linear-gradient(120deg,#4A3D31,#16130F)}
+.ph-video{background:radial-gradient(circle at 75% 20%,rgba(227,38,28,.55) 0,transparent 40%),radial-gradient(circle at 25% 60%,#C9A27A 0,transparent 38%),radial-gradient(circle at 70% 85%,#5A4C3E 0,transparent 45%),linear-gradient(165deg,#6B4A33,#1E1A15)}
+.media-tag{position:absolute;left:10px;top:10px;padding:2px 10px;border-radius:10px;background:var(--glass-strong);color:var(--text);border:1px solid var(--glass-border);font-size:12px;line-height:18px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+/* ---------- Composants ---------- */
+.glass-strong{background:var(--glass-strong);-webkit-backdrop-filter:blur(10px) saturate(140%);backdrop-filter:blur(10px) saturate(140%);border:1px solid var(--glass-border);border-radius:18px}
+.pause{position:absolute;top:12px;right:12px;width:44px;height:44px;border-radius:9999px;background:var(--surface);border:1px solid var(--field);color:var(--text);display:grid;place-items:center;cursor:pointer}
+.pause svg{width:18px;height:18px;fill:currentColor}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:10px;position:relative}
+.card .media{border-radius:14px;aspect-ratio:4/5}
+.card h3{margin-top:10px}
+.card h3 a{text-decoration:none}
+.card h3 a::after{content:"";position:absolute;inset:0;border-radius:20px}
+.card .price{margin-top:4px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:9999px;border:1px solid currentColor;background:var(--surface);font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.14em}
+.badge svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;flex:none}
+.b-stock{color:var(--success)} .b-order{color:var(--text2)} .b-full{color:var(--danger)}
+.section{padding:28px 16px 8px}
+.section .lead{margin-top:6px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.seg{display:flex;gap:4px;padding:3px;border:1px solid var(--field);border-radius:9999px;background:var(--bg)}
+.seg label{flex:1;position:relative;min-height:44px;display:flex;align-items:center;justify-content:center;gap:6px;padding:4px 10px;border-radius:9999px;border:2px solid transparent;color:var(--text2);font:600 17px/20px var(--fh);text-align:center;cursor:pointer}
+.seg input,.sizes input,.pay-card input.vh{position:absolute;opacity:0;width:1px;height:1px}
+.ck{display:none;font-weight:700}
+.seg label:has(input:checked),.sizes label:has(input:checked){background:var(--surface);border-color:var(--primary);color:var(--text)}
+.seg label:has(input:checked) .ck,.sizes label:has(input:checked) .ck{display:inline}
+.seg label:has(input:focus-visible),.sizes label:has(input:focus-visible){outline:2px solid var(--text);outline-offset:2px;box-shadow:0 0 0 2px var(--bg)}
+.sizes{display:flex;flex-wrap:wrap;gap:8px;border:0}
+.sizes label{min-width:52px;min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:0 12px;border-radius:9999px;border:1px solid var(--field);background:var(--bg);color:var(--text);font:600 17px/20px var(--fh);cursor:pointer}
+.sizes label:has(input:checked){border-width:2px}
+.sizes label:has(input:disabled){color:var(--text2);border-style:dashed;cursor:not-allowed;text-decoration:line-through}
+fieldset{border:0;min-width:0}
+legend{padding:0;margin-bottom:8px}
+.info-banner{background:var(--surface);border-left:4px solid var(--primary);border-radius:14px;padding:12px 14px;font-size:14px;line-height:20px;border-top:1px solid var(--border);border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.msg{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px 14px;font-size:14px;line-height:20px}
+.msg .dot{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:var(--on-state)}
+.msg .dot svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.msg.warn .dot{background:var(--warning)} .msg.err .dot{background:var(--danger)} .msg.ok .dot{background:var(--success)}
+.msg.warn strong{color:var(--warning)} .msg.err strong{color:var(--danger)}
+.kit-panel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px;display:grid;grid-template-columns:72px 1fr;gap:12px}
+.kit-panel .media{width:72px;height:90px;border-radius:14px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field>label,.field .flabel{font:600 14px/20px var(--fb)}
+.field select,.field input{min-height:44px;width:100%;border:1px solid var(--field);border-radius:14px;background:var(--surface);color:var(--text);font:400 16px/24px var(--fb);padding:8px 14px}
+.field .help{font-size:14px;line-height:20px;color:var(--text2)}
+.field.has-error select{border:2px solid var(--danger)}
+.field .error{display:flex;gap:8px;font-size:14px;line-height:20px;color:var(--danger);font-weight:600}
+.field .error svg{flex:none;width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5;margin-top:1px}
+.pay-card{border:1px solid var(--field);border-radius:20px;background:var(--surface);padding:12px 14px}
+.pay-card.selected{border:2px solid var(--primary);padding:11px 13px}
+.pay-card .head{display:flex;align-items:center;gap:12px;min-height:44px;cursor:pointer}
+.radio{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--field);display:grid;place-items:center;background:var(--surface)}
+.pay-card.selected .radio{border-color:var(--primary)}
+.pay-card.selected .radio::after{content:"";width:12px;height:12px;border-radius:50%;background:var(--primary)}
+.pay-card .ttl{font:600 20px/24px var(--fh);flex:1}
+.pay-card .chosen{font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.14em;display:inline-flex;gap:4px;align-items:center}
+.pay-card .body{display:grid;gap:14px;margin-top:10px;padding-top:12px;border-top:1px solid var(--border)}
+.recap{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px}
+.recap .line{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.recap .line:last-child{border-bottom:0}
+.recap .total{align-items:baseline}
+.stack{display:grid;gap:14px}
+.var{border-bottom:1px dashed currentColor;font-style:normal}
+.wa svg{width:20px;height:20px}
+.crumbs{font-size:14px;line-height:20px;padding:12px 16px 0}
+.crumbs a{color:var(--text)}
+.crumbs ol{list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+.crumbs li+li::before{content:"›";margin-right:6px;color:var(--text2)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+
+/* ---------- En-tête ordinateur (identique à key-accueil) ---------- */
+.d-hdr{display:flex;align-items:center;gap:32px;height:84px;padding:0 32px;background:var(--glass-strong);border-bottom:1px solid var(--glass-border)}
+.d-hdr .logo{display:flex;align-items:center;min-height:44px;flex:none}
+.d-hdr .logo svg{display:block}
+.d-hdr nav ul{list-style:none;display:flex;gap:24px}
+.d-hdr nav a{font:600 19px/24px var(--fh);text-transform:uppercase;letter-spacing:.06em;text-decoration:none;display:inline-flex;min-height:44px;align-items:center;white-space:nowrap}
+.d-hdr .tools{margin-left:auto;display:flex;gap:4px;align-items:center}
+.lang-btn{font:600 16px/20px var(--fh);letter-spacing:.06em;text-decoration:none}
+.icon-btn[aria-current="page"]{box-shadow:inset 0 -3px 0 var(--text)}
+/* ---------- Écrans transactionnels (Barlow Condensed, jamais Sakura Town) ---------- */
+.scr{padding:20px 16px 28px;display:grid;gap:18px;align-content:start}
+.h2t{font:700 24px/28px var(--fh);text-transform:uppercase;letter-spacing:.01em}
+.back{display:inline-flex;align-items:center;gap:4px;min-height:44px;font-size:14px;line-height:20px;font-weight:600;color:var(--text);text-decoration:underline;text-decoration-color:var(--primary);text-decoration-thickness:2px;text-underline-offset:3px;margin:-12px 0 -8px}
+.back svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.5}
+.links{display:flex;flex-wrap:wrap;gap:4px 20px}
+.links a{display:inline-flex;align-items:center;min-height:44px}
+.box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px}
+.note{font-size:14px;line-height:20px;color:var(--text2)}
+.fict{font-style:normal;border-bottom:1px dashed currentColor}
+.field textarea{min-height:88px;width:100%;border:1px solid var(--field);border-radius:14px;background:var(--surface);color:var(--text);font:400 16px/24px var(--fb);padding:8px 14px;resize:vertical}
+.field.has-error input{border:2px solid var(--danger)}
+.field input[type=file]{padding:9px 10px;font-size:14px}
+.otp input{font:600 26px/32px var(--fh);letter-spacing:.35em;text-align:center;min-height:56px}
+.or{display:flex;align-items:center;gap:12px;color:var(--text2);font-size:14px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--border)}
+/* Case de consentement : case 24 px, libellé entier cliquable */
+.ck-row{display:grid;grid-template-columns:24px 1fr;gap:12px;align-items:start;font-size:14px;line-height:20px;cursor:pointer;padding:10px 0}
+.ck-row input{width:24px;height:24px;margin:0;accent-color:#16130F}
+.ck-row .ck-links{display:block;margin-top:8px}
+.ck-row .ck-links a+a{margin-left:24px}
+/* Sélecteur à deux options : libellés longs, retour à la ligne permis */
+.seg label{white-space:normal;line-height:20px}
+/* Panier */
+.item{display:grid;grid-template-columns:76px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+.item:last-of-type{border-bottom:0}
+.item .media{width:76px;height:96px;border-radius:14px}
+.item .media .media-tag{display:none}
+.item h2{font:600 20px/24px var(--fh)}
+.item .ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;margin-top:6px}
+.item .ctl select{min-height:44px;border:1px solid var(--field);border-radius:14px;background:var(--surface);color:var(--text);font:400 16px/24px var(--fb);padding:6px 10px}
+.item .ctl .rm{min-height:44px;display:inline-flex;align-items:center;font-size:14px}
+.item .msg{grid-column:1/-1;margin-top:4px}
+.item.gone h2,.item.gone .t-price-card{color:var(--text2)}
+.line .neg{white-space:nowrap}
+/* Statuts de commande : icône + texte, jamais la couleur seule */
+.st{display:inline-flex;align-items:center;gap:6px;font:600 14px/18px var(--fh);text-transform:uppercase;letter-spacing:.12em}
+.st svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;flex:none}
+.st-ok{color:var(--success)} .st-cur{color:var(--text)} .st-warn{color:var(--warning)} .st-mute{color:var(--text2)} .st-err{color:var(--danger)}
+.order{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px;display:grid;gap:4px}
+.order h2{font:600 20px/24px var(--fh)}
+.order h2 a{text-decoration:none}
+.order h2 a::after{content:"";position:absolute;inset:0;border-radius:20px}
+.order .act{position:relative;z-index:1;justify-self:start}
+/* Frise des statuts */
+.tl{list-style:none;display:grid}
+.tl li{display:grid;grid-template-columns:28px 1fr;gap:12px;padding-bottom:18px;position:relative}
+.tl li:not(:last-child)::after{content:"";position:absolute;left:13px;top:30px;bottom:2px;width:2px;background:var(--border)}
+.tl .ic{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;border:2px solid var(--field);background:var(--surface)}
+.tl .ic svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.tl .done .ic{background:var(--success);border-color:var(--success);color:var(--on-state)}
+.tl .cur .ic{background:var(--text);border-color:var(--text)}
+.tl .cur .ic::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--bg)}
+.tl .lab{font:600 18px/22px var(--fh)}
+.tl .todo .lab{color:var(--text2);font-weight:600}
+.tl .cur .lab{font-weight:700}
+.tl .meta{font-size:14px;line-height:20px;color:var(--text2)}
+.track{font-size:14px;line-height:20px}
+.track b{font:600 18px/22px var(--fh);letter-spacing:.04em;display:block;color:var(--text)}
+/* Boîte de dialogue (surface opaque sur voile encre 60 %) */
+.veil{position:absolute;inset:0;background:rgba(22,19,15,.6);display:grid;align-items:center;padding:16px;z-index:8}
+.dialog{background:var(--surface);border-radius:20px;padding:18px 16px 16px;display:grid;gap:12px;position:relative}
+.dialog h2{font:600 20px/24px var(--fh);padding-right:44px}
+.dialog .close{position:absolute;top:8px;right:8px}
+/* Compte : navigation */
+.acc-list{list-style:none;display:grid;gap:10px}
+.acc-list a{display:grid;grid-template-columns:40px 1fr 20px;gap:12px;align-items:center;min-height:64px;padding:10px 14px;border-radius:20px;background:var(--surface);border:1px solid var(--border);text-decoration:none}
+.acc-list .ico{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--bg);border:1px solid var(--border)}
+.acc-list svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.acc-list .t{font:600 20px/24px var(--fh);display:block}
+.acc-list .s{font-size:14px;line-height:20px;color:var(--text2);display:block}
+.acc-list a[aria-current="page"]{border:2px solid var(--text);padding:9px 13px}
+.signout{justify-self:start}
+/* Ordinateur : colonne compte + contenu [HYPOTHÈSE de mise en page, voir commentaire] */
+.d-acc{display:grid;grid-template-columns:300px 1fr;gap:32px;padding:28px 32px 40px;align-items:start}
+.d-acc .acc-list a{min-height:56px}
+.d-two{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+.d-form{display:grid;grid-template-columns:1fr 400px;gap:32px;padding:28px 32px 40px;align-items:start}
+.d-center{display:grid;justify-items:center;padding:48px 32px 64px}
+.d-center .scr{width:440px;padding:0}
+/* Bibliothèque */
+.kit-row{position:relative;display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:10px}
+.kit-row .media{width:72px;height:72px;border-radius:14px}
+.kit-row .media .media-tag{display:none}
+.kit-row h2{font:600 20px/24px var(--fh)}
+.kit-row h2 a{text-decoration:none}
+.kit-row h2 a::after{content:"";position:absolute;inset:0;border-radius:20px}
+.player{border-radius:20px;overflow:hidden;background:#16130F;color:#F3EEE4}
+.player .screen{position:relative;aspect-ratio:16/9}
+.player .screen>.media{position:absolute;inset:0}
+.player .cc{position:absolute;left:10px;right:10px;bottom:10px;background:rgba(22,19,15,.85);color:#F3EEE4;border-radius:10px;padding:6px 10px;font-size:15px;line-height:21px;text-align:center}
+.player .ctrls{display:flex;align-items:center;gap:4px;padding:6px 6px 8px}
+.player .pbtn{width:44px;height:44px;display:grid;place-items:center;border-radius:9999px;background:transparent;border:0;color:#F3EEE4;cursor:pointer;flex:none}
+.player .pbtn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.player .pbtn.on{box-shadow:inset 0 0 0 2px #F3EEE4}
+.player .ccl{font:700 13px/1 var(--fb);border:2px solid currentColor;border-radius:4px;padding:2px 3px}
+.slider{flex:1;min-width:0;min-height:44px;display:grid;align-content:center;gap:2px}
+.slider .bar{height:6px;border-radius:9999px;background:#5E554A;position:relative}
+.slider .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:9999px;background:#F3EEE4}
+.slider .bar b{position:absolute;top:-6px;width:18px;height:18px;border-radius:50%;background:#F3EEE4;border:2px solid #16130F}
+.slider .tm{font-size:12px;line-height:16px;color:#D8CFC1}
+.chap{list-style:none;display:grid;gap:8px}
+.chap button{width:100%;display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;min-height:52px;padding:8px 12px;border-radius:14px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:400 15px/20px var(--fb);text-align:left;cursor:pointer}
+.chap button svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.chap button[aria-current="true"]{border:2px solid var(--text);padding:7px 11px;font-weight:600}
+.chap .st2{font-size:13px;line-height:18px;color:var(--text2);white-space:nowrap}
+.chap .done svg{color:var(--success)}
+.file{display:grid;grid-template-columns:48px 1fr;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.file:last-child{border-bottom:0}
+.fmt{width:48px;height:56px;border-radius:10px;border:2px solid var(--text);display:grid;place-items:center;font:700 14px/1 var(--fh);letter-spacing:.06em}
+.file .nm{font-weight:600}
+.file .btn{grid-column:2;justify-self:start;min-height:44px;padding:10px 18px;font-size:16px}
+.file .msg{grid-column:1/-1}
+/* Pass */
+.pass{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:16px;display:grid;gap:10px;justify-items:center;text-align:center}
+.qr{background:#FFFFFF;padding:16px;border-radius:14px;border:1px solid var(--border);position:relative}
+.qr svg{display:block;width:200px;height:200px}
+.qr .media-tag{left:6px;top:6px}
+.code{font:700 24px/28px var(--fh);letter-spacing:.14em}
+.pass .who{font:600 20px/24px var(--fh)}
+.pass-sel{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:14px;display:grid;gap:10px}
+.pass-sel .top{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.pass-sel h3{font:600 20px/24px var(--fh)}
+.stepper{display:flex;align-items:center;gap:12px}
+.stepper .btn{width:44px;padding:0;font-size:24px}
+.stepper output{min-width:24px;text-align:center;font:700 22px/26px var(--fh)}
+.ev{display:grid;grid-template-columns:64px 1fr;gap:12px;align-items:center}
+.ev .media{width:64px;height:64px;border-radius:14px}
+.ev .media .media-tag{display:none}
+.ev h2{font:600 20px/24px var(--fh)}
+progress{width:100%;height:10px;accent-color:#16130F}
+@media (max-width:420px){.d-acc,.d-form{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div class="mock-banner" role="note"><strong>Maquette — prix et produits fictifs</strong><span>Noms de produits, prix, numéros, heures, opérateurs et références sont des exemples inventés pour la maquette (règles 5 et 13). Photos et vidéo simulées par des dégradés abstraits : seules les vraies photos du créateur seront utilisées.</span></div>
+<div class="canvas-intro"><h1>Connexion et création de compte — écran clé</h1><p>Connexion par code à 6 chiffres reçu par email (partout) ou Google (hors navigateur intégré). Âge déclaré à la création, puis trois questions facultatives qui ne retardent jamais le retour au panier. Zone sans argot ni emoji.</p></div>
+<div class="row"><div class="frame-wrap"><div class="phone cream">
+<header class="hdr">
+  <a class="logo" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="156" height="36.5" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_1"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_1)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_1"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_1"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_1)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_1)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <div class="actions">
+    <a class="icon-btn" href="#" aria-label="Panier, 2 articles"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="count" aria-hidden="true">2</span></a>
+    <button class="icon-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span></button>
+  </div>
+</header>
+<main class="scr">
+    <section class="info-banner" role="region" aria-label="Navigateur intégré" style="display:grid;grid-template-columns:1fr 44px;gap:6px;align-items:start">
+      <p>Tu es dans le navigateur d’une application. Pour plus de confort, ouvre KOMA SHOP dans Chrome. <a class="link" href="#">Ouvrir dans Chrome</a></p>
+      <button class="icon-btn" type="button" aria-label="Fermer le bandeau" style="margin:-10px -8px 0 0"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>
+    </section>
+    <h1 class="t-h1" tabindex="-1">Connexion</h1>
+    <p>Saisis ton email : tu recevras un code à 6 chiffres. Si tu n’as pas encore de compte, il sera créé à cette étape.</p>
+    <form class="stack" novalidate>
+      <div class="field"><label for="em-a">Ton email</label><input id="em-a" aria-describedby="em-a-h" type="email" inputmode="email" autocomplete="email" value=""><p id="em-a-h" class="help">Aucun mot de passe : un nouveau code à chaque connexion.</p></div>
+      <button class="btn btn-primary btn-block" type="submit">Recevoir le code</button>
+    </form>
+    
+    <p class="note">Ton panier est conservé : tu y reviens juste après.</p>
+  </main>
+</div>
+<p class="cap"><b class="state">1 · Email, navigateur intégré</b>Ouvert depuis Instagram : bandeau « Ouvrir dans Chrome » non bloquant (fermeture 44 px) ; <b>bouton Google masqué</b> ; seul le code par email est proposé. Le panier (2 articles) est conservé.</p></div><div class="frame-wrap"><div class="phone cream">
+<header class="hdr">
+  <a class="logo" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="156" height="36.5" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_2"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_2)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_2"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_2"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_2)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_2)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <div class="actions">
+    <a class="icon-btn" href="#" aria-label="Panier, 2 articles"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="count" aria-hidden="true">2</span></a>
+    <button class="icon-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span></button>
+  </div>
+</header>
+<main class="scr">
+    <h1 class="t-h1" tabindex="-1">Saisis ton code</h1>
+    <p>Nous avons envoyé un code à 6 chiffres à <i class="fict">ton.email@exemple.com</i>.</p>
+    
+    <form class="stack otp" novalidate>
+      <div class="field has-error"><label for="cw">Code à 6 chiffres</label><input id="cw" aria-describedby="cw-h cw-e" aria-invalid="true" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" value="482913"><p id="cw-e" class="error"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.5"/></svg><span>Ce code n’est pas le bon. Vérifie-le ou demande un nouveau code.</span></p><p id="cw-h" class="help">Tu peux coller le code. Il est valable <i class="var">{durée}</i> (E-34).</p></div>
+      <button class="btn btn-primary btn-block" type="submit">Valider le code</button>
+      <div class="links"><a class="link" href="#">Renvoyer le code</a><a class="link" href="#">Changer d’adresse email</a></div>
+    </form>
+    <div class="box note"><p><b style="color:var(--text)">Code non reçu ?</b> Vérifie l’adresse saisie et ton dossier de courriers indésirables, puis demande un nouveau code.</p></div>
+  </main>
+</div>
+<p class="cap"><b class="state">2 · Code faux</b>Un seul champ <code>autocomplete="one-time-code"</code>, <code>inputmode="numeric"</code>, collage permis, chiffres espacés. Erreur reliée au champ (<code>aria-describedby</code>), saisie modifiable. « Renvoyer le code » et « Changer d’adresse email » ; aide « Code non reçu ? » en texte.</p></div><div class="frame-wrap"><div class="phone cream">
+<header class="hdr">
+  <a class="logo" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="156" height="36.5" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_3"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_3)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_3"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_3"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_3)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_3)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <div class="actions">
+    <a class="icon-btn" href="#" aria-label="Panier, 2 articles"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="count" aria-hidden="true">2</span></a>
+    <button class="icon-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span></button>
+  </div>
+</header>
+<main class="scr">
+    <h1 class="t-h1" tabindex="-1">Saisis ton code</h1>
+    <p>Nous avons envoyé un code à 6 chiffres à <i class="fict">ton.email@exemple.com</i>.</p>
+    <div class="msg err" role="alert"><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6v8M12 18v.5"/></svg></span><p><strong>Ce code a expiré.</strong> Demande un nouveau code : il arrive par email en quelques instants.</p></div><div class="msg ok" role="status"><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><p>Un nouveau code a été envoyé à <i class="fict">ton.email@exemple.com</i>.</p></div>
+    <form class="stack otp" novalidate>
+      <div class="field"><label for="ce">Code à 6 chiffres</label><input id="ce" aria-describedby="ce-h" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" value=""><p id="ce-h" class="help">Tu peux coller le code. Il est valable <i class="var">{durée}</i> (E-34).</p></div>
+      <button class="btn btn-primary btn-block" type="button">Renvoyer le code</button>
+      <button class="btn btn-secondary btn-block" type="submit">Valider le code</button>
+      <div class="links"><a class="link" href="#">Changer d’adresse email</a></div>
+    </form>
+    <div class="box note"><p><b style="color:var(--text)">Code non reçu ?</b> Vérifie l’adresse saisie et ton dossier de courriers indésirables, puis demande un nouveau code.</p></div>
+  </main>
+</div>
+<p class="cap"><b class="state">3 · Code expiré puis renvoyé</b>« Ce code a expiré. » en <code>role="alert"</code>, « Renvoyer le code » mis en avant (bouton principal). Le message « Un nouveau code a été envoyé » n’apparaît qu’après un envoi réel confirmé par le serveur (<code>role="status"</code>).</p></div><div class="frame-wrap"><div class="phone cream">
+<header class="hdr">
+  <a class="logo" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="156" height="36.5" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_4"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_4)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_4"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_4"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_4)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_4)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <div class="actions">
+    <a class="icon-btn" href="#" aria-label="Panier, 2 articles"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="count" aria-hidden="true">2</span></a>
+    <button class="icon-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span></button>
+  </div>
+</header>
+<main class="scr">
+    <h1 class="t-h1" tabindex="-1">Crée ton compte</h1>
+    <p>Dernière étape pour <i class="fict">ton.email@exemple.com</i>.</p>
+    <form class="stack" novalidate>
+      <div class="field has-error"><label for="ag1">Ton âge</label><input id="ag1" aria-describedby="ag1-e" aria-invalid="true" type="text" inputmode="numeric" autocomplete="off" maxlength="3" value="12"><p id="ag1-e" class="error"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.5"/></svg><span>La création d’un compte n’est pas possible avant 13 ans.</span></p></div>
+      <div class="msg " role="alert"><span class="dot" style="background:var(--text);color:var(--bg)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11v6M12 7.5v.5"/></svg></span><p><strong>Compte non créé.</strong> Aucune donnée n’a été enregistrée. Tu peux revenir à la boutique.</p></div>
+      <a class="btn btn-secondary btn-block" href="#">Revenir à la boutique</a>
+    </form>
+  </main>
+</div>
+<p class="cap"><b class="state">4 · Âge déclaré : moins de 13 ans</b>Création refusée, message relié au champ et annoncé ; rien n’est enregistré ; sortie vers la boutique. Pas d’argot, pas d’emoji.</p></div><div class="frame-wrap"><div class="phone cream">
+<header class="hdr">
+  <a class="logo" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="156" height="36.5" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_5"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_5)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_5"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_5"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_5)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_5)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <div class="actions">
+    <a class="icon-btn" href="#" aria-label="Panier, 2 articles"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="count" aria-hidden="true">2</span></a>
+    <button class="icon-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span></button>
+  </div>
+</header>
+<main class="scr">
+    <h1 class="t-h1" tabindex="-1">Crée ton compte</h1>
+    <p>Dernière étape pour <i class="fict">ton.email@exemple.com</i>.</p>
+    <form class="stack" novalidate>
+      <div class="field"><label for="ag2">Ton âge</label><input id="ag2" type="text" inputmode="numeric" autocomplete="off" maxlength="3" value="15"></div>
+      <div class="msg " role="status"><span class="dot" style="background:var(--text);color:var(--bg)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11v6M12 7.5v.5"/></svg></span><p><strong>Compte mineur (13 à 17 ans).</strong> Tu peux acheter, obtenir des pass et participer à l’opération « 10 pass gratuits ». Si tu envoies une photo pour la galerie, seul ton prénom ou ton pseudo peut être affiché, jamais ta ville.</p></div>
+      <button class="btn btn-primary btn-block" type="submit">Créer mon compte</button>
+    </form>
+  </main>
+</div>
+<p class="cap"><b class="state">5 · Âge déclaré : 13 à 17 ans</b>Le compte est créé comme <b>Compte mineur</b> : il peut acheter et obtenir des pass ; la ville n’est jamais affichée dans la galerie (FR-40).</p></div><div class="frame-wrap"><div class="phone cream">
+<header class="hdr">
+  <a class="logo" href="#"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="156" height="36.5" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_6"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_6)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_6"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_6"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_6)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_6)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <div class="actions">
+    <a class="icon-btn" href="#" aria-label="Panier, 2 articles"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="count" aria-hidden="true">2</span></a>
+    <button class="icon-btn" type="button" aria-label="Menu" aria-expanded="false" aria-controls="menu"><span aria-hidden="true">☰</span></button>
+  </div>
+</header>
+<main class="scr">
+    <h1 class="t-h1" tabindex="-1">Bienvenue</h1>
+    <div class="msg ok" role="status"><span class="dot"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><p><strong>Compte créé.</strong> Tu es connecté.</p></div>
+    <p>Trois questions facultatives pour mieux te connaître. Tu peux les passer : tu retournes tout de suite à ta page et à ton panier.</p>
+    <form class="stack" novalidate>
+      <div class="field"><label for="q1">Comment nous as-tu connus ? (facultatif)</label><select id="q1" aria-describedby="q1-h"><option>Choisir…</option><option>Instagram</option><option>TikTok</option><option>Un ami</option><option>Un événement</option><option>Autre</option></select><p id="q1-h" class="help">Options d’exemple, liste à fixer par Jonathan.</p></div>
+      <div class="field"><label for="q2">Quel univers préfères-tu ? (facultatif)</label><select id="q2" aria-describedby="q2-h"><option>Choisir…</option><option>Arts martiaux</option><option>Fantastique</option><option>Science-fiction</option></select><p id="q2-h" class="help">Univers génériques (genres) tant que l’avis juridique Q-7 n’est pas rendu (E-29).</p></div>
+      <fieldset><legend class="field"><span style="font:600 14px/20px var(--fb)">Tu préfères porter ou fabriquer ? (facultatif)</span></legend><div class="seg"><label><input type="radio" name="q3"><span class="ck" aria-hidden="true">✓</span>Porter</label><label><input type="radio" name="q3"><span class="ck" aria-hidden="true">✓</span>Fabriquer</label></div></fieldset>
+      <button class="btn btn-primary btn-block" type="submit">Enregistrer</button>
+      <button class="btn btn-secondary btn-block" type="button">Passer</button>
+    </form>
+  </main>
+</div>
+<p class="cap"><b class="state">6 · Questions d’accueil (FR-12)</b>Trois questions facultatives juste après la création ; « Passer » et « Enregistrer » ramènent tous deux à la page et au panier quittés, sans délai. Univers génériques (E-29) ; « Porter / Fabriquer » en sélecteur à deux options sans action automatique.</p></div></div>
+<div class="row"><div class="frame-wrap desk-wrap"><div class="browser cream">
+<div class="chrome" aria-hidden="true"><i></i><i></i><i></i><span class="url">komashop.com/fr/connexion</span></div>
+<header class="d-hdr">
+  <a href="#" class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="50 46 530 124" width="190" height="44.5" role="img" aria-label="KOMA SHOP" focusable="false"><g transform="translate(60,60) scale(1.0)"><defs><clipPath id="caph_7"><rect x="-5" y="0" width="473.45" height="100"/></clipPath></defs><g clip-path="url(#caph_7)" fill="none" stroke="#16130F" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="10"><path d="M10.5,-10 V110" /><path d="M236.5,112 V0 L274,64 L311.5,0 V112" /><path d="M349.45,112 L391.45,-6 L433.45,112" /></g><g fill="#16130F"><polygon points="21,44 62,0 92,0 21,76"/><polygon points="36,52 54,33 92,100 62,100"/></g><g transform="translate(1.24,-1.98)"><defs><clipPath id="aho_7"><polygon points="234.68,-83.54 69.35,181.06 -62.95,98.39 102.39,-166.20"/></clipPath><clipPath id="bho_7"><polygon points="238.65,-81.06 73.32,183.54 205.61,266.20 370.95,1.61"/></clipPath></defs><g clip-path="url(#aho_7)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g><g transform="translate(-2.48,3.97)"><g clip-path="url(#bho_7)"><circle cx="154" cy="50" r="52" fill="#E3261C"/></g></g><circle cx="133.20" cy="34.40" r="8.84" fill="#F3EEE4"/></g></g><g transform="translate(523.45,62)" fill="none" stroke="#E3261C" stroke-width="6.11" stroke-linejoin="miter"><path d="M3.7600000000000002,4.7 H41.36 V40.42 H3.7600000000000002" /><g transform="translate(-51.7,50.760000000000005)"><path d="M53.58,5.64 H93.06 L68.62,31.020000000000003" /><path d="M77.08,22.325 L88.36,43.24" /></g></g></svg></a>
+  <nav aria-label="Menu principal"><ul><li><a href="#">Cosplays</a></li><li><a href="#">Accessoires</a></li><li><a href="#">Kits</a></li><li><a href="#">Événements</a></li><li><a href="#">Blog</a></li><li><a href="#">À propos</a></li></ul></nav>
+  <div class="tools">
+    <button class="icon-btn" type="button" aria-label="Thème sombre" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/></svg></button>
+    <a class="icon-btn lang-btn" href="#" lang="en" hreflang="en" aria-label="English">EN</a>
+    <a class="icon-btn" href="#" aria-label="Mon compte"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></svg></a>
+    <a class="icon-btn" href="#" aria-label="Panier, 2 articles"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 12H6.2z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="count" aria-hidden="true">2</span></a>
+  </div>
+</header>
+<main class="d-center"><main class="scr">
+    
+    <h1 class="t-h1" tabindex="-1">Connexion</h1>
+    <p>Saisis ton email : tu recevras un code à 6 chiffres. Si tu n’as pas encore de compte, il sera créé à cette étape.</p>
+    <form class="stack" novalidate>
+      <div class="field"><label for="em-d">Ton email</label><input id="em-d" aria-describedby="em-d-h" type="email" inputmode="email" autocomplete="email" value=""><p id="em-d-h" class="help">Aucun mot de passe : un nouveau code à chaque connexion.</p></div>
+      <button class="btn btn-primary btn-block" type="submit">Recevoir le code</button>
+    </form>
+    <p class="or">ou</p>
+    <button class="btn btn-secondary btn-block" type="button">Continuer avec Google</button>
+    <p class="note">Ton panier est conservé : tu y reviens juste après.</p>
+  </main></main>
+</div>
+<p class="cap"><b class="state">7 · Ordinateur, navigateur normal</b>Même formulaire centré (440 px) ; hors navigateur intégré, « Continuer avec Google » apparaît en bouton secondaire, sous le code par email (texte seul, aucun logo).</p></div></div>
+</body>
+</html>
