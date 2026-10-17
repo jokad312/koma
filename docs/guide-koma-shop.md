@@ -128,7 +128,7 @@ Le navigateur ne fait que lancer le paiement. La commande n'est validée que par
 | --- | --- | --- |
 | Code | Dépôt GitHub + Claude Code | Claude Code écrit le code phase par phase ; GitHub garde chaque version |
 | Site | Next.js (App Router) + TypeScript | Pages rendues côté serveur, rapides et lisibles par Google |
-| Style | Tailwind CSS + le dépôt de référence design que tu fourniras | Héros, cartes produits, thème clair et sombre |
+| Style | Tailwind CSS + DESIGN.md et EXPERIENCE.md (`_bmad-output/planning-artifacts/ux-designs/`) | Héros, cartes produits, thème clair et sombre |
 | Comptes, base, fichiers | Supabase (Auth, Postgres avec RLS, Storage) | Chaque client ne voit que ses commandes ; fichiers des kits dans un stockage privé |
 | Hébergement | Vercel | Mise en ligne automatique à chaque modification validée sur GitHub |
 | Paiement | K-Pay et Polar | Voir la section Paiement et livraison |
@@ -187,7 +187,7 @@ Le premier écran doit dire « fait par un otaku, pour les otakus » : tes vraie
 
 **La direction proposée** (à ajuster une fois le dépôt de référence vu) :
 
-- Mode sombre par défaut, avec un mode clair ; une ou deux couleurs d'accent vives pour les boutons et les prix.
+- Mode crème par défaut, avec un mode sombre au choix ; un seul rouge vif (#E3261C) pour les boutons et les accents (décision UX du 2026-10-17, voir DESIGN.md).
 - Une police d'affichage expressive pour les titres, une police très lisible pour le texte.
 - Des clins d'œil manga en décor léger (trames, cadres de cases, traits de vitesse), jamais par-dessus une photo produit.
 
@@ -382,7 +382,7 @@ OBJECTIF : la vitrine de la boutique, belle sur téléphone, avant même le cata
 ## A. Mise en page commune
 1. En-tête : logo KOMA SHOP, liens Cosplays, Accessoires, Kits, À propos, icône panier avec compteur, compte. Sur mobile : menu ☰ qui ouvre un panneau.
 2. Pied de page : liens légaux, contact, WhatsApp [NUMÉRO], réseaux sociaux [LIENS], moyens de paiement acceptés.
-3. Mode sombre par défaut, bouton pour le mode clair, choix mémorisé.
+3. Mode crème par défaut, bouton pour le mode sombre, choix mémorisé.
 
 ## B. Pages, avec les héros de la section Design du guide
 1. Accueil : héros plein écran (photo ou vidéo courte de [PHOTO HÉROS]), « Deviens ton personnage. », deux boutons ; bloc « Prêt à porter ou fait par toi » qui explique les deux options ; 6 derniers produits ; trois étapes (Choisis → Paie par mobile money ou carte → Reçois ou fabrique) ; FAQ.
