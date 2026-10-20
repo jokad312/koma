@@ -33,3 +33,9 @@ _bmad/custom/*.user.toml
 .DS_Store
 Thumbs.db
 *.log
+
+# Tests et outils
+test-results/
+playwright-report/
+*.tsbuildinfo
+next-env.d.ts

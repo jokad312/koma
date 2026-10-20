@@ -1,0 +1,21 @@
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+
+function fichiers(dossier: string): string[] {
+  return readdirSync(dossier).flatMap((nom) => {
+    const chemin = join(dossier, nom);
+    return statSync(chemin).isDirectory() ? fichiers(chemin) : [chemin];
+  });
+}
+
+// L'adresse du site vient de NEXT_PUBLIC_SITE_URL seulement (Q-D1).
+describe("src/", () => {
+  it("ne contient aucun nom de domaine écrit en dur", () => {
+    const adresse = /https?:\/\/(?!localhost\b|127\.0\.0\.1\b)[\w-]+(\.[\w-]+)+/gi;
+    const fautifs = fichiers("src")
+      .filter((f) => !f.endsWith(".test.ts"))
+      .filter((f) => adresse.test(readFileSync(f, "utf8")));
+    expect(fautifs).toEqual([]);
+  });
+});

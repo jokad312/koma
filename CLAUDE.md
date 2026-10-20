@@ -58,5 +58,12 @@ Le projet suit la méthode BMad v6, installée dans `_bmad/` et `.claude/skills/
 - Mettre à jour ce fichier quand une décision change. Ne pas modifier `_bmad/config.toml` ni `_bmad/config.user.toml` (gérés par l'installateur) : passer par `_bmad/custom/`.
 
 ## Commandes
-(à compléter quand le projet Next.js sera créé : dev, lint, typecheck, test, build)
+- `npm run dev` : serveur de développement (http://localhost:3000)
+- `npm run lint` : ESLint
+- `npm run typecheck` : types (`next typegen` puis `tsc --noEmit`)
+- `npm test` : Vitest
+- `npm run test:sql` : tests SQL (`supabase test db`, base locale Supabase, Docker requis)
+- `npm run test:e2e` : Playwright (navigateur Chromium : `npx playwright install chromium`)
+- `npm run build` : build de production
+- `npm run types` : régénère `src/lib/supabase/types.ts` depuis la base locale ; `npm run db:link` puis `npm run db:push` pour relier et migrer `koma-dev`
 - Aide BMad : `/bmad-help` (prérequis : `uv` installé)
