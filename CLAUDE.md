@@ -62,8 +62,9 @@ Le projet suit la méthode BMad v6, installée dans `_bmad/` et `.claude/skills/
 - `npm run lint` : ESLint
 - `npm run typecheck` : types (`next typegen` puis `tsc --noEmit`)
 - `npm test` : Vitest
-- `npm run test:sql` : tests SQL (`supabase test db`, base locale Supabase, Docker requis)
+- `npm run test:sql` : tests SQL (`supabase test db`) ; tournent dans GitHub Actions (Docker y est disponible) ; en local, pas de Docker : le script l'explique et sort sans erreur
 - `npm run test:e2e` : Playwright (navigateur Chromium : `npx playwright install chromium`)
 - `npm run build` : build de production
-- `npm run types` : régénère `src/lib/supabase/types.ts` depuis la base locale ; `npm run db:link` puis `npm run db:push` pour relier et migrer `koma-dev`
+- `npm run db:link` puis `npm run db:push` : relier et migrer `koma-dev` ; `npm run types` : génère `src/lib/supabase/types.ts` depuis le projet lié
+- Répartition (décision du 2026-10-20) : en local, on développe sur `koma-dev` en ligne, sans Docker ; les tests SQL sont exécutés par la CI
 - Aide BMad : `/bmad-help` (prérequis : `uv` installé)
