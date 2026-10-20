@@ -2,7 +2,7 @@
 
 ## Le produit
 Boutique en ligne pour otakus, tenue par un seul créateur : Jonathan Manduara Tshimpaka, NATHANGROUP SARL, Goma, RDC.
-Domaine : komashop.com. Cible : d'abord les otakus africains, l'international ensuite.
+Domaine : pas encore acheté (Q-D1) ; l'adresse du site est lue dans NEXT_PUBLIC_SITE_URL, jamais écrite en dur. Développement et tests en local d'abord. Cible : d'abord les otakus africains, l'international ensuite.
 Trois familles de produits :
 - cosplay : costume complet fait main, physique, en stock ou sur commande (tailles XS à XXL ou sur mesure)
 - accessoire : perruque, arme factice, masque, armure, bijou ; physique

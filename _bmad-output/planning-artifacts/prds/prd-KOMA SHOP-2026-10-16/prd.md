@@ -9,7 +9,7 @@ updated: 2026-10-20
 
 ## 0. Objet du document
 
-Ce PRD décrit ce que KOMA SHOP (komashop.com) doit faire le jour de son lancement public, puis dans les semaines qui suivent. Il s'adresse à Jonathan (créateur et décideur) et aux agents BMad suivants : UX (`bmad-ux`), architecture (`bmad-architecture`), découpage en epics et stories. Il s'appuie sur le brief produit du 2026-10-15 (`_bmad-output/planning-artifacts/briefs/brief-KOMA SHOP-2026-10-15/`) et sur `docs/guide-koma-shop.md`, sans les recopier. **En cas de contradiction, ce PRD fait foi**, car il intègre les décisions de Jonathan du 2026-10-16 (paiement, événements, blog, codes promo), qui figurent aussi dans `CLAUDE.md`.
+Ce PRD décrit ce que KOMA SHOP (domaine à acheter, Q-D1) doit faire le jour de son lancement public, puis dans les semaines qui suivent. Il s'adresse à Jonathan (créateur et décideur) et aux agents BMad suivants : UX (`bmad-ux`), architecture (`bmad-architecture`), découpage en epics et stories. Il s'appuie sur le brief produit du 2026-10-15 (`_bmad-output/planning-artifacts/briefs/brief-KOMA SHOP-2026-10-15/`) et sur `docs/guide-koma-shop.md`, sans les recopier. **En cas de contradiction, ce PRD fait foi**, car il intègre les décisions de Jonathan du 2026-10-16 (paiement, événements, blog, codes promo), qui figurent aussi dans `CLAUDE.md`.
 
 Les termes du Glossaire (§3) sont employés tels quels dans tout le document. Les fonctionnalités sont regroupées en §4, avec des exigences numérotées FR-1 à FR-59. Les hypothèses formulées pendant la rédaction ont toutes été confirmées par Jonathan le 2026-10-16 ; elles sont listées en §12. Les montants (prix, forfaits, frais) et les délais ne figurent jamais ici : ils sont saisis dans l'admin.
 
@@ -231,7 +231,7 @@ Réalise UJ-1, UJ-2, UJ-3, UJ-3b, UJ-5.
 
 #### FR-15 : Couche de paiement à Adaptateurs
 Le système encaisse via une couche de paiement commune, avec un Adaptateur par Prestataire. Ajouter ou retirer un Agrégateur ne touche pas au reste du site.
-- Adaptateurs au lancement : PawaPay (API v2, mobile money), K-Pay (mobile money et carte), MaishaPay (mobile money), Polar (carte, Kits). Ceux de K-Pay et MaishaPay (mobile money) reprennent les intégrations déjà en production sur SwitchPro, avec les comptes marchands de NATHANGROUP SARL. Celui de GeniusPay est en attente de sa documentation (§11, Q-2) : rien de son API n'est supposé.
+- Adaptateurs au lancement : PawaPay (API v2, mobile money), K-Pay (mobile money et carte), MaishaPay (mobile money), Polar (carte, Kits). Ceux de K-Pay et MaishaPay sont construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation. Ils utilisent les comptes marchands de NATHANGROUP SARL, dont les clés restent dans les variables d'environnement. Celui de GeniusPay est en attente de sa documentation (§11, Q-2) : rien de son API n'est supposé.
 
 #### FR-16 : Choix du moyen de paiement
 Le client choisit mobile money (pays + opérateur + numéro) ou carte. Le système ne propose que les Prestataires autorisés pour ce Panier ou cet achat de Pass, selon les points 1 à 4 du §4.4.
@@ -412,7 +412,7 @@ Le client reçoit un email à chaque événement de sa Commande : payée, en fab
 
 #### FR-45 : Relances
 Un client qui a consenti reçoit une Relance tous les 2 à 3 jours pendant 90 jours au plus après son achat, pour l'inviter à revenir (chapitre suivant, nouveautés, événement). Chaque Relance contient un lien de désinscription ; la désinscription prend effet immédiatement. Réalise UJ-2.
-- Les Comptes mineurs reçoivent les mêmes Emails commerciaux que les adultes, avec le même consentement (à valider par le juriste, Q-5).
+- Au lancement, aucun Email commercial n'est envoyé à un Compte mineur, même s'il a consenti ; les emails liés à ses achats partent normalement. Un réglage permettra de les ouvrir si le juriste les valide (Q-5) (décision de Jonathan du 2026-10-21).
 
 #### FR-59 : Emails commerciaux ciblés
 Un client qui a consenti reçoit aussi :
@@ -492,7 +492,7 @@ Une fiche partagée sur WhatsApp ou un réseau social affiche la grande photo du
 
 ### 6.1 Lancement
 - Page d'accueil et pages vitrines (§4.1), catalogue et fiches (§4.2), Panier, Compte et commande (§4.3).
-- Paiement : mobile money via PawaPay, K-Pay, MaishaPay et GeniusPay (K-Pay et MaishaPay repris de SwitchPro ; GeniusPay dès que sa documentation est lue), carte via K-Pay (Produits physiques et Pass) et via Polar (Paniers 100 % numériques) (§4.4).
+- Paiement : mobile money via PawaPay, K-Pay, MaishaPay et GeniusPay (K-Pay et MaishaPay construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation ; GeniusPay dès que sa documentation est lue), carte via K-Pay (Produits physiques et Pass) et via Polar (Paniers 100 % numériques) (§4.4).
 - Remise à Goma et Bukavu, retrait à Goma, suivi manuel, annulation, réclamation et remplacement (§4.5).
 - Bibliothèque de kits (§4.6).
 - Événements, Pass, Scan avec mode hors ligne, Accès bénévole (§4.7).
@@ -551,7 +551,7 @@ Les autres Agrégateurs et Polar s'ajoutent dès qu'ils sont prêts, sans bloque
 | R-1 | Un seul créateur face à un périmètre large (boutique, Événements, Blog, Relances, Codes promo) | Délais non tenus, site incomplet au lancement | Plafond de fabrication ; blocs masqués sans contenu ; Assistants plus tard ; suivi de SM-C1 |
 | R-2 | Contenu de lancement insuffisant | Rien à vendre au cœur du projet | Selon Jonathan, des Kits sont déjà filmés et des Produits prêts ; un Kit filmé reste une condition d'ouverture (§6.1) |
 | R-3 | Documentation et Couverture des Agrégateurs pas encore transmises | Adaptateurs impossibles à développer | Selon Jonathan, les quatre couvrent la RDC et sont testés ; documents à transmettre (Q-1, Q-2) ; un seul Agrégateur suffit pour ouvrir (§6.1) |
-| R-4 | K-Pay refuse les pièces « inspirées de » ou les Pass | Plus de paiement par carte pour le physique ou les Pass | K-Pay déjà en production sur SwitchPro avec un compte marchand de NATHANGROUP SARL (Q-14 réglée) ; avis juridique (Q-7) |
+| R-4 | K-Pay refuse les pièces « inspirées de » ou les Pass | Plus de paiement par carte pour le physique ou les Pass | K-Pay déjà en production avec un compte marchand de NATHANGROUP SARL (Q-14 réglée) ; avis juridique (Q-7) |
 | R-5 | Polar ne verse pas les fonds à une société en RDC | Ventes de Kits par carte bloquées | Compte Polar déjà vérifié au nom de NATHANGROUP SARL (Q-13 réglée) |
 | R-6 | Double débit ou paiement perdu lors d'un repli | Perte de confiance, remboursements manuels | Tentatives de paiement, aucun repli sur délai dépassé, Trop-perçus signalés (FR-17, FR-19) |
 | R-7 | Partage des Fichiers de kit | Ventes perdues | Liens signés et Licence de kit ; risque accepté : la confiance et la proximité protègent mieux qu'une barrière technique |
@@ -577,21 +577,23 @@ Les autres Agrégateurs et Polar s'ajoutent dès qu'ils sont prêts, sans bloque
 ## 11. Questions ouvertes
 
 1. **Q-1 Couverture des Agrégateurs** : tableau des pays et opérateurs couverts par PawaPay, K-Pay, MaishaPay et GeniusPay, tiré de leur documentation et des contrats marchands de Jonathan. Pour la RDC, Jonathan indique M-Pesa, Airtel Money, Orange Money et Africell chez les quatre. *Bloque FR-16 en production.*
-2. **Q-2 Documentation GeniusPay** : lien transmis le 2026-10-16 (https://geniuspay.ci/docs/api). Reste à vérifier, à partir de ce document, ce que son API permet (Notification de paiement vérifiable, remboursement, devise) avant de développer son Adaptateur, sans rien supposer. MaishaPay : son Adaptateur reprend l'intégration en production sur SwitchPro (code et documentation fournis par Jonathan).
+2. **Q-2 Documentation GeniusPay** : lien transmis le 2026-10-16 (https://geniuspay.ci/docs/api). Reste à vérifier, à partir de ce document, ce que son API permet (Notification de paiement vérifiable, remboursement, devise) avant de développer son Adaptateur, sans rien supposer. K-Pay et MaishaPay : leurs Adaptateurs sont construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation.
 3. **Q-3 Devise débitée** : chaque Prestataire débite-t-il en USD ou convertit-il ? Quel montant afficher au client au moment de valider ?
 4. **Q-4 Remboursements par API** : chaque Prestataire permet-il de rembourser par son API (annulation de Cosplay, Pass) ? Sinon, comment Jonathan rembourse-t-il à la main ?
 5. **Q-5 Textes légaux** : mentions légales, CGV, livraison et retours, confidentialité et cookies, mention sur le droit à l'image des Événements, conditions de l'opération « 10 pass gratuits », identifiants RCCM, Id. Nat. et NIF. À valider par un juriste : âge minimum de 13 ans et Emails commerciaux envoyés aux mineurs, publication des photos d'événement sur la seule mention acceptée par l'acheteur. Un brouillon des CGV et de la politique de confidentialité sera préparé dans une session séparée, puis validé par un juriste avant la première vente.
 6. **Q-6 Remplacement impossible** : si un Produit physique défectueux ne peut être ni remplacé ni refabriqué, l'absence de remboursement doit être validée par un juriste dans les CGV.
 7. **Q-7 Avis juridique sur la propriété intellectuelle** : vendre des pièces « inspirées de » sans nommer la franchise, et acceptation de ces pièces par K-Pay.
 9. **Q-9 Numéro de suivi** : que représente-t-il pour une remise à Bukavu (bateau, agence) ?
-10. **Q-10 Ressources à fournir** : photos et vidéo du héros, email admin, numéro WhatsApp, liens des réseaux sociaux, disponibilité du domaine komashop.com, premiers Kits filmés.
+10. **Q-10 Ressources à fournir** : photos et vidéo du héros, email admin, numéro WhatsApp, liens des réseaux sociaux, premiers Kits filmés. Le domaine relève de Q-D1.
 11. **Q-11 Ordre d'affichage des moyens de paiement** : *tranchée le 2026-10-17 (UX)* — pays d'abord ; mobile money en premier si un Agrégateur actif couvre ce pays, sinon carte seule (FR-16).
 12. **Q-12 Montants** : prix des Produits et des Pass, Forfaits de livraison, pourcentage de frais d'annulation des Pass, pourcentages des Codes promo. Saisis dans l'admin, jamais dans le code.
+13. **Q-D1 Nom de domaine** : pas encore acheté (décision du 2026-10-20). Jonathan l'achète lui-même chez Hostinger à la fin. Le site est construit et testé en local ; son adresse est lue dans la variable d'environnement `NEXT_PUBLIC_SITE_URL`, jamais écrite en dur. Bloque seulement la mise en ligne (domaine, Resend, SMTP de Supabase Auth).
+14. **Q-N1 Nom affiché** : nom définitif du site (KOMA SHOP ou KOMA FEST). Valeur de départ provisoire « KOMA SHOP », dans un réglage modifiable dans l'admin, seule source du nom affiché. Bloque seulement la mise en ligne.
 
 **Tranchées depuis (retirées de la liste ci-dessus) :**
 - **Q-8 Hébergement des Vidéos de kit** : bibliothèque Bunny Stream privée, lecture par jeton signé de courte durée (décision d'architecture du 2026-10-20 ; `CLAUDE.md` règle 1 ; spine d'architecture AD-11).
-- **Q-13 Polar et la RDC** : réglée le 2026-10-20 ; le compte Polar de Jonathan est déjà vérifié au nom de NATHANGROUP SARL (utilisé pour SwitchPro).
-- **Q-14 K-Pay et le catalogue** : réglée le 2026-10-20 ; K-Pay est déjà en production sur SwitchPro avec un compte marchand de NATHANGROUP SARL, carte activée.
+- **Q-13 Polar et la RDC** : réglée le 2026-10-20 ; le compte Polar de Jonathan est déjà vérifié au nom de NATHANGROUP SARL.
+- **Q-14 K-Pay et le catalogue** : réglée le 2026-10-20 ; K-Pay est déjà en production avec un compte marchand de NATHANGROUP SARL, carte activée.
 - **Q-15 Sous-titres anglais des Vidéos de kit** : tranchée le 2026-10-20 ; facultatifs au lancement, la fiche `/en` d'un Kit sans sous-titres anglais l'indique (FR-29, FR-50).
 
 ## 12. Hypothèses confirmées

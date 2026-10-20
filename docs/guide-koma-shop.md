@@ -1,5 +1,7 @@
 # KOMA SHOP — boutique otaku (cosplays, kits, accessoires) — guide A→Z
 
+> **Document historique du 15 octobre 2026. En cas de désaccord, le PRD, l'architecture et la conception UX font foi.**
+
 Version du 15 octobre 2026, alignée sur le brief produit le 16 octobre 2026 · Jonathan Manduara Tshimpaka
 
 > **Avertissement (2026-10-16, complété le 2026-10-20).** Ce guide a servi de base au PRD du 2026-10-16 (`_bmad-output/planning-artifacts/prds/prd-KOMA SHOP-2026-10-16/prd.md`). En cas de différence, CLAUDE.md, le PRD et le spine d'architecture (`_bmad-output/planning-artifacts/architecture/architecture-KOMA SHOP-2026-10-17/ARCHITECTURE-SPINE.md`) font foi. Les phases 1 à 9 de « Construire avec Claude Code » sont remplacées par les epics et stories BMad ; elles restent ici pour mémoire.

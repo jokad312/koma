@@ -1,0 +1,139 @@
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created, ready for development
+#   - in-progress: Developer actively working on implementation
+#   - review: Implementation complete, ready for review
+#   - done: Story completed
+
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+# Action Item Status:
+#   - open: Committed during a retrospective, not yet addressed
+#   - in-progress: Actively being worked on
+#   - done: Completed
+
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when its first story starts (via build's sprint sync)
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates the next story after the previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+# - Retrospective appends its action items to action_items; the status view surfaces open ones
+generated: 10-21-2026 12:00
+last_updated: 10-21-2026 12:00
+project: KOMA SHOP
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+# NOTES KOMA SHOP (2026-10-21)
+# - Epic 7 : ne démarre qu'après le bmad-correct-course de la candidature Stand (Q-C1, FR-33 et AD-7), puis ajout de la story 7.11.
+# - Stories bloquées (restent en backlog) : Q-S1 (documentation K-Pay et MaishaPay : 5.4, 5.5, 5.6), Q-1 / Q-2 / Q-3 (5.4 à 5.8),
+#   E-10 (6.4 Sur-mesure), Q-D1 (9.9 mise en ligne).
+# - Story 1.1 : la protection de la branche production sur GitHub est faite par Jonathan ; le réglage hPanel est dans la story 9.9.
+development_status:
+  epic-1: backlog
+  1-1-socle-du-projet-tests-et-intégration-continue: backlog
+  1-2-site-bilingue-et-socle-seo: backlog
+  1-3-identité-visuelle-et-gabarit-commun: backlog
+  1-4-création-de-compte-et-connexion-par-code-email: backlog
+  1-5-navigateurs-intégrés-et-connexion-google: backlog
+  1-6-questions-d-accueil: backlog
+  1-7-accès-admin-rôles-journal-et-réglage-whatsapp: backlog
+  1-8-pages-à-propos-faq-et-contact: backlog
+  1-9-pages-légales: backlog
+  epic-1-retrospective: optional
+
+  epic-2: backlog
+  2-1-univers-et-création-d-un-produit-physique: backlog
+  2-2-photos-et-publication-d-un-produit: backlog
+  2-3-réglages-de-remise-et-plafond-de-fabrication: backlog
+  2-4-catalogues-cosplays-et-accessoires: backlog
+  2-5-fiche-d-un-produit-physique: backlog
+  2-6-héros-vidéo-de-l-accueil: backlog
+  2-7-blocs-de-la-page-d-accueil: backlog
+  epic-2-retrospective: optional
+
+  epic-3: backlog
+  3-1-créer-un-kit-et-ses-fichiers: backlog
+  3-2-vidéo-chapitres-sous-titres-et-publication-d-un-kit: backlog
+  3-3-catalogue-kits-et-fiche-kit: backlog
+  3-4-double-option-et-kit-lié-dans-toute-la-boutique: backlog
+  3-5-obtenir-le-kit-gratuit: backlog
+  3-6-ma-bibliothèque-et-téléchargement-des-fichiers: backlog
+  3-7-lecteur-vidéo-à-chapitres: backlog
+  epic-3-retrospective: optional
+
+  epic-4: backlog
+  4-1-panier-sans-compte: backlog
+  4-2-fusion-du-panier-à-la-connexion: backlog
+  4-3-étape-de-commande-et-commande-en-attente: backlog
+  4-4-boîte-d-envoi-et-premiers-emails: backlog
+  4-5-couche-de-paiement-aiguilleur-et-admin-des-prestataires: backlog
+  4-6-page-de-retour-attente-et-état-réel-de-la-commande: backlog
+  4-7-paiement-d-un-kit-par-carte-via-polar: backlog
+  epic-4-retrospective: optional
+
+  epic-5: backlog
+  5-1-saisie-de-la-couverture-des-agrégateurs: backlog
+  5-2-choix-du-mobile-money-par-le-client: backlog
+  5-3-écran-d-attente-mobile-money-et-repli-entre-agrégateurs: backlog
+  5-4-paiement-mobile-money-via-k-pay: backlog
+  5-5-paiement-par-carte-via-k-pay-produits-physiques-et-paniers-m: backlog
+  5-6-paiement-mobile-money-via-maishapay: backlog
+  5-7-paiement-mobile-money-via-pawapay: backlog
+  5-8-paiement-mobile-money-via-geniuspay: backlog
+  epic-5-retrospective: optional
+
+  epic-6: backlog
+  6-1-mes-commandes-et-suivi-client: backlog
+  6-2-commandes-dans-l-admin: backlog
+  6-3-avancement-manuel-des-commandes-et-emails-de-statut: backlog
+  6-4-saisie-des-mesures-du-sur-mesure: backlog
+  6-5-vérification-des-mesures-par-jonathan: backlog
+  6-6-annulation-d-une-commande-de-cosplay-et-remboursement: backlog
+  6-7-réclamation-et-remplacement: backlog
+  epic-6-retrospective: optional
+
+  epic-7: backlog
+  7-1-créer-un-événement-et-ses-types-de-pass: backlog
+  7-2-pages-festival: backlog
+  7-3-me-prévenir-alerte-événement: backlog
+  7-4-achat-de-pass: backlog
+  7-5-émission-des-pass-et-mes-pass: backlog
+  7-6-scan-en-ligne-à-l-entrée: backlog
+  7-7-accès-bénévole: backlog
+  7-8-scan-hors-ligne: backlog
+  7-9-annulation-et-remboursement-d-un-pass: backlog
+  7-10-galerie-d-événement: backlog
+  epic-7-retrospective: optional
+
+  epic-8: backlog
+  8-1-envoyer-sa-photo-depuis-son-compte: backlog
+  8-2-validation-dépôt-whatsapp-et-retrait-des-photos: backlog
+  8-3-galerie-ils-le-portent-sur-l-accueil: backlog
+  8-4-réalisations: backlog
+  8-5-opération-10-pass-gratuits: backlog
+  8-6-écrire-et-publier-un-article: backlog
+  8-7-blog-public: backlog
+  epic-8-retrospective: optional
+
+  epic-9: backlog
+  9-1-créer-un-code-promo: backlog
+  9-2-appliquer-un-code-promo: backlog
+  9-3-ventes-et-commissions-par-code-promo: backlog
+  9-4-consentements-préférences-et-désinscription: backlog
+  9-5-relances: backlog
+  9-6-emails-ciblés: backlog
+  9-7-mesure-d-audience-maison: backlog
+  9-8-tableau-de-bord: backlog
+  9-9-mise-en-ligne: backlog
+  epic-9-retrospective: optional

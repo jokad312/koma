@@ -21,6 +21,10 @@ backups/
 supabase/.temp/
 supabase/.branches/
 
+# Documentation des prestataires tirée des espaces marchands : lue en local, jamais publiée
+# (règle 4 : aucune donnée marchande ; règle 6 : aucun fichier tiers sans licence vérifiée)
+docs/references/paiements/
+
 # Réglages personnels
 _bmad/custom/*.user.toml
 .claude/settings.local.json

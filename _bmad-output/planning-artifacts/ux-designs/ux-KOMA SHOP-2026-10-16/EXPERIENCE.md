@@ -1,7 +1,7 @@
 ---
 name: KOMA SHOP
 status: final
-updated: 2026-10-17
+updated: 2026-10-21
 design: ./DESIGN.md
 sources:
   - "{planning_artifacts}/prds/prd-KOMA SHOP-2026-10-16/prd.md"
@@ -208,7 +208,7 @@ Comportement seulement ; l'aspect est dans `DESIGN.md` › Components, sous les 
 | **Navigation du compte** | Mon compte (mobile), colonne gauche (ordinateur) | `<nav aria-label>` ; une carte-lien par entrée, lien étendu à la carte ; entrée courante en `aria-current="page"`. « Se déconnecter » en dernier. Même liste sur les deux tailles ([key-compte](mockups/key-compte.html)). |
 | **Frise des statuts** | Suivi d'une commande | Statuts réels avec dates ; chaque étape porte icône + libellé texte (« Fait », « En cours », « À venir ») ; `aria-current="step"` sur l'étape courante ; Commande `offerte` → « Offert », sans montant de paiement, sans Prestataire ni référence. Retrait à Goma : `expédiée` s'affiche « Prête à retirer » (E-25). Numéro de suivi : **texte libre** saisi par l'admin, affiché tel quel, jamais transformé en lien de transporteur ; aucun état « en transit » calculé (règle 12). **Bouton WhatsApp**. Annulation proposée seulement avant `en fabrication` (confirmation en **Boîte de dialogue**) ; réclamation seulement dans les 48 h après `livrée`. |
 | **Ligne de kit en bibliothèque** | Ma bibliothèque | Une ligne par Kit acheté ou offert ; lien sur le titre étendu à la ligne, vers le Kit en bibliothèque ; progression et action suivante **en texte** (« Reprendre au chapitre 3 »), lues du serveur ([key-bibliotheque](mockups/key-bibliotheque.html)). |
-| **Lecteur vidéo à chapitres** | Kit en bibliothèque, extrait de la Fiche Kit | **Sous-titres WebVTT obligatoires** : FR toujours, EN si le Kit est vendu sur `/en` (décision) ; activables, réglés par défaut sur la langue de l'interface. Lecteur **entièrement au clavier** : lecture/pause, piste temporelle (slider ARIA avec valeur en texte), chapitres en `<button>` avec `aria-current="true"`, bouton sous-titres, plein écran. Qualité adaptative ; **aucun bouton de téléchargement** ; reprise à la dernière position sur tout appareil (FR-29). Transcription texte par chapitre, téléchargeable avec les Fichiers de kit (E-32). |
+| **Lecteur vidéo à chapitres** | Kit en bibliothèque, extrait de la Fiche Kit | **Sous-titres WebVTT** : FR obligatoires, EN facultatifs (PRD Q-15, 2026-10-20) ; sous `/en`, la fiche d'un Kit sans sous-titres anglais l'indique ; activables, réglés par défaut sur la langue de l'interface. Lecteur **entièrement au clavier** : lecture/pause, piste temporelle (slider ARIA avec valeur en texte), chapitres en `<button>` avec `aria-current="true"`, bouton sous-titres, plein écran. Qualité adaptative ; **aucun bouton de téléchargement** ; reprise à la dernière position sur tout appareil (FR-29). Transcription texte par chapitre, téléchargeable avec les Fichiers de kit (E-32). |
 | **Ligne de fichier de kit** | Kit en bibliothèque | Chaque clic demande au serveur un lien signé de courte durée (règle 1) ; aucun lien `kits-private` dans le HTML ; téléchargements illimités. Nom accessible complet : « Télécharger Patron A4 (PDF, 2,4 Mo) » ; taille affichée ; « Préparation du lien… » annoncé pendant la génération. |
 | **Carte Type de pass** | Page Événement | Lecture seule : nom, prix USD, avantages ; **aucun compteur**. Un seul bouton « Acheter des pass » sous les cartes, qui mène à l'Achat de Pass (connexion requise). Capacité atteinte : badge « Complet » sur chaque carte, bouton d'achat retiré, « Me prévenir » maintenu ([key-evenements](mockups/key-evenements.html)). |
 | **Sélecteur de Pass** | Achat de Pass | Mêmes cartes que la Carte Type de pass, avec un compteur par Type de pass (boutons −/+ 44 px, valeur annoncée) ; pour soi, le Pass reprend le Compte ; un champ de nom par autre personne ; un Pass Stand génère deux noms (titulaire + aide) (FR-33). **Aucun bouton d'ajout au Panier** ; paiement toujours séparé ; carte = K-Pay seulement. Capacité vérifiée par le serveur au paiement ([key-pass-photo](mockups/key-pass-photo.html)). |
@@ -270,7 +270,7 @@ Maquettes : [key-fiche-cosplay](mockups/key-fiche-cosplay.html), [key-fiche-kit]
 | **Montant modifié** | Récapitulatif, paiement | Le serveur a recalculé un total différent (prix, Forfait, Code promo) : « Le total a changé : [ancien] → [nouveau] USD. » ; **reconfirmation obligatoire** avant paiement. |
 | **Panier 100 % numérique** | Étape de commande | Aucun champ de remise, d'adresse ni de téléphone (FR-13, décision) ; le numéro est saisi au paiement mobile money. |
 | **Retrait choisi** | Étape de commande (Goma) | Lieu et modalités de retrait lus du Réglage (FR-51), affichés avant paiement. |
-| **Code promo refusé** (inactif, plafond, pas un premier achat) | Étape de commande | Message sous le champ ; formulation : E-13. |
+| **Code promo refusé** (inconnu, inactif, plafond, pas un premier achat, second code) | Étape de commande, Achat de Pass | Message sous le champ, selon le cas : « Ce code n'existe pas. Vérifie l'orthographe. » ; « Ce code n'est plus actif. » ; « Ce code a été utilisé le nombre maximal de fois. » ; « Ce code est réservé à un premier achat. » ; « Un seul code par achat. » (décision du 2026-10-21 ; corrige un renvoi erroné vers E-13, qui concerne le Trop-perçu). |
 | **Navigateur intégré** | Partout ; connexion | Bandeau « Ouvrir dans Chrome » non bloquant ; bouton Google masqué ; code par email (FR-3, FR-12). |
 | **Moins de 13 ans / Compte mineur** | Création de compte | Âge déclaré dans un champ numérique (rendu validé). Création refusée sous 13 ans, rien n'est enregistré ; 13–17 ans = Compte mineur (ville jamais affichée en Galerie). |
 | **Retour après connexion** | Connexion | Retour à la page et au Panier quittés (FR-12) ; les questions d'accueil ne retardent pas ce retour. |
@@ -329,13 +329,13 @@ Maquettes : [key-bibliotheque](mockups/key-bibliotheque.html), [key-pass-photo](
 | **Photo en attente / publiée / retirée** | Compte › Envoyer une photo | Statut réel affiché (FR-41). |
 | **Téléversement client en cours / échoué** | Compte › Envoyer une photo / une Réalisation | Progression (`role="progressbar"` avec valeur) ; reprise après coupure ; fichier trop lourd ou format refusé → message avec la limite et les formats acceptés (valeurs fixées par l'architecture) ; rien n'est perdu de ce qui a été saisi. |
 | **Opération « 10 pass » terminée** | Compte › Réalisation | Compteur arrêté à 10 ; Réalisation toujours envoyable [HYPOTHÈSE]. |
-| **Admin : publication refusée** | Gestion des Produits | Liste des manques (prix, photo, alt, fichier de Kit, **sous-titres FR de la Vidéo de kit**, EN si vendu sur `/en`) (FR-50, décision). |
+| **Admin : publication refusée** | Gestion des Produits | Liste des manques (prix, photo, alt, fichier de Kit, **sous-titres FR de la Vidéo de kit** ; les sous-titres EN sont facultatifs) (FR-50, PRD Q-15). |
 | **Admin : téléversement interrompu** | Gestion des Produits | Progression + reprise après coupure (FR-50). |
 | **Admin : transition interdite** | Commandes, Pass | L'action est **absente**, pas désactivée (voir § Admin). |
 | **Admin : transition autorisée, condition non remplie** | Détail d'une Commande | Exemple : « Passer en fabrication » sans Mesures validées. Bouton affiché en `aria-disabled` avec la raison écrite à côté (« Valide d'abord les mesures… ») (décision). |
 | **Admin : rien de nouveau** | Tableau de bord | « Aucune nouvelle commande payée aujourd'hui. » (information) ; « Aucune tâche en attente. » (succès, icône + texte) ; « Aucun paiement vérifié aujourd'hui. » + lien vers les 7 derniers jours. Aucun zéro décoratif. |
 | **Admin : remboursement sans preuve** | Détail d'une Commande annulée | Résumé d'erreur (`role="alert"`) + erreur reliée au champ « Preuve du remboursement » ; la Commande reste `annulée`. |
-| **Admin : valeur de Réglage non fournie** | Réglages | Champ laissé vide avec « Valeur à fixer » (Délai de paiement E-9, frais d'annulation des Pass) ; aucune valeur par défaut inventée (règle 15). |
+| **Admin : valeur de Réglage non fournie** | Réglages | Champ laissé vide avec « Valeur à fixer » (par exemple frais d'annulation des Pass) ; aucune valeur par défaut inventée (règle 15). Le Délai de paiement n'est pas concerné : il démarre à 30 minutes, valeur décidée par Jonathan (E-9). |
 | **Admin : Couverture non saisie** | Prestataires | Aucune case cochée d'avance ; chaque couple porte « À vérifier » et une source (document ou contrat) à citer (règle 9). |
 
 ## Interaction Primitives
@@ -363,7 +363,7 @@ Comportement. Le contraste visuel est dans `DESIGN.md` › Colors. Cible : WCAG 
 - **Cibles tactiles ≥ 44 × 44 px** pour toute commande isolée (décision) ; case de 24 px acceptée si tout son libellé est cliquable ; liens d'un texte de consentement espacés d'au moins 24 px.
 - **Images** : texte alternatif sur chaque image ; publication refusée sans alt (FR-50).
 - **Vidéo du héros** : sans son, `aria-hidden`, sans information indispensable ; **bouton Pause obligatoire** ; photo à la place en mouvement réduit ; ≤ 3 flashs par seconde.
-- **Vidéos de kit** : **sous-titres WebVTT obligatoires** (FR, + EN si vendu sur `/en`), publication refusée sans sous-titres, lecteur entièrement au clavier (décision).
+- **Vidéos de kit** : **sous-titres WebVTT français obligatoires**, anglais facultatifs (la fiche `/en` d'un Kit sans sous-titres anglais l'indique), publication refusée sans sous-titres français, lecteur entièrement au clavier (décision).
 - **Titres** : un seul H1 par page (FR-56) ; H2 pour les sections, H3 pour les produits et questions FAQ.
 - **Formulaires** : libellés visibles, `autocomplete`, erreurs reliées et résumé d'erreurs, rien ressaisi (3.3.7), jamais la couleur seule pour signaler un état (icône + texte). Code de connexion : un seul champ `one-time-code`, collage permis (3.3.8).
 - **Annonces** : changements d'état du paiement en `role="status"` **une fois par changement réel**, échec en `role="alert"`, focus déplacé sur le titre du nouvel état ; `role="status"` aussi pour l'ajout au panier, la copie de lien, le nombre de résultats des filtres et le changement de pays.
@@ -399,7 +399,7 @@ Maquettes : [key-admin-tableau](mockups/key-admin-tableau.html), [key-admin-comm
 |---|---|---|
 | Tableau de bord | D'abord les nouvelles Commandes payées, puis graphiques de paiement, puis tâches (Mesures à vérifier, annulations, remboursements, remplacements, Trop-perçus à rembourser, photos, Réalisations) et indicateurs | FR-49 |
 | Commandes (liste + détail) | Filtres Statut, Famille, Prestataire, Zone de remise ; **avancement manuel limité aux transitions autorisées** ; numéro de suivi (texte libre) ; Mesures ; correction d'adresse | FR-23, FR-24 |
-| Produits | Création, photos ordonnées avec alt, variantes, délais, Kit lié, fichiers, vidéo, chapitres et **sous-titres** (publication refusée sans sous-titres FR, et EN si vendu sur `/en`) | FR-50, décision |
+| Produits | Création, photos ordonnées avec alt, variantes, délais, Kit lié, fichiers, vidéo, chapitres et **sous-titres** (publication refusée sans sous-titres FR ; EN facultatifs) | FR-50, décision |
 | Réglages, Prestataires | Délai de paiement, forfaits, lieu et modalités du retrait, Plafond, WhatsApp, héros (Cosplay vedette, vidéo, photo de repli) ; activation par **Interrupteur**, Ordre de priorité par **Boutons Monter / Descendre**, Couverture saisie à la main avec source ; règle carte affichée verrouillée (K-Pay : physique et Pass ; Polar : 100 % kits) | FR-21, FR-51 |
 | Événements, Pass, Accès bénévole | Création, Pass vendus / scannés par Type, Accès bénévole d'un jour limité au Scan, Verrou hors ligne (appareil qui le tient, libération forcée qui signale les scans non synchronisés), demandes d'annulation de Pass | FR-36 à FR-38, FR-52 |
 | Galerie, Réalisations, Blog, Codes promo, Alertes événement | Validation, publication, commissions, export des numéros | FR-32, FR-41 à FR-43, FR-46 à FR-48 |
@@ -559,10 +559,8 @@ Maquettes : [key-admin-tableau](mockups/key-admin-tableau.html), [key-admin-comm
 |---|---|---|
 | E-3 | **C-16** : pages univers `/univers/[slug]` (Guide) — absentes du PRD ; non ajoutées ici (règle 14). | Non (rien n'est construit sans décision). |
 | E-4 | **C-20** : bloc « Produits liés (même univers) » (Guide) — absent du PRD ; non ajouté ici. | Non. |
-| E-5 | **Mises à jour PRD nécessaires (liste consolidée, à passer par bmad-prd avant les epics)** : (a) « Le porter » → « Prêt à porter » dans FR-1, §4.1, §4.2, FR-7, Glossaire « Kit lié », UJ-4 (PRD UJ-1 dit déjà « Prêt à porter ») ; (b) §10 « sombre par défaut » → **crème par défaut**, sombre par bascule (et le Guide) ; (c) §10 « un ou deux accents vifs pour les boutons et les prix » → **rouge unique #E3261C**, prix en `text-primary` ; (d) FR-10 : retirer « Épuisé », libellé unique « Commandes complètes pour le moment » (C-4) ; (e) Q-11 / C-13 : ordre des moyens de paiement = pays d'abord, mobile money en premier si couvert, sinon carte seule ; (f) FR-29 / FR-30 / FR-50 : **sous-titres WebVTT obligatoires** (FR, + EN si vendu sur `/en`), publication refusée sans sous-titres, lecteur au clavier ; (g) FR-2 / Galerie : **pas de page dédiée**, bloc 4 + ancre `#galerie` ; (h) FR-2 / UJ-4 : titres de blocs reformulés sans accent pour Sakura Town — bloc 1 « Prêt à porter ou fait par toi » → **« Porte-le ou fabrique-le »**, bloc 4 « Ils l'ont porté » → « Ils le portent », bloc 5 → « Rendez-vous otaku », page À propos → « Jonathan et son atelier » (liste dans Voice and Tone). | Non (alignement documentaire), à faire avant les epics. |
 | E-7 | **Q-3** : montant et devise débités à afficher au moment de valider. Tant qu'elle est ouverte : USD seul, aucune conversion. | **Oui** pour le récapitulatif si autre chose que l'USD doit apparaître. |
 | E-8 | **Q-1** : Couverture pays-opérateur du sélecteur. | **Oui** en production (FR-16). |
-| E-9 | Durée du Délai de paiement (Réglage admin) et durée avant bascule en « en cours de vérification » (architecture). Compte à rebours : **non** (texte statique « À payer avant [heure] »). | Non. |
 | E-10 | Liste exacte des Mesures, bornes plausibles et illustration du schéma. | **Oui** pour la story Sur-mesure. |
 | E-11 | Format du délai total (jours, jours ouvrés, fourchette). | Non. |
 | E-12 | Forme du formulaire « Me prévenir » (un champ ou trois options). | Non. |
@@ -574,7 +572,6 @@ Maquettes : [key-admin-tableau](mockups/key-admin-tableau.html), [key-admin-comm
 | E-22 | **Q-5** : textes des cases à cocher, de la mention photos, du règlement « 10 pass ». | **Oui** avant la première vente. |
 | E-23 | Libellés EN de « Offert », « Paiement traité par », « Commandes complètes pour le moment » et des états de paiement. | Non (story i18n). |
 | E-34 | Durée de validité du code de connexion et délai avant renvoi (valeurs de l'architecture / Supabase Auth), à afficher en texte. | Non (architecture). |
-| E-36 | **Pagination** des catalogues, de la liste du Blog et des listes admin : absente des maquettes et des sources (chargement par pages, « Voir plus » ou liste complète ?). | Non (à trancher avant les stories catalogue, Blog et admin). |
 | E-37 | Bouton « Continuer avec Google » : texte seul (rendu) ou logo Google selon les règles de marque de Google ? | Non (texte seul par défaut). |
 | E-38 | Granularité des consentements dans Préférences (rendu : emails commerciaux / univers préféré / Alertes événement) ; FR-32, FR-45 et FR-59 ne la fixent pas. | Non. |
 
@@ -582,6 +579,11 @@ Maquettes : [key-admin-tableau](mockups/key-admin-tableau.html), [key-admin-comm
 
 | # | Décision |
 |---|---|
+| E-36 | **Pagination** (décision de Jonathan du 2026-10-21) : bouton « Voir plus », 12 produits par clic, vrai lien avec curseur dans l'adresse ; mêmes principes pour la liste du Blog et les listes admin. |
+| Festival | **Nommage** (décision du 2026-10-21) : la rubrique s'appelle « Festival » dans les deux langues (`/fr/festival`, `/en/festival`, une page par Événement sous cette adresse) ; le mot reste `evenement` dans le code et la base. |
+| M5 | **Tunnel `cloudflared`** (décision du 2026-10-21) : réservé au développement, ouvert pendant les essais de paiement seulement, jamais en production. |
+| E-5 | Alignement du PRD fermé le 2026-10-20 : le PRD du 2026-10-20 contient les huit alignements demandés (« Prêt à porter », crème par défaut, rouge unique, « Commandes complètes pour le moment », ordre des moyens de paiement, sous-titres français obligatoires et anglais facultatifs selon Q-15, Galerie sans page dédiée, titres sans accent). |
+| E-9 | Délai de paiement : 30 minutes, décision de Jonathan du 2026-10-20 (Q-B4) ; valeur de départ du Réglage, modifiable dans l'admin. Bascule en « en cours de vérification » après 2 min sans état final (AD-10). Compte à rebours : non (texte statique « À payer avant [heure] »). |
 | E-1 | C-13 / Q-11 : le client choisit d'abord son pays ; mobile money en premier si un Agrégateur actif couvre ce pays, sinon carte seule. |
 | E-2 | C-4 : « Commandes complètes pour le moment » ; « Épuisé » n'est jamais utilisé. |
 | E-6 | Nom du Prestataire : « Mobile money » / « Carte » au choix ; « Paiement traité par {Prestataire} » avant validation ; repli « Réessayer avec {Agrégateur suivant} ? » ; noms en texte, aucun logo. |
