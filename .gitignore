@@ -11,6 +11,16 @@ coverage/
 .env.*
 !.env.example
 
+# Exports et sauvegardes : jamais dans le dépôt public (données clients)
+exports/
+sauvegardes/
+backups/
+*.dump
+*.backup
+*.bak
+supabase/.temp/
+supabase/.branches/
+
 # Réglages personnels
 _bmad/custom/*.user.toml
 .claude/settings.local.json
@@ -19,4 +29,3 @@ _bmad/custom/*.user.toml
 .DS_Store
 Thumbs.db
 *.log
-.vercel

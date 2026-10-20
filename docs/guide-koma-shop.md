@@ -2,7 +2,7 @@
 
 Version du 15 octobre 2026, alignée sur le brief produit le 16 octobre 2026 · Jonathan Manduara Tshimpaka
 
-> **Avertissement (2026-10-16).** Ce guide a servi de base au PRD du 2026-10-16 (`_bmad-output/planning-artifacts/prds/prd-KOMA SHOP-2026-10-16/prd.md`). En cas de différence, le PRD et CLAUDE.md font foi.
+> **Avertissement (2026-10-16, complété le 2026-10-20).** Ce guide a servi de base au PRD du 2026-10-16 (`_bmad-output/planning-artifacts/prds/prd-KOMA SHOP-2026-10-16/prd.md`). En cas de différence, CLAUDE.md, le PRD et le spine d'architecture (`_bmad-output/planning-artifacts/architecture/architecture-KOMA SHOP-2026-10-17/ARCHITECTURE-SPINE.md`) font foi. Les phases 1 à 9 de « Construire avec Claude Code » sont remplacées par les epics et stories BMad ; elles restent ici pour mémoire.
 
 Une boutique en ligne pour les otakus, tenue par une seule personne : des cosplays et des accessoires prêts à porter, et des kits numériques pour les fabriquer soi-même. Paiement par mobile money ou par carte. Ce guide est écrit pour que n'importe quel développeur, et d'abord Claude Code, puisse construire la plateforme.
 
@@ -71,7 +71,7 @@ La fonctionnalité cœur : trouver un costume, choisir « prêt à porter » ou 
 | Variante | Produit, taille (XS à XXL ou « sur mesure »), stock, mode (en stock ou sur commande), délai de fabrication en jours |
 | Mesures | Client, commande, tour de poitrine, taille, hanches, hauteur, notes (pour le sur-mesure) |
 | Fichier de kit | Produit, nom, format (PDF, SVG, STL), chemin dans le stockage privé, taille |
-| Vidéo tutoriel | Produit, chemin dans le stockage privé, chapitres, durée |
+| Vidéo tutoriel | Produit, identifiant dans la bibliothèque Bunny Stream privée, chapitres, durée |
 | Panier et ligne de panier | Client ou visiteur, variante, quantité |
 | Commande | Client, lignes, sous-total, frais de livraison, total, moyen de paiement, référence de paiement, statut |
 | Adresse de livraison | Commande, nom, téléphone, pays, ville, adresse, point de repère |
@@ -109,7 +109,7 @@ La fonctionnalité cœur : trouver un costume, choisir « prêt à porter » ou 
 
 ## La technique
 
-Un site Next.js hébergé sur Vercel, branché à Supabase pour les comptes, la base de données et les fichiers privés. Next.js est choisi pour le référencement : chaque page arrive déjà remplie chez Google, contrairement à un site qui se construit dans le navigateur.
+Un site Next.js hébergé chez Hostinger (Business Web Hosting, application Node.js), branché à Supabase pour les comptes, la base de données et les fichiers privés. Next.js est choisi pour le référencement : chaque page arrive déjà remplie chez Google, contrairement à un site qui se construit dans le navigateur.
 
 ```text
 Panier validé (prix + livraison calculés par le serveur)
@@ -130,18 +130,18 @@ Le navigateur ne fait que lancer le paiement. La commande n'est validée que par
 | Site | Next.js (App Router) + TypeScript | Pages rendues côté serveur, rapides et lisibles par Google |
 | Style | Tailwind CSS + DESIGN.md et EXPERIENCE.md (`_bmad-output/planning-artifacts/ux-designs/`) | Héros, cartes produits, thème clair et sombre |
 | Comptes, base, fichiers | Supabase (Auth, Postgres avec RLS, Storage) | Chaque client ne voit que ses commandes ; fichiers des kits dans un stockage privé |
-| Hébergement | Vercel | Mise en ligne automatique à chaque modification validée sur GitHub |
+| Hébergement | Hostinger Business Web Hosting (application Node.js) | Mise en ligne automatique à chaque envoi sur le dépôt GitHub jokad312/koma |
 | Paiement | K-Pay et Polar | Voir la section Paiement et livraison |
 | Emails | Resend (ou équivalent) | Confirmation, suivi de commande, relances |
 | Images | Composant d'images de Next.js | Photos redimensionnées et compressées automatiquement |
-| Mesure | PostHog ou Plausible | Les ratios de la section Plan et indicateurs |
+| Mesure | Mesure maison dans Supabase, sans outil externe ni cookie | Les ratios de la section Plan et indicateurs : ventes et paiements lus dans les commandes, clics et vues dans une table d'événements anonymes |
 
-**Les vidéos des kits** vont dans le stockage privé de Supabase et se lisent dans le lecteur du site via un lien signé. Si elles deviennent lourdes, passe à un hébergeur vidéo avec liens protégés (Bunny Stream, Cloudflare Stream ou Mux). Aucune protection n'empêche de filmer son écran : le but est de bloquer le partage facile d'un lien.
+**Les vidéos des kits** vivent dans une bibliothèque Bunny Stream privée, jamais sur l'hébergement du site. Elles se lisent dans le lecteur du site, en plusieurs qualités adaptées à la connexion, avec un jeton signé de courte durée créé par le serveur après vérification de l'achat. Tu gardes toi-même l'original en sauvegarde, hors de la plateforme. Aucune protection n'empêche de filmer son écran : le but est de bloquer le partage facile d'un lien.
 
 **Sécurité de base, non négociable :**
 
 - RLS activée sur toutes les tables.
-- Les clés secrètes (K-Pay, Polar, clé « service role » de Supabase, Resend) restent côté serveur, dans les variables d'environnement de Vercel, jamais dans le code envoyé au navigateur ni dans GitHub.
+- Les clés secrètes (K-Pay, Polar, clé « service role » de Supabase, Resend) restent côté serveur, dans les variables d'environnement de l'application Node.js sur Hostinger, jamais dans le code envoyé au navigateur ni dans GitHub.
 - Chaque notification de paiement est vérifiée (signature ou contre-vérification auprès du prestataire), et une même référence de paiement ne valide jamais deux commandes.
 - Le prix, le stock et les frais de livraison sont lus dans la base par le serveur.
 
@@ -254,7 +254,7 @@ Claude Code travaille dans ton dépôt GitHub. Il lit d'abord le fichier CLAUDE.
 
 - [ ] Un dépôt GitHub vide pour la boutique, et le lien du dépôt de référence design.
 - [ ] Claude Code installé et connecté à ce dépôt.
-- [ ] Des comptes Supabase, Vercel et Resend ; l'accès marchand K-Pay (clés API et documentation).
+- [ ] Des comptes Supabase, Hostinger (Business Web Hosting), Bunny Stream et Resend ; l'accès marchand K-Pay (clés API et documentation).
 - [ ] Tes photos rangées par produit, et les fichiers et vidéos des premiers kits.
 - [ ] Les crochets `[…]` complétés partout dans ce guide : identifiants de NATHANGROUP SARL, emails, numéros et liens (nom, domaine, langues et livraison sont déjà décidés).
 
@@ -263,8 +263,8 @@ Claude Code travaille dans ton dépôt GitHub. Il lit d'abord le fichier CLAUDE.
 1. Copie le contenu CLAUDE.md ci-dessous dans un fichier `CLAUDE.md` à la racine du dépôt.
 2. Pour chaque phase, ouvre une nouvelle session Claude Code, colle le texte de la phase, et demande d'abord un plan. Relis le plan, puis valide.
 3. À la fin de la phase, fais les tests de validation toi-même, sur téléphone. Si un test échoue : « Le test X échoue : [ce que tu vois]. Corrige uniquement ce point. »
-4. Quand tout passe, demande à Claude Code d'enregistrer (commit) et d'envoyer sur GitHub. Vercel publie alors une préversion à tester.
-5. Les clés secrètes vont dans le fichier `.env.local` et dans les réglages de Vercel, jamais dans le chat ni dans GitHub.
+4. Quand tout passe, demande à Claude Code d'enregistrer (commit) et d'envoyer sur GitHub. Hostinger reconstruit alors le site et le met en ligne automatiquement.
+5. Les clés secrètes vont dans le fichier `.env.local` et dans les variables d'environnement de l'application Node.js sur Hostinger, jamais dans le chat ni dans GitHub.
 
 ### Le fichier CLAUDE.md
 
@@ -283,7 +283,7 @@ Trois familles de produits :
 Un cosplay peut être lié à son kit : la fiche propose « Prêt à porter » et « Le fabriquer moi-même ».
 
 ## Stack
-Next.js (App Router, TypeScript, Server Components par défaut), Tailwind CSS, Supabase (Auth, Postgres avec RLS, Storage), hébergement Vercel, paiement K-Pay (mobile money et carte), emails Resend.
+Next.js (App Router, TypeScript, Server Components par défaut), Tailwind CSS, Supabase (Auth, Postgres avec RLS, Storage), hébergement Hostinger Business Web Hosting (application Node.js), paiement K-Pay (mobile money et carte), emails Resend.
 Référence design : [LIEN DU DÉPÔT DE RÉFÉRENCE]. Photos : [DOSSIER OU LIEN DES PHOTOS].
 
 ## Langues
@@ -299,7 +299,7 @@ Les kits n'ont pas de livraison et se vendent dans tous les pays.
 1. Les fichiers de kit et les vidéos complètes sont dans le bucket privé kits-private. Ils ne s'ouvrent que par un lien signé, créé côté serveur après vérification d'un accès payé. RLS sur toutes les tables.
 2. Seule la route serveur de notification de paiement passe une commande en paid, après vérification auprès du prestataire. Jamais le navigateur.
 3. Prix, stock et frais de livraison sont toujours calculés côté serveur, depuis la base.
-4. Les secrets sont dans les variables d'environnement (.env.local, Vercel), jamais dans le code commité. Tenir .env.example à jour.
+4. Les secrets sont dans les variables d'environnement (.env.local, variables d'environnement de l'application Node.js sur Hostinger), jamais dans le code commité. Tenir .env.example à jour.
 5. Honnêteté : aucun avis, chiffre, logo ou témoignage inventé.
 6. Propriété intellectuelle : aucune image ni aucun logo officiel d'une franchise ; seulement les photos du créateur.
 7. Mobile d'abord (375 px de large, sans défilement horizontal), contraste suffisant, texte alternatif sur chaque image, navigation au clavier.
@@ -361,8 +361,8 @@ OBJECTIF : un projet Next.js propre, relié à Supabase, avec la base de donnée
 - L'admin lit tout.
 
 ## D. Comptes et stockage
-- Connexion par lien magique (email) et Google. Mon compte [EMAIL ADMIN] est admin.
-- Buckets : kits-private (privé, aucune lecture publique), products-public (photos, extraits).
+- Connexion par code à 6 chiffres reçu par email, et Google (hors navigateurs intégrés). Mon compte [EMAIL ADMIN] est admin.
+- Buckets : kits-private (privé, aucune lecture publique), produits-public (photos). Vidéos : bibliothèque Bunny Stream privée (vidéos complètes) et bibliothèque Bunny Stream publique (héros, extraits).
 
 ## E. Socle SEO
 Metadata par défaut, robots.txt, sitemap.xml dynamique (produits publiés), page 404 soignée.
@@ -433,8 +433,8 @@ OBJECTIF : gérer tout le catalogue et les commandes sans toucher au code. Rése
 1. Liste avec famille, statut, prix, stock total, ventes.
 2. Formulaire : tous les champs de products, dont kit lié, titre et description SEO.
 3. Variantes : tailles, stock, mode (en stock ou sur commande), délai.
-4. Téléversement des photos (ordre par glisser-déposer, texte alternatif obligatoire) et de l'extrait vers products-public.
-5. Pour un kit : fichiers et vidéo complète vers kits-private, avec barre de progression et reprise en cas de coupure ; éditeur de chapitres.
+4. Téléversement des photos (ordre par glisser-déposer, texte alternatif obligatoire) vers produits-public, et de l'extrait vers la bibliothèque Bunny Stream publique.
+5. Pour un kit : fichiers vers kits-private, vidéo complète vers la bibliothèque Bunny Stream privée, avec barre de progression et reprise en cas de coupure ; éditeur de chapitres.
 6. Publier / dépublier. Publication refusée sans prix, sans photo, sans texte alternatif, ou (kit) sans fichier.
 
 ## B. Commandes (/admin/commandes)
@@ -518,14 +518,14 @@ Grille des kits achetés (accès non retirés) avec la progression du tutoriel.
 /compte/bibliotheque/[slug] : fichiers avec un bouton « Télécharger », lecteur vidéo avec chapitres cliquables, reprise à la dernière position (enregistrée toutes les 15 secondes ; terminé à 90 %).
 
 ## B. Liens protégés (routes serveur)
-1. Téléchargement : vérifie l'accès, refuse au-delà de 10 téléchargements du fichier par ce client, enregistre le téléchargement, renvoie un lien signé de 5 minutes.
-2. Vidéo : même vérification, lien signé de 3 heures, lecteur sans bouton de téléchargement.
+1. Téléchargement : vérifie l'accès, téléchargements illimités, renvoie un lien signé de 60 secondes.
+2. Vidéo : même vérification, jeton Bunny Stream signé de courte durée, lecteur sans bouton de téléchargement.
 
 ## C. /compte/commandes
 Liste des commandes. Détail : articles, total, adresse, frise des statuts (payée → en fabrication → expédiée → livrée) avec dates, transporteur et numéro de suivi, bouton WhatsApp pour une question.
 
 ## TESTS DE VALIDATION
-- Un lien de téléchargement copié ne marche plus après 5 minutes.
+- Un lien de téléchargement copié ne marche plus après 60 secondes.
 - Un client sans accès qui appelle les routes de téléchargement ou de vidéo est refusé.
 - Quand l'admin passe une commande en « expédiée », le client voit le numéro de suivi et reçoit l'email.
 ```
@@ -698,7 +698,7 @@ Les mots techniques du guide, expliqués simplement.
 | RLS | Règles de la base qui empêchent chaque client de voir les données des autres |
 | Bucket privé | Un dossier de fichiers que personne ne peut ouvrir sans autorisation du serveur |
 | Lien signé | Un lien temporaire vers un fichier privé, qui cesse de marcher après quelques minutes |
-| Vercel | L'hébergeur qui met le site en ligne à chaque nouvelle version |
+| Hostinger | L'hébergeur qui met le site en ligne à chaque nouvelle version envoyée sur GitHub |
 | Webhook ou notification de paiement | Le message que K-Pay envoie au site pour dire « ce paiement est réussi » |
 | Variable d'environnement | Un réglage secret (clé API) stocké hors du code |
 | SEO | Tout ce qui aide le site à apparaître dans Google |

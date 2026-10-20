@@ -2,7 +2,7 @@
 title: "PRD — KOMA SHOP"
 status: final
 created: 2026-10-16
-updated: 2026-10-17
+updated: 2026-10-20
 ---
 
 # PRD : KOMA SHOP
@@ -93,7 +93,7 @@ Plus tard, deux Assistants l'aideront avec un rôle restreint (FR-53).
 - **Mesures** — valeurs saisies par le client avec le schéma d'aide, vérifiées par l'Admin avant fabrication.
 - **Fabrication sur commande** — Produit physique fabriqué après paiement, avec un Délai de fabrication.
 - **Délai de fabrication** — fixé par produit ou variante dans l'admin, affiché avant paiement.
-- **Plafond de fabrication** — nombre maximal de Commandes de Produits physiques en cours de fabrication, réglé dans l'admin.
+- **Plafond de fabrication** — nombre maximal de pièces fabriquées sur commande en cours (réservées par une Commande en attente, payées ou en fabrication), réglé dans l'admin. Les pièces vendues en stock n'y comptent pas.
 - **Zone de remise** — Goma ou Bukavu. Les seules au lancement.
 - **Mode de remise** — `retrait` (gratuit, à Goma uniquement) ou `livraison` (payante, Forfait de livraison).
 - **Forfait de livraison** — montant fixe par Zone de remise, réglé dans l'admin.
@@ -231,7 +231,7 @@ Réalise UJ-1, UJ-2, UJ-3, UJ-3b, UJ-5.
 
 #### FR-15 : Couche de paiement à Adaptateurs
 Le système encaisse via une couche de paiement commune, avec un Adaptateur par Prestataire. Ajouter ou retirer un Agrégateur ne touche pas au reste du site.
-- Adaptateurs au lancement : PawaPay (API v2, mobile money), K-Pay (mobile money et carte), Polar (carte, Kits). Ceux de MaishaPay et GeniusPay sont en attente de leur documentation (§11, Q-2) : rien de leur API n'est supposé.
+- Adaptateurs au lancement : PawaPay (API v2, mobile money), K-Pay (mobile money et carte), MaishaPay (mobile money), Polar (carte, Kits). Ceux de K-Pay et MaishaPay (mobile money) reprennent les intégrations déjà en production sur SwitchPro, avec les comptes marchands de NATHANGROUP SARL. Celui de GeniusPay est en attente de sa documentation (§11, Q-2) : rien de son API n'est supposé.
 
 #### FR-16 : Choix du moyen de paiement
 Le client choisit mobile money (pays + opérateur + numéro) ou carte. Le système ne propose que les Prestataires autorisés pour ce Panier ou cet achat de Pass, selon les points 1 à 4 du §4.4.
@@ -260,12 +260,12 @@ Chaque Prestataire a sa route serveur de Notification de paiement. Chaque notifi
 - Une même Référence de transaction ne valide jamais deux fois une Commande, quel que soit le Prestataire.
 - Chaque Commande enregistre le Prestataire, la Référence de transaction, le montant et la devise effectivement encaissés.
 - Le passage en `payée` déclenche : décompte du stock, ouverture des Kits dans la Bibliothèque, émission des Pass, email de confirmation.
-- Une Commande ne passe `payée` qu'une fois. Une Tentative de paiement réussie qui arrive pour une Commande déjà `payée`, `expirée` ou devenue impossible à honorer (article vendu entre-temps, Événement passé, Code promo épuisé) crée un Trop-perçu : la Commande garde son statut, l'Admin est alerté et rembourse le client.
+- Une Commande ne passe `payée` qu'une fois. Une Tentative de paiement réussie qui arrive pour une Commande déjà `payée`, `expirée` ou devenue impossible à honorer (article vendu entre-temps, Événement passé, Code promo épuisé) crée un Trop-perçu : la Commande garde son statut, l'Admin est alerté et rembourse le client. Si l'argent arrive après l'expiration, l'Admin peut aussi honorer la Commande à la main, si le stock ou la Capacité le permettent encore.
 - Une Tentative de paiement en échec, sans autre Tentative en cours, fait passer la Commande `échouée` ; le client peut repayer.
 - Des tests automatiques couvrent : notification tardive après expiration, deux Tentatives réussies sur deux Agrégateurs, notification rejouée.
 
 #### FR-20 : Page de retour après paiement
-Après le paiement, le client voit l'état réel de sa Commande (payée, en attente, échouée), lu côté serveur. En cas d'échec confirmé, il peut réessayer ou écrire sur WhatsApp ; si l'état est inconnu, la page affiche « paiement en cours de vérification » et ne propose pas de repayer. La page n'affiche jamais « payée » avant la Notification de paiement vérifiée.
+Après le paiement, le client voit l'état réel de sa Commande (payée, en attente, échouée), lu côté serveur. En cas d'échec confirmé, il peut réessayer ou écrire sur WhatsApp ; si l'état est inconnu, la page affiche « paiement en cours de vérification » et ne propose pas de repayer. La page n'affiche jamais « payée » avant une confirmation fiable du Prestataire (notification à signature vérifiée ou contre-vérification auprès de son API).
 
 #### FR-21 : Administration des Prestataires
 L'Admin active ou désactive chaque Prestataire, règle l'Ordre de priorité des Agrégateurs, saisit leur Couverture (pays-opérateur) depuis leurs documents, et voit les paiements par Prestataire.
@@ -294,7 +294,7 @@ L'Admin fait passer une Commande par ses Statuts de commande, saisit à la main 
 
 #### FR-25 : Annulation d'une Commande de Cosplay
 Le client demande l'annulation d'une Commande de Cosplay tant qu'elle n'est pas `en fabrication` ; l'Admin valide, la Commande passe `annulée`, et le stock et la place dans le Plafond de fabrication sont libérés. Elle passe `remboursée` seulement quand l'Admin confirme que l'argent a été rendu, avec la preuve (référence du Prestataire ou du virement manuel). Après le début de la fabrication, l'annulation n'est plus proposée.
-- Commande mixte (Cosplay et Kit) : seul le Cosplay est annulé ; le Kit reste dans la Bibliothèque et n'est pas remboursé ; le Forfait de livraison est rendu.
+- Commande mixte : toutes les pièces physiques de la Commande (Cosplay et Accessoires) sont annulées ensemble ; le Kit reste dans la Bibliothèque et n'est pas remboursé ; le montant rendu correspond aux pièces physiques et au Forfait de livraison. L'annulation partielle n'existe pas au lancement.
 - Le mécanisme de remboursement dépend du Prestataire (Q-4) ; le PRD ne suppose rien.
 
 #### FR-26 : Réclamation et remplacement
@@ -318,8 +318,8 @@ Le client télécharge chaque Fichier de kit (PDF A4 et US Letter, SVG, STL) san
 Le client regarde la Vidéo de kit en ligne, chapitre par chapitre ; la qualité s'adapte au débit. Aucun bouton de téléchargement n'existe. Il reprend là où il s'était arrêté, sur n'importe quel appareil.
 - La Vidéo de kit complète n'est publiée nulle part ailleurs (ni YouTube, ni Drive).
 - Aucune protection ne peut empêcher de filmer l'écran : l'objectif est d'empêcher le téléchargement direct et le partage de liens, pas d'installer une protection anti-copie lourde.
-- La Vidéo de kit démarre sur une connexion lente (3G) dans un délai que l'architecte fixe.
-- Chaque Vidéo de kit a des sous-titres (WebVTT) en français, et en anglais si le Kit est vendu sur `/en` (Q-15). Le lecteur se pilote au clavier.
+- La Vidéo de kit démarre sur une connexion lente (3G) en moins de 5 s, avec une version 360p disponible (seuil fixé par l'architecture).
+- Chaque Vidéo de kit a des sous-titres (WebVTT) en français. Les sous-titres anglais sont facultatifs : sous `/en`, la fiche d'un Kit sans sous-titres anglais l'indique (Q-15 tranchée). Le lecteur se pilote au clavier.
 - Une transcription texte de chaque chapitre se télécharge avec les Fichiers de kit.
 
 #### FR-30 : Accès à vie et mises à jour
@@ -445,7 +445,7 @@ L'Admin voit, pour chaque Code promo, les ventes générées, leur montant et la
 
 #### FR-50 : Gestion des Produits
 L'Admin crée et modifie les Produits : Famille, textes FR et EN, photos (ordre, texte alternatif obligatoire), prix en USD, tailles et Sur-mesure, stock, Délai de fabrication par produit ou variante, Kit lié, Fichiers de kit et Vidéo de kit (chapitres, extrait public).
-- La publication est refusée sans prix, sans photo, sans texte alternatif, ou, pour un Kit, sans Fichier de kit ou sans sous-titres de la Vidéo de kit.
+- La publication est refusée sans prix, sans photo, sans texte alternatif, ou, pour un Kit, sans Fichier de kit ou sans sous-titres français de la Vidéo de kit (les sous-titres anglais sont facultatifs, FR-29).
 - Le téléversement des Fichiers de kit et des Vidéos de kit affiche sa progression et reprend après une coupure de connexion.
 
 #### FR-51 : Réglages
@@ -481,8 +481,8 @@ Une fiche partagée sur WhatsApp ou un réseau social affiche la grande photo du
 - **NFR-1 Mobile d'abord** : utilisable à 375 px de large sans défilement horizontal ; pensé d'abord pour le téléphone et le navigateur intégré d'Instagram.
 - **NFR-2 Performance** : héros affiché en moins de 2,5 s (FR-1) ; Core Web Vitals au vert ; Lighthouse mobile ≥ 90 en performance, accessibilité et SEO sur l'accueil.
 - **NFR-3 Accessibilité** : contraste suffisant, texte alternatif sur chaque image, navigation au clavier, vidéo du héros sans son et sans information indispensable ; Vidéos de kit sous-titrées et transcrites (FR-29).
-- **NFR-4 Sécurité des contenus payants** : Fichiers de kit et Vidéos de kit dans le bucket privé `kits-private`, ouverts seulement par lien signé côté serveur après vérification d'un accès payé ; RLS sur toutes les tables.
-- **NFR-5 Intégrité des paiements** : seul le serveur, après Notification de paiement vérifiée, passe une Commande en `payée` ; idempotence par Référence de transaction ; prix, stock, livraison et réductions toujours calculés côté serveur.
+- **NFR-4 Sécurité des contenus payants** : Fichiers de kit dans le bucket privé `kits-private` ; Vidéos de kit complètes dans une bibliothèque Bunny Stream privée (décision d'architecture du 2026-10-20). Fichiers et vidéos ne s'ouvrent que par un lien ou un jeton signé de courte durée, créé côté serveur après vérification d'un accès payé ; RLS sur toutes les tables.
+- **NFR-5 Intégrité des paiements** : seul le serveur, après une confirmation fiable du Prestataire (notification à signature vérifiée ou contre-vérification auprès de son API), passe une Commande en `payée` ; idempotence par Référence de transaction ; prix, stock, livraison et réductions toujours calculés côté serveur.
 - **NFR-6 Résilience du paiement** : la panne d'un Agrégateur n'empêche pas de payer si un autre couvre le même couple pays-opérateur.
 - **NFR-7 Secrets** : clés et secrets uniquement dans les variables d'environnement ; `.env.example` tenu à jour.
 - **NFR-8 Honnêteté** : aucun avis, chiffre, logo ou témoignage inventé ; aucun paiement, statut, email ou réponse d'API simulé hors des tests automatiques.
@@ -492,7 +492,7 @@ Une fiche partagée sur WhatsApp ou un réseau social affiche la grande photo du
 
 ### 6.1 Lancement
 - Page d'accueil et pages vitrines (§4.1), catalogue et fiches (§4.2), Panier, Compte et commande (§4.3).
-- Paiement : mobile money via PawaPay, K-Pay, MaishaPay et GeniusPay (les deux derniers dès que leur documentation est fournie), carte via K-Pay (Produits physiques et Pass) et via Polar (Paniers 100 % numériques) (§4.4).
+- Paiement : mobile money via PawaPay, K-Pay, MaishaPay et GeniusPay (K-Pay et MaishaPay repris de SwitchPro ; GeniusPay dès que sa documentation est lue), carte via K-Pay (Produits physiques et Pass) et via Polar (Paniers 100 % numériques) (§4.4).
 - Remise à Goma et Bukavu, retrait à Goma, suivi manuel, annulation, réclamation et remplacement (§4.5).
 - Bibliothèque de kits (§4.6).
 - Événements, Pass, Scan avec mode hors ligne, Accès bénévole (§4.7).
@@ -551,8 +551,8 @@ Les autres Agrégateurs et Polar s'ajoutent dès qu'ils sont prêts, sans bloque
 | R-1 | Un seul créateur face à un périmètre large (boutique, Événements, Blog, Relances, Codes promo) | Délais non tenus, site incomplet au lancement | Plafond de fabrication ; blocs masqués sans contenu ; Assistants plus tard ; suivi de SM-C1 |
 | R-2 | Contenu de lancement insuffisant | Rien à vendre au cœur du projet | Selon Jonathan, des Kits sont déjà filmés et des Produits prêts ; un Kit filmé reste une condition d'ouverture (§6.1) |
 | R-3 | Documentation et Couverture des Agrégateurs pas encore transmises | Adaptateurs impossibles à développer | Selon Jonathan, les quatre couvrent la RDC et sont testés ; documents à transmettre (Q-1, Q-2) ; un seul Agrégateur suffit pour ouvrir (§6.1) |
-| R-4 | K-Pay refuse les pièces « inspirées de » ou les Pass | Plus de paiement par carte pour le physique ou les Pass | Confirmation écrite de K-Pay avant le lancement (Q-14) ; avis juridique (Q-7) |
-| R-5 | Polar ne verse pas les fonds à une société en RDC | Ventes de Kits par carte bloquées | Vérification avant activation (Q-13) |
+| R-4 | K-Pay refuse les pièces « inspirées de » ou les Pass | Plus de paiement par carte pour le physique ou les Pass | K-Pay déjà en production sur SwitchPro avec un compte marchand de NATHANGROUP SARL (Q-14 réglée) ; avis juridique (Q-7) |
+| R-5 | Polar ne verse pas les fonds à une société en RDC | Ventes de Kits par carte bloquées | Compte Polar déjà vérifié au nom de NATHANGROUP SARL (Q-13 réglée) |
 | R-6 | Double débit ou paiement perdu lors d'un repli | Perte de confiance, remboursements manuels | Tentatives de paiement, aucun repli sur délai dépassé, Trop-perçus signalés (FR-17, FR-19) |
 | R-7 | Partage des Fichiers de kit | Ventes perdues | Liens signés et Licence de kit ; risque accepté : la confiance et la proximité protègent mieux qu'une barrière technique |
 | R-8 | Comptes TikTok et Instagram pas encore créés (brief) | UJ-1 et UJ-4 sans canal | Le groupe WhatsApp et le festival restent les premiers canaux ; comptes créés avant les publicités |
@@ -577,20 +577,22 @@ Les autres Agrégateurs et Polar s'ajoutent dès qu'ils sont prêts, sans bloque
 ## 11. Questions ouvertes
 
 1. **Q-1 Couverture des Agrégateurs** : tableau des pays et opérateurs couverts par PawaPay, K-Pay, MaishaPay et GeniusPay, tiré de leur documentation et des contrats marchands de Jonathan. Pour la RDC, Jonathan indique M-Pesa, Airtel Money, Orange Money et Africell chez les quatre. *Bloque FR-16 en production.*
-2. **Q-2 Documentation MaishaPay et GeniusPay** : liens transmis le 2026-10-16 (MaishaPay https://www.maishapay.net/api_docs/ ; GeniusPay https://geniuspay.ci/docs/api). Reste à vérifier, à partir de ces documents, ce que leurs API permettent (Notification de paiement vérifiable, remboursement, devise) avant de développer leurs Adaptateurs, sans rien supposer.
+2. **Q-2 Documentation GeniusPay** : lien transmis le 2026-10-16 (https://geniuspay.ci/docs/api). Reste à vérifier, à partir de ce document, ce que son API permet (Notification de paiement vérifiable, remboursement, devise) avant de développer son Adaptateur, sans rien supposer. MaishaPay : son Adaptateur reprend l'intégration en production sur SwitchPro (code et documentation fournis par Jonathan).
 3. **Q-3 Devise débitée** : chaque Prestataire débite-t-il en USD ou convertit-il ? Quel montant afficher au client au moment de valider ?
 4. **Q-4 Remboursements par API** : chaque Prestataire permet-il de rembourser par son API (annulation de Cosplay, Pass) ? Sinon, comment Jonathan rembourse-t-il à la main ?
 5. **Q-5 Textes légaux** : mentions légales, CGV, livraison et retours, confidentialité et cookies, mention sur le droit à l'image des Événements, conditions de l'opération « 10 pass gratuits », identifiants RCCM, Id. Nat. et NIF. À valider par un juriste : âge minimum de 13 ans et Emails commerciaux envoyés aux mineurs, publication des photos d'événement sur la seule mention acceptée par l'acheteur. Un brouillon des CGV et de la politique de confidentialité sera préparé dans une session séparée, puis validé par un juriste avant la première vente.
 6. **Q-6 Remplacement impossible** : si un Produit physique défectueux ne peut être ni remplacé ni refabriqué, l'absence de remboursement doit être validée par un juriste dans les CGV.
 7. **Q-7 Avis juridique sur la propriété intellectuelle** : vendre des pièces « inspirées de » sans nommer la franchise, et acceptation de ces pièces par K-Pay.
-8. **Q-8 Hébergement des Vidéos de kit** : Supabase Storage ou service vidéo externe protégé. À trancher dans l'architecture, sous la contrainte NFR-4.
 9. **Q-9 Numéro de suivi** : que représente-t-il pour une remise à Bukavu (bateau, agence) ?
 10. **Q-10 Ressources à fournir** : photos et vidéo du héros, email admin, numéro WhatsApp, liens des réseaux sociaux, disponibilité du domaine komashop.com, premiers Kits filmés.
 11. **Q-11 Ordre d'affichage des moyens de paiement** : *tranchée le 2026-10-17 (UX)* — pays d'abord ; mobile money en premier si un Agrégateur actif couvre ce pays, sinon carte seule (FR-16).
 12. **Q-12 Montants** : prix des Produits et des Pass, Forfaits de livraison, pourcentage de frais d'annulation des Pass, pourcentages des Codes promo. Saisis dans l'admin, jamais dans le code.
-13. **Q-13 Polar et la RDC** : Polar accepte-t-il une société basée en RDC et peut-il lui verser les fonds ? À vérifier avant d'activer Polar.
-14. **Q-14 K-Pay et le catalogue** : confirmation écrite que K-Pay accepte les Produits physiques « inspirés de » et la vente de Pass.
-15. **Q-15 Sous-titres anglais des Vidéos de kit** : chaque Produit a des textes FR et EN (FR-50), donc chaque Kit est vendu sur `/en`, ce qui rend les sous-titres anglais obligatoires pour tous les Kits (FR-29). Jonathan confirme-t-il, ou un Kit peut-il être vendu sur `/en` avec des sous-titres français seulement ? *À trancher avant la story Vidéo de kit.*
+
+**Tranchées depuis (retirées de la liste ci-dessus) :**
+- **Q-8 Hébergement des Vidéos de kit** : bibliothèque Bunny Stream privée, lecture par jeton signé de courte durée (décision d'architecture du 2026-10-20 ; `CLAUDE.md` règle 1 ; spine d'architecture AD-11).
+- **Q-13 Polar et la RDC** : réglée le 2026-10-20 ; le compte Polar de Jonathan est déjà vérifié au nom de NATHANGROUP SARL (utilisé pour SwitchPro).
+- **Q-14 K-Pay et le catalogue** : réglée le 2026-10-20 ; K-Pay est déjà en production sur SwitchPro avec un compte marchand de NATHANGROUP SARL, carte activée.
+- **Q-15 Sous-titres anglais des Vidéos de kit** : tranchée le 2026-10-20 ; facultatifs au lancement, la fiche `/en` d'un Kit sans sous-titres anglais l'indique (FR-29, FR-50).
 
 ## 12. Hypothèses confirmées
 
