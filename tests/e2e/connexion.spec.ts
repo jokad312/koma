@@ -1,4 +1,4 @@
-import { expect, test, type APIRequestContext } from "@playwright/test";
+import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 
 // Le code de connexion est lu dans la boîte de test de la base Supabase locale (Mailpit), jamais dans le site.
 // Sur koma-dev (en ligne), cette boîte n'existe pas : les tests sont ignorés avec la raison écrite.
@@ -33,6 +33,19 @@ async function lireCode(request: APIRequestContext, email: string, ancien?: stri
   return code;
 }
 
+// Attend le message d'envoi du code ; s'il manque, l'échec montre ce que la page affichait (erreur éventuelle, étape) au lieu d'un simple délai dépassé.
+async function attendreMessageEnvoi(page: Page, message: string) {
+  try {
+    await expect(page.getByText(message)).toBeVisible();
+  } catch (erreur) {
+    const contenu = await page.locator("main").innerText({ timeout: 2_000 }).catch(() => "(contenu illisible)");
+    throw new Error(`${(erreur as Error).message}
+URL : ${page.url()}
+Contenu de <main> :
+${contenu}`);
+  }
+}
+
 function emailDeTest() {
   return `test-${Date.now()}-${Math.floor(Math.random() * 1e6)}@example.com`;
 }
@@ -51,7 +64,7 @@ test.describe("connexion par code email", () => {
     await page.goto("/en/connexion?retour=/en/page-quittee");
     await page.getByLabel("Email address").fill(email);
     await page.getByRole("button", { name: "Get a code" }).click();
-    await expect(page.getByText(`A code was sent to ${email}.`)).toBeVisible();
+    await attendreMessageEnvoi(page, `A code was sent to ${email}.`);
 
     // Un code faux est refusé et relié au champ.
     await page.getByLabel("6-digit code").fill("000000");
@@ -79,7 +92,7 @@ test.describe("connexion par code email", () => {
     await page.goto("/fr/connexion");
     await page.getByLabel("Adresse email").fill(email);
     await page.getByRole("button", { name: "Recevoir un code" }).click();
-    await expect(page.getByText(`Un code a été envoyé à ${email}.`)).toBeVisible();
+    await attendreMessageEnvoi(page, `Un code a été envoyé à ${email}.`);
     await page.getByLabel("Code à 6 chiffres").fill(await lireCode(request, email));
     await page.getByRole("button", { name: "Valider le code" }).click();
     await page.getByLabel("Âge").fill("25");
@@ -99,7 +112,7 @@ test.describe("connexion par code email", () => {
     await page.goto("/fr/connexion");
     await page.getByLabel("Adresse email").fill(email);
     await page.getByRole("button", { name: "Recevoir un code" }).click();
-    await expect(page.getByText(`Un code a été envoyé à ${email}.`)).toBeVisible();
+    await attendreMessageEnvoi(page, `Un code a été envoyé à ${email}.`);
     await page.getByLabel("Code à 6 chiffres").fill(await lireCode(request, email));
     await page.getByRole("button", { name: "Valider le code" }).click();
 
@@ -115,7 +128,7 @@ test.describe("connexion par code email", () => {
     await page.goto("/fr/connexion");
     await page.getByLabel("Adresse email").fill(email);
     await page.getByRole("button", { name: "Recevoir un code" }).click();
-    await expect(page.getByText(`Un code a été envoyé à ${email}.`)).toBeVisible();
+    await attendreMessageEnvoi(page, `Un code a été envoyé à ${email}.`);
     await page.getByLabel("Code à 6 chiffres").fill(await lireCode(request, email, premierCode));
     await page.getByRole("button", { name: "Valider le code" }).click();
     await expect(page.getByLabel("Âge")).toBeVisible();
