@@ -52,6 +52,16 @@ ${contenu}`);
   }
 }
 
+// À 375 px, les contrôles du Compte sont dans le menu ☰ : on l'ouvre (en réessayant tant que la page n'est pas hydratée).
+async function ouvrirMenu(page: Page) {
+  const dialogue = page.getByRole("dialog", { name: "Menu" });
+  await expect(async () => {
+    await page.getByRole("button", { name: "Menu", exact: true }).click();
+    await expect(dialogue).toBeVisible({ timeout: 1_000 });
+  }).toPass();
+  return dialogue;
+}
+
 function emailDeTest() {
   return `test-${Date.now()}-${Math.floor(Math.random() * 1e6)}@example.com`;
 }
@@ -85,9 +95,9 @@ test.describe("connexion par code email", () => {
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(page).toHaveURL(/\/en\/page-quittee$/);
 
-    await page.getByRole("button", { name: "Sign out" }).click();
+    await (await ouvrirMenu(page)).getByRole("button", { name: "Sign out" }).click();
     await expect(page).toHaveURL(/\/en$/);
-    await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
+    await expect((await ouvrirMenu(page)).getByRole("link", { name: "Sign in" })).toBeVisible();
   });
 
   test("connecté, /fr et /en s'affichent sans erreur de préparation à l'avance", async ({ page, request }) => {
@@ -106,7 +116,7 @@ test.describe("connexion par code email", () => {
     for (const [chemin, deconnexion] of [["/fr", "Se déconnecter"], ["/en", "Sign out"]] as const) {
       const reponse = await page.goto(chemin);
       expect(reponse?.status()).toBe(200);
-      await expect(page.getByRole("button", { name: deconnexion }).first()).toBeVisible();
+      await expect((await ouvrirMenu(page)).getByRole("button", { name: deconnexion })).toBeVisible();
       await expect(page.getByText(/unstable value|blocking-prerender-current-time/)).toHaveCount(0);
     }
     expect(erreurs.filter((e) => /Date\.now|prerender/i.test(e))).toEqual([]);
@@ -124,7 +134,7 @@ test.describe("connexion par code email", () => {
     await expect(page.getByText(/Il faut avoir au moins 13 ans/)).toBeVisible();
 
     await page.goto("/fr");
-    await expect(page.getByRole("link", { name: "Se connecter" }).first()).toBeVisible();
+    await expect((await ouvrirMenu(page)).getByRole("link", { name: "Se connecter" })).toBeVisible();
 
     // Preuve de la suppression : le même email recrée un nouveau Compte, donc l'étape âge revient.
     const premierCode = await lireCode(request, email);
