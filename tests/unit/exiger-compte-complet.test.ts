@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
+// connection() n'existe que dans une requête Next : hors requête, il n'y a rien à attendre.
+vi.mock("next/server", () => ({ connection: async () => {} }));
 
 const etat = vi.hoisted(() => ({
   sub: null as string | null,

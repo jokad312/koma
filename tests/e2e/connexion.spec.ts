@@ -70,6 +70,30 @@ test.describe("connexion par code email", () => {
     await expect(page.getByRole("link", { name: "Sign in" })).toBeVisible();
   });
 
+  test("connecté, /fr et /en s'affichent sans erreur de préparation à l'avance", async ({ page, request }) => {
+    const email = emailDeTest();
+    const erreurs: string[] = [];
+    page.on("pageerror", (e) => erreurs.push(e.message));
+    page.on("console", (m) => m.type() === "error" && erreurs.push(m.text()));
+
+    await page.goto("/fr/connexion");
+    await page.getByLabel("Adresse email").fill(email);
+    await page.getByRole("button", { name: "Recevoir un code" }).click();
+    await expect(page.getByText(`Un code a été envoyé à ${email}.`)).toBeVisible();
+    await page.getByLabel("Code à 6 chiffres").fill(await lireCode(request, email));
+    await page.getByRole("button", { name: "Valider le code" }).click();
+    await page.getByLabel("Âge").fill("25");
+    await page.getByRole("button", { name: "Continuer" }).click();
+
+    for (const [chemin, deconnexion] of [["/fr", "Se déconnecter"], ["/en", "Sign out"]] as const) {
+      const reponse = await page.goto(chemin);
+      expect(reponse?.status()).toBe(200);
+      await expect(page.getByRole("button", { name: deconnexion }).first()).toBeVisible();
+      await expect(page.getByText(/unstable value|blocking-prerender-current-time/)).toHaveCount(0);
+    }
+    expect(erreurs.filter((e) => /Date\.now|prerender/i.test(e))).toEqual([]);
+  });
+
   test("moins de 13 ans : Compte supprimé et message clair", async ({ page, request }) => {
     const email = emailDeTest();
     await page.goto("/fr/connexion");

@@ -1,4 +1,5 @@
 import "server-only";
+import { connection } from "next/server";
 import { creerClientService } from "@/lib/supabase/service";
 import { creerClientSession } from "@/lib/supabase/session";
 import { construireAuteur, type Auteur } from "./auteur";
@@ -15,6 +16,9 @@ export class CompteRefuseError extends Error {
 
 // Session lue dans les cookies et vérifiée par Supabase (getClaims) ; null sans session valide.
 export async function lireSessionVerifiee(): Promise<SessionVerifiee | null> {
+  // getClaims lit l'heure pour vérifier l'expiration : sans cet appel explicite, Next 16 refuse de préparer la route à l'avance
+  // (blocking-prerender-current-time). La session est toujours lue au moment de la requête.
+  await connection();
   const client = await creerClientSession();
   const { data, error } = await client.auth.getClaims();
   const sub = data?.claims?.sub;
