@@ -42,3 +42,6 @@ test-results/
 playwright-report/
 *.tsbuildinfo
 next-env.d.ts
+
+# Logos JPG non utilisés par le site (les SVG et PNG suffisent)
+_bmad-output/planning-artifacts/ux-designs/*/imports/logos/JPG/
