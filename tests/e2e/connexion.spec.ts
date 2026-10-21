@@ -33,10 +33,16 @@ async function lireCode(request: APIRequestContext, email: string, ancien?: stri
   return code;
 }
 
-// Attend le message d'envoi du code ; s'il manque, l'échec montre ce que la page affichait (erreur éventuelle, étape) au lieu d'un simple délai dépassé.
-async function attendreMessageEnvoi(page: Page, message: string) {
+// Saisit l'adresse, demande le code et attend le message d'envoi. En mode dev, la page peut recevoir la saisie avant l'hydratation de React :
+// le champ contrôlé reste alors vide et le site répond « adresse invalide » sans rien envoyer. On recommence donc tant que rien n'est parti ;
+// un envoi réel qui tarderait ne se répète pas au-delà du délai de 60 s de Supabase, et l'échec montre ce que la page affichait.
+async function envoyerLeCode(page: Page, c: { libelle: string; bouton: string; email: string; message: string }) {
   try {
-    await expect(page.getByText(message)).toBeVisible();
+    await expect(async () => {
+      await page.getByLabel(c.libelle).fill(c.email);
+      await page.getByRole("button", { name: c.bouton }).click();
+      await expect(page.getByText(c.message)).toBeVisible({ timeout: 4_000 });
+    }).toPass({ timeout: 20_000 });
   } catch (erreur) {
     const contenu = await page.locator("main").innerText({ timeout: 2_000 }).catch(() => "(contenu illisible)");
     throw new Error(`${(erreur as Error).message}
@@ -51,6 +57,9 @@ function emailDeTest() {
 }
 
 test.describe("connexion par code email", () => {
+  // Mode dev : la première visite de chaque page compile avant de répondre, le délai de 30 s par défaut est trop court.
+  test.describe.configure({ timeout: 90_000 });
+
   test.beforeEach(async ({ request }) => {
     const joignable = await boiteJoignable(request);
     // En CI, la boîte de test doit exister : on échoue au lieu de sauter en silence.
@@ -62,9 +71,7 @@ test.describe("connexion par code email", () => {
     const email = emailDeTest();
     // Le retour part d'une page localisée qui n'est pas l'accueil (/en/page-quittee : la 404 localisée, seule autre page existante).
     await page.goto("/en/connexion?retour=/en/page-quittee");
-    await page.getByLabel("Email address").fill(email);
-    await page.getByRole("button", { name: "Get a code" }).click();
-    await attendreMessageEnvoi(page, `A code was sent to ${email}.`);
+    await envoyerLeCode(page, { libelle: "Email address", bouton: "Get a code", email, message: `A code was sent to ${email}.` });
 
     // Un code faux est refusé et relié au champ.
     await page.getByLabel("6-digit code").fill("000000");
@@ -90,9 +97,7 @@ test.describe("connexion par code email", () => {
     page.on("console", (m) => m.type() === "error" && erreurs.push(m.text()));
 
     await page.goto("/fr/connexion");
-    await page.getByLabel("Adresse email").fill(email);
-    await page.getByRole("button", { name: "Recevoir un code" }).click();
-    await attendreMessageEnvoi(page, `Un code a été envoyé à ${email}.`);
+    await envoyerLeCode(page, { libelle: "Adresse email", bouton: "Recevoir un code", email, message: `Un code a été envoyé à ${email}.` });
     await page.getByLabel("Code à 6 chiffres").fill(await lireCode(request, email));
     await page.getByRole("button", { name: "Valider le code" }).click();
     await page.getByLabel("Âge").fill("25");
@@ -110,9 +115,7 @@ test.describe("connexion par code email", () => {
   test("moins de 13 ans : Compte supprimé et message clair", async ({ page, request }) => {
     const email = emailDeTest();
     await page.goto("/fr/connexion");
-    await page.getByLabel("Adresse email").fill(email);
-    await page.getByRole("button", { name: "Recevoir un code" }).click();
-    await attendreMessageEnvoi(page, `Un code a été envoyé à ${email}.`);
+    await envoyerLeCode(page, { libelle: "Adresse email", bouton: "Recevoir un code", email, message: `Un code a été envoyé à ${email}.` });
     await page.getByLabel("Code à 6 chiffres").fill(await lireCode(request, email));
     await page.getByRole("button", { name: "Valider le code" }).click();
 
@@ -126,9 +129,7 @@ test.describe("connexion par code email", () => {
     // Preuve de la suppression : le même email recrée un nouveau Compte, donc l'étape âge revient.
     const premierCode = await lireCode(request, email);
     await page.goto("/fr/connexion");
-    await page.getByLabel("Adresse email").fill(email);
-    await page.getByRole("button", { name: "Recevoir un code" }).click();
-    await attendreMessageEnvoi(page, `Un code a été envoyé à ${email}.`);
+    await envoyerLeCode(page, { libelle: "Adresse email", bouton: "Recevoir un code", email, message: `Un code a été envoyé à ${email}.` });
     await page.getByLabel("Code à 6 chiffres").fill(await lireCode(request, email, premierCode));
     await page.getByRole("button", { name: "Valider le code" }).click();
     await expect(page.getByLabel("Âge")).toBeVisible();
