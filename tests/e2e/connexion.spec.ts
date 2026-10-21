@@ -112,8 +112,10 @@ test.describe("connexion par code email", () => {
     }, { timeout: 25_000 });
 
     await test.step("déconnexion", async () => {
+      const adresses: string[] = [];
+      page.on("framenavigated", (f) => f === page.mainFrame() && adresses.push(`${Date.now() % 100000} ${f.url()}`));
       await (await ouvrirMenu(page)).getByRole("button", { name: "Sign out" }).click();
-      await expect(page).toHaveURL(/\/en$/);
+      await expect(page, `navigations : ${JSON.stringify(adresses)}`).toHaveURL(/\/en$/);
       await expect((await ouvrirMenu(page)).getByRole("link", { name: "Sign in" })).toBeVisible();
     }, { timeout: 25_000 });
   });
