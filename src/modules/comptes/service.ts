@@ -6,8 +6,12 @@ import type { DependancesComptes, EtapeApresCode, Resultat } from "./types";
 
 // Seul le nom de l'erreur est journalisé : ni message, ni email, ni jeton.
 function journaliser(contexte: string, erreur: unknown) {
-  const nom = erreur && typeof erreur === "object" && "name" in erreur ? String((erreur as { name: unknown }).name) : "erreur";
-  console.error(`[comptes] ${contexte} : ${nom}`);
+  const lire = (cle: string) => (erreur && typeof erreur === "object" && cle in erreur ? (erreur as Record<string, unknown>)[cle] : undefined);
+  const nom = lire("name") !== undefined ? String(lire("name")) : "erreur";
+  // Code et statut de l'erreur Auth (ex. over_email_send_rate_limit, 429) aident au diagnostic ; jamais le message.
+  const code = typeof lire("code") === "string" ? ` code=${lire("code")}` : "";
+  const statut = typeof lire("status") === "number" ? ` statut=${lire("status")}` : "";
+  console.error(`[comptes] ${contexte} : ${nom}${code}${statut}`);
 }
 
 const CODES_LIMITE = new Set(["over_email_send_rate_limit", "over_request_rate_limit"]);
