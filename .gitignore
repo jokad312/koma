@@ -45,3 +45,9 @@ next-env.d.ts
 
 # Logos JPG non utilisés par le site (les SVG et PNG suffisent)
 _bmad-output/planning-artifacts/ux-designs/*/imports/logos/JPG/
+
+# Sakura Town (version démo, licence en attente : Q-F1, règle 6) : copie locale seulement, jamais dans le dépôt public
+_bmad-output/planning-artifacts/ux-designs/*/imports/fonts/
+
+# Captures de sites tiers : jamais dans le dépôt public (règle 6)
+gofullpage-*

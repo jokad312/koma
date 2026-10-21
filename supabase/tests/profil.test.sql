@@ -1,5 +1,5 @@
 begin;
-select plan(24);
+select plan(30);
 
 -- Comptes de test (auth.users) : le déclencheur crée les profils.
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -20,12 +20,20 @@ select throws_ok($$select public.declarer_age('{"type":"test"}'::jsonb, '0000000
 select throws_ok($$select public.declarer_age(null, '00000000-0000-0000-0000-0000000000a1', 20)$$, 'P0001', 'KS_AUTEUR_MANQUANT', 'sans auteur refusé');
 select throws_ok($$select public.declarer_age('{"type":"test"}'::jsonb, '00000000-0000-0000-0000-0000000000a1', 121)$$, 'P0001', 'KS_AGE_INVALIDE', 'plus de 120 ans refusé');
 select is(public.compte_complet('00000000-0000-0000-0000-0000000000a1'), false, 'après refus : toujours incomplet');
+select is((select count(*)::int from public.journal_audit where action = 'age_declare' and cible_id = '00000000-0000-0000-0000-0000000000a1'), 0, 'un refus n''écrit rien dans le journal');
 
 -- 13 ans : mineur, complet.
 select lives_ok($$select public.declarer_age('{"type":"test"}'::jsonb, '00000000-0000-0000-0000-0000000000a1', 13)$$, '13 ans accepté');
 select is(public.est_mineur('00000000-0000-0000-0000-0000000000a1'), true, '13 ans : mineur');
+
+-- Journal d'audit : une ligne « age_declare » pour la déclaration réussie, avec l'auteur, le Compte et l'âge.
+select is((select count(*)::int from public.journal_audit where action = 'age_declare' and cible_id = '00000000-0000-0000-0000-0000000000a1'), 1, 'la déclaration est journalisée une seule fois');
+select is((select apres from public.journal_audit where action = 'age_declare' and cible_id = '00000000-0000-0000-0000-0000000000a1'), '{"age_declare":13}'::jsonb, 'le journal garde l''âge déclaré');
+select is((select auteur from public.journal_audit where action = 'age_declare' and cible_id = '00000000-0000-0000-0000-0000000000a1'), '{"type":"test"}'::jsonb, 'le journal garde l''auteur');
+select is((select cible_table from public.journal_audit where action = 'age_declare' and cible_id = '00000000-0000-0000-0000-0000000000a1'), 'profil', 'le journal nomme la table cible');
 select is(public.compte_complet('00000000-0000-0000-0000-0000000000a1'), true, 'avec âge : Compte complet');
 select throws_ok($$select public.declarer_age('{"type":"test"}'::jsonb, '00000000-0000-0000-0000-0000000000a1', 30)$$, 'P0001', 'KS_AGE_DEJA_DECLARE', 'une seconde déclaration est refusée');
+select is((select count(*)::int from public.journal_audit where action = 'age_declare' and cible_id = '00000000-0000-0000-0000-0000000000a1'), 1, 'la seconde déclaration refusée n''ajoute aucune ligne');
 
 -- 17 et 18 ans.
 select public.declarer_age('{"type":"test"}'::jsonb, '00000000-0000-0000-0000-0000000000a2', 17);

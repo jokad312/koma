@@ -9,12 +9,18 @@ Règle 6 de `CLAUDE.md` : aucune police, image ou fichier tiers n'entre dans le 
 | Nom de la police | Sakura Town |
 | Éditeur | Letterhend Studio |
 | Usage dans KOMA SHOP | Grands titres de la vitrine, en majuscules et sans accent (voir `DESIGN.md`) |
-| Fichier dans le dépôt | `_bmad-output/planning-artifacts/ux-designs/ux-KOMA SHOP-2026-10-16/imports/fonts/Sakura Town.otf` (commité le 2026-10-17) |
+| Fichier dans le dépôt | Aucun depuis le 2026-10-21 : `Sakura Town.otf`, `READ THIS.txt` et `Cover.png` ont été retirés de l'index Git (`git rm --cached`) ; la copie locale reste sur le poste de Jonathan dans `_bmad-output/planning-artifacts/ux-designs/ux-KOMA SHOP-2026-10-16/imports/fonts/`, dossier ajouté à `.gitignore`. Le fichier a été commité le 2026-10-17 : il reste dans l'historique Git. |
 | Source du fichier | [À COMPLÉTER : où le fichier a été obtenu, version complète ou démo] |
 | Page officielle de la police | https://www.creativefabrica.com/product/sakura-town/ref/2203/ |
 | Licence accordée | Usage personnel et commercial, projets publics compris, confirmé par l'éditeur à Jonathan Manduara Tshimpaka (NATHANGROUP SARL) |
 | Date de l'accord | [À COMPLÉTER] |
 | Preuve écrite | [À COMPLÉTER : copie du message de l'éditeur, sans ses coordonnées personnelles] |
+
+### Décision du 2026-10-21 (Q-F1 reste ouverte)
+
+- Le fichier est retiré du dépôt (index seulement) et son dossier est ignoré. L'historique n'est **pas** réécrit pour l'instant : Jonathan attend l'accord écrit de l'éditeur.
+- Si l'éditeur refuse l'usage commercial, l'historique sera nettoyé (branches `main` et `production`) dans une tâche séparée.
+- Les titres restent en Barlow Condensed tant que Q-F1 n'est pas réglée (`NEXT_PUBLIC_TITRES_SAKURA` éteinte).
 
 ### Point à vérifier
 

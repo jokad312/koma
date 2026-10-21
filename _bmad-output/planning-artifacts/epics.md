@@ -214,7 +214,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 - **Q-D1** : nom de domaine pas encore acheté ; développement et tests en local ; adresse lue dans `NEXT_PUBLIC_SITE_URL` → bloque seulement la story de mise en ligne.
 - **Q-C1 Candidature Stand (ajoutée le 2026-10-21)** : Jonathan veut une candidature pour le Pass Stand (description de ce que l'exposant vend, 3 photos, Instagram ; validation par l'Admin ; lien de paiement valable 48 h ; condition écrite : propres créations, aucune contrefaçon). À passer par bmad-correct-course juste après ce découpage (modification de FR-33 et AD-7), puis à ajouter comme story 7.11. Le transfert de Pass n'est pas prévu au lancement (FR-34 inchangé).
 - **Décision M5 tranchée le 2026-10-21** : tunnel Cloudflare (`cloudflared`) en développement seulement, ouvert pendant les essais de paiement, pour recevoir les notifications sandbox ; exception à la règle 14 notée dans le journal de décisions de l'architecture ; jamais en production.
-- **Q-A1** (tarifs Bunny), **Q-A2** (Hostinger) → budget et première mise en ligne. **Q-F1** (Sakura Town) → reste ouverte ; bloque la mise en ligne avec Sakura Town, pas le développement (repli Barlow Condensed).
+- **Q-A1** (tarifs Bunny), **Q-A2** (Hostinger) → budget et première mise en ligne. **Q-F1** (Sakura Town) → reste ouverte ; bloque la mise en ligne avec Sakura Town, pas le développement (repli Barlow Condensed). Décision du 2026-10-21 : `Sakura Town.otf` retiré de l'index Git et son dossier ignoré ; historique non réécrit tant que l'éditeur n'a pas répondu ; s'il refuse l'usage commercial, nettoyage de l'historique (`main` et `production`) dans une tâche séparée.
 - **E-10** : liste et bornes des Mesures, fournies par Jonathan → bloque seulement la story Sur-mesure. **E-36** : tranchée le 2026-10-21 : « Voir plus », 12 éléments par clic, vrai lien avec curseur dans l'adresse.
 
 ### Exigences de conception UX
@@ -2609,6 +2609,7 @@ afin d'ouvrir les ventes.
 **Quand** la production est branchée
 **Alors** Google OAuth, les bibliothèques Bunny et les applications KOMA SHOP de chaque Prestataire reçoivent les adresses de production ; aucun tunnel n'est utilisé en production
 **Et** les en-têtes de sécurité (CSP, HSTS, `X-Content-Type-Options`, `Referrer-Policy`) sont vérifiés sur le domaine (AD-36)
+**Et** la CSP, posée en mode `Report-Only` depuis la story 1.4 (`next.config.ts`), passe en mode strict (avec nonce si nécessaire pour le script du thème) ; HSTS est activé en production ; `/api/sante` a une limite de débit (`consommer_essai`) ; la caméra est réouverte dans `Permissions-Policy` seulement si le scan des Pass (epic 7) est livré
 
 **Étant donné** l'ouverture des ventes
 **Quand** Jonathan coche la liste de vérification

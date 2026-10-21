@@ -98,14 +98,14 @@ context:
 | Focus en mode Strict (dev) ; focus par `setTimeout` | low | rejeté | dev seulement / négligeable |
 | Déclencheur de profil sans gestion d'exception | false | rejeté | échouer fort est voulu |
 | `signOut` après suppression de l'utilisateur | false | rejeté | supabase-js efface la session locale sur 401/403/404 |
-| `p_auteur` non enregistré | low | rejeté | la spec demande le paramètre (AD-25), pas de journal du profil |
+| `p_auteur` non enregistré | low | patch | repris le 2026-10-21 (audit) : `declarer_age` écrit « age_declare » dans `journal_audit` (migration `20261022100000`, test SQL) |
 | Config Supabase en ligne (modèles, 600 s, SMTP) hors dépôt | false | rejeté | réglages faits par Jonathan, pas du code |
 | Test du proxy sans changement de `proxy.ts` | false | rejeté | le test était le point reporté ; `proxy.ts` n'avait pas à changer |
 | `limite` sans délai affiché ; JSON-LD sur page noindex ; `est_mineur(12)` en SQL | low | rejeté | négligeable, JSON-LD exigé par la règle 8 |
 
 ## Design Notes
 
-**Âge :** `age_declare` + années entières écoulées depuis `age_declare_le` ; la date de naissance n'est pas demandée (consigne : champ numérique). **Suppression sous 13 ans :** la fonction SQL lève une erreur (sa transaction s'annule), donc c'est le serveur qui supprime via l'API d'administration. **Boîte de test :** seul le test lit le code ; le site ne le voit jamais.
+**Message code faux ou expiré (décision du 2026-10-21, question fermée) :** deux messages distincts, choisis selon l'heure d'envoi confirmé du code (« expiré » seulement si 10 minutes sont écoulées). Supabase répond pareil dans les deux cas ; le comportement actuel reste. **Âge :** `age_declare` + années entières écoulées depuis `age_declare_le` ; la date de naissance n'est pas demandée (consigne : champ numérique). **Suppression sous 13 ans :** la fonction SQL lève une erreur (sa transaction s'annule), donc c'est le serveur qui supprime via l'API d'administration. **Boîte de test :** seul le test lit le code ; le site ne le voit jamais.
 
 ## Verification
 
