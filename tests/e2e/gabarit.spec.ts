@@ -34,10 +34,85 @@ for (const langue of ["fr", "en"]) {
     await page.goto(`/${langue}`);
     const deborde = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(deborde).toBe(false);
-    const logo = page.locator('header img[src*="logo-principal"]');
+    const logo = page.locator('header img[src$="/logo/logo-principal.svg"]');
     await expect(logo).toBeVisible();
     expect((await logo.getAttribute("alt"))?.trim().length).toBeGreaterThan(0);
     await expect(page.locator(`header a[href="/${langue}"]`)).toBeVisible();
+  });
+}
+
+for (const theme of ["light", "dark"] as const) {
+  test(`logo en thème ${theme} : bon fichier visible, un seul exposé aux technologies d'assistance, alt = nom du site, lien vers l'accueil`, async ({ page }) => {
+    await page.addInitScript((t) => {
+      if (t === "dark") window.localStorage.setItem("ks-theme", "dark");
+    }, theme);
+    await page.goto("/en", { waitUntil: "networkidle" });
+    const visible = page.locator(theme === "dark" ? 'header img[src$="/logo/logo-principal-inverse.svg"]' : 'header img[src$="/logo/logo-principal.svg"]');
+    const cache = page.locator(theme === "dark" ? 'header img[src$="/logo/logo-principal.svg"]' : 'header img[src$="/logo/logo-principal-inverse.svg"]');
+    await expect(visible).toBeVisible();
+    await expect(cache).toBeHidden();
+    // display: none retire l'image de l'arbre d'accessibilité : un seul logo est exposé.
+    await expect(page.locator("header").getByRole("img")).toHaveCount(1);
+    const nomSite = (await page.locator("#pied-identite").innerText()).trim();
+    expect(await visible.getAttribute("alt")).toBe(nomSite);
+    await expect(page.locator("header").getByRole("link", { name: nomSite })).toHaveAttribute("href", "/en");
+  });
+}
+
+for (const langue of ["fr", "en"] as const) {
+  test(`/${langue} : le script de thème est dans le HTML du serveur (donc exécuté avant le premier rendu)`, async ({ request }) => {
+    const reponse = await request.get(`/${langue}`);
+    expect(reponse.status()).toBe(200);
+    const html = await reponse.text();
+    const head = html.slice(0, html.indexOf("</head>"));
+    expect(head).toContain('getItem("ks-theme")');
+    expect(head).toContain('setAttribute("data-theme","dark")');
+  });
+
+  test(`/${langue} sans JavaScript de l'application : ks-theme=dark donne déjà data-theme="dark" (script inline seul)`, async ({ page }) => {
+    // Les scripts de Next sont bloqués : seul le script inline du HTML peut poser l'attribut.
+    await page.route("**/_next/static/**", (route) => route.abort());
+    await page.addInitScript(() => window.localStorage.setItem("ks-theme", "dark"));
+    await page.goto(`/${langue}`, { waitUntil: "domcontentloaded" });
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  });
+}
+
+for (const langue of ["fr", "en"] as const) {
+  test(`/${langue}/zzz en thème sombre : thème posé avant la première peinture, aucun avertissement « script tag »`, async ({ page }) => {
+    const messages: string[] = [];
+    page.on("console", (m) => messages.push(m.text()));
+    await page.addInitScript(() => {
+      window.localStorage.setItem("ks-theme", "dark");
+      const w = window as unknown as { __themes: Record<string, string | null> };
+      w.__themes = {};
+      const theme = () => document.documentElement.getAttribute("data-theme");
+      // Au moment où le contenu (main) entre dans le DOM, puis à la première image affichée.
+      new MutationObserver((_, obs) => {
+        if (document.querySelector("main")) {
+          w.__themes.contenu = theme();
+          obs.disconnect();
+        }
+      }).observe(document, { childList: true, subtree: true });
+      // Première image affichée avec du contenu (sur la 404 de développement, les premières images sont une coquille vide).
+      const surImage = () => {
+        if (document.querySelector("main")) w.__themes.premiereImage = theme();
+        else requestAnimationFrame(surImage);
+      };
+      requestAnimationFrame(surImage);
+    });
+    await page.goto(`/${langue}/zzz`, { waitUntil: "networkidle" });
+    // On est bien sur la 404 traduite, et les mesures ont été prises.
+    await expect(page.locator("h1")).toHaveText(langue === "fr" ? "Page introuvable" : "Page not found");
+    await page.waitForFunction(() => {
+      const t = (window as unknown as { __themes?: Record<string, string | null> }).__themes;
+      return t !== undefined && t.contenu !== undefined && t.premiereImage !== undefined;
+    });
+    const themes = await page.evaluate(() => (window as unknown as { __themes: Record<string, string | null> }).__themes);
+    expect(themes.contenu).toBe("dark");
+    expect(themes.premiereImage).toBe("dark");
+    expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(22, 19, 15)");
+    expect(messages.filter((m) => /script tag/i.test(m))).toEqual([]);
   });
 }
 

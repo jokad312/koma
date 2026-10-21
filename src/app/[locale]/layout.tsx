@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { EnTete } from "@/components/layout/EnTete";
 import { ID_CONTENU, ID_RACINE_PAGE } from "@/components/layout/constantes";
 import { LienEvitement } from "@/components/layout/LienEvitement";
+import { ScriptTheme } from "@/components/layout/ScriptTheme";
 import { PiedDePage } from "@/components/layout/PiedDePage";
 import { routing } from "@/i18n/routing";
 import { lireEnvPublique } from "@/lib/env";
@@ -11,7 +12,6 @@ import { barlow, barlowCondensed } from "@/lib/fonts";
 import { lireNomSite } from "@/lib/reglages";
 import { JsonLd } from "@/lib/seo/balise-jsonld";
 import { organisationJsonLd } from "@/lib/seo/jsonld";
-import { SCRIPT_THEME } from "@/lib/theme/script";
 import "../globals.css";
 
 export function generateStaticParams() {
@@ -32,7 +32,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
     <html lang={locale} className={`${barlow.variable} ${barlowCondensed.variable}`} suppressHydrationWarning>
       <head>
         {/* Pose le thème avant le premier rendu : pas de flash. */}
-        <script dangerouslySetInnerHTML={{ __html: SCRIPT_THEME }} />
+        <ScriptTheme />
         {sakura ? <style dangerouslySetInnerHTML={{ __html: FONT_FACE_SAKURA }} /> : null}
       </head>
       <body>

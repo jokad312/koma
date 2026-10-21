@@ -78,6 +78,13 @@ context:
 
 ## Implementation Notes
 
+Décisions de Jonathan du 2026-10-21 (elles priment sur la spec) :
+
+- **Logo sombre.** Le logo principal est conservé. `KOMA_horizontal_inverse.svg` est copié à l'identique (`cmp`) vers `public/logo/logo-principal-inverse.svg`. L'en-tête affiche le principal sur crème et l'inverse sur sombre : bascule CSS sur `[data-theme]` (`display: none` sur l'autre, donc un seul exposé aux technologies d'assistance), alt tiré de `nom_site`, lien vers l'accueil de la langue en cours. `docs/licences/logo.md` décrit les deux fichiers (propriété de NATHANGROUP SARL). Le point « contraste du logo sombre » signalé dans la Code Map est réglé.
+- **Accessibilité (UX-DR48 allégée).** `@axe-core/playwright` 4.14.0 (version figée) ; `tests/e2e/accessibilite.spec.ts` sur /fr et /en, thèmes crème et sombre : axe (aucune violation serious ou critical, page et menu ☰ ouvert), 320 px, zoom 200 %, mouvement réduit, couleurs forcées. Zoom 200 % émulé par un viewport de 640 x 400 px CSS avec `deviceScaleFactor: 2` (un écran de 1280 x 800 à 200 %), faute de zoom piloté par Playwright. Aucune violation réelle trouvée, donc aucun correctif de code. **Règle axe désactivée : `color-contrast`, dans le seul test « couleurs forcées »** : le navigateur y impose les couleurs (mesuré : noir sur blanc) et axe signale à tort un contraste en thème sombre (faux positif) ; la règle reste active partout ailleurs.
+- **Avertissement « Encountered a script tag while rendering React component ».** Origine isolée : le script de thème de `<head>` (JSON-LD innocenté : retirer le script de thème seul fait disparaître l'avertissement). Il n'apparaît que sur les 404. Cause profonde : sur ces routes (`[locale]/[...rest]` qui appelle `notFound()`), Next 16 ne rend pas le HTML côté serveur mais une coquille vide `<html id="__next_error__">` (constaté en développement et avec `next build` + `next start`), puis le navigateur rend toute la page ; un `<script>` créé côté client ne s'exécute jamais. Conséquences : l'avertissement, et surtout le thème sombre n'était pas appliqué sur les 404. `next/script` `beforeInteractive` ne convient pas (lu dans `node_modules/next/dist/client/script.js` : il émet lui aussi un `<script>` et n'exécute le code qu'après le chargement du runtime Next, donc pas avant le premier rendu). Correctif : `ScriptTheme` (composant client) émet le script dans le HTML serveur et rien dans un rendu purement client, où un `useLayoutEffect` pose le thème mémorisé avant la première peinture. Le sélecteur de langue est aussi enveloppé dans `<Suspense>` (repli : lien vers l'accueil de l'autre langue, `LangueRepli`) car `usePathname()` bloquait le prérendu de cette route. Tests e2e : /fr/zzz et /en/zzz en thème sombre, thème déjà `dark` à l'arrivée du contenu et à la première image avec contenu, aucun message « script tag ».
+- **Resté ouvert (hors périmètre).** Les pages 404 servent un HTML vide sans JavaScript (coquille d'erreur de Next), et Next affiche en développement « Could not validate `instant` because an error prevented the target segment from rendering » pour `[...rest]` : cause non résolue, à traiter dans une story dédiée (la spec 1.2 a introduit `[...rest]`).
+
 ## Spec Change Log
 
 ## Review Triage Log
@@ -106,6 +113,17 @@ context:
 | Valeur `TRUE`/`1` de l'option fait planter | low | rejeté | échec bruyant voulu sur une valeur invalide |
 | `MessageEtat` : région déjà remplie, `<p>` | low | rejeté | usage futur ; pas de défaut démontré |
 | Piège de focus sur éléments cachés ; synchro du thème entre onglets ; cookie sans `Secure` ; test « sans flash » | low | rejeté | cas rares sans effet démontré |
+| (Revue 2) Script de thème dans le HTML serveur non prouvé : `ScriptTheme` renvoyant `null` passerait tous les tests | medium | patch | l'effet de layout pose l'attribut après hydratation ; test du corps brut de `/fr` à ajouter |
+| (Revue 2) Test 404 sombre : `waitForTimeout(500)`, page atteinte non vérifiée | low | patch | `gabarit.spec.ts` ; remplacer par `waitForFunction` et vérifier le H1 |
+| (Revue 2) 404 rendue côté client : trames de la coquille vide avant `main` non couvertes, coquille vide sans JavaScript | medium | defer | Next 16 envoie `<html id="__next_error__">` vide pour `notFound()` ; limite connue, consignée dans `deferred-work.md` |
+| (Revue 2) Les deux logos en `priority` : le caché est aussi préchargé | low | rejeté | deux SVG de 1,4 Ko ; la priorité évite tout clignotement du logo visible |
+| (Revue 2) L'effet de layout ne traite que `dark` ; script retiré après hydratation | low | rejeté | aucune autre valeur de thème n'existe ; le script n'a plus d'utilité après hydratation |
+| (Revue 2) `LangueRepli` sans test, lien vers l'accueil, `getLocale()` en repli | low | rejeté | repli transitoire sur route d'erreur ; build propre, aucun blocage observé |
+| (Revue 2) Sélecteur de langue en double (bureau et menu) | low | rejeté | existait avant ce complément ; axe sans violation |
+| (Revue 2) JPG de logos non suivis | low | rejeté | hors story : dossier non commité, aucun code ne l'utilise |
+| (Revue 2) Licence d'axe-core, compatibilité axe/Playwright, sha256 du logo | false | rejeté | dépendance de développement (aucun fichier tiers dans le dépôt) ; 24 tests axe passent |
+| (Revue 2) Assertions d'accessibilité jugées faibles (mouvement réduit, zoom, menu), clé `ks-theme` en dur | low | rejeté | les cas demandés sont couverts ; aucune lacune démontrée |
+| (Revue 2) Le hash de l'URL n'est pas dans le critère 2.4 | low | rejeté | le hash n'est pas envoyé au serveur ; non conservable côté rendu |
 
 ## Design Notes
 

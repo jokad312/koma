@@ -1,7 +1,9 @@
 import Image from "next/image";
+import { Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { BasculeTheme } from "./BasculeTheme";
+import { LangueRepli } from "./LangueRepli";
 import { MenuPanneau } from "./MenuPanneau";
 import { RUBRIQUES, type Rubrique } from "./rubriques";
 import { SelecteurLangue } from "./SelecteurLangue";
@@ -32,6 +34,7 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES }: Props) {
       <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between gap-3 px-marge">
         <Link href="/" className="inline-flex min-h-touch items-center">
           <span className="relative block aspect-[530/124] w-[156px] overflow-hidden lg:w-[190px]">
+            {/* Deux fichiers d'origine, jamais recolorés : un seul est affiché (display) selon [data-theme], donc un seul est exposé aux technologies d'assistance. */}
             <Image
               src="/logo/logo-principal.svg"
               alt={nomSite}
@@ -39,7 +42,18 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES }: Props) {
               height={220}
               unoptimized
               priority
-              className="absolute -left-[9.434%] -top-[37.097%] h-auto w-[118.868%] max-w-none"
+              data-logo="clair"
+              className="logo-clair absolute -left-[9.434%] -top-[37.097%] h-auto w-[118.868%] max-w-none"
+            />
+            <Image
+              src="/logo/logo-principal-inverse.svg"
+              alt={nomSite}
+              width={630}
+              height={220}
+              unoptimized
+              priority
+              data-logo="sombre"
+              className="logo-sombre absolute -left-[9.434%] -top-[37.097%] h-auto w-[118.868%] max-w-none"
             />
           </span>
         </Link>
@@ -47,13 +61,17 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES }: Props) {
         <div className="flex items-center gap-2">
           <div className="hidden items-center gap-2 lg:flex">
             <BasculeTheme />
-            <SelecteurLangue />
+            <Suspense fallback={<LangueRepli />}>
+              <SelecteurLangue />
+            </Suspense>
           </div>
           <div className="lg:hidden">
             <MenuPanneau>
               {liens}
               <BasculeTheme />
+              <Suspense fallback={<LangueRepli />}>
               <SelecteurLangue />
+            </Suspense>
             </MenuPanneau>
           </div>
         </div>

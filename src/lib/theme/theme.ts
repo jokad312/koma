@@ -15,8 +15,12 @@ export function lireThemeMemorise(): Theme {
   }
 }
 
-export function appliquerTheme(theme: Theme): void {
+export function appliquerAttributTheme(theme: Theme): void {
   document.documentElement.setAttribute(ATTRIBUT_THEME, theme);
+}
+
+export function appliquerTheme(theme: Theme): void {
+  appliquerAttributTheme(theme);
   try {
     window.localStorage.setItem(CLE_STOCKAGE_THEME, theme);
   } catch {

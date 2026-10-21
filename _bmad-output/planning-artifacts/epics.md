@@ -942,6 +942,10 @@ afin de trouver vite la pièce qui me plaît.
 **Et** avec JavaScript, les 12 produits suivants s'ajoutent sous la liste, l'adresse est mise à jour et le focus va au premier produit ajouté ; sans JavaScript, le lien ouvre la même liste prolongée
 **Et** une adresse partagée ou rechargée affiche la même liste, et Google peut parcourir tout le catalogue
 
+**Étant donné** un catalogue filtré, trié ou prolongé (adresse avec query)
+**Quand** le visiteur change de langue avec le sélecteur
+**Alors** il reste sur la même page, avec les mêmes filtres, tri et curseur dans l'adresse (le sélecteur de langue de la story 1.3 ne conserve aujourd'hui que le chemin ; `useSearchParams` sous Suspense, compatible `cacheComponents`)
+
 **Étant donné** aucun produit ou aucun résultat
 **Quand** le catalogue s'affiche
 **Alors** une phrase courte et « Effacer les filtres » s'affichent (UX-DR45)

@@ -311,6 +311,18 @@ a {
   background-size: 56px 56px;
 }
 
+/* ---------- Logo : version principale sur crème, inverse sur sombre ---------- */
+
+.logo-sombre {
+  display: none;
+}
+:root[data-theme="dark"] .logo-clair {
+  display: none;
+}
+:root[data-theme="dark"] .logo-sombre {
+  display: block;
+}
+
 /* ---------- Squelette ---------- */
 
 .squelette {

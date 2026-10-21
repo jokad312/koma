@@ -1,13 +1,14 @@
 # Licence du logo
 
-| Champ | Valeur |
-| --- | --- |
-| Fichier dans le dépôt | `public/logo/logo-principal.svg` |
-| Origine | `_bmad-output/planning-artifacts/ux-designs/ux-KOMA SHOP-2026-10-16/imports/logos/SVG/principale logo.svg`, copié sans aucune modification (comparaison octet par octet faite le 2026-10-21) |
-| Propriétaire | Propriété de NATHANGROUP SARL (création du logo) |
-| Contrôle du fichier | 1431 octets, aucun script, aucune image embarquée, aucune police embarquée |
-| Usage | En-tête du site, texte alternatif tiré du réglage `nom_site`, lien vers l'accueil de la langue en cours |
+Les deux fichiers sont la création de NATHANGROUP SARL : propriété de NATHANGROUP SARL.
 
-## Point d'attention
+| Fichier dans le dépôt | Origine (copie sans aucune modification, comparaison `cmp` faite le 2026-10-21) | Usage |
+| --- | --- | --- |
+| `public/logo/logo-principal.svg` | `_bmad-output/planning-artifacts/ux-designs/ux-KOMA SHOP-2026-10-16/imports/logos/SVG/principale logo.svg` | En-tête, thème crème : lettres `#16130F`, O et コマ `#E3261C` |
+| `public/logo/logo-principal-inverse.svg` | `_bmad-output/planning-artifacts/ux-designs/ux-KOMA SHOP-2026-10-16/imports/logos/SVG/KOMA_horizontal_inverse.svg` | En-tête, thème sombre : lettres et コマ `#F3EEE4`, O `#E3261C` |
 
-Les lettres du logo sont tracées en `#16130F` (encre) : sur le fond du thème sombre (`#16130F`) elles sont invisibles, seuls le O rouge et コマ restent visibles. Aucune variante n'a été créée. La déclinaison inverse prévue par `DESIGN.md` (`KOMA_horizontal_inverse.svg`) reste à fournir ou à valider par Jonathan.
+Contrôle des fichiers (vérifié par Jonathan le 2026-10-21 pour l'inverse, par le développement pour le principal) : 1431 octets chacun, même géométrie, couleurs permutées, aucun script, aucune image embarquée, aucune police embarquée.
+
+## Affichage
+
+L'en-tête contient les deux images ; une règle CSS sur `[data-theme]` n'en affiche qu'une (`display: none` pour l'autre, donc un seul logo exposé aux technologies d'assistance). Le texte alternatif vient du réglage `nom_site`. Le logo est un lien vers l'accueil de la langue en cours. Aucune recoloration, aucune déformation, aucune ombre.
