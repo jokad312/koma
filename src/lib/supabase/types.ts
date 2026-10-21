@@ -39,13 +39,64 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      journal_audit: {
+        Row: {
+          action: string
+          apres: Json | null
+          auteur: Json
+          avant: Json | null
+          cible_id: string
+          cible_table: string
+          cree_le: string
+          id: number
+        }
+        Insert: {
+          action: string
+          apres?: Json | null
+          auteur: Json
+          avant?: Json | null
+          cible_id: string
+          cible_table: string
+          cree_le?: string
+          id?: never
+        }
+        Update: {
+          action?: string
+          apres?: Json | null
+          auteur?: Json
+          avant?: Json | null
+          cible_id?: string
+          cible_table?: string
+          cree_le?: string
+          id?: never
+        }
+        Relationships: []
+      }
+      reglage: {
+        Row: {
+          cle: string
+          mis_a_jour_le: string
+          valeur: string | null
+        }
+        Insert: {
+          cle: string
+          mis_a_jour_le?: string
+          valeur?: string | null
+        }
+        Update: {
+          cle?: string
+          mis_a_jour_le?: string
+          valeur?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       admin_sante: { Args: never; Returns: number }
+      masquer_donnee_personnelle: { Args: { p_valeur: Json }; Returns: Json }
     }
     Enums: {
       [_ in never]: never

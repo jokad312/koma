@@ -1,0 +1,20 @@
+{
+  "Metadata": {
+    "accueil": {
+      "titre": "Shop for otaku: cosplay, accessories and kits",
+      "description": "Handmade cosplay costumes, accessories and do-it-yourself kits, made in Goma, Democratic Republic of the Congo."
+    },
+    "nonTrouve": {
+      "titre": "Page not found",
+      "description": "This page does not exist or no longer exists."
+    }
+  },
+  "Accueil": {
+    "titre": "Cosplay, accessories and kits for otaku"
+  },
+  "NonTrouve": {
+    "titre": "Page not found",
+    "texte": "This page does not exist or no longer exists.",
+    "lienAccueil": "Back to the home page"
+  }
+}

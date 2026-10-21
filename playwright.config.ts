@@ -7,13 +7,9 @@ export default defineConfig({
   webServer: {
     command: "npm run dev -- --port 3100",
     url: "http://localhost:3100",
-    // Valeurs de test seulement : la page d'accueil ne contacte pas la base.
-    env: {
-      NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3100",
-      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "http://127.0.0.1:54321",
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? "TEST_cle_publique",
-      SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY ?? "TEST_cle_secrete",
-    },
+    // L'accueil lit le réglage nom_site : le serveur lit la base de .env.local (koma-dev) ou des variables déjà définies.
+    // Seule l'adresse du site est fixée ici, pour que canonique et hreflang correspondent au port de test.
+    env: { NEXT_PUBLIC_SITE_URL: "http://localhost:3100" },
     reuseExistingServer: !process.env.CI,
   },
 });

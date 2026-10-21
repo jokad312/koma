@@ -1,0 +1,20 @@
+{
+  "Metadata": {
+    "accueil": {
+      "titre": "Boutique pour otakus : cosplay, accessoires et kits",
+      "description": "Costumes de cosplay faits main, accessoires et kits à fabriquer soi-même, créés à Goma, en République démocratique du Congo."
+    },
+    "nonTrouve": {
+      "titre": "Page introuvable",
+      "description": "Cette page n'existe pas ou n'existe plus."
+    }
+  },
+  "Accueil": {
+    "titre": "Cosplay, accessoires et kits pour otakus"
+  },
+  "NonTrouve": {
+    "titre": "Page introuvable",
+    "texte": "Cette page n'existe pas ou n'existe plus.",
+    "lienAccueil": "Retour à l'accueil"
+  }
+}

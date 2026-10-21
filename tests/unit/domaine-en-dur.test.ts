@@ -12,7 +12,8 @@ function fichiers(dossier: string): string[] {
 // L'adresse du site vient de NEXT_PUBLIC_SITE_URL seulement (Q-D1).
 describe("src/", () => {
   it("ne contient aucun nom de domaine écrit en dur", () => {
-    const adresse = /https?:\/\/(?!localhost\b|127\.0\.0\.1\b)[\w-]+(\.[\w-]+)+/gi;
+    // Exception : schema.org est un espace de noms JSON-LD, pas l'adresse du site.
+    const adresse = /https?:\/\/(?!localhost\b|127\.0\.0\.1\b|schema\.org\b)[\w-]+(\.[\w-]+)+/i;
     const fautifs = fichiers("src")
       .filter((f) => !f.endsWith(".test.ts"))
       .filter((f) => adresse.test(readFileSync(f, "utf8")));

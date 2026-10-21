@@ -15,6 +15,12 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    // Aucun texte visible en dur dans les composants : les libellés viennent de messages/*.json (FR-55).
+    files: ["src/**/*.tsx"],
+    ignores: ["src/**/*.test.tsx"],
+    rules: { "react/jsx-no-literals": ["error", { noStrings: false, allowedStrings: [], ignoreProps: true }] },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
