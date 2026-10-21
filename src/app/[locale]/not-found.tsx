@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
-import Link from "next/link";
+import { Bouton } from "@/components/ui/Bouton";
+import { TitreVitrine } from "@/components/ui/TitreVitrine";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
 import type { Locale } from "@/i18n/routing";
@@ -18,14 +19,13 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function NonTrouve() {
-  const locale = await getLocale();
   const t = await getTranslations("NonTrouve");
 
   return (
-    <main>
-      <h1>{t("titre")}</h1>
+    <section className="flex flex-col items-start gap-4">
+      <TitreVitrine niveau={1}>{t("titre")}</TitreVitrine>
       <p>{t("texte")}</p>
-      <Link href={`/${locale}`}>{t("lienAccueil")}</Link>
-    </main>
+      <Bouton href="/">{t("lienAccueil")}</Bouton>
+    </section>
   );
 }

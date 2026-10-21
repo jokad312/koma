@@ -25,6 +25,9 @@ supabase/.branches/
 # (règle 4 : aucune donnée marchande ; règle 6 : aucun fichier tiers sans licence vérifiée)
 docs/references/paiements/
 
+# Sakura Town : jamais dans le dépôt public tant que la licence webfont n'est pas confirmée (Q-F1, règle 6)
+public/fonts/
+
 # Réglages personnels
 _bmad/custom/*.user.toml
 .claude/settings.local.json

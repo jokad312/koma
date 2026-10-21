@@ -53,6 +53,6 @@ for (const langue of ["fr", "en"] as const) {
     expect(reponse?.status()).toBe(404);
     await expect(page.locator("html")).toHaveAttribute("lang", langue);
     await expect(page.locator("h1")).toHaveText(langue === "fr" ? "Page introuvable" : "Page not found");
-    await expect(page.locator(`a[href="/${langue}"]`)).toBeVisible();
+    await expect(page.locator(`main a[href="/${langue}"]`)).toBeVisible();
   });
 }

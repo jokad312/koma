@@ -16,5 +16,47 @@
     "titre": "Page not found",
     "texte": "This page does not exist or no longer exists.",
     "lienAccueil": "Back to the home page"
+  },
+  "LienEvitement": {
+    "texte": "Skip to content"
+  },
+  "Navigation": {
+    "principale": "Main navigation",
+    "rubriques": {
+      "cosplays": "Cosplays",
+      "accessoires": "Accessories",
+      "kits": "Kits",
+      "festival": "Festival",
+      "blog": "Blog",
+      "aPropos": "About"
+    }
+  },
+  "Menu": {
+    "ouvrir": "Menu",
+    "titre": "Menu",
+    "fermer": "Close menu"
+  },
+  "Theme": {
+    "sombre": "Dark theme"
+  },
+  "Langue": {
+    "groupe": "Language",
+    "nom": {
+      "fr": "Français",
+      "en": "English"
+    }
+  },
+  "Pied": {
+    "identite": "Handmade in Goma, DRC. NATHANGROUP SARL."
+  },
+  "Composants": {
+    "fermer": "Close",
+    "chargement": "Loading…",
+    "etat": {
+      "succes": "Success: ",
+      "attention": "Warning: ",
+      "erreur": "Error: ",
+      "information": "Information: "
+    }
   }
 }

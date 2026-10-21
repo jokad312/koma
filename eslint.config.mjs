@@ -19,7 +19,23 @@ const eslintConfig = defineConfig([
     // Aucun texte visible en dur dans les composants : les libellés viennent de messages/*.json (FR-55).
     files: ["src/**/*.tsx"],
     ignores: ["src/**/*.test.tsx"],
-    rules: { "react/jsx-no-literals": ["error", { noStrings: false, allowedStrings: [], ignoreProps: true }] },
+    rules: {
+      "react/jsx-no-literals": ["error", { noStrings: false, allowedStrings: [], ignoreProps: true }],
+      // Les props qui portent du texte visible ou lu par un lecteur d'écran viennent aussi de messages/*.json
+      // (alt="" reste permis : image décorative). className, href, id, etc. ne sont pas concernés.
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: 'JSXAttribute[name.name=/^(alt|aria-label|title|placeholder)$/] > Literal[value!=""]',
+          message: "Texte en dur interdit dans cette prop : utiliser messages/*.json.",
+        },
+        {
+          selector:
+            "JSXAttribute[name.name=/^(alt|aria-label|title|placeholder)$/] > JSXExpressionContainer > :matches(Literal, TemplateLiteral)",
+          message: "Texte en dur interdit dans cette prop : utiliser messages/*.json.",
+        },
+      ],
+    },
   },
   // Override default ignores of eslint-config-next.
   globalIgnores([

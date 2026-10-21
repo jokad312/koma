@@ -16,5 +16,47 @@
     "titre": "Page introuvable",
     "texte": "Cette page n'existe pas ou n'existe plus.",
     "lienAccueil": "Retour à l'accueil"
+  },
+  "LienEvitement": {
+    "texte": "Aller au contenu"
+  },
+  "Navigation": {
+    "principale": "Navigation principale",
+    "rubriques": {
+      "cosplays": "Cosplays",
+      "accessoires": "Accessoires",
+      "kits": "Kits",
+      "festival": "Festival",
+      "blog": "Blog",
+      "aPropos": "À propos"
+    }
+  },
+  "Menu": {
+    "ouvrir": "Menu",
+    "titre": "Menu",
+    "fermer": "Fermer le menu"
+  },
+  "Theme": {
+    "sombre": "Thème sombre"
+  },
+  "Langue": {
+    "groupe": "Langue",
+    "nom": {
+      "fr": "Français",
+      "en": "English"
+    }
+  },
+  "Pied": {
+    "identite": "Fait main à Goma, RDC. NATHANGROUP SARL."
+  },
+  "Composants": {
+    "fermer": "Fermer",
+    "chargement": "Chargement…",
+    "etat": {
+      "succes": "Succès : ",
+      "attention": "Attention : ",
+      "erreur": "Erreur : ",
+      "information": "Information : "
+    }
   }
 }

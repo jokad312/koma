@@ -1,1 +1,369 @@
 @import "tailwindcss";
+
+/*
+ * Thème « Sumi & washi » : valeurs exactes de DESIGN.md (UX-DR1 à UX-DR7).
+ * Crème par défaut ; sombre quand <html data-theme="dark"> (posé avant le premier rendu par le script de <head>).
+ * Un seul rouge : #E3261C. Texte des boutons rouges : #FFFFFF.
+ */
+
+:root {
+  --ks-brand-red: #e3261c;
+  --ks-brand-ink: #16130f;
+  --ks-brand-washi: #f3eee4;
+
+  --ks-background: #f3eee4;
+  --ks-surface: #fbf8f2;
+  --ks-glass: #ffffff8c;
+  --ks-glass-strong: #ffffffd9;
+  --ks-glass-border: #16130f24;
+  --ks-text-primary: #16130f;
+  --ks-text-secondary: #5e554a;
+  --ks-primary: #e3261c;
+  --ks-on-primary: #ffffff;
+  --ks-border: #e0d6c5;
+  --ks-border-field: #857a6b;
+  --ks-success: #2e7a4e;
+  --ks-warning: #8f5e10;
+  --ks-danger: #b01b13;
+  --ks-qr-background: #ffffff;
+  --ks-hero-wash-start: #fbf8f2;
+  --ks-hero-wash-end: #eadfcc;
+  --ks-tile-red-start: #e3261c;
+  --ks-tile-red-end: #9e1a12;
+  --ks-tile-ink-start: #5a4c3e;
+  --ks-tile-ink-end: #2b241d;
+  --ks-scrim: #16130f99;
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --ks-background: #16130f;
+  --ks-surface: #211c17;
+  --ks-glass: #f3eee40f;
+  --ks-glass-strong: #16130fd9;
+  --ks-glass-border: #f3eee424;
+  --ks-text-primary: #f3eee4;
+  --ks-text-secondary: #b9ae9e;
+  --ks-primary: #e3261c;
+  --ks-on-primary: #ffffff;
+  --ks-border: #3a322a;
+  --ks-border-field: #7a6e5e;
+  --ks-success: #7cc49a;
+  --ks-warning: #e2b566;
+  --ks-danger: #f2766b;
+  --ks-qr-background: #ffffff;
+  --ks-hero-wash-start: #2a221b;
+  --ks-hero-wash-end: #16130f;
+  --ks-tile-red-start: #e3261c;
+  --ks-tile-red-end: #7a1a12;
+  --ks-tile-ink-start: #4a3d31;
+  --ks-tile-ink-end: #211c17;
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--ks-background);
+  --color-surface: var(--ks-surface);
+  --color-glass: var(--ks-glass);
+  --color-glass-strong: var(--ks-glass-strong);
+  --color-glass-border: var(--ks-glass-border);
+  --color-text-primary: var(--ks-text-primary);
+  --color-text-secondary: var(--ks-text-secondary);
+  --color-primary: var(--ks-primary);
+  --color-on-primary: var(--ks-on-primary);
+  --color-border: var(--ks-border);
+  --color-border-field: var(--ks-border-field);
+  --color-success: var(--ks-success);
+  --color-warning: var(--ks-warning);
+  --color-danger: var(--ks-danger);
+  --color-qr-background: var(--ks-qr-background);
+  --color-scrim: var(--ks-scrim);
+
+  --font-corps: var(--font-barlow), system-ui, sans-serif;
+  --font-condensee: var(--font-barlow-condensed), "Arial Narrow", system-ui, sans-serif;
+}
+
+@theme {
+  /* Rayons (DESIGN.md › rounded) */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-glass: 18px;
+  --radius-lg: 20px;
+  --radius-xl: 22px;
+  --radius-full: 9999px;
+
+  /* Espacements : échelle Tailwind (pas de 4 px) + valeurs nommées */
+  --spacing-marge: 16px;
+  --spacing-ecart-cartes: 12px;
+  --spacing-touch: 44px;
+  --spacing-entete: 64px;
+}
+
+/* ---------- Base ---------- */
+
+@layer base {
+html {
+  /* L'en-tête collant ne masque jamais un élément focalisé. */
+  scroll-padding-top: calc(var(--spacing-entete) + 16px);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--ks-background);
+  color: var(--ks-text-primary);
+  font-family: var(--font-corps);
+  font-size: 16px;
+  line-height: 26px;
+  overflow-wrap: break-word;
+}
+
+::selection {
+  background: var(--ks-primary);
+  color: var(--ks-on-primary);
+}
+
+/* Anneau de focus double : 2 px text-primary + halo 2 px background, décalage 2 px, au :focus-visible seulement. */
+:focus-visible {
+  outline: 2px solid var(--ks-text-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px var(--ks-background);
+}
+
+/* Sur fond rouge ou sombre, l'anneau reste lisible grâce au halo ; le <main> reçoit le focus par programme seulement. */
+main:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+a {
+  text-underline-offset: 3px;
+}
+}
+
+/* ---------- Rôles typographiques (DESIGN.md › typography), mobile 375 px ---------- */
+
+@utility t-display-brush {
+  font-family: var(--font-condensee);
+  font-size: 44px;
+  line-height: 1;
+  text-transform: uppercase;
+  @media (min-width: 64rem) {
+    font-size: 60px;
+  }
+}
+@utility t-display {
+  font-family: var(--font-condensee);
+  font-weight: 800;
+  font-style: italic;
+  font-size: 52px;
+  line-height: 50px;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  @media (min-width: 64rem) {
+    font-size: 65px;
+    line-height: 62px;
+  }
+}
+@utility t-h1 {
+  font-family: var(--font-condensee);
+  font-weight: 700;
+  font-size: 38px;
+  line-height: 40px;
+  text-transform: uppercase;
+  @media (min-width: 64rem) {
+    font-size: 47px;
+    line-height: 50px;
+  }
+}
+@utility t-h2 {
+  font-family: var(--font-condensee);
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 34px;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  @media (min-width: 64rem) {
+    font-size: 37px;
+    line-height: 42px;
+  }
+}
+@utility t-h3 {
+  font-family: var(--font-condensee);
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 24px;
+}
+@utility t-body {
+  font-family: var(--font-corps);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 26px;
+}
+@utility t-small {
+  font-family: var(--font-corps);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+}
+@utility t-label {
+  font-family: var(--font-condensee);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+@utility t-button {
+  font-family: var(--font-condensee);
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 20px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+@utility t-price-card {
+  font-family: var(--font-condensee);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 24px;
+}
+@utility t-price-page {
+  font-family: var(--font-condensee);
+  font-weight: 700;
+  font-size: 38px;
+  line-height: 40px;
+  @media (min-width: 64rem) {
+    font-size: 47px;
+    line-height: 50px;
+  }
+}
+
+/* Ordinateur (>= lg) : tailles x 1,25 [HYPOTHÈSE D-2], portées par les utilitaires ci-dessus. */
+
+@layer components {
+/*
+ * Grand titre de vitrine (UX-DR4) : Sakura Town seulement si l'option est active ET si le composant TitreVitrine
+ * a vérifié côté serveur que tous les caractères existent dans la police (data-police="sakura").
+ * Sans fichier de police, la liste de familles retombe sur Barlow Condensed.
+ */
+.titre-vitrine[data-police="sakura"] {
+  font-family: "Sakura Town", var(--font-condensee);
+  font-weight: 400;
+  font-style: normal;
+  text-transform: uppercase;
+  font-size: 44px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+@media (min-width: 64rem) {
+  .titre-vitrine[data-police="sakura"] { font-size: 64px; }
+}
+
+/* ---------- Verre (UX-DR6) ---------- */
+
+.verre,
+.verre-fort {
+  border: 1px solid var(--ks-glass-border);
+  border-radius: var(--radius-glass);
+}
+.verre {
+  background: var(--ks-glass);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  backdrop-filter: blur(10px) saturate(140%);
+}
+.verre-fort {
+  background: var(--ks-glass-strong);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  backdrop-filter: blur(10px) saturate(140%);
+}
+/* Repli sans backdrop-filter : le verre renforcé reste à 85 % sans flou ; le verre discret devient la surface opaque. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .verre {
+    background: var(--ks-surface);
+  }
+}
+
+/* ---------- Motifs manga (UX-DR9) : décor, opacité plafonnée à 6 % ---------- */
+
+.motif-manga {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.06;
+  color: var(--ks-text-primary);
+}
+.motif-trame {
+  background-image: radial-gradient(currentColor 1px, transparent 1.4px);
+  background-size: 8px 8px;
+}
+.motif-traits {
+  background-image: repeating-linear-gradient(105deg, currentColor 0 1px, transparent 1px 14px);
+}
+.motif-cases {
+  background-image:
+    linear-gradient(currentColor 1px, transparent 1px),
+    linear-gradient(90deg, currentColor 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+/* ---------- Squelette ---------- */
+
+.squelette {
+  background: var(--ks-surface);
+  border: 1px solid var(--ks-border);
+  border-radius: var(--radius-md);
+  animation: ks-pulse 1.6s ease-in-out infinite;
+}
+@keyframes ks-pulse {
+  50% { opacity: 0.55; }
+}
+
+}
+
+/* ---------- En-tête collant : non collant à zoom élevé ou hauteur < 500 px ---------- */
+
+@media (max-height: 500px) {
+  html { scroll-padding-top: 0; }
+  .entete-collant { position: static !important; }
+}
+
+/* ---------- Mouvement réduit : toutes les animations coupées ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .squelette { animation: none; }
+}
+
+/* ---------- Couleurs forcées : verre -> Canvas, sélection par Highlight (UX-DR7) ---------- */
+
+@media (forced-colors: active) {
+  .verre,
+  .verre-fort {
+    background: Canvas;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-color: CanvasText;
+  }
+  ::selection {
+    background: Highlight;
+    color: HighlightText;
+  }
+  :focus-visible {
+    outline-color: Highlight;
+    box-shadow: none;
+  }
+  .motif-manga { display: none; }
+  .squelette { background: Canvas; border-color: CanvasText; }
+}

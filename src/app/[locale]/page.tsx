@@ -2,6 +2,7 @@ import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { TitreVitrine } from "@/components/ui/TitreVitrine";
 import { routing } from "@/i18n/routing";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
@@ -20,8 +21,6 @@ export default async function Accueil({ params }: PageProps<"/[locale]">) {
   const t = await getTranslations("Accueil");
 
   return (
-    <main>
-      <h1>{t("titre")}</h1>
-    </main>
+    <TitreVitrine niveau={1}>{t("titre")}</TitreVitrine>
   );
 }

@@ -4,6 +4,15 @@ const publicSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.url(),
   NEXT_PUBLIC_SUPABASE_URL: z.url(),
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
+  // Option Sakura Town (Q-F1) : éteinte par défaut, tant que le fichier sous licence et l'accord écrit manquent.
+  // Une valeur vide (copie de .env.example) vaut « éteinte ».
+  NEXT_PUBLIC_TITRES_SAKURA: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((v) => v === "true"),
+  ),
 });
 
 const serverSchema = publicSchema.extend({
@@ -35,5 +44,6 @@ function lirePublicSource() {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    NEXT_PUBLIC_TITRES_SAKURA: process.env.NEXT_PUBLIC_TITRES_SAKURA,
   };
 }
