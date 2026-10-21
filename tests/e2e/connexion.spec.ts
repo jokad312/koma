@@ -58,7 +58,8 @@ async function ouvrirMenu(page: Page) {
   const dialogue = page.getByRole("dialog", { name: "Menu" });
   try {
     await expect(async () => {
-      await page.getByRole("button", { name: "Menu", exact: true }).click({ timeout: 2_000 });
+      // Après une déconnexion, la navigation garde le menu ouvert (la mise en page n'est pas remontée) : on ne le rouvre pas.
+      if (!(await dialogue.isVisible())) await page.getByRole("button", { name: "Menu", exact: true }).click({ timeout: 2_000 });
       await expect(dialogue).toBeVisible({ timeout: 1_000 });
     }).toPass({ timeout: 15_000 });
   } catch (erreur) {
