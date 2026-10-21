@@ -115,7 +115,15 @@
       "age_invalide": "Enter your age in digits, between 0 and 120.",
       "suppression_echouee": "You are under the minimum age and your Account could not be deleted automatically. Try again in a moment.",
       "non_connecte": "Your session has ended. Go back to the email step to sign in again.",
-      "generique": "Something went wrong. Try again in a moment."
+      "generique": "Something went wrong. Try again in a moment.",
+      "navigateur_integre": "Signing in with Google is not possible inside this app. Use the code sent by email, or open the site in your browser.",
+      "google": "Signing in with Google did not work. Try again, or use the code sent by email."
+    },
+    "google": {
+      "continuer": "Continue with Google",
+      "enCours": "Redirecting to Google…",
+      "ou": "or",
+      "integre": "In an app such as Instagram, Facebook, TikTok or WhatsApp, Google blocks its sign-in. Use the code sent by email, or open the site in your browser."
     }
   },
   "Compte": {
@@ -123,5 +131,17 @@
     "seDeconnecter": "Sign out",
     "deconnexionEnCours": "Signing out…",
     "erreurDeconnexion": "Signing out failed. Try again."
+  },
+  "NavigateurIntegre": {
+    "nom": "Open in your browser",
+    "texte": "You opened the site inside an app (Instagram, Facebook, TikTok or WhatsApp). Signing in with Google does not work there: open the site in your browser. The code sent by email works everywhere.",
+    "ouvrir": "Open in my browser",
+    "copier": "Copy the link",
+    "copie": "Link copied.",
+    "copieImpossible": "Copy failed. Press and hold the browser address bar to copy it.",
+    "aideAndroid": "If the button does not work: tap ⋯ then \"Open in browser\", or copy the link and paste it in Chrome.",
+    "aideIos": "Tap ⋯ (or the share icon), then \"Open in Safari\". You can also copy the link and paste it in Safari.",
+    "aideAutre": "Tap ⋯ then \"Open in browser\", or copy the link and paste it in your browser.",
+    "fermer": "Close notice"
   }
 }

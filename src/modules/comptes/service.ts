@@ -1,8 +1,9 @@
 import { construireAuteur } from "@/lib/auth/auteur";
 import { cheminRetourValide } from "@/lib/auth/retour";
-import { demandeCodeSchema, DUREE_CODE_MS, declarationAgeSchema, verificationCodeSchema } from "./schemas";
-import type { DemandeCode, DeclarationAge, VerificationCode } from "./schemas";
-import type { DependancesComptes, EtapeApresCode, Resultat } from "./types";
+import { detecterNavigateurIntegre } from "@/lib/navigateur-integre";
+import { demandeCodeSchema, demandeGoogleSchema, DUREE_CODE_MS, declarationAgeSchema, verificationCodeSchema } from "./schemas";
+import type { DemandeCode, DemandeGoogle, DeclarationAge, VerificationCode } from "./schemas";
+import type { DependancesComptes, EtapeApresCode, Langue, Resultat } from "./types";
 
 // Seul le nom de l'erreur est journalisé : ni message, ni email, ni jeton.
 function journaliser(contexte: string, erreur: unknown) {
@@ -123,5 +124,61 @@ export async function fermerSession(deps: DependancesComptes): Promise<{ ok: boo
   } catch (e) {
     journaliser("déconnexion", e);
     return { ok: false };
+  }
+}
+
+const REDIRECTION_GOOGLE = "/auth/callback";
+
+// Départ vers Google : refusé dans un navigateur intégré (Google y bloque la connexion). L'adresse de Google est celle que
+// Supabase renvoie, jamais bâtie ici. La langue et le retour (validé) sont renvoyés pour être gardés le temps de la visite.
+export async function demarrerGoogle(
+  deps: DependancesComptes,
+  entree: DemandeGoogle,
+  contexte: { agent: string | null; adresseSite: string },
+): Promise<Resultat<{ url: string; langue: Langue; retour: string }>> {
+  if (detecterNavigateurIntegre(contexte.agent).integre) return { ok: false, erreur: "navigateur_integre" };
+  const lu = demandeGoogleSchema.safeParse(entree);
+  if (!lu.success) return { ok: false, erreur: "generique" };
+  try {
+    const { data, error } = await deps.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${contexte.adresseSite}${REDIRECTION_GOOGLE}`, skipBrowserRedirect: true },
+    });
+    if (error || !data?.url) {
+      if (error) journaliser("départ Google", error);
+      return { ok: false, erreur: "google" };
+    }
+    return { ok: true, url: data.url, langue: lu.data.langue, retour: cheminRetourValide(lu.data.retour, lu.data.langue) };
+  } catch (e) {
+    journaliser("départ Google", e);
+    return { ok: false, erreur: "google" };
+  }
+}
+
+// Retour de Google : échange du code contre la session, langue de la route sur le profil, étape suivante.
+export async function terminerGoogle(
+  deps: DependancesComptes,
+  entree: { code: string | null; langue: Langue; retour: string },
+): Promise<Resultat<{ etape: EtapeApresCode; retour: string }>> {
+  if (!entree.code) return { ok: false, erreur: "google" };
+  try {
+    const { data, error } = await deps.auth.exchangeCodeForSession(entree.code);
+    if (error) {
+      journaliser("retour Google", error);
+      return { ok: false, erreur: "google" };
+    }
+    const compteId = data?.user?.id ?? data?.session?.user.id;
+    if (!compteId) return { ok: false, erreur: "google" };
+    const etat = await deps.compteComplet(compteId);
+    if ("erreur" in etat) return { ok: false, erreur: "generique" };
+    if (!etat.complet) {
+      // Nouveau Compte : sa langue est celle de la route (sans effet une fois l'âge déclaré). Un échec ne bloque pas la connexion.
+      const { erreur } = await deps.definirLangue({ auteur: construireAuteur(compteId), compteId, langue: entree.langue });
+      if (erreur) console.error("[comptes] langue du profil non définie");
+    }
+    return { ok: true, etape: etat.complet ? "termine" : "age", retour: entree.retour };
+  } catch (e) {
+    journaliser("retour Google", e);
+    return { ok: false, erreur: "generique" };
   }
 }

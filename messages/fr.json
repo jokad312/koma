@@ -115,7 +115,15 @@
       "age_invalide": "Saisis ton âge en chiffres, entre 0 et 120.",
       "suppression_echouee": "Tu n'as pas l'âge minimum et ton Compte n'a pas pu être supprimé automatiquement. Réessaie dans un instant.",
       "non_connecte": "Ta session a pris fin. Reviens à l'étape de l'email pour te reconnecter.",
-      "generique": "Une erreur est survenue. Réessaie dans un instant."
+      "generique": "Une erreur est survenue. Réessaie dans un instant.",
+      "navigateur_integre": "La connexion avec Google n'est pas possible dans cette application. Utilise le code reçu par email, ou ouvre le site dans ton navigateur.",
+      "google": "La connexion avec Google n'a pas abouti. Réessaie, ou utilise le code reçu par email."
+    },
+    "google": {
+      "continuer": "Continuer avec Google",
+      "enCours": "Redirection vers Google…",
+      "ou": "ou",
+      "integre": "Dans une application comme Instagram, Facebook, TikTok ou WhatsApp, Google bloque sa connexion. Utilise le code reçu par email, ou ouvre le site dans ton navigateur."
     }
   },
   "Compte": {
@@ -123,5 +131,17 @@
     "seDeconnecter": "Se déconnecter",
     "deconnexionEnCours": "Déconnexion…",
     "erreurDeconnexion": "La déconnexion a échoué. Réessaie."
+  },
+  "NavigateurIntegre": {
+    "nom": "Ouvrir dans ton navigateur",
+    "texte": "Tu as ouvert le site dans une application (Instagram, Facebook, TikTok ou WhatsApp). La connexion avec Google n'y fonctionne pas : ouvre le site dans ton navigateur. Le code reçu par email marche partout.",
+    "ouvrir": "Ouvrir dans mon navigateur",
+    "copier": "Copier le lien",
+    "copie": "Lien copié.",
+    "copieImpossible": "Copie impossible. Appuie longuement sur la barre d'adresse du navigateur pour la copier.",
+    "aideAndroid": "Si le bouton ne marche pas : touche ⋯ puis « Ouvrir dans le navigateur », ou copie le lien et colle-le dans Chrome.",
+    "aideIos": "Touche ⋯ (ou l'icône de partage), puis « Ouvrir dans Safari ». Tu peux aussi copier le lien et le coller dans Safari.",
+    "aideAutre": "Touche ⋯ puis « Ouvrir dans le navigateur », ou copie le lien et colle-le dans ton navigateur.",
+    "fermer": "Fermer l'avis"
   }
 }

@@ -125,6 +125,10 @@ export type Database = {
         Args: { p_age: number; p_auteur: Json; p_compte: string }
         Returns: undefined
       }
+      definir_langue_profil: {
+        Args: { p_auteur: Json; p_compte: string; p_langue: string }
+        Returns: undefined
+      }
       est_mineur: { Args: { p_compte: string }; Returns: boolean }
       masquer_donnee_personnelle: { Args: { p_valeur: Json }; Returns: Json }
     }

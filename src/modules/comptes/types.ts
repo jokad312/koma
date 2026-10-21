@@ -10,11 +10,17 @@ export type CodeErreur =
   | "moins_13"
   | "suppression_echouee"
   | "non_connecte"
+  | "navigateur_integre"
+  | "google"
   | "generique";
 
 export type Resultat<T extends object = object> = ({ ok: true } & T) | { ok: false; erreur: CodeErreur };
 
 export type EtapeApresCode = "age" | "termine";
+
+export type Fournisseur = "google";
+
+export type Langue = "fr" | "en";
 
 export type ErreurAuth = { code?: string; status?: number; name?: string } | null;
 
@@ -31,9 +37,18 @@ export type DependancesComptes = {
     }>;
     getClaims(): Promise<{ data: { claims: { sub?: string } } | null; error: ErreurAuth }>;
     signOut(options?: { scope: "local" }): Promise<{ error: ErreurAuth }>;
+    signInWithOAuth(args: {
+      provider: Fournisseur;
+      options: { redirectTo: string; skipBrowserRedirect: true };
+    }): Promise<{ data: { url: string | null } | null; error: ErreurAuth }>;
+    exchangeCodeForSession(code: string): Promise<{
+      data: { user: { id: string } | null; session: { user: { id: string } } | null } | null;
+      error: ErreurAuth;
+    }>;
   };
   compteComplet(compteId: string): Promise<{ complet: boolean } | { erreur: true }>;
   declarerAge(args: { auteur: object; compteId: string; age: number }): Promise<{ erreur: string | null }>;
+  definirLangue(args: { auteur: object; compteId: string; langue: string }): Promise<{ erreur: string | null }>;
   supprimerCompte(compteId: string): Promise<{ erreur: boolean }>;
   maintenant: () => number;
 };

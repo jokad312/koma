@@ -2,11 +2,13 @@ import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Suspense } from "react";
 import { Squelette } from "@/components/ui/Squelette";
 import { routing, type Locale } from "@/i18n/routing";
 import { cheminRetourValide } from "@/lib/auth/retour";
 import { lireEtatCompte } from "@/lib/auth/compte";
+import { detecterNavigateurIntegre } from "@/lib/navigateur-integre";
 import { lireNomSite } from "@/lib/reglages";
 import { JsonLd } from "@/lib/seo/balise-jsonld";
 import { construireMetadata } from "@/lib/seo/metadata";
@@ -39,11 +41,18 @@ async function FormulaireSelonSession({
   searchParams: PageProps<"/[locale]/connexion">["searchParams"];
 }) {
   const etat = await lireEtatCompte();
+  const { retour, erreur } = await searchParams;
   if (etat === "complet") {
-    const { retour } = await searchParams;
     redirect(cheminRetourValide(Array.isArray(retour) ? retour[0] : retour, locale));
   }
-  return <FormulaireConnexion etapeInitiale={etat === "incomplet" ? "age" : "email"} />;
+  const integre = detecterNavigateurIntegre((await headers()).get("user-agent")).integre;
+  return (
+    <FormulaireConnexion
+      etapeInitiale={etat === "incomplet" ? "age" : "email"}
+      google={integre ? "indisponible" : "disponible"}
+      erreurGoogle={(Array.isArray(erreur) ? erreur[0] : erreur) === "google"}
+    />
+  );
 }
 
 export default async function Connexion({ params, searchParams }: PageProps<"/[locale]/connexion">) {

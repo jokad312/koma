@@ -12,10 +12,14 @@ type Reglages = {
   suppressionEchoue?: boolean;
   sub?: string | null;
   maintenant?: number;
+  oauth?: ErreurAuth;
+  urlOauth?: string | null;
+  echange?: ErreurAuth;
+  erreurLangue?: string | null;
 };
 
 export function creerTestDependances(r: Reglages = {}) {
-  const appels = { suppressions: [] as string[], ages: [] as unknown[], fermetures: 0, envois: [] as unknown[] };
+  const appels = { suppressions: [] as string[], ages: [] as unknown[], langues: [] as unknown[], oauth: [] as unknown[], echanges: [] as string[], fermetures: 0, envois: [] as unknown[] };
   const deps: DependancesComptes = {
     auth: {
       signInWithOtp: vi.fn(async (args) => {
@@ -30,6 +34,14 @@ export function creerTestDependances(r: Reglages = {}) {
         data: r.sub === null ? null : { claims: { sub: r.sub ?? TEST_COMPTE_ID } },
         error: null,
       })),
+      signInWithOAuth: vi.fn(async (args) => {
+        appels.oauth.push(args);
+        return { data: r.oauth ? null : { url: r.urlOauth === undefined ? "https://TEST_fournisseur.invalid/autoriser" : r.urlOauth }, error: r.oauth ?? null };
+      }),
+      exchangeCodeForSession: vi.fn(async (code) => {
+        appels.echanges.push(code);
+        return { data: r.echange ? null : { user: { id: TEST_COMPTE_ID }, session: null }, error: r.echange ?? null };
+      }),
       signOut: vi.fn(async () => {
         appels.fermetures += 1;
         return { error: null };
@@ -39,6 +51,10 @@ export function creerTestDependances(r: Reglages = {}) {
     declarerAge: vi.fn(async (args) => {
       appels.ages.push(args);
       return { erreur: r.erreurAge ?? null };
+    }),
+    definirLangue: vi.fn(async (args) => {
+      appels.langues.push(args);
+      return { erreur: r.erreurLangue ?? null };
     }),
     supprimerCompte: vi.fn(async (id) => {
       appels.suppressions.push(id);

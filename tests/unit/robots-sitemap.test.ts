@@ -13,7 +13,7 @@ describe("robots", () => {
     const regles = robots().rules;
     const disallow = (Array.isArray(regles) ? regles[0] : regles).disallow;
     expect(disallow).toEqual(
-      expect.arrayContaining(["/api/", "/fr/admin", "/en/admin", "/fr/compte", "/en/compte"]),
+      expect.arrayContaining(["/api/", "/auth/", "/fr/admin", "/en/admin", "/fr/compte", "/en/compte"]),
     );
   });
   it("part de NEXT_PUBLIC_SITE_URL", () => {

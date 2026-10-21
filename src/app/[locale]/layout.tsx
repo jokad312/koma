@@ -1,6 +1,8 @@
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
+import { BandeauNavigateurIntegre } from "@/components/layout/BandeauNavigateurIntegre";
 import { EnTete } from "@/components/layout/EnTete";
 import { ID_CONTENU, ID_RACINE_PAGE } from "@/components/layout/constantes";
 import { LienEvitement } from "@/components/layout/LienEvitement";
@@ -39,6 +41,9 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
         <NextIntlClientProvider>
           <div id={ID_RACINE_PAGE} className="flex min-h-dvh flex-1 flex-col">
             <LienEvitement />
+            <Suspense fallback={null}>
+              <BandeauNavigateurIntegre />
+            </Suspense>
             <EnTete nomSite={nomSite} />
             <main id={ID_CONTENU} tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-marge py-8">
               <JsonLd donnees={organisationJsonLd(nomSite)} />

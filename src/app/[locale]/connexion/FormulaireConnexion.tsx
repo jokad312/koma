@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useActionState, useEffect, useId, useRef, useState, useTransition, type ChangeEvent, type ClipboardEvent, type FormEvent } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
+import { BoutonGoogle } from "./BoutonGoogle";
 import { declarerAge, demanderCode, demanderCodeParFormulaire, verifierCode } from "@/modules/comptes/actions";
 import type { CodeErreur } from "@/modules/comptes/types";
 
@@ -21,7 +22,15 @@ const ERREURS_DE_CHAMP: ReadonlySet<CodeErreur> = new Set([
   "age_invalide",
 ]);
 
-export function FormulaireConnexion({ etapeInitiale = "email" }: { etapeInitiale?: "email" | "age" }) {
+type Props = {
+  etapeInitiale?: "email" | "age";
+  // Google est proposé hors navigateur intégré seulement (décidé côté serveur par src/lib/navigateur-integre.ts).
+  google?: "disponible" | "indisponible";
+  // Retour de Google en échec ou annulé (affiché à l'étape de l'email seulement).
+  erreurGoogle?: boolean;
+};
+
+export function FormulaireConnexion({ etapeInitiale = "email", google = "disponible", erreurGoogle = false }: Props) {
   const t = useTranslations("Connexion");
   const langue = useLocale();
   const router = useRouter();
@@ -36,7 +45,9 @@ export function FormulaireConnexion({ etapeInitiale = "email" }: { etapeInitiale
   const [email, setEmail] = useState(etatEnvoi?.email ?? "");
   const [code, setCode] = useState("");
   const [age, setAge] = useState("");
-  const [erreur, setErreur] = useState<CodeErreur | null>(etatEnvoi && !etatEnvoi.ok ? etatEnvoi.erreur : null);
+  const [erreur, setErreur] = useState<CodeErreur | null>(
+    etatEnvoi && !etatEnvoi.ok ? etatEnvoi.erreur : erreurGoogle && etapeInitiale === "email" ? "google" : null,
+  );
   // Moment où Supabase a confirmé l'envoi du code (jamais avant sa réponse), et s'il s'agit d'un renvoi.
   const [envoi, setEnvoi] = useState<{ le: number; renvoi: boolean } | null>(etatEnvoi?.ok ? { le: etatEnvoi.envoyeLe, renvoi: false } : null);
   const [maintenant, setMaintenant] = useState(() => Date.now());
@@ -340,7 +351,8 @@ export function FormulaireConnexion({ etapeInitiale = "email" }: { etapeInitiale
   }
 
   return (
-    <form action={actionEnvoi} noValidate className="flex max-w-md flex-col items-start gap-4">
+    <div className="flex max-w-md flex-col items-start gap-6">
+    <form action={actionEnvoi} noValidate className="flex w-full flex-col items-start gap-4">
       <input type="hidden" name="langue" value={langue} />
       <p>{t("intro")}</p>
       {resume}
@@ -370,5 +382,14 @@ export function FormulaireConnexion({ etapeInitiale = "email" }: { etapeInitiale
         {enEnvoiInitial ? t("email.envoiEnCours") : t("email.envoyer")}
       </Bouton>
     </form>
+    {google === "disponible" ? (
+      <>
+        <p className="t-small text-text-secondary">{t("google.ou")}</p>
+        <BoutonGoogle retour={retour} />
+      </>
+    ) : (
+      <MessageEtat type="information">{t("google.integre")}</MessageEtat>
+    )}
+    </div>
   );
 }

@@ -26,6 +26,7 @@ vi.mock("@/modules/comptes/actions", () => ({
   demanderCodeParFormulaire: (...a: unknown[]) => demanderCodeParFormulaire(...a),
   verifierCode: (...a: unknown[]) => verifierCode(...a),
   declarerAge: (...a: unknown[]) => declarerAge(...a),
+  connecterAvecGoogle: vi.fn(),
 }));
 
 import { FormulaireConnexion } from "../../src/app/[locale]/connexion/FormulaireConnexion";
@@ -42,6 +43,27 @@ async function allerAuCode(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe("FormulaireConnexion", () => {
+  it("Chrome ou Safari : « Continuer avec Google » avec le G officiel, le code email reste disponible", () => {
+    rendre(<FormulaireConnexion google="disponible" />);
+    const bouton = screen.getByRole("button", { name: "Continuer avec Google" });
+    expect(bouton.querySelector("img")?.getAttribute("src")).toContain("/google/google-g.svg");
+    expect(bouton.className).toContain("min-h-touch");
+    expect(screen.getByRole("button", { name: "Recevoir un code" })).toBeTruthy();
+  });
+
+  it("navigateur intégré : pas de bouton Google, message clair, code email disponible", () => {
+    rendre(<FormulaireConnexion google="indisponible" />);
+    expect(screen.queryByRole("button", { name: /Google/ })).toBeNull();
+    expect(screen.getByText(/Google bloque sa connexion/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Recevoir un code" })).toBeTruthy();
+  });
+
+  it("retour de Google en échec : message d'erreur annoncé, rien d'autre perdu", () => {
+    rendre(<FormulaireConnexion erreurGoogle />);
+    expect(screen.getByRole("alert").textContent).toContain("La connexion avec Google n'a pas abouti");
+    expect(screen.getByLabelText("Adresse email")).toBeTruthy();
+  });
+
   it("n'affiche aucun message d'envoi avant la réponse du serveur", async () => {
     const user = userEvent.setup();
     let repondre: (v: unknown) => void = () => {};

@@ -39,3 +39,17 @@ export const declarationAgeSchema = z.object({
 export type DemandeCode = z.input<typeof demandeCodeSchema>;
 export type VerificationCode = z.input<typeof verificationCodeSchema>;
 export type DeclarationAge = z.input<typeof declarationAgeSchema>;
+
+export const demandeGoogleSchema = z.object({
+  langue: langueSchema,
+  // Un retour trop long n'est pas une erreur : cheminRetourValide le ramène à l'accueil.
+  retour: z.string().optional(),
+});
+
+// Ce que le serveur garde le temps de la visite chez Google : la langue et le retour déjà validés.
+export const retourGoogleSchema = z.object({
+  langue: langueSchema,
+  retour: z.string().max(512),
+});
+
+export type DemandeGoogle = z.input<typeof demandeGoogleSchema>;
