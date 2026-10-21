@@ -2598,6 +2598,7 @@ afin d'ouvrir les ventes.
 **Étant donné** les emails
 **Quand** le domaine est vérifié chez Resend (SPF, DKIM, DMARC)
 **Alors** les emails du site partent depuis ce domaine, et Supabase Auth envoie le code de connexion par le SMTP de Resend, avec une limite d'envoi relevée (AD-36)
+**Et** le SMTP Gmail de développement de `koma-dev` (exception à la règle 14 du 2026-10-22, story 1.4) n'est configuré dans aucun projet de production ; le modèle d'email du code (`supabase/templates/code-connexion.html`) est collé dans les modèles Magic Link et Confirm signup de la production, avec OTP de 600 s et 6 chiffres et délai de 60 s par utilisateur
 
 **Étant donné** les services externes
 **Quand** la production est branchée

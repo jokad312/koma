@@ -7,6 +7,10 @@
     "nonTrouve": {
       "titre": "Page introuvable",
       "description": "Cette page n'existe pas ou n'existe plus."
+    },
+    "connexion": {
+      "titre": "Connexion",
+      "description": "Connecte-toi ou crée ton Compte avec un code reçu par email, sans mot de passe."
     }
   },
   "Accueil": {
@@ -58,5 +62,66 @@
       "erreur": "Erreur : ",
       "information": "Information : "
     }
+  },
+  "Connexion": {
+    "titre": "Connexion",
+    "intro": "Entre ton adresse email : nous t'envoyons un code à 6 chiffres. Pas de mot de passe à retenir.",
+    "email": {
+      "libelle": "Adresse email",
+      "envoyer": "Recevoir un code",
+      "envoiEnCours": "Envoi du code…"
+    },
+    "code": {
+      "titre": "Saisis ton code",
+      "libelle": "Code à 6 chiffres",
+      "validite": "Le code est valable 10 minutes.",
+      "envoye": "Un code a été envoyé à {email}.",
+      "renvoye": "Un nouveau code a été envoyé à {email}.",
+      "valider": "Valider le code",
+      "verificationEnCours": "Vérification…",
+      "renvoyer": "Renvoyer le code",
+      "renvoiEnCours": "Envoi du code…",
+      "delaiRenvoi": "Tu pourras renvoyer le code dans {secondes} secondes.",
+      "raisonRenvoi": "Le renvoi est possible 60 secondes après l'envoi précédent."
+    },
+    "aide": {
+      "titre": "Je n'ai pas reçu l'email",
+      "adresse": "Vérifie que l'adresse {email} est correcte.",
+      "indesirables": "Regarde dans tes courriers indésirables.",
+      "renvoi": "Renvoie le code, ou change d'adresse email.",
+      "changer": "Changer d'adresse email"
+    },
+    "age": {
+      "titre": "Ton âge",
+      "texte": "Indique ton âge pour terminer ton Compte. Il est nécessaire pour acheter.",
+      "libelle": "Âge",
+      "aide": "En années, par exemple 25.",
+      "continuer": "Continuer",
+      "enCours": "Enregistrement…"
+    },
+    "moins13": {
+      "titre": "Compte non créé",
+      "texte": "Il faut avoir au moins 13 ans pour avoir un Compte. Ton Compte a été supprimé et nous n'avons rien conservé.",
+      "accueil": "Retour à l'accueil"
+    },
+    "erreurs": {
+      "resume": "Il y a une erreur à corriger.",
+      "email_invalide": "Saisis une adresse email valide.",
+      "limite": "Trop de demandes de code. Patiente un moment, puis réessaie.",
+      "envoi": "Le code n'a pas pu être envoyé. Réessaie dans un instant.",
+      "code_format": "Saisis les 6 chiffres du code.",
+      "code_faux": "Ce code n'est pas le bon. Vérifie-le ou demande un nouveau code.",
+      "code_expire": "Ce code a expiré.",
+      "age_invalide": "Saisis ton âge en chiffres, entre 0 et 120.",
+      "suppression_echouee": "Tu n'as pas l'âge minimum et ton Compte n'a pas pu être supprimé automatiquement. Réessaie dans un instant.",
+      "non_connecte": "Ta session a pris fin. Reviens à l'étape de l'email pour te reconnecter.",
+      "generique": "Une erreur est survenue. Réessaie dans un instant."
+    }
+  },
+  "Compte": {
+    "seConnecter": "Se connecter",
+    "seDeconnecter": "Se déconnecter",
+    "deconnexionEnCours": "Déconnexion…",
+    "erreurDeconnexion": "La déconnexion a échoué. Réessaie."
   }
 }

@@ -25,6 +25,7 @@ jobs:
           supabase status -o env > /tmp/supabase.env
           {
             echo "NEXT_PUBLIC_SITE_URL=http://localhost:3000"
+            echo "MAILPIT_URL=http://127.0.0.1:54324"
             echo "NEXT_PUBLIC_SUPABASE_URL=$(grep '^API_URL=' /tmp/supabase.env | cut -d= -f2- | tr -d '\"')"
             echo "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$(grep '^ANON_KEY=' /tmp/supabase.env | cut -d= -f2- | tr -d '\"')"
             echo "SUPABASE_SECRET_KEY=$(grep '^SERVICE_ROLE_KEY=' /tmp/supabase.env | cut -d= -f2- | tr -d '\"')"

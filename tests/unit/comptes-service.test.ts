@@ -1,0 +1,162 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ageSchema, demandeCodeSchema, verificationCodeSchema } from "@/modules/comptes/schemas";
+import { declarerAge, demanderCode, fermerSession, verifierCode } from "@/modules/comptes/service";
+import { creerTestDependances, TEST_COMPTE_ID } from "../doubles/TEST_dependances-comptes";
+
+beforeEach(() => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+});
+afterEach(() => vi.restoreAllMocks());
+
+describe("schémas", () => {
+  it("email : nettoyé et validé", () => {
+    expect(demandeCodeSchema.safeParse({ email: "  Moi@Example.COM ", langue: "fr" }).data?.email).toBe("moi@example.com");
+    expect(demandeCodeSchema.safeParse({ email: "pas-un-email", langue: "fr" }).success).toBe(false);
+    expect(demandeCodeSchema.safeParse({ email: "a@b.cd", langue: "de" }).success).toBe(false);
+  });
+  it("code : six chiffres exactement", () => {
+    const base = { email: "a@b.cd", langue: "fr" as const };
+    expect(verificationCodeSchema.safeParse({ ...base, code: "123456" }).success).toBe(true);
+    for (const code of ["12345", "1234567", "12345a", "", "12 456"]) {
+      expect(verificationCodeSchema.safeParse({ ...base, code }).success).toBe(false);
+    }
+  });
+  it("âge : entier de 0 à 120, une saisie vide ne vaut jamais 0", () => {
+    expect(ageSchema.safeParse("13").data).toBe(13);
+    expect(ageSchema.safeParse(" 120 ").data).toBe(120);
+    expect(ageSchema.safeParse("0").data).toBe(0);
+    for (const v of ["", " ", "121", "-1", "12.5", "abc", "1e2"]) expect(ageSchema.safeParse(v).success).toBe(false);
+  });
+});
+
+describe("demanderCode", () => {
+  it("envoie le code avec la langue de la route et ne dit ok qu'après la réponse", async () => {
+    const { deps, appels } = creerTestDependances();
+    const r = await demanderCode(deps, { email: "Moi@Example.com", langue: "en" });
+    expect(r).toEqual({ ok: true, email: "moi@example.com" });
+    expect(appels.envois).toEqual([
+      { email: "moi@example.com", options: { shouldCreateUser: true, data: { langue: "en" } } },
+    ]);
+  });
+  it("email invalide : rien n'est envoyé", async () => {
+    const { deps, appels } = creerTestDependances();
+    expect(await demanderCode(deps, { email: "x", langue: "fr" })).toEqual({ ok: false, erreur: "email_invalide" });
+    expect(appels.envois).toHaveLength(0);
+  });
+  it("limite d'envoi : message de patience, pas de succès", async () => {
+    const { deps } = creerTestDependances({ envoi: { code: "over_email_send_rate_limit", status: 429, name: "AuthApiError" } });
+    expect(await demanderCode(deps, { email: "a@b.cd", langue: "fr" })).toEqual({ ok: false, erreur: "limite" });
+  });
+  it("autre échec : erreur d'envoi, journal sans email", async () => {
+    const { deps } = creerTestDependances({ envoi: { status: 500, name: "AuthApiError" } });
+    expect(await demanderCode(deps, { email: "secret@example.com", langue: "fr" })).toEqual({ ok: false, erreur: "envoi" });
+    expect(JSON.stringify(vi.mocked(console.error).mock.calls)).not.toContain("secret@example.com");
+  });
+});
+
+describe("verifierCode", () => {
+  const base = { email: "a@b.cd", code: "123456", langue: "fr" as const };
+
+  it("Compte sans âge : étape âge", async () => {
+    const { deps } = creerTestDependances({ complet: false });
+    expect(await verifierCode(deps, base)).toEqual({ ok: true, etape: "age", retour: "/fr" });
+  });
+  it("Compte complet : retour à la page quittée (validé)", async () => {
+    const { deps } = creerTestDependances({ complet: true });
+    expect(await verifierCode(deps, { ...base, retour: "/fr/cosplays" })).toEqual({ ok: true, etape: "termine", retour: "/fr/cosplays" });
+    expect(await verifierCode(deps, { ...base, retour: "https://x.fr" })).toEqual({ ok: true, etape: "termine", retour: "/fr" });
+  });
+  it("code faux", async () => {
+    const { deps } = creerTestDependances({ verification: { code: "otp_expired", status: 403, name: "AuthApiError" } });
+    expect(await verifierCode(deps, { ...base, envoyeLe: Date.now() - 60_000 })).toEqual({ ok: false, erreur: "code_faux" });
+  });
+  it("code expiré : seulement si 10 minutes se sont écoulées depuis l'envoi confirmé", async () => {
+    const maintenant = 2_000_000_000_000;
+    const { deps } = creerTestDependances({
+      verification: { code: "otp_expired", status: 403, name: "AuthApiError" },
+      maintenant,
+    });
+    expect(await verifierCode(deps, { ...base, envoyeLe: maintenant - 10 * 60 * 1000 })).toEqual({ ok: false, erreur: "code_expire" });
+    expect(await verifierCode(deps, { ...base, envoyeLe: maintenant - 9 * 60 * 1000 })).toEqual({ ok: false, erreur: "code_faux" });
+  });
+  it("code mal formé : refusé avant tout appel", async () => {
+    const { deps } = creerTestDependances();
+    expect(await verifierCode(deps, { ...base, code: "12" })).toEqual({ ok: false, erreur: "code_format" });
+    expect(deps.auth.verifyOtp).not.toHaveBeenCalled();
+  });
+  it("panne de Supabase : erreur générique", async () => {
+    const { deps } = creerTestDependances({ verification: { status: 500, name: "AuthRetryableFetchError" } });
+    expect(await verifierCode(deps, base)).toEqual({ ok: false, erreur: "generique" });
+  });
+});
+
+describe("declarerAge", () => {
+  it("13 ans et plus : enregistré avec un auteur issu de la session, retour validé", async () => {
+    const { deps, appels } = creerTestDependances();
+    const r = await declarerAge(deps, { age: "25", langue: "en", retour: "/en/blog" });
+    expect(r).toEqual({ ok: true, retour: "/en/blog" });
+    expect(appels.ages).toEqual([
+      { auteur: { type: "compte", id: TEST_COMPTE_ID, role: null }, compteId: TEST_COMPTE_ID, age: 25 },
+    ]);
+    expect(appels.suppressions).toHaveLength(0);
+  });
+  it("moins de 13 ans : Compte supprimé, session fermée", async () => {
+    const { deps, appels } = creerTestDependances({ erreurAge: "KS_AGE_MINIMUM" });
+    expect(await declarerAge(deps, { age: "12", langue: "fr" })).toEqual({ ok: false, erreur: "moins_13" });
+    expect(appels.suppressions).toEqual([TEST_COMPTE_ID]);
+    expect(appels.fermetures).toBe(1);
+  });
+  it("échec de suppression : erreur affichée, session fermée quand même", async () => {
+    const { deps, appels } = creerTestDependances({ erreurAge: "KS_AGE_MINIMUM", suppressionEchoue: true });
+    expect(await declarerAge(deps, { age: "5", langue: "fr" })).toEqual({ ok: false, erreur: "suppression_echouee" });
+    expect(appels.fermetures).toBe(1);
+  });
+  it("hors bornes ou non entier : erreur sur le champ, aucun appel", async () => {
+    const { deps } = creerTestDependances();
+    for (const age of ["", "200", "12.5", "-3"]) {
+      expect(await declarerAge(deps, { age, langue: "fr" })).toEqual({ ok: false, erreur: "age_invalide" });
+    }
+    expect(deps.declarerAge).not.toHaveBeenCalled();
+  });
+  it("âge déjà déclaré (double envoi) : on poursuit, rien n'est supprimé", async () => {
+    const { deps, appels } = creerTestDependances({ erreurAge: "KS_AGE_DEJA_DECLARE" });
+    expect(await declarerAge(deps, { age: "5", langue: "fr", retour: "/fr/blog" })).toEqual({ ok: true, retour: "/fr/blog" });
+    expect(appels.suppressions).toHaveLength(0);
+    expect(appels.fermetures).toBe(0);
+  });
+  it("profil introuvable : non connecté, rien n'est supprimé", async () => {
+    const { deps, appels } = creerTestDependances({ erreurAge: "KS_PROFIL_INTROUVABLE" });
+    expect(await declarerAge(deps, { age: "20", langue: "fr" })).toEqual({ ok: false, erreur: "non_connecte" });
+    expect(appels.suppressions).toHaveLength(0);
+  });
+  it("sans session : refusé", async () => {
+    const { deps } = creerTestDependances({ sub: null });
+    expect(await declarerAge(deps, { age: "20", langue: "fr" })).toEqual({ ok: false, erreur: "non_connecte" });
+    expect(deps.declarerAge).not.toHaveBeenCalled();
+  });
+});
+
+describe("fermerSession", () => {
+  it("ferme la session", async () => {
+    const { deps, appels } = creerTestDependances();
+    expect(await fermerSession(deps)).toEqual({ ok: true });
+    expect(appels.fermetures).toBe(1);
+  });
+  it("ferme la session de cet appareil seulement (portée locale)", async () => {
+    const { deps } = creerTestDependances();
+    await fermerSession(deps);
+    expect(deps.auth.signOut).toHaveBeenCalledWith({ scope: "local" });
+  });
+  it("session déjà absente ou expirée : succès", async () => {
+    for (const erreur of [{ name: "AuthSessionMissingError" }, { code: "session_not_found", status: 403, name: "AuthApiError" }]) {
+      const { deps } = creerTestDependances();
+      vi.mocked(deps.auth.signOut).mockResolvedValueOnce({ error: erreur });
+      expect(await fermerSession(deps)).toEqual({ ok: true });
+    }
+  });
+  it("signale un échec", async () => {
+    const { deps } = creerTestDependances();
+    vi.mocked(deps.auth.signOut).mockResolvedValueOnce({ error: { name: "AuthApiError", status: 500 } });
+    expect(await fermerSession(deps)).toEqual({ ok: false });
+  });
+});

@@ -6,7 +6,9 @@ import { BasculeTheme } from "./BasculeTheme";
 import { LangueRepli } from "./LangueRepli";
 import { MenuPanneau } from "./MenuPanneau";
 import { RUBRIQUES, type Rubrique } from "./rubriques";
+import { LienConnexion } from "./LienConnexion";
 import { SelecteurLangue } from "./SelecteurLangue";
+import { ZoneCompte } from "./ZoneCompte";
 
 type Props = { nomSite: string; rubriques?: readonly Rubrique[] };
 
@@ -64,14 +66,20 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES }: Props) {
             <Suspense fallback={<LangueRepli />}>
               <SelecteurLangue />
             </Suspense>
+            <Suspense fallback={<LienConnexion />}>
+              <ZoneCompte />
+            </Suspense>
           </div>
           <div className="lg:hidden">
             <MenuPanneau>
               {liens}
               <BasculeTheme />
               <Suspense fallback={<LangueRepli />}>
-              <SelecteurLangue />
-            </Suspense>
+                <SelecteurLangue />
+              </Suspense>
+              <Suspense fallback={<LienConnexion />}>
+                <ZoneCompte />
+              </Suspense>
             </MenuPanneau>
           </div>
         </div>

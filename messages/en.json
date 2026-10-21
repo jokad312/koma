@@ -7,6 +7,10 @@
     "nonTrouve": {
       "titre": "Page not found",
       "description": "This page does not exist or no longer exists."
+    },
+    "connexion": {
+      "titre": "Sign in",
+      "description": "Sign in or create your Account with a code sent by email, no password needed."
     }
   },
   "Accueil": {
@@ -58,5 +62,66 @@
       "erreur": "Error: ",
       "information": "Information: "
     }
+  },
+  "Connexion": {
+    "titre": "Sign in",
+    "intro": "Enter your email address: we send you a 6-digit code. No password to remember.",
+    "email": {
+      "libelle": "Email address",
+      "envoyer": "Get a code",
+      "envoiEnCours": "Sending the code…"
+    },
+    "code": {
+      "titre": "Enter your code",
+      "libelle": "6-digit code",
+      "validite": "The code is valid for 10 minutes.",
+      "envoye": "A code was sent to {email}.",
+      "renvoye": "A new code was sent to {email}.",
+      "valider": "Confirm the code",
+      "verificationEnCours": "Checking…",
+      "renvoyer": "Resend the code",
+      "renvoiEnCours": "Sending the code…",
+      "delaiRenvoi": "You can resend the code in {secondes} seconds.",
+      "raisonRenvoi": "You can resend 60 seconds after the previous send."
+    },
+    "aide": {
+      "titre": "I did not get the email",
+      "adresse": "Check that the address {email} is correct.",
+      "indesirables": "Look in your spam folder.",
+      "renvoi": "Resend the code, or change your email address.",
+      "changer": "Change email address"
+    },
+    "age": {
+      "titre": "Your age",
+      "texte": "Enter your age to finish your Account. It is required to buy.",
+      "libelle": "Age",
+      "aide": "In years, for example 25.",
+      "continuer": "Continue",
+      "enCours": "Saving…"
+    },
+    "moins13": {
+      "titre": "Account not created",
+      "texte": "You must be at least 13 years old to have an Account. Your Account was deleted and we kept nothing.",
+      "accueil": "Back to home"
+    },
+    "erreurs": {
+      "resume": "There is an error to fix.",
+      "email_invalide": "Enter a valid email address.",
+      "limite": "Too many code requests. Wait a moment, then try again.",
+      "envoi": "The code could not be sent. Try again in a moment.",
+      "code_format": "Enter the 6 digits of the code.",
+      "code_faux": "This code is not correct. Check it or ask for a new code.",
+      "code_expire": "This code has expired.",
+      "age_invalide": "Enter your age in digits, between 0 and 120.",
+      "suppression_echouee": "You are under the minimum age and your Account could not be deleted automatically. Try again in a moment.",
+      "non_connecte": "Your session has ended. Go back to the email step to sign in again.",
+      "generique": "Something went wrong. Try again in a moment."
+    }
+  },
+  "Compte": {
+    "seConnecter": "Sign in",
+    "seDeconnecter": "Sign out",
+    "deconnexionEnCours": "Signing out…",
+    "erreurDeconnexion": "Signing out failed. Try again."
   }
 }

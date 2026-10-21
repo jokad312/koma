@@ -72,6 +72,30 @@ export type Database = {
         }
         Relationships: []
       }
+      profil: {
+        Row: {
+          age_declare: number | null
+          age_declare_le: string | null
+          cree_le: string
+          id: string
+          langue: string
+        }
+        Insert: {
+          age_declare?: number | null
+          age_declare_le?: string | null
+          cree_le?: string
+          id: string
+          langue?: string
+        }
+        Update: {
+          age_declare?: number | null
+          age_declare_le?: string | null
+          cree_le?: string
+          id?: string
+          langue?: string
+        }
+        Relationships: []
+      }
       reglage: {
         Row: {
           cle: string
@@ -96,6 +120,12 @@ export type Database = {
     }
     Functions: {
       admin_sante: { Args: never; Returns: number }
+      compte_complet: { Args: { p_compte: string }; Returns: boolean }
+      declarer_age: {
+        Args: { p_age: number; p_auteur: Json; p_compte: string }
+        Returns: undefined
+      }
+      est_mineur: { Args: { p_compte: string }; Returns: boolean }
       masquer_donnee_personnelle: { Args: { p_valeur: Json }; Returns: Json }
     }
     Enums: {
