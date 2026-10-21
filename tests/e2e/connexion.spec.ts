@@ -93,20 +93,28 @@ test.describe("connexion par code email", () => {
     await envoyerLeCode(page, { libelle: "Email address", bouton: "Get a code", email, message: `A code was sent to ${email}.` });
 
     // Un code faux est refusé et relié au champ.
-    await page.getByLabel("6-digit code").fill("000000");
-    await page.getByRole("button", { name: "Confirm the code" }).click();
-    await expect(page.getByText("This code is not correct. Check it or ask for a new code.")).toBeVisible();
+    await test.step("code faux", async () => {
+      await page.getByLabel("6-digit code").fill("000000");
+      await page.getByRole("button", { name: "Confirm the code" }).click();
+      await expect(page.getByText("This code is not correct. Check it or ask for a new code.")).toBeVisible();
+    }, { timeout: 25_000 });
 
-    await page.getByLabel("6-digit code").fill(await lireCode(request, email));
-    await page.getByRole("button", { name: "Confirm the code" }).click();
+    await test.step("bon code", async () => {
+      await page.getByLabel("6-digit code").fill(await lireCode(request, email));
+      await page.getByRole("button", { name: "Confirm the code" }).click();
+    }, { timeout: 25_000 });
 
-    await page.getByLabel("Age").fill("25");
-    await page.getByRole("button", { name: "Continue" }).click();
-    await expect(page).toHaveURL(/\/en\/page-quittee$/);
+    await test.step("âge", async () => {
+      await page.getByLabel("Age", { exact: true }).fill("25");
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page).toHaveURL(/\/en\/page-quittee$/);
+    }, { timeout: 25_000 });
 
-    await (await ouvrirMenu(page)).getByRole("button", { name: "Sign out" }).click();
-    await expect(page).toHaveURL(/\/en$/);
-    await expect((await ouvrirMenu(page)).getByRole("link", { name: "Sign in" })).toBeVisible();
+    await test.step("déconnexion", async () => {
+      await (await ouvrirMenu(page)).getByRole("button", { name: "Sign out" }).click();
+      await expect(page).toHaveURL(/\/en$/);
+      await expect((await ouvrirMenu(page)).getByRole("link", { name: "Sign in" })).toBeVisible();
+    }, { timeout: 25_000 });
   });
 
   test("connecté, /fr et /en s'affichent sans erreur de préparation à l'avance", async ({ page, request }) => {
