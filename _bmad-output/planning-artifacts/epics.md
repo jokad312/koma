@@ -2583,6 +2583,10 @@ afin d'ouvrir les ventes.
 **Quand** la production est créée
 **Alors** le projet de production (Paris, offre Pro) reçoit les migrations par la Supabase CLI **avant** l'avance de la branche `production` ; `CRON_SECRET` est dans Vault ; les tâches pg_cron pointent vers le domaine (AD-20)
 
+**Étant donné** les dépendances de `next-intl` (`@swc/core`, `@parcel/watcher`, qui ont des scripts d'installation)
+**Quand** Jonathan prépare le déploiement sur Hostinger (Node.js 24)
+**Alors** `npm ci` et `next build` y réussissent avec ces dépendances (point reporté de la story 1.2) ; sinon la story le signale avant l'ouverture des ventes
+
 **Étant donné** hPanel
 **Quand** Jonathan règle l'application
 **Alors** l'application Node.js 24 déploie la branche `production`, avec `next build` puis `next start` (Q-A2 vérifiée), et les variables d'environnement de production sont saisies par Jonathan, jamais dans le dépôt (règle 4)

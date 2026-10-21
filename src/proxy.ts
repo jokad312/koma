@@ -28,7 +28,14 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getClaims();
+  // Supabase indisponible : la requête continue comme pour un visiteur non connecté (aucune page publique en 500).
+  // Seul le nom de l'erreur est journalisé : ni message, ni jeton, ni cookie.
+  try {
+    const { error } = await supabase.auth.getClaims();
+    if (error) console.error(`[proxy] getClaims en erreur : ${error.name}`);
+  } catch (e) {
+    console.error(`[proxy] getClaims indisponible : ${e instanceof Error ? e.name : "erreur inconnue"}`);
+  }
 
   const chemin = request.nextUrl.pathname;
   let reponse: NextResponse;
