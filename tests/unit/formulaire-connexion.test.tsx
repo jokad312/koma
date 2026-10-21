@@ -1,5 +1,8 @@
 // @vitest-environment jsdom
-import { screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
+import { NextIntlClientProvider } from "next-intl";
+import { renderToString } from "react-dom/server";
+import fr from "../../messages/fr.json";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { rendre } from "./aides-dom";
@@ -14,10 +17,13 @@ vi.mock("next/navigation", async (importOriginal) => ({
 }));
 
 const demanderCode = vi.fn();
+// Premier envoi : action de formulaire (état précédent, données du formulaire).
+const demanderCodeParFormulaire = vi.fn();
 const verifierCode = vi.fn();
 const declarerAge = vi.fn();
 vi.mock("@/modules/comptes/actions", () => ({
   demanderCode: (...a: unknown[]) => demanderCode(...a),
+  demanderCodeParFormulaire: (...a: unknown[]) => demanderCodeParFormulaire(...a),
   verifierCode: (...a: unknown[]) => verifierCode(...a),
   declarerAge: (...a: unknown[]) => declarerAge(...a),
 }));
@@ -29,7 +35,7 @@ beforeEach(() => {
 });
 
 async function allerAuCode(user: ReturnType<typeof userEvent.setup>) {
-  demanderCode.mockResolvedValue({ ok: true, email: "moi@example.com" });
+  demanderCodeParFormulaire.mockResolvedValue({ ok: true, email: "moi@example.com", envoyeLe: Date.now() });
   await user.type(screen.getByLabelText("Adresse email"), "moi@example.com");
   await user.click(screen.getByRole("button", { name: "Recevoir un code" }));
   await screen.findByText("Un code a été envoyé à moi@example.com.");
@@ -39,19 +45,52 @@ describe("FormulaireConnexion", () => {
   it("n'affiche aucun message d'envoi avant la réponse du serveur", async () => {
     const user = userEvent.setup();
     let repondre: (v: unknown) => void = () => {};
-    demanderCode.mockReturnValue(new Promise((r) => (repondre = r)));
+    demanderCodeParFormulaire.mockReturnValue(new Promise((r) => (repondre = r)));
     rendre(<FormulaireConnexion />);
     await user.type(screen.getByLabelText("Adresse email"), "moi@example.com");
     await user.click(screen.getByRole("button", { name: "Recevoir un code" }));
     expect(screen.queryByText(/Un code a été envoyé/)).toBeNull();
     expect(screen.queryByLabelText("Code à 6 chiffres")).toBeNull();
-    repondre({ ok: true, email: "moi@example.com" });
+    repondre({ ok: true, email: "moi@example.com", envoyeLe: Date.now() });
     expect(await screen.findByText("Un code a été envoyé à moi@example.com.")).toBeTruthy();
+  });
+
+  it("le premier envoi part par l'action du formulaire, avec l'adresse saisie et la langue", async () => {
+    const user = userEvent.setup();
+    rendre(<FormulaireConnexion />);
+    await allerAuCode(user);
+    expect(demanderCodeParFormulaire).toHaveBeenCalledTimes(1);
+    const donnees = demanderCodeParFormulaire.mock.calls[0][1] as FormData;
+    expect(donnees.get("email")).toBe("moi@example.com");
+    expect(donnees.get("langue")).toBe("fr");
+  });
+
+  it("une adresse tapée avant l'hydratation n'est pas effacée quand React prend la main", async () => {
+    const arbre = (
+      <NextIntlClientProvider locale="fr" messages={fr}>
+        <FormulaireConnexion />
+      </NextIntlClientProvider>
+    );
+    // Page rendue par le serveur, pas encore hydratée : le visiteur tape son adresse.
+    const conteneur = document.body.appendChild(document.createElement("div"));
+    conteneur.innerHTML = renderToString(arbre);
+    const champ = conteneur.querySelector("input[name=email]") as HTMLInputElement;
+    champ.value = "moi@example.com";
+    // React prend la main.
+    await act(async () => {
+      render(arbre, { container: conteneur, hydrate: true });
+    });
+    expect((screen.getByLabelText("Adresse email") as HTMLInputElement).value).toBe("moi@example.com");
+    // Et l'envoi emporte cette adresse (un champ contrôlé par un état vide enverrait une adresse vide).
+    demanderCodeParFormulaire.mockResolvedValue({ ok: true, email: "moi@example.com", envoyeLe: Date.now() });
+    await userEvent.setup().click(screen.getByRole("button", { name: "Recevoir un code" }));
+    await screen.findByText("Un code a été envoyé à moi@example.com.");
+    expect((demanderCodeParFormulaire.mock.calls[0][1] as FormData).get("email")).toBe("moi@example.com");
   });
 
   it("échec d'envoi : aucun message d'envoi, l'erreur est affichée", async () => {
     const user = userEvent.setup();
-    demanderCode.mockResolvedValue({ ok: false, erreur: "limite" });
+    demanderCodeParFormulaire.mockResolvedValue({ ok: false, erreur: "limite", email: "moi@example.com" });
     rendre(<FormulaireConnexion />);
     await user.type(screen.getByLabelText("Adresse email"), "moi@example.com");
     await user.click(screen.getByRole("button", { name: "Recevoir un code" }));

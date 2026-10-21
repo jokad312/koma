@@ -72,6 +72,25 @@ ${contenu}`);
   return dialogue;
 }
 
+// Retarde tous les fichiers JavaScript du site (3G : la page s'affiche avant que React soit chargé). Renvoie la fonction qui les libère.
+async function retarderJavaScript(page: Page) {
+  let liberer: () => void = () => {};
+  const pret = new Promise<void>((resolve) => (liberer = resolve));
+  await page.route(/\/_next\/static\/[^?]*\.js/, async (route) => {
+    await pret;
+    await route.continue();
+  });
+  return liberer;
+}
+
+// React pose ses propriétés internes sur un nœud du DOM quand il l'hydrate.
+async function attendreHydratation(page: Page) {
+  await page.waitForFunction(() => {
+    const champ = document.querySelector("input[name=email]");
+    return champ !== null && Object.keys(champ).some((cle) => cle.startsWith("__reactProps"));
+  });
+}
+
 function emailDeTest() {
   return `test-${Date.now()}-${Math.floor(Math.random() * 1e6)}@example.com`;
 }
@@ -112,12 +131,41 @@ test.describe("connexion par code email", () => {
     }, { timeout: 25_000 });
 
     await test.step("déconnexion", async () => {
+      // Journal des navigations : un échec intermittent de ce test (adresse inattendue) a été vu une fois en CI, la cause n'est pas élucidée.
       const adresses: string[] = [];
       page.on("framenavigated", (f) => f === page.mainFrame() && adresses.push(`${Date.now() % 100000} ${f.url()}`));
       await (await ouvrirMenu(page)).getByRole("button", { name: "Sign out" }).click();
       await expect(page, `navigations : ${JSON.stringify(adresses)}`).toHaveURL(/\/en$/);
+      // Après la déconnexion, le menu est fermé ; rouvert, il propose « Sign in ».
+      await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
       await expect((await ouvrirMenu(page)).getByRole("link", { name: "Sign in" })).toBeVisible();
     }, { timeout: 25_000 });
+  });
+
+  test("adresse tapée avant l'hydratation : conservée quand React prend la main, et le code part", async ({ page, request }) => {
+    const email = emailDeTest();
+    const libererJs = await retarderJavaScript(page);
+    await page.goto("/fr/connexion", { waitUntil: "domcontentloaded" });
+    // La page est affichée mais pas hydratée : le visiteur tape tout de suite.
+    await page.getByLabel("Adresse email").fill(email);
+    libererJs();
+    await attendreHydratation(page);
+    await expect(page.getByLabel("Adresse email")).toHaveValue(email);
+    await page.getByRole("button", { name: "Recevoir un code" }).click();
+    await expect(page.getByText(`Un code a été envoyé à ${email}.`)).toBeVisible();
+    expect(await lireCode(request, email)).toMatch(/^\d{6}$/);
+  });
+
+  test("formulaire envoyé avant l'hydratation : le code part par l'action serveur, sans attendre JavaScript", async ({ page, request }) => {
+    const email = emailDeTest();
+    await retarderJavaScript(page); // jamais libéré : la page reste sans JavaScript
+    await page.goto("/fr/connexion", { waitUntil: "domcontentloaded" });
+    await page.getByLabel("Adresse email").fill(email);
+    await page.getByRole("button", { name: "Recevoir un code" }).click();
+    // La page revient du serveur avec l'étape du code, sans une ligne de JavaScript exécutée.
+    await expect(page.getByText(`Un code a été envoyé à ${email}.`)).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByLabel("Code à 6 chiffres")).toBeVisible();
+    expect(await lireCode(request, email)).toMatch(/^\d{6}$/);
   });
 
   test("connecté, /fr et /en s'affichent sans erreur de préparation à l'avance", async ({ page, request }) => {
@@ -140,6 +188,12 @@ test.describe("connexion par code email", () => {
       await expect(page.getByText(/unstable value|blocking-prerender-current-time/)).toHaveCount(0);
     }
     expect(erreurs.filter((e) => /Date\.now|prerender/i.test(e))).toEqual([]);
+
+    // Déconnexion depuis la page même où l'on est (/en reste /en) : le menu se ferme aussi.
+    const dialogue = await ouvrirMenu(page);
+    await dialogue.getByRole("button", { name: "Sign out" }).click();
+    await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
+    await expect(page).toHaveURL(/\/en$/);
   });
 
   test("moins de 13 ans : Compte supprimé et message clair", async ({ page, request }) => {

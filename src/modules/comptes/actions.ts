@@ -6,7 +6,7 @@ import { creerClientSession } from "@/lib/supabase/session";
 import { langueSchema } from "./schemas";
 import type { DeclarationAge, DemandeCode, VerificationCode } from "./schemas";
 import * as service from "./service";
-import type { DependancesComptes } from "./types";
+import type { CodeErreur, DependancesComptes } from "./types";
 
 async function dependances(): Promise<DependancesComptes> {
   const session = await creerClientSession();
@@ -31,6 +31,19 @@ async function dependances(): Promise<DependancesComptes> {
 
 export async function demanderCode(entree: DemandeCode) {
   return service.demanderCode(await dependances(), entree);
+}
+
+// Résultat du premier envoi, rendu par la page : l'adresse revient aussi en cas d'erreur pour remplir de nouveau le champ.
+export type EtatEnvoi = { ok: true; email: string; envoyeLe: number } | { ok: false; erreur: CodeErreur; email: string };
+
+// Premier envoi du code, appelé par le formulaire lui-même (<form action>) : il marche avant l'hydratation de React, la saisie
+// partant avec le formulaire. Le moment d'envoi n'est écrit qu'après la réponse réelle de Supabase (règle 13).
+export async function demanderCodeParFormulaire(_etat: EtatEnvoi | null, formData: FormData): Promise<EtatEnvoi> {
+  const email = String(formData.get("email") ?? "");
+  const langue = langueSchema.catch("fr").parse(formData.get("langue"));
+  const resultat = await service.demanderCode(await dependances(), { email, langue });
+  if (!resultat.ok) return { ok: false, erreur: resultat.erreur, email };
+  return { ok: true, email: resultat.email, envoyeLe: Date.now() };
 }
 
 export async function verifierCode(entree: VerificationCode) {

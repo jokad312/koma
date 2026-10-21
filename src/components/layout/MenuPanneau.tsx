@@ -1,10 +1,17 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useEffect, useId, useRef, useState, type MouseEvent, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
+import { createContext, useCallback, useContext, useEffect, useId, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { Dialogue } from "@/components/ui/Dialogue";
 
 const GLYPHE_MENU = "☰";
+
+// Permet à un contrôle du menu (ex. « Se déconnecter », dont la navigation peut rester sur la même page) de le fermer ; sans effet hors du menu.
+const FermerMenuContexte = createContext<() => void>(() => {});
+export function useFermerMenu() {
+  return useContext(FermerMenuContexte);
+}
 
 // Bouton ☰ et panneau opaque plein écran : dialogue modal, reste de la page inert, Échap ferme, focus rendu au bouton.
 export function MenuPanneau({ children }: { children: ReactNode }) {
@@ -12,6 +19,15 @@ export function MenuPanneau({ children }: { children: ReactNode }) {
   const [ouvert, setOuvert] = useState(false);
   const bouton = useRef<HTMLButtonElement>(null);
   const idPanneau = useId();
+  const fermer = useCallback(() => setOuvert(false), []);
+
+  // Toute navigation ferme le menu : la mise en page n'est pas remontée entre deux pages, l'état « ouvert » survivrait sinon.
+  const chemin = usePathname();
+  const [cheminVu, setCheminVu] = useState(chemin);
+  if (chemin !== cheminVu) {
+    setCheminVu(chemin);
+    setOuvert(false);
+  }
 
   // Le choix d'une rubrique (ou de l'autre langue) ferme le menu.
   function surClic(e: MouseEvent<HTMLDivElement>) {
@@ -54,9 +70,11 @@ export function MenuPanneau({ children }: { children: ReactNode }) {
         id={idPanneau}
         retourFocus={bouton}
       >
-        <div onClick={surClic} className="flex flex-col items-start gap-4">
-          {children}
-        </div>
+        <FermerMenuContexte value={fermer}>
+          <div onClick={surClic} className="flex flex-col items-start gap-4">
+            {children}
+          </div>
+        </FermerMenuContexte>
       </Dialogue>
     </>
   );

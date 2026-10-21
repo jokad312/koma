@@ -2,10 +2,10 @@
 
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useId, useRef, useState, useTransition, type ChangeEvent, type ClipboardEvent, type FormEvent } from "react";
+import { useActionState, useEffect, useId, useRef, useState, useTransition, type ChangeEvent, type ClipboardEvent, type FormEvent } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
-import { declarerAge, demanderCode, verifierCode } from "@/modules/comptes/actions";
+import { declarerAge, demanderCode, demanderCodeParFormulaire, verifierCode } from "@/modules/comptes/actions";
 import type { CodeErreur } from "@/modules/comptes/types";
 
 type Etape = "email" | "code" | "age" | "moins13";
@@ -28,15 +28,19 @@ export function FormulaireConnexion({ etapeInitiale = "email" }: { etapeInitiale
   const retour = useSearchParams().get("retour") ?? undefined;
   const [enCours, demarrer] = useTransition();
 
-  const [etape, setEtape] = useState<Etape>(etapeInitiale);
-  const [email, setEmail] = useState("");
+  // Premier envoi : le formulaire appelle l'action serveur lui-même. Soumis avant l'hydratation de React (3G), il part quand même avec
+  // la saisie, et la page revient avec ce résultat comme état initial.
+  const [etatEnvoi, actionEnvoi, enEnvoiInitial] = useActionState(demanderCodeParFormulaire, null);
+  const [etape, setEtape] = useState<Etape>(etatEnvoi?.ok ? "code" : etapeInitiale);
+  // L'adresse du champ n'est pas contrôlée (defaultValue) : ce qui a été tapé avant l'hydratation n'est jamais effacé.
+  const [email, setEmail] = useState(etatEnvoi?.email ?? "");
   const [code, setCode] = useState("");
   const [age, setAge] = useState("");
-  const [erreur, setErreur] = useState<CodeErreur | null>(null);
+  const [erreur, setErreur] = useState<CodeErreur | null>(etatEnvoi && !etatEnvoi.ok ? etatEnvoi.erreur : null);
   // Moment où Supabase a confirmé l'envoi du code (jamais avant sa réponse), et s'il s'agit d'un renvoi.
-  const [envoi, setEnvoi] = useState<{ le: number; renvoi: boolean } | null>(null);
+  const [envoi, setEnvoi] = useState<{ le: number; renvoi: boolean } | null>(etatEnvoi?.ok ? { le: etatEnvoi.envoyeLe, renvoi: false } : null);
   const [maintenant, setMaintenant] = useState(() => Date.now());
-  const [action, setAction] = useState<"envoyer" | "renvoyer" | "verifier" | "age" | null>(null);
+  const [action, setAction] = useState<"renvoyer" | "verifier" | "age" | null>(null);
 
   const refEmail = useRef<HTMLInputElement>(null);
   const refCode = useRef<HTMLInputElement>(null);
@@ -62,6 +66,26 @@ export function FormulaireConnexion({ etapeInitiale = "email" }: { etapeInitiale
     cible.current?.focus();
   }, [etape]);
 
+  // Résultat d'un envoi fait après l'hydratation (le résultat initial est déjà pris en compte dans les états ci-dessus).
+  const dernierEtat = useRef(etatEnvoi);
+  useEffect(() => {
+    if (etatEnvoi === dernierEtat.current || !etatEnvoi) return;
+    dernierEtat.current = etatEnvoi;
+    setEmail(etatEnvoi.email);
+    if (!etatEnvoi.ok) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronisation avec le résultat d'une action serveur (système externe)
+      setErreur(etatEnvoi.erreur);
+      if (etatEnvoi.erreur === "email_invalide") setTimeout(() => refEmail.current?.focus(), 0);
+      return;
+    }
+    const le = Date.now();
+    setErreur(null);
+    setCode("");
+    setMaintenant(le);
+    setEnvoi({ le, renvoi: false });
+    setEtape("code");
+  }, [etatEnvoi]);
+
   const secondes = envoi ? Math.max(0, DELAI_RENVOI_SECONDES - Math.floor((maintenant - envoi.le) / 1000)) : 0;
   const compteActif = secondes > 0;
 
@@ -77,9 +101,10 @@ export function FormulaireConnexion({ etapeInitiale = "email" }: { etapeInitiale
     setTimeout(() => champ.current?.focus(), 0);
   }
 
-  function envoyerCode(renvoi: boolean) {
+  // Renvoi du code (après l'hydratation : le bouton n'existe qu'à l'étape du code).
+  function renvoyerCode() {
     setErreur(null);
-    setAction(renvoi ? "renvoyer" : "envoyer");
+    setAction("renvoyer");
     demarrer(async () => {
       const resultat = await demanderCode({ email, langue: langue as "fr" | "en" });
       if (!resultat.ok) {
@@ -92,14 +117,9 @@ export function FormulaireConnexion({ etapeInitiale = "email" }: { etapeInitiale
       setCode("");
       const le = Date.now();
       setMaintenant(le);
-      setEnvoi({ le, renvoi });
+      setEnvoi({ le, renvoi: true });
       setEtape("code");
     });
-  }
-
-  function surEmail(e: FormEvent) {
-    e.preventDefault();
-    envoyerCode(false);
   }
 
   function surCode(e: FormEvent) {
@@ -252,7 +272,7 @@ export function FormulaireConnexion({ etapeInitiale = "email" }: { etapeInitiale
         <Bouton
           variante={expire ? "principal" : "secondaire"}
           enCours={renvoiEnCours}
-          onClick={() => envoyerCode(true)}
+          onClick={renvoyerCode}
         >
           {renvoiEnCours ? t("code.renvoiEnCours") : t("code.renvoyer")}
         </Bouton>
@@ -320,7 +340,8 @@ export function FormulaireConnexion({ etapeInitiale = "email" }: { etapeInitiale
   }
 
   return (
-    <form onSubmit={surEmail} noValidate className="flex max-w-md flex-col items-start gap-4">
+    <form action={actionEnvoi} noValidate className="flex max-w-md flex-col items-start gap-4">
+      <input type="hidden" name="langue" value={langue} />
       <p>{t("intro")}</p>
       {resume}
       <div className="flex w-full flex-col gap-2">
@@ -334,8 +355,7 @@ export function FormulaireConnexion({ etapeInitiale = "email" }: { etapeInitiale
           type="email"
           autoComplete="email"
           inputMode="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          defaultValue={email}
           aria-invalid={erreurChamp === "email_invalide" || undefined}
           aria-describedby={erreurChamp === "email_invalide" ? idErreur : undefined}
           className={CHAMP}
@@ -346,8 +366,8 @@ export function FormulaireConnexion({ etapeInitiale = "email" }: { etapeInitiale
           </p>
         ) : null}
       </div>
-      <Bouton type="submit" enCours={enCours && action === "envoyer"}>
-        {enCours && action === "envoyer" ? t("email.envoiEnCours") : t("email.envoyer")}
+      <Bouton type="submit" enCours={enEnvoiInitial}>
+        {enEnvoiInitial ? t("email.envoiEnCours") : t("email.envoyer")}
       </Bouton>
     </form>
   );
