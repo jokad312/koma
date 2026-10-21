@@ -752,6 +752,11 @@ afin de gérer la boutique sans qu'un client puisse y entrer.
 **Alors** la valeur est enregistrée dans `reglage`, journalisée, le cache `reglages` est invalidé, et le message de succès n'apparaît qu'après l'enregistrement réel (FR-51)
 **Et** un réglage sans valeur affiche « Valeur à fixer » ; une fonction qui en dépend renvoie `KS_REGLAGE_MANQUANT` (UX-DR44)
 
+**Étant donné** un Compte dont l'âge est déclaré (story 1.4 : l'âge ne se déclare qu'une fois, `KS_AGE_DEJA_DECLARE`)
+**Quand** le client demande une correction par le formulaire de contact ou par WhatsApp, et que Jonathan l'accepte
+**Alors** l'admin corrige l'âge par une fonction d'écriture qui exige le rôle `admin` et une raison obligatoire, avec `p_auteur` (AD-25)
+**Et** la correction est journalisée dans `journal_audit` avec la raison et l'auteur (test SQL) ; une correction sous 13 ans supprime le Compte comme à la déclaration ; aucun écran client ne permet de corriger son âge
+
 ### Story 1.8 : Pages À propos, FAQ et Contact
 
 En tant que visiteur,
