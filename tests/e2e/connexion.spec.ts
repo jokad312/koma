@@ -53,12 +53,21 @@ ${contenu}`);
 }
 
 // À 375 px, les contrôles du Compte sont dans le menu ☰ : on l'ouvre (en réessayant tant que la page n'est pas hydratée).
+// En cas d'échec, le message dit où la page en était.
 async function ouvrirMenu(page: Page) {
   const dialogue = page.getByRole("dialog", { name: "Menu" });
-  await expect(async () => {
-    await page.getByRole("button", { name: "Menu", exact: true }).click();
-    await expect(dialogue).toBeVisible({ timeout: 1_000 });
-  }).toPass();
+  try {
+    await expect(async () => {
+      await page.getByRole("button", { name: "Menu", exact: true }).click({ timeout: 2_000 });
+      await expect(dialogue).toBeVisible({ timeout: 1_000 });
+    }).toPass({ timeout: 15_000 });
+  } catch (erreur) {
+    const contenu = await page.locator("body").innerText({ timeout: 2_000 }).catch(() => "(contenu illisible)");
+    throw new Error(`${(erreur as Error).message}
+URL : ${page.url()}
+Contenu de <body> :
+${contenu}`);
+  }
   return dialogue;
 }
 
