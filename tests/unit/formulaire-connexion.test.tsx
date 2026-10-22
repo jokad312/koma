@@ -240,9 +240,53 @@ describe("FormulaireConnexion", () => {
     expect(screen.getByRole("button", { name: "Passer" })).toBeTruthy();
   });
 
+  it("questions : un seul envoi à la fois, même en cliquant « Continuer » puis « Passer »", async () => {
+    const user = userEvent.setup();
+    await allerAuxQuestions(user);
+    let terminer: (v: unknown) => void = () => {};
+    enregistrerQuestionsAccueil.mockReturnValue(new Promise((r) => (terminer = r)));
+    await user.click(screen.getByRole("button", { name: "Continuer" }));
+    await user.click(screen.getByRole("button", { name: "Passer" }));
+    expect(enregistrerQuestionsAccueil).toHaveBeenCalledTimes(1);
+    terminer({ ok: true, retour: "/fr/cosplays" });
+    await waitFor(() => expect(remplacer).toHaveBeenCalledTimes(1));
+  });
+
+  it("questions : appel rejeté (réseau coupé), message clair et nouvel essai possible", async () => {
+    const user = userEvent.setup();
+    await allerAuxQuestions(user);
+    enregistrerQuestionsAccueil.mockRejectedValueOnce(new Error("TEST_reseau"));
+    await user.click(screen.getByRole("button", { name: "Passer" }));
+    expect(await screen.findByText(/n'ont pas pu être enregistrées/)).toBeTruthy();
+    enregistrerQuestionsAccueil.mockResolvedValue({ ok: true, retour: "/fr/cosplays" });
+    await user.click(screen.getByRole("button", { name: "Passer" }));
+    await waitFor(() => expect(remplacer).toHaveBeenCalledWith("/fr/cosplays"));
+  });
+
+  it("questions : session perdue, « Se reconnecter » ramène à l'étape de l'email", async () => {
+    const user = userEvent.setup();
+    await allerAuxQuestions(user);
+    enregistrerQuestionsAccueil.mockResolvedValue({ ok: false, erreur: "non_connecte" });
+    await user.click(screen.getByRole("button", { name: "Continuer" }));
+    expect(await screen.findByText(/Ta session a pris fin/)).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "Se reconnecter" }));
+    expect(await screen.findByLabelText("Adresse email")).toBeTruthy();
+  });
+
   it("Compte complet qui n'a jamais vu les questions : elles s'ouvrent directement", () => {
     rendre(<FormulaireConnexion etapeInitiale="questions" />);
     expect(screen.getByRole("heading", { name: "Quelques questions" })).toBeTruthy();
+  });
+
+  it("code correct, Compte complet qui n'a jamais vu les questions : elles s'ouvrent, sans retour immédiat", async () => {
+    const user = userEvent.setup();
+    rendre(<FormulaireConnexion />);
+    await allerAuCode(user);
+    verifierCode.mockResolvedValue({ ok: true, etape: "questions", retour: "/fr/cosplays" });
+    await user.type(screen.getByLabelText("Code à 6 chiffres"), "123456");
+    await user.click(screen.getByRole("button", { name: "Valider le code" }));
+    expect(await screen.findByRole("heading", { name: "Quelques questions" })).toBeTruthy();
+    expect(remplacer).not.toHaveBeenCalled();
   });
 
   it("Compte complet : retour direct", async () => {

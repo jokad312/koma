@@ -1,5 +1,5 @@
 begin;
-select plan(16);
+select plan(19);
 
 insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-0000000000c1', 'test-q1@example.invalid', '{}'),
@@ -41,6 +41,17 @@ select is(public.questions_accueil_vues('00000000-0000-0000-0000-0000000000c3'),
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-0000000000c2","role":"authenticated"}';
 select throws_ok($$select public.enregistrer_questions_accueil('{"type":"compte","id":"00000000-0000-0000-0000-0000000000c2","role":null}'::jsonb, '00000000-0000-0000-0000-0000000000c2', null, null)$$, '42501', null, 'non exécutable par authenticated');
+reset role;
+
+-- anon : aucune des deux fonctions.
+set local role anon;
+select throws_ok($$select public.enregistrer_questions_accueil('{"type":"compte","id":"00000000-0000-0000-0000-0000000000c2","role":null}'::jsonb, '00000000-0000-0000-0000-0000000000c2', null, null)$$, '42501', null, 'non exécutable par anon');
+select throws_ok($$select public.questions_accueil_vues('00000000-0000-0000-0000-0000000000c1')$$, '42501', null, 'lecture non exécutable par anon');
+reset role;
+
+-- authenticated : la lecture non plus.
+set local role authenticated;
+select throws_ok($$select public.questions_accueil_vues('00000000-0000-0000-0000-0000000000c1')$$, '42501', null, 'lecture non exécutable par authenticated');
 reset role;
 
 select * from finish();

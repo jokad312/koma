@@ -135,6 +135,7 @@
       "passer": "Passer",
       "enCours": "Enregistrement…",
       "erreur": "Tes réponses n'ont pas pu être enregistrées. Réessaie, ou passe cette étape.",
+      "reprendre": "Se reconnecter",
       "erreurSession": "Ta session a pris fin. Reconnecte-toi pour continuer."
     },
     "erreurs": {

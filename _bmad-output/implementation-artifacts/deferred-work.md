@@ -66,4 +66,11 @@
 
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-6-questions-d-accueil.md`
   summary: Question « Quel univers préfères-tu ? » des questions d'accueil : à ajouter quand les univers existent (colonne de préférence sur `profil` liée à `univers`, affichage seulement s'il existe au moins un univers publié, E-29).
-  evidence: aucune table `univers` avant la story 2.1, et aucune story de l'epic 2 ne mentionne cette question (2.1 crée seulement les univers) ; l'email « nouveau produit dans ton univers » (epic 9, FR-59) lit « acheté ou déclaré préféré » et attend cette colonne. À rattacher à la story 2.1 ou à une story dédiée.
+  evidence: aucune table `univers` avant la story 2.1, et aucune story de l'epic 2 ne mentionne cette question (2.1 crée seulement les univers) ; l'email « nouveau produit dans ton univers » (epic 9, FR-59) lit « acheté ou déclaré préféré » et attend cette colonne. Rattaché à la story 2.1 (critère d'acceptation ajouté dans epics.md le 2026-10-22).
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-6-questions-d-accueil.md`
+  summary: Les réponses d'accueil (origine, préférence) n'ont ni mention d'usage détaillée, ni écran pour les consulter, corriger ou supprimer.
+  evidence: (medium) données personnelles stockées dans `profil` ; le texte de l'étape dit seulement « pour te proposer ce qui te correspond » ; à traiter avec les textes légaux (1.9) et la page Compte, la suppression du Compte les emporte déjà (cascade du profil).
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-6-questions-d-accueil.md`
+  summary: Test clavier dédié et rendu en thème sombre / contraste forcé de l'étape « questions » (coche des radios).
+  evidence: (low) radios natifs, bordure rouge 2 px et coche ; non vérifiés automatiquement car l'étape n'est atteignable en e2e qu'avec la boîte de test.

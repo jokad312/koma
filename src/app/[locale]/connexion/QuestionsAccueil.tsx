@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { forwardRef, useId, useState, useTransition, type FormEvent } from "react";
+import { forwardRef, useId, useRef, useState, useTransition, type FormEvent } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { enregistrerQuestionsAccueil } from "@/modules/comptes/actions";
@@ -16,31 +16,45 @@ type Props = {
   retour?: string;
   // Appelé avec l'adresse de retour déjà validée par le serveur, que l'on ait répondu ou passé.
   onTermine: (retour: string) => void;
+  // Session perdue ou âge introuvable : retour à l'étape de l'email pour se reconnecter.
+  onReprendre: () => void;
 };
 
 // Questions d'accueil facultatives, affichées une seule fois. « Passer » et « Continuer » marquent les questions comme vues
 // et ramènent à la page quittée ; la question « univers » viendra avec les univers (epic 2).
-export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function QuestionsAccueil({ retour, onTermine }, refTitre) {
+export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function QuestionsAccueil({ retour, onTermine, onReprendre }, refTitre) {
   const t = useTranslations("Connexion.questions");
   const langue = useLocale() as "fr" | "en";
   const [origine, setOrigine] = useState("");
   const [preference, setPreference] = useState("");
-  const [erreur, setErreur] = useState<string | null>(null);
+  const [erreur, setErreur] = useState<"session" | "echec" | null>(null);
+  // Un seul envoi à la fois (Entrée, double clic, « Passer » pendant « Continuer ») : l'état React arrive trop tard pour un double clic.
+  const enVol = useRef(false);
   const [enCours, demarrer] = useTransition();
   const [action, setAction] = useState<"passer" | "continuer" | null>(null);
   const idOrigine = useId();
   const idAideOrigine = useId();
+  const idAidePreference = useId();
 
   function envoyer(reponses: { origine: string; preference: string }, quoi: "passer" | "continuer") {
+    if (enVol.current) return;
+    enVol.current = true;
     setErreur(null);
     setAction(quoi);
     demarrer(async () => {
-      const resultat = await enregistrerQuestionsAccueil({ ...reponses, langue, retour });
-      if (!resultat.ok) {
-        setErreur(resultat.erreur === "non_connecte" ? t("erreurSession") : t("erreur"));
-        return;
+      try {
+        const resultat = await enregistrerQuestionsAccueil({ ...reponses, langue, retour });
+        if (!resultat.ok) {
+          setErreur(resultat.erreur === "non_connecte" ? "session" : "echec");
+          return;
+        }
+        onTermine(resultat.retour);
+      } catch {
+        // Réseau coupé : l'appel est rejeté, le visiteur peut réessayer ou passer.
+        setErreur("echec");
+      } finally {
+        enVol.current = false;
       }
-      onTermine(resultat.retour);
     });
   }
 
@@ -57,7 +71,12 @@ export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function Q
         </h2>
         <p>{t("texte")}</p>
       </div>
-      {erreur ? <MessageEtat type="erreur">{erreur}</MessageEtat> : null}
+      {erreur ? <MessageEtat type="erreur">{erreur === "session" ? t("erreurSession") : t("erreur")}</MessageEtat> : null}
+      {erreur === "session" ? (
+        <Bouton variante="secondaire" onClick={onReprendre}>
+          {t("reprendre")}
+        </Bouton>
+      ) : null}
 
       <div className="flex w-full flex-col gap-2">
         <label htmlFor={idOrigine} className="t-small font-semibold">
@@ -83,7 +102,7 @@ export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function Q
         </p>
       </div>
 
-      <fieldset className="flex w-full flex-col gap-2">
+      <fieldset className="flex w-full flex-col gap-2" aria-describedby={idAidePreference}>
         <legend className="t-small mb-2 font-semibold">{t("preference.libelle")}</legend>
         {PREFERENCES_CREATION.map((valeur) => (
           <label key={valeur} className={OPTION}>
@@ -101,7 +120,9 @@ export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function Q
             {t(`preference.options.${valeur}`)}
           </label>
         ))}
-        <p className="t-small text-text-secondary">{t("facultatif")}</p>
+        <p id={idAidePreference} className="t-small text-text-secondary">
+          {t("facultatif")}
+        </p>
       </fieldset>
 
       <div className="flex flex-wrap items-center gap-3">

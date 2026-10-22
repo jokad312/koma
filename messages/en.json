@@ -135,6 +135,7 @@
       "passer": "Skip",
       "enCours": "Saving…",
       "erreur": "Your answers could not be saved. Try again, or skip this step.",
+      "reprendre": "Sign in again",
       "erreurSession": "Your session has ended. Sign in again to continue."
     },
     "erreurs": {

@@ -190,10 +190,12 @@ describe("enregistrerQuestionsAccueil", () => {
     expect(await enregistrerQuestionsAccueil(deps, base)).toEqual({ ok: false, erreur: "non_connecte" });
     expect(appels.questions).toHaveLength(0);
   });
-  it("profil introuvable : non_connecte ; autre refus : erreur générique sans journaliser de réponse", async () => {
+  it("profil introuvable ou âge non déclaré : non_connecte ; autre refus : erreur générique sans journaliser de réponse", async () => {
     const a = creerTestDependances({ erreurQuestions: "KS_PROFIL_INTROUVABLE" });
     expect(await enregistrerQuestionsAccueil(a.deps, base)).toEqual({ ok: false, erreur: "non_connecte" });
-    const b = creerTestDependances({ erreurQuestions: "KS_AGE_NON_DECLARE" });
+    const c = creerTestDependances({ erreurQuestions: "KS_AGE_NON_DECLARE" });
+    expect(await enregistrerQuestionsAccueil(c.deps, base)).toEqual({ ok: false, erreur: "non_connecte" });
+    const b = creerTestDependances({ erreurQuestions: "KS_QUELCONQUE" });
     expect(await enregistrerQuestionsAccueil(b.deps, { ...base, origine: "tiktok" })).toEqual({ ok: false, erreur: "generique" });
     expect(JSON.stringify(vi.mocked(console.error).mock.calls)).not.toContain("tiktok");
   });

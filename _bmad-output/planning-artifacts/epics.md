@@ -841,6 +841,12 @@ afin de préparer mon catalogue avant de le montrer.
 **Quand** Jonathan crée un univers (nom FR et EN)
 **Alors** il est enregistré et journalisé ; aucune liste d'univers n'est créée par défaut (E-29)
 
+**Étant donné** l'étape « questions » de `/connexion` (story 1.6) et au moins un univers publié
+**Quand** un nouveau Compte y arrive
+**Alors** la question « Quel univers préfères-tu ? » s'affiche en choix facultatif parmi les univers existants (noms dans la langue de la route), et la réponse est enregistrée dans le profil par une nouvelle migration et une fonction d'écriture qui suit la convention AD-25 (Zod, AD-2)
+**Et** sans aucun univers, la question n'est pas affichée ; « Passer » et l'absence de réponse ne bloquent rien
+**Et** un Compte qui a déjà vu les questions avant la création des univers ne les revoit pas
+
 **Étant donné** le formulaire de produit
 **Quand** Jonathan crée un produit
 **Alors** il choisit la Famille `cosplay` ou `accessoire` (la Famille `kit` arrive à l'epic 3), saisit titre et description en FR et en EN, l'univers, et le prix en USD

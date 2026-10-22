@@ -44,10 +44,11 @@ export async function lireEtatCompte(): Promise<EtatCompte> {
   try {
     const session = await lireSessionVerifiee();
     if (!session) return "anonyme";
-    const { data, error } = await creerClientService().rpc("compte_complet", { p_compte: session.compteId });
+    const service = creerClientService();
+    const { data, error } = await service.rpc("compte_complet", { p_compte: session.compteId });
     if (error) return "anonyme";
     if (data !== true) return "incomplet";
-    const vues = await creerClientService().rpc("questions_accueil_vues", { p_compte: session.compteId });
+    const vues = await service.rpc("questions_accueil_vues", { p_compte: session.compteId });
     // Une erreur de lecture ne fait pas apparaître les questions : un Compte complet n'est jamais bloqué.
     return !vues.error && vues.data === false ? "questions" : "complet";
   } catch {

@@ -234,6 +234,7 @@ export function FormulaireConnexion({ etapeInitiale = "email", google = "disponi
       <QuestionsAccueil
         ref={refTitreQuestions}
         retour={retour}
+        onReprendre={changerAdresse}
         onTermine={(adresse) => {
           router.replace(adresse);
           router.refresh();

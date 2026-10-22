@@ -43,7 +43,10 @@ export async function demanderCode(deps: DependancesComptes, entree: DemandeCode
 // Un doute sur les questions ne bloque jamais : on termine (elles sont facultatives).
 async function etapeApresConnexion(deps: DependancesComptes, compteId: string, complet: boolean): Promise<EtapeApresCode> {
   if (!complet) return "age";
-  const etat = await deps.questionsVues(compteId).catch(() => ({ erreur: true as const }));
+  const etat = await deps.questionsVues(compteId).catch((e) => {
+    journaliser("lecture des questions d'accueil", e);
+    return { erreur: true as const };
+  });
   return "erreur" in etat || etat.vues ? "termine" : "questions";
 }
 
@@ -208,7 +211,7 @@ export async function enregistrerQuestionsAccueil(deps: DependancesComptes, entr
       preference: lu.data.preference ?? null,
     });
     if (!erreur || erreur.includes("KS_QUESTIONS_DEJA_VUES")) return { ok: true, retour: cheminRetourValide(lu.data.retour, lu.data.langue) };
-    if (erreur.includes("KS_PROFIL_INTROUVABLE")) return { ok: false, erreur: "non_connecte" };
+    if (erreur.includes("KS_PROFIL_INTROUVABLE") || erreur.includes("KS_AGE_NON_DECLARE")) return { ok: false, erreur: "non_connecte" };
     console.error("[comptes] questions d'accueil refusées");
     return { ok: false, erreur: "generique" };
   } catch (e) {
