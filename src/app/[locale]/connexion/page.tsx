@@ -48,7 +48,7 @@ async function FormulaireSelonSession({
   const integre = detecterNavigateurIntegre((await headers()).get("user-agent")).integre;
   return (
     <FormulaireConnexion
-      etapeInitiale={etat === "incomplet" ? "age" : "email"}
+      etapeInitiale={etat === "incomplet" ? "age" : etat === "questions" ? "questions" : "email"}
       google={integre ? "indisponible" : "disponible"}
       erreurGoogle={(Array.isArray(erreur) ? erreur[0] : erreur) === "google"}
     />

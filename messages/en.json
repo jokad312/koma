@@ -104,6 +104,39 @@
       "texte": "You must be at least 13 years old to have an Account. Your Account was deleted and we kept nothing.",
       "accueil": "Back to home"
     },
+    "questions": {
+      "titre": "A few questions",
+      "texte": "A few quick questions so we can suggest what suits you. You can skip them: it changes nothing for your account or your purchases.",
+      "facultatif": "Optional.",
+      "origine": {
+        "libelle": "How did you hear about us?",
+        "aucune": "I'd rather not say",
+        "options": {
+          "tiktok": "TikTok",
+          "instagram": "Instagram",
+          "facebook": "Facebook",
+          "youtube": "YouTube",
+          "whatsapp": "WhatsApp",
+          "google": "Google",
+          "ia": "ChatGPT or another AI",
+          "ami": "A friend",
+          "evenement": "One of our festivals or events",
+          "autre": "Other"
+        }
+      },
+      "preference": {
+        "libelle": "Do you prefer wearing or making?",
+        "options": {
+          "porter": "Wearing",
+          "fabriquer": "Making"
+        }
+      },
+      "continuer": "Continue",
+      "passer": "Skip",
+      "enCours": "Saving…",
+      "erreur": "Your answers could not be saved. Try again, or skip this step.",
+      "erreurSession": "Your session has ended. Sign in again to continue."
+    },
     "erreurs": {
       "resume": "There is an error to fix.",
       "email_invalide": "Enter a valid email address.",

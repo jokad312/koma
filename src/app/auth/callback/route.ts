@@ -38,6 +38,6 @@ export async function GET(requete: NextRequest) {
     retour: garde.retour,
   });
   if (!resultat.ok) return versConnexion({ erreur: "google" });
-  if (resultat.etape === "age") return versConnexion({});
+  if (resultat.etape !== "termine") return versConnexion({});
   return NextResponse.redirect(new URL(resultat.retour, site));
 }

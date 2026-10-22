@@ -16,7 +16,7 @@ export type CodeErreur =
 
 export type Resultat<T extends object = object> = ({ ok: true } & T) | { ok: false; erreur: CodeErreur };
 
-export type EtapeApresCode = "age" | "termine";
+export type EtapeApresCode = "age" | "questions" | "termine";
 
 export type Fournisseur = "google";
 
@@ -47,6 +47,8 @@ export type DependancesComptes = {
     }>;
   };
   compteComplet(compteId: string): Promise<{ complet: boolean } | { erreur: true }>;
+  questionsVues(compteId: string): Promise<{ vues: boolean } | { erreur: true }>;
+  enregistrerQuestions(args: { auteur: object; compteId: string; origine: string | null; preference: string | null }): Promise<{ erreur: string | null }>;
   declarerAge(args: { auteur: object; compteId: string; age: number }): Promise<{ erreur: string | null }>;
   definirLangue(args: { auteur: object; compteId: string; langue: string }): Promise<{ erreur: string | null }>;
   supprimerCompte(compteId: string): Promise<{ erreur: boolean }>;

@@ -16,10 +16,12 @@ type Reglages = {
   urlOauth?: string | null;
   echange?: ErreurAuth;
   erreurLangue?: string | null;
+  questionsVues?: boolean | "erreur";
+  erreurQuestions?: string | null;
 };
 
 export function creerTestDependances(r: Reglages = {}) {
-  const appels = { suppressions: [] as string[], ages: [] as unknown[], langues: [] as unknown[], oauth: [] as unknown[], echanges: [] as string[], fermetures: 0, envois: [] as unknown[] };
+  const appels = { suppressions: [] as string[], ages: [] as unknown[], langues: [] as unknown[], questions: [] as unknown[], oauth: [] as unknown[], echanges: [] as string[], fermetures: 0, envois: [] as unknown[] };
   const deps: DependancesComptes = {
     auth: {
       signInWithOtp: vi.fn(async (args) => {
@@ -48,6 +50,11 @@ export function creerTestDependances(r: Reglages = {}) {
       }),
     },
     compteComplet: vi.fn(async () => ({ complet: r.complet ?? false })),
+    questionsVues: vi.fn(async () => (r.questionsVues === "erreur" ? { erreur: true as const } : { vues: r.questionsVues ?? false })),
+    enregistrerQuestions: vi.fn(async (args) => {
+      appels.questions.push(args);
+      return { erreur: r.erreurQuestions ?? null };
+    }),
     declarerAge: vi.fn(async (args) => {
       appels.ages.push(args);
       return { erreur: r.erreurAge ?? null };

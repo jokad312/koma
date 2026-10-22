@@ -48,7 +48,7 @@ describe("terminerGoogle", () => {
   });
 
   it("Compte complet : retour à la page quittée, langue intacte", async () => {
-    const { deps, appels } = creerTestDependances({ complet: true });
+    const { deps, appels } = creerTestDependances({ complet: true, questionsVues: true });
     expect(await terminerGoogle(deps, { code: "TEST_code", langue: "fr", retour: "/fr/kits" })).toEqual({ ok: true, etape: "termine", retour: "/fr/kits" });
     expect(appels.langues).toHaveLength(0);
   });

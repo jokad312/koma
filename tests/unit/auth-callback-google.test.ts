@@ -27,7 +27,7 @@ beforeEach(() => {
 
 describe("GET /auth/callback", () => {
   it("Compte complet : retour à la page quittée, cookie supprimé", async () => {
-    etat.reglages = creerTestDependances({ complet: true }).deps;
+    etat.reglages = creerTestDependances({ complet: true, questionsVues: true }).deps;
     const r = await appeler("?code=TEST_code");
     expect(r.headers.get("location")).toBe("http://localhost:3000/en/kits");
     expect(etat.supprimes).toHaveLength(1);
@@ -35,6 +35,12 @@ describe("GET /auth/callback", () => {
 
   it("Compte incomplet : étape « âge » de la connexion, retour gardé", async () => {
     etat.reglages = creerTestDependances({ complet: false }).deps;
+    const r = await appeler("?code=TEST_code");
+    expect(r.headers.get("location")).toBe("http://localhost:3000/en/connexion?retour=%2Fen%2Fkits");
+  });
+
+  it("Compte complet qui n'a jamais vu les questions : étape « questions » de la connexion, retour gardé", async () => {
+    etat.reglages = creerTestDependances({ complet: true, questionsVues: false }).deps;
     const r = await appeler("?code=TEST_code");
     expect(r.headers.get("location")).toBe("http://localhost:3000/en/connexion?retour=%2Fen%2Fkits");
   });
@@ -55,7 +61,7 @@ describe("GET /auth/callback", () => {
   });
 
   it("cookie absent, illisible ou retour hostile : accueil en français, jamais une adresse externe", async () => {
-    etat.reglages = creerTestDependances({ complet: true }).deps;
+    etat.reglages = creerTestDependances({ complet: true, questionsVues: true }).deps;
     etat.cookie = undefined;
     expect((await appeler("?code=TEST_code")).headers.get("location")).toBe("http://localhost:3000/fr");
     etat.cookie = "pas du json";

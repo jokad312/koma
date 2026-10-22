@@ -21,11 +21,13 @@ const demanderCode = vi.fn();
 const demanderCodeParFormulaire = vi.fn();
 const verifierCode = vi.fn();
 const declarerAge = vi.fn();
+const enregistrerQuestionsAccueil = vi.fn();
 vi.mock("@/modules/comptes/actions", () => ({
   demanderCode: (...a: unknown[]) => demanderCode(...a),
   demanderCodeParFormulaire: (...a: unknown[]) => demanderCodeParFormulaire(...a),
   verifierCode: (...a: unknown[]) => verifierCode(...a),
   declarerAge: (...a: unknown[]) => declarerAge(...a),
+  enregistrerQuestionsAccueil: (...a: unknown[]) => enregistrerQuestionsAccueil(...a),
   connecterAvecGoogle: vi.fn(),
 }));
 
@@ -183,11 +185,64 @@ describe("FormulaireConnexion", () => {
     await user.type(screen.getByLabelText("Code à 6 chiffres"), "123456");
     await user.click(screen.getByRole("button", { name: "Valider le code" }));
     const age = await screen.findByLabelText("Âge");
-    declarerAge.mockResolvedValue({ ok: true, retour: "/fr/cosplays" });
+    declarerAge.mockResolvedValue({ ok: true, retour: "/fr/cosplays", etape: "termine" });
     await user.type(age, "25");
     await user.click(screen.getByRole("button", { name: "Continuer" }));
     await waitFor(() => expect(remplacer).toHaveBeenCalledWith("/fr/cosplays"));
     expect(declarerAge).toHaveBeenCalledWith({ age: "25", langue: "fr", retour: "/fr/cosplays" });
+  });
+
+  async function allerAuxQuestions(user: ReturnType<typeof userEvent.setup>) {
+    rendre(<FormulaireConnexion />);
+    await allerAuCode(user);
+    verifierCode.mockResolvedValue({ ok: true, etape: "age", retour: "/fr/cosplays" });
+    await user.type(screen.getByLabelText("Code à 6 chiffres"), "123456");
+    await user.click(screen.getByRole("button", { name: "Valider le code" }));
+    declarerAge.mockResolvedValue({ ok: true, retour: "/fr/cosplays", etape: "questions" });
+    await user.type(await screen.findByLabelText("Âge"), "25");
+    await user.click(screen.getByRole("button", { name: "Continuer" }));
+    await screen.findByRole("heading", { name: "Quelques questions" });
+  }
+
+  it("après l'âge : questions facultatives, « Passer » ramène à la page quittée sans réponse", async () => {
+    const user = userEvent.setup();
+    await allerAuxQuestions(user);
+    expect(remplacer).not.toHaveBeenCalled();
+    enregistrerQuestionsAccueil.mockResolvedValue({ ok: true, retour: "/fr/cosplays" });
+    await user.click(screen.getByRole("button", { name: "Passer" }));
+    await waitFor(() => expect(remplacer).toHaveBeenCalledWith("/fr/cosplays"));
+    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "", preference: "", langue: "fr", retour: "/fr/cosplays" });
+  });
+
+  it("questions : réponses envoyées, sélecteur à deux options sans action au choix, pas de question « univers »", async () => {
+    const user = userEvent.setup();
+    await allerAuxQuestions(user);
+    expect(screen.queryByText(/univers/i)).toBeNull();
+    const radios = screen.getAllByRole("radio");
+    expect(radios.map((r) => (r as HTMLInputElement).value)).toEqual(["porter", "fabriquer"]);
+    await user.selectOptions(screen.getByLabelText("Comment nous as-tu connus ?"), "ami");
+    await user.click(screen.getByRole("radio", { name: "Fabriquer" }));
+    expect(enregistrerQuestionsAccueil).not.toHaveBeenCalled();
+    expect(remplacer).not.toHaveBeenCalled();
+    enregistrerQuestionsAccueil.mockResolvedValue({ ok: true, retour: "/fr/cosplays" });
+    await user.click(screen.getByRole("button", { name: "Continuer" }));
+    await waitFor(() => expect(remplacer).toHaveBeenCalledWith("/fr/cosplays"));
+    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "ami", preference: "fabriquer", langue: "fr", retour: "/fr/cosplays" });
+  });
+
+  it("questions : échec d'enregistrement, message clair et « Passer » reste possible", async () => {
+    const user = userEvent.setup();
+    await allerAuxQuestions(user);
+    enregistrerQuestionsAccueil.mockResolvedValue({ ok: false, erreur: "generique" });
+    await user.click(screen.getByRole("button", { name: "Continuer" }));
+    expect(await screen.findByText(/n'ont pas pu être enregistrées/)).toBeTruthy();
+    expect(remplacer).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Passer" })).toBeTruthy();
+  });
+
+  it("Compte complet qui n'a jamais vu les questions : elles s'ouvrent directement", () => {
+    rendre(<FormulaireConnexion etapeInitiale="questions" />);
+    expect(screen.getByRole("heading", { name: "Quelques questions" })).toBeTruthy();
   });
 
   it("Compte complet : retour direct", async () => {

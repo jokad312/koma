@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ageSchema, demandeCodeSchema, verificationCodeSchema } from "@/modules/comptes/schemas";
-import { declarerAge, demanderCode, fermerSession, verifierCode } from "@/modules/comptes/service";
+import { declarerAge, demanderCode, enregistrerQuestionsAccueil, fermerSession, verifierCode } from "@/modules/comptes/service";
 import { creerTestDependances, TEST_COMPTE_ID } from "../doubles/TEST_dependances-comptes";
 
 beforeEach(() => {
@@ -61,8 +61,8 @@ describe("verifierCode", () => {
     const { deps } = creerTestDependances({ complet: false });
     expect(await verifierCode(deps, base)).toEqual({ ok: true, etape: "age", retour: "/fr" });
   });
-  it("Compte complet : retour à la page quittée (validé)", async () => {
-    const { deps } = creerTestDependances({ complet: true });
+  it("Compte complet, questions vues : retour à la page quittée (validé)", async () => {
+    const { deps } = creerTestDependances({ complet: true, questionsVues: true });
     expect(await verifierCode(deps, { ...base, retour: "/fr/cosplays" })).toEqual({ ok: true, etape: "termine", retour: "/fr/cosplays" });
     expect(await verifierCode(deps, { ...base, retour: "https://x.fr" })).toEqual({ ok: true, etape: "termine", retour: "/fr" });
   });
@@ -94,7 +94,7 @@ describe("declarerAge", () => {
   it("13 ans et plus : enregistré avec un auteur issu de la session, retour validé", async () => {
     const { deps, appels } = creerTestDependances();
     const r = await declarerAge(deps, { age: "25", langue: "en", retour: "/en/blog" });
-    expect(r).toEqual({ ok: true, retour: "/en/blog" });
+    expect(r).toEqual({ ok: true, retour: "/en/blog", etape: "questions" });
     expect(appels.ages).toEqual([
       { auteur: { type: "compte", id: TEST_COMPTE_ID, role: null }, compteId: TEST_COMPTE_ID, age: 25 },
     ]);
@@ -120,7 +120,7 @@ describe("declarerAge", () => {
   });
   it("âge déjà déclaré (double envoi) : on poursuit, rien n'est supprimé", async () => {
     const { deps, appels } = creerTestDependances({ erreurAge: "KS_AGE_DEJA_DECLARE" });
-    expect(await declarerAge(deps, { age: "5", langue: "fr", retour: "/fr/blog" })).toEqual({ ok: true, retour: "/fr/blog" });
+    expect(await declarerAge(deps, { age: "5", langue: "fr", retour: "/fr/blog" })).toEqual({ ok: true, retour: "/fr/blog", etape: "questions" });
     expect(appels.suppressions).toHaveLength(0);
     expect(appels.fermetures).toBe(0);
   });
@@ -133,6 +133,69 @@ describe("declarerAge", () => {
     const { deps } = creerTestDependances({ sub: null });
     expect(await declarerAge(deps, { age: "20", langue: "fr" })).toEqual({ ok: false, erreur: "non_connecte" });
     expect(deps.declarerAge).not.toHaveBeenCalled();
+  });
+});
+
+describe("étape après la connexion", () => {
+  const base = { email: "a@b.cd", code: "123456", langue: "fr" as const };
+  it("Compte complet qui n'a jamais vu les questions : étape « questions »", async () => {
+    const { deps } = creerTestDependances({ complet: true, questionsVues: false });
+    expect(await verifierCode(deps, { ...base, retour: "/fr/kits" })).toEqual({ ok: true, etape: "questions", retour: "/fr/kits" });
+  });
+  it("doute sur les questions : on termine, un Compte complet n'est jamais bloqué", async () => {
+    const { deps } = creerTestDependances({ complet: true, questionsVues: "erreur" });
+    expect(await verifierCode(deps, base)).toMatchObject({ ok: true, etape: "termine" });
+    const rejet = creerTestDependances({ complet: true });
+    vi.mocked(rejet.deps.questionsVues).mockRejectedValueOnce(new Error("TEST_reseau"));
+    expect(await verifierCode(rejet.deps, base)).toMatchObject({ ok: true, etape: "termine" });
+  });
+  it("âge déclaré, questions déjà vues : termine", async () => {
+    const { deps } = creerTestDependances({ questionsVues: true });
+    expect(await declarerAge(deps, { age: "25", langue: "fr" })).toEqual({ ok: true, retour: "/fr", etape: "termine" });
+  });
+});
+
+describe("enregistrerQuestionsAccueil", () => {
+  const base = { langue: "fr" as const };
+  it("réponses valides : enregistrées avec un auteur issu de la session, retour validé", async () => {
+    const { deps, appels } = creerTestDependances();
+    const r = await enregistrerQuestionsAccueil(deps, { ...base, origine: "tiktok", preference: "fabriquer", retour: "/fr/kits" });
+    expect(r).toEqual({ ok: true, retour: "/fr/kits" });
+    expect(appels.questions).toEqual([
+      { auteur: { type: "compte", id: TEST_COMPTE_ID, role: null }, compteId: TEST_COMPTE_ID, origine: "tiktok", preference: "fabriquer" },
+    ]);
+  });
+  it("« Passer » : réponses vides enregistrées comme absentes, retour validé", async () => {
+    const { deps, appels } = creerTestDependances();
+    expect(await enregistrerQuestionsAccueil(deps, { ...base, origine: "", preference: "", retour: "https://x.fr" })).toEqual({ ok: true, retour: "/fr" });
+    expect(appels.questions).toMatchObject([{ origine: null, preference: null }]);
+  });
+  it("une seule réponse est possible", async () => {
+    const { deps, appels } = creerTestDependances();
+    expect(await enregistrerQuestionsAccueil(deps, { ...base, preference: "porter" })).toMatchObject({ ok: true });
+    expect(appels.questions).toMatchObject([{ origine: null, preference: "porter" }]);
+  });
+  it("valeur hors liste : refus, rien n'est enregistré", async () => {
+    const { deps, appels } = creerTestDependances();
+    expect(await enregistrerQuestionsAccueil(deps, { ...base, origine: "radio" })).toEqual({ ok: false, erreur: "generique" });
+    expect(await enregistrerQuestionsAccueil(deps, { ...base, preference: "les deux" })).toEqual({ ok: false, erreur: "generique" });
+    expect(appels.questions).toHaveLength(0);
+  });
+  it("questions déjà vues (double envoi, second onglet) : succès", async () => {
+    const { deps } = creerTestDependances({ erreurQuestions: "KS_QUESTIONS_DEJA_VUES" });
+    expect(await enregistrerQuestionsAccueil(deps, { ...base, origine: "ami", retour: "/fr/blog" })).toEqual({ ok: true, retour: "/fr/blog" });
+  });
+  it("sans session : non_connecte, rien n'est écrit", async () => {
+    const { deps, appels } = creerTestDependances({ sub: null });
+    expect(await enregistrerQuestionsAccueil(deps, base)).toEqual({ ok: false, erreur: "non_connecte" });
+    expect(appels.questions).toHaveLength(0);
+  });
+  it("profil introuvable : non_connecte ; autre refus : erreur générique sans journaliser de réponse", async () => {
+    const a = creerTestDependances({ erreurQuestions: "KS_PROFIL_INTROUVABLE" });
+    expect(await enregistrerQuestionsAccueil(a.deps, base)).toEqual({ ok: false, erreur: "non_connecte" });
+    const b = creerTestDependances({ erreurQuestions: "KS_AGE_NON_DECLARE" });
+    expect(await enregistrerQuestionsAccueil(b.deps, { ...base, origine: "tiktok" })).toEqual({ ok: false, erreur: "generique" });
+    expect(JSON.stringify(vi.mocked(console.error).mock.calls)).not.toContain("tiktok");
   });
 });
 

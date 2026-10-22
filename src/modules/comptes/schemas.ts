@@ -53,3 +53,19 @@ export const retourGoogleSchema = z.object({
 });
 
 export type DemandeGoogle = z.input<typeof demandeGoogleSchema>;
+
+export const ORIGINES = ["tiktok", "instagram", "facebook", "youtube", "whatsapp", "google", "ia", "ami", "evenement", "autre"] as const;
+export const PREFERENCES_CREATION = ["porter", "fabriquer"] as const;
+
+// Les deux réponses sont facultatives : absente ou vide = pas de réponse. Une valeur hors liste est refusée (rien n'est enregistré).
+const reponseFacultative = <T extends readonly [string, ...string[]]>(valeurs: T) =>
+  z.preprocess((v) => (v === "" || v === undefined ? null : v), z.enum(valeurs).nullable()).optional();
+
+export const questionsAccueilSchema = z.object({
+  origine: reponseFacultative(ORIGINES),
+  preference: reponseFacultative(PREFERENCES_CREATION),
+  langue: langueSchema,
+  retour: z.string().max(512).optional(),
+});
+
+export type QuestionsAccueil = z.input<typeof questionsAccueilSchema>;

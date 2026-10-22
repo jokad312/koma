@@ -6,7 +6,7 @@ import { adresseSite } from "@/lib/seo/url";
 import { COOKIE_RETOUR_GOOGLE, DUREE_RETOUR_GOOGLE_S } from "./google";
 import { dependances } from "./dependances";
 import { langueSchema } from "./schemas";
-import type { DeclarationAge, DemandeCode, VerificationCode } from "./schemas";
+import type { DeclarationAge, DemandeCode, QuestionsAccueil, VerificationCode } from "./schemas";
 import * as service from "./service";
 import type { CodeErreur } from "./types";
 
@@ -33,6 +33,10 @@ export async function verifierCode(entree: VerificationCode) {
 
 export async function declarerAge(entree: DeclarationAge) {
   return service.declarerAge(await dependances(), entree);
+}
+
+export async function enregistrerQuestionsAccueil(entree: QuestionsAccueil) {
+  return service.enregistrerQuestionsAccueil(await dependances(), entree);
 }
 
 export type EtatDeconnexion = { erreur: boolean };

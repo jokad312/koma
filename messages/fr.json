@@ -104,6 +104,39 @@
       "texte": "Il faut avoir au moins 13 ans pour avoir un Compte. Ton Compte a été supprimé et nous n'avons rien conservé.",
       "accueil": "Retour à l'accueil"
     },
+    "questions": {
+      "titre": "Quelques questions",
+      "texte": "Quelques questions rapides pour te proposer ce qui te correspond. Tu peux passer : ça ne change rien pour ton Compte ni pour tes achats.",
+      "facultatif": "Facultatif.",
+      "origine": {
+        "libelle": "Comment nous as-tu connus ?",
+        "aucune": "Je ne réponds pas",
+        "options": {
+          "tiktok": "TikTok",
+          "instagram": "Instagram",
+          "facebook": "Facebook",
+          "youtube": "YouTube",
+          "whatsapp": "WhatsApp",
+          "google": "Google",
+          "ia": "ChatGPT ou une autre IA",
+          "ami": "Un ami",
+          "evenement": "Un festival ou un événement KOMA",
+          "autre": "Autre"
+        }
+      },
+      "preference": {
+        "libelle": "Tu préfères porter ou fabriquer ?",
+        "options": {
+          "porter": "Porter",
+          "fabriquer": "Fabriquer"
+        }
+      },
+      "continuer": "Continuer",
+      "passer": "Passer",
+      "enCours": "Enregistrement…",
+      "erreur": "Tes réponses n'ont pas pu être enregistrées. Réessaie, ou passe cette étape.",
+      "erreurSession": "Ta session a pris fin. Reconnecte-toi pour continuer."
+    },
     "erreurs": {
       "resume": "Il y a une erreur à corriger.",
       "email_invalide": "Saisis une adresse email valide.",

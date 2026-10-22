@@ -127,6 +127,23 @@ test.describe("connexion par code email", () => {
     await test.step("âge", async () => {
       await page.getByLabel("Age", { exact: true }).fill("25");
       await page.getByRole("button", { name: "Continue" }).click();
+    }, { timeout: 25_000 });
+
+    // Les questions d'accueil s'affichent une seule fois, après l'âge ; répondre ramène exactement à la page quittée.
+    // (Aucun Panier ni catalogue n'existe encore : la page quittée est la 404 localisée. Un article au Panier s'ajoutera avec l'epic 4.)
+    await test.step("questions d'accueil", async () => {
+      await expect(page.getByRole("heading", { name: "A few questions" })).toBeVisible();
+      await expect(page).toHaveURL(/\/en\/connexion/);
+      await page.getByLabel("How did you hear about us?").selectOption("ami");
+      await page.getByRole("radio", { name: "Making" }).check();
+      // Choisir ne change pas de page.
+      await expect(page).toHaveURL(/\/en\/connexion/);
+      await page.getByRole("button", { name: "Continue" }).click();
+      await expect(page).toHaveURL(/\/en\/page-quittee$/);
+    }, { timeout: 25_000 });
+
+    await test.step("questions déjà vues : /connexion renvoie à la page, sans les reposer", async () => {
+      await page.goto("/en/connexion?retour=/en/page-quittee");
       await expect(page).toHaveURL(/\/en\/page-quittee$/);
     }, { timeout: 25_000 });
 
@@ -180,6 +197,9 @@ test.describe("connexion par code email", () => {
     await page.getByRole("button", { name: "Valider le code" }).click();
     await page.getByLabel("Âge").fill("25");
     await page.getByRole("button", { name: "Continuer" }).click();
+    // « Passer » ne bloque rien : les questions sont facultatives.
+    await page.getByRole("button", { name: "Passer" }).click();
+    await expect(page).toHaveURL(/\/fr$/);
 
     for (const [chemin, deconnexion] of [["/fr", "Se déconnecter"], ["/en", "Sign out"]] as const) {
       const reponse = await page.goto(chemin);
@@ -194,6 +214,25 @@ test.describe("connexion par code email", () => {
     await dialogue.getByRole("button", { name: "Sign out" }).click();
     await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
     await expect(page).toHaveURL(/\/en$/);
+  });
+
+  test("« Passer » ramène à la page quittée, sans réponse, et ne revient pas", async ({ page, request }) => {
+    const email = emailDeTest();
+    await page.goto("/fr/connexion?retour=/fr/page-quittee");
+    await envoyerLeCode(page, { libelle: "Adresse email", bouton: "Recevoir un code", email, message: `Un code a été envoyé à ${email}.` });
+    await page.getByLabel("Code à 6 chiffres").fill(await lireCode(request, email));
+    await page.getByRole("button", { name: "Valider le code" }).click();
+    await page.getByLabel("Âge").fill("30");
+    await page.getByRole("button", { name: "Continuer" }).click();
+
+    await expect(page.getByRole("heading", { name: "Quelques questions" })).toBeVisible();
+    // Aucune question « univers » tant qu'aucun univers n'existe.
+    await expect(page.getByText(/univers/i)).toHaveCount(0);
+    await page.getByRole("button", { name: "Passer" }).click();
+    await expect(page).toHaveURL(/\/fr\/page-quittee$/);
+
+    await page.goto("/fr/connexion?retour=/fr/page-quittee");
+    await expect(page).toHaveURL(/\/fr\/page-quittee$/);
   });
 
   test("moins de 13 ans : Compte supprimé et message clair", async ({ page, request }) => {

@@ -79,6 +79,9 @@ export type Database = {
           cree_le: string
           id: string
           langue: string
+          origine: string | null
+          preference_creation: string | null
+          questions_accueil_le: string | null
         }
         Insert: {
           age_declare?: number | null
@@ -86,6 +89,9 @@ export type Database = {
           cree_le?: string
           id: string
           langue?: string
+          origine?: string | null
+          preference_creation?: string | null
+          questions_accueil_le?: string | null
         }
         Update: {
           age_declare?: number | null
@@ -93,6 +99,9 @@ export type Database = {
           cree_le?: string
           id?: string
           langue?: string
+          origine?: string | null
+          preference_creation?: string | null
+          questions_accueil_le?: string | null
         }
         Relationships: []
       }
@@ -129,8 +138,18 @@ export type Database = {
         Args: { p_auteur: Json; p_compte: string; p_langue: string }
         Returns: undefined
       }
+      enregistrer_questions_accueil: {
+        Args: {
+          p_auteur: Json
+          p_compte: string
+          p_origine: string
+          p_preference: string
+        }
+        Returns: undefined
+      }
       est_mineur: { Args: { p_compte: string }; Returns: boolean }
       masquer_donnee_personnelle: { Args: { p_valeur: Json }; Returns: Json }
+      questions_accueil_vues: { Args: { p_compte: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

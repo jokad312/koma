@@ -1,8 +1,8 @@
 import { construireAuteur } from "@/lib/auth/auteur";
 import { cheminRetourValide } from "@/lib/auth/retour";
 import { detecterNavigateurIntegre } from "@/lib/navigateur-integre";
-import { demandeCodeSchema, demandeGoogleSchema, DUREE_CODE_MS, declarationAgeSchema, verificationCodeSchema } from "./schemas";
-import type { DemandeCode, DemandeGoogle, DeclarationAge, VerificationCode } from "./schemas";
+import { demandeCodeSchema, demandeGoogleSchema, DUREE_CODE_MS, declarationAgeSchema, questionsAccueilSchema, verificationCodeSchema } from "./schemas";
+import type { DemandeCode, DemandeGoogle, DeclarationAge, QuestionsAccueil, VerificationCode } from "./schemas";
 import type { DependancesComptes, EtapeApresCode, Langue, Resultat } from "./types";
 
 // Seul le nom de l'erreur est journalisé : ni message, ni email, ni jeton.
@@ -39,6 +39,14 @@ export async function demanderCode(deps: DependancesComptes, entree: DemandeCode
   }
 }
 
+// Étape suivant la connexion d'un Compte : l'âge d'abord, puis les questions d'accueil si elles n'ont jamais été vues.
+// Un doute sur les questions ne bloque jamais : on termine (elles sont facultatives).
+async function etapeApresConnexion(deps: DependancesComptes, compteId: string, complet: boolean): Promise<EtapeApresCode> {
+  if (!complet) return "age";
+  const etat = await deps.questionsVues(compteId).catch(() => ({ erreur: true as const }));
+  return "erreur" in etat || etat.vues ? "termine" : "questions";
+}
+
 type SuiteCode = { etape: EtapeApresCode; retour: string };
 
 export async function verifierCode(deps: DependancesComptes, entree: VerificationCode): Promise<Resultat<SuiteCode>> {
@@ -64,14 +72,14 @@ export async function verifierCode(deps: DependancesComptes, entree: Verificatio
     const etat = await deps.compteComplet(compteId);
     if ("erreur" in etat) return { ok: false, erreur: "generique" };
     const retour = cheminRetourValide(lu.data.retour, lu.data.langue);
-    return { ok: true, etape: etat.complet ? "termine" : "age", retour };
+    return { ok: true, etape: await etapeApresConnexion(deps, compteId, etat.complet), retour };
   } catch (e) {
     journaliser("vérification du code", e);
     return { ok: false, erreur: "generique" };
   }
 }
 
-export async function declarerAge(deps: DependancesComptes, entree: DeclarationAge): Promise<Resultat<{ retour: string }>> {
+export async function declarerAge(deps: DependancesComptes, entree: DeclarationAge): Promise<Resultat<{ retour: string; etape: EtapeApresCode }>> {
   const lu = declarationAgeSchema.safeParse(entree);
   if (!lu.success) {
     const champAge = lu.error.issues.some((i) => i.path[0] === "age");
@@ -83,7 +91,7 @@ export async function declarerAge(deps: DependancesComptes, entree: DeclarationA
     if (erreurSession || !compteId) return { ok: false, erreur: "non_connecte" };
 
     const { erreur } = await deps.declarerAge({ auteur: construireAuteur(compteId), compteId, age: lu.data.age });
-    if (!erreur) return { ok: true, retour: cheminRetourValide(lu.data.retour, lu.data.langue) };
+    if (!erreur) return { ok: true, retour: cheminRetourValide(lu.data.retour, lu.data.langue), etape: await etapeApresConnexion(deps, compteId, true) };
 
     if (erreur.includes("KS_AGE_MINIMUM")) {
       // Moins de 13 ans : le Compte est supprimé (profil en cascade) et la session fermée ; rien n'est conservé.
@@ -100,7 +108,7 @@ export async function declarerAge(deps: DependancesComptes, entree: DeclarationA
       return { ok: false, erreur: "moins_13" };
     }
     // Double envoi ou second onglet : l'âge est déjà déclaré, on poursuit ; jamais de suppression.
-    if (erreur.includes("KS_AGE_DEJA_DECLARE")) return { ok: true, retour: cheminRetourValide(lu.data.retour, lu.data.langue) };
+    if (erreur.includes("KS_AGE_DEJA_DECLARE")) return { ok: true, retour: cheminRetourValide(lu.data.retour, lu.data.langue), etape: await etapeApresConnexion(deps, compteId, true) };
     if (erreur.includes("KS_PROFIL_INTROUVABLE")) return { ok: false, erreur: "non_connecte" };
     if (erreur.includes("KS_AGE_INVALIDE")) return { ok: false, erreur: "age_invalide" };
     console.error("[comptes] déclaration d'âge refusée");
@@ -176,9 +184,35 @@ export async function terminerGoogle(
       const { erreur } = await deps.definirLangue({ auteur: construireAuteur(compteId), compteId, langue: entree.langue });
       if (erreur) console.error("[comptes] langue du profil non définie");
     }
-    return { ok: true, etape: etat.complet ? "termine" : "age", retour: entree.retour };
+    return { ok: true, etape: await etapeApresConnexion(deps, compteId, etat.complet), retour: entree.retour };
   } catch (e) {
     journaliser("retour Google", e);
+    return { ok: false, erreur: "generique" };
+  }
+}
+
+// Questions d'accueil (toutes facultatives). « Passer » envoie un formulaire vide : les questions sont alors marquées comme vues.
+// Les questions déjà vues valent succès (double envoi, second onglet) : rien n'est modifié et rien ne bloque.
+export async function enregistrerQuestionsAccueil(deps: DependancesComptes, entree: QuestionsAccueil): Promise<Resultat<{ retour: string }>> {
+  const lu = questionsAccueilSchema.safeParse(entree);
+  if (!lu.success) return { ok: false, erreur: "generique" };
+  try {
+    const { data, error: erreurSession } = await deps.auth.getClaims();
+    const compteId = data?.claims?.sub;
+    if (erreurSession || !compteId) return { ok: false, erreur: "non_connecte" };
+
+    const { erreur } = await deps.enregistrerQuestions({
+      auteur: construireAuteur(compteId),
+      compteId,
+      origine: lu.data.origine ?? null,
+      preference: lu.data.preference ?? null,
+    });
+    if (!erreur || erreur.includes("KS_QUESTIONS_DEJA_VUES")) return { ok: true, retour: cheminRetourValide(lu.data.retour, lu.data.langue) };
+    if (erreur.includes("KS_PROFIL_INTROUVABLE")) return { ok: false, erreur: "non_connecte" };
+    console.error("[comptes] questions d'accueil refusées");
+    return { ok: false, erreur: "generique" };
+  } catch (e) {
+    journaliser("questions d'accueil", e);
     return { ok: false, erreur: "generique" };
   }
 }

@@ -36,7 +36,8 @@ export async function exigerCompteComplet(): Promise<{ compteId: string; auteur:
   return { compteId: session.compteId, auteur: construireAuteur(session.compteId) };
 }
 
-export type EtatCompte = "anonyme" | "incomplet" | "complet";
+// « questions » : Compte complet qui n'a jamais vu les questions d'accueil (facultatives, jamais bloquantes).
+export type EtatCompte = "anonyme" | "incomplet" | "questions" | "complet";
 
 // Pour la page de connexion : où en est le visiteur ? Toute erreur vaut « anonyme » (la page reste utilisable).
 export async function lireEtatCompte(): Promise<EtatCompte> {
@@ -45,7 +46,10 @@ export async function lireEtatCompte(): Promise<EtatCompte> {
     if (!session) return "anonyme";
     const { data, error } = await creerClientService().rpc("compte_complet", { p_compte: session.compteId });
     if (error) return "anonyme";
-    return data === true ? "complet" : "incomplet";
+    if (data !== true) return "incomplet";
+    const vues = await creerClientService().rpc("questions_accueil_vues", { p_compte: session.compteId });
+    // Une erreur de lecture ne fait pas apparaître les questions : un Compte complet n'est jamais bloqué.
+    return !vues.error && vues.data === false ? "questions" : "complet";
   } catch {
     return "anonyme";
   }
