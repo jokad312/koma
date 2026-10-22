@@ -123,7 +123,7 @@
       "continuer": "Continuer avec Google",
       "enCours": "Redirection vers Google…",
       "ou": "ou",
-      "integre": "Dans une application comme Instagram, Facebook, TikTok ou WhatsApp, Google bloque sa connexion. Utilise le code reçu par email, ou ouvre le site dans ton navigateur."
+      "integre": "Dans une application (Instagram, Facebook, TikTok, WhatsApp, Snapchat, LinkedIn, X, Telegram…), Google bloque sa connexion. Utilise le code reçu par email, ou ouvre le site dans ton navigateur."
     }
   },
   "Compte": {
@@ -134,7 +134,7 @@
   },
   "NavigateurIntegre": {
     "nom": "Ouvrir dans ton navigateur",
-    "texte": "Tu as ouvert le site dans une application (Instagram, Facebook, TikTok ou WhatsApp). La connexion avec Google n'y fonctionne pas : ouvre le site dans ton navigateur. Le code reçu par email marche partout.",
+    "texte": "Tu as ouvert le site dans une application. La connexion avec Google n'y fonctionne pas : ouvre le site dans ton navigateur. Le code reçu par email marche partout.",
     "ouvrir": "Ouvrir dans mon navigateur",
     "copier": "Copier le lien",
     "copie": "Lien copié.",

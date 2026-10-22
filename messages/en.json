@@ -123,7 +123,7 @@
       "continuer": "Continue with Google",
       "enCours": "Redirecting to Google…",
       "ou": "or",
-      "integre": "In an app such as Instagram, Facebook, TikTok or WhatsApp, Google blocks its sign-in. Use the code sent by email, or open the site in your browser."
+      "integre": "In an app (Instagram, Facebook, TikTok, WhatsApp, Snapchat, LinkedIn, X, Telegram…), Google blocks its sign-in. Use the code sent by email, or open the site in your browser."
     }
   },
   "Compte": {
@@ -134,7 +134,7 @@
   },
   "NavigateurIntegre": {
     "nom": "Open in your browser",
-    "texte": "You opened the site inside an app (Instagram, Facebook, TikTok or WhatsApp). Signing in with Google does not work there: open the site in your browser. The code sent by email works everywhere.",
+    "texte": "You opened the site inside an app. Signing in with Google does not work there: open the site in your browser. The code sent by email works everywhere.",
     "ouvrir": "Open in my browser",
     "copier": "Copy the link",
     "copie": "Link copied.",

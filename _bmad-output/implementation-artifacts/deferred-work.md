@@ -57,9 +57,6 @@
   evidence: empêche un mineur de changer son âge ; une voie de correction (par l'admin, story 1.7 ou plus tard) reste à décider.
 
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-5-navigateurs-integres-et-connexion-google.md`
-  summary: Détecter d'autres navigateurs intégrés (Snapchat, LinkedIn, Line, X, WeChat, vues `; wv)` génériques) qui déclenchent aussi « disallowed_useragent ».
-  evidence: l'intention ne cite que Instagram, Facebook, TikTok et WhatsApp ; un navigateur non listé voit le bouton Google et tombe sur l'erreur de Google (non vérifié sur téléphone).
-- source_spec: `_bmad-output/implementation-artifacts/spec-1-5-navigateurs-integres-et-connexion-google.md`
   summary: Rendre le retour de Google robuste aux onglets parallèles et au double appel du callback (cookie par tentative).
   evidence: un seul cookie `ks_retour_google` (chemin `/auth`) ; un deuxième onglet l'écrase, un second appel du callback retombe sur l'accueil `fr`.
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-5-navigateurs-integres-et-connexion-google.md`
