@@ -28,6 +28,28 @@ export async function lireReglagePublic(client: ClientReglage, cle: string): Pro
   return valeur;
 }
 
+// Numéro WhatsApp (public depuis la 1.8) : null si le réglage est absent ou vide, sans valeur de repli. Une erreur de lecture est relancée.
+export async function lireNumeroWhatsapp(): Promise<string | null> {
+  "use cache";
+  cacheTag(ETIQUETTES.reglages);
+  try {
+    return await lireReglagePublic(creerClientPublic() as unknown as ClientReglage, "numero_whatsapp");
+  } catch (e) {
+    if (e instanceof ReglageManquantError) return null;
+    throw e;
+  }
+}
+
+// Numéro facultatif : une erreur de lecture ne doit pas faire tomber les pages publiques. Lien masqué, cause journalisée, jamais de numéro de repli.
+export async function lireNumeroWhatsappOuNull(): Promise<string | null> {
+  try {
+    return await lireNumeroWhatsapp();
+  } catch {
+    console.error("[reglages] lecture du numéro WhatsApp impossible : lien masqué");
+    return null;
+  }
+}
+
 // Nom du site : seule source (réglage nom_site), mis en cache avec l'étiquette `reglages`.
 export async function lireNomSite(): Promise<string> {
   "use cache";

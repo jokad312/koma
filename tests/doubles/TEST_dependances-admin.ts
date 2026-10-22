@@ -17,6 +17,7 @@ type Reglages = {
   erreurAge?: string | null;
   supprimer?: boolean;
   suppressionEchoue?: boolean;
+  erreurMessage?: string | null;
 };
 
 export function creerTestDependancesAdmin(r: Reglages = {}) {
@@ -26,6 +27,7 @@ export function creerTestDependancesAdmin(r: Reglages = {}) {
     reglages: [] as unknown[],
     ages: [] as unknown[],
     suppressions: [] as string[],
+    messages: [] as unknown[],
   };
   const deps: DependancesAdmin = {
     exigerDroit: vi.fn(async (droit) => {
@@ -46,6 +48,11 @@ export function creerTestDependancesAdmin(r: Reglages = {}) {
       appels.ordre.push("age");
       appels.ages.push(args);
       return { erreur: r.erreurAge ?? null, supprimer: r.supprimer ?? false };
+    }),
+    marquerMessageTraite: vi.fn(async (args) => {
+      appels.ordre.push("message");
+      appels.messages.push(args);
+      return { erreur: r.erreurMessage ?? null };
     }),
     supprimerCompte: vi.fn(async (compteId) => {
       appels.ordre.push("suppression");

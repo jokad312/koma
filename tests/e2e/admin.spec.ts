@@ -12,6 +12,8 @@ test.describe("accès admin", () => {
     ["/fr/admin", "%2Ffr%2Fadmin"],
     ["/fr/admin/reglages", "%2Ffr%2Fadmin%2Freglages"],
     ["/en/admin/reglages", "%2Fen%2Fadmin%2Freglages"],
+    ["/fr/admin/messages", "%2Ffr%2Fadmin%2Fmessages"],
+    ["/en/admin/messages", "%2Fen%2Fadmin%2Fmessages"],
   ] as const) {
     test(`visiteur sur ${chemin} : envoyé vers la connexion avec retour`, async ({ page }) => {
       await page.goto(chemin);

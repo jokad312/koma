@@ -1,5 +1,5 @@
 begin;
-select plan(19);
+select plan(20);
 
 insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-0000000000d1', 'test-a1@example.invalid', '{}'),
@@ -49,10 +49,12 @@ select is((select valeur from public.reglage where cle = 'nom_site'), 'Nom de te
 set local ks.auteur = '';
 select throws_ok($$update public.reglage set valeur = 'Y' where cle = 'nom_site'$$, 'P0001', 'KS_AUTEUR_MANQUANT', 'une écriture directe sans auteur est refusée');
 
--- Lecture publique : jamais le numéro ; fonction réservée au service_role.
+-- Lecture publique : le numéro (affiché sur le site depuis la 1.8), jamais un autre réglage ; fonction réservée au service_role.
 select public.enregistrer_reglage('{"type":"compte","id":"00000000-0000-0000-0000-0000000000d1","role":"admin"}'::jsonb, 'numero_whatsapp', '+243970000000');
+insert into public.reglage (cle, valeur) values ('autre_cle', 'x');
 set local role anon;
-select is((select count(*)::int from public.reglage where cle = 'numero_whatsapp'), 0, 'anon ne lit pas le numéro WhatsApp');
+select is((select count(*)::int from public.reglage where cle = 'numero_whatsapp'), 1, 'anon lit le numéro WhatsApp (affiché publiquement)');
+select is((select count(*)::int from public.reglage where cle = 'autre_cle'), 0, 'anon ne lit aucun autre réglage');
 reset role;
 select ok(
   not has_function_privilege('anon', 'public.enregistrer_reglage(jsonb, text, text)', 'execute')

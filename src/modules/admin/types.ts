@@ -10,6 +10,7 @@ export type CodeErreurAdmin =
   | "age_invalide"
   | "age_non_declare"
   | "suppression_echouee"
+  | "message_introuvable"
   | "generique";
 
 export type ResultatAdmin<T extends object = object> = ({ ok: true } & T) | { ok: false; erreur: CodeErreurAdmin };
@@ -25,6 +26,10 @@ export type DependancesAdmin = {
   invalider(): void;
   corrigerAge(args: { auteur: AuteurCompte; compteId: string; age: number; raison: string }): Promise<{ erreur: string | null; supprimer: boolean }>;
   supprimerCompte(compteId: string): Promise<{ erreur: boolean }>;
+  marquerMessageTraite(args: { auteur: AuteurCompte; id: string }): Promise<{ erreur: string | null }>;
 };
+
+// Message du formulaire de contact, tel que l'admin le lit (données personnelles : jamais journalisées ni copiées ailleurs).
+export type MessageContactAdmin = { id: string; nom: string; email: string; message: string; langue: string; creeLe: string };
 
 export type ReglagesAdmin = { nomSite: string | null; numeroWhatsapp: string | null };

@@ -3,4 +3,4 @@
 // Les libellés sont dans messages/*.json › Navigation.rubriques.<cle>.
 export type Rubrique = { cle: "cosplays" | "accessoires" | "kits" | "festival" | "blog" | "aPropos"; href: string };
 
-export const RUBRIQUES: readonly Rubrique[] = [];
+export const RUBRIQUES: readonly Rubrique[] = [{ cle: "aPropos", href: "/a-propos" }];

@@ -11,7 +11,7 @@ import { PiedDePage } from "@/components/layout/PiedDePage";
 import { routing } from "@/i18n/routing";
 import { lireEnvPublique } from "@/lib/env";
 import { barlow, barlowCondensed } from "@/lib/fonts";
-import { lireNomSite } from "@/lib/reglages";
+import { lireNomSite, lireNumeroWhatsappOuNull } from "@/lib/reglages";
 import { JsonLd } from "@/lib/seo/balise-jsonld";
 import { organisationJsonLd } from "@/lib/seo/jsonld";
 import "../globals.css";
@@ -28,6 +28,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const nomSite = await lireNomSite();
+  const numeroWhatsapp = await lireNumeroWhatsappOuNull();
   const sakura = lireEnvPublique().NEXT_PUBLIC_TITRES_SAKURA;
 
   return (
@@ -49,7 +50,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
               <JsonLd donnees={organisationJsonLd(nomSite)} />
               {children}
             </main>
-            <PiedDePage nomSite={nomSite} />
+            <PiedDePage nomSite={nomSite} numeroWhatsapp={numeroWhatsapp} />
           </div>
         </NextIntlClientProvider>
       </body>

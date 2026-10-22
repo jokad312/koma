@@ -4,6 +4,9 @@ import { describe, expect, it, vi } from "vitest";
 import { rendre } from "./aides-dom";
 
 const chemin = vi.hoisted(() => ({ courant: "/admin/reglages" }));
+const compteur = vi.hoisted(() => ({ valeur: 0 as number | null }));
+vi.mock("server-only", () => ({}));
+vi.mock("@/modules/admin/queries", () => ({ compterMessagesNouveaux: async () => compteur.valeur }));
 vi.mock("@/i18n/navigation", () => ({
   usePathname: () => chemin.courant,
   Link: ({ href, children, ...reste }: { href: string; children: React.ReactNode }) => (
@@ -15,29 +18,32 @@ vi.mock("@/i18n/navigation", () => ({
 
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 
+// CoqueAdmin est asynchrone (compteur lu par le client service) : on l'appelle puis on rend l'élément obtenu.
+async function coque(enfants: React.ReactNode) {
+  return CoqueAdmin({ children: enfants });
+}
+
 describe("CoqueAdmin", () => {
-  it("une navigation « Administration » avec la seule entrée Réglages, marquée courante", () => {
+  it("une navigation « Administration » avec Messages et Réglages, la page courante marquée", async () => {
     chemin.courant = "/admin/reglages";
-    rendre(
-      <CoqueAdmin>
-        <h1>Contenu</h1>
-      </CoqueAdmin>,
-    );
+    compteur.valeur = 0;
+    rendre(await coque(<h1>Contenu</h1>));
     const nav = screen.getByRole("navigation", { name: "Administration" });
     const liens = within(nav).getAllByRole("link");
-    expect(liens.map((l) => l.textContent)).toEqual(["Réglages"]);
-    expect(liens[0].getAttribute("href")).toBe("/admin/reglages");
-    expect(liens[0].getAttribute("aria-current")).toBe("page");
+    expect(liens.map((l) => l.textContent)).toEqual(["Messages", "Réglages"]);
+    expect(liens.map((l) => l.getAttribute("href"))).toEqual(["/admin/messages", "/admin/reglages"]);
+    expect(liens[1].getAttribute("aria-current")).toBe("page");
+    expect(liens[0].getAttribute("aria-current")).toBeNull();
     // Barre rouge de 4 px sur l'entrée courante, cible tactile de 44 px.
-    expect(liens[0].className).toContain("border-primary");
-    expect(liens[0].className).toContain("border-t-4");
-    expect(liens[0].className).toContain("md:border-l-4");
-    expect(liens[0].className).toContain("min-h-touch");
+    expect(liens[1].className).toContain("border-primary");
+    expect(liens[1].className).toContain("border-t-4");
+    expect(liens[1].className).toContain("md:border-l-4");
+    expect(liens[1].className).toContain("min-h-touch");
     expect(screen.getByRole("heading", { name: "Contenu" })).toBeTruthy();
   });
 
-  it("barre d'onglets fixe de 58 px sur mobile, barre latérale sur ordinateur", () => {
-    rendre(<CoqueAdmin>x</CoqueAdmin>);
+  it("barre d'onglets fixe de 58 px sur mobile, barre latérale sur ordinateur", async () => {
+    rendre(await coque("x"));
     const nav = screen.getByRole("navigation", { name: "Administration" });
     expect(nav.className).toContain("fixed");
     expect(nav.className).toContain("h-[58px]");
@@ -45,17 +51,37 @@ describe("CoqueAdmin", () => {
     expect(nav.hasAttribute("data-barre-admin")).toBe(true);
   });
 
-  it("hors de la page Réglages, l'entrée n'est pas courante", () => {
+  it("hors des pages listées, aucune entrée n'est courante", async () => {
     chemin.courant = "/admin";
-    rendre(<CoqueAdmin>x</CoqueAdmin>);
+    rendre(await coque("x"));
     const lien = screen.getByRole("link", { name: "Réglages" });
     expect(lien.getAttribute("aria-current")).toBeNull();
     expect(lien.className).toContain("border-transparent");
   });
 
-  it("libellés en anglais", () => {
+  it("libellés en anglais", async () => {
     chemin.courant = "/admin/reglages";
-    rendre(<CoqueAdmin>x</CoqueAdmin>, "en");
+    rendre(await coque("x"), "en");
     expect(within(screen.getByRole("navigation", { name: "Administration" })).getByRole("link", { name: "Settings" })).toBeTruthy();
+  });
+
+  it("compteur de messages : affiché quand il y en a, annoncé aux lecteurs d'écran", async () => {
+    compteur.valeur = 3;
+    rendre(await coque("x"));
+    const lien = screen.getByRole("link", { name: /Messages/ });
+    expect(lien.textContent).toContain("3");
+    expect(lien.textContent).toContain("3 nouveaux messages");
+  });
+
+  it("aucun nouveau message : pas de compteur (pas de « 0 »)", async () => {
+    compteur.valeur = 0;
+    rendre(await coque("x"));
+    expect(screen.getByRole("link", { name: "Messages" }).textContent).toBe("Messages");
+  });
+
+  it("lecture du compteur impossible : pas de compteur, jamais un faux zéro", async () => {
+    compteur.valeur = null;
+    rendre(await coque("x"));
+    expect(screen.getByRole("link", { name: "Messages" }).textContent).toBe("Messages");
   });
 });

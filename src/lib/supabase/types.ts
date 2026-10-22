@@ -72,6 +72,57 @@ export type Database = {
         }
         Relationships: []
       }
+      limite_essai: {
+        Row: {
+          cle: string
+          compteur: number
+          fenetre_debut: string
+        }
+        Insert: {
+          cle: string
+          compteur?: number
+          fenetre_debut: string
+        }
+        Update: {
+          cle?: string
+          compteur?: number
+          fenetre_debut?: string
+        }
+        Relationships: []
+      }
+      message_contact: {
+        Row: {
+          cree_le: string
+          email: string
+          id: string
+          langue: string
+          message: string
+          nom: string
+          statut: string
+          traite_le: string | null
+        }
+        Insert: {
+          cree_le?: string
+          email: string
+          id?: string
+          langue: string
+          message: string
+          nom: string
+          statut?: string
+          traite_le?: string | null
+        }
+        Update: {
+          cree_le?: string
+          email?: string
+          id?: string
+          langue?: string
+          message?: string
+          nom?: string
+          statut?: string
+          traite_le?: string | null
+        }
+        Relationships: []
+      }
       profil: {
         Row: {
           age_declare: number | null
@@ -179,6 +230,10 @@ export type Database = {
         Returns: undefined
       }
       compte_complet: { Args: { p_compte: string }; Returns: boolean }
+      consommer_essai: {
+        Args: { p_cle: string; p_fenetre_secondes: number; p_maximum: number }
+        Returns: boolean
+      }
       corriger_age: {
         Args: {
           p_age: number
@@ -196,6 +251,16 @@ export type Database = {
         Args: { p_auteur: Json; p_compte: string; p_langue: string }
         Returns: undefined
       }
+      enregistrer_message_contact: {
+        Args: {
+          p_auteur: Json
+          p_email: string
+          p_langue: string
+          p_message: string
+          p_nom: string
+        }
+        Returns: undefined
+      }
       enregistrer_questions_accueil: {
         Args: {
           p_auteur: Json
@@ -211,6 +276,10 @@ export type Database = {
       }
       est_mineur: { Args: { p_compte: string }; Returns: boolean }
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
+      marquer_message_traite: {
+        Args: { p_auteur: Json; p_id: string }
+        Returns: undefined
+      }
       masquer_donnee_personnelle: { Args: { p_valeur: Json }; Returns: Json }
       questions_accueil_vues: { Args: { p_compte: string }; Returns: boolean }
     }

@@ -1,5 +1,5 @@
 import type { AuteurCompte } from "@/lib/auth/auteur";
-import { correctionAgeSchema, entreeReglageSchema, nomSiteSchema, numeroWhatsappSchema } from "./schemas";
+import { correctionAgeSchema, entreeReglageSchema, idMessageSchema, nomSiteSchema, numeroWhatsappSchema } from "./schemas";
 import type { CorrectionAge, EntreeReglage } from "./schemas";
 import type { CleReglage, CodeErreurAdmin, DependancesAdmin, ResultatAdmin } from "./types";
 
@@ -92,6 +92,28 @@ export async function corrigerAgeParAdmin(deps: DependancesAdmin, entree: Correc
     return { ok: true, compteSupprime: true };
   } catch (e) {
     journaliser("correction d'âge", e);
+    return { ok: false, erreur: "generique" };
+  }
+}
+
+// Marque un message de contact comme traité : droit, rpc (journalisée avec l'auteur), succès seulement après la réponse de la base.
+export async function marquerMessageTraite(deps: DependancesAdmin, id: string): Promise<ResultatAdmin> {
+  const droit = await verifierDroit(deps, "messages.traiter");
+  if ("erreur" in droit) return { ok: false, erreur: droit.erreur };
+
+  const lu = idMessageSchema.safeParse(id);
+  if (!lu.success) return { ok: false, erreur: "generique" };
+
+  try {
+    const { erreur } = await deps.marquerMessageTraite({ auteur: droit.auteur, id: lu.data });
+    if (erreur) {
+      journaliser("message non marqué", erreur);
+      if (erreur.includes("KS_MESSAGE_INTROUVABLE")) return { ok: false, erreur: "message_introuvable" };
+      return { ok: false, erreur: codeDepuisBase(erreur, "generique") };
+    }
+    return { ok: true };
+  } catch (e) {
+    journaliser("message", e);
     return { ok: false, erreur: "generique" };
   }
 }

@@ -84,3 +84,13 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-7-acces-admin-roles-journal-et-reglage-whatsapp.md`
   summary: Pas de `retirer_role`, pas de protection du dernier admin (y compris par `corriger_age` sous 13 ans), trigger de suppression en cascade qui écrase `ks.auteur` quand la profondeur dépasse 1.
   evidence: hors périmètre de la 1.7 ; à traiter avec l'écran des rôles (epic 7) ; la correction d'âge n'a aucun écran pour l'instant.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-8-pages-a-propos-faq-et-contact.md`
+  summary: Limite de contact par IP : `x-forwarded-for` (premier élément) peut être falsifié, et sans IP tous les visiteurs partagent un seau commun. Gravité non vérifiée : moyenne.
+  evidence: dépend de l'en-tête réellement posé par le proxy Hostinger ; à vérifier au premier déploiement, puis choisir l'en-tête fiable.
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-8-pages-a-propos-faq-et-contact.md`
+  summary: La table `limite_essai` n'est jamais purgée ; prévoir une tâche Cron qui supprime les fenêtres de plus d'un jour.
+  evidence: une ligne par clé et par fenêtre ; croissance non bornée.
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-8-pages-a-propos-faq-et-contact.md`
+  summary: Le formulaire de contact collecte nom, email et message sans mention de vie privée ; ajouter le lien vers la politique de confidentialité quand elle existe (story 1.9).
+  evidence: pages légales prévues en 1.9 ; texte juridique à fournir par Jonathan.

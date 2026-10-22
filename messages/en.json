@@ -15,6 +15,18 @@
     "admin": {
       "titre": "Administration",
       "description": "Area reserved for site administration."
+    },
+    "aPropos": {
+      "titre": "Jonathan and his workshop",
+      "description": "Meet Jonathan, the maker behind the shop, and his workshop in Goma."
+    },
+    "faq": {
+      "titre": "FAQ",
+      "description": "Frequently asked questions about payment, delivery and lead times."
+    },
+    "contact": {
+      "titre": "Contact",
+      "description": "Send a message to Jonathan, the maker behind the shop."
     }
   },
   "Accueil": {
@@ -55,7 +67,12 @@
     }
   },
   "Pied": {
-    "identite": "Handmade in Goma, DRC. NATHANGROUP SARL."
+    "identite": "Handmade in Goma, DRC. NATHANGROUP SARL.",
+    "aide": {
+      "titre": "Help",
+      "faq": "FAQ",
+      "contact": "Contact"
+    }
   },
   "Composants": {
     "fermer": "Close",
@@ -185,7 +202,9 @@
   "Admin": {
     "nav": {
       "libelle": "Administration",
-      "reglages": "Settings"
+      "reglages": "Settings",
+      "messages": "Messages",
+      "messagesNouveaux": " ({nombre, plural, one {# new message} other {# new messages}})"
     },
     "reglages": {
       "titre": "Settings",
@@ -211,6 +230,83 @@
         "non_autorise": "You no longer have the right to change this setting. Reload the page or sign in again.",
         "generique": "The setting could not be saved. Your entry is kept: try again."
       }
+    },
+    "messages": {
+      "titre": "Messages",
+      "intro": "Messages received through the contact form. Reply by email, then mark the message as handled.",
+      "vide": "No new messages.",
+      "recuLe": "Received on {date}",
+      "marquer": "Mark as handled",
+      "enCours": "Saving…",
+      "succes": "Message marked as handled.",
+      "erreurLecture": "The messages could not be read. Reload the page.",
+      "erreurs": {
+        "non_autorise": "You no longer have the right to handle messages. Reload the page or sign in again.",
+        "message_introuvable": "This message is already handled or no longer exists. Reload the page.",
+        "generique": "The message could not be marked as handled. Try again."
+      }
+    }
+  },
+  "Whatsapp": {
+    "ecrire": "Write on WhatsApp",
+    "nouvelOnglet": " (opens in a new tab)"
+  },
+  "APropos": {
+    "titre": "Jonathan and his workshop",
+    "portrait": {
+      "titre": "Portrait",
+      "texte": "[Texte à fournir]"
+    },
+    "histoire": {
+      "titre": "Story",
+      "texte": "[Texte à fournir]"
+    },
+    "atelier": {
+      "titre": "Workshop",
+      "texte": "[Texte à fournir]"
+    }
+  },
+  "Faq": {
+    "titre": "FAQ",
+    "questions": {
+      "paiement": {
+        "question": "[Texte à fournir]",
+        "reponse": "[Texte à fournir]"
+      },
+      "livraison": {
+        "question": "[Texte à fournir]",
+        "reponse": "[Texte à fournir]"
+      },
+      "delais": {
+        "question": "[Texte à fournir]",
+        "reponse": "[Texte à fournir]"
+      }
+    }
+  },
+  "Contact": {
+    "titre": "Contact",
+    "intro": "Write your message below. All fields are required.",
+    "nom": {
+      "libelle": "Name"
+    },
+    "email": {
+      "libelle": "Email address"
+    },
+    "message": {
+      "libelle": "Message",
+      "aide": "10 to 2000 characters."
+    },
+    "envoyer": "Send message",
+    "enCours": "Sending…",
+    "succes": "Message sent. Your message has been saved.",
+    "whatsapp": "You can also write to us on WhatsApp.",
+    "erreurs": {
+      "resume": "There are errors to fix.",
+      "nom_invalide": "Enter your name, 1 to 80 characters.",
+      "email_invalide": "Enter a valid email address.",
+      "message_invalide": "Your message must be 10 to 2000 characters long.",
+      "trop_d_essais": "You have sent too many messages. Try again in an hour.",
+      "generique": "The message could not be sent. Your entry is kept: try again in a moment."
     }
   }
 }

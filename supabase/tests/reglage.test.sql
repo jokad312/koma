@@ -9,11 +9,12 @@ select ok(
   'la valeur de départ est journalisée'
 );
 
--- Une autre clé, présente pour vérifier que la lecture publique ne montre que nom_site.
+-- Le numéro WhatsApp (public depuis la 1.8) et une autre clé, pour vérifier que la lecture publique ne montre que ces deux clés.
+insert into public.reglage (cle, valeur) values ('numero_whatsapp', '+243970000000');
 insert into public.reglage (cle, valeur) values ('autre_cle', 'x');
 
 set local role anon;
-select is((select count(*)::int from public.reglage), 1, 'anon ne lit que nom_site');
+select is((select array_agg(cle order by cle) from public.reglage), array['nom_site', 'numero_whatsapp'], 'anon ne lit que nom_site et numero_whatsapp');
 select throws_ok($$insert into public.reglage (cle, valeur) values ('pirate', 'x')$$, '42501', null, 'anon ne peut pas insérer');
 select throws_ok($$update public.reglage set valeur = 'x' where cle = 'nom_site'$$, '42501', null, 'anon ne peut pas modifier');
 select throws_ok($$delete from public.reglage where cle = 'nom_site'$$, '42501', null, 'anon ne peut pas supprimer');

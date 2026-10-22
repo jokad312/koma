@@ -1,3 +1,4 @@
+import { contientMarqueur } from "@/lib/vitrine/marqueur";
 import { adresseSite } from "./url";
 
 // Données de l'éditeur (CLAUDE.md) ; aucune note, avis ni chiffre.
@@ -21,4 +22,30 @@ export function organisationJsonLd(nomSite: string) {
 // Sérialisation sûre dans une balise <script> : « < » est échappé.
 export function serialiserJsonLd(donnees: unknown): string {
   return JSON.stringify(donnees).replace(/</g, "\\u003c");
+}
+
+type DonneesPage = { nom: string; description: string; url: string; langue: string };
+
+export function pageWebJsonLd({ nom, description, url, langue }: DonneesPage) {
+  return { "@context": "https://schema.org", "@type": "WebPage", name: nom, description, url, inLanguage: langue };
+}
+
+export function pageContactJsonLd({ nom, description, url, langue }: DonneesPage) {
+  return { "@context": "https://schema.org", "@type": "ContactPage", name: nom, description, url, inLanguage: langue };
+}
+
+export type PaireFaq = { question: string; reponse: string };
+
+// FAQPage des seules vraies paires : une paire dont la question ou la réponse contient le marqueur « [Texte à fournir] » est exclue.
+// Aucune paire réelle : null (la page publie alors un simple WebPage).
+export function faqJsonLd(paires: readonly PaireFaq[], { url, langue }: { url: string; langue: string }) {
+  const reelles = paires.filter((p) => !contientMarqueur(p.question) && !contientMarqueur(p.reponse));
+  if (reelles.length === 0) return null;
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    url,
+    inLanguage: langue,
+    mainEntity: reelles.map((p) => ({ "@type": "Question", name: p.question, acceptedAnswer: { "@type": "Answer", text: p.reponse } })),
+  };
 }

@@ -28,6 +28,7 @@ const INTERDITS_ASSISTANT: Droit[] = [
   "reglages.modifier",
   "roles.gerer",
   "age.corriger",
+  "messages.traiter",
   "admin.acceder",
 ];
 

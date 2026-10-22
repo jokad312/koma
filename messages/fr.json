@@ -15,6 +15,18 @@
     "admin": {
       "titre": "Administration",
       "description": "Espace réservé à l'administration du site."
+    },
+    "aPropos": {
+      "titre": "Jonathan et son atelier",
+      "description": "Découvre Jonathan, le créateur de la boutique, et son atelier à Goma."
+    },
+    "faq": {
+      "titre": "FAQ",
+      "description": "Questions fréquentes sur le paiement, la livraison et les délais."
+    },
+    "contact": {
+      "titre": "Contact",
+      "description": "Envoie un message à Jonathan, le créateur de la boutique."
     }
   },
   "Accueil": {
@@ -55,7 +67,12 @@
     }
   },
   "Pied": {
-    "identite": "Fait main à Goma, RDC. NATHANGROUP SARL."
+    "identite": "Fait main à Goma, RDC. NATHANGROUP SARL.",
+    "aide": {
+      "titre": "Aide",
+      "faq": "FAQ",
+      "contact": "Contact"
+    }
   },
   "Composants": {
     "fermer": "Fermer",
@@ -185,7 +202,9 @@
   "Admin": {
     "nav": {
       "libelle": "Administration",
-      "reglages": "Réglages"
+      "reglages": "Réglages",
+      "messages": "Messages",
+      "messagesNouveaux": " ({nombre, plural, one {# nouveau message} other {# nouveaux messages}})"
     },
     "reglages": {
       "titre": "Réglages",
@@ -211,6 +230,83 @@
         "non_autorise": "Tu n'as plus le droit de modifier ce réglage. Recharge la page ou reconnecte-toi.",
         "generique": "Le réglage n'a pas pu être enregistré. Ta saisie est conservée : réessaie."
       }
+    },
+    "messages": {
+      "titre": "Messages",
+      "intro": "Messages reçus par le formulaire de contact. Réponds par email, puis marque le message comme traité.",
+      "vide": "Aucun nouveau message.",
+      "recuLe": "Reçu le {date}",
+      "marquer": "Marquer comme traité",
+      "enCours": "Enregistrement…",
+      "succes": "Message marqué comme traité.",
+      "erreurLecture": "Les messages n'ont pas pu être lus. Recharge la page.",
+      "erreurs": {
+        "non_autorise": "Tu n'as plus le droit de traiter les messages. Recharge la page ou reconnecte-toi.",
+        "message_introuvable": "Ce message est déjà traité ou n'existe plus. Recharge la page.",
+        "generique": "Le message n'a pas pu être marqué comme traité. Réessaie."
+      }
+    }
+  },
+  "Whatsapp": {
+    "ecrire": "Écrire sur WhatsApp",
+    "nouvelOnglet": " (s'ouvre dans un nouvel onglet)"
+  },
+  "APropos": {
+    "titre": "Jonathan et son atelier",
+    "portrait": {
+      "titre": "Portrait",
+      "texte": "[Texte à fournir]"
+    },
+    "histoire": {
+      "titre": "Histoire",
+      "texte": "[Texte à fournir]"
+    },
+    "atelier": {
+      "titre": "Atelier",
+      "texte": "[Texte à fournir]"
+    }
+  },
+  "Faq": {
+    "titre": "FAQ",
+    "questions": {
+      "paiement": {
+        "question": "[Texte à fournir]",
+        "reponse": "[Texte à fournir]"
+      },
+      "livraison": {
+        "question": "[Texte à fournir]",
+        "reponse": "[Texte à fournir]"
+      },
+      "delais": {
+        "question": "[Texte à fournir]",
+        "reponse": "[Texte à fournir]"
+      }
+    }
+  },
+  "Contact": {
+    "titre": "Contact",
+    "intro": "Écris ton message ci-dessous. Tous les champs sont obligatoires.",
+    "nom": {
+      "libelle": "Nom"
+    },
+    "email": {
+      "libelle": "Adresse email"
+    },
+    "message": {
+      "libelle": "Message",
+      "aide": "De 10 à 2000 caractères."
+    },
+    "envoyer": "Envoyer le message",
+    "enCours": "Envoi…",
+    "succes": "Message envoyé. Ton message a bien été enregistré.",
+    "whatsapp": "Tu peux aussi nous écrire sur WhatsApp.",
+    "erreurs": {
+      "resume": "Il y a des erreurs à corriger.",
+      "nom_invalide": "Saisis ton nom, de 1 à 80 caractères.",
+      "email_invalide": "Saisis une adresse email valide.",
+      "message_invalide": "Ton message doit avoir de 10 à 2000 caractères.",
+      "trop_d_essais": "Tu as envoyé trop de messages. Réessaie dans une heure.",
+      "generique": "Le message n'a pas pu être envoyé. Ta saisie est conservée : réessaie dans un instant."
     }
   }
 }

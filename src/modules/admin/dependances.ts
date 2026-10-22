@@ -19,6 +19,10 @@ export function dependances(): DependancesAdmin {
       const { data, error } = await admin.rpc("corriger_age", { p_auteur: auteur as never, p_compte: compteId, p_age: age, p_raison: raison });
       return { erreur: error ? error.message : null, supprimer: data === true };
     },
+    marquerMessageTraite: async ({ auteur, id }) => {
+      const { error } = await admin.rpc("marquer_message_traite", { p_auteur: auteur as never, p_id: id });
+      return { erreur: error ? error.message : null };
+    },
     supprimerCompte: async (compteId) => {
       const { error } = await admin.auth.admin.deleteUser(compteId);
       return { erreur: error !== null };

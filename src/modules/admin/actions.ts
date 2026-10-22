@@ -28,3 +28,18 @@ export async function enregistrerReglage(_etat: EtatReglage | null, formData: Fo
   if (!resultat.ok) return { statut: "erreur", cle, erreur: resultat.erreur, valeur };
   return { statut: "succes", cle, valeur: resultat.valeur ?? "" };
 }
+
+// Résultat rendu au bouton « Marquer comme traité » : le succès n'existe qu'après la réponse réelle de la base.
+export type EtatMessageTraite = { statut: "succes"; id: string } | { statut: "erreur"; id: string; erreur: CodeErreurAdmin };
+
+export async function marquerMessageTraite(_etat: EtatMessageTraite | null, formData: FormData): Promise<EtatMessageTraite> {
+  const id = String(formData.get("id") ?? "");
+  try {
+    const resultat = await service.marquerMessageTraite(dependances(), id);
+    if (!resultat.ok) return { statut: "erreur", id, erreur: resultat.erreur };
+    return { statut: "succes", id };
+  } catch {
+    console.error("[admin] message : exception inattendue");
+    return { statut: "erreur", id, erreur: "generique" };
+  }
+}

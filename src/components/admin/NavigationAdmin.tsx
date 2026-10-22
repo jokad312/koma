@@ -4,11 +4,15 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 
 // Seules les entrées dont la page existe sont listées : chaque story qui crée une page admin ajoute sa ligne ici.
-const ENTREES = [{ cle: "reglages", href: "/admin/reglages" }] as const;
+const ENTREES = [
+  { cle: "messages", href: "/admin/messages" },
+  { cle: "reglages", href: "/admin/reglages" },
+] as const;
 
 // Barre latérale sur ordinateur, barre d'onglets fixe en bas (58 px) sur mobile : un seul élément nav, mis en forme par le CSS.
 // Entrée courante : barre rouge de 4 px (en haut de l'onglet sur mobile, à gauche sur ordinateur).
-export function NavigationAdmin() {
+// compteurMessages : nombre de messages « nouveau » ; null (lecture impossible) ou 0 : aucun compteur affiché.
+export function NavigationAdmin({ compteurMessages = null }: { compteurMessages?: number | null }) {
   const t = useTranslations("Admin.nav");
   const chemin = usePathname();
   return (
@@ -30,6 +34,14 @@ export function NavigationAdmin() {
                 }`}
               >
                 {t(cle)}
+                {cle === "messages" && compteurMessages ? (
+                  <>
+                    <span aria-hidden="true" className="t-small ml-2 inline-flex min-w-6 items-center justify-center rounded-full bg-primary px-2 text-on-primary">
+                      {compteurMessages}
+                    </span>
+                    <span className="sr-only">{t("messagesNouveaux", { nombre: compteurMessages })}</span>
+                  </>
+                ) : null}
               </Link>
             </li>
           );

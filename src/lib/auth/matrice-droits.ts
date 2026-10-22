@@ -26,6 +26,7 @@ export const DROITS = [
   "reglages.modifier",
   "roles.gerer",
   "age.corriger",
+  "messages.traiter",
 ] as const;
 
 export type Droit = (typeof DROITS)[number];

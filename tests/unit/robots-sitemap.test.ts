@@ -24,12 +24,22 @@ describe("robots", () => {
 describe("sitemap", () => {
   it("liste les deux langues avec alternates, depuis NEXT_PUBLIC_SITE_URL", () => {
     const entrees = sitemap();
-    expect(entrees.map((e) => e.url)).toEqual(["http://localhost:3000/fr", "http://localhost:3000/en"]);
-    for (const e of entrees) {
-      expect(e.alternates?.languages).toEqual({
-        fr: "http://localhost:3000/fr",
-        en: "http://localhost:3000/en",
-        "x-default": "http://localhost:3000/fr",
+    expect(entrees.map((e) => e.url)).toEqual([
+      "http://localhost:3000/fr",
+      "http://localhost:3000/en",
+      "http://localhost:3000/fr/a-propos",
+      "http://localhost:3000/en/a-propos",
+      "http://localhost:3000/fr/faq",
+      "http://localhost:3000/en/faq",
+      "http://localhost:3000/fr/contact",
+      "http://localhost:3000/en/contact",
+    ]);
+    for (const chemin of ["", "/a-propos", "/faq", "/contact"]) {
+      const e = entrees.find((x) => x.url === `http://localhost:3000/fr${chemin}`);
+      expect(e?.alternates?.languages).toEqual({
+        fr: `http://localhost:3000/fr${chemin}`,
+        en: `http://localhost:3000/en${chemin}`,
+        "x-default": `http://localhost:3000/fr${chemin}`,
       });
     }
   });

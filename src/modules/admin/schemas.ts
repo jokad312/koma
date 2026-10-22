@@ -20,6 +20,8 @@ export const entreeReglageSchema = z.object({
 
 export type EntreeReglage = z.input<typeof entreeReglageSchema>;
 
+export const idMessageSchema = z.uuid();
+
 // Correction d'âge (service seulement, aucun écran au lancement).
 export const correctionAgeSchema = z.object({
   compteId: z.uuid(),
