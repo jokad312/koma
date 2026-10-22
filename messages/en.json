@@ -148,7 +148,7 @@
       "code_expire": "This code has expired.",
       "age_invalide": "Enter your age in digits, between 0 and 120.",
       "suppression_echouee": "You are under the minimum age and your Account could not be deleted automatically. Try again in a moment.",
-      "non_connecte": "Your session has ended. Go back to the email step to sign in again.",
+      "non_connecte": "Your session has ended. Sign in again to continue.",
       "generique": "Something went wrong. Try again in a moment.",
       "navigateur_integre": "Signing in with Google is not possible inside this app. Use the code sent by email, or open the site in your browser.",
       "google": "Signing in with Google did not work. Try again, or use the code sent by email."

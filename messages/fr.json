@@ -148,7 +148,7 @@
       "code_expire": "Ce code a expiré.",
       "age_invalide": "Saisis ton âge en chiffres, entre 0 et 120.",
       "suppression_echouee": "Tu n'as pas l'âge minimum et ton Compte n'a pas pu être supprimé automatiquement. Réessaie dans un instant.",
-      "non_connecte": "Ta session a pris fin. Reviens à l'étape de l'email pour te reconnecter.",
+      "non_connecte": "Ta session a pris fin. Reconnecte-toi pour continuer.",
       "generique": "Une erreur est survenue. Réessaie dans un instant.",
       "navigateur_integre": "La connexion avec Google n'est pas possible dans cette application. Utilise le code reçu par email, ou ouvre le site dans ton navigateur.",
       "google": "La connexion avec Google n'a pas abouti. Réessaie, ou utilise le code reçu par email."

@@ -60,6 +60,20 @@ describe("terminerGoogle", () => {
     trace.mockRestore();
   });
 
+  it("profil absent (Compte recréé) : profil garanti avant la lecture de l'état, puis étape « âge »", async () => {
+    const { deps, appels } = creerTestDependances({ complet: false, profilAbsent: true });
+    expect(await terminerGoogle(deps, { code: "TEST_code", langue: "en", retour: "/en" })).toEqual({ ok: true, etape: "age", retour: "/en" });
+    expect(appels.ordre.slice(0, 2)).toEqual(["profil", "complet"]);
+    expect(appels.profils).toEqual([{ auteur: { type: "compte", id: TEST_COMPTE_ID, role: null }, compteId: TEST_COMPTE_ID, langue: "en" }]);
+  });
+
+  it("profil impossible à garantir : erreur générique", async () => {
+    const trace = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { deps } = creerTestDependances({ erreurProfil: "42501" });
+    expect(await terminerGoogle(deps, { code: "TEST_code", langue: "fr", retour: "/fr" })).toEqual({ ok: false, erreur: "generique" });
+    trace.mockRestore();
+  });
+
   it("code absent ou échange refusé : erreur « google »", async () => {
     const trace = vi.spyOn(console, "error").mockImplementation(() => {});
     const a = creerTestDependances();

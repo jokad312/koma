@@ -124,15 +124,48 @@ describe("declarerAge", () => {
     expect(appels.suppressions).toHaveLength(0);
     expect(appels.fermetures).toBe(0);
   });
-  it("profil introuvable : non connecté, rien n'est supprimé", async () => {
-    const { deps, appels } = creerTestDependances({ erreurAge: "KS_PROFIL_INTROUVABLE" });
-    expect(await declarerAge(deps, { age: "20", langue: "fr" })).toEqual({ ok: false, erreur: "non_connecte" });
+  it("profil absent puis reconnexion : le profil est créé, l'âge est réessayé une fois, le Compte n'est pas supprimé", async () => {
+    const { deps, appels } = creerTestDependances({ profilAbsent: true });
+    expect(await declarerAge(deps, { age: "24", langue: "en", retour: "/en/blog" })).toEqual({ ok: true, retour: "/en/blog", etape: "questions" });
+    expect(appels.ordre.filter((o) => o !== "complet")).toEqual(["age", "profil", "age"]);
+    expect(appels.profils).toEqual([{ auteur: { type: "compte", id: TEST_COMPTE_ID, role: null }, compteId: TEST_COMPTE_ID, langue: "en" }]);
     expect(appels.suppressions).toHaveLength(0);
+  });
+  it("profil toujours introuvable après le filet : erreur générique, jamais « session expirée », cause journalisée", async () => {
+    const { deps, appels } = creerTestDependances({ erreurAge: "KS_PROFIL_INTROUVABLE" });
+    expect(await declarerAge(deps, { age: "20", langue: "fr" })).toEqual({ ok: false, erreur: "generique" });
+    expect(appels.ages).toHaveLength(2);
+    expect(appels.suppressions).toHaveLength(0);
+    expect(console.error).toHaveBeenCalledWith("[comptes] déclaration d'âge refusée : KS_PROFIL_INTROUVABLE");
+  });
+  it("filet refusé : erreur générique avec la vraie cause dans le journal, sans second essai", async () => {
+    const { deps, appels } = creerTestDependances({ profilAbsent: true, erreurProfil: "42501" });
+    expect(await declarerAge(deps, { age: "20", langue: "fr" })).toEqual({ ok: false, erreur: "generique" });
+    expect(appels.ages).toHaveLength(1);
+    expect(console.error).toHaveBeenCalledWith("[comptes] profil non garanti : 42501");
+  });
+  it("refus inconnu : erreur générique, texte du refus non journalisé", async () => {
+    const { deps } = creerTestDependances({ erreurAge: "message avec ana@exemple.org" });
+    expect(await declarerAge(deps, { age: "20", langue: "fr" })).toEqual({ ok: false, erreur: "generique" });
+    expect(vi.mocked(console.error).mock.calls.flat().join(" ")).not.toContain("ana@");
   });
   it("sans session : refusé", async () => {
     const { deps } = creerTestDependances({ sub: null });
     expect(await declarerAge(deps, { age: "20", langue: "fr" })).toEqual({ ok: false, erreur: "non_connecte" });
     expect(deps.declarerAge).not.toHaveBeenCalled();
+  });
+});
+
+describe("filet du profil à la connexion", () => {
+  it("code email : le profil est garanti avant la lecture de l'état du Compte", async () => {
+    const { deps, appels } = creerTestDependances({ profilAbsent: true });
+    const r = await verifierCode(deps, { email: "test@example.invalid", code: "123456", langue: "fr" });
+    expect(r).toMatchObject({ ok: true, etape: "age" });
+    expect(appels.ordre).toEqual(["profil", "complet"]);
+  });
+  it("code email : profil impossible à garantir → erreur générique", async () => {
+    const { deps } = creerTestDependances({ erreurProfil: "KS_DROIT_REFUSE" });
+    expect(await verifierCode(deps, { email: "test@example.invalid", code: "123456", langue: "fr" })).toEqual({ ok: false, erreur: "generique" });
   });
 });
 

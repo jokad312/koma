@@ -16,12 +16,16 @@ type Reglages = {
   urlOauth?: string | null;
   echange?: ErreurAuth;
   erreurLangue?: string | null;
+  erreurProfil?: string | null;
+  // Profil absent : declarerAge répond KS_PROFIL_INTROUVABLE jusqu'à ce que assurerProfil le crée.
+  profilAbsent?: boolean;
   questionsVues?: boolean | "erreur";
   erreurQuestions?: string | null;
 };
 
 export function creerTestDependances(r: Reglages = {}) {
-  const appels = { suppressions: [] as string[], ages: [] as unknown[], langues: [] as unknown[], questions: [] as unknown[], oauth: [] as unknown[], echanges: [] as string[], fermetures: 0, envois: [] as unknown[] };
+  const appels = { suppressions: [] as string[], ages: [] as unknown[], langues: [] as unknown[], profils: [] as unknown[], ordre: [] as string[], questions: [] as unknown[], oauth: [] as unknown[], echanges: [] as string[], fermetures: 0, envois: [] as unknown[] };
+  let profilAbsent = r.profilAbsent ?? false;
   const deps: DependancesComptes = {
     auth: {
       signInWithOtp: vi.fn(async (args) => {
@@ -49,7 +53,10 @@ export function creerTestDependances(r: Reglages = {}) {
         return { error: null };
       }),
     },
-    compteComplet: vi.fn(async () => ({ complet: r.complet ?? false })),
+    compteComplet: vi.fn(async () => {
+      appels.ordre.push("complet");
+      return { complet: r.complet ?? false };
+    }),
     questionsVues: vi.fn(async () => (r.questionsVues === "erreur" ? { erreur: true as const } : { vues: r.questionsVues ?? false })),
     enregistrerQuestions: vi.fn(async (args) => {
       appels.questions.push(args);
@@ -57,7 +64,16 @@ export function creerTestDependances(r: Reglages = {}) {
     }),
     declarerAge: vi.fn(async (args) => {
       appels.ages.push(args);
+      appels.ordre.push("age");
+      if (profilAbsent) return { erreur: "KS_PROFIL_INTROUVABLE" };
       return { erreur: r.erreurAge ?? null };
+    }),
+    assurerProfil: vi.fn(async (args) => {
+      appels.profils.push(args);
+      appels.ordre.push("profil");
+      if (r.erreurProfil) return { erreur: r.erreurProfil };
+      profilAbsent = false;
+      return { erreur: null };
     }),
     definirLangue: vi.fn(async (args) => {
       appels.langues.push(args);

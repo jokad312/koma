@@ -15,6 +15,14 @@ function journaliser(contexte: string, erreur: unknown) {
   console.error(`[comptes] ${contexte} : ${nom}${code}${statut}`);
 }
 
+// Garantit la ligne profil du Compte avant toute lecture de son état (filet : le déclencheur peut avoir manqué).
+// Un échec est journalisé avec sa cause (code KS_ ou SQL, sans donnée personnelle) et renvoyé tel quel.
+async function garantirProfil(deps: DependancesComptes, compteId: string, langue: Langue): Promise<string | null> {
+  const { erreur } = await deps.assurerProfil({ auteur: construireAuteur(compteId), compteId, langue });
+  if (erreur) console.error(`[comptes] profil non garanti : ${erreur}`);
+  return erreur;
+}
+
 const CODES_LIMITE = new Set(["over_email_send_rate_limit", "over_request_rate_limit"]);
 
 // Envoie un code : le résultat ne dit « ok » qu'après la réponse réelle de Supabase (règle 13).
@@ -72,6 +80,7 @@ export async function verifierCode(deps: DependancesComptes, entree: Verificatio
     }
     const compteId = data.user?.id ?? data.session?.user.id;
     if (!compteId) return { ok: false, erreur: "generique" };
+    if (await garantirProfil(deps, compteId, lu.data.langue)) return { ok: false, erreur: "generique" };
     const etat = await deps.compteComplet(compteId);
     if ("erreur" in etat) return { ok: false, erreur: "generique" };
     const retour = cheminRetourValide(lu.data.retour, lu.data.langue);
@@ -93,7 +102,13 @@ export async function declarerAge(deps: DependancesComptes, entree: DeclarationA
     const compteId = data?.claims?.sub;
     if (erreurSession || !compteId) return { ok: false, erreur: "non_connecte" };
 
-    const { erreur } = await deps.declarerAge({ auteur: construireAuteur(compteId), compteId, age: lu.data.age });
+    const demande = { auteur: construireAuteur(compteId), compteId, age: lu.data.age };
+    let { erreur } = await deps.declarerAge(demande);
+    if (erreur?.includes("KS_PROFIL_INTROUVABLE")) {
+      // La session est valide mais la ligne profil manque : on la crée une fois, puis on réessaie une fois.
+      if (await garantirProfil(deps, compteId, lu.data.langue)) return { ok: false, erreur: "generique" };
+      ({ erreur } = await deps.declarerAge(demande));
+    }
     if (!erreur) return { ok: true, retour: cheminRetourValide(lu.data.retour, lu.data.langue), etape: await etapeApresConnexion(deps, compteId, true) };
 
     if (erreur.includes("KS_AGE_MINIMUM")) {
@@ -112,9 +127,9 @@ export async function declarerAge(deps: DependancesComptes, entree: DeclarationA
     }
     // Double envoi ou second onglet : l'âge est déjà déclaré, on poursuit ; jamais de suppression.
     if (erreur.includes("KS_AGE_DEJA_DECLARE")) return { ok: true, retour: cheminRetourValide(lu.data.retour, lu.data.langue), etape: await etapeApresConnexion(deps, compteId, true) };
-    if (erreur.includes("KS_PROFIL_INTROUVABLE")) return { ok: false, erreur: "non_connecte" };
     if (erreur.includes("KS_AGE_INVALIDE")) return { ok: false, erreur: "age_invalide" };
-    console.error("[comptes] déclaration d'âge refusée");
+    // Seule la cause (code KS_) est journalisée, jamais l'âge ni l'identité.
+    console.error(`[comptes] déclaration d'âge refusée : ${/^KS_[A-Z_]+$/.test(erreur) ? erreur : "inconnue"}`);
     return { ok: false, erreur: "generique" };
   } catch (e) {
     journaliser("déclaration d'âge", e);
@@ -180,6 +195,7 @@ export async function terminerGoogle(
     }
     const compteId = data?.user?.id ?? data?.session?.user.id;
     if (!compteId) return { ok: false, erreur: "google" };
+    if (await garantirProfil(deps, compteId, entree.langue)) return { ok: false, erreur: "generique" };
     const etat = await deps.compteComplet(compteId);
     if ("erreur" in etat) return { ok: false, erreur: "generique" };
     if (!etat.complet) {

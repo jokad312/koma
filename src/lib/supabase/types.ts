@@ -129,6 +129,10 @@ export type Database = {
     }
     Functions: {
       admin_sante: { Args: never; Returns: number }
+      assurer_profil: {
+        Args: { p_auteur: Json; p_compte: string; p_langue: string }
+        Returns: undefined
+      }
       compte_complet: { Args: { p_compte: string }; Returns: boolean }
       declarer_age: {
         Args: { p_age: number; p_auteur: Json; p_compte: string }

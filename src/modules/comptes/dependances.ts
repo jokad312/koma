@@ -30,6 +30,11 @@ export async function dependances(): Promise<DependancesComptes> {
       const { error } = await admin.rpc("declarer_age", { p_auteur: auteur as never, p_compte: compteId, p_age: age });
       return { erreur: error ? error.message : null };
     },
+    assurerProfil: async ({ auteur, compteId, langue }) => {
+      const { error } = await admin.rpc("assurer_profil", { p_auteur: auteur as never, p_compte: compteId, p_langue: langue });
+      // Seule la cause est renvoyée : le code KS_ du refus, sinon le code SQL. Jamais de donnée personnelle.
+      return { erreur: error ? (error.message.startsWith("KS_") ? error.message : (error.code || "inconnu")) : null };
+    },
     definirLangue: async ({ auteur, compteId, langue }) => {
       const { error } = await admin.rpc("definir_langue_profil", { p_auteur: auteur as never, p_compte: compteId, p_langue: langue });
       return { erreur: error ? error.message : null };
