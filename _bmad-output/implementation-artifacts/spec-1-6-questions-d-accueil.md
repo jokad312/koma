@@ -61,6 +61,29 @@ context:
 - Given des réponses valides, when il valide, then `profil` contient origine, préférence et `questions_accueil_le`, et un second envoi ne change rien
 - Given `lint`, `typecheck`, `test`, `build`, then tous passent ; `test:sql` en CI
 
+## Review Triage Log
+
+Revue complète du 2026-10-22 : Blind Hunter, Edge Case Hunter, Verification Gap (sous-agents), plus l'auto-revue de la première passe.
+
+| Constat | Verdict | Route | Évidence |
+|---------|---------|-------|----------|
+| `KS_AGE_NON_DECLARE` renvoie `generique` au lieu de `non_connecte` (matrice) | medium | patch | mappé sur `non_connecte` ; test mis à jour |
+| Boutons « Continuer » / « Passer » / Entrée non verrouillés pendant l'envoi | medium | patch | verrou par `useRef` dans `envoyer` ; test d'un seul appel (`Bouton` est `type="button"` par défaut : pas de double soumission par « Passer ») |
+| Message « session perdue » sans sortie | medium | patch | bouton « Se reconnecter » vers l'étape de l'email ; test |
+| Appel de l'action rejeté (réseau) : exception non gérée | medium | patch | `try/catch/finally` ; test |
+| `lireEtatCompte` / branche `verifierCode`→« questions » sans test | medium | patch | `etat-compte.test.ts`, test du formulaire, étape e2e (rouvrir `/connexion` sans répondre) |
+| Valeurs permises écrites en trois endroits sans test de cohérence | medium | patch | `questions-accueil-valeurs.test.ts` (Zod = check SQL = fonction SQL) |
+| pgTAP : `anon` et lecture `questions_accueil_vues` non testés | low | patch | 3 assertions ajoutées (plan 19) |
+| `etapeApresConnexion` avale l'erreur sans journal ; deux clients et deux appels | low | patch | `journaliser` ajouté ; un seul client de service |
+| « Facultatif. » du groupe radios non relié au `fieldset` | low | patch | `aria-describedby` |
+| Mention d'usage, consultation, correction et suppression des réponses | medium | defer | page Compte et textes légaux (1.9 et suivantes) ; entrée dans `deferred-work.md` |
+| Test clavier dédié, thème sombre / contraste forcé de la coche | low | defer | radios natifs ; entrée dans `deferred-work.md` |
+| Question « univers » non reprise par une story de l'epic 2 | medium | defer | rattachée à la story 2.1 (critère d'acceptation ajouté dans `epics.md`) |
+| Préférence « porter / fabriquer » impossible à effacer | low | rejeté | sélecteur à deux options (UX-DR23) ; « Passer » et l'absence de choix restent possibles |
+| Comptes existants (sans `questions_accueil_le`) voient les questions | false | rejeté | voulu par Jonathan (une fois, puis jamais) |
+| Statut de la spec ≠ `sprint-status.yaml` | false | rejeté | aligné à la fin de la story |
+| Divergence page / service si la lecture des questions échoue | low | rejeté | voulu : un doute ne bloque jamais |
+
 ## Verification
 
 **Commands:**
