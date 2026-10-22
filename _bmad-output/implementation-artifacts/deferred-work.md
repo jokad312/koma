@@ -74,3 +74,13 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-6-questions-d-accueil.md`
   summary: Test clavier dédié et rendu en thème sombre / contraste forcé de l'étape « questions » (coche des radios).
   evidence: (low) radios natifs, bordure rouge 2 px et coche ; non vérifiés automatiquement car l'étape n'est atteignable en e2e qu'avec la boîte de test.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-7-acces-admin-roles-journal-et-reglage-whatsapp.md`
+  summary: `a_le_role` reste exécutable par anon/authenticated : n'importe qui peut sonder le rôle d'un identifiant de Compte connu.
+  evidence: exigé par la spec (AD-13, exception unique de lecture) ; à réexaminer quand les politiques RLS qui l'utilisent existent (epic 7) ; restreindre à `auth.uid()` ou révoquer si aucune politique ne l'appelle.
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-7-acces-admin-roles-journal-et-reglage-whatsapp.md`
+  summary: Statut HTTP de la 404 et de la redirection admin sous Suspense (cacheComponents) peut être 200. Gravité non vérifiée : moyenne.
+  evidence: le contrôle de droit s'exécute dans un Suspense ; à régler par `curl -I` sur `/fr/admin` ; le contenu et `noindex` sont corrects.
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-7-acces-admin-roles-journal-et-reglage-whatsapp.md`
+  summary: Pas de `retirer_role`, pas de protection du dernier admin (y compris par `corriger_age` sous 13 ans), trigger de suppression en cascade qui écrase `ks.auteur` quand la profondeur dépasse 1.
+  evidence: hors périmètre de la 1.7 ; à traiter avec l'écran des rôles (epic 7) ; la correction d'âge n'a aucun écran pour l'instant.

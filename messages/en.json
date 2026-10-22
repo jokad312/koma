@@ -11,6 +11,10 @@
     "connexion": {
       "titre": "Sign in",
       "description": "Sign in or create your Account with a code sent by email, no password needed."
+    },
+    "admin": {
+      "titre": "Administration",
+      "description": "Area reserved for site administration."
     }
   },
   "Accueil": {
@@ -177,5 +181,36 @@
     "aideIos": "Tap ⋯ (or the share icon), then \"Open in Safari\". You can also copy the link and paste it in Safari.",
     "aideAutre": "Tap ⋯ then \"Open in browser\", or copy the link and paste it in your browser.",
     "fermer": "Close notice"
+  },
+  "Admin": {
+    "nav": {
+      "libelle": "Administration",
+      "reglages": "Settings"
+    },
+    "reglages": {
+      "titre": "Settings",
+      "intro": "What you set here applies to the site. Every change is recorded in the log.",
+      "valeurActuelle": "Current value: {valeur}",
+      "valeurAFixer": "Value to set",
+      "enregistrer": "Save",
+      "enCours": "Saving…",
+      "succes": "Setting saved.",
+      "nomSite": {
+        "titre": "Site name",
+        "libelle": "Site name",
+        "aide": "1 to 60 characters. It appears in the header, the footer and the page titles."
+      },
+      "numeroWhatsapp": {
+        "titre": "WhatsApp number",
+        "libelle": "WhatsApp number",
+        "aide": "International format: the + sign then 8 to 15 digits, for example +243 970 000 000. Leave empty to clear it."
+      },
+      "erreurs": {
+        "nom_invalide": "The name must be 1 to 60 characters long.",
+        "numero_invalide": "The number must start with + and contain 8 to 15 digits.",
+        "non_autorise": "You no longer have the right to change this setting. Reload the page or sign in again.",
+        "generique": "The setting could not be saved. Your entry is kept: try again."
+      }
+    }
   }
 }

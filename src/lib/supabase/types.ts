@@ -123,17 +123,71 @@ export type Database = {
         }
         Relationships: []
       }
+      role_utilisateur: {
+        Row: {
+          compte: string
+          cree_le: string
+          evenement: string | null
+          id: string
+          role: string
+          valide_au: string | null
+          valide_du: string | null
+        }
+        Insert: {
+          compte: string
+          cree_le?: string
+          evenement?: string | null
+          id?: string
+          role: string
+          valide_au?: string | null
+          valide_du?: string | null
+        }
+        Update: {
+          compte?: string
+          cree_le?: string
+          evenement?: string | null
+          id?: string
+          role?: string
+          valide_au?: string | null
+          valide_du?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      a_le_role: {
+        Args: { p_compte: string; p_evenement?: string; p_role: string }
+        Returns: boolean
+      }
       admin_sante: { Args: never; Returns: number }
       assurer_profil: {
         Args: { p_auteur: Json; p_compte: string; p_langue: string }
         Returns: undefined
       }
+      attribuer_role: {
+        Args: {
+          p_auteur: Json
+          p_compte: string
+          p_evenement?: string
+          p_role: string
+          p_valide_au?: string
+          p_valide_du?: string
+        }
+        Returns: undefined
+      }
       compte_complet: { Args: { p_compte: string }; Returns: boolean }
+      corriger_age: {
+        Args: {
+          p_age: number
+          p_auteur: Json
+          p_compte: string
+          p_raison: string
+        }
+        Returns: boolean
+      }
       declarer_age: {
         Args: { p_age: number; p_auteur: Json; p_compte: string }
         Returns: undefined
@@ -151,7 +205,12 @@ export type Database = {
         }
         Returns: undefined
       }
+      enregistrer_reglage: {
+        Args: { p_auteur: Json; p_cle: string; p_valeur: string }
+        Returns: undefined
+      }
       est_mineur: { Args: { p_compte: string }; Returns: boolean }
+      exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
       masquer_donnee_personnelle: { Args: { p_valeur: Json }; Returns: Json }
       questions_accueil_vues: { Args: { p_compte: string }; Returns: boolean }
     }

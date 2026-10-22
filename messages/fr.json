@@ -11,6 +11,10 @@
     "connexion": {
       "titre": "Connexion",
       "description": "Connecte-toi ou crée ton Compte avec un code reçu par email, sans mot de passe."
+    },
+    "admin": {
+      "titre": "Administration",
+      "description": "Espace réservé à l'administration du site."
     }
   },
   "Accueil": {
@@ -177,5 +181,36 @@
     "aideIos": "Touche ⋯ (ou l'icône de partage), puis « Ouvrir dans Safari ». Tu peux aussi copier le lien et le coller dans Safari.",
     "aideAutre": "Touche ⋯ puis « Ouvrir dans le navigateur », ou copie le lien et colle-le dans ton navigateur.",
     "fermer": "Fermer l'avis"
+  },
+  "Admin": {
+    "nav": {
+      "libelle": "Administration",
+      "reglages": "Réglages"
+    },
+    "reglages": {
+      "titre": "Réglages",
+      "intro": "Ce que tu règles ici s'applique au site. Chaque modification est enregistrée dans le journal.",
+      "valeurActuelle": "Valeur actuelle : {valeur}",
+      "valeurAFixer": "Valeur à fixer",
+      "enregistrer": "Enregistrer",
+      "enCours": "Enregistrement…",
+      "succes": "Réglage enregistré.",
+      "nomSite": {
+        "titre": "Nom du site",
+        "libelle": "Nom du site",
+        "aide": "De 1 à 60 caractères. Il apparaît dans l'en-tête, le pied de page et le titre des pages."
+      },
+      "numeroWhatsapp": {
+        "titre": "Numéro WhatsApp",
+        "libelle": "Numéro WhatsApp",
+        "aide": "Format international : le signe + puis 8 à 15 chiffres, par exemple +243 970 000 000. Laisse vide pour l'effacer."
+      },
+      "erreurs": {
+        "nom_invalide": "Le nom doit avoir de 1 à 60 caractères.",
+        "numero_invalide": "Le numéro doit commencer par + et contenir de 8 à 15 chiffres.",
+        "non_autorise": "Tu n'as plus le droit de modifier ce réglage. Recharge la page ou reconnecte-toi.",
+        "generique": "Le réglage n'a pas pu être enregistré. Ta saisie est conservée : réessaie."
+      }
+    }
   }
 }

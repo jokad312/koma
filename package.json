@@ -12,6 +12,7 @@
     "test:sql": "node scripts/test-sql.mjs",
     "test:e2e": "playwright test",
     "types": "node scripts/generer-types.mjs",
+    "admin:attribuer": "node --env-file-if-exists=.env.local scripts/attribuer-admin.mjs",
     "db:link": "supabase link",
     "db:push": "supabase db push"
   },

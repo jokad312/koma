@@ -379,3 +379,11 @@ a {
   .motif-manga { display: none; }
   .squelette { background: Canvas; border-color: CanvasText; }
 }
+
+/* ---------- Admin : la barre d'onglets fixe du mobile (58 px) ne doit pas masquer la fin du pied de page ---------- */
+
+@media (max-width: 767px) {
+  body:has([data-barre-admin]) footer {
+    padding-bottom: calc(2rem + 58px);
+  }
+}

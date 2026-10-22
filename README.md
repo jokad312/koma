@@ -35,6 +35,17 @@ npm run dev                  # http://localhost:3000
 | `npm run build` | Build de production |
 | `npm run db:link` puis `npm run db:push` | Relier et migrer `koma-dev` |
 | `npm run types` | Génère `src/lib/supabase/types.ts` depuis le projet lié |
+| `npm run admin:attribuer -- <email>` | Donne le rôle admin au Compte de cette adresse (voir ci-dessous) |
+
+## Premier admin
+
+Aucun écran ne crée d'admin. Le Compte doit exister (connexion une première fois sur le site), puis, depuis la racine du projet, avec `SUPABASE_SECRET_KEY` et `NEXT_PUBLIC_SUPABASE_URL` dans `.env.local` (ou déjà dans l'environnement) :
+
+```bash
+npm run admin:attribuer -- adresse@exemple.com
+```
+
+La commande cherche le Compte par son email, appelle `attribuer_role` (auteur `systeme`, journalisé) et s'arrête avec un code de sortie différent de 0 si l'adresse est inconnue. Elle ne s'utilise qu'en ligne de commande : l'adresse n'est jamais écrite dans le dépôt. Relancée, elle ne change rien. Le rôle prend effet tout de suite : l'admin s'ouvre sur `/fr/admin/reglages`.
 
 ## Variables d'environnement
 
