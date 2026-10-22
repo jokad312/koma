@@ -27,6 +27,24 @@
     "contact": {
       "titre": "Contact",
       "description": "Envoie un message à Jonathan, le créateur de la boutique."
+    },
+    "legal": {
+      "mentions": {
+        "titre": "Mentions légales",
+        "description": "Mentions légales de la boutique."
+      },
+      "cgv": {
+        "titre": "Conditions générales de vente",
+        "description": "Conditions générales de vente de la boutique."
+      },
+      "livraison": {
+        "titre": "Livraison et retours",
+        "description": "Conditions de livraison et de retours de la boutique."
+      },
+      "confidentialite": {
+        "titre": "Politique de confidentialité",
+        "description": "Politique de confidentialité de la boutique."
+      }
     }
   },
   "Accueil": {
@@ -72,6 +90,13 @@
       "titre": "Aide",
       "faq": "FAQ",
       "contact": "Contact"
+    },
+    "legal": {
+      "titre": "Infos légales",
+      "mentions": "Mentions légales",
+      "cgv": "Conditions générales de vente",
+      "livraison": "Livraison et retours",
+      "confidentialite": "Politique de confidentialité"
     }
   },
   "Composants": {
@@ -307,6 +332,31 @@
       "message_invalide": "Ton message doit avoir de 10 à 2000 caractères.",
       "trop_d_essais": "Trop de messages envoyés, réessaie dans un moment.",
       "generique": "Le message n'a pas pu être envoyé. Ta saisie est conservée : réessaie dans un instant."
+    },
+    "confidentialite": "Politique de confidentialité",
+    "nouvelOnglet": " (s'ouvre dans un nouvel onglet)"
+  },
+  "Legal": {
+    "versionDu": "Version du",
+    "mentions": {
+      "titre": "Mentions légales",
+      "texte": "[Texte à fournir]",
+      "version": "[Texte à fournir]"
+    },
+    "cgv": {
+      "titre": "Conditions générales de vente",
+      "texte": "[Texte à fournir]",
+      "version": "[Texte à fournir]"
+    },
+    "livraison": {
+      "titre": "Livraison et retours",
+      "texte": "[Texte à fournir]",
+      "version": "[Texte à fournir]"
+    },
+    "confidentialite": {
+      "titre": "Politique de confidentialité",
+      "texte": "[Texte à fournir]",
+      "version": "[Texte à fournir]"
     }
   }
 }

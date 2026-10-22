@@ -180,13 +180,33 @@ describe("PiedDePage : carte Aide", () => {
     expect(within(aide).getAllByRole("link").map((l) => l.getAttribute("href"))).toEqual(["/faq", "/contact"]);
   });
 
-  it("le pied rendu côté serveur ne contient aucun lien légal (1.9)", async () => {
+  it("carte Infos légales : quatre liens de 44 px vers les pages légales", async () => {
+    await rendrePied(null);
+    const legal = screen.getByRole("region", { name: "Infos légales" });
+    const liens = within(legal).getAllByRole("link");
+    expect(liens.map((l) => l.getAttribute("href"))).toEqual(["/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite"]);
+    for (const l of liens) expect(l.className).toContain("min-h-touch");
+  });
+
+  it("le pied rendu côté serveur est rendable avec les messages français", async () => {
     const element = await PiedDePage({ nomSite: "TEST_SITE", numeroWhatsapp: null });
     const html = renderToStaticMarkup(
       <NextIntlClientProvider locale="fr" messages={fr}>
         {element}
       </NextIntlClientProvider>,
     );
-    expect(html).not.toMatch(/mentions|confidentialit|cgv|legal/i);
+    expect(html).toContain("Infos légales");
+  });
+});
+
+describe("FormulaireContact : lien de confidentialité", () => {
+  it("lien vers /confidentialite de 44 px, sans case à cocher", () => {
+    rendre(<FormulaireContact />);
+    const lien = screen.getByRole("link", { name: /Politique de confidentialité/ });
+    expect(lien.getAttribute("href")).toBe("/confidentialite");
+    expect(lien.getAttribute("target")).toBe("_blank");
+    expect(lien.getAttribute("rel")).toBe("noopener");
+    expect(lien.className).toContain("min-h-touch");
+    expect(screen.queryByRole("checkbox")).toBeNull();
   });
 });

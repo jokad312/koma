@@ -1,11 +1,12 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
+import { PAGES_LEGALES } from "@/lib/vitrine/pages-legales";
 import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
 
 const LIEN = "t-small inline-flex min-h-touch items-center text-text-primary underline";
 
-// Pied de page : cartes identité et Aide (FAQ, Contact, WhatsApp si un numéro est réglé). Les cartes Infos légales (1.9) et Paiement
-// sont ajoutées par leurs stories ; Galerie et réseaux sociaux seulement quand ils existent.
+// Pied de page : cartes identité et Aide (FAQ, Contact, WhatsApp si un numéro est réglé). Infos légales (1.9) : quatre pages. La carte Paiement
+// est ajoutée par sa story ; Galerie et réseaux sociaux seulement quand ils existent.
 export async function PiedDePage({ nomSite, numeroWhatsapp = null }: { nomSite: string; numeroWhatsapp?: string | null }) {
   const t = await getTranslations("Pied");
   const tw = await getTranslations("Whatsapp");
@@ -42,6 +43,20 @@ export async function PiedDePage({ nomSite, numeroWhatsapp = null }: { nomSite: 
                 </a>
               </li>
             ) : null}
+          </ul>
+        </section>
+        <section aria-labelledby="pied-legal" className="rounded-lg border border-border bg-surface p-5">
+          <h2 id="pied-legal" className="t-label text-text-primary">
+            {t("legal.titre")}
+          </h2>
+          <ul className="mt-2 flex flex-col items-start">
+            {PAGES_LEGALES.map(({ cle, chemin }) => (
+              <li key={cle}>
+                <Link href={chemin} className={LIEN}>
+                  {t(`legal.${cle}`)}
+                </Link>
+              </li>
+            ))}
           </ul>
         </section>
       </div>

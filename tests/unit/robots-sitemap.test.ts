@@ -33,8 +33,16 @@ describe("sitemap", () => {
       "http://localhost:3000/en/faq",
       "http://localhost:3000/fr/contact",
       "http://localhost:3000/en/contact",
+      "http://localhost:3000/fr/mentions-legales",
+      "http://localhost:3000/en/mentions-legales",
+      "http://localhost:3000/fr/cgv",
+      "http://localhost:3000/en/cgv",
+      "http://localhost:3000/fr/livraison-et-retours",
+      "http://localhost:3000/en/livraison-et-retours",
+      "http://localhost:3000/fr/confidentialite",
+      "http://localhost:3000/en/confidentialite",
     ]);
-    for (const chemin of ["", "/a-propos", "/faq", "/contact"]) {
+    for (const chemin of ["", "/a-propos", "/faq", "/contact", "/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite"]) {
       const e = entrees.find((x) => x.url === `http://localhost:3000/fr${chemin}`);
       expect(e?.alternates?.languages).toEqual({
         fr: `http://localhost:3000/fr${chemin}`,

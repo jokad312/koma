@@ -22,8 +22,13 @@ describe("marqueur de texte à fournir", () => {
     expect(trouverMarqueurs(messages, ["Contact"])).toEqual([]);
   });
 
-  it("les espaces publics contrôlés incluent À propos, FAQ et Contact", () => {
-    expect(ESPACES_PUBLICS).toEqual(expect.arrayContaining(["APropos", "Faq", "Contact"]));
+  it("les espaces publics contrôlés incluent À propos, FAQ, Contact et Legal", () => {
+    expect(ESPACES_PUBLICS).toEqual(expect.arrayContaining(["APropos", "Faq", "Contact", "Legal"]));
+  });
+
+  it("nomme les clés Legal.<page>.texte et version quand elles portent le marqueur", () => {
+    const messages = { Legal: { cgv: { titre: "CGV", texte: MARQUEUR_TEXTE, version: MARQUEUR_TEXTE }, mentions: { texte: "Un vrai texte", version: "2026-11-01" } } };
+    expect(trouverMarqueurs(messages)).toEqual(["Legal.cgv.texte", "Legal.cgv.version"]);
   });
 });
 

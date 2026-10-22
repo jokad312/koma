@@ -94,3 +94,8 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-8-pages-a-propos-faq-et-contact.md`
   summary: Le formulaire de contact collecte nom, email et message sans mention de vie privée ; ajouter le lien vers la politique de confidentialité quand elle existe (story 1.9).
   evidence: pages légales prévues en 1.9 ; texte juridique à fournir par Jonathan.
+  statut: traité (story 1.9 : lien « Politique de confidentialité » sous le bouton du formulaire de contact).
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-9-pages-legales.md`
+  summary: Le formulaire de contact n'a qu'un lien vers la confidentialité, sans phrase de consentement avant l'envoi.
+  evidence: la formulation relève du texte légal (règle 15, Q-5) ; à ajouter quand Jonathan et son juriste l'auront validée.

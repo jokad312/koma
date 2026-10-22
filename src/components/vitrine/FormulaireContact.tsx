@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useActionState, useId, useState } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
+import { Link } from "@/i18n/navigation";
 import { envoyerMessageContact, type EtatContact } from "@/modules/contact/actions";
 
 const CHAMP = "t-body min-h-touch w-full rounded-md border border-border-field bg-surface px-4 py-3 text-text-primary";
@@ -123,6 +124,10 @@ export function FormulaireContact() {
       <Bouton type="submit" enCours={enCours}>
         {enCours ? t("enCours") : t("envoyer")}
       </Bouton>
+      <Link href="/confidentialite" target="_blank" rel="noopener" className="t-small inline-flex min-h-touch items-center text-text-primary underline">
+        {t("confidentialite")}
+        <span className="sr-only">{t("nouvelOnglet")}</span>
+      </Link>
 
       {erreur === "trop_d_essais" ? <MessageEtat type="erreur">{t("erreurs.trop_d_essais")}</MessageEtat> : null}
       {erreur === "generique" ? <MessageEtat type="erreur">{t("erreurs.generique")}</MessageEtat> : null}

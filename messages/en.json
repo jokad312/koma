@@ -27,6 +27,24 @@
     "contact": {
       "titre": "Contact",
       "description": "Send a message to Jonathan, the maker behind the shop."
+    },
+    "legal": {
+      "mentions": {
+        "titre": "Legal notice",
+        "description": "Legal notice of the shop."
+      },
+      "cgv": {
+        "titre": "Terms and conditions of sale",
+        "description": "Terms and conditions of sale of the shop."
+      },
+      "livraison": {
+        "titre": "Delivery and returns",
+        "description": "Delivery and returns terms of the shop."
+      },
+      "confidentialite": {
+        "titre": "Privacy policy",
+        "description": "Privacy policy of the shop."
+      }
     }
   },
   "Accueil": {
@@ -72,6 +90,13 @@
       "titre": "Help",
       "faq": "FAQ",
       "contact": "Contact"
+    },
+    "legal": {
+      "titre": "Legal information",
+      "mentions": "Legal notice",
+      "cgv": "Terms and conditions of sale",
+      "livraison": "Delivery and returns",
+      "confidentialite": "Privacy policy"
     }
   },
   "Composants": {
@@ -307,6 +332,31 @@
       "message_invalide": "Your message must be 10 to 2000 characters long.",
       "trop_d_essais": "Too many messages sent, try again in a little while.",
       "generique": "The message could not be sent. Your entry is kept: try again in a moment."
+    },
+    "confidentialite": "Privacy policy",
+    "nouvelOnglet": " (opens in a new tab)"
+  },
+  "Legal": {
+    "versionDu": "Version of",
+    "mentions": {
+      "titre": "Legal notice",
+      "texte": "[Texte à fournir]",
+      "version": "[Texte à fournir]"
+    },
+    "cgv": {
+      "titre": "Terms and conditions of sale",
+      "texte": "[Texte à fournir]",
+      "version": "[Texte à fournir]"
+    },
+    "livraison": {
+      "titre": "Delivery and returns",
+      "texte": "[Texte à fournir]",
+      "version": "[Texte à fournir]"
+    },
+    "confidentialite": {
+      "titre": "Privacy policy",
+      "texte": "[Texte à fournir]",
+      "version": "[Texte à fournir]"
     }
   }
 }

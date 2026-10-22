@@ -9,6 +9,10 @@ const PAGES = [
   { chemin: "a-propos", h1: { fr: "Jonathan et son atelier", en: "Jonathan and his workshop" } },
   { chemin: "faq", h1: { fr: "FAQ", en: "FAQ" } },
   { chemin: "contact", h1: { fr: "Contact", en: "Contact" } },
+  { chemin: "mentions-legales", h1: { fr: "Mentions légales", en: "Legal notice" } },
+  { chemin: "cgv", h1: { fr: "Conditions générales de vente", en: "Terms and conditions of sale" } },
+  { chemin: "livraison-et-retours", h1: { fr: "Livraison et retours", en: "Delivery and returns" } },
+  { chemin: "confidentialite", h1: { fr: "Politique de confidentialité", en: "Privacy policy" } },
 ] as const;
 const LANGUES = ["fr", "en"] as const;
 
@@ -169,4 +173,31 @@ test("contact : un envoi valide est enregistré, « Message envoyé » après la
     await expect(page.getByText(/Message envoyé/)).toBeVisible({ timeout: 4_000 });
   }).toPass({ timeout: 30_000 });
   await expect(page.getByLabel("Nom")).toHaveValue("");
+});
+
+test("pied : carte Infos légales vers les quatre pages, clavier, 375 px", async ({ page }) => {
+  await ouvrir(page, "/fr");
+  const legal = page.locator("footer").getByRole("region", { name: "Infos légales" });
+  const attendus: [string, string][] = [
+    ["Mentions légales", "/fr/mentions-legales"],
+    ["Conditions générales de vente", "/fr/cgv"],
+    ["Livraison et retours", "/fr/livraison-et-retours"],
+    ["Politique de confidentialité", "/fr/confidentialite"],
+  ];
+  for (const [nom, href] of attendus) {
+    const lien = legal.getByRole("link", { name: nom });
+    await expect(lien).toHaveAttribute("href", href);
+    expect((await lien.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  }
+  await legal.getByRole("link", { name: "Mentions légales" }).focus();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/fr\/mentions-legales$/);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test("contact : lien Politique de confidentialité dans la langue de la route", async ({ page }) => {
+  await ouvrir(page, "/en/contact");
+  const lien = page.getByRole("main").getByRole("link", { name: "Privacy policy" });
+  await expect(lien).toHaveAttribute("href", "/en/confidentialite");
+  expect((await lien.boundingBox())!.height).toBeGreaterThanOrEqual(44);
 });

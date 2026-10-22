@@ -40,7 +40,7 @@ story_location: _bmad-output/implementation-artifacts
 #   E-10 (6.4 Sur-mesure), Q-D1 (9.9 mise en ligne).
 # - Story 1.1 : la protection de la branche production sur GitHub est faite par Jonathan ; le réglage hPanel est dans la story 9.9.
 development_status:
-  epic-1: in-progress
+  epic-1: done
   1-1-socle-du-projet-tests-et-intégration-continue: done
   1-2-site-bilingue-et-socle-seo: done
   1-3-identité-visuelle-et-gabarit-commun: done
@@ -49,7 +49,7 @@ development_status:
   1-6-questions-d-accueil: done
   1-7-accès-admin-rôles-journal-et-réglage-whatsapp: done
   1-8-pages-à-propos-faq-et-contact: done
-  1-9-pages-légales: backlog
+  1-9-pages-légales: done
   epic-1-retrospective: optional
 
   epic-2: backlog
