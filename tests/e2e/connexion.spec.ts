@@ -135,7 +135,9 @@ test.describe("connexion par code email", () => {
       await expect(page.getByRole("heading", { name: "A few questions" })).toBeVisible();
       await expect(page).toHaveURL(/\/en\/connexion/);
       await page.getByLabel("How did you hear about us?").selectOption("ami");
-      await page.getByRole("radio", { name: "Making" }).check();
+      // Le radio natif est masqué visuellement : on clique son étiquette, comme le ferait le visiteur.
+      await page.locator("label", { hasText: "Making" }).click();
+      await expect(page.getByRole("radio", { name: "Making" })).toBeChecked();
       // Choisir ne change pas de page.
       await expect(page).toHaveURL(/\/en\/connexion/);
       await page.getByRole("button", { name: "Continue" }).click();
