@@ -17,12 +17,13 @@ export async function dependances(): Promise<DependancesComptes> {
       const { data, error } = await admin.rpc("questions_accueil_vues", { p_compte: compteId });
       return error ? { erreur: true } : { vues: data === true };
     },
-    enregistrerQuestions: async ({ auteur, compteId, origine, preference }) => {
+    enregistrerQuestions: async ({ auteur, compteId, origine, preference, univers }) => {
       const { error } = await admin.rpc("enregistrer_questions_accueil", {
         p_auteur: auteur as never,
         p_compte: compteId,
         p_origine: origine as never,
         p_preference: preference as never,
+        p_univers: univers ?? undefined,
       });
       return { erreur: error ? error.message : null };
     },

@@ -13,6 +13,8 @@ import { lireNomSite } from "@/lib/reglages";
 import { JsonLd } from "@/lib/seo/balise-jsonld";
 import { construireMetadata } from "@/lib/seo/metadata";
 import { urlLocalisee } from "@/lib/seo/url";
+import { lireUniversPublics } from "@/modules/catalogue/queries";
+import type { UniversChoix } from "@/modules/catalogue/types";
 import { FormulaireConnexion } from "./FormulaireConnexion";
 
 const CHEMIN = "/connexion";
@@ -46,11 +48,20 @@ async function FormulaireSelonSession({
     redirect(cheminRetourValide(Array.isArray(retour) ? retour[0] : retour, locale));
   }
   const integre = detecterNavigateurIntegre((await headers()).get("user-agent")).integre;
+  // Univers de la question d'accueil, dans la langue de la route. Lecture impossible : la question est omise (elle est facultative),
+  // le reste de l'étape est inchangé.
+  let univers: UniversChoix[] = [];
+  try {
+    univers = await lireUniversPublics(locale);
+  } catch {
+    console.error("[connexion] lecture des univers impossible : question omise");
+  }
   return (
     <FormulaireConnexion
       etapeInitiale={etat === "incomplet" ? "age" : etat === "questions" ? "questions" : "email"}
       google={integre ? "indisponible" : "disponible"}
       erreurGoogle={(Array.isArray(erreur) ? erreur[0] : erreur) === "google"}
+      univers={univers}
     />
   );
 }

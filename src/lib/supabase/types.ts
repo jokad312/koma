@@ -123,6 +123,65 @@ export type Database = {
         }
         Relationships: []
       }
+      produit: {
+        Row: {
+          cree_le: string
+          delai_fabrication_jours: number | null
+          description_en: string | null
+          description_fr: string | null
+          devise: string
+          famille: string
+          id: string
+          modifie_le: string
+          prix_cents: number | null
+          publie_le: string | null
+          slug: string
+          titre_en: string | null
+          titre_fr: string
+          univers_id: string | null
+        }
+        Insert: {
+          cree_le?: string
+          delai_fabrication_jours?: number | null
+          description_en?: string | null
+          description_fr?: string | null
+          devise?: string
+          famille: string
+          id?: string
+          modifie_le?: string
+          prix_cents?: number | null
+          publie_le?: string | null
+          slug: string
+          titre_en?: string | null
+          titre_fr: string
+          univers_id?: string | null
+        }
+        Update: {
+          cree_le?: string
+          delai_fabrication_jours?: number | null
+          description_en?: string | null
+          description_fr?: string | null
+          devise?: string
+          famille?: string
+          id?: string
+          modifie_le?: string
+          prix_cents?: number | null
+          publie_le?: string | null
+          slug?: string
+          titre_en?: string | null
+          titre_fr?: string
+          univers_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "produit_univers_id_fkey"
+            columns: ["univers_id"]
+            isOneToOne: false
+            referencedRelation: "univers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profil: {
         Row: {
           age_declare: number | null
@@ -133,6 +192,7 @@ export type Database = {
           origine: string | null
           preference_creation: string | null
           questions_accueil_le: string | null
+          univers_prefere: string | null
         }
         Insert: {
           age_declare?: number | null
@@ -143,6 +203,7 @@ export type Database = {
           origine?: string | null
           preference_creation?: string | null
           questions_accueil_le?: string | null
+          univers_prefere?: string | null
         }
         Update: {
           age_declare?: number | null
@@ -153,8 +214,17 @@ export type Database = {
           origine?: string | null
           preference_creation?: string | null
           questions_accueil_le?: string | null
+          univers_prefere?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profil_univers_prefere_fkey"
+            columns: ["univers_prefere"]
+            isOneToOne: false
+            referencedRelation: "univers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reglage: {
         Row: {
@@ -204,6 +274,65 @@ export type Database = {
         }
         Relationships: []
       }
+      univers: {
+        Row: {
+          cree_le: string
+          id: string
+          nom_en: string
+          nom_fr: string
+        }
+        Insert: {
+          cree_le?: string
+          id?: string
+          nom_en: string
+          nom_fr: string
+        }
+        Update: {
+          cree_le?: string
+          id?: string
+          nom_en?: string
+          nom_fr?: string
+        }
+        Relationships: []
+      }
+      variante: {
+        Row: {
+          cree_le: string
+          delai_fabrication_jours: number | null
+          fabrication_sur_commande: boolean
+          id: string
+          produit_id: string
+          stock: number
+          taille: string
+        }
+        Insert: {
+          cree_le?: string
+          delai_fabrication_jours?: number | null
+          fabrication_sur_commande?: boolean
+          id?: string
+          produit_id: string
+          stock?: number
+          taille: string
+        }
+        Update: {
+          cree_le?: string
+          delai_fabrication_jours?: number | null
+          fabrication_sur_commande?: boolean
+          id?: string
+          produit_id?: string
+          stock?: number
+          taille?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "variante_produit_id_fkey"
+            columns: ["produit_id"]
+            isOneToOne: false
+            referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -243,6 +372,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      creer_univers: {
+        Args: { p_auteur: Json; p_nom_en: string; p_nom_fr: string }
+        Returns: string
+      }
       declarer_age: {
         Args: { p_age: number; p_auteur: Json; p_compte: string }
         Returns: undefined
@@ -261,12 +394,22 @@ export type Database = {
         }
         Returns: undefined
       }
+      enregistrer_produit: {
+        Args: {
+          p_auteur: Json
+          p_id: string
+          p_produit: Json
+          p_variantes: Json
+        }
+        Returns: string
+      }
       enregistrer_questions_accueil: {
         Args: {
           p_auteur: Json
           p_compte: string
           p_origine: string
           p_preference: string
+          p_univers?: string
         }
         Returns: undefined
       }

@@ -182,7 +182,11 @@
       "enCours": "Enregistrement…",
       "erreur": "Tes réponses n'ont pas pu être enregistrées. Réessaie, ou passe cette étape.",
       "reprendre": "Se reconnecter",
-      "erreurSession": "Ta session a pris fin. Reconnecte-toi pour continuer."
+      "erreurSession": "Ta session a pris fin. Reconnecte-toi pour continuer.",
+      "univers": {
+        "libelle": "Quel univers préfères-tu ?",
+        "aucune": "Je ne réponds pas"
+      }
     },
     "erreurs": {
       "resume": "Il y a une erreur à corriger.",
@@ -229,7 +233,9 @@
       "libelle": "Administration",
       "reglages": "Réglages",
       "messages": "Messages",
-      "messagesNouveaux": " ({nombre, plural, one {# nouveau message} other {# nouveaux messages}})"
+      "messagesNouveaux": " ({nombre, plural, one {# nouveau message} other {# nouveaux messages}})",
+      "produits": "Produits",
+      "univers": "Univers"
     },
     "reglages": {
       "titre": "Réglages",
@@ -269,6 +275,159 @@
         "non_autorise": "Tu n'as plus le droit de traiter les messages. Recharge la page ou reconnecte-toi.",
         "message_introuvable": "Ce message est déjà traité ou n'existe plus. Recharge la page.",
         "generique": "Le message n'a pas pu être marqué comme traité. Réessaie."
+      }
+    },
+    "produits": {
+      "titre": "Produits",
+      "intro": "Tes cosplays et accessoires. Un produit créé ici reste un brouillon : personne ne le voit sur le site.",
+      "nouveau": "Nouveau produit",
+      "nombre": "{nombre, plural, =0 {Aucun produit} one {# produit} other {# produits}}",
+      "erreurLecture": "Les produits n'ont pas pu être lus. Recharge la page.",
+      "vide": {
+        "texte": "Aucun produit pour le moment. Crée le premier : il restera un brouillon tant qu'il n'est pas publié.",
+        "creer": "Créer un produit"
+      },
+      "liste": {
+        "legende": "Liste des produits",
+        "colonnes": {
+          "titre": "Titre",
+          "famille": "Famille",
+          "statut": "Statut",
+          "prix": "Prix"
+        }
+      },
+      "famille": {
+        "cosplay": "Cosplay",
+        "accessoire": "Accessoire"
+      },
+      "statut": {
+        "brouillon": "Brouillon",
+        "publie": "Publié"
+      },
+      "prixAFixer": "Prix à fixer",
+      "pageNouveau": {
+        "titre": "Nouveau produit",
+        "intro": "Un brouillon peut rester incomplet : seuls la famille, le titre français et l'adresse sont obligatoires."
+      },
+      "pageEdition": {
+        "titre": "Modifier le produit",
+        "retour": "Retour aux produits",
+        "cree": "Produit créé. Il reste un brouillon : il n'apparaît pas sur le site."
+      },
+      "formulaire": {
+        "resume": "Il y a des erreurs à corriger. Ta saisie est conservée.",
+        "famille": {
+          "libelle": "Famille",
+          "options": {
+            "cosplay": "Cosplay (costume complet)",
+            "accessoire": "Accessoire"
+          }
+        },
+        "titreFr": {
+          "libelle": "Titre en français"
+        },
+        "titreEn": {
+          "libelle": "Titre en anglais",
+          "aide": "Facultatif pour un brouillon."
+        },
+        "slug": {
+          "libelle": "Adresse du produit",
+          "aide": "Lettres minuscules sans accent, chiffres et tirets. Proposée depuis le titre français ; tu peux la modifier.",
+          "utiliser": "Utiliser {adresse}"
+        },
+        "descriptionFr": {
+          "libelle": "Description en français",
+          "aide": "Facultatif pour un brouillon. 5 000 caractères au plus."
+        },
+        "descriptionEn": {
+          "libelle": "Description en anglais",
+          "aide": "Facultatif pour un brouillon. 5 000 caractères au plus."
+        },
+        "univers": {
+          "libelle": "Univers",
+          "aucun": "Aucun univers",
+          "vide": "Aucun univers n'existe encore. Crée-en un pour classer ce produit.",
+          "lienVide": "Aller aux univers"
+        },
+        "prix": {
+          "libelle": "Prix en dollars US (USD)",
+          "aide": "Par exemple 49,90. Le prix est le même dans tous les pays. Laisse vide pour le fixer plus tard."
+        },
+        "delai": {
+          "libelle": "Délai de fabrication du produit (jours)",
+          "aide": "De 1 à 365 jours. Il est affiché au client avant le paiement."
+        },
+        "variantes": {
+          "titre": "Tailles et stock",
+          "aide": "Coche chaque taille proposée, puis indique son stock. Cocher une taille ne change rien tant que tu n'as pas enregistré.",
+          "proposer": "Proposer la taille {taille}",
+          "tailles": {
+            "XS": "XS",
+            "S": "S",
+            "M": "M",
+            "L": "L",
+            "XL": "XL",
+            "XXL": "XXL",
+            "sur_mesure": "Sur mesure"
+          },
+          "stock": "Stock",
+          "surCommande": "Fabrication sur commande autorisée",
+          "delai": "Délai de cette taille (jours), facultatif",
+          "delaiAide": "Remplace le délai du produit pour cette taille.",
+          "surMesure": "Toujours fabriquée sur commande, sans stock."
+        },
+        "enregistrer": "Enregistrer",
+        "enCours": "Enregistrement…",
+        "succes": "Produit enregistré.",
+        "erreurs": {
+          "famille_invalide": "Choisis une famille.",
+          "titre_invalide": "Le titre doit avoir de 1 à 120 caractères.",
+          "slug_invalide": "L'adresse ne doit contenir que des lettres minuscules sans accent, des chiffres et des tirets, sur 80 caractères au plus.",
+          "slug_pris": "Cette adresse est déjà utilisée par un autre produit.",
+          "slug_pris_propose": "Cette adresse est déjà utilisée par un autre produit. Première adresse libre : {adresse}.",
+          "prix_invalide": "Saisis un prix en dollars supérieur à 0, avec deux décimales au plus (par exemple 49,90), et de 10 000 dollars au plus.",
+          "delai_invalide": "Le délai doit être un nombre entier de jours, de 1 à 365.",
+          "univers_invalide": "Cet univers n'existe pas. Recharge la page.",
+          "texte_invalide": "Le texte ne doit pas dépasser 5 000 caractères.",
+          "taille_invalide": "Cette taille n'est pas valide pour ce produit.",
+          "stock_invalide": "Le stock doit être un nombre entier, 0 ou plus.",
+          "delai_manquant": "Pour autoriser la fabrication sur commande, indique un délai : pour cette taille ou pour le produit.",
+          "produit_introuvable": "Ce produit n'existe plus. Retourne à la liste des produits.",
+          "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
+          "generique": "Le produit n'a pas pu être enregistré. Ta saisie est conservée : réessaie."
+        }
+      }
+    },
+    "univers": {
+      "titre": "Univers",
+      "intro": "Les univers servent à classer tes produits et à poser une question aux nouveaux Comptes. Aucun n'existe au départ. Un univers créé ici ne peut pas être renommé ni supprimé pour le moment.",
+      "liste": {
+        "titre": "Univers existants",
+        "nombre": "{nombre, plural, =0 {Aucun univers} one {# univers} other {# univers}}",
+        "vide": "Aucun univers pour le moment.",
+        "noms": "{fr} (anglais : {en})"
+      },
+      "erreurLecture": "Les univers n'ont pas pu être lus. Recharge la page.",
+      "formulaire": {
+        "titre": "Créer un univers",
+        "resume": "Il y a une erreur à corriger. Ta saisie est conservée.",
+        "nomFr": {
+          "libelle": "Nom en français",
+          "aide": "De 1 à 60 caractères."
+        },
+        "nomEn": {
+          "libelle": "Nom en anglais",
+          "aide": "De 1 à 60 caractères."
+        },
+        "creer": "Créer l'univers",
+        "enCours": "Création…",
+        "succes": "Univers créé.",
+        "erreurs": {
+          "nom_invalide": "Le nom doit avoir de 1 à 60 caractères.",
+          "univers_existe": "Un univers porte déjà ce nom, en français ou en anglais.",
+          "non_autorise": "Tu n'as plus le droit de créer des univers. Recharge la page ou reconnecte-toi.",
+          "generique": "L'univers n'a pas pu être créé. Ta saisie est conservée : réessaie."
+        }
       }
     }
   },

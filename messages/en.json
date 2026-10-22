@@ -182,7 +182,11 @@
       "enCours": "Saving…",
       "erreur": "Your answers could not be saved. Try again, or skip this step.",
       "reprendre": "Sign in again",
-      "erreurSession": "Your session has ended. Sign in again to continue."
+      "erreurSession": "Your session has ended. Sign in again to continue.",
+      "univers": {
+        "libelle": "Which universe do you prefer?",
+        "aucune": "I would rather not say"
+      }
     },
     "erreurs": {
       "resume": "There is an error to fix.",
@@ -229,7 +233,9 @@
       "libelle": "Administration",
       "reglages": "Settings",
       "messages": "Messages",
-      "messagesNouveaux": " ({nombre, plural, one {# new message} other {# new messages}})"
+      "messagesNouveaux": " ({nombre, plural, one {# new message} other {# new messages}})",
+      "produits": "Products",
+      "univers": "Universes"
     },
     "reglages": {
       "titre": "Settings",
@@ -269,6 +275,159 @@
         "non_autorise": "You no longer have the right to handle messages. Reload the page or sign in again.",
         "message_introuvable": "This message is already handled or no longer exists. Reload the page.",
         "generique": "The message could not be marked as handled. Try again."
+      }
+    },
+    "produits": {
+      "titre": "Products",
+      "intro": "Your cosplays and accessories. A product created here stays a draft: nobody sees it on the site.",
+      "nouveau": "New product",
+      "nombre": "{nombre, plural, =0 {No products} one {# product} other {# products}}",
+      "erreurLecture": "The products could not be loaded. Reload the page.",
+      "vide": {
+        "texte": "No products yet. Create the first one: it stays a draft until it is published.",
+        "creer": "Create a product"
+      },
+      "liste": {
+        "legende": "Product list",
+        "colonnes": {
+          "titre": "Title",
+          "famille": "Category",
+          "statut": "Status",
+          "prix": "Price"
+        }
+      },
+      "famille": {
+        "cosplay": "Cosplay",
+        "accessoire": "Accessory"
+      },
+      "statut": {
+        "brouillon": "Draft",
+        "publie": "Published"
+      },
+      "prixAFixer": "Price to set",
+      "pageNouveau": {
+        "titre": "New product",
+        "intro": "A draft can stay incomplete: only the category, the French title and the address are required."
+      },
+      "pageEdition": {
+        "titre": "Edit product",
+        "retour": "Back to products",
+        "cree": "Product created. It stays a draft: it does not appear on the site."
+      },
+      "formulaire": {
+        "resume": "There are errors to fix. Your input is kept.",
+        "famille": {
+          "libelle": "Category",
+          "options": {
+            "cosplay": "Cosplay (full costume)",
+            "accessoire": "Accessory"
+          }
+        },
+        "titreFr": {
+          "libelle": "Title in French"
+        },
+        "titreEn": {
+          "libelle": "Title in English",
+          "aide": "Optional for a draft."
+        },
+        "slug": {
+          "libelle": "Product address",
+          "aide": "Lowercase letters without accents, digits and hyphens. Suggested from the French title; you can change it.",
+          "utiliser": "Use {adresse}"
+        },
+        "descriptionFr": {
+          "libelle": "Description in French",
+          "aide": "Optional for a draft. 5,000 characters at most."
+        },
+        "descriptionEn": {
+          "libelle": "Description in English",
+          "aide": "Optional for a draft. 5,000 characters at most."
+        },
+        "univers": {
+          "libelle": "Universe",
+          "aucun": "No universe",
+          "vide": "No universe exists yet. Create one to classify this product.",
+          "lienVide": "Go to universes"
+        },
+        "prix": {
+          "libelle": "Price in US dollars (USD)",
+          "aide": "For example 49.90. The price is the same in every country. Leave empty to set it later."
+        },
+        "delai": {
+          "libelle": "Product making time (days)",
+          "aide": "From 1 to 365 days. It is shown to the customer before payment."
+        },
+        "variantes": {
+          "titre": "Sizes and stock",
+          "aide": "Tick each size you offer, then enter its stock. Ticking a size changes nothing until you save.",
+          "proposer": "Offer size {taille}",
+          "tailles": {
+            "XS": "XS",
+            "S": "S",
+            "M": "M",
+            "L": "L",
+            "XL": "XL",
+            "XXL": "XXL",
+            "sur_mesure": "Made to measure"
+          },
+          "stock": "Stock",
+          "surCommande": "Made-to-order allowed",
+          "delai": "Making time for this size (days), optional",
+          "delaiAide": "Replaces the product making time for this size.",
+          "surMesure": "Always made to order, with no stock."
+        },
+        "enregistrer": "Save",
+        "enCours": "Saving…",
+        "succes": "Product saved.",
+        "erreurs": {
+          "famille_invalide": "Choose a category.",
+          "titre_invalide": "The title must be 1 to 120 characters long.",
+          "slug_invalide": "The address may only contain lowercase letters without accents, digits and hyphens, up to 80 characters.",
+          "slug_pris": "This address is already used by another product.",
+          "slug_pris_propose": "This address is already used by another product. First free address: {adresse}.",
+          "prix_invalide": "Enter a price in dollars greater than 0, with at most two decimals (for example 49.90), and no more than 10,000 dollars.",
+          "delai_invalide": "The making time must be a whole number of days, from 1 to 365.",
+          "univers_invalide": "This universe does not exist. Reload the page.",
+          "texte_invalide": "The text must not exceed 5,000 characters.",
+          "taille_invalide": "This size is not valid for this product.",
+          "stock_invalide": "The stock must be a whole number, 0 or more.",
+          "delai_manquant": "To allow made-to-order, enter a making time: for this size or for the product.",
+          "produit_introuvable": "This product no longer exists. Go back to the product list.",
+          "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
+          "generique": "The product could not be saved. Your input is kept: try again."
+        }
+      }
+    },
+    "univers": {
+      "titre": "Universes",
+      "intro": "Universes classify your products and feed a question asked to new Accounts. None exists at the start. A universe created here cannot be renamed or deleted for now.",
+      "liste": {
+        "titre": "Existing universes",
+        "nombre": "{nombre, plural, =0 {No universes} one {# universe} other {# universes}}",
+        "vide": "No universes yet.",
+        "noms": "{en} (French: {fr})"
+      },
+      "erreurLecture": "The universes could not be loaded. Reload the page.",
+      "formulaire": {
+        "titre": "Create a universe",
+        "resume": "There is an error to fix. Your input is kept.",
+        "nomFr": {
+          "libelle": "Name in French",
+          "aide": "From 1 to 60 characters."
+        },
+        "nomEn": {
+          "libelle": "Name in English",
+          "aide": "From 1 to 60 characters."
+        },
+        "creer": "Create the universe",
+        "enCours": "Creating…",
+        "succes": "Universe created.",
+        "erreurs": {
+          "nom_invalide": "The name must be 1 to 60 characters long.",
+          "univers_existe": "A universe already has this name, in French or in English.",
+          "non_autorise": "You no longer have the right to create universes. Reload the page or sign in again.",
+          "generique": "The universe could not be created. Your input is kept: try again."
+        }
       }
     }
   },

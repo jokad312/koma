@@ -8,6 +8,7 @@ import { MessageEtat } from "@/components/ui/MessageEtat";
 import { BoutonGoogle } from "./BoutonGoogle";
 import { QuestionsAccueil } from "./QuestionsAccueil";
 import { declarerAge, demanderCode, demanderCodeParFormulaire, verifierCode } from "@/modules/comptes/actions";
+import type { UniversChoix } from "@/modules/catalogue/types";
 import type { CodeErreur } from "@/modules/comptes/types";
 
 type Etape = "email" | "code" | "age" | "questions" | "moins13";
@@ -29,9 +30,11 @@ type Props = {
   google?: "disponible" | "indisponible";
   // Retour de Google en échec ou annulé (affiché à l'étape de l'email seulement).
   erreurGoogle?: boolean;
+  // Univers de la question d'accueil (noms dans la langue de la route) ; vide : la question n'est pas affichée.
+  univers?: readonly UniversChoix[];
 };
 
-export function FormulaireConnexion({ etapeInitiale = "email", google = "disponible", erreurGoogle = false }: Props) {
+export function FormulaireConnexion({ etapeInitiale = "email", google = "disponible", erreurGoogle = false, univers = [] }: Props) {
   const t = useTranslations("Connexion");
   const langue = useLocale();
   const router = useRouter();
@@ -234,6 +237,7 @@ export function FormulaireConnexion({ etapeInitiale = "email", google = "disponi
       <QuestionsAccueil
         ref={refTitreQuestions}
         retour={retour}
+        univers={univers}
         onReprendre={changerAdresse}
         onTermine={(adresse) => {
           router.replace(adresse);

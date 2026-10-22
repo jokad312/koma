@@ -192,8 +192,8 @@ describe("FormulaireConnexion", () => {
     expect(declarerAge).toHaveBeenCalledWith({ age: "25", langue: "fr", retour: "/fr/cosplays" });
   });
 
-  async function allerAuxQuestions(user: ReturnType<typeof userEvent.setup>) {
-    rendre(<FormulaireConnexion />);
+  async function allerAuxQuestions(user: ReturnType<typeof userEvent.setup>, univers: { id: string; nom: string }[] = []) {
+    rendre(<FormulaireConnexion univers={univers} />);
     await allerAuCode(user);
     verifierCode.mockResolvedValue({ ok: true, etape: "age", retour: "/fr/cosplays" });
     await user.type(screen.getByLabelText("Code à 6 chiffres"), "123456");
@@ -211,10 +211,10 @@ describe("FormulaireConnexion", () => {
     enregistrerQuestionsAccueil.mockResolvedValue({ ok: true, retour: "/fr/cosplays" });
     await user.click(screen.getByRole("button", { name: "Passer" }));
     await waitFor(() => expect(remplacer).toHaveBeenCalledWith("/fr/cosplays"));
-    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "", preference: "", langue: "fr", retour: "/fr/cosplays" });
+    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "", preference: "", univers: "", langue: "fr", retour: "/fr/cosplays" });
   });
 
-  it("questions : réponses envoyées, sélecteur à deux options sans action au choix, pas de question « univers »", async () => {
+  it("questions : réponses envoyées, sélecteur à deux options sans action au choix, pas de question « univers » sans univers", async () => {
     const user = userEvent.setup();
     await allerAuxQuestions(user);
     expect(screen.queryByText(/univers/i)).toBeNull();
@@ -227,7 +227,34 @@ describe("FormulaireConnexion", () => {
     enregistrerQuestionsAccueil.mockResolvedValue({ ok: true, retour: "/fr/cosplays" });
     await user.click(screen.getByRole("button", { name: "Continuer" }));
     await waitFor(() => expect(remplacer).toHaveBeenCalledWith("/fr/cosplays"));
-    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "ami", preference: "fabriquer", langue: "fr", retour: "/fr/cosplays" });
+    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "ami", preference: "fabriquer", univers: "", langue: "fr", retour: "/fr/cosplays" });
+  });
+
+  it("question « univers » : listée avec « Je ne réponds pas », noms de la route, réponse envoyée, aucune action au choix", async () => {
+    const user = userEvent.setup();
+    await allerAuxQuestions(user, [
+      { id: "TEST_univers-1", nom: "Univers de test A" },
+      { id: "TEST_univers-2", nom: "Univers de test B" },
+    ]);
+    const liste = screen.getByLabelText("Quel univers préfères-tu ?") as HTMLSelectElement;
+    expect(Array.from(liste.options).map((o) => o.textContent)).toEqual(["Je ne réponds pas", "Univers de test A", "Univers de test B"]);
+    expect(liste.value).toBe("");
+    await user.selectOptions(liste, "TEST_univers-2");
+    expect(enregistrerQuestionsAccueil).not.toHaveBeenCalled();
+    enregistrerQuestionsAccueil.mockResolvedValue({ ok: true, retour: "/fr/cosplays" });
+    await user.click(screen.getByRole("button", { name: "Continuer" }));
+    await waitFor(() => expect(remplacer).toHaveBeenCalledWith("/fr/cosplays"));
+    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "", preference: "", univers: "TEST_univers-2", langue: "fr", retour: "/fr/cosplays" });
+  });
+
+  it("question « univers » : « Passer » n'envoie aucun univers même après un choix", async () => {
+    const user = userEvent.setup();
+    await allerAuxQuestions(user, [{ id: "TEST_univers-1", nom: "Univers de test A" }]);
+    await user.selectOptions(screen.getByLabelText("Quel univers préfères-tu ?"), "TEST_univers-1");
+    enregistrerQuestionsAccueil.mockResolvedValue({ ok: true, retour: "/fr/cosplays" });
+    await user.click(screen.getByRole("button", { name: "Passer" }));
+    await waitFor(() => expect(remplacer).toHaveBeenCalledWith("/fr/cosplays"));
+    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "", preference: "", univers: "", langue: "fr", retour: "/fr/cosplays" });
   });
 
   it("questions : échec d'enregistrement, message clair et « Passer » reste possible", async () => {

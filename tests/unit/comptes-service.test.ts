@@ -195,13 +195,36 @@ describe("enregistrerQuestionsAccueil", () => {
     const r = await enregistrerQuestionsAccueil(deps, { ...base, origine: "tiktok", preference: "fabriquer", retour: "/fr/kits" });
     expect(r).toEqual({ ok: true, retour: "/fr/kits" });
     expect(appels.questions).toEqual([
-      { auteur: { type: "compte", id: TEST_COMPTE_ID, role: null }, compteId: TEST_COMPTE_ID, origine: "tiktok", preference: "fabriquer" },
+      { auteur: { type: "compte", id: TEST_COMPTE_ID, role: null }, compteId: TEST_COMPTE_ID, origine: "tiktok", preference: "fabriquer", univers: null },
     ]);
   });
   it("« Passer » : réponses vides enregistrées comme absentes, retour validé", async () => {
     const { deps, appels } = creerTestDependances();
     expect(await enregistrerQuestionsAccueil(deps, { ...base, origine: "", preference: "", retour: "https://x.fr" })).toEqual({ ok: true, retour: "/fr" });
     expect(appels.questions).toMatchObject([{ origine: null, preference: null }]);
+  });
+  it("univers : l'identifiant est transmis, vide = absent, valeur qui n'est pas un identifiant refusée", async () => {
+    const id = "00000000-0000-4000-8000-0000000000bb";
+    const a = creerTestDependances();
+    expect(await enregistrerQuestionsAccueil(a.deps, { ...base, univers: id })).toMatchObject({ ok: true });
+    expect(a.appels.questions).toMatchObject([{ univers: id }]);
+    const b = creerTestDependances();
+    expect(await enregistrerQuestionsAccueil(b.deps, { ...base, univers: "" })).toMatchObject({ ok: true });
+    expect(b.appels.questions).toMatchObject([{ univers: null }]);
+    const c = creerTestDependances();
+    expect(await enregistrerQuestionsAccueil(c.deps, { ...base, univers: "pas-un-identifiant" })).toEqual({ ok: false, erreur: "generique" });
+    expect(c.appels.questions).toHaveLength(0);
+  });
+  it("univers périmé (KS_REPONSE_INVALIDE) : nouvel essai sans univers, le visiteur n'est jamais bloqué", async () => {
+    const { deps } = creerTestDependances();
+    vi.mocked(deps.enregistrerQuestions).mockResolvedValueOnce({ erreur: "KS_REPONSE_INVALIDE" });
+    expect(await enregistrerQuestionsAccueil(deps, { ...base, origine: "ami", univers: "00000000-0000-4000-8000-0000000000bb", retour: "/fr/blog" })).toEqual({ ok: true, retour: "/fr/blog" });
+    expect(vi.mocked(deps.enregistrerQuestions).mock.calls.map((c) => c[0].univers)).toEqual(["00000000-0000-4000-8000-0000000000bb", null]);
+    expect(vi.mocked(deps.enregistrerQuestions).mock.calls[1][0].origine).toBe("ami");
+  });
+  it("univers inexistant (refus de la base, même sans univers) : erreur générique, rien d'enregistré côté interface", async () => {
+    const { deps } = creerTestDependances({ erreurQuestions: "KS_REPONSE_INVALIDE" });
+    expect(await enregistrerQuestionsAccueil(deps, { ...base, univers: "00000000-0000-4000-8000-0000000000bb" })).toEqual({ ok: false, erreur: "generique" });
   });
   it("une seule réponse est possible", async () => {
     const { deps, appels } = creerTestDependances();

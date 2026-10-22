@@ -14,6 +14,12 @@ test.describe("accès admin", () => {
     ["/en/admin/reglages", "%2Fen%2Fadmin%2Freglages"],
     ["/fr/admin/messages", "%2Ffr%2Fadmin%2Fmessages"],
     ["/en/admin/messages", "%2Fen%2Fadmin%2Fmessages"],
+    ["/fr/admin/produits", "%2Ffr%2Fadmin%2Fproduits"],
+    ["/en/admin/produits", "%2Fen%2Fadmin%2Fproduits"],
+    ["/fr/admin/produits/nouveau", "%2Ffr%2Fadmin%2Fproduits%2Fnouveau"],
+    ["/fr/admin/produits/00000000-0000-4000-8000-000000000000", "%2Ffr%2Fadmin%2Fproduits%2F00000000-0000-4000-8000-000000000000"],
+    ["/fr/admin/univers", "%2Ffr%2Fadmin%2Funivers"],
+    ["/en/admin/univers", "%2Fen%2Fadmin%2Funivers"],
   ] as const) {
     test(`visiteur sur ${chemin} : envoyé vers la connexion avec retour`, async ({ page }) => {
       await page.goto(chemin);
@@ -77,7 +83,7 @@ test.describe("accès admin : Compte sans rôle", () => {
     await page.getByRole("button", { name: "Continuer" }).click();
     await page.getByRole("button", { name: "Passer" }).click();
 
-    for (const chemin of ["/fr/admin", "/en/admin/reglages"]) {
+    for (const chemin of ["/fr/admin", "/en/admin/reglages", "/fr/admin/produits", "/fr/admin/produits/nouveau", "/en/admin/univers"]) {
       await page.goto(chemin);
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Page introuvable|Page not found/);
       await expect(page.getByRole("navigation", { name: "Administration" })).toHaveCount(0);

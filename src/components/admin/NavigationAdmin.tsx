@@ -5,6 +5,8 @@ import { Link, usePathname } from "@/i18n/navigation";
 
 // Seules les entrées dont la page existe sont listées : chaque story qui crée une page admin ajoute sa ligne ici.
 const ENTREES = [
+  { cle: "produits", href: "/admin/produits" },
+  { cle: "univers", href: "/admin/univers" },
   { cle: "messages", href: "/admin/messages" },
   { cle: "reglages", href: "/admin/reglages" },
 ] as const;
@@ -29,7 +31,7 @@ export function NavigationAdmin({ compteurMessages = null }: { compteurMessages?
               <Link
                 href={href}
                 aria-current={courante ? "page" : undefined}
-                className={`t-label flex min-h-touch items-center justify-center border-t-4 px-4 text-text-primary no-underline md:justify-start md:border-l-4 md:border-t-0 ${
+                className={`t-label flex min-h-touch flex-wrap items-center justify-center border-t-4 px-1 text-center text-text-primary no-underline md:justify-start md:border-l-4 md:border-t-0 md:px-4 md:text-left ${
                   courante ? "border-primary" : "border-transparent"
                 }`}
               >

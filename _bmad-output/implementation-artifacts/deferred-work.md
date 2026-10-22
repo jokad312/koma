@@ -99,3 +99,20 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-9-pages-legales.md`
   summary: Le formulaire de contact n'a qu'un lien vers la confidentialité, sans phrase de consentement avant l'envoi.
   evidence: la formulation relève du texte légal (règle 15, Q-5) ; à ajouter quand Jonathan et son juriste l'auront validée.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-1-univers-et-creation-d-un-produit-physique.md`
+  summary: À traiter avant la mise en ligne (epic 9) : pouvoir renommer ou masquer un univers (faute de frappe, univers de test). La 2.1 ne permet que d'en créer.
+  evidence: aucune story des epics 2 à 9 ne prévoit renommage, masquage ni suppression d'univers (recherche dans epics.md). Sans cela, une faute de frappe reste visible dans les filtres du catalogue et dans la question d'accueil. Prévoir une fonction d'écriture journalisée (admin), et le masquage sans casser les produits ni les réponses de profil déjà liés.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-1-univers-et-creation-d-un-produit-physique.md`
+  summary: À traiter avec les commandes (epic 4) : écrasement du stock par un formulaire périmé (ajouter une version/`modifie_le` vérifié sous verrou) et suppression d'une taille déjà commandée (clé étrangère `restrict`, avertissement dans le formulaire).
+  evidence: `enregistrer_produit` remplace stock et variantes par les valeurs saisies ; sans commandes cela reste inoffensif.
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-1-univers-et-creation-d-un-produit-physique.md`
+  summary: À traiter avec la 2.2 (publication) : verrouiller ou avertir sur slug et famille d'un produit publié ; état « Programmé » quand `publie_le` est dans le futur ; trigger `modifie_le` ; tests SQL des bornes de `enregistrer_produit` (prix 1000001, délai 0/366, titre vide ou trop long, description > 5000).
+  evidence: constats de revue 2.1, tous liés à un produit publié ou à la publication.
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-1-univers-et-creation-d-un-produit-physique.md`
+  summary: Décision à prendre avec la 2.3 : la table `variante` est lisible par `anon` avec le stock exact et le délai ; exposer plutôt un état « en stock » (vue ou `stock_disponible`). Gravité non vérifiée : moyenne.
+  evidence: l'epic donne un SELECT public sur les variantes ; les quantités exactes deviennent lisibles par n'importe qui via l'API REST.
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-1-univers-et-creation-d-un-produit-physique.md`
+  summary: Toutes les pages admin partagent le même `<title>` « Administration » (WCAG 2.4.2) ; prévoir un titre par page (réglages, messages, produits, univers).
+  evidence: `Metadata.admin` unique ; touche les pages des stories 1.7, 1.8 et 2.1.

@@ -5,6 +5,7 @@ import { forwardRef, useId, useRef, useState, useTransition, type FormEvent } fr
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { enregistrerQuestionsAccueil } from "@/modules/comptes/actions";
+import type { UniversChoix } from "@/modules/catalogue/types";
 import { ORIGINES, PREFERENCES_CREATION } from "@/modules/comptes/schemas";
 
 const CHAMP = "t-body min-h-touch w-full rounded-md border border-border-field bg-surface px-4 py-3 text-text-primary";
@@ -14,6 +15,8 @@ const OPTION =
 
 type Props = {
   retour?: string;
+  // Univers à proposer (noms dans la langue de la route, lus par la page) ; vide : pas de question « univers ».
+  univers?: readonly UniversChoix[];
   // Appelé avec l'adresse de retour déjà validée par le serveur, que l'on ait répondu ou passé.
   onTermine: (retour: string) => void;
   // Session perdue ou âge introuvable : retour à l'étape de l'email pour se reconnecter.
@@ -21,12 +24,13 @@ type Props = {
 };
 
 // Questions d'accueil facultatives, affichées une seule fois. « Passer » et « Continuer » marquent les questions comme vues
-// et ramènent à la page quittée ; la question « univers » viendra avec les univers (epic 2).
-export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function QuestionsAccueil({ retour, onTermine, onReprendre }, refTitre) {
+// et ramènent à la page quittée. La question « univers » n'apparaît que s'il existe au moins un univers.
+export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function QuestionsAccueil({ retour, univers = [], onTermine, onReprendre }, refTitre) {
   const t = useTranslations("Connexion.questions");
   const langue = useLocale() as "fr" | "en";
   const [origine, setOrigine] = useState("");
   const [preference, setPreference] = useState("");
+  const [universChoisi, setUniversChoisi] = useState("");
   const [erreur, setErreur] = useState<"session" | "echec" | null>(null);
   // Un seul envoi à la fois (Entrée, double clic, « Passer » pendant « Continuer ») : l'état React arrive trop tard pour un double clic.
   const enVol = useRef(false);
@@ -35,8 +39,10 @@ export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function Q
   const idOrigine = useId();
   const idAideOrigine = useId();
   const idAidePreference = useId();
+  const idUnivers = useId();
+  const idAideUnivers = useId();
 
-  function envoyer(reponses: { origine: string; preference: string }, quoi: "passer" | "continuer") {
+  function envoyer(reponses: { origine: string; preference: string; univers: string }, quoi: "passer" | "continuer") {
     if (enVol.current) return;
     enVol.current = true;
     setErreur(null);
@@ -60,7 +66,7 @@ export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function Q
 
   function surEnvoi(e: FormEvent) {
     e.preventDefault();
-    envoyer({ origine, preference }, "continuer");
+    envoyer({ origine, preference, univers: universChoisi }, "continuer");
   }
 
   return (
@@ -125,11 +131,37 @@ export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function Q
         </p>
       </fieldset>
 
+      {univers.length > 0 ? (
+        <div className="flex w-full flex-col gap-2">
+          <label htmlFor={idUnivers} className="t-small font-semibold">
+            {t("univers.libelle")}
+          </label>
+          <select
+            id={idUnivers}
+            name="univers"
+            value={universChoisi}
+            onChange={(e) => setUniversChoisi(e.target.value)}
+            aria-describedby={idAideUnivers}
+            className={CHAMP}
+          >
+            <option value="">{t("univers.aucune")}</option>
+            {univers.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.nom}
+              </option>
+            ))}
+          </select>
+          <p id={idAideUnivers} className="t-small text-text-secondary">
+            {t("facultatif")}
+          </p>
+        </div>
+      ) : null}
+
       <div className="flex flex-wrap items-center gap-3">
         <Bouton type="submit" enCours={enCours && action === "continuer"}>
           {enCours && action === "continuer" ? t("enCours") : t("continuer")}
         </Bouton>
-        <Bouton variante="secondaire" enCours={enCours && action === "passer"} onClick={() => envoyer({ origine: "", preference: "" }, "passer")}>
+        <Bouton variante="secondaire" enCours={enCours && action === "passer"} onClick={() => envoyer({ origine: "", preference: "", univers: "" }, "passer")}>
           {t("passer")}
         </Bouton>
       </div>

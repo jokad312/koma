@@ -48,7 +48,7 @@ export type DependancesComptes = {
   };
   compteComplet(compteId: string): Promise<{ complet: boolean } | { erreur: true }>;
   questionsVues(compteId: string): Promise<{ vues: boolean } | { erreur: true }>;
-  enregistrerQuestions(args: { auteur: object; compteId: string; origine: string | null; preference: string | null }): Promise<{ erreur: string | null }>;
+  enregistrerQuestions(args: { auteur: object; compteId: string; origine: string | null; preference: string | null; univers: string | null }): Promise<{ erreur: string | null }>;
   declarerAge(args: { auteur: object; compteId: string; age: number }): Promise<{ erreur: string | null }>;
   assurerProfil(args: { auteur: object; compteId: string; langue: string }): Promise<{ erreur: string | null }>;
   definirLangue(args: { auteur: object; compteId: string; langue: string }): Promise<{ erreur: string | null }>;

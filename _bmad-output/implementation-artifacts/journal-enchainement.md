@@ -18,3 +18,8 @@
 - Commit : voir `git log` (message « Story 1.9 »). Aucune migration.
 - À tester à la main : ouvrir `/fr/mentions-legales`, `/cgv`, `/livraison-et-retours`, `/confidentialite` (et `/en`) ; carte « Infos légales » du pied de page ; lien de confidentialité sous le formulaire de contact (nouvel onglet).
 - À fournir : les quatre textes légaux et leurs dates de version (clés `Legal.<page>.texte` et `.version` dans `messages/fr.json` et `en.json`). Tant qu'ils manquent, le build de production échoue si `KOMA_VERIFIER_TEXTES=true`.
+
+## Story 2.1 : univers et création d'un produit physique
+- Commit : voir `git log` (message « Story 2.1 »). Migrations `20261023100000` et `20261023120000` appliquées sur koma-dev.
+- À tester à la main : `/fr/admin/univers` (créer un univers FR/EN), `/fr/admin/produits/nouveau` (cosplay avec tailles, stock, délai ; prix en USD), liste `/fr/admin/produits` (cartes sur mobile 375 px, tableau sur ordinateur), barre d'onglets mobile de l'admin à quatre entrées (libellés sur deux lignes ?), nouveau Compte : la question « Quel univers préfères-tu ? » apparaît une seule fois, seulement s'il existe un univers.
+- Points reportés : renommer ou masquer un univers avant la mise en ligne ; stock exact lisible par anon (à décider en 2.3).

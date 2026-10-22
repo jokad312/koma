@@ -64,6 +64,8 @@ const reponseFacultative = <T extends readonly [string, ...string[]]>(valeurs: T
 export const questionsAccueilSchema = z.object({
   origine: reponseFacultative(ORIGINES),
   preference: reponseFacultative(PREFERENCES_CREATION),
+  // Univers préféré (identifiant) : facultatif ; un identifiant inexistant est refusé par la base (rien n'est enregistré).
+  univers: z.preprocess((v) => (v === "" || v === undefined ? null : v), z.uuid().nullable()).optional(),
   langue: langueSchema,
   retour: z.string().max(512).optional(),
 });
