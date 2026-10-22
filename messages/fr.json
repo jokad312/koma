@@ -305,7 +305,7 @@
       "nom_invalide": "Saisis ton nom, de 1 à 80 caractères.",
       "email_invalide": "Saisis une adresse email valide.",
       "message_invalide": "Ton message doit avoir de 10 à 2000 caractères.",
-      "trop_d_essais": "Tu as envoyé trop de messages. Réessaie dans une heure.",
+      "trop_d_essais": "Trop de messages envoyés, réessaie dans un moment.",
       "generique": "Le message n'a pas pu être envoyé. Ta saisie est conservée : réessaie dans un instant."
     }
   }

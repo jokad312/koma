@@ -33,6 +33,14 @@ describe("câblage réel de modules/contact", () => {
     expect(await dependances().empreinteClient()).toBeNull();
   });
 
+  it("empreinteValeur : hachage à clé stable, jamais la valeur brute", () => {
+    const h = dependances().empreinteValeur("test_a@example.invalid");
+    expect(h).toMatch(/^[0-9a-f]{64}$/);
+    expect(h).not.toContain("example");
+    expect(dependances().empreinteValeur("test_a@example.invalid")).toBe(h);
+    expect(dependances().empreinteValeur("test_b@example.invalid")).not.toBe(h);
+  });
+
   it("consommerEssai : data === true autorise ; faux ou erreur n'autorise pas", async () => {
     faux.rpc.mockResolvedValue({ data: true, error: null });
     expect(await dependances().consommerEssai({ cle: "contact:x", fenetreSecondes: 3600, maximum: 5 })).toEqual({ erreur: null, autorise: true });

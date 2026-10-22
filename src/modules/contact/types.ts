@@ -14,6 +14,8 @@ export type ResultatContact =
 export type DependancesContact = {
   // Empreinte (hachage) de l'adresse IP du visiteur ; null si l'adresse est absente. L'adresse brute n'est jamais stockée.
   empreinteClient(): Promise<string | null>;
+  // Empreinte (même HMAC que l'IP) d'une valeur déjà normalisée, ici l'email : l'email brut ne va ni dans limite_essai ni dans les logs.
+  empreinteValeur(valeur: string): string;
   consommerEssai(args: { cle: string; fenetreSecondes: number; maximum: number }): Promise<{ erreur: string | null; autorise: boolean }>;
   enregistrerMessage(args: { auteur: AuteurVisiteur; nom: string; email: string; message: string; langue: string }): Promise<{ erreur: string | null }>;
 };

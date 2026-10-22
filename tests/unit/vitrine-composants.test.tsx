@@ -143,7 +143,7 @@ describe("FormulaireContact", () => {
     rendre(<FormulaireContact />);
     await remplir(user, { nom: "TEST_Awa" });
     await user.click(screen.getByRole("button", { name: "Envoyer le message" }));
-    expect(await screen.findByText(/Tu as envoyé trop de messages/)).toBeTruthy();
+    expect(await screen.findByText(/Trop de messages envoyés/)).toBeTruthy();
     expect((screen.getByRole("textbox", { name: "Adresse email" }) as HTMLInputElement).value).toBe("TEST_awa@example.invalid");
     expect(screen.queryByText(/Message envoyé/)).toBeNull();
   });

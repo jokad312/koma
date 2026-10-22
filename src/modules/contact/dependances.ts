@@ -8,13 +8,15 @@ import type { DependancesContact } from "./types";
 // Les vrais clients donnés au service (en test, des faux nommés TEST_ les remplacent).
 export function dependances(): DependancesContact {
   const admin = creerClientService();
+  // Hachage à clé (la clé secrète du serveur) : ni l'adresse IP ni l'email bruts ne sont stockés ni journalisés.
+  const hacher = (valeur: string) => createHmac("sha256", lireEnvServeur().SUPABASE_SECRET_KEY).update(valeur).digest("hex");
   return {
+    empreinteValeur: hacher,
     empreinteClient: async () => {
       const h = await headers();
       const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip")?.trim() || null;
       if (!ip) return null;
-      // Hachage à clé (la clé secrète du serveur) : l'adresse brute n'est ni stockée ni journalisée.
-      return createHmac("sha256", lireEnvServeur().SUPABASE_SECRET_KEY).update(ip).digest("hex");
+      return hacher(ip);
     },
     consommerEssai: async ({ cle, fenetreSecondes, maximum }) => {
       const { data, error } = await admin.rpc("consommer_essai", { p_cle: cle, p_fenetre_secondes: fenetreSecondes, p_maximum: maximum });

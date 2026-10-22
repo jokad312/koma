@@ -305,7 +305,7 @@
       "nom_invalide": "Enter your name, 1 to 80 characters.",
       "email_invalide": "Enter a valid email address.",
       "message_invalide": "Your message must be 10 to 2000 characters long.",
-      "trop_d_essais": "You have sent too many messages. Try again in an hour.",
+      "trop_d_essais": "Too many messages sent, try again in a little while.",
       "generique": "The message could not be sent. Your entry is kept: try again in a moment."
     }
   }

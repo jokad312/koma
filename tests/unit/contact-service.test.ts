@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { envoyerMessageContact } from "@/modules/contact/service";
+import { LIMITE_CONTACT_PAR_EMAIL_PAR_HEURE, LIMITE_CONTACT_PAR_IP_PAR_HEURE, envoyerMessageContact } from "@/modules/contact/service";
 import { creerTestDependancesContact } from "../doubles/TEST_dependances-contact";
 
 const VALIDE = { nom: "  TEST_Awa  ", email: "TEST_awa@example.invalid", message: "Bonjour, ceci est un message de test.", langue: "fr" } as const;
@@ -13,8 +13,11 @@ describe("envoyerMessageContact", () => {
   it("envoi valide : limite puis écriture, auteur visiteur, champs rognés, langue de la route", async () => {
     const { deps, appels } = creerTestDependancesContact();
     expect(await envoyerMessageContact(deps, VALIDE)).toEqual({ ok: true });
-    expect(appels.ordre).toEqual(["limite", "ecriture"]);
-    expect(appels.essais).toEqual([{ cle: "contact:TEST_empreinte", fenetreSecondes: 3600, maximum: 5 }]);
+    expect(appels.ordre).toEqual(["limite", "limite", "ecriture"]);
+    expect(appels.essais).toEqual([
+      { cle: "contact:email:TEST_hache(test_awa@example.invalid)", fenetreSecondes: 3600, maximum: 3 },
+      { cle: "contact:TEST_empreinte", fenetreSecondes: 3600, maximum: 30 },
+    ]);
     expect(appels.messages).toEqual([
       { auteur: { type: "visiteur" }, nom: "TEST_Awa", email: "TEST_awa@example.invalid", message: VALIDE.message, langue: "fr" },
     ]);
@@ -48,16 +51,35 @@ describe("envoyerMessageContact", () => {
     }
   });
 
-  it("limite dépassée : rien n'est enregistré, message de réessai", async () => {
-    const { deps, appels } = creerTestDependancesContact({ autorise: false });
-    expect(await envoyerMessageContact(deps, VALIDE)).toEqual({ ok: false, erreur: "trop_d_essais", champs: {} });
-    expect(appels.ordre).toEqual(["limite"]);
+  it("constantes de limite : 30 par IP, 3 par email, par heure", () => {
+    expect(LIMITE_CONTACT_PAR_IP_PAR_HEURE).toBe(30);
+    expect(LIMITE_CONTACT_PAR_EMAIL_PAR_HEURE).toBe(3);
   });
 
-  it("adresse IP absente : seau commun strict (même limite, clé commune)", async () => {
+  it("limite email atteinte : rien n'est enregistré et l'essai de l'IP n'est pas consommé", async () => {
+    const { deps, appels } = creerTestDependancesContact({ refuserPrefixe: "contact:email:" });
+    expect(await envoyerMessageContact(deps, VALIDE)).toEqual({ ok: false, erreur: "trop_d_essais", champs: {} });
+    expect(appels.ordre).toEqual(["limite"]);
+    expect(appels.essais).toHaveLength(1);
+  });
+
+  it("limite IP atteinte : rien n'est enregistré, message de réessai", async () => {
+    const { deps, appels } = creerTestDependancesContact({ refuserPrefixe: "contact:TEST_" });
+    expect(await envoyerMessageContact(deps, VALIDE)).toEqual({ ok: false, erreur: "trop_d_essais", champs: {} });
+    expect(appels.ordre).toEqual(["limite", "limite"]);
+  });
+
+  it("email normalisé (espaces, casse) avant hachage ; jamais d'email brut dans les clés", async () => {
+    const { deps, appels } = creerTestDependancesContact();
+    await envoyerMessageContact(deps, { ...VALIDE, email: "  TEST_Awa@Example.INVALID " });
+    expect(appels.essais[0].cle).toBe("contact:email:TEST_hache(test_awa@example.invalid)");
+    expect(JSON.stringify(appels.essais)).not.toContain("TEST_Awa@");
+  });
+
+  it("adresse IP absente : seau commun (même limite par IP, clé commune)", async () => {
     const { deps, appels } = creerTestDependancesContact({ empreinte: null });
     await envoyerMessageContact(deps, VALIDE);
-    expect(appels.essais).toEqual([{ cle: "contact:commun", fenetreSecondes: 3600, maximum: 5 }]);
+    expect(appels.essais[1]).toEqual({ cle: "contact:commun", fenetreSecondes: 3600, maximum: 30 });
   });
 
   it("erreur de la limite : pas de succès, rien n'est enregistré (on n'ouvre pas la porte par défaut)", async () => {

@@ -3,8 +3,16 @@ import { emailSchema, langueContactSchema, messageSchema, nomSchema } from "./sc
 import type { EntreeContact } from "./schemas";
 import type { ChampContact, CodeChampContact, DependancesContact, ResultatContact } from "./types";
 
-// 5 envois par heure et par empreinte d'adresse IP ; sans adresse, un seul seau commun, aussi strict.
-export const LIMITE_CONTACT = { fenetreSecondes: 3600, maximum: 5 } as const;
+// Fenêtre fixe d'une heure pour les deux limites.
+const FENETRE_CONTACT_SECONDES = 3600;
+
+// Par adresse IP : large, car en RDC les opérateurs mobiles (CGNAT) et les cybercafés mettent beaucoup de personnes
+// différentes derrière la même adresse ; une limite serrée bloquerait des visiteurs honnêtes. Sans adresse : un seau commun.
+export const LIMITE_CONTACT_PAR_IP_PAR_HEURE = 30;
+
+// Par adresse email saisie (normalisée : espaces retirés, minuscules) : c'est elle qui freine le harcèlement ou l'envoi
+// en boucle, sans pénaliser les autres personnes qui partagent la même IP.
+export const LIMITE_CONTACT_PAR_EMAIL_PAR_HEURE = 3;
 
 // Seule la cause est journalisée : le code KS_, jamais une valeur saisie.
 function journaliser(contexte: string, erreur: unknown) {
@@ -28,13 +36,31 @@ export async function envoyerMessageContact(deps: DependancesContact, entree: En
   if (!langue.success) return ECHEC_GENERIQUE;
 
   try {
-    const empreinte = await deps.empreinteClient();
-    const essai = await deps.consommerEssai({ cle: `contact:${empreinte ?? "commun"}`, ...LIMITE_CONTACT });
-    if (essai.erreur) {
-      journaliser("limite", essai.erreur);
+    // Ordre : l'email d'abord (limite la plus serrée), puis l'IP. Un email déjà à sa limite ne consomme donc pas l'essai de
+    // l'IP, qui reste disponible pour les autres personnes derrière la même adresse. L'inverse n'est pas évité : si l'IP est
+    // pleine, l'essai de l'email est déjà consommé (consommer_essai compte et décide en une seule opération atomique).
+    const essaiEmail = await deps.consommerEssai({
+      cle: `contact:email:${deps.empreinteValeur(email.data.trim().toLowerCase())}`,
+      fenetreSecondes: FENETRE_CONTACT_SECONDES,
+      maximum: LIMITE_CONTACT_PAR_EMAIL_PAR_HEURE,
+    });
+    if (essaiEmail.erreur) {
+      journaliser("limite email", essaiEmail.erreur);
       return ECHEC_GENERIQUE;
     }
-    if (!essai.autorise) return { ok: false, erreur: "trop_d_essais", champs: {} };
+    if (!essaiEmail.autorise) return { ok: false, erreur: "trop_d_essais", champs: {} };
+
+    const empreinte = await deps.empreinteClient();
+    const essaiIp = await deps.consommerEssai({
+      cle: `contact:${empreinte ?? "commun"}`,
+      fenetreSecondes: FENETRE_CONTACT_SECONDES,
+      maximum: LIMITE_CONTACT_PAR_IP_PAR_HEURE,
+    });
+    if (essaiIp.erreur) {
+      journaliser("limite ip", essaiIp.erreur);
+      return ECHEC_GENERIQUE;
+    }
+    if (!essaiIp.autorise) return { ok: false, erreur: "trop_d_essais", champs: {} };
 
     const { erreur } = await deps.enregistrerMessage({
       auteur: AUTEUR_VISITEUR,

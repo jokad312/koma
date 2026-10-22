@@ -65,7 +65,7 @@ describe("Server Action envoyerMessageContact", () => {
   });
 
   it("limite atteinte : saisie gardée, message de réessai", async () => {
-    faux.courant = creerTestDependancesContact({ autorise: false }).deps;
+    faux.courant = creerTestDependancesContact({ refuserPrefixe: "contact:email:" }).deps;
     expect(await envoyerMessageContact(null, formulaire(SAISIE))).toMatchObject({
       statut: "erreur",
       erreur: "trop_d_essais",
