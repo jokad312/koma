@@ -51,3 +51,6 @@ _bmad-output/planning-artifacts/ux-designs/*/imports/fonts/
 
 # Captures de sites tiers : jamais dans le dépôt public (règle 6)
 gofullpage-*
+
+# Worktrees locaux de Claude Code
+.claude/worktrees/

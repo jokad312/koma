@@ -66,6 +66,6 @@ Poser le socle vérifié du site : un visiteur lit KOMA SHOP en français ou en 
 ## Cross-Story Dependencies
 
 - 1.1 précède tout (CI, clients Supabase, env, tests). 1.2 crée `reglage` et `nom_site`, utilisés par 1.3 (pied de page), 1.7 (écran de réglage) et 1.8. 1.3 fournit le sélecteur de langue demandé par 1.2 et les composants de base réutilisés partout.
-- 1.4 crée `profil`, l'âge et `est_mineur` ; 1.5 et 1.6 en dépendent. 1.6 enregistre des réponses utilisées plus tard pour l'origine des ventes et l'email « nouveau produit dans ton univers » (epic 9) et attend les univers de l'epic 2.
+- 1.4 crée `profil`, l'âge et `est_mineur` ; 1.5 et 1.6 en dépendent. 1.6 enregistre des réponses utilisées plus tard pour l'origine des ventes et l'email « nouveau produit dans ton univers » (epic 9) et attend les univers de l'epic 2 (la story 2.1 ajoute alors la question sur l'univers à l'étape « questions »).
 - 1.7 pose `a_le_role`, `journal_audit`, `journaliser()` et la coquille admin ; 1.8 en dépend (liste des messages, tâche admin, WhatsApp). 1.8 et 1.9 ajoutent leurs liens au pied de page et leurs rubriques à l'en-tête.
 - Hors epic : les textes légaux, À propos et FAQ dépendent de Jonathan (textes fournis et validés juridiquement) ; la licence Sakura Town, le nom définitif du site et le domaine ne bloquent que la mise en ligne (epic 9). Les epics 2 à 9 réutilisent i18n, SEO, tokens, rôles, journal et `reglage`.
