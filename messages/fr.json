@@ -394,7 +394,84 @@
           "delai_manquant": "Pour autoriser la fabrication sur commande, indique un délai : pour cette taille ou pour le produit.",
           "produit_introuvable": "Ce produit n'existe plus. Retourne à la liste des produits.",
           "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
-          "generique": "Le produit n'a pas pu être enregistré. Ta saisie est conservée : réessaie."
+          "generique": "Le produit n'a pas pu être enregistré. Ta saisie est conservée : réessaie.",
+          "produit_publie_verrouille": "Ce produit est publié : son adresse et sa famille ne peuvent plus changer. Dépublie-le d'abord si tu dois les modifier.",
+          "publication_incomplete": "Ce produit est publié : il doit rester complet (prix, photo, textes, taille). Dépublie-le d'abord pour retirer cet élément."
+        }
+      },
+      "photos": {
+        "titre": "Photos",
+        "intro": "De 1 à 10 photos au format JPEG, PNG ou WebP, 15 Mo au plus chacune. La première est la photo principale. La position GPS et les autres métadonnées sont supprimées avant que la photo soit enregistrée.",
+        "vide": "Aucune photo pour le moment. Il en faut au moins une pour publier.",
+        "nombre": "{nombre, plural, one {# photo sur 10} other {# photos sur 10}}",
+        "legende": "Photos du produit, dans l'ordre d'affichage",
+        "position": "Photo {numero}",
+        "texteFr": "Texte alternatif en français : {texte}",
+        "texteEn": "Texte alternatif en anglais : {texte}",
+        "monter": "Monter la photo {numero} : {texte}",
+        "descendre": "Descendre la photo {numero} : {texte}",
+        "deplacee": "Photo déplacée : elle est maintenant en position {numero}.",
+        "ajout": {
+          "titre": "Ajouter une photo",
+          "fichier": {
+            "libelle": "Fichier de la photo",
+            "aide": "JPEG, PNG ou WebP, 15 Mo au plus."
+          },
+          "altFr": {
+            "libelle": "Texte alternatif en français",
+            "aide": "Décris la photo pour les personnes qui ne la voient pas, de 1 à 200 caractères."
+          },
+          "altEn": {
+            "libelle": "Texte alternatif en anglais",
+            "aide": "De 1 à 200 caractères."
+          },
+          "ajouter": "Ajouter la photo",
+          "annuler": "Annuler l'envoi",
+          "progression": "Envoi en cours : {pourcentage} %",
+          "traitement": "Traitement de la photo…",
+          "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
+          "succes": "Photo ajoutée.",
+          "annule": "Envoi annulé."
+        },
+        "erreurs": {
+          "fichier_manquant": "Choisis une photo à envoyer.",
+          "format_invalide": "Ce fichier n'est pas accepté. Formats acceptés : JPEG, PNG ou WebP, 15 Mo au plus.",
+          "fichier_trop_lourd": "Cette photo est trop lourde. Formats acceptés : JPEG, PNG ou WebP, 15 Mo au plus.",
+          "alt_invalide": "Écris le texte alternatif, de 1 à 200 caractères.",
+          "photos_limite": "Ce produit a déjà 10 photos, le maximum.",
+          "photo_introuvable": "Cette photo n'existe plus. Recharge la page.",
+          "produit_introuvable": "Ce produit n'existe plus. Retourne à la liste des produits.",
+          "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
+          "envoi_echec": "L'envoi a échoué. Vérifie ta connexion puis réessaie.",
+          "generique": "La photo n'a pas pu être enregistrée. Réessaie."
+        }
+      },
+      "publication": {
+        "titre": "Publication",
+        "statutBrouillon": "Brouillon",
+        "statutPublie": "Publié",
+        "aideBrouillon": "Ce produit est un brouillon : personne ne le voit sur le site.",
+        "aidePublie": "Ce produit est publié : il est visible sur le site. Son adresse et sa famille ne peuvent plus changer.",
+        "publier": "Publier",
+        "depublier": "Dépublier",
+        "enCours": "Un instant…",
+        "publieOk": "Produit publié.",
+        "depublieOk": "Produit dépublié : il n'est plus visible sur le site.",
+        "incomplet": "Il manque encore des éléments pour publier :",
+        "manques": {
+          "prix": "Le prix",
+          "photo": "Au moins une photo",
+          "titre_en": "Le titre en anglais",
+          "description_fr": "La description en français",
+          "description_en": "La description en anglais",
+          "variante": "Au moins une taille"
+        },
+        "erreurs": {
+          "publication_incomplete": "Il manque des éléments pour publier. Recharge la page.",
+          "produit_publie_verrouille": "Un produit publié ne peut pas changer d'adresse ni de famille.",
+          "produit_introuvable": "Ce produit n'existe plus. Retourne à la liste des produits.",
+          "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
+          "generique": "Le changement n'a pas pu être enregistré. Réessaie."
         }
       }
     },

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { analyserPrixUsd } from "@/lib/argent";
 import { SLUG_MAX, SLUG_REGEX } from "./slug";
-import { FAMILLES_PHYSIQUES, TAILLES } from "./types";
+import { FAMILLES_PHYSIQUES, FORMATS_PHOTO, PHOTO_TAILLE_MAX, TAILLES } from "./types";
 import type { ChampProduit, ChampUnivers, CodeErreurCatalogue, EntreeProduit, EntreeUnivers, ErreurCatalogue, ProduitEcrit, Taille, VarianteEcrite } from "./types";
 
 export const idSchema = z.uuid();
@@ -120,4 +120,30 @@ export function lireProduit(
     },
     variantes,
   };
+}
+
+// Texte alternatif d'une photo : 1 à 200 caractères, rogné, dans chaque langue.
+const altSchema = z.string().trim().min(1).max(200);
+
+export function lireAlt(altFr: string, altEn: string): { ok: true; altFr: string; altEn: string } | { ok: false } {
+  const fr = altSchema.safeParse(altFr);
+  const en = altSchema.safeParse(altEn);
+  return fr.success && en.success ? { ok: true, altFr: fr.data, altEn: en.data } : { ok: false };
+}
+
+// Type et taille annoncés avant l'envoi : refus avant tout envoi. Le contenu réel est revérifié à la finalisation.
+export function lireFichierAnnonce(type: string, taille: number): { ok: true; ext: "jpg" | "png" | "webp" } | { ok: false; erreur: "format_invalide" | "fichier_trop_lourd" } {
+  if (!Object.hasOwn(FORMATS_PHOTO, type)) return { ok: false, erreur: "format_invalide" };
+  const ext = FORMATS_PHOTO[type as keyof typeof FORMATS_PHOTO];
+  if (!ext) return { ok: false, erreur: "format_invalide" };
+  if (!Number.isInteger(taille) || taille < 1) return { ok: false, erreur: "format_invalide" };
+  if (taille > PHOTO_TAILLE_MAX) return { ok: false, erreur: "fichier_trop_lourd" };
+  return { ok: true, ext };
+}
+
+const UUID = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+
+// Objet d'attente <produit>/<uuid>.<ext> : doit appartenir au produit (le navigateur ne choisit jamais un autre chemin).
+export function objetAttenteValide(objet: string, produitId: string): boolean {
+  return new RegExp(`^${produitId}/${UUID}[.](jpg|png|webp)$`, "i").test(objet);
 }

@@ -394,7 +394,84 @@
           "delai_manquant": "To allow made-to-order, enter a making time: for this size or for the product.",
           "produit_introuvable": "This product no longer exists. Go back to the product list.",
           "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
-          "generique": "The product could not be saved. Your input is kept: try again."
+          "generique": "The product could not be saved. Your input is kept: try again.",
+          "produit_publie_verrouille": "This product is published: its address and family can no longer change. Unpublish it first if you need to change them.",
+          "publication_incomplete": "This product is published: it must stay complete (price, photo, texts, size). Unpublish it first to remove this item."
+        }
+      },
+      "photos": {
+        "titre": "Photos",
+        "intro": "From 1 to 10 photos in JPEG, PNG or WebP format, 15 MB at most each. The first one is the main photo. The GPS position and other metadata are removed before the photo is saved.",
+        "vide": "No photo yet. You need at least one to publish.",
+        "nombre": "{nombre, plural, one {# photo out of 10} other {# photos out of 10}}",
+        "legende": "Product photos, in display order",
+        "position": "Photo {numero}",
+        "texteFr": "Alternative text in French: {texte}",
+        "texteEn": "Alternative text in English: {texte}",
+        "monter": "Move photo {numero} up: {texte}",
+        "descendre": "Move photo {numero} down: {texte}",
+        "deplacee": "Photo moved: it is now in position {numero}.",
+        "ajout": {
+          "titre": "Add a photo",
+          "fichier": {
+            "libelle": "Photo file",
+            "aide": "JPEG, PNG or WebP, 15 MB at most."
+          },
+          "altFr": {
+            "libelle": "Alternative text in French",
+            "aide": "Describe the photo for people who cannot see it, from 1 to 200 characters."
+          },
+          "altEn": {
+            "libelle": "Alternative text in English",
+            "aide": "From 1 to 200 characters."
+          },
+          "ajouter": "Add the photo",
+          "annuler": "Cancel the upload",
+          "progression": "Uploading: {pourcentage}%",
+          "traitement": "Processing the photo…",
+          "reprise": "Connection lost: the upload will resume by itself.",
+          "succes": "Photo added.",
+          "annule": "Upload cancelled."
+        },
+        "erreurs": {
+          "fichier_manquant": "Choose a photo to upload.",
+          "format_invalide": "This file is not accepted. Accepted formats: JPEG, PNG or WebP, 15 MB at most.",
+          "fichier_trop_lourd": "This photo is too large. Accepted formats: JPEG, PNG or WebP, 15 MB at most.",
+          "alt_invalide": "Write the alternative text, from 1 to 200 characters.",
+          "photos_limite": "This product already has 10 photos, the maximum.",
+          "photo_introuvable": "This photo no longer exists. Reload the page.",
+          "produit_introuvable": "This product no longer exists. Go back to the product list.",
+          "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
+          "envoi_echec": "The upload failed. Check your connection and try again.",
+          "generique": "The photo could not be saved. Try again."
+        }
+      },
+      "publication": {
+        "titre": "Publication",
+        "statutBrouillon": "Draft",
+        "statutPublie": "Published",
+        "aideBrouillon": "This product is a draft: nobody can see it on the site.",
+        "aidePublie": "This product is published: it is visible on the site. Its address and family can no longer change.",
+        "publier": "Publish",
+        "depublier": "Unpublish",
+        "enCours": "One moment…",
+        "publieOk": "Product published.",
+        "depublieOk": "Product unpublished: it is no longer visible on the site.",
+        "incomplet": "Some items are still missing before you can publish:",
+        "manques": {
+          "prix": "The price",
+          "photo": "At least one photo",
+          "titre_en": "The English title",
+          "description_fr": "The French description",
+          "description_en": "The English description",
+          "variante": "At least one size"
+        },
+        "erreurs": {
+          "publication_incomplete": "Some items are missing to publish. Reload the page.",
+          "produit_publie_verrouille": "A published product cannot change its address or family.",
+          "produit_introuvable": "This product no longer exists. Go back to the product list.",
+          "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
+          "generique": "The change could not be saved. Try again."
         }
       }
     },

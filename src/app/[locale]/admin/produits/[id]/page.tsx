@@ -4,7 +4,10 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
+import { EnvoiPhoto } from "@/components/admin/EnvoiPhoto";
 import { FormulaireProduit } from "@/components/admin/FormulaireProduit";
+import { GaleriePhotos } from "@/components/admin/GaleriePhotos";
+import { PublicationProduit } from "@/components/admin/PublicationProduit";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
 import { Link } from "@/i18n/navigation";
@@ -53,6 +56,7 @@ async function ProduitSelonDroit({
   const { cree: crees } = await searchParams;
   const cree = (Array.isArray(crees) ? crees[0] : crees) === "1";
   const t = await getTranslations("Admin.produits");
+  const tp = await getTranslations("Admin.produits.photos");
   if (!idSchema.safeParse(id).success) notFound();
   let produit: ProduitAdmin | null = null;
   let univers: UniversAdmin[] | null = null;
@@ -74,7 +78,22 @@ async function ProduitSelonDroit({
           </Link>
         </p>
         {cree ? <MessageEtat type="succes">{t("pageEdition.cree")}</MessageEtat> : null}
-        {produit && univers ? <FormulaireProduit univers={univers} produit={produit} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
+        {produit && univers ? (
+          <>
+            <PublicationProduit produitId={produit.id} publie={produit.publieLe !== null} />
+            <FormulaireProduit univers={univers} produit={produit} />
+            <section aria-labelledby="photos-titre" className="flex max-w-2xl flex-col gap-4">
+              <h2 id="photos-titre" className="t-h2">
+                {tp("titre")}
+              </h2>
+              <p className="t-body text-text-secondary">{tp("intro")}</p>
+              <GaleriePhotos photos={produit.photos} />
+              <EnvoiPhoto produitId={produit.id} />
+            </section>
+          </>
+        ) : (
+          <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>
+        )}
       </div>
     </CoqueAdmin>
   );

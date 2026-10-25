@@ -182,6 +182,44 @@ export type Database = {
           },
         ]
       }
+      produit_photo: {
+        Row: {
+          alt_en: string
+          alt_fr: string
+          cree_le: string
+          fichier: string
+          id: string
+          position: number
+          produit_id: string
+        }
+        Insert: {
+          alt_en: string
+          alt_fr: string
+          cree_le?: string
+          fichier: string
+          id?: string
+          position: number
+          produit_id: string
+        }
+        Update: {
+          alt_en?: string
+          alt_fr?: string
+          cree_le?: string
+          fichier?: string
+          id?: string
+          position?: number
+          produit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "produit_photo_produit_id_fkey"
+            columns: ["produit_id"]
+            isOneToOne: false
+            referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profil: {
         Row: {
           age_declare: number | null
@@ -343,6 +381,16 @@ export type Database = {
         Returns: boolean
       }
       admin_sante: { Args: never; Returns: number }
+      ajouter_photo_produit: {
+        Args: {
+          p_alt_en: string
+          p_alt_fr: string
+          p_auteur: Json
+          p_fichier: string
+          p_produit_id: string
+        }
+        Returns: string
+      }
       assurer_profil: {
         Args: { p_auteur: Json; p_compte: string; p_langue: string }
         Returns: undefined
@@ -384,6 +432,14 @@ export type Database = {
         Args: { p_auteur: Json; p_compte: string; p_langue: string }
         Returns: undefined
       }
+      deplacer_photo_produit: {
+        Args: { p_auteur: Json; p_photo_id: string; p_sens: string }
+        Returns: undefined
+      }
+      depublier_produit: {
+        Args: { p_auteur: Json; p_id: string }
+        Returns: undefined
+      }
       enregistrer_message_contact: {
         Args: {
           p_auteur: Json
@@ -419,11 +475,16 @@ export type Database = {
       }
       est_mineur: { Args: { p_compte: string }; Returns: boolean }
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
+      manques_publication: { Args: { p_produit_id: string }; Returns: string[] }
       marquer_message_traite: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
       }
       masquer_donnee_personnelle: { Args: { p_valeur: Json }; Returns: Json }
+      publier_produit: {
+        Args: { p_auteur: Json; p_id: string }
+        Returns: undefined
+      }
       questions_accueil_vues: { Args: { p_compte: string }; Returns: boolean }
     }
     Enums: {

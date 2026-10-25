@@ -25,7 +25,7 @@ vi.mock("@/lib/supabase/service", () => ({
     from: (table: string) => {
       const b: Record<string, unknown> = {
         select: () => b,
-        order: () => Promise.resolve(faux.resultat),
+        order: () => Promise.resolve(faux.parTable[table] ?? faux.resultat),
         eq: (colonne: string, valeur: string) => {
           faux.eq.push([table, colonne, valeur]);
           return b;
@@ -111,6 +111,7 @@ describe("lireProduitAdmin", () => {
     faux.parTable = {
       produit: { data: ligne, error: null },
       variante: { data: [{ taille: "M", stock: 2, fabrication_sur_commande: true, delai_fabrication_jours: 20 }], error: null },
+      produit_photo: { data: [{ id: "TEST_ph", fichier: "TEST_p/a.jpg", alt_fr: "Face", alt_en: "Front", position: 1 }], error: null },
     };
     expect(await lireProduitAdmin("TEST_p")).toEqual({
       id: "TEST_p",
@@ -125,10 +126,12 @@ describe("lireProduitAdmin", () => {
       delaiFabricationJours: 14,
       publieLe: null,
       variantes: [{ taille: "M", stock: 2, fabricationSurCommande: true, delaiFabricationJours: 20 }],
+      photos: [{ id: "TEST_ph", fichier: "TEST_p/a.jpg", altFr: "Face", altEn: "Front", position: 1 }],
     });
     expect(faux.eq).toEqual([
       ["produit", "id", "TEST_p"],
       ["variante", "produit_id", "TEST_p"],
+      ["produit_photo", "produit_id", "TEST_p"],
     ]);
   });
 
@@ -141,6 +144,8 @@ describe("lireProduitAdmin", () => {
     faux.parTable = { produit: { data: null, error: { message: "TEST" } } };
     await expect(lireProduitAdmin("TEST_p")).rejects.toThrow();
     faux.parTable = { produit: { data: ligne, error: null }, variante: { data: null, error: { message: "TEST" } } };
+    await expect(lireProduitAdmin("TEST_p")).rejects.toThrow();
+    faux.parTable = { produit: { data: ligne, error: null }, variante: { data: [], error: null }, produit_photo: { data: null, error: { message: "TEST" } } };
     await expect(lireProduitAdmin("TEST_p")).rejects.toThrow();
   });
 });

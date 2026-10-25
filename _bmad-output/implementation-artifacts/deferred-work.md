@@ -116,3 +116,15 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-1-univers-et-creation-d-un-produit-physique.md`
   summary: Toutes les pages admin partagent le même `<title>` « Administration » (WCAG 2.4.2) ; prévoir un titre par page (réglages, messages, produits, univers).
   evidence: `Metadata.admin` unique ; touche les pages des stories 1.7, 1.8 et 2.1.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-2-photos-et-publication-d-un-produit.md`
+  summary: Supprimer une photo et modifier son texte alternatif (FR/EN) depuis la fiche d'édition ; la 2.2 ne permet que d'ajouter et de réordonner.
+  evidence: hors critères d'acceptation de la 2.2. À prévoir : fonctions d'écriture journalisées (suppression avec effacement de l'objet de `produits-public`, mise à jour des textes), la future story de suppression devra ajouter un déclencheur différé sur `produit_photo` (aucun n'existe aujourd'hui) pour refuser de supprimer la dernière photo d'un produit publié.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-2-photos-et-publication-d-un-produit.md`
+  summary: Les fichiers de `produits-public` d'un produit dépublié restent lisibles par leur adresse directe (bucket public) ; seuls la ligne `produit_photo` et le produit sont masqués.
+  evidence: le bucket public sert les objets sans passer par la RLS de `produit_photo`. Les noms sont des UUID non devinables et rien ne les liste, mais un lien déjà partagé continue de répondre. Décider avant la mise en ligne si c'est acceptable.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-2-photos-et-publication-d-un-produit.md`
+  summary: Purger par une tâche Cron les objets de `galerie-attente` plus vieux que N heures (envoi abandonné, onglet fermé, coupure avant la finalisation).
+  evidence: l'original d'attente n'est effacé que par la finalisation ou l'annulation ; un envoi TUS interrompu sans retour au serveur laisse un objet privé. Choisir N (par exemple 24) avec Jonathan.

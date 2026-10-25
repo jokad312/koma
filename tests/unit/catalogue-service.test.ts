@@ -103,7 +103,7 @@ describe("enregistrerProduit", () => {
       }),
     );
     expect(r).toEqual({ ok: true, id: "TEST_produit-0001", cree: true });
-    expect(appels.ordre).toEqual(["droit", "produit"]);
+    expect(appels.ordre).toEqual(["droit", "produit", "invalidation"]);
     expect(appels.droits).toEqual(["produits.modifier"]);
     expect(appels.produits).toEqual([
       {
@@ -253,9 +253,17 @@ describe("enregistrerProduit", () => {
     ["KS_DELAI_MANQUANT", "delai_manquant", "variantes"],
     ["KS_TAILLE_INVALIDE", "taille_invalide", "variantes"],
     ["KS_UNIVERS_INTROUVABLE", "univers_invalide", "univers"],
+    ["KS_PUBLICATION_INCOMPLETE", "publication_incomplete", undefined],
+    ["KS_PRODUIT_PUBLIE_VERROUILLE", "produit_publie_verrouille", undefined],
   ])("la base refuse (%s) : même erreur côté interface", async (code, erreur, champ) => {
     const { deps } = creerTestDependancesCatalogue({ erreurProduit: code });
     expect(await enregistrerProduit(deps, entree())).toEqual({ ok: false, erreur, champ });
+  });
+
+  it("un refus de la base n'invalide pas l'étiquette du catalogue", async () => {
+    const { deps, appels } = creerTestDependancesCatalogue({ erreurProduit: "KS_PUBLICATION_INCOMPLETE" });
+    await enregistrerProduit(deps, entree());
+    expect(appels.invalidations).toBe(0);
   });
 
   it("produit introuvable, droit refusé par la base, échec inconnu", async () => {

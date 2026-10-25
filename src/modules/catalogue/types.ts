@@ -25,6 +25,13 @@ export type CodeErreurCatalogue =
   | "nom_invalide"
   | "univers_existe"
   | "produit_introuvable"
+  | "format_invalide"
+  | "fichier_trop_lourd"
+  | "alt_invalide"
+  | "photos_limite"
+  | "photo_introuvable"
+  | "publication_incomplete"
+  | "produit_publie_verrouille"
   | "generique";
 
 // Champ du formulaire de produit auquel une erreur se rattache (absent : erreur du formulaire entier).
@@ -40,6 +47,16 @@ export type ChampProduit =
   | "delai"
   | "variantes";
 
+// Ce qui manque à un produit pour être publié, dans l'ordre d'affichage (le titre français est déjà obligatoire).
+export const MANQUES_PUBLICATION = ["prix", "photo", "titre_en", "description_fr", "description_en", "variante"] as const;
+export type ManquePublication = (typeof MANQUES_PUBLICATION)[number];
+
+// Photos : formats acceptés, 15 Mo au plus, 10 photos au plus par produit.
+export const FORMATS_PHOTO = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" } as const;
+export type TypePhoto = keyof typeof FORMATS_PHOTO;
+export const PHOTO_TAILLE_MAX = 15 * 1024 * 1024;
+export const PHOTOS_MAX = 10;
+
 export type ChampUnivers = "nom_fr" | "nom_en";
 
 export type ErreurCatalogue = {
@@ -50,6 +67,8 @@ export type ErreurCatalogue = {
   taille?: Taille;
   // Première adresse libre, proposée quand l'adresse choisie est déjà prise.
   slugPropose?: string;
+  // Publication refusée : ce qui manque.
+  manques?: ManquePublication[];
 };
 
 export type ResultatCatalogue<T extends object = object> = ({ ok: true } & T) | ErreurCatalogue;
@@ -106,7 +125,32 @@ export type DependancesCatalogue = {
   }): Promise<{ erreur: string | null; id: string | null }>;
   // Première adresse libre à partir d'une base (en excluant le produit lui-même).
   premierSlugLibre(base: string, exclureId: string | null): Promise<string>;
+  // Photos (bucket privé galerie-attente puis copie nettoyée dans produits-public) : le serveur choisit le nom de l'objet.
+  signerEnvoiPhoto(args: { objet: string }): Promise<{ erreur: string | null; jeton: string | null }>;
+  lireObjetAttente(objet: string): Promise<{ erreur: string | null; octets: Uint8Array | null }>;
+  ecrireObjetPublic(args: { objet: string; octets: Uint8Array; contentType: string }): Promise<{ erreur: string | null }>;
+  supprimerObjets(args: { bucket: "galerie-attente" | "produits-public"; objets: string[] }): Promise<{ erreur: string | null }>;
+  ecrirePhoto(args: { auteur: AuteurCompte; produitId: string; fichier: string; altFr: string; altEn: string }): Promise<{ erreur: string | null; id: string | null }>;
+  deplacerPhoto(args: { auteur: AuteurCompte; photoId: string; sens: "haut" | "bas" }): Promise<{ erreur: string | null }>;
+  changerPublication(args: { auteur: AuteurCompte; id: string; publier: boolean }): Promise<{ erreur: string | null }>;
+  // Vide l'étiquette de cache « catalogue » (updateTag) : appelé seulement après la réponse réelle de la base.
+  invaliderCatalogue(): Promise<void>;
+  // Lit (et lève en cas d'erreur de lecture) l'état d'un produit pour la complétude ; null si inconnu.
+  lireProduitComplet(id: string): Promise<ProduitPourPublication | null>;
 };
+
+// Ce que la complétude d'un produit lit en base.
+export type ProduitPourPublication = {
+  prixCents: number | null;
+  titreEn: string | null;
+  descriptionFr: string | null;
+  descriptionEn: string | null;
+  nbPhotos: number;
+  nbVariantes: number;
+  publieLe: string | null;
+};
+
+export type PhotoAdmin = { id: string; fichier: string; altFr: string; altEn: string; position: number };
 
 // Lectures admin.
 export type UniversAdmin = { id: string; nomFr: string; nomEn: string };
@@ -128,6 +172,7 @@ export type ProduitAdmin = {
   delaiFabricationJours: number | null;
   publieLe: string | null;
   variantes: VarianteAdmin[];
+  photos: PhotoAdmin[];
 };
 
 // Choix de la question « univers » : nom déjà rendu dans la langue de la route.

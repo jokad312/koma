@@ -2,7 +2,7 @@ import "server-only";
 import { creerClientPublic } from "@/lib/supabase/public";
 import { creerClientService } from "@/lib/supabase/service";
 import { choisirSlugLibre, SLUG_REGEX } from "./slug";
-import type { FamillePhysique, ProduitAdmin, ProduitListe, Taille, UniversAdmin, UniversChoix } from "./types";
+import type { FamillePhysique, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, UniversAdmin, UniversChoix } from "./types";
 
 // Lectures admin par le client service (après le droit vérifié par la page) : une erreur de lecture est relancée,
 // jamais une liste vide inventée. Aucune valeur de repli (règle 15).
@@ -45,6 +45,8 @@ export async function lireProduitAdmin(id: string): Promise<ProduitAdmin | null>
     .select("taille, stock, fabrication_sur_commande, delai_fabrication_jours")
     .eq("produit_id", id);
   if (variantes.error) throw new Error("Lecture des variantes impossible.");
+  const photos = await client.from("produit_photo").select("id, fichier, alt_fr, alt_en, position").eq("produit_id", id).order("position", { ascending: true });
+  if (photos.error) throw new Error("Lecture des photos impossible.");
   return {
     id: data.id,
     famille: data.famille as FamillePhysique,
@@ -63,6 +65,35 @@ export async function lireProduitAdmin(id: string): Promise<ProduitAdmin | null>
       fabricationSurCommande: v.fabrication_sur_commande,
       delaiFabricationJours: v.delai_fabrication_jours,
     })),
+    photos: (photos.data ?? []).map(
+      (ph): PhotoAdmin => ({ id: ph.id, fichier: ph.fichier, altFr: ph.alt_fr, altEn: ph.alt_en, position: ph.position }),
+    ),
+  };
+}
+
+// Ce que la complétude d'un produit lit en base (comptes de photos et de variantes) ; null si le produit est inconnu.
+export async function lireProduitPourPublication(id: string): Promise<ProduitPourPublication | null> {
+  const client = creerClientService();
+  const { data, error } = await client
+    .from("produit")
+    .select("prix_cents, titre_en, description_fr, description_en, publie_le")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw new Error("Lecture du produit impossible.");
+  if (!data) return null;
+  const [photos, variantes] = await Promise.all([
+    client.from("produit_photo").select("id", { count: "exact", head: true }).eq("produit_id", id),
+    client.from("variante").select("id", { count: "exact", head: true }).eq("produit_id", id),
+  ]);
+  if (photos.error || variantes.error || photos.count === null || variantes.count === null) throw new Error("Lecture du produit impossible.");
+  return {
+    prixCents: data.prix_cents,
+    titreEn: data.titre_en,
+    descriptionFr: data.description_fr,
+    descriptionEn: data.description_en,
+    nbPhotos: photos.count,
+    nbVariantes: variantes.count,
+    publieLe: data.publie_le,
   };
 }
 

@@ -170,6 +170,7 @@ describe("FormulaireProduit", () => {
     delaiFabricationJours: 14,
     publieLe: null,
     variantes: [{ taille: "M", stock: 2, fabricationSurCommande: false, delaiFabricationJours: null }],
+    photos: [],
   };
 
   it("création : adresse proposée depuis le titre français tant qu'elle n'est pas modifiée à la main", async () => {
@@ -254,6 +255,18 @@ describe("FormulaireProduit", () => {
 
     await act(async () => repondre({ statut: "succes", id: "TEST_nouveau", cree: true }));
     expect(faux.push).toHaveBeenCalledWith("/admin/produits/TEST_nouveau?cree=1");
+  });
+
+  it.each([
+    ["produit_publie_verrouille", /son adresse et sa famille ne peuvent plus changer/],
+    ["publication_incomplete", /il doit rester complet/],
+  ])("produit publié : le refus %s s'affiche en français", async (erreur, motif) => {
+    faux.enregistrerProduit.mockResolvedValueOnce({ statut: "erreur", erreur });
+    const user = userEvent.setup();
+    rendre(<FormulaireProduit univers={UNIVERS} produit={{ ...brouillon, publieLe: "2026-01-01T00:00:00Z" }} />);
+    await user.click(screen.getByRole("button", { name: "Enregistrer" }));
+    expect((await screen.findByRole("alert")).textContent).toMatch(motif);
+    expect(screen.queryByText("Produit enregistré.")).toBeNull();
   });
 
   it("modification réussie : succès affiché après la réponse seulement, saisie gardée", async () => {

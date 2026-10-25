@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import type { DependancesCatalogue } from "@/modules/catalogue/types";
+import type { DependancesCatalogue, ProduitPourPublication } from "@/modules/catalogue/types";
 
 // Faux serveur de test (règle 13 : tests uniquement, jamais importé par src/).
 export const TEST_ADMIN_ID = "TEST_admin-0001";
@@ -18,6 +18,32 @@ type Reglages = {
   idUnivers?: string | null;
   idProduit?: string | null;
   slugLibre?: string | "erreur";
+  // Photos et publication.
+  erreurSigner?: string | null;
+  octetsAttente?: Uint8Array | null;
+  erreurLectureAttente?: string | null;
+  erreurEcriturePublique?: string | null;
+  erreurSuppression?: string | null;
+  erreurPhoto?: string | null;
+  // L'appel LÈVE au lieu de répondre : résultat inconnu.
+  leveEcriturePublique?: boolean;
+  levePhoto?: boolean;
+  erreurDeplacer?: string | null;
+  erreurPublication?: string | null;
+  invalidationEnEchec?: boolean;
+  // Produit lu pour la complétude : par défaut complet. null : produit inconnu. Une fonction permet de changer entre deux lectures.
+  produitComplet?: ProduitPourPublication | null | (() => ProduitPourPublication | null);
+  lectureProduitEnEchec?: boolean;
+};
+
+export const TEST_PRODUIT_COMPLET: ProduitPourPublication = {
+  prixCents: 4990,
+  titreEn: "TEST_Title",
+  descriptionFr: "TEST_description",
+  descriptionEn: "TEST_description en",
+  nbPhotos: 1,
+  nbVariantes: 1,
+  publieLe: null,
 };
 
 export function creerTestDependancesCatalogue(r: Reglages = {}) {
@@ -27,6 +53,13 @@ export function creerTestDependancesCatalogue(r: Reglages = {}) {
     univers: [] as unknown[],
     produits: [] as Array<Parameters<DependancesCatalogue["ecrireProduit"]>[0]>,
     slugs: [] as unknown[],
+    signatures: [] as string[],
+    ecritsPublics: [] as Array<{ objet: string; octets: Uint8Array; contentType: string }>,
+    suppressions: [] as Array<{ bucket: string; objets: string[] }>,
+    photos: [] as Array<Parameters<DependancesCatalogue["ecrirePhoto"]>[0]>,
+    deplacements: [] as Array<Parameters<DependancesCatalogue["deplacerPhoto"]>[0]>,
+    publications: [] as Array<Parameters<DependancesCatalogue["changerPublication"]>[0]>,
+    invalidations: 0,
   };
   const deps: DependancesCatalogue = {
     exigerDroit: vi.fn(async (droit) => {
@@ -49,6 +82,53 @@ export function creerTestDependancesCatalogue(r: Reglages = {}) {
       appels.slugs.push({ base, exclureId });
       if (r.slugLibre === "erreur") throw new Error("TEST_lecture");
       return r.slugLibre ?? `${base}-2`;
+    }),
+    signerEnvoiPhoto: vi.fn(async ({ objet }) => {
+      appels.ordre.push("signer");
+      appels.signatures.push(objet);
+      return { erreur: r.erreurSigner ?? null, jeton: r.erreurSigner ? null : "TEST_jeton" };
+    }),
+    lireObjetAttente: vi.fn(async () => {
+      appels.ordre.push("lireAttente");
+      if (r.erreurLectureAttente) return { erreur: r.erreurLectureAttente, octets: null };
+      return { erreur: null, octets: r.octetsAttente ?? null };
+    }),
+    ecrireObjetPublic: vi.fn(async (args) => {
+      appels.ordre.push("ecrirePublic");
+      appels.ecritsPublics.push(args);
+      if (r.leveEcriturePublique) throw new Error("TEST_coupure");
+      return { erreur: r.erreurEcriturePublique ?? null };
+    }),
+    supprimerObjets: vi.fn(async (args) => {
+      appels.ordre.push(`supprimer:${args.bucket}`);
+      appels.suppressions.push(args);
+      return { erreur: r.erreurSuppression ?? null };
+    }),
+    ecrirePhoto: vi.fn(async (args) => {
+      appels.ordre.push("photo");
+      appels.photos.push(args);
+      if (r.levePhoto) throw new Error("TEST_coupure");
+      return { erreur: r.erreurPhoto ?? null, id: r.erreurPhoto ? null : "TEST_photo-0001" };
+    }),
+    deplacerPhoto: vi.fn(async (args) => {
+      appels.ordre.push("deplacer");
+      appels.deplacements.push(args);
+      return { erreur: r.erreurDeplacer ?? null };
+    }),
+    changerPublication: vi.fn(async (args) => {
+      appels.ordre.push("publication");
+      appels.publications.push(args);
+      return { erreur: r.erreurPublication ?? null };
+    }),
+    invaliderCatalogue: vi.fn(async () => {
+      appels.ordre.push("invalidation");
+      appels.invalidations += 1;
+      if (r.invalidationEnEchec) throw new Error("TEST_cache");
+    }),
+    lireProduitComplet: vi.fn(async () => {
+      if (r.lectureProduitEnEchec) throw new Error("TEST_lecture");
+      const p = r.produitComplet === undefined ? TEST_PRODUIT_COMPLET : r.produitComplet;
+      return typeof p === "function" ? p() : p;
     }),
   };
   return { deps, appels };

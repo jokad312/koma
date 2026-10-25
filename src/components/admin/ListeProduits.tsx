@@ -3,18 +3,7 @@ import { Bouton } from "@/components/ui/Bouton";
 import { Link } from "@/i18n/navigation";
 import { formaterUsd } from "@/lib/argent";
 import type { ProduitListe } from "@/modules/catalogue/types";
-
-// Pastille de statut : icône + mot, jamais la couleur seule. Seul « Brouillon » existe tant que la publication n'est pas livrée (2.2).
-function Statut({ publie, libelle }: { publie: boolean; libelle: string }) {
-  return (
-    <span className="t-small inline-flex items-center gap-2 rounded-full border border-border-field px-3 py-1 text-text-primary">
-      <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4 shrink-0 fill-none stroke-current stroke-2" strokeLinecap="round" strokeLinejoin="round">
-        {publie ? <path d="M3 8.5 6.5 12 13 4.5" /> : <path d="M3 13l1-4 7-7 3 3-7 7-4 1z" />}
-      </svg>
-      {libelle}
-    </span>
-  );
-}
+import { PastilleStatut } from "./PastilleStatut";
 
 // Liste des produits : tableau (caption, th scope) à partir de md, cartes sur mobile. Un seul des deux est visible à la fois (display: none
 // retire l'autre des lecteurs d'écran). Nombre annoncé en statut ; état vide avec bouton de création.
@@ -35,7 +24,7 @@ export async function ListeProduits({ produits }: { produits: readonly ProduitLi
 
   const prix = (cents: number | null) => (cents === null ? t("prixAFixer") : formaterUsd(cents, locale));
   const statut = (p: ProduitListe) => (
-    <Statut publie={p.publieLe !== null} libelle={t(p.publieLe === null ? "statut.brouillon" : "statut.publie")} />
+    <PastilleStatut publie={p.publieLe !== null} libelle={t(p.publieLe === null ? "statut.brouillon" : "statut.publie")} />
   );
 
   return (

@@ -1,11 +1,14 @@
 import "server-only";
+import { updateTag } from "next/cache";
 import { exigerDroit } from "@/lib/auth/droits";
+import { ETIQUETTES } from "@/lib/cache/etiquettes";
 import { creerClientService } from "@/lib/supabase/service";
-import { premierSlugLibre } from "./queries";
+import { BUCKET_ATTENTE, BUCKET_PUBLIC } from "@/lib/supabase/stockage";
+import { lireProduitPourPublication, premierSlugLibre } from "./queries";
 import type { DependancesCatalogue } from "./types";
 
 // Les vrais clients donnés au service (en test, des faux nommés TEST_ les remplacent).
-// Aucune étiquette de cache à invalider ici : le catalogue public n'est pas encore en cache (stories 2.4 et 2.5).
+// L'étiquette « catalogue » est vidée par updateTag à la publication et à la dépublication (le catalogue public arrive en 2.4 et 2.5).
 export function dependances(): DependancesCatalogue {
   const admin = creerClientService();
   return {
@@ -24,5 +27,46 @@ export function dependances(): DependancesCatalogue {
       return { erreur: error ? error.message : null, id: typeof data === "string" ? data : null };
     },
     premierSlugLibre,
+    signerEnvoiPhoto: async ({ objet }) => {
+      const { data, error } = await admin.storage.from(BUCKET_ATTENTE).createSignedUploadUrl(objet);
+      return { erreur: error ? error.message : null, jeton: data?.token ?? null };
+    },
+    lireObjetAttente: async (objet) => {
+      const { data, error } = await admin.storage.from(BUCKET_ATTENTE).download(objet);
+      if (error || !data) return { erreur: error ? error.message : "objet absent", octets: null };
+      return { erreur: null, octets: new Uint8Array(await data.arrayBuffer()) };
+    },
+    ecrireObjetPublic: async ({ objet, octets, contentType }) => {
+      const { error } = await admin.storage.from(BUCKET_PUBLIC).upload(objet, octets, { contentType, upsert: false, cacheControl: "31536000" });
+      return { erreur: error ? error.message : null };
+    },
+    supprimerObjets: async ({ bucket, objets }) => {
+      const { error } = await admin.storage.from(bucket).remove(objets);
+      return { erreur: error ? error.message : null };
+    },
+    ecrirePhoto: async ({ auteur, produitId, fichier, altFr, altEn }) => {
+      const { data, error } = await admin.rpc("ajouter_photo_produit", {
+        p_auteur: auteur as never,
+        p_produit_id: produitId,
+        p_fichier: fichier,
+        p_alt_fr: altFr,
+        p_alt_en: altEn,
+      });
+      return { erreur: error ? error.message : null, id: typeof data === "string" ? data : null };
+    },
+    deplacerPhoto: async ({ auteur, photoId, sens }) => {
+      const { error } = await admin.rpc("deplacer_photo_produit", { p_auteur: auteur as never, p_photo_id: photoId, p_sens: sens });
+      return { erreur: error ? error.message : null };
+    },
+    changerPublication: async ({ auteur, id, publier }) => {
+      const { error } = publier
+        ? await admin.rpc("publier_produit", { p_auteur: auteur as never, p_id: id })
+        : await admin.rpc("depublier_produit", { p_auteur: auteur as never, p_id: id });
+      return { erreur: error ? error.message : null };
+    },
+    invaliderCatalogue: async () => {
+      updateTag(ETIQUETTES.catalogue);
+    },
+    lireProduitComplet: lireProduitPourPublication,
   };
 }
