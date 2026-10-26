@@ -147,7 +147,7 @@ test("le thème sombre est mémorisé et posé dès le premier rendu", async ({ 
 
   // Rechargement : l'attribut est posé par le script de <head> avant que React ne soit chargé.
   await page.reload({ waitUntil: "commit" });
-  await page.waitForFunction(() => document.documentElement.getAttribute("data-theme") === "dark", undefined, { polling: "raf" });
+  await page.waitForFunction(() => document.documentElement?.getAttribute("data-theme") === "dark", undefined, { polling: "raf" });
   const fond = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
   expect(fond).toBe("rgb(22, 19, 15)");
 });
