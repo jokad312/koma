@@ -312,6 +312,33 @@ export type Database = {
         }
         Relationships: []
       }
+      tranche_prix: {
+        Row: {
+          bas_cents: number
+          haut_cents: number | null
+          id: string
+          libelle_en: string
+          libelle_fr: string
+          ordre: number
+        }
+        Insert: {
+          bas_cents: number
+          haut_cents?: number | null
+          id?: string
+          libelle_en: string
+          libelle_fr: string
+          ordre: number
+        }
+        Update: {
+          bas_cents?: number
+          haut_cents?: number | null
+          id?: string
+          libelle_en?: string
+          libelle_fr?: string
+          ordre?: number
+        }
+        Relationships: []
+      }
       univers: {
         Row: {
           cree_le: string
@@ -473,6 +500,10 @@ export type Database = {
         Args: { p_auteur: Json; p_cle: string; p_valeur: string }
         Returns: undefined
       }
+      enregistrer_tranches_prix: {
+        Args: { p_auteur: Json; p_tranches: Json }
+        Returns: undefined
+      }
       est_mineur: { Args: { p_compte: string }; Returns: boolean }
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
       manques_publication: { Args: { p_produit_id: string }; Returns: string[] }
@@ -481,11 +512,13 @@ export type Database = {
         Returns: undefined
       }
       masquer_donnee_personnelle: { Args: { p_valeur: Json }; Returns: Json }
+      places_fabrication_utilisees: { Args: never; Returns: number }
       publier_produit: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
       }
       questions_accueil_vues: { Args: { p_compte: string }; Returns: boolean }
+      stock_disponible: { Args: { p_variante: string }; Returns: number }
     }
     Enums: {
       [_ in never]: never

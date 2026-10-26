@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
+const tags = vi.hoisted(() => ({ updateTag: vi.fn() }));
+vi.mock("next/cache", () => ({ updateTag: tags.updateTag, cacheTag: vi.fn() }));
 
 const faux = vi.hoisted(() => ({
   rpc: vi.fn(),
@@ -93,5 +95,19 @@ describe("premierSlugLibre", () => {
     await expect(premierSlugLibre("Pas Bon", null)).rejects.toThrow();
     faux.lignes = { data: [], error: { message: "TEST" } };
     await expect(premierSlugLibre("cosplay", null)).rejects.toThrow();
+  });
+
+  it("invaliderReglages() vide l'étiquette « reglages »", async () => {
+    await dependances().invaliderReglages();
+    expect(tags.updateTag).toHaveBeenCalledWith("reglages");
+  });
+
+  it("ecrireTranches appelle enregistrer_tranches_prix avec l'auteur et la liste", async () => {
+    faux.rpc.mockResolvedValue({ error: null });
+    const tranches = [{ libelle_fr: "A", libelle_en: "B", bas_cents: 0, haut_cents: null }];
+    expect(await dependances().ecrireTranches({ auteur: AUTEUR, tranches })).toEqual({ erreur: null });
+    expect(faux.rpc).toHaveBeenCalledWith("enregistrer_tranches_prix", { p_auteur: AUTEUR, p_tranches: tranches });
+    faux.rpc.mockResolvedValue({ error: { message: "KS_TRANCHE_INVALIDE" } });
+    expect(await dependances().ecrireTranches({ auteur: AUTEUR, tranches })).toEqual({ erreur: "KS_TRANCHE_INVALIDE" });
   });
 });

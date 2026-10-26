@@ -255,11 +255,81 @@
         "libelle": "WhatsApp number",
         "aide": "International format: the + sign then 8 to 15 digits, for example +243 970 000 000. Leave empty to clear it."
       },
+      "forfaitGoma": {
+        "titre": "Delivery fee in Goma",
+        "libelle": "Delivery fee in Goma (USD)",
+        "aide": "Amount in US dollars, from 0 to 1000, two decimals at most, for example 5 or 5.50. 0 means free delivery. Leave empty to clear it."
+      },
+      "forfaitBukavu": {
+        "titre": "Delivery fee in Bukavu",
+        "libelle": "Delivery fee in Bukavu (USD)",
+        "aide": "Amount in US dollars, from 0 to 1000, two decimals at most, for example 8 or 8.50. 0 means free delivery. Leave empty to clear it."
+      },
+      "delais": {
+        "titre": "Delivery times",
+        "aide": "For information: these times are fixed and cannot be set here.",
+        "goma": "Goma: delivered in less than a day.",
+        "bukavu": "Bukavu: delivered in one day at most."
+      },
+      "retraitFr": {
+        "titre": "Pickup in Goma (French)",
+        "libelle": "Free pickup place in Goma, in French",
+        "aide": "1 to 500 characters: the address or directions the customer will see. Leave empty to clear it."
+      },
+      "retraitEn": {
+        "titre": "Pickup in Goma (English)",
+        "libelle": "Free pickup place in Goma, in English",
+        "aide": "1 to 500 characters: the same place, in English. Leave empty to clear it."
+      },
+      "plafond": {
+        "titre": "Production cap",
+        "libelle": "Production cap (pieces)",
+        "aide": "Whole number of pieces, from 1 to 10000, that you can make at the same time. It is never shown to customers. Leave empty to clear it."
+      },
       "erreurs": {
         "nom_invalide": "The name must be 1 to 60 characters long.",
         "numero_invalide": "The number must start with + and contain 8 to 15 digits.",
+        "forfait_goma_invalide": "The Goma fee must be an amount in USD from 0 to 1000, with two decimals at most.",
+        "forfait_bukavu_invalide": "The Bukavu fee must be an amount in USD from 0 to 1000, with two decimals at most.",
+        "retrait_fr_invalide": "The French pickup place must be 500 characters at most.",
+        "retrait_en_invalide": "The English pickup place must be 500 characters at most.",
+        "plafond_invalide": "The cap must be a whole number from 1 to 10000.",
         "non_autorise": "You no longer have the right to change this setting. Reload the page or sign in again.",
         "generique": "The setting could not be saved. Your entry is kept: try again."
+      },
+      "tranches": {
+        "titre": "Price ranges",
+        "aide": "The ranges are used as the price filter in the catalogues, in list order. 8 ranges at most. Without any range, the catalogue has no price filter.",
+        "valeurAFixer": "Value to set",
+        "nombreEnregistrees": "Saved ranges: {nombre}",
+        "vide": "No range for now.",
+        "legende": "Price ranges",
+        "position": "Range {numero}",
+        "libelleFr": "Range {numero}: label in French",
+        "libelleEn": "Range {numero}: label in English",
+        "bas": "Range {numero}: lower bound (USD)",
+        "haut": "Range {numero}: upper bound (USD)",
+        "hautAide": "Leave empty for an open range (no upper limit).",
+        "monter": "Move range {numero} up",
+        "descendre": "Move range {numero} down",
+        "retirer": "Remove range {numero}",
+        "retirerCourt": "Remove",
+        "ajouter": "Add a range",
+        "limite": "You have reached the limit of {nombre} ranges.",
+        "deplacee": "Range moved to position {numero}.",
+        "retiree": "Range {numero} removed from the list.",
+        "ajoutee": "Range {numero} added to the list.",
+        "enregistrer": "Save the ranges",
+        "enCours": "Saving…",
+        "succes": "Ranges saved.",
+        "erreurLigne": "Range {numero}: {message}",
+        "erreurs": {
+          "tranche_libelle_invalide": "the label must be 1 to 40 characters long.",
+          "tranche_bornes_invalides": "the bounds must be amounts in USD (two decimals at most) and the upper bound must be higher than the lower bound.",
+          "tranches_trop_nombreuses": "There are too many ranges: 8 at most.",
+          "non_autorise": "You no longer have the right to change this setting. Reload the page or sign in again.",
+          "generique": "The ranges could not be saved. Your entry is kept: try again."
+        }
       }
     },
     "messages": {

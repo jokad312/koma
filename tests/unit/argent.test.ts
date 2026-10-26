@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { analyserPrixUsd, formaterUsd, prixPourSaisie } from "@/lib/argent";
+import { analyserForfaitUsd, analyserMontantUsd, analyserPrixUsd, formaterUsd, prixPourSaisie } from "@/lib/argent";
 
 describe("analyserPrixUsd", () => {
   it.each([
@@ -43,5 +43,33 @@ describe("prixPourSaisie", () => {
 
   it("aller-retour avec analyserPrixUsd", () => {
     for (const cents of [1, 50, 4990, 4900, 1_000_000]) expect(analyserPrixUsd(prixPourSaisie(cents))).toEqual({ ok: true, cents });
+  });
+});
+
+describe("analyserForfaitUsd", () => {
+  it.each([
+    ["5", 500],
+    ["5,50", 550],
+    ["0", 0],
+    ["0,00", 0],
+    ["1000", 100_000],
+  ])("« %s » vaut %i centimes", (texte, cents) => {
+    expect(analyserForfaitUsd(texte)).toEqual({ ok: true, cents });
+  });
+
+  it.each(["-1", "abc", "5,555", "1001", "1000,01", "1 000"])("« %s » est invalide", (texte) => {
+    expect(analyserForfaitUsd(texte)).toEqual({ ok: false, raison: "invalide" });
+  });
+
+  it("vide : raison « vide »", () => {
+    expect(analyserForfaitUsd("  ")).toEqual({ ok: false, raison: "vide" });
+  });
+});
+
+describe("analyserMontantUsd", () => {
+  it("accepte zéro et applique le plafond donné", () => {
+    expect(analyserMontantUsd("0", 1000)).toEqual({ ok: true, cents: 0 });
+    expect(analyserMontantUsd("10", 1000)).toEqual({ ok: true, cents: 1000 });
+    expect(analyserMontantUsd("10,01", 1000)).toEqual({ ok: false, raison: "invalide" });
   });
 });

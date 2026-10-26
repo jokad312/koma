@@ -1,9 +1,11 @@
 import type { AuteurCompte } from "@/lib/auth/auteur";
+import type { Droit } from "@/lib/auth/matrice-droits";
 import { nettoyerPhoto } from "./photo";
 import { manquesPublication } from "./publication";
+import { lireTranches } from "./tranches";
 import { idSchema, lireAlt, lireFichierAnnonce, lireProduit, lireUnivers, objetAttenteValide } from "./schemas";
 import { PHOTOS_MAX, PHOTO_TAILLE_MAX } from "./types";
-import type { ChampProduit, CodeErreurCatalogue, DependancesCatalogue, EntreeProduit, EntreeUnivers, ResultatCatalogue } from "./types";
+import type { ChampProduit, CodeErreurCatalogue, DependancesCatalogue, EntreeProduit, EntreeTranche, EntreeUnivers, ResultatCatalogue } from "./types";
 
 // Seule la cause est journalisée : le code KS_, jamais une valeur saisie ni un identifiant de Compte.
 function journaliser(contexte: string, erreur: unknown) {
@@ -12,9 +14,9 @@ function journaliser(contexte: string, erreur: unknown) {
   console.error(`[catalogue] ${contexte} : ${code}`);
 }
 
-async function verifierDroit(deps: DependancesCatalogue): Promise<{ auteur: AuteurCompte } | { erreur: CodeErreurCatalogue }> {
+async function verifierDroit(deps: DependancesCatalogue, droit: Droit = "produits.modifier"): Promise<{ auteur: AuteurCompte } | { erreur: CodeErreurCatalogue }> {
   try {
-    return { auteur: (await deps.exigerDroit("produits.modifier")).auteur };
+    return { auteur: (await deps.exigerDroit(droit)).auteur };
   } catch (e) {
     const code = e && typeof e === "object" && "code" in e ? String((e as { code: unknown }).code) : "";
     journaliser("droit", code);
@@ -308,6 +310,37 @@ export async function depublierProduit(deps: DependancesCatalogue, entree: { id:
     return { ok: true };
   } catch (e) {
     journaliser("dépublication", e);
+    return { ok: false, erreur: "generique" };
+  }
+}
+
+// ---- Tranches de prix (story 2.3) ----
+
+// Remplace l'ensemble des tranches (liste vide = plus de tranche, donc plus de filtre de prix) : droit « reglages.modifier »,
+// validation, écriture atomique, puis invalidation du cache. « ok » n'est renvoyé qu'après la réponse réelle de la base (règle 13).
+export async function enregistrerTranchesPrix(deps: DependancesCatalogue, entree: readonly EntreeTranche[]): Promise<ResultatCatalogue> {
+  const droit = await verifierDroit(deps, "reglages.modifier");
+  if ("erreur" in droit) return { ok: false, erreur: droit.erreur };
+
+  const lu = lireTranches(entree);
+  if (!lu.ok) return lu;
+
+  try {
+    const { erreur } = await deps.ecrireTranches({ auteur: droit.auteur, tranches: lu.tranches });
+    if (erreur) {
+      journaliser("tranches refusées", erreur);
+      if (erreur.includes("KS_TRANCHE_INVALIDE")) return { ok: false, erreur: "tranche_bornes_invalides" };
+      if (erreur.includes("KS_DROIT_REFUSE") || erreur.includes("KS_AUTEUR_MANQUANT")) return { ok: false, erreur: "non_autorise" };
+      return { ok: false, erreur: "generique" };
+    }
+    try {
+      await deps.invaliderReglages();
+    } catch (e) {
+      journaliser("invalidation du cache", e);
+    }
+    return { ok: true };
+  } catch (e) {
+    journaliser("tranches", e);
     return { ok: false, erreur: "generique" };
   }
 }

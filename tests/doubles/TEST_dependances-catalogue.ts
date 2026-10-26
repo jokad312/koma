@@ -34,6 +34,9 @@ type Reglages = {
   // Produit lu pour la complétude : par défaut complet. null : produit inconnu. Une fonction permet de changer entre deux lectures.
   produitComplet?: ProduitPourPublication | null | (() => ProduitPourPublication | null);
   lectureProduitEnEchec?: boolean;
+  // Tranches de prix.
+  erreurTranches?: string | null;
+  invalidationReglagesEnEchec?: boolean;
 };
 
 export const TEST_PRODUIT_COMPLET: ProduitPourPublication = {
@@ -60,6 +63,8 @@ export function creerTestDependancesCatalogue(r: Reglages = {}) {
     deplacements: [] as Array<Parameters<DependancesCatalogue["deplacerPhoto"]>[0]>,
     publications: [] as Array<Parameters<DependancesCatalogue["changerPublication"]>[0]>,
     invalidations: 0,
+    tranches: [] as Array<Parameters<DependancesCatalogue["ecrireTranches"]>[0]>,
+    invalidationsReglages: 0,
   };
   const deps: DependancesCatalogue = {
     exigerDroit: vi.fn(async (droit) => {
@@ -119,6 +124,16 @@ export function creerTestDependancesCatalogue(r: Reglages = {}) {
       appels.ordre.push("publication");
       appels.publications.push(args);
       return { erreur: r.erreurPublication ?? null };
+    }),
+    ecrireTranches: vi.fn(async (args) => {
+      appels.ordre.push("tranches");
+      appels.tranches.push(args);
+      return { erreur: r.erreurTranches ?? null };
+    }),
+    invaliderReglages: vi.fn(async () => {
+      appels.ordre.push("invalidationReglages");
+      appels.invalidationsReglages += 1;
+      if (r.invalidationReglagesEnEchec) throw new Error("TEST_cache");
     }),
     invaliderCatalogue: vi.fn(async () => {
       appels.ordre.push("invalidation");

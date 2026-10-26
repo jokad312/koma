@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
+vi.mock("next/cache", () => ({ cacheTag: vi.fn() }));
 
 const faux = vi.hoisted(() => ({
   resultat: { data: null as unknown, error: null as unknown },

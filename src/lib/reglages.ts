@@ -1,4 +1,5 @@
 import { cacheTag } from "next/cache";
+import { FORFAIT_MAX_CENTS } from "@/lib/argent";
 import { ETIQUETTES } from "@/lib/cache/etiquettes";
 import { creerClientPublic } from "@/lib/supabase/public";
 
@@ -55,4 +56,30 @@ export async function lireNomSite(): Promise<string> {
   "use cache";
   cacheTag(ETIQUETTES.reglages);
   return lireReglagePublic(creerClientPublic() as unknown as ClientReglage, "nom_site");
+}
+
+// Forfait de livraison d'une ville, en centimes USD : null si jamais fixé (aucune valeur de repli, aucun forfait inventé).
+export async function lireForfaitLivraison(ville: "goma" | "bukavu"): Promise<number | null> {
+  "use cache";
+  cacheTag(ETIQUETTES.reglages);
+  try {
+    const brut = await lireReglagePublic(creerClientPublic() as unknown as ClientReglage, `forfait_livraison_${ville}_cents`);
+    const cents = /^[0-9]{1,6}$/.test(brut) ? Number(brut) : Number.NaN;
+    return Number.isInteger(cents) && cents <= FORFAIT_MAX_CENTS ? cents : null;
+  } catch (e) {
+    if (e instanceof ReglageManquantError) return null;
+    throw e;
+  }
+}
+
+// Lieu de retrait gratuit à Goma, dans la langue demandée : null si jamais saisi, sans texte de repli.
+export async function lireRetraitGoma(langue: "fr" | "en"): Promise<string | null> {
+  "use cache";
+  cacheTag(ETIQUETTES.reglages);
+  try {
+    return await lireReglagePublic(creerClientPublic() as unknown as ClientReglage, `retrait_goma_${langue}`);
+  } catch (e) {
+    if (e instanceof ReglageManquantError) return null;
+    throw e;
+  }
 }

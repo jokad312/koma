@@ -1,5 +1,6 @@
 import type { AuteurCompte } from "@/lib/auth/auteur";
-import { correctionAgeSchema, entreeReglageSchema, idMessageSchema, nomSiteSchema, numeroWhatsappSchema } from "./schemas";
+import { analyserForfaitUsd } from "@/lib/argent";
+import { cleReglageSchema, correctionAgeSchema, entreeReglageSchema, idMessageSchema, nomSiteSchema, numeroWhatsappSchema, plafondSchema, retraitSchema } from "./schemas";
 import type { CorrectionAge, EntreeReglage } from "./schemas";
 import type { CleReglage, CodeErreurAdmin, DependancesAdmin, ResultatAdmin } from "./types";
 
@@ -32,9 +33,34 @@ function normaliser(cle: CleReglage, valeur: string): { valeur: string | null } 
     const lu = nomSiteSchema.safeParse(valeur);
     return lu.success ? { valeur: lu.data } : { erreur: "nom_invalide" };
   }
+  if (cle === "forfait_livraison_goma_cents" || cle === "forfait_livraison_bukavu_cents") {
+    const erreur = cle === "forfait_livraison_goma_cents" ? "forfait_goma_invalide" : "forfait_bukavu_invalide";
+    const analyse = analyserForfaitUsd(valeur);
+    if (analyse.ok) return { valeur: String(analyse.cents) };
+    return analyse.raison === "vide" ? { valeur: null } : { erreur };
+  }
+  if (cle === "retrait_goma_fr" || cle === "retrait_goma_en") {
+    const lu = retraitSchema.safeParse(valeur);
+    return lu.success ? { valeur: lu.data } : { erreur: cle === "retrait_goma_fr" ? "retrait_fr_invalide" : "retrait_en_invalide" };
+  }
+  if (cle === "plafond_fabrication") {
+    const lu = plafondSchema.safeParse(valeur);
+    return lu.success ? { valeur: lu.data } : { erreur: "plafond_invalide" };
+  }
   const lu = numeroWhatsappSchema.safeParse(valeur);
   return lu.success ? { valeur: lu.data } : { erreur: "numero_invalide" };
 }
+
+// Code d'interface d'une valeur refusée, par clé (même code que la validation du serveur d'application).
+const ERREUR_PAR_CLE: Record<CleReglage, CodeErreurAdmin> = {
+  nom_site: "nom_invalide",
+  numero_whatsapp: "numero_invalide",
+  forfait_livraison_goma_cents: "forfait_goma_invalide",
+  forfait_livraison_bukavu_cents: "forfait_bukavu_invalide",
+  retrait_goma_fr: "retrait_fr_invalide",
+  retrait_goma_en: "retrait_en_invalide",
+  plafond_fabrication: "plafond_invalide",
+};
 
 // Droit, validation, écriture, puis invalidation du cache : « ok » n'est renvoyé qu'après la réponse réelle de la base (règle 13).
 export async function enregistrerReglage(deps: DependancesAdmin, entree: EntreeReglage): Promise<ResultatAdmin<{ valeur: string | null }>> {
@@ -42,7 +68,11 @@ export async function enregistrerReglage(deps: DependancesAdmin, entree: EntreeR
   if ("erreur" in droit) return { ok: false, erreur: droit.erreur };
 
   const lu = entreeReglageSchema.safeParse(entree);
-  if (!lu.success) return { ok: false, erreur: "generique" };
+  if (!lu.success) {
+    // Clé valide mais valeur démesurée : l'erreur propre à la clé, pas l'erreur générique.
+    const cle = cleReglageSchema.safeParse(entree?.cle);
+    return { ok: false, erreur: cle.success ? ERREUR_PAR_CLE[cle.data] : "generique" };
+  }
   const normalise = normaliser(lu.data.cle, lu.data.valeur);
   if ("erreur" in normalise) return { ok: false, erreur: normalise.erreur };
 
@@ -50,7 +80,7 @@ export async function enregistrerReglage(deps: DependancesAdmin, entree: EntreeR
     const { erreur } = await deps.ecrireReglage({ auteur: droit.auteur, cle: lu.data.cle, valeur: normalise.valeur });
     if (erreur) {
       journaliser("réglage refusé", erreur);
-      if (erreur.includes("KS_REGLAGE_INVALIDE")) return { ok: false, erreur: lu.data.cle === "nom_site" ? "nom_invalide" : "numero_invalide" };
+      if (erreur.includes("KS_REGLAGE_INVALIDE")) return { ok: false, erreur: ERREUR_PAR_CLE[lu.data.cle] };
       return { ok: false, erreur: codeDepuisBase(erreur, "generique") };
     }
     deps.invalider();

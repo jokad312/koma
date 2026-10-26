@@ -1,8 +1,10 @@
 import "server-only";
+import { cacheTag } from "next/cache";
+import { ETIQUETTES } from "@/lib/cache/etiquettes";
 import { creerClientPublic } from "@/lib/supabase/public";
 import { creerClientService } from "@/lib/supabase/service";
 import { choisirSlugLibre, SLUG_REGEX } from "./slug";
-import type { FamillePhysique, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, UniversAdmin, UniversChoix } from "./types";
+import type { FamillePhysique, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
 
 // Lectures admin par le client service (après le droit vérifié par la page) : une erreur de lecture est relancée,
 // jamais une liste vide inventée. Aucune valeur de repli (règle 15).
@@ -115,4 +117,33 @@ export async function lireUniversPublics(locale: "fr" | "en"): Promise<UniversCh
   const { data, error } = await creerClientPublic().from("univers").select(`id, ${colonne}`).order(colonne, { ascending: true });
   if (error) throw new Error("Lecture des univers impossible.");
   return ((data ?? []) as unknown as Array<Record<string, string>>).map((u) => ({ id: u.id, nom: u[colonne] }));
+}
+
+type LigneTranche = { ordre: number; libelle_fr: string; libelle_en: string; bas_cents: number; haut_cents: number | null };
+
+function versTranches(lignes: readonly LigneTranche[] | null): TranchePrix[] {
+  return (lignes ?? []).map((t) => ({ ordre: t.ordre, libelleFr: t.libelle_fr, libelleEn: t.libelle_en, basCents: t.bas_cents, hautCents: t.haut_cents }));
+}
+
+// Tranches de prix du filtre des catalogues (lecture publique en cache `reglages`, invalidé à l'enregistrement).
+// Aucune tranche réglée : liste vide, donc aucun filtre de prix, jamais une tranche inventée. Une erreur de lecture est relancée.
+export async function lireTranchesPrix(): Promise<TranchePrix[]> {
+  "use cache";
+  cacheTag(ETIQUETTES.reglages);
+  const { data, error } = await creerClientPublic()
+    .from("tranche_prix")
+    .select("ordre, libelle_fr, libelle_en, bas_cents, haut_cents")
+    .order("ordre", { ascending: true });
+  if (error) throw new Error("Lecture des tranches de prix impossible.");
+  return versTranches(data);
+}
+
+// Même lecture pour l'admin, sans cache, par le client service (après le droit vérifié par la page).
+export async function lireTranchesPrixAdmin(): Promise<TranchePrix[]> {
+  const { data, error } = await creerClientService()
+    .from("tranche_prix")
+    .select("ordre, libelle_fr, libelle_en, bas_cents, haut_cents")
+    .order("ordre", { ascending: true });
+  if (error) throw new Error("Lecture des tranches de prix impossible.");
+  return versTranches(data);
 }

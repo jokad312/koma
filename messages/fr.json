@@ -255,11 +255,81 @@
         "libelle": "Numéro WhatsApp",
         "aide": "Format international : le signe + puis 8 à 15 chiffres, par exemple +243 970 000 000. Laisse vide pour l'effacer."
       },
+      "forfaitGoma": {
+        "titre": "Forfait de livraison à Goma",
+        "libelle": "Forfait de livraison à Goma (USD)",
+        "aide": "Montant en dollars américains, de 0 à 1000, deux décimales au plus, par exemple 5 ou 5,50. 0 veut dire livraison gratuite. Laisse vide pour l'effacer."
+      },
+      "forfaitBukavu": {
+        "titre": "Forfait de livraison à Bukavu",
+        "libelle": "Forfait de livraison à Bukavu (USD)",
+        "aide": "Montant en dollars américains, de 0 à 1000, deux décimales au plus, par exemple 8 ou 8,50. 0 veut dire livraison gratuite. Laisse vide pour l'effacer."
+      },
+      "delais": {
+        "titre": "Délais de remise",
+        "aide": "À titre d'information : ces délais sont fixes et ne se règlent pas ici.",
+        "goma": "Goma : livraison en moins d'un jour.",
+        "bukavu": "Bukavu : livraison en un jour au plus."
+      },
+      "retraitFr": {
+        "titre": "Retrait à Goma (français)",
+        "libelle": "Lieu de retrait gratuit à Goma, en français",
+        "aide": "De 1 à 500 caractères : l'adresse ou les indications que le client verra. Laisse vide pour l'effacer."
+      },
+      "retraitEn": {
+        "titre": "Retrait à Goma (anglais)",
+        "libelle": "Lieu de retrait gratuit à Goma, en anglais",
+        "aide": "De 1 à 500 caractères : le même lieu, en anglais. Laisse vide pour l'effacer."
+      },
+      "plafond": {
+        "titre": "Plafond de fabrication",
+        "libelle": "Plafond de fabrication (pièces)",
+        "aide": "Nombre entier de pièces, de 1 à 10000, que tu peux fabriquer en même temps. Il n'est jamais affiché aux clients. Laisse vide pour l'effacer."
+      },
       "erreurs": {
         "nom_invalide": "Le nom doit avoir de 1 à 60 caractères.",
         "numero_invalide": "Le numéro doit commencer par + et contenir de 8 à 15 chiffres.",
+        "forfait_goma_invalide": "Le forfait de Goma doit être un montant en USD de 0 à 1000, avec deux décimales au plus.",
+        "forfait_bukavu_invalide": "Le forfait de Bukavu doit être un montant en USD de 0 à 1000, avec deux décimales au plus.",
+        "retrait_fr_invalide": "Le lieu de retrait en français doit avoir au plus 500 caractères.",
+        "retrait_en_invalide": "Le lieu de retrait en anglais doit avoir au plus 500 caractères.",
+        "plafond_invalide": "Le plafond doit être un nombre entier de 1 à 10000.",
         "non_autorise": "Tu n'as plus le droit de modifier ce réglage. Recharge la page ou reconnecte-toi.",
         "generique": "Le réglage n'a pas pu être enregistré. Ta saisie est conservée : réessaie."
+      },
+      "tranches": {
+        "titre": "Tranches de prix",
+        "aide": "Les tranches servent de filtre de prix dans les catalogues, dans l'ordre de la liste. 8 tranches au plus. Sans tranche, le catalogue n'a pas de filtre de prix.",
+        "valeurAFixer": "Valeur à fixer",
+        "nombreEnregistrees": "Tranches enregistrées : {nombre}",
+        "vide": "Aucune tranche pour le moment.",
+        "legende": "Tranches de prix",
+        "position": "Tranche {numero}",
+        "libelleFr": "Tranche {numero} : libellé en français",
+        "libelleEn": "Tranche {numero} : libellé en anglais",
+        "bas": "Tranche {numero} : borne basse (USD)",
+        "haut": "Tranche {numero} : borne haute (USD)",
+        "hautAide": "Laisse vide pour une tranche ouverte (sans limite haute).",
+        "monter": "Monter la tranche {numero}",
+        "descendre": "Descendre la tranche {numero}",
+        "retirer": "Retirer la tranche {numero}",
+        "retirerCourt": "Retirer",
+        "ajouter": "Ajouter une tranche",
+        "limite": "Tu as atteint la limite de {nombre} tranches.",
+        "deplacee": "Tranche déplacée à la position {numero}.",
+        "retiree": "Tranche {numero} retirée de la liste.",
+        "ajoutee": "Tranche {numero} ajoutée à la liste.",
+        "enregistrer": "Enregistrer les tranches",
+        "enCours": "Enregistrement…",
+        "succes": "Tranches enregistrées.",
+        "erreurLigne": "Tranche {numero} : {message}",
+        "erreurs": {
+          "tranche_libelle_invalide": "le libellé doit avoir de 1 à 40 caractères.",
+          "tranche_bornes_invalides": "les bornes doivent être des montants en USD (deux décimales au plus) et la borne haute doit dépasser la borne basse.",
+          "tranches_trop_nombreuses": "Il y a trop de tranches : 8 au plus.",
+          "non_autorise": "Tu n'as plus le droit de modifier ce réglage. Recharge la page ou reconnecte-toi.",
+          "generique": "Les tranches n'ont pas pu être enregistrées. Ta saisie est conservée : réessaie."
+        }
       }
     },
     "messages": {

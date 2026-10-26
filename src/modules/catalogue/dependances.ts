@@ -64,6 +64,13 @@ export function dependances(): DependancesCatalogue {
         : await admin.rpc("depublier_produit", { p_auteur: auteur as never, p_id: id });
       return { erreur: error ? error.message : null };
     },
+    ecrireTranches: async ({ auteur, tranches }) => {
+      const { error } = await admin.rpc("enregistrer_tranches_prix", { p_auteur: auteur as never, p_tranches: tranches as never });
+      return { erreur: error ? error.message : null };
+    },
+    invaliderReglages: async () => {
+      updateTag(ETIQUETTES.reglages);
+    },
     invaliderCatalogue: async () => {
       updateTag(ETIQUETTES.catalogue);
     },

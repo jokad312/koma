@@ -31,6 +31,9 @@ export type CodeErreurCatalogue =
   | "photos_limite"
   | "photo_introuvable"
   | "publication_incomplete"
+  | "tranche_libelle_invalide"
+  | "tranche_bornes_invalides"
+  | "tranches_trop_nombreuses"
   | "produit_publie_verrouille"
   | "generique";
 
@@ -59,6 +62,18 @@ export const PHOTOS_MAX = 10;
 
 export type ChampUnivers = "nom_fr" | "nom_en";
 
+// Tranches de prix du filtre des catalogues (réglage de l'admin) : 8 au plus, aucune tranche par défaut.
+export const TRANCHES_MAX = 8;
+export type ChampTranche = "libelle_fr" | "libelle_en" | "bas" | "haut";
+
+// Tranche telle que le formulaire l'envoie : bornes en USD saisies en texte (borne haute vide = tranche ouverte).
+export type EntreeTranche = { libelleFr: string; libelleEn: string; bas: string; haut: string };
+
+// Ce que la base reçoit (fonction enregistrer_tranches_prix) : centimes entiers.
+export type TrancheEcrite = { libelle_fr: string; libelle_en: string; bas_cents: number; haut_cents: number | null };
+
+export type TranchePrix = { ordre: number; libelleFr: string; libelleEn: string; basCents: number; hautCents: number | null };
+
 export type ErreurCatalogue = {
   ok: false;
   erreur: CodeErreurCatalogue;
@@ -69,6 +84,9 @@ export type ErreurCatalogue = {
   slugPropose?: string;
   // Publication refusée : ce qui manque.
   manques?: ManquePublication[];
+  // Tranche de prix concernée (rang de 1 à 8) et champ fautif.
+  ligne?: number;
+  champTranche?: ChampTranche;
 };
 
 export type ResultatCatalogue<T extends object = object> = ({ ok: true } & T) | ErreurCatalogue;
@@ -133,6 +151,10 @@ export type DependancesCatalogue = {
   ecrirePhoto(args: { auteur: AuteurCompte; produitId: string; fichier: string; altFr: string; altEn: string }): Promise<{ erreur: string | null; id: string | null }>;
   deplacerPhoto(args: { auteur: AuteurCompte; photoId: string; sens: "haut" | "bas" }): Promise<{ erreur: string | null }>;
   changerPublication(args: { auteur: AuteurCompte; id: string; publier: boolean }): Promise<{ erreur: string | null }>;
+  // Remplace l'ensemble des tranches de prix (droit « reglages.modifier »).
+  ecrireTranches(args: { auteur: AuteurCompte; tranches: TrancheEcrite[] }): Promise<{ erreur: string | null }>;
+  // Vide l'étiquette de cache « reglages » (les tranches sont lues avec elle) : appelé seulement après la réponse réelle de la base.
+  invaliderReglages(): Promise<void>;
   // Vide l'étiquette de cache « catalogue » (updateTag) : appelé seulement après la réponse réelle de la base.
   invaliderCatalogue(): Promise<void>;
   // Lit (et lève en cas d'erreur de lecture) l'état d'un produit pour la complétude ; null si inconnu.

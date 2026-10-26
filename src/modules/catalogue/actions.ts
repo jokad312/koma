@@ -2,7 +2,7 @@
 
 import { dependances } from "./dependances";
 import * as service from "./service";
-import type { ChampProduit, ChampUnivers, CodeErreurCatalogue, EntreeProduit, EntreeUnivers, ManquePublication, Taille } from "./types";
+import type { ChampProduit, ChampTranche, ChampUnivers, CodeErreurCatalogue, EntreeProduit, EntreeTranche, EntreeUnivers, ManquePublication, Taille } from "./types";
 
 // Résultats rendus aux formulaires : le succès n'existe qu'après la réponse réelle de la base (règle 13).
 // Les écritures passent toujours par ces actions (jamais depuis le navigateur) ; le droit est revérifié dans le service.
@@ -80,4 +80,20 @@ export async function publierProduit(entree: { id: string }) {
 
 export async function depublierProduit(entree: { id: string }) {
   return envelopper<object>("dépublication", () => service.depublierProduit(dependances(), entree));
+}
+
+// Résultat rendu à l'éditeur de tranches : le succès n'existe qu'après la réponse réelle de la base ; la saisie reste côté formulaire.
+export type EtatTranches =
+  | { statut: "succes" }
+  | { statut: "erreur"; erreur: CodeErreurCatalogue; ligne?: number; champ?: ChampTranche };
+
+export async function enregistrerTranchesPrix(entree: EntreeTranche[]): Promise<EtatTranches> {
+  try {
+    const resultat = await service.enregistrerTranchesPrix(dependances(), entree);
+    if (!resultat.ok) return { statut: "erreur", erreur: resultat.erreur, ligne: resultat.ligne, champ: resultat.champTranche };
+    return { statut: "succes" };
+  } catch {
+    console.error("[catalogue] tranches : exception inattendue");
+    return { statut: "erreur", erreur: "generique" };
+  }
 }

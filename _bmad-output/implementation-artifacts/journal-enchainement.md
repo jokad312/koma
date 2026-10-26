@@ -29,3 +29,9 @@
 - Écart à la spec : avec le jeton signé, le point d'accès TUS qui marche est `/storage/v1/upload/resumable/sign` (essai réel sur koma-dev, l'autre répond 403). L'envoi TUS a été prouvé par un script Node (photo générée avec GPS ressortie sans métadonnées, objets de test effacés) ; le chemin dans le navigateur n'a pas été exécuté en vrai navigateur.
 - À tester à la main : fiche d'édition d'un produit (`/fr/admin/produits/<id>`) : ajouter 2 photos avec textes alternatifs FR/EN (une photo prise au téléphone avec position), vérifier l'ordre avec Monter / Descendre au clavier, « Annuler l'envoi » en cours d'envoi, couper le réseau pendant un envoi (reprise), tenter « Publier » incomplet (liste des manques), compléter puis publier, dépublier ; liste des produits : pastille « Publié ».
 - Points reportés (deferred-work.md) : suppression d'une photo et modification de son texte alternatif (aucun moyen de retirer une photo fautive pour l'instant), purge Cron de `galerie-attente`, fichiers publics encore lisibles par lien direct après dépublication.
+
+## Story 2.3 : réglages de remise et Plafond de fabrication
+- Commit : voir `git log` (message « Story 2.3 »). Migration `20261025100000` appliquée sur koma-dev, types régénérés.
+- À tester à la main : `/fr/admin/reglages` : saisir les forfaits de Goma et Bukavu (USD), le retrait à Goma (FR et EN), le Plafond de fabrication, deux ou trois tranches de prix (Monter / Descendre, Retirer, focus au clavier), recharger, vérifier « Valeur à fixer » pour une valeur effacée et les lignes de `journal_audit`.
+- À fournir : les montants réels des forfaits, le lieu et les modalités de retrait, le Plafond, les tranches de prix (aucune valeur par défaut n'existe).
+- Reporté : `stock_disponible` renvoie le stock exact (lisible par n'importe qui via l'API) ; décision à prendre avant la mise en ligne si l'on veut exposer seulement « en stock » (voir deferred-work.md).
