@@ -514,6 +514,24 @@
         "monter": "Move photo {numero} up: {texte}",
         "descendre": "Move photo {numero} down: {texte}",
         "deplacee": "Photo moved: it is now in position {numero}.",
+        "supprimer": "Delete photo {numero}",
+        "supprimee": "Photo {numero} deleted.",
+        "suppression": {
+          "titre": "Delete photo {numero}?",
+          "texte": "The photo is removed from the product and its file is erased from the site. This cannot be undone.",
+          "confirmer": "Delete",
+          "annuler": "Cancel",
+          "enCours": "Deleting…"
+        },
+        "alt": {
+          "titre": "Edit the alternative text of photo {numero}",
+          "altFr": "Alternative text in French",
+          "altEn": "Alternative text in English",
+          "aide": "From 1 to 200 characters.",
+          "enregistrer": "Save the alternative text",
+          "enCours": "Saving…",
+          "succes": "Alternative text of photo {numero} saved."
+        },
         "ajout": {
           "titre": "Add a photo",
           "fichier": {
@@ -543,6 +561,7 @@
           "alt_invalide": "Write the alternative text, from 1 to 200 characters.",
           "photos_limite": "This product already has 10 photos, the maximum.",
           "photo_introuvable": "This photo no longer exists. Reload the page.",
+          "derniere_photo_publiee": "This is the last photo of a published product: unpublish the product first, then delete it.",
           "produit_introuvable": "This product no longer exists. Go back to the product list.",
           "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
           "envoi_echec": "The upload failed. Check your connection and try again.",

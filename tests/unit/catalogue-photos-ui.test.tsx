@@ -6,6 +6,8 @@ import { rendre } from "./aides-dom";
 
 const faux = vi.hoisted(() => ({
   deplacerPhoto: vi.fn(),
+  supprimerPhoto: vi.fn(),
+  modifierAltPhoto: vi.fn(),
   publierProduit: vi.fn(),
   depublierProduit: vi.fn(),
   demanderEnvoiPhoto: vi.fn(),
@@ -17,6 +19,8 @@ const faux = vi.hoisted(() => ({
 vi.mock("server-only", () => ({}));
 vi.mock("@/modules/catalogue/actions", () => ({
   deplacerPhoto: (...a: unknown[]) => faux.deplacerPhoto(...a),
+  supprimerPhoto: (...a: unknown[]) => faux.supprimerPhoto(...a),
+  modifierAltPhoto: (...a: unknown[]) => faux.modifierAltPhoto(...a),
   publierProduit: (...a: unknown[]) => faux.publierProduit(...a),
   depublierProduit: (...a: unknown[]) => faux.depublierProduit(...a),
   demanderEnvoiPhoto: (...a: unknown[]) => faux.demanderEnvoiPhoto(...a),

@@ -74,6 +74,14 @@ export async function deplacerPhoto(entree: { photoId: string; sens: string }) {
   return envelopper<object>("déplacement de photo", () => service.deplacerPhoto(dependances(), entree));
 }
 
+export async function supprimerPhoto(entree: { photoId: string }) {
+  return envelopper<object>("suppression de photo", () => service.supprimerPhoto(dependances(), entree));
+}
+
+export async function modifierAltPhoto(entree: { photoId: string; altFr: string; altEn: string }) {
+  return envelopper<object>("texte alternatif", () => service.modifierAltPhoto(dependances(), entree));
+}
+
 export async function publierProduit(entree: { id: string }) {
   return envelopper<object>("publication", () => service.publierProduit(dependances(), entree));
 }

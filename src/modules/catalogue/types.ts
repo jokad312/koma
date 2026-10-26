@@ -30,6 +30,7 @@ export type CodeErreurCatalogue =
   | "alt_invalide"
   | "photos_limite"
   | "photo_introuvable"
+  | "derniere_photo_publiee"
   | "publication_incomplete"
   | "tranche_libelle_invalide"
   | "tranche_bornes_invalides"
@@ -150,6 +151,9 @@ export type DependancesCatalogue = {
   supprimerObjets(args: { bucket: "galerie-attente" | "produits-public"; objets: string[] }): Promise<{ erreur: string | null }>;
   ecrirePhoto(args: { auteur: AuteurCompte; produitId: string; fichier: string; altFr: string; altEn: string }): Promise<{ erreur: string | null; id: string | null }>;
   deplacerPhoto(args: { auteur: AuteurCompte; photoId: string; sens: "haut" | "bas" }): Promise<{ erreur: string | null }>;
+  // Supprime la ligne (positions renumérotées par la base) et renvoie le fichier du bucket public, à effacer ensuite par supprimerObjets.
+  supprimerPhoto(args: { auteur: AuteurCompte; photoId: string }): Promise<{ erreur: string | null; fichier: string | null }>;
+  modifierAltPhoto(args: { auteur: AuteurCompte; photoId: string; altFr: string; altEn: string }): Promise<{ erreur: string | null }>;
   changerPublication(args: { auteur: AuteurCompte; id: string; publier: boolean }): Promise<{ erreur: string | null }>;
   // Remplace l'ensemble des tranches de prix (droit « reglages.modifier »).
   ecrireTranches(args: { auteur: AuteurCompte; tranches: TrancheEcrite[] }): Promise<{ erreur: string | null }>;

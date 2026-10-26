@@ -58,6 +58,14 @@ export function dependances(): DependancesCatalogue {
       const { error } = await admin.rpc("deplacer_photo_produit", { p_auteur: auteur as never, p_photo_id: photoId, p_sens: sens });
       return { erreur: error ? error.message : null };
     },
+    supprimerPhoto: async ({ auteur, photoId }) => {
+      const { data, error } = await admin.rpc("supprimer_photo_produit", { p_auteur: auteur as never, p_photo_id: photoId });
+      return { erreur: error ? error.message : null, fichier: typeof data === "string" ? data : null };
+    },
+    modifierAltPhoto: async ({ auteur, photoId, altFr, altEn }) => {
+      const { error } = await admin.rpc("modifier_alt_photo", { p_auteur: auteur as never, p_photo_id: photoId, p_alt_fr: altFr, p_alt_en: altEn });
+      return { erreur: error ? error.message : null };
+    },
     changerPublication: async ({ auteur, id, publier }) => {
       const { error } = publier
         ? await admin.rpc("publier_produit", { p_auteur: auteur as never, p_id: id })

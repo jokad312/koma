@@ -548,6 +548,15 @@ export type Database = {
         Returns: undefined
       }
       masquer_donnee_personnelle: { Args: { p_valeur: Json }; Returns: Json }
+      modifier_alt_photo: {
+        Args: {
+          p_alt_en: string
+          p_alt_fr: string
+          p_auteur: Json
+          p_photo_id: string
+        }
+        Returns: undefined
+      }
       places_fabrication_utilisees: { Args: never; Returns: number }
       publier_produit: {
         Args: { p_auteur: Json; p_id: string }
@@ -555,6 +564,10 @@ export type Database = {
       }
       questions_accueil_vues: { Args: { p_compte: string }; Returns: boolean }
       stock_disponible: { Args: { p_variante: string }; Returns: number }
+      supprimer_photo_produit: {
+        Args: { p_auteur: Json; p_photo_id: string }
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

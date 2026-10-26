@@ -30,6 +30,8 @@ type Reglages = {
   levePhoto?: boolean;
   erreurDeplacer?: string | null;
   erreurPublication?: string | null;
+  erreurSupprimerPhoto?: string | null;
+  erreurAlt?: string | null;
   invalidationEnEchec?: boolean;
   // Produit lu pour la complétude : par défaut complet. null : produit inconnu. Une fonction permet de changer entre deux lectures.
   produitComplet?: ProduitPourPublication | null | (() => ProduitPourPublication | null);
@@ -61,6 +63,8 @@ export function creerTestDependancesCatalogue(r: Reglages = {}) {
     suppressions: [] as Array<{ bucket: string; objets: string[] }>,
     photos: [] as Array<Parameters<DependancesCatalogue["ecrirePhoto"]>[0]>,
     deplacements: [] as Array<Parameters<DependancesCatalogue["deplacerPhoto"]>[0]>,
+    suppressionsPhoto: [] as Array<Parameters<DependancesCatalogue["supprimerPhoto"]>[0]>,
+    alts: [] as Array<Parameters<DependancesCatalogue["modifierAltPhoto"]>[0]>,
     publications: [] as Array<Parameters<DependancesCatalogue["changerPublication"]>[0]>,
     invalidations: 0,
     tranches: [] as Array<Parameters<DependancesCatalogue["ecrireTranches"]>[0]>,
@@ -119,6 +123,16 @@ export function creerTestDependancesCatalogue(r: Reglages = {}) {
       appels.ordre.push("deplacer");
       appels.deplacements.push(args);
       return { erreur: r.erreurDeplacer ?? null };
+    }),
+    supprimerPhoto: vi.fn(async (args) => {
+      appels.ordre.push("supprimerPhoto");
+      appels.suppressionsPhoto.push(args);
+      return { erreur: r.erreurSupprimerPhoto ?? null, fichier: r.erreurSupprimerPhoto ? null : "TEST_produit/TEST_fichier.jpg" };
+    }),
+    modifierAltPhoto: vi.fn(async (args) => {
+      appels.ordre.push("alt");
+      appels.alts.push(args);
+      return { erreur: r.erreurAlt ?? null };
     }),
     changerPublication: vi.fn(async (args) => {
       appels.ordre.push("publication");

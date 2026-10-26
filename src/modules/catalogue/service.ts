@@ -257,6 +257,54 @@ export async function deplacerPhoto(deps: DependancesCatalogue, entree: { photoI
   }
 }
 
+// Supprime une photo : la base d'abord (ligne retirée, positions renumérotées, journal), puis le fichier public. Un échec d'effacement
+// est journalisé sans annuler la suppression en base (un orphelin vaut mieux qu'une photo cassée).
+// La dernière photo d'un produit publié est refusée par la base (déclencheur différé) : message « dépublie d'abord ».
+export async function supprimerPhoto(deps: DependancesCatalogue, entree: { photoId: string }): Promise<ResultatCatalogue> {
+  const droit = await verifierDroit(deps);
+  if ("erreur" in droit) return { ok: false, erreur: droit.erreur };
+  const photo = idSchema.safeParse(entree.photoId);
+  if (!photo.success) return { ok: false, erreur: "photo_introuvable" };
+  try {
+    const { erreur, fichier } = await deps.supprimerPhoto({ auteur: droit.auteur, photoId: photo.data });
+    if (erreur) {
+      journaliser("suppression de photo refusée", erreur);
+      const code = erreurPhoto(erreur);
+      return { ok: false, erreur: code === "publication_incomplete" ? "derniere_photo_publiee" : code };
+    }
+    // La ligne est déjà supprimée : un fichier inconnu est une anomalie journalisée, pas un échec.
+    if (fichier) await effacer(deps, "produits-public", fichier);
+    else journaliser("suppression de photo : fichier non renvoyé", "");
+    await invalider(deps);
+    return { ok: true };
+  } catch (e) {
+    journaliser("suppression de photo", e);
+    return { ok: false, erreur: "generique" };
+  }
+}
+
+// Corrige les textes alternatifs FR et EN d'une photo : « ok » seulement après la réponse réelle de la base.
+export async function modifierAltPhoto(deps: DependancesCatalogue, entree: { photoId: string; altFr: string; altEn: string }): Promise<ResultatCatalogue> {
+  const droit = await verifierDroit(deps);
+  if ("erreur" in droit) return { ok: false, erreur: droit.erreur };
+  const photo = idSchema.safeParse(entree.photoId);
+  if (!photo.success) return { ok: false, erreur: "photo_introuvable" };
+  const alt = lireAlt(entree.altFr, entree.altEn);
+  if (!alt.ok) return { ok: false, erreur: "alt_invalide" };
+  try {
+    const { erreur } = await deps.modifierAltPhoto({ auteur: droit.auteur, photoId: photo.data, altFr: alt.altFr, altEn: alt.altEn });
+    if (erreur) {
+      journaliser("texte alternatif refusé", erreur);
+      return { ok: false, erreur: erreurPhoto(erreur) };
+    }
+    await invalider(deps);
+    return { ok: true };
+  } catch (e) {
+    journaliser("texte alternatif", e);
+    return { ok: false, erreur: "generique" };
+  }
+}
+
 // Après la réponse réelle de la base seulement : l'étiquette « catalogue » est vidée ; un échec de cette étape ne défait rien.
 async function invalider(deps: DependancesCatalogue) {
   try {

@@ -514,6 +514,24 @@
         "monter": "Monter la photo {numero} : {texte}",
         "descendre": "Descendre la photo {numero} : {texte}",
         "deplacee": "Photo déplacée : elle est maintenant en position {numero}.",
+        "supprimer": "Supprimer la photo {numero}",
+        "supprimee": "Photo {numero} supprimée.",
+        "suppression": {
+          "titre": "Supprimer la photo {numero} ?",
+          "texte": "La photo est retirée du produit et son fichier est effacé du site. Cette action ne peut pas être annulée.",
+          "confirmer": "Supprimer",
+          "annuler": "Annuler",
+          "enCours": "Suppression…"
+        },
+        "alt": {
+          "titre": "Modifier le texte alternatif de la photo {numero}",
+          "altFr": "Texte alternatif en français",
+          "altEn": "Texte alternatif en anglais",
+          "aide": "De 1 à 200 caractères.",
+          "enregistrer": "Enregistrer le texte alternatif",
+          "enCours": "Enregistrement…",
+          "succes": "Texte alternatif de la photo {numero} enregistré."
+        },
         "ajout": {
           "titre": "Ajouter une photo",
           "fichier": {
@@ -543,6 +561,7 @@
           "alt_invalide": "Écris le texte alternatif, de 1 à 200 caractères.",
           "photos_limite": "Ce produit a déjà 10 photos, le maximum.",
           "photo_introuvable": "Cette photo n'existe plus. Recharge la page.",
+          "derniere_photo_publiee": "C'est la dernière photo d'un produit publié : dépublie d'abord le produit, puis supprime-la.",
           "produit_introuvable": "Ce produit n'existe plus. Retourne à la liste des produits.",
           "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
           "envoi_echec": "L'envoi a échoué. Vérifie ta connexion puis réessaie.",

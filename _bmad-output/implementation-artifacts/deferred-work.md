@@ -164,3 +164,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-7-blocs-de-la-page-d-accueil.md`
   summary: Les pages de catalogue écrivent `[catalogue] lecture impossible` dans les journaux du serveur (une fois par requête, constaté en `next start` et en développement) alors que la page affiche le bon état ; la cause est une lecture annulée (`AbortError`) pendant un passage de prérendu de Next.js (cacheComponents) que la page prend pour une panne.
   evidence: appel direct de `lister_catalogue` par supabase-js réussi ; trace temporaire : `AbortError: This operation was aborted` émis par le minuteur du prérendu. Le bloc 2 de l'accueil a été corrigé (`await connection()` avant la lecture). À traiter : faire de même (ou reconnaître l'annulation) dans `ContenuCatalogue` et vérifier avec de vrais produits publiés que le rendu de la requête est correct.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-correctif-photos-suppression-et-alt.md`
+  summary: Balayage des fichiers de `produits-public` sans ligne `produit_photo` : un échec d'effacement après la suppression en base laisse un fichier orphelin.
+  evidence: choix assumé (un orphelin vaut mieux qu'une photo cassée) ; l'échec est seulement journalisé. À traiter avec les tâches Cron : lister le bucket, comparer à `produit_photo.fichier`, effacer les fichiers sans ligne et de plus de 24 h.
