@@ -97,6 +97,25 @@ describe("premierSlugLibre", () => {
     await expect(premierSlugLibre("cosplay", null)).rejects.toThrow();
   });
 
+  it("invaliderCatalogue() vide l'étiquette « catalogue »", async () => {
+    await dependances().invaliderCatalogue();
+    expect(tags.updateTag).toHaveBeenCalledWith("catalogue");
+  });
+
+  it("creerUnivers réussi (service + câblage réel) : l'étiquette « catalogue » est vidée ; refusé : elle ne l'est pas", async () => {
+    const { exigerDroit } = await import("@/lib/auth/droits");
+    vi.mocked(exigerDroit).mockResolvedValue({ auteur: AUTEUR } as never);
+    const { creerUnivers } = await import("@/modules/catalogue/service");
+    faux.rpc.mockResolvedValue({ data: "TEST_id", error: null });
+    expect(await creerUnivers(dependances(), { nomFr: "A", nomEn: "B" })).toEqual({ ok: true, id: "TEST_id" });
+    expect(tags.updateTag).toHaveBeenCalledWith("catalogue");
+    tags.updateTag.mockClear();
+    faux.rpc.mockResolvedValue({ data: null, error: { message: "KS_UNIVERS_EXISTE" } });
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    expect((await creerUnivers(dependances(), { nomFr: "A", nomEn: "B" })).ok).toBe(false);
+    expect(tags.updateTag).not.toHaveBeenCalled();
+  });
+
   it("invaliderReglages() vide l'étiquette « reglages »", async () => {
     await dependances().invaliderReglages();
     expect(tags.updateTag).toHaveBeenCalledWith("reglages");

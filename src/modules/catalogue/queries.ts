@@ -3,8 +3,11 @@ import { cacheTag } from "next/cache";
 import { ETIQUETTES } from "@/lib/cache/etiquettes";
 import { creerClientPublic } from "@/lib/supabase/public";
 import { creerClientService } from "@/lib/supabase/service";
+import { urlPhotoPublique } from "@/lib/supabase/stockage";
+import { encoderCurseur } from "./adresse";
 import { choisirSlugLibre, SLUG_REGEX } from "./slug";
-import type { FamillePhysique, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
+import { CUMUL_MAX_CATALOGUE, DISPONIBILITES, TAILLE_PAGE_CATALOGUE } from "./types";
+import type { CarteProduit, Disponibilite, FamillePhysique, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
 
 // Lectures admin par le client service (après le droit vérifié par la page) : une erreur de lecture est relancée,
 // jamais une liste vide inventée. Aucune valeur de repli (règle 15).
@@ -112,7 +115,10 @@ export async function premierSlugLibre(base: string, exclureId: string | null): 
 
 // Univers proposés à la question d'accueil, dans la langue de la route : lecture publique (RLS), sans session.
 // Une erreur est relancée : l'appelant décide (la question est facultative, l'étape continue sans elle).
+// Liste des univers dans la langue demandée, en cache `catalogue` (vidée à la création d'un univers).
 export async function lireUniversPublics(locale: "fr" | "en"): Promise<UniversChoix[]> {
+  "use cache";
+  cacheTag(ETIQUETTES.catalogue);
   const colonne = locale === "fr" ? "nom_fr" : "nom_en";
   const { data, error } = await creerClientPublic().from("univers").select(`id, ${colonne}`).order(colonne, { ascending: true });
   if (error) throw new Error("Lecture des univers impossible.");
@@ -146,4 +152,61 @@ export async function lireTranchesPrixAdmin(): Promise<TranchePrix[]> {
     .order("ordre", { ascending: true });
   if (error) throw new Error("Lecture des tranches de prix impossible.");
   return versTranches(data);
+}
+
+const DISPONIBILITES_CONNUES: readonly string[] = DISPONIBILITES;
+
+// Une page d'un catalogue public, par la fonction SQL lister_catalogue (client public : la RLS ne montre que les produits publiés).
+// Rendue à chaque requête, jamais en cache (le badge dépend du stock et de la capacité : AD-17). Une erreur de lecture est relancée :
+// jamais une liste vide inventée. La base lit une ligne de plus que la page : elle ne sert qu'à savoir s'il en reste, elle n'est pas rendue.
+// Deux lectures d'un curseur (qui porte la clé de tri du dernier produit vu et le nombre n de produits déjà affichés) :
+//  - cumul: true (page à curseur) : relit depuis le début les n produits déjà vus plus les 12 suivants (limite, jamais de décalage) ;
+//  - sinon (Server Action « Voir plus ») : seulement les 12 suivants, par la clé de tri.
+// Le curseur rendu porte dans les deux cas le nombre total de produits affichés après cette lecture.
+export async function listerCatalogue(
+  famille: FamillePhysique,
+  params: ParamsCatalogue,
+  locale: "fr" | "en",
+  options: { cumul?: boolean } = {},
+): Promise<PageCatalogue> {
+  const cumul = Boolean(options.cumul && params.curseur);
+  const dejaVus = params.curseur?.n ?? 0;
+  const taille = TAILLE_PAGE_CATALOGUE + (cumul ? dejaVus : 0);
+  const { data, error } = await creerClientPublic().rpc("lister_catalogue", {
+    p_famille: famille,
+    p_langue: locale,
+    p_univers: params.univers ?? undefined,
+    p_prix_bas: params.prixBas ?? undefined,
+    p_prix_haut: params.prixHaut ?? undefined,
+    p_dispo: params.dispo ?? undefined,
+    p_tri: params.tri,
+    p_curseur_date: cumul ? undefined : (params.curseur?.date ?? undefined),
+    p_curseur_prix: cumul ? undefined : (params.curseur?.prix ?? undefined),
+    p_curseur_id: cumul ? undefined : (params.curseur?.id ?? undefined),
+    p_limite: taille + 1,
+  });
+  if (error || !Array.isArray(data)) throw new Error("Lecture du catalogue impossible.");
+
+  const lignes = data.slice(0, taille);
+  const produits: CarteProduit[] = lignes.map((l) => {
+    if (!DISPONIBILITES_CONNUES.includes(l.disponibilite)) throw new Error("Lecture du catalogue impossible.");
+    return {
+      id: l.id,
+      slug: l.slug,
+      famille: l.famille as FamillePhysique,
+      titre: l.titre,
+      photoAlt: l.photo_alt,
+      photoUrl: urlPhotoPublique(l.photo_fichier),
+      prixCents: l.prix_cents,
+      disponibilite: l.disponibilite as Disponibilite,
+    };
+  });
+  const dernier = lignes[lignes.length - 1];
+  // Plafond du cumul : au-delà, plus de « Voir plus » (la liste ne grossit plus par curseur).
+  const affiches = (cumul ? 0 : dejaVus) + lignes.length;
+  const suite =
+    data.length > taille && dernier && affiches <= CUMUL_MAX_CATALOGUE
+      ? encoderCurseur(params.tri, { date: dernier.curseur_date, prix: dernier.prix_cents, id: dernier.id, n: affiches })
+      : null;
+  return { produits, suite };
 }

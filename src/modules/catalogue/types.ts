@@ -199,3 +199,55 @@ export type ProduitAdmin = {
 
 // Choix de la question « univers » : nom déjà rendu dans la langue de la route.
 export type UniversChoix = { id: string; nom: string };
+
+// ---- Catalogues publics (story 2.4) ----
+
+// État de disponibilité calculé par la base (lister_catalogue) ; jamais de quantité.
+export const DISPONIBILITES = ["en_stock", "sur_commande", "complet", "indisponible"] as const;
+export type Disponibilite = (typeof DISPONIBILITES)[number];
+
+// Filtre de disponibilité de l'adresse : seulement les deux états vendables.
+export const FILTRES_DISPONIBILITE = ["en_stock", "sur_commande"] as const;
+export type FiltreDisponibilite = (typeof FILTRES_DISPONIBILITE)[number];
+
+export const TRIS_CATALOGUE = ["nouveautes", "prix_asc", "prix_desc"] as const;
+export type TriCatalogue = (typeof TRIS_CATALOGUE)[number];
+export const TRI_PAR_DEFAUT: TriCatalogue = "nouveautes";
+
+// 12 produits par page ; la base en lit 13 pour savoir s'il en reste.
+export const TAILLE_PAGE_CATALOGUE = 12;
+
+// Position dans la liste : la clé de tri du dernier produit vu (date de publication en nouveautés, prix en tri par prix) et son identifiant.
+// `n` : nombre de produits déjà affichés quand ce curseur a été donné (multiple de 12, 240 au plus) ; l'adresse à curseur relit ces n produits
+// depuis le début puis les 12 suivants, pour afficher la liste cumulée.
+export type CurseurCatalogue = { date: string | null; prix: number | null; id: string; n: number };
+export const CUMUL_MAX_CATALOGUE = 240;
+
+// Ce que l'adresse d'un catalogue demande, une fois analysée (jamais d'erreur : une valeur mal formée est ignorée).
+export type ParamsCatalogue = {
+  univers: string | null;
+  // Tranche de prix en centimes : bas inclus, haut exclu (null = tranche ouverte). Les deux nuls = pas de filtre de prix.
+  prixBas: number | null;
+  prixHaut: number | null;
+  dispo: FiltreDisponibilite | null;
+  tri: TriCatalogue;
+  curseur: CurseurCatalogue | null;
+};
+
+export type CarteProduit = {
+  id: string;
+  slug: string;
+  famille: FamillePhysique;
+  titre: string;
+  photoAlt: string;
+  // Adresse publique de la première photo (calculée côté serveur).
+  photoUrl: string;
+  prixCents: number;
+  disponibilite: Disponibilite;
+};
+
+export type PageCatalogue = {
+  produits: CarteProduit[];
+  // Curseur (opaque) de la page suivante ; null s'il n'en reste plus.
+  suite: string | null;
+};

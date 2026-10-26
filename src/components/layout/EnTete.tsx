@@ -1,7 +1,9 @@
 import Image from "next/image";
 import { Suspense } from "react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { cheminPublic } from "@/i18n/adresses";
 import { Link } from "@/i18n/navigation";
+import type { Locale } from "@/i18n/routing";
 import { BasculeTheme } from "./BasculeTheme";
 import { LangueRepli } from "./LangueRepli";
 import { MenuPanneau } from "./MenuPanneau";
@@ -16,13 +18,14 @@ type Props = { nomSite: string; rubriques?: readonly Rubrique[] };
 // Le logo est affiché tel quel (fichier d'origine, jamais recoloré) ; le cadrage 530 x 124 est fait par recadrage CSS.
 export async function EnTete({ nomSite, rubriques = RUBRIQUES }: Props) {
   const t = await getTranslations("Navigation");
+  const locale = (await getLocale()) as Locale;
   const liens =
     rubriques.length > 0 ? (
       <nav aria-label={t("principale")}>
         <ul className="flex flex-col items-start gap-2 lg:flex-row lg:items-center lg:gap-6">
           {rubriques.map((r) => (
             <li key={r.cle}>
-              <Link href={r.href} className="t-h3 inline-flex min-h-touch items-center text-text-primary">
+              <Link href={cheminPublic(locale, r.href)} className="t-h3 inline-flex min-h-touch items-center text-text-primary">
                 {t(`rubriques.${r.cle}`)}
               </Link>
             </li>

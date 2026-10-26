@@ -128,3 +128,11 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-2-photos-et-publication-d-un-produit.md`
   summary: Purger par une tâche Cron les objets de `galerie-attente` plus vieux que N heures (envoi abandonné, onglet fermé, coupure avant la finalisation).
   evidence: l'original d'attente n'est effacé que par la finalisation ou l'annulation ; un envoi TUS interrompu sans retour au serveur laisse un objet privé. Choisir N (par exemple 24) avec Jonathan.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-4-catalogues-cosplays-et-accessoires.md`
+  summary: Index et coût de `lister_catalogue` : `stock_disponible` est évalué par variante avant le `LIMIT`. Ajouter les index `produit (famille, publie_le desc, id desc)` et `produit (famille, prix_cents, id)` et mesurer avec EXPLAIN quand le catalogue dépassera quelques centaines de produits.
+  evidence: la migration 20261026100000 ne crée aucun index au-delà de ceux de la 2.1 ; la page à curseur relit jusqu'à 252 lignes depuis le début.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-4-catalogues-cosplays-et-accessoires.md`
+  summary: Le filtre d'univers liste tous les univers, même ceux qui n'ont aucun produit publié dans la famille affichée (un choix peut mener à « aucun résultat »).
+  evidence: `lireUniversPublics` ne dépend pas de la famille ; filtrer demanderait une lecture par famille (cache `catalogue`).

@@ -32,9 +32,23 @@ describe("creerUnivers", () => {
   it("noms rognés, droit d'abord, écriture avec l'auteur issu de la session", async () => {
     const { deps, appels } = creerTestDependancesCatalogue();
     expect(await creerUnivers(deps, { nomFr: "  Nom FR  ", nomEn: " Nom EN " })).toEqual({ ok: true, id: "TEST_univers-0001" });
-    expect(appels.ordre).toEqual(["droit", "univers"]);
+    // Le cache du catalogue (liste des univers du filtre) est vidé après la réponse réelle de la base.
+    expect(appels.ordre).toEqual(["droit", "univers", "invalidation"]);
     expect(appels.droits).toEqual(["produits.modifier"]);
     expect(appels.univers).toEqual([{ auteur: { type: "compte", id: TEST_ADMIN_ID, role: "admin" }, nomFr: "Nom FR", nomEn: "Nom EN" }]);
+  });
+
+  it("univers refusé par la base : le cache n'est pas vidé", async () => {
+    const { deps, appels } = creerTestDependancesCatalogue({ erreurUnivers: "KS_UNIVERS_EXISTE" });
+    expect(await creerUnivers(deps, { nomFr: "a", nomEn: "b" })).toEqual({ ok: false, erreur: "univers_existe" });
+    expect(appels.invalidations).toBe(0);
+  });
+
+  it("l'échec du vidage du cache ne défait pas la création", async () => {
+    const { deps } = creerTestDependancesCatalogue({ invalidationEnEchec: true });
+    const erreur = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(await creerUnivers(deps, { nomFr: "a", nomEn: "b" })).toEqual({ ok: true, id: "TEST_univers-0001" });
+    erreur.mockRestore();
   });
 
   it.each([

@@ -27,6 +27,10 @@ describe("sitemap", () => {
     expect(entrees.map((e) => e.url)).toEqual([
       "http://localhost:3000/fr",
       "http://localhost:3000/en",
+      "http://localhost:3000/fr/cosplays",
+      "http://localhost:3000/en/cosplays",
+      "http://localhost:3000/fr/accessoires",
+      "http://localhost:3000/en/accessories",
       "http://localhost:3000/fr/a-propos",
       "http://localhost:3000/en/a-propos",
       "http://localhost:3000/fr/faq",
@@ -42,7 +46,8 @@ describe("sitemap", () => {
       "http://localhost:3000/fr/confidentialite",
       "http://localhost:3000/en/confidentialite",
     ]);
-    for (const chemin of ["", "/a-propos", "/faq", "/contact", "/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite"]) {
+    // Catalogues : adresse propre à chaque langue (vérifiée dans adresses-langues.test.ts).
+    for (const chemin of ["", "/cosplays", "/a-propos", "/faq", "/contact", "/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite"]) {
       const e = entrees.find((x) => x.url === `http://localhost:3000/fr${chemin}`);
       expect(e?.alternates?.languages).toEqual({
         fr: `http://localhost:3000/fr${chemin}`,

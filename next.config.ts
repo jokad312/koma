@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
+import { redirectionsAdresses, reecrituresAdresses } from "./src/i18n/adresses";
 import { photosAutorisees } from "./src/lib/supabase/images-distantes";
 import { entetesSecurite } from "./src/lib/securite/entetes";
 
@@ -21,6 +22,13 @@ const nextConfig: NextConfig = {
         }),
       },
     ];
+  },
+  // Adresses propres à chaque langue (src/i18n/adresses.ts) : l'adresse de l'autre langue redirige (308), l'adresse propre sert le dossier interne.
+  async redirects() {
+    return redirectionsAdresses();
+  },
+  async rewrites() {
+    return { beforeFiles: reecrituresAdresses(), afterFiles: [], fallback: [] };
   },
   turbopack: {
     rules: {

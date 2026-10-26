@@ -61,6 +61,8 @@ export async function creerUnivers(deps: DependancesCatalogue, entree: EntreeUni
       return { ok: false, erreur: "generique" };
     }
     if (!id) return { ok: false, erreur: "generique" };
+    // La liste des univers du catalogue public est en cache : elle est vidée après la réponse réelle de la base.
+    await invalider(deps);
     return { ok: true, id };
   } catch (e) {
     journaliser("univers", e);

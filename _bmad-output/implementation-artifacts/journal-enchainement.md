@@ -35,3 +35,10 @@
 - À tester à la main : `/fr/admin/reglages` : saisir les forfaits de Goma et Bukavu (USD), le retrait à Goma (FR et EN), le Plafond de fabrication, deux ou trois tranches de prix (Monter / Descendre, Retirer, focus au clavier), recharger, vérifier « Valeur à fixer » pour une valeur effacée et les lignes de `journal_audit`.
 - À fournir : les montants réels des forfaits, le lieu et les modalités de retrait, le Plafond, les tranches de prix (aucune valeur par défaut n'existe).
 - Reporté : `stock_disponible` renvoie le stock exact (lisible par n'importe qui via l'API) ; décision à prendre avant la mise en ligne si l'on veut exposer seulement « en stock » (voir deferred-work.md).
+
+## Story 2.4 : catalogues Cosplays et Accessoires
+- Commit : voir `git log` (message « Story 2.4 »). Migration `20261026100000` appliquée sur koma-dev, types régénérés.
+- Adresses : `/fr/cosplays`, `/en/cosplays`, `/fr/accessoires`, `/en/accessories` ; l'adresse de l'autre langue redirige en 308 (règles dans `next.config.ts`, table `src/i18n/adresses.ts`).
+- À tester à la main (il faut au moins un produit publié, donc la 2.2 et vos photos) : publier 2 ou 3 produits complets, ouvrir les catalogues, filtrer (univers, prix si des tranches sont réglées, disponibilité), trier, « Voir plus » avec plus de 12 produits (adresse mise à jour, focus, rechargement = même liste cumulée), changer de langue avec une requête, 375 px, clavier ; les liens des cartes mènent à une 404 jusqu'à la story 2.5.
+- Choix à connaître : l'état « ni en stock ni fabricable » s'affiche « Indisponible pour le moment » (jamais « Épuisé ») ; borne basse d'une tranche incluse, haute exclue ; au-delà de 240 produits affichés d'un coup, plus de « Voir plus » cumulé.
+- Reporté (deferred-work.md) : index de `lister_catalogue` à mesurer quand le catalogue grandira ; le filtre d'univers liste tous les univers.

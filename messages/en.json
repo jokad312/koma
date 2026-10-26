@@ -45,6 +45,14 @@
         "titre": "Privacy policy",
         "description": "Privacy policy of the shop."
       }
+    },
+    "cosplays": {
+      "titre": "Cosplays",
+      "description": "Handmade cosplay costumes made in Goma, in stock or made to order. Filter by universe, price and availability."
+    },
+    "accessoires": {
+      "titre": "Accessories",
+      "description": "Wigs, prop weapons, masks, armor and jewelry for otaku fans, made in Goma. Filter by universe, price and availability."
     }
   },
   "Accueil": {
@@ -663,6 +671,50 @@
       "titre": "Privacy policy",
       "texte": "[Texte à fournir]",
       "version": "[Texte à fournir]"
+    }
+  },
+  "Catalogue": {
+    "titre": {
+      "cosplay": "Cosplays",
+      "accessoire": "Accessories"
+    },
+    "fil": {
+      "navigation": "Breadcrumb",
+      "accueil": "Home"
+    },
+    "liste": "Products",
+    "resultats": "{n, plural, one {# product shown} other {# products shown}}",
+    "resultatsSuite": "{n, plural, one {# product shown, there are more} other {# products shown, there are more}}",
+    "vide": "No products are on sale right now. Come back soon.",
+    "videFiltres": "No products match these filters.",
+    "erreur": "The catalog is unavailable right now. Try again in a moment.",
+    "filtres": {
+      "ouvrir": "Filter ({n})",
+      "titre": "Filters and sorting",
+      "univers": "Universe",
+      "prix": "Price",
+      "disponibilite": "Availability",
+      "tri": "Sort by",
+      "tous": "All",
+      "enStock": "In stock",
+      "surCommande": "Made to order",
+      "effacer": "Clear filters"
+    },
+    "tri": {
+      "nouveautes": "Newest",
+      "prix_asc": "Price: low to high",
+      "prix_desc": "Price: high to low"
+    },
+    "disponibilite": {
+      "en_stock": "In stock",
+      "sur_commande": "Made to order",
+      "complet": "Orders full for now",
+      "indisponible": "Unavailable for now"
+    },
+    "voirPlus": {
+      "libelle": "See more",
+      "enCours": "Loading…",
+      "erreur": "Could not load more right now. Try again."
     }
   }
 }

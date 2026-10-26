@@ -10,19 +10,23 @@ type Entree = {
   description: string;
   nomSite: string;
   indexable?: boolean;
+  // Page non indexée dont les liens restent suivis (catalogue filtré ou trié) ; sans effet si la page est indexable.
+  suivreLesLiens?: boolean;
+  // Requête (sans « ? ») qui fait partie de l'adresse canonique (curseur d'un catalogue indexable).
+  requete?: string;
 };
 
 const LOCALE_OG: Record<Locale, string> = { fr: "fr_FR", en: "en_US" };
 
 // Titre, description, canonique, hreflang et Open Graph d'une page publique.
-export function construireMetadata({ locale, chemin = "", titre, description, nomSite, indexable = true }: Entree): Metadata {
+export function construireMetadata({ locale, chemin = "", titre, description, nomSite, indexable = true, suivreLesLiens = false, requete = "" }: Entree): Metadata {
   const titreComplet = `${titre} | ${nomSite}`;
-  const url = urlLocalisee(locale, chemin);
+  const url = urlLocalisee(locale, chemin, requete);
   return {
     metadataBase: new URL(adresseSite()),
     title: titreComplet,
     description,
-    alternates: { canonical: url, languages: alternatives(chemin) },
+    alternates: { canonical: url, languages: alternatives(chemin, requete) },
     openGraph: {
       type: "website",
       title: titreComplet,
@@ -32,6 +36,6 @@ export function construireMetadata({ locale, chemin = "", titre, description, no
       locale: LOCALE_OG[locale],
       alternateLocale: routing.locales.filter((l) => l !== locale).map((l) => LOCALE_OG[l]),
     },
-    robots: indexable ? undefined : { index: false, follow: false },
+    robots: indexable ? undefined : { index: false, follow: suivreLesLiens },
   };
 }

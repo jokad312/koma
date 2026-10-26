@@ -433,6 +433,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      capacite_fabrication_atteinte: { Args: never; Returns: boolean }
       compte_complet: { Args: { p_compte: string }; Returns: boolean }
       consommer_essai: {
         Args: { p_cle: string; p_fenetre_secondes: number; p_maximum: number }
@@ -506,6 +507,33 @@ export type Database = {
       }
       est_mineur: { Args: { p_compte: string }; Returns: boolean }
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
+      lister_catalogue: {
+        Args: {
+          p_curseur_date?: string
+          p_curseur_id?: string
+          p_curseur_prix?: number
+          p_dispo?: string
+          p_famille: string
+          p_langue?: string
+          p_limite?: number
+          p_prix_bas?: number
+          p_prix_haut?: number
+          p_tri?: string
+          p_univers?: string
+        }
+        Returns: {
+          curseur_date: string
+          disponibilite: string
+          famille: string
+          id: string
+          photo_alt: string
+          photo_fichier: string
+          prix_cents: number
+          slug: string
+          titre: string
+          univers_id: string
+        }[]
+      }
       manques_publication: { Args: { p_produit_id: string }; Returns: string[] }
       marquer_message_traite: {
         Args: { p_auteur: Json; p_id: string }

@@ -36,7 +36,7 @@ describe("Server Action creerUnivers", () => {
     const { deps, appels } = creerTestDependancesCatalogue();
     faux.courant = deps;
     expect(await creerUnivers({ nomFr: "A", nomEn: "B" })).toEqual({ statut: "succes" });
-    expect(appels.ordre).toEqual(["droit", "univers"]);
+    expect(appels.ordre).toEqual(["droit", "univers", "invalidation"]);
   });
 
   it("échec : aucun succès, l'erreur est rendue avec son champ", async () => {

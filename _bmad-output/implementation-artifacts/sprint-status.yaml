@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 10-21-2026 12:00
-last_updated: 10-26-2026 11:00
+last_updated: 10-26-2026 15:00
 project: KOMA SHOP
 project_key: NOKEY
 tracking_system: file-system
@@ -56,7 +56,7 @@ development_status:
   2-1-univers-et-création-d-un-produit-physique: done
   2-2-photos-et-publication-d-un-produit: done
   2-3-réglages-de-remise-et-plafond-de-fabrication: done
-  2-4-catalogues-cosplays-et-accessoires: backlog
+  2-4-catalogues-cosplays-et-accessoires: done
   2-5-fiche-d-un-produit-physique: backlog
   2-6-héros-vidéo-de-l-accueil: backlog
   2-7-blocs-de-la-page-d-accueil: backlog

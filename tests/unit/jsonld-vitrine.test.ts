@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { faqJsonLd, pageContactJsonLd, pageWebJsonLd, serialiserJsonLd } from "@/lib/seo/jsonld";
+import { faqJsonLd, filArianeJsonLd, pageContactJsonLd, pageWebJsonLd, serialiserJsonLd } from "@/lib/seo/jsonld";
 import { MARQUEUR_TEXTE } from "@/lib/vitrine/marqueur";
 import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
 
@@ -45,5 +45,24 @@ describe("lienWhatsapp", () => {
   });
   it("numéro absent ou mal formé : null", () => {
     for (const v of [null, undefined, "", "  ", "abc", "243970000000", "+12", "+1234567890123456"]) expect(lienWhatsapp(v)).toBeNull();
+  });
+});
+
+describe("filArianeJsonLd", () => {
+  it("BreadcrumbList : positions 1 et 2, noms et adresses données, sans note ni avis", () => {
+    const donnees = JSON.parse(
+      serialiserJsonLd(
+        filArianeJsonLd([
+          { nom: "Home", url: "http://localhost:3000/en" },
+          { nom: "Accessories", url: "http://localhost:3000/en/accessories" },
+        ]),
+      ),
+    );
+    expect(donnees["@type"]).toBe("BreadcrumbList");
+    expect(donnees.itemListElement).toEqual([
+      { "@type": "ListItem", position: 1, name: "Home", item: "http://localhost:3000/en" },
+      { "@type": "ListItem", position: 2, name: "Accessories", item: "http://localhost:3000/en/accessories" },
+    ]);
+    expect(JSON.stringify(donnees)).not.toMatch(/rating|review|aggregate/i);
   });
 });
