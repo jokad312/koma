@@ -34,7 +34,7 @@ function ligne(n: number, surcharge: Record<string, unknown> = {}) {
     photo_fichier: `${id}/a.jpg`,
     prix_cents: 1000 + n,
     univers_id: null,
-    disponibilite: "en_stock",
+    disponibilite: "disponible",
     curseur_date: `2026-10-26 10:00:${String(n).padStart(2, "0")}.5+00`,
     ...surcharge,
   };
@@ -156,7 +156,7 @@ describe("listerCatalogue", () => {
   });
 
   it("état de disponibilité inconnu : refusé", async () => {
-    faux.resultat = { data: [ligne(1, { disponibilite: "epuise" })], error: null };
+    faux.resultat = { data: [ligne(1, { disponibilite: "etat_inconnu" })], error: null };
     await expect(listerCatalogue("cosplay", PARAMS_DEFAUT, "fr")).rejects.toThrow();
   });
 });

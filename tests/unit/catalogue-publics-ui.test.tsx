@@ -52,7 +52,7 @@ function produit(n: number, surcharge: Partial<Donnees> = {}): Donnees {
     photoAlt: `TEST_Alt ${n}`,
     photoUrl: `http://127.0.0.1:54321/storage/v1/object/public/produits-public/${n}/a.jpg`,
     prixCents: 4990,
-    disponibilite: "en_stock",
+    disponibilite: "disponible",
     ...surcharge,
   };
 }
@@ -64,16 +64,26 @@ beforeEach(() => {
 
 describe("BadgeDisponibilite", () => {
   const MOTS: Record<Disponibilite, string> = {
-    en_stock: "En stock",
+    disponible: "En stock",
+    dernieres_pieces: "Dernières pièces",
     sur_commande: "Fabrication sur commande",
     complet: "Commandes complètes pour le moment",
-    indisponible: "Indisponible pour le moment",
+    epuise: "Épuisé",
   };
-  it.each(Object.entries(MOTS))("%s : icône + mot, sans quantité ni « Épuisé »", (etat, mot) => {
+  it.each(Object.entries(MOTS))("%s : icône + mot, sans quantité ni compteur", (etat, mot) => {
     const { container } = rendre(<BadgeDisponibilite etat={etat as Disponibilite} />);
     expect(screen.getByText(mot)).toBeTruthy();
     expect(container.querySelector("svg[aria-hidden='true']")).not.toBeNull();
-    expect(container.textContent).not.toMatch(/épuisé|\d/i);
+    expect(container.textContent).not.toMatch(/\d/);
+    expect(container.textContent).not.toMatch(/plus que|only .* left/i);
+  });
+
+  it("seul l'état « épuisé » dit « Épuisé » ; le Plafond atteint dit « Commandes complètes »", () => {
+    for (const etat of ["disponible", "dernieres_pieces", "sur_commande", "complet"] as const) {
+      const { container, unmount } = rendre(<BadgeDisponibilite etat={etat} />);
+      expect(container.textContent).not.toMatch(/épuisé/i);
+      unmount();
+    }
   });
 
   it("anglais", () => {

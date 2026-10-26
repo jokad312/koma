@@ -34,7 +34,7 @@ const MARQUEUR = "[Texte à fournir]";
 const toutes = { fr, en };
 
 function carte(i: number) {
-  return { id: `TEST_${i}`, slug: `test-${i}`, famille: "cosplay", titre: `Cosplay de test ${i}`, photoAlt: `Alt de test ${i}`, photoUrl: `https://exemple.test/p${i}.jpg`, prixCents: 1000, disponibilite: "en_stock" };
+  return { id: `TEST_${i}`, slug: `test-${i}`, famille: "cosplay", titre: `Cosplay de test ${i}`, photoAlt: `Alt de test ${i}`, photoUrl: `https://exemple.test/p${i}.jpg`, prixCents: 1000, disponibilite: "disponible" };
 }
 
 beforeEach(() => {

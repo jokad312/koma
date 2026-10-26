@@ -1,6 +1,6 @@
 -- Story 2.3 : forfaits, retrait, Plafond de fabrication, tranches de prix, stock_disponible, places_fabrication_utilisees.
 begin;
-select plan(55);
+select plan(56);
 
 insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-0000000000f1', 'test-rem1@example.invalid', '{}'),
@@ -121,18 +121,22 @@ insert into public.variante (id, produit_id, taille, stock) values
   ('00000000-0000-0000-0000-00000000fb01', '00000000-0000-0000-0000-00000000fa01', 'M', 7),
   ('00000000-0000-0000-0000-00000000fb02', '00000000-0000-0000-0000-00000000fa02', 'M', 3);
 set local role anon;
-select is(public.stock_disponible('00000000-0000-0000-0000-00000000fb01'), 7, 'anon : stock d''une variante publiée');
-select is(public.stock_disponible('00000000-0000-0000-0000-00000000fb02'), null, 'anon : variante d''un brouillon, valeur nulle');
+select throws_ok($$select public.stock_disponible('00000000-0000-0000-0000-00000000fb01')$$, '42501', null, 'anon : stock_disponible refusée (le stock exact n''est pas public)');
 select is(public.places_fabrication_utilisees(), 0, 'anon : aucune place de fabrication utilisée');
 reset role;
-select is(public.stock_disponible('00000000-0000-0000-0000-00000000fb02'), 3, 'le service voit le stock d''un brouillon');
+select is(public.stock_disponible('00000000-0000-0000-0000-00000000fb01'), 7, 'le propriétaire lit le stock d''une variante publiée');
+select is(public.stock_disponible('00000000-0000-0000-0000-00000000fb02'), 3, 'le propriétaire voit le stock d''un brouillon');
 select is(public.stock_disponible('00000000-0000-0000-0000-00000000ffff'), null, 'variante inconnue : valeur nulle');
+set local role service_role;
+select is(public.stock_disponible('00000000-0000-0000-0000-00000000fb02'), 3, 'le service_role lit le stock exact');
+reset role;
 select ok(
-  has_function_privilege('anon', 'public.stock_disponible(uuid)', 'execute')
-  and has_function_privilege('authenticated', 'public.stock_disponible(uuid)', 'execute')
+  not has_function_privilege('anon', 'public.stock_disponible(uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'public.stock_disponible(uuid)', 'execute')
+  and has_function_privilege('service_role', 'public.stock_disponible(uuid)', 'execute')
   and has_function_privilege('anon', 'public.places_fabrication_utilisees()', 'execute')
   and has_function_privilege('authenticated', 'public.places_fabrication_utilisees()', 'execute'),
-  'les deux fonctions de disponibilité sont exécutables par anon et authenticated'
+  'stock_disponible est réservée au service_role ; places_fabrication_utilisees reste publique'
 );
 select ok(
   (select bool_and(p.provolatile = 's' and not p.prosecdef)

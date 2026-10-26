@@ -54,7 +54,7 @@ function carte(n: number): CarteProduit {
     photoAlt: `TEST_Alt ${n}`,
     photoUrl: `http://127.0.0.1:54321/storage/v1/object/public/produits-public/${n}/a.jpg`,
     prixCents: 4990,
-    disponibilite: n % 2 === 0 ? "sur_commande" : "en_stock",
+    disponibilite: n % 2 === 0 ? "sur_commande" : "disponible",
   };
 }
 

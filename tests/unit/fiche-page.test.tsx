@@ -60,7 +60,7 @@ function fiche(surcharge: Partial<FicheProduit> = {}): FicheProduit {
       { url: "http://127.0.0.1:54321/storage/v1/object/public/produits-public/p1/b.jpg", alt: "TEST_Alt 2" },
     ],
     tailles: [
-      { taille: "M", etat: "en_stock", delaiJours: null },
+      { taille: "M", etat: "disponible", delaiJours: null },
       { taille: "L", etat: "sur_commande", delaiJours: 12 },
     ],
     ...surcharge,

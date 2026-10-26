@@ -111,7 +111,7 @@
   summary: À traiter avec la 2.2 (publication) : verrouiller ou avertir sur slug et famille d'un produit publié ; état « Programmé » quand `publie_le` est dans le futur ; trigger `modifie_le` ; tests SQL des bornes de `enregistrer_produit` (prix 1000001, délai 0/366, titre vide ou trop long, description > 5000).
   evidence: constats de revue 2.1, tous liés à un produit publié ou à la publication.
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-1-univers-et-creation-d-un-produit-physique.md`
-  summary: Décision à prendre avec la 2.3 : la table `variante` est lisible par `anon` avec le stock exact et le délai ; exposer plutôt un état « en stock » (vue ou `stock_disponible`). Gravité non vérifiée : moyenne.
+  summary: TRAITÉ par le correctif `spec-correctif-stock-non-expose.md` (migration 20261029100000 : `stock` retiré de la lecture publique, `stock_disponible` réservée au service_role, états seulement). Décision à prendre avec la 2.3 : la table `variante` est lisible par `anon` avec le stock exact et le délai ; exposer plutôt un état « en stock » (vue ou `stock_disponible`). Gravité non vérifiée : moyenne.
   evidence: l'epic donne un SELECT public sur les variantes ; les quantités exactes deviennent lisibles par n'importe qui via l'API REST.
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-1-univers-et-creation-d-un-produit-physique.md`
   summary: Toutes les pages admin partagent le même `<title>` « Administration » (WCAG 2.4.2) ; prévoir un titre par page (réglages, messages, produits, univers).
@@ -168,3 +168,11 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-correctif-photos-suppression-et-alt.md`
   summary: Balayage des fichiers de `produits-public` sans ligne `produit_photo` : un échec d'effacement après la suppression en base laisse un fichier orphelin.
   evidence: choix assumé (un orphelin vaut mieux qu'une photo cassée) ; l'échec est seulement journalisé. À traiter avec les tâches Cron : lister le bucket, comparer à `produit_photo.fichier`, effacer les fichiers sans ligne et de plus de 24 h.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-correctif-stock-non-expose.md`
+  summary: Les états par seuil laissent deviner, par sondage répété du catalogue ou de la fiche, le moment où le stock d une taille passe à 3 (ou à 0). Accepté : c est le principe des « dernières pièces » décidé par Jonathan ; aucune quantité exacte n est exposée.
+  evidence: décision de Jonathan ; seuil dans `seuil_dernieres_pieces()` (3).
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-correctif-stock-non-expose.md`
+  summary: Coût de `lister_catalogue` : depuis ce correctif l état (stock via `stock_disponible`, capacité) est toujours calculé par variante avant le `LIMIT`, y compris sans filtre de disponibilité. À mesurer avec EXPLAIN en même temps que les index déjà notés en 2.4 (« Index et coût de `lister_catalogue` ») ; les deux constats se traitent ensemble.
+  evidence: fonction en `security definer` qui appelle `stock_disponible` et `etat_disponibilite` pour chaque variante des produits candidats.

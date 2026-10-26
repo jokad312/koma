@@ -18,7 +18,7 @@ const messages = {
 };
 
 function carte(i: number) {
-  return { id: `TEST_${i}`, slug: `test-${i}`, famille: "cosplay", titre: `Cosplay de test ${i}`, photoAlt: "Alt de test", photoUrl: "https://exemple.test/p.jpg", prixCents: 1000, disponibilite: "en_stock" };
+  return { id: `TEST_${i}`, slug: `test-${i}`, famille: "cosplay", titre: `Cosplay de test ${i}`, photoAlt: "Alt de test", photoUrl: "https://exemple.test/p.jpg", prixCents: 1000, disponibilite: "disponible" };
 }
 
 describe("liste ordonnée des blocs", () => {

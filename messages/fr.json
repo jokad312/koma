@@ -750,10 +750,11 @@
       "prix_desc": "Prix décroissant"
     },
     "disponibilite": {
-      "en_stock": "En stock",
+      "disponible": "En stock",
+      "dernieres_pieces": "Dernières pièces",
       "sur_commande": "Fabrication sur commande",
       "complet": "Commandes complètes pour le moment",
-      "indisponible": "Indisponible pour le moment"
+      "epuise": "Épuisé"
     },
     "voirPlus": {
       "libelle": "Voir plus",
@@ -788,11 +789,12 @@
       "invite": "Choisis une taille pour voir sa disponibilité.",
       "sur_mesure": "Sur mesure",
       "enStock": "En stock",
+      "dernieresPieces": "Dernières pièces",
       "surCommande": "Fabrication sur commande",
       "surMesure": "Sur mesure",
       "delai": "Délai de fabrication : {n, plural, one {# jour} other {# jours}}",
       "complet": "Commandes complètes pour le moment",
-      "indisponible": "Indisponible pour le moment"
+      "epuise": "Épuisé"
     },
     "remise": {
       "titre": "Remise de ta commande",

@@ -514,6 +514,14 @@ export type Database = {
         Returns: undefined
       }
       est_mineur: { Args: { p_compte: string }; Returns: boolean }
+      etat_disponibilite: {
+        Args: {
+          p_capacite_atteinte: boolean
+          p_fabrication: boolean
+          p_stock: number
+        }
+        Returns: string
+      }
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
       lister_catalogue: {
         Args: {
@@ -563,6 +571,8 @@ export type Database = {
         Returns: undefined
       }
       questions_accueil_vues: { Args: { p_compte: string }; Returns: boolean }
+      rang_disponibilite: { Args: { p_etat: string }; Returns: number }
+      seuil_dernieres_pieces: { Args: never; Returns: number }
       stock_disponible: { Args: { p_variante: string }; Returns: number }
       supprimer_photo_produit: {
         Args: { p_auteur: Json; p_photo_id: string }

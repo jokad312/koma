@@ -158,7 +158,7 @@ export async function lireTranchesPrixAdmin(): Promise<TranchePrix[]> {
 const DISPONIBILITES_CONNUES: readonly string[] = DISPONIBILITES;
 
 // Une page d'un catalogue public, par la fonction SQL lister_catalogue (client public : la RLS ne montre que les produits publiés).
-// Rendue à chaque requête, jamais en cache (le badge dépend du stock et de la capacité : AD-17). Une erreur de lecture est relancée :
+// Rendue à chaque requête, jamais en cache (le badge dépend du stock et de la capacité : AD-17). La base ne renvoie qu'un état, jamais une quantité. Une erreur de lecture est relancée :
 // jamais une liste vide inventée. La base lit une ligne de plus que la page : elle ne sert qu'à savoir s'il en reste, elle n'est pas rendue.
 // Deux lectures d'un curseur (qui porte la clé de tri du dernier produit vu et le nombre n de produits déjà affichés) :
 //  - cumul: true (page à curseur) : relit depuis le début les n produits déjà vus plus les 12 suivants (limite, jamais de décalage) ;

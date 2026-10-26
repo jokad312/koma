@@ -1,7 +1,7 @@
 -- Story 2.4 : listage public du catalogue (lister_catalogue) et capacite_fabrication_atteinte.
 -- Les données de ce test sont créées dans la transaction, puis annulées.
 begin;
-select plan(37);
+select plan(41);
 
 select set_config('ks.auteur', '{"type":"systeme","nom":"test"}', true);
 
@@ -35,7 +35,7 @@ insert into public.produit_photo (produit_id, fichier, alt_fr, alt_en, position)
 select p.id, p.id::text || '/b.jpg', 'Seconde fr', 'Seconde en', 2 from public.produit p where p.slug = 'cat-c-01';
 
 insert into public.variante (produit_id, taille, stock, fabrication_sur_commande)
-select p.id, 'M', 1, false from public.produit p
+select p.id, 'M', case when p.slug = 'cat-c-03' then 2 else 10 end, false from public.produit p
 where p.slug like 'cat-c-%' or p.slug in ('cat-sans-photo', 'cat-brouillon', 'cat-futur', 'cat-depublie', 'cat-acc-1');
 insert into public.variante (produit_id, taille, stock, fabrication_sur_commande)
 select p.id, 'L', 0, true from public.produit p where p.slug = 'cat-sur-commande';
@@ -101,7 +101,7 @@ select ok(
   and has_function_privilege('authenticated', 'public.capacite_fabrication_atteinte()', 'execute'),
   'anon et authenticated exécutent lister_catalogue et capacite_fabrication_atteinte'
 );
-select is((select prosecdef from pg_proc where proname = 'lister_catalogue'), false, 'lister_catalogue est security invoker');
+select is((select prosecdef from pg_proc where proname = 'lister_catalogue'), true, 'lister_catalogue est security definer (les rôles publics ne lisent plus le stock)');
 select is((select prosecdef from pg_proc where proname = 'capacite_fabrication_atteinte'), true, 'capacite_fabrication_atteinte est security definer');
 select is(
   (select count(*)::int from pg_proc p, unnest(coalesce(p.proargnames, '{}')) as nom
@@ -153,7 +153,16 @@ select is(
   'sur_commande', 'fabrication possible et plafond non réglé : sur commande');
 select is(
   (select disponibilite from public.lister_catalogue('cosplay', 'fr', null, null, null, null, 'nouveautes', null, null, null, 50) where slug = 'cat-indispo'),
-  'indisponible', 'ni stock ni fabrication : indisponible');
+  'epuise', 'ni stock ni fabrication : epuise');
+select is(
+  (select disponibilite from public.lister_catalogue('cosplay', 'fr', null, null, null, null, 'nouveautes', null, null, null, 50) where slug = 'cat-c-03'),
+  'dernieres_pieces', 'stock de 2 (jusqu''au seuil) : dernieres_pieces');
+select is(
+  (select disponibilite from public.lister_catalogue('cosplay', 'fr', null, null, null, null, 'nouveautes', null, null, null, 50) where slug = 'cat-c-04'),
+  'disponible', 'stock de 10 : disponible');
+select is(
+  (select count(*)::int from public.lister_catalogue('cosplay', 'fr', null, null, null, 'dernieres_pieces', 'nouveautes', null, null, null, 50)),
+  1, 'filtre sur l''état exact dernieres_pieces');
 
 -- Famille, langue, première photo, borne de la limite.
 select is(
@@ -217,6 +226,9 @@ select is(
 select is(
   (select count(*)::int from public.lister_catalogue('cosplay', 'fr', null, null, null, 'sur_commande', 'nouveautes', null, null, null, 50)),
   0, 'capacité atteinte : plus rien sur commande');
+select is(
+  (select count(*)::int from public.lister_catalogue('cosplay', 'fr', null, null, null, 'complet', 'nouveautes', null, null, null, 50)),
+  1, 'capacité atteinte : le filtre complet trouve l''article en fabrication');
 reset role;
 
 -- Prédicat de publication explicite : un rôle qui contourne la RLS (ici le propriétaire) ne voit pas non plus le brouillon.

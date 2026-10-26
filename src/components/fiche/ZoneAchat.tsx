@@ -33,7 +33,7 @@ export function ZoneAchat({ locale, tailles, forfaitGoma, forfaitBukavu, retrait
       {choix.length > 0 ? (
         <SelecteurTaille tailles={choix} choisie={choisie} onChoisir={setChoisie} />
       ) : complet ? null : (
-        <MessageEtat type="information">{t("indisponible")}</MessageEtat>
+        <MessageEtat type="information">{t("epuise")}</MessageEtat>
       )}
       <ModesRemise locale={locale} forfaitGoma={forfaitGoma} forfaitBukavu={forfaitBukavu} retraitGoma={retraitGoma} fabrication={fabrication} />
     </div>

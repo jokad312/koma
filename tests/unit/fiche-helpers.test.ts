@@ -5,14 +5,14 @@ import type { TailleFiche } from "@/modules/catalogue/types";
 const t = (taille: TailleFiche["taille"], etat: TailleFiche["etat"], delaiJours: number | null = null): TailleFiche => ({ taille, etat, delaiJours });
 
 describe("tailles de la fiche", () => {
-  it("seules les tailles en stock ou fabriquées sur commande sont proposées", () => {
-    const tailles = [t("S", "en_stock"), t("M", "sur_commande", 12), t("L", "complet"), t("XL", "indisponible")];
-    expect(taillesChoisissables(tailles).map((x) => x.taille)).toEqual(["S", "M"]);
+  it("seules les tailles disponibles, en dernières pièces ou fabriquées sur commande sont proposées", () => {
+    const tailles = [t("S", "disponible"), t("M", "sur_commande", 12), t("L", "complet"), t("XL", "epuise"), t("XXL", "dernieres_pieces")];
+    expect(taillesChoisissables(tailles).map((x) => x.taille)).toEqual(["S", "M", "XXL"]);
   });
 
   it("capacité atteinte dès qu'une taille est « complet »", () => {
-    expect(capaciteAtteinte([t("S", "en_stock"), t("M", "complet")])).toBe(true);
-    expect(capaciteAtteinte([t("S", "en_stock"), t("M", "indisponible")])).toBe(false);
+    expect(capaciteAtteinte([t("S", "disponible"), t("M", "complet")])).toBe(true);
+    expect(capaciteAtteinte([t("S", "disponible"), t("M", "epuise")])).toBe(false);
   });
 
   it("aucune taille choisissable quand tout est complet", () => {
@@ -22,9 +22,11 @@ describe("tailles de la fiche", () => {
 
 describe("disponibilité schema.org", () => {
   it("InStock, MadeToOrder, OutOfStock", () => {
-    expect(disponibiliteSchema([t("S", "en_stock"), t("M", "sur_commande")])).toBe("https://schema.org/InStock");
-    expect(disponibiliteSchema([t("S", "indisponible"), t("M", "sur_commande")])).toBe("https://schema.org/MadeToOrder");
+    expect(disponibiliteSchema([t("S", "disponible"), t("M", "sur_commande")])).toBe("https://schema.org/InStock");
+    expect(disponibiliteSchema([t("S", "dernieres_pieces")])).toBe("https://schema.org/InStock");
+    expect(disponibiliteSchema([t("S", "epuise"), t("M", "sur_commande")])).toBe("https://schema.org/MadeToOrder");
     expect(disponibiliteSchema([t("S", "complet")])).toBe("https://schema.org/OutOfStock");
+    expect(disponibiliteSchema([t("S", "epuise")])).toBe("https://schema.org/OutOfStock");
     expect(disponibiliteSchema([])).toBe("https://schema.org/OutOfStock");
   });
 });

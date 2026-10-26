@@ -1,7 +1,7 @@
 -- Story 2.5 : disponibilite_variantes (état et délai effectif de chaque taille, jamais de quantité).
 -- Les données de ce test sont créées dans la transaction, puis annulées.
 begin;
-select plan(18);
+select plan(19);
 
 select set_config('ks.auteur', '{"type":"systeme","nom":"test"}', true);
 
@@ -12,11 +12,12 @@ insert into public.produit (id, famille, slug, titre_fr, titre_en, prix_cents, d
   ('00000000-0000-0000-0000-00000000d004', 'accessoire', 'dv-sans-delai', 'Sans délai', 'No lead time', 900, null, now() - interval '1 minute');
 
 insert into public.variante (produit_id, taille, stock, fabrication_sur_commande, delai_fabrication_jours) values
-  ('00000000-0000-0000-0000-00000000d001', 'M', 3, false, null),
+  ('00000000-0000-0000-0000-00000000d001', 'M', 12, false, null),
   ('00000000-0000-0000-0000-00000000d001', 'S', 0, true, null),
   ('00000000-0000-0000-0000-00000000d001', 'L', 0, true, 21),
   ('00000000-0000-0000-0000-00000000d001', 'XL', 0, false, null),
   ('00000000-0000-0000-0000-00000000d001', 'XS', 2, true, 30),
+  ('00000000-0000-0000-0000-00000000d001', 'XXL', 3, false, null),
   ('00000000-0000-0000-0000-00000000d001', 'sur_mesure', 0, true, null),
   ('00000000-0000-0000-0000-00000000d002', 'M', 3, false, null),
   ('00000000-0000-0000-0000-00000000d003', 'M', 3, false, null),
@@ -26,12 +27,13 @@ set local role anon;
 
 select is(
   (select array_agg(taille) from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001')),
-  array['XS', 'S', 'M', 'L', 'XL', 'sur_mesure'],
+  array['XS', 'S', 'M', 'L', 'XL', 'XXL', 'sur_mesure'],
   'les tailles sont dans l''ordre XS à XXL puis sur mesure');
-select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'M'), 'en_stock', 'du stock : en_stock');
+select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'M'), 'disponible', 'stock 12 : disponible');
 select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'S'), 'sur_commande', 'sans stock mais fabriquée sur commande : sur_commande');
-select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'XL'), 'indisponible', 'sans stock ni fabrication : indisponible');
-select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'XS'), 'en_stock', 'du stock et de la fabrication : en_stock');
+select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'XL'), 'epuise', 'sans stock ni fabrication : epuise');
+select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'XS'), 'dernieres_pieces', 'stock 2 et fabrication : dernieres_pieces');
+select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'XXL'), 'dernieres_pieces', 'stock égal au seuil (3) : dernieres_pieces');
 select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'sur_mesure'), 'sur_commande', 'le sur-mesure est toujours en fabrication');
 
 select is((select delai_jours from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'S'), 14, 'délai du produit quand la variante n''en a pas');
@@ -55,14 +57,14 @@ insert into public.reglage (cle, valeur) values ('plafond_fabrication', '5') on 
 create or replace function public.places_fabrication_utilisees() returns integer language sql stable security invoker set search_path = '' as $$ select 5 $$;
 set local role anon;
 select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'S'), 'complet', 'capacité atteinte : complet, jamais épuisé');
-select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'M'), 'en_stock', 'capacité atteinte : le stock reste en_stock');
+select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'M'), 'disponible', 'capacité atteinte : le stock reste disponible');
 select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'sur_mesure'), 'complet', 'capacité atteinte : le sur-mesure est complet');
-select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'XS'), 'en_stock', 'capacité atteinte : une taille en stock et fabricable reste en_stock');
+select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'XS'), 'dernieres_pieces', 'capacité atteinte : une taille en stock et fabricable reste dernieres_pieces');
 
 -- Même résultat pour un compte connecté.
 reset role;
 set local role authenticated;
-select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'M'), 'en_stock', 'authenticated lit aussi la disponibilité');
+select is((select etat from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d001') where taille = 'M'), 'disponible', 'authenticated lit aussi la disponibilité');
 reset role;
 
 select * from finish();

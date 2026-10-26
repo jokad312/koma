@@ -8,7 +8,7 @@ const OPTION =
   "relative flex min-h-touch min-w-touch cursor-pointer items-center justify-center gap-2 rounded-md border border-border-field bg-surface px-4 py-3 text-text-primary has-[:checked]:border-2 has-[:checked]:border-primary has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2";
 
 type Props = {
-  // Seulement les tailles qu'on peut choisir (en stock ou fabriquées sur commande).
+  // Seulement les tailles qu'on peut choisir (disponibles, dernières pièces ou fabriquées sur commande).
   tailles: readonly TailleFiche[];
   choisie: Taille | null;
   onChoisir: (taille: Taille) => void;
@@ -18,6 +18,25 @@ type Props = {
 // L'état et le délai de la taille choisie se mettent à jour sur place, jamais avec une quantité.
 export function SelecteurTaille({ tailles, choisie, onChoisir }: Props) {
   const t = useTranslations("Fiche.tailles");
+  // Exhaustif : un état ajouté plus tard sans libellé ne compile pas (et complet ou epuise ne s'affiche jamais « Fabrication sur commande »).
+  const libelleEtat = (x: TailleFiche): string => {
+    switch (x.etat) {
+      case "disponible":
+        return t("enStock");
+      case "dernieres_pieces":
+        return t("dernieresPieces");
+      case "sur_commande":
+        return x.taille === "sur_mesure" ? t("surMesure") : t("surCommande");
+      case "complet":
+        return t("complet");
+      case "epuise":
+        return t("epuise");
+      default: {
+        const inattendu: never = x.etat;
+        return inattendu;
+      }
+    }
+  };
   const nom = useId();
   const courante = tailles.find((x) => x.taille === choisie) ?? null;
 
@@ -46,7 +65,7 @@ export function SelecteurTaille({ tailles, choisie, onChoisir }: Props) {
         {courante ? (
           <>
             <p className="font-semibold">
-              {courante.taille === "sur_mesure" ? t("surMesure") : courante.etat === "en_stock" ? t("enStock") : t("surCommande")}
+              {libelleEtat(courante)}
             </p>
             {courante.etat === "sur_commande" && courante.delaiJours !== null ? <p>{t("delai", { n: courante.delaiJours })}</p> : null}
           </>

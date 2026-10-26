@@ -206,11 +206,17 @@ export type UniversChoix = { id: string; nom: string };
 
 // ---- Catalogues publics (story 2.4) ----
 
-// État de disponibilité calculé par la base (lister_catalogue) ; jamais de quantité.
-export const DISPONIBILITES = ["en_stock", "sur_commande", "complet", "indisponible"] as const;
+// État de disponibilité calculé par la base (lister_catalogue, disponibilite_variantes) ; jamais de quantité : le public ne voit pas le stock exact.
+// disponible (au-dessus du seuil), dernieres_pieces (de 1 au seuil inclus), sur_commande, complet (fabrication permise mais Plafond atteint),
+// epuise (aucun stock et pas de fabrication). État d'un produit : le meilleur de ses variantes, dans cet ordre.
+export const DISPONIBILITES = ["disponible", "dernieres_pieces", "sur_commande", "complet", "epuise"] as const;
 export type Disponibilite = (typeof DISPONIBILITES)[number];
 
-// Filtre de disponibilité de l'adresse : seulement les deux états vendables.
+// Seuil « dernières pièces » : MIROIR de la fonction SQL seuil_dernieres_pieces() (unique source, migration 20261029100000). Le texte
+// de l'interface ne montre jamais cette valeur ; elle ne sert qu'aux tests et à la documentation. Un test la compare à la migration.
+export const SEUIL_DERNIERES_PIECES = 3;
+
+// Filtre de disponibilité de l'adresse : en_stock couvre disponible et dernieres_pieces ; sur_commande est inchangé.
 export const FILTRES_DISPONIBILITE = ["en_stock", "sur_commande"] as const;
 export type FiltreDisponibilite = (typeof FILTRES_DISPONIBILITE)[number];
 

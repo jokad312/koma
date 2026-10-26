@@ -3,9 +3,9 @@ import type { TailleFiche } from "./types";
 
 // Fonctions pures de la fiche d'un produit (serveur et navigateur).
 
-// Tailles proposées au choix : seulement celles qu'on peut acheter (en stock, ou fabriquées sur commande tant que la capacité le permet).
+// Tailles proposées au choix : seulement celles qu'on peut acheter (disponibles, dernières pièces, ou fabriquées sur commande tant que la capacité le permet).
 export function taillesChoisissables(tailles: readonly TailleFiche[]): TailleFiche[] {
-  return tailles.filter((t) => t.etat === "en_stock" || t.etat === "sur_commande");
+  return tailles.filter((t) => t.etat === "disponible" || t.etat === "dernieres_pieces" || t.etat === "sur_commande");
 }
 
 // Le Plafond de fabrication est atteint dès qu'une taille n'est plus que « complet » (fabrication possible mais capacité atteinte).
@@ -13,11 +13,12 @@ export function capaciteAtteinte(tailles: readonly TailleFiche[]): boolean {
   return tailles.some((t) => t.etat === "complet");
 }
 
-// Disponibilité schema.org de l'offre, calculée à la requête : en stock, sinon fabriquée sur commande, sinon hors stock.
+// Disponibilité schema.org de l'offre, calculée à la requête : en stock (disponible ou dernières pièces), sinon fabriquée sur commande,
+// sinon hors stock (complet ou épuisé).
 export type DisponibiliteSchema = "https://schema.org/InStock" | "https://schema.org/MadeToOrder" | "https://schema.org/OutOfStock";
 
 export function disponibiliteSchema(tailles: readonly TailleFiche[]): DisponibiliteSchema {
-  if (tailles.some((t) => t.etat === "en_stock")) return "https://schema.org/InStock";
+  if (tailles.some((t) => t.etat === "disponible" || t.etat === "dernieres_pieces")) return "https://schema.org/InStock";
   if (tailles.some((t) => t.etat === "sur_commande")) return "https://schema.org/MadeToOrder";
   return "https://schema.org/OutOfStock";
 }

@@ -77,7 +77,7 @@ beforeEach(() => {
   };
   faux.dispo = {
     data: [
-      { taille: "M", etat: "en_stock", delai_jours: 14 },
+      { taille: "M", etat: "disponible", delai_jours: 14 },
       { taille: "L", etat: "sur_commande", delai_jours: 21 },
     ],
     error: null,
@@ -102,7 +102,7 @@ describe("lireFicheProduit", () => {
       "http://127.0.0.1:54321/storage/v1/object/public/produits-public/p1/b.jpg",
     ]);
     expect(fiche?.tailles).toEqual([
-      { taille: "M", etat: "en_stock", delaiJours: 14 },
+      { taille: "M", etat: "disponible", delaiJours: 14 },
       { taille: "L", etat: "sur_commande", delaiJours: 21 },
     ]);
   });
@@ -158,9 +158,9 @@ describe("lireFicheProduit", () => {
   });
 
   it("état ou taille inconnus renvoyés par la base : erreur", async () => {
-    faux.dispo = { data: [{ taille: "M", etat: "epuise", delai_jours: null }], error: null };
+    faux.dispo = { data: [{ taille: "M", etat: "etat_inconnu", delai_jours: null }], error: null };
     await expect(lireFicheProduit("cosplay", "test-produit", "fr")).rejects.toThrow();
-    faux.dispo = { data: [{ taille: "XXXL", etat: "en_stock", delai_jours: null }], error: null };
+    faux.dispo = { data: [{ taille: "XXXL", etat: "disponible", delai_jours: null }], error: null };
     await expect(lireFicheProduit("cosplay", "test-produit", "fr")).rejects.toThrow();
   });
 });

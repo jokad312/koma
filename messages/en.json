@@ -750,10 +750,11 @@
       "prix_desc": "Price: high to low"
     },
     "disponibilite": {
-      "en_stock": "In stock",
+      "disponible": "In stock",
+      "dernieres_pieces": "Last pieces",
       "sur_commande": "Made to order",
       "complet": "Orders full for now",
-      "indisponible": "Unavailable for now"
+      "epuise": "Sold out"
     },
     "voirPlus": {
       "libelle": "See more",
@@ -788,11 +789,12 @@
       "invite": "Pick a size to see its availability.",
       "sur_mesure": "Made to measure",
       "enStock": "In stock",
+      "dernieresPieces": "Last pieces",
       "surCommande": "Made to order",
       "surMesure": "Made to measure",
       "delai": "Production time: {n, plural, one {# day} other {# days}}",
       "complet": "Orders are full for now",
-      "indisponible": "Unavailable for now"
+      "epuise": "Sold out"
     },
     "remise": {
       "titre": "Getting your order",
