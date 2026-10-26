@@ -56,7 +56,32 @@
     }
   },
   "Accueil": {
-    "titre": "Cosplay, accessories and kits for otaku"
+    "titre": "Cosplay, accessories and kits for otaku",
+    "categories": {
+      "titre": "CATEGORIES",
+      "cosplays": {
+        "nom": "Cosplays",
+        "description": "Complete handmade costumes"
+      },
+      "accessoires": {
+        "nom": "Accessories",
+        "description": "Wigs, prop weapons, masks, armor and jewelry"
+      }
+    },
+    "cosplaysRecents": {
+      "titre": "HANDMADE IN GOMA",
+      "voirTout": "See all cosplays"
+    },
+    "jonathan": {
+      "titre": "JONATHAN IN THREE SENTENCES",
+      "phrase1": "[Texte à fournir]",
+      "phrase2": "[Texte à fournir]",
+      "phrase3": "[Texte à fournir]"
+    },
+    "faqCourte": {
+      "titre": "QUICK ANSWERS",
+      "toutes": "See all questions"
+    }
   },
   "NonTrouve": {
     "titre": "Page not found",

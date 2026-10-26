@@ -56,7 +56,32 @@
     }
   },
   "Accueil": {
-    "titre": "Cosplay, accessoires et kits pour otakus"
+    "titre": "Cosplay, accessoires et kits pour otakus",
+    "categories": {
+      "titre": "CATEGORIES",
+      "cosplays": {
+        "nom": "Cosplays",
+        "description": "Costumes complets faits main"
+      },
+      "accessoires": {
+        "nom": "Accessoires",
+        "description": "Perruques, armes factices, masques, armures et bijoux"
+      }
+    },
+    "cosplaysRecents": {
+      "titre": "FAIT MAIN A GOMA",
+      "voirTout": "Voir tous les cosplays"
+    },
+    "jonathan": {
+      "titre": "JONATHAN EN TROIS PHRASES",
+      "phrase1": "[Texte à fournir]",
+      "phrase2": "[Texte à fournir]",
+      "phrase3": "[Texte à fournir]"
+    },
+    "faqCourte": {
+      "titre": "REPONSES RAPIDES",
+      "toutes": "Voir toutes les questions"
+    }
   },
   "NonTrouve": {
     "titre": "Page introuvable",

@@ -51,3 +51,14 @@
 - Pas encore de bouton d'ajout au panier (epic 4), ni de Kit lié (epic 3), ni de schéma des mesures (epic 6).
 
 ## Fin de l'epic 2 (stories 2.1 à 2.5 livrées ; 2.6 héros vidéo et 2.7 blocs d'accueil restantes)
+
+## Story 2.7 : blocs de la page d'accueil
+- Commit : voir `git log` (message « Story 2.7 »). Aucune migration.
+- Ce qui est affiché : le H1 actuel, deux tuiles de catégorie (texte seul, aucune photo), « Fait main à Goma » (4 derniers cosplays publiés, masqué s'il n'y en a pas), « Jonathan en trois phrases » et la FAQ courte (paiement, livraison, délais) ; les places du héros et des blocs Kits, Galerie, Rendez-vous, Guides sont réservées sans rien afficher.
+- À fournir : les trois phrases du bloc « Jonathan » (`Accueil.jonathan.*` dans `messages/fr.json` et `en.json`) et les réponses de la FAQ ; tant que le marqueur « [Texte à fournir] » reste, le build de production échoue si `KOMA_VERIFIER_TEXTES=true`.
+- À tester à la main : `/fr` et `/en` (ordre des blocs, 320 px, zoom 200 %, mouvement réduit) ; publier un cosplay complet puis recharger l'accueil pour voir le bloc « Fait main à Goma ».
+- Mesure Lighthouse mobile (sans cosplay publié) : accessibilité 100, SEO 100, performance 89 à 90 (seuil visé 90) ; à remesurer avec le héros et des produits publiés.
+- Correctif trouvé en chemin : la lecture du bloc 2 était annulée pendant le prérendu de Next.js et aurait masqué le bloc en permanence ; elle attend maintenant la requête (`connection()`).
+
+## Epic 2 : état
+- Livrées : 2.1, 2.2, 2.3, 2.4, 2.5, 2.7. **2.6 (héros vidéo) reste en backlog** : elle exige la bibliothèque Bunny Stream publique et ses clés (`BUNNY_PUBLIC_*`, réglage manuel chez Bunny) ; l'epic 2 n'est donc pas terminé.

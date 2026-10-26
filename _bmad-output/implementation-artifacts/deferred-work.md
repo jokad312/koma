@@ -152,3 +152,15 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-5-fiche-d-un-produit-physique.md`
   summary: Test e2e intermittent `gabarit.spec.ts` « le thème sombre est mémorisé » : échoue parfois en suite complète (`document.documentElement` nul après `reload({ waitUntil: "commit" })`) et passe seul.
   evidence: constaté aux stories 2.4 et 2.5, vert en CI ; course de chargement dans le test, sans lien avec le thème lui-même. À stabiliser (attendre `domcontentloaded` ou `waitForFunction` tolérant).
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-7-blocs-de-la-page-d-accueil.md`
+  summary: Lighthouse mobile de l'accueil à 89-90 en performance (seuil NFR-2 : 90) ; le LCP est le H1 (polices Barlow Condensed / Sakura).
+  evidence: `lighthouse@12.8.2` sur `next start`, `/fr` 89 et 89, `/en` 89 et 90. À remesurer avec le héros (2.6) et avec des cosplays publiés : le bloc 2 apparaît sous Suspense sans repli, vérifier le CLS réel.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-7-blocs-de-la-page-d-accueil.md`
+  summary: Le bloc 2 « Fait main à Goma » n'a jamais été vu avec de vraies cartes (aucun produit publié dans la base de test).
+  evidence: seuls les tests unitaires (lecture et rendu avec données de test) le couvrent ; l'e2e n'a vu que le cas sans cosplay.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-7-blocs-de-la-page-d-accueil.md`
+  summary: Les pages de catalogue écrivent `[catalogue] lecture impossible` dans les journaux du serveur (une fois par requête, constaté en `next start` et en développement) alors que la page affiche le bon état ; la cause est une lecture annulée (`AbortError`) pendant un passage de prérendu de Next.js (cacheComponents) que la page prend pour une panne.
+  evidence: appel direct de `lister_catalogue` par supabase-js réussi ; trace temporaire : `AbortError: This operation was aborted` émis par le minuteur du prérendu. Le bloc 2 de l'accueil a été corrigé (`await connection()` avant la lecture). À traiter : faire de même (ou reconnaître l'annulation) dans `ContenuCatalogue` et vérifier avec de vrais produits publiés que le rendu de la requête est correct.

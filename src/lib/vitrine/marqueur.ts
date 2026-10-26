@@ -4,7 +4,7 @@ export const MARQUEUR_TEXTE = "[Texte à fournir]";
 
 // Espaces de noms de messages/*.json des pages publiques : un marqueur ici fait échouer le build de production.
 // Liste unique (Legal : pages légales, story 1.9).
-export const ESPACES_PUBLICS: readonly string[] = ["APropos", "Faq", "Contact", "Legal"];
+export const ESPACES_PUBLICS: readonly string[] = ["APropos", "Faq", "Contact", "Legal", "Accueil"];
 
 export function contientMarqueur(texte: string): boolean {
   return texte.includes(MARQUEUR_TEXTE);
