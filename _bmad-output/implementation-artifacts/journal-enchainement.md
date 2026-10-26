@@ -42,3 +42,12 @@
 - À tester à la main (il faut au moins un produit publié, donc la 2.2 et vos photos) : publier 2 ou 3 produits complets, ouvrir les catalogues, filtrer (univers, prix si des tranches sont réglées, disponibilité), trier, « Voir plus » avec plus de 12 produits (adresse mise à jour, focus, rechargement = même liste cumulée), changer de langue avec une requête, 375 px, clavier ; les liens des cartes mènent à une 404 jusqu'à la story 2.5.
 - Choix à connaître : l'état « ni en stock ni fabricable » s'affiche « Indisponible pour le moment » (jamais « Épuisé ») ; borne basse d'une tranche incluse, haute exclue ; au-delà de 240 produits affichés d'un coup, plus de « Voir plus » cumulé.
 - Reporté (deferred-work.md) : index de `lister_catalogue` à mesurer quand le catalogue grandira ; le filtre d'univers liste tous les univers.
+
+## Story 2.5 : fiche d'un produit physique
+- Commit : voir `git log` (message « Story 2.5 »). Migration `20261027100000` appliquée sur koma-dev, types régénérés.
+- Adresses : `/fr/cosplays/<adresse>`, `/fr/accessoires/<adresse>`, `/en/cosplays/<adresse>`, `/en/accessories/<adresse>`.
+- À tester à la main (il faut un produit publié complet, donc vos photos) : galerie (balayage, boutons, vignettes au clavier, « Agrandir » avec + et −), choix d'une taille (état et délai changent sur place), bandeau « Remise uniquement à Goma et Bukavu », modes de remise (réglez d'abord les forfaits et le retrait dans `/admin/reglages`), Partager (partage natif sur mobile, « Lien copié » sur ordinateur), 375 px ; dépublier le produit : la page doit afficher la 404.
+- Limite connue : en production, l'adresse d'une fiche inconnue ou dépubliée affiche la page 404 mais répond encore avec le statut HTTP 200 (+ noindex) ; piste notée dans deferred-work.md.
+- Pas encore de bouton d'ajout au panier (epic 4), ni de Kit lié (epic 3), ni de schéma des mesures (epic 6).
+
+## Fin de l'epic 2 (stories 2.1 à 2.5 livrées ; 2.6 héros vidéo et 2.7 blocs d'accueil restantes)

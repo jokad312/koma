@@ -136,3 +136,19 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-4-catalogues-cosplays-et-accessoires.md`
   summary: Le filtre d'univers liste tous les univers, même ceux qui n'ont aucun produit publié dans la famille affichée (un choix peut mener à « aucun résultat »).
   evidence: `lireUniversPublics` ne dépend pas de la famille ; filtrer demanderait une lecture par famille (cache `catalogue`).
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-5-fiche-d-un-produit-physique.md`
+  summary: Une fiche inconnue ou dépubliée répond 200 + noindex en production (le texte 404 s'affiche, pas le statut HTTP).
+  evidence: la route `[slug]` est prérendue en coque partielle ; le statut part avant `notFound()`. Piste : tester l'adresse dans `proxy.ts` avant le rendu (lecture rapide) puis réécrire vers la 404.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-5-fiche-d-un-produit-physique.md`
+  summary: Les e2e de la fiche (structure, JSON-LD, galerie au clavier, axe, 375 px) sont sautés tant qu'aucun produit publié n'existe dans la base de test.
+  evidence: `tests/e2e/fiche.spec.ts` cherche une fiche depuis le catalogue et saute s'il n'y en a pas ; aucun produit n'est créé ni simulé.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-5-fiche-d-un-produit-physique.md`
+  summary: Non faits : Open Graph `og:type=product` et champs facultatifs de l'Offer (sku, itemCondition).
+  evidence: `construireMetadata` émet `og:type=website` ; `produitJsonLd` n'écrit que prix, devise, disponibilité et URL.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-5-fiche-d-un-produit-physique.md`
+  summary: Test e2e intermittent `gabarit.spec.ts` « le thème sombre est mémorisé » : échoue parfois en suite complète (`document.documentElement` nul après `reload({ waitUntil: "commit" })`) et passe seul.
+  evidence: constaté aux stories 2.4 et 2.5, vert en CI ; course de chargement dans le test, sans lien avec le thème lui-même. À stabiliser (attendre `domcontentloaded` ou `waitForFunction` tolérant).

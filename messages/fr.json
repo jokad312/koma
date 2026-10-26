@@ -716,5 +716,57 @@
       "enCours": "Chargement…",
       "erreur": "Impossible de charger la suite pour le moment. Réessaie."
     }
+  },
+  "Fiche": {
+    "fil": {
+      "navigation": "Fil d'Ariane",
+      "accueil": "Accueil"
+    },
+    "erreur": "Cette fiche est indisponible pour le moment. Réessaie dans un instant.",
+    "meta": {
+      "descriptionRepli": "{titre} sur {nomSite}. Remise à Goma et Bukavu."
+    },
+    "galerie": {
+      "titre": "Photos du produit",
+      "position": "Photo {n} sur {total}",
+      "precedente": "Photo précédente",
+      "suivante": "Photo suivante",
+      "voir": "Voir la photo {n}",
+      "agrandir": "Agrandir",
+      "agrandirTitre": "Photo agrandie",
+      "zoomAvant": "Zoom avant",
+      "zoomArriere": "Zoom arrière",
+      "zone": "Photo agrandie, à faire défiler"
+    },
+    "bandeau": "Remise uniquement à Goma et Bukavu",
+    "tailles": {
+      "legende": "Taille",
+      "invite": "Choisis une taille pour voir sa disponibilité.",
+      "sur_mesure": "Sur mesure",
+      "enStock": "En stock",
+      "surCommande": "Fabrication sur commande",
+      "surMesure": "Sur mesure",
+      "delai": "Délai de fabrication : {n, plural, one {# jour} other {# jours}}",
+      "complet": "Commandes complètes pour le moment",
+      "indisponible": "Indisponible pour le moment"
+    },
+    "remise": {
+      "titre": "Remise de ta commande",
+      "goma": "Goma",
+      "bukavu": "Bukavu",
+      "retrait": "Retrait gratuit : {lieu}",
+      "livraison": "Livraison : {prix}",
+      "remiseGoma": "remise en moins d'un jour",
+      "remiseBukavu": "remise en un jour au plus",
+      "delaiSimple": "Délai : {remise}",
+      "delaiFabrication": "Délai : fabrication {n, plural, one {# jour} other {# jours}}, puis {remise}",
+      "delaiFabricationInconnu": "Délai : fabrication sur commande, puis {remise}",
+      "fabricationAChoisir": "Fabrication sur commande : choisis une taille pour voir le délai"
+    },
+    "partage": {
+      "bouton": "Partager",
+      "copie": "Lien copié",
+      "echec": "Impossible de partager le lien pour le moment."
+    }
   }
 }

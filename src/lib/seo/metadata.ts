@@ -14,12 +14,14 @@ type Entree = {
   suivreLesLiens?: boolean;
   // Requête (sans « ? ») qui fait partie de l'adresse canonique (curseur d'un catalogue indexable).
   requete?: string;
+  // Image de partage (URL absolue) et son texte alternatif : Open Graph et carte Twitter grande image.
+  image?: { url: string; alt: string };
 };
 
 const LOCALE_OG: Record<Locale, string> = { fr: "fr_FR", en: "en_US" };
 
 // Titre, description, canonique, hreflang et Open Graph d'une page publique.
-export function construireMetadata({ locale, chemin = "", titre, description, nomSite, indexable = true, suivreLesLiens = false, requete = "" }: Entree): Metadata {
+export function construireMetadata({ locale, chemin = "", titre, description, nomSite, indexable = true, suivreLesLiens = false, requete = "", image }: Entree): Metadata {
   const titreComplet = `${titre} | ${nomSite}`;
   const url = urlLocalisee(locale, chemin, requete);
   return {
@@ -35,7 +37,9 @@ export function construireMetadata({ locale, chemin = "", titre, description, no
       siteName: nomSite,
       locale: LOCALE_OG[locale],
       alternateLocale: routing.locales.filter((l) => l !== locale).map((l) => LOCALE_OG[l]),
+      ...(image ? { images: [{ url: image.url, alt: image.alt }] } : {}),
     },
+    ...(image ? { twitter: { card: "summary_large_image" as const, title: titreComplet, description, images: [{ url: image.url, alt: image.alt }] } } : {}),
     robots: indexable ? undefined : { index: false, follow: suivreLesLiens },
   };
 }

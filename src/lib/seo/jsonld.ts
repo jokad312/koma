@@ -60,3 +60,34 @@ export function filArianeJsonLd(maillons: readonly MaillonFilAriane[]) {
     itemListElement: maillons.map((m, i) => ({ "@type": "ListItem", position: i + 1, name: m.nom, item: m.url })),
   };
 }
+
+type DonneesProduit = {
+  nom: string;
+  description: string;
+  images: readonly string[];
+  url: string;
+  langue: string;
+  prixCents: number;
+  // URL schema.org de ItemAvailability, calculée à la requête.
+  disponibilite: string;
+};
+
+// Product + Offer d'une fiche : prix USD lu en base, jamais de note, d'avis ni d'aggregateRating.
+export function produitJsonLd({ nom, description, images, url, langue, prixCents, disponibilite }: DonneesProduit) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: nom,
+    description,
+    image: images,
+    url,
+    inLanguage: langue,
+    offers: {
+      "@type": "Offer",
+      url,
+      price: (prixCents / 100).toFixed(2),
+      priceCurrency: "USD",
+      availability: disponibilite,
+    },
+  };
+}

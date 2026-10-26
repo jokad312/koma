@@ -5,9 +5,10 @@ import { creerClientPublic } from "@/lib/supabase/public";
 import { creerClientService } from "@/lib/supabase/service";
 import { urlPhotoPublique } from "@/lib/supabase/stockage";
 import { encoderCurseur } from "./adresse";
+import { contientMarqueur } from "@/lib/vitrine/marqueur";
 import { choisirSlugLibre, SLUG_REGEX } from "./slug";
-import { CUMUL_MAX_CATALOGUE, DISPONIBILITES, TAILLE_PAGE_CATALOGUE } from "./types";
-import type { CarteProduit, Disponibilite, FamillePhysique, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
+import { CUMUL_MAX_CATALOGUE, DISPONIBILITES, TAILLE_PAGE_CATALOGUE, TAILLES } from "./types";
+import type { CarteProduit, Disponibilite, FamillePhysique, FicheProduit, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
 
 // Lectures admin par le client service (après le droit vérifié par la page) : une erreur de lecture est relancée,
 // jamais une liste vide inventée. Aucune valeur de repli (règle 15).
@@ -209,4 +210,77 @@ export async function listerCatalogue(
       ? encoderCurseur(params.tri, { date: dernier.curseur_date, prix: dernier.prix_cents, id: dernier.id, n: affiches })
       : null;
   return { produits, suite };
+}
+
+const TAILLES_CONNUES: readonly string[] = TAILLES;
+
+// Description anglaise vide ou portant le marqueur « [Texte à fournir] » : repli sur le français.
+function descriptionDeLaLangue(en: boolean, descriptionEn: string | null, descriptionFr: string | null): string | null {
+  const anglais = descriptionEn?.trim();
+  if (en && anglais && !contientMarqueur(anglais)) return anglais;
+  return descriptionFr?.trim() || null;
+}
+
+// Fiche d'un produit publié, par le client public (la RLS ne montre que les produits publiés) : photos dans l'ordre et disponibilité
+// de chaque taille par la fonction SQL disponibilite_variantes (jamais de quantité). Rendue à chaque requête, jamais en cache (prix et
+// disponibilité : AD-17, règle 3). null : produit inconnu, brouillon, dépublié, d'une autre famille que celle demandée, ou sans photo.
+// Une erreur de lecture est relancée : jamais une fiche inventée.
+export async function lireFicheProduit(famille: FamillePhysique, slug: string, langue: "fr" | "en"): Promise<FicheProduit | null> {
+  const client = creerClientPublic();
+  const produit = await client
+    .from("produit")
+    .select("id, slug, famille, titre_fr, titre_en, description_fr, description_en, prix_cents")
+    .eq("slug", slug)
+    .eq("famille", famille)
+    .maybeSingle();
+  if (produit.error) throw new Error("Lecture de la fiche impossible.");
+  const p = produit.data;
+  if (!p || p.prix_cents === null) return null;
+
+  const [photos, dispo] = await Promise.all([
+    client.from("produit_photo").select("fichier, alt_fr, alt_en, position").eq("produit_id", p.id).order("position", { ascending: true }),
+    client.rpc("disponibilite_variantes", { p_produit: p.id }),
+  ]);
+  if (photos.error || !photos.data || dispo.error || !Array.isArray(dispo.data)) throw new Error("Lecture de la fiche impossible.");
+  if (photos.data.length === 0) return null;
+
+  const tailles: TailleFiche[] = dispo.data.map((d) => {
+    if (!TAILLES_CONNUES.includes(d.taille) || !DISPONIBILITES_CONNUES.includes(d.etat)) throw new Error("Lecture de la fiche impossible.");
+    return { taille: d.taille as Taille, etat: d.etat as Disponibilite, delaiJours: d.delai_jours };
+  });
+  const en = langue === "en";
+  return {
+    id: p.id,
+    slug: p.slug,
+    famille: p.famille as FamillePhysique,
+    titre: (en ? p.titre_en?.trim() : "") || p.titre_fr,
+    description: descriptionDeLaLangue(en, p.description_en, p.description_fr),
+    prixCents: p.prix_cents,
+    photos: photos.data.map((ph) => ({
+      url: urlPhotoPublique(ph.fichier),
+      alt: en ? ph.alt_en.trim() || ph.alt_fr : ph.alt_fr,
+    })),
+    tailles,
+  };
+}
+
+// Adresses des produits publiés qui ont une photo et un prix (les autres donnent une 404), pour le plan du site : lues par pages de 1000 jusqu'à
+// épuisement, en cache `catalogue` (vidé à la publication). Une erreur de lecture est relancée.
+export async function lireSlugsPublies(): Promise<ProduitPublie[]> {
+  "use cache";
+  cacheTag(ETIQUETTES.catalogue);
+  const TAILLE = 1000;
+  const produits: ProduitPublie[] = [];
+  for (let debut = 0; ; debut += TAILLE) {
+    const { data, error } = await creerClientPublic()
+      .from("produit")
+      .select("famille, slug, produit_photo!inner(id)")
+      .not("prix_cents", "is", null)
+      .order("publie_le", { ascending: false })
+      .order("id", { ascending: true })
+      .range(debut, debut + TAILLE - 1);
+    if (error || !data) throw new Error("Lecture des produits publiés impossible.");
+    produits.push(...data.map((p) => ({ famille: p.famille as FamillePhysique, slug: p.slug })));
+    if (data.length < TAILLE) return produits;
+  }
 }

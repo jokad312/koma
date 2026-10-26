@@ -1,8 +1,14 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const faux = vi.hoisted(() => ({ lire: vi.fn() }));
+vi.mock("@/modules/catalogue/queries", () => ({ lireSlugsPublies: () => faux.lire() }));
+
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
 
 beforeEach(() => {
+  faux.lire.mockReset();
+  faux.lire.mockResolvedValue([]);
   process.env.NEXT_PUBLIC_SITE_URL = "http://localhost:3000";
   process.env.NEXT_PUBLIC_SUPABASE_URL = "http://127.0.0.1:54321";
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "TEST_cle_publique";
@@ -22,8 +28,8 @@ describe("robots", () => {
 });
 
 describe("sitemap", () => {
-  it("liste les deux langues avec alternates, depuis NEXT_PUBLIC_SITE_URL", () => {
-    const entrees = sitemap();
+  it("liste les deux langues avec alternates, depuis NEXT_PUBLIC_SITE_URL", async () => {
+    const entrees = await sitemap();
     expect(entrees.map((e) => e.url)).toEqual([
       "http://localhost:3000/fr",
       "http://localhost:3000/en",
@@ -55,5 +61,39 @@ describe("sitemap", () => {
         "x-default": `http://localhost:3000/fr${chemin}`,
       });
     }
+  });
+
+  it("ajoute les fiches publiées dans les deux langues, à l'adresse propre de chaque langue", async () => {
+    faux.lire.mockResolvedValue([
+      { famille: "cosplay", slug: "test-cosplay" },
+      { famille: "accessoire", slug: "test-accessoire" },
+    ]);
+    const entrees = await sitemap();
+    const urls = entrees.map((e) => e.url);
+    expect(urls).toEqual(
+      expect.arrayContaining([
+        "http://localhost:3000/fr/cosplays/test-cosplay",
+        "http://localhost:3000/en/cosplays/test-cosplay",
+        "http://localhost:3000/fr/accessoires/test-accessoire",
+        "http://localhost:3000/en/accessories/test-accessoire",
+      ]),
+    );
+    expect(urls).not.toContain("http://localhost:3000/en/accessoires/test-accessoire");
+    expect(entrees.find((e) => e.url === "http://localhost:3000/fr/accessoires/test-accessoire")?.alternates?.languages).toEqual({
+      fr: "http://localhost:3000/fr/accessoires/test-accessoire",
+      en: "http://localhost:3000/en/accessories/test-accessoire",
+      "x-default": "http://localhost:3000/fr/accessoires/test-accessoire",
+    });
+  });
+
+  it("lecture des fiches impossible : le plan garde les pages statiques et les catalogues, et l'erreur est journalisée", async () => {
+    faux.lire.mockRejectedValue(new Error("TEST_panne"));
+    const erreur = vi.spyOn(console, "error").mockImplementation(() => {});
+    const urls = (await sitemap()).map((e) => e.url);
+    expect(urls).toContain("http://localhost:3000/fr/cosplays");
+    expect(urls).toContain("http://localhost:3000/en/accessories");
+    expect(urls).toHaveLength(20);
+    expect(erreur).toHaveBeenCalled();
+    erreur.mockRestore();
   });
 });

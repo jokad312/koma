@@ -251,3 +251,24 @@ export type PageCatalogue = {
   // Curseur (opaque) de la page suivante ; null s'il n'en reste plus.
   suite: string | null;
 };
+
+// ---- Fiche d'un produit physique (story 2.5) ----
+
+export type PhotoFiche = { url: string; alt: string };
+
+// Une taille de la fiche : état et délai de fabrication effectif calculés par la base (disponibilite_variantes) ; jamais de quantité.
+export type TailleFiche = { taille: Taille; etat: Disponibilite; delaiJours: number | null };
+
+export type FicheProduit = {
+  id: string;
+  slug: string;
+  famille: FamillePhysique;
+  titre: string;
+  // Texte de la langue de la page (repli sur le français) ; null si aucune description n'existe.
+  description: string | null;
+  prixCents: number;
+  photos: PhotoFiche[];
+  tailles: TailleFiche[];
+};
+
+export type ProduitPublie = { famille: FamillePhysique; slug: string };

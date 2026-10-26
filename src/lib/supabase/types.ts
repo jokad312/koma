@@ -468,6 +468,14 @@ export type Database = {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
       }
+      disponibilite_variantes: {
+        Args: { p_produit: string }
+        Returns: {
+          delai_jours: number
+          etat: string
+          taille: string
+        }[]
+      }
       enregistrer_message_contact: {
         Args: {
           p_auteur: Json

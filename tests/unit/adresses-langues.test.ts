@@ -1,4 +1,7 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/modules/catalogue/queries", () => ({ lireSlugsPublies: async () => [] }));
+
 import sitemap from "@/app/sitemap";
 import { ADRESSES, cheminAutreLangue, cheminPublic, redirectionsAdresses, reecrituresAdresses } from "@/i18n/adresses";
 import { alternatives, cheminLocalise, urlLocalisee } from "@/lib/seo/url";
@@ -69,8 +72,8 @@ describe("canonique, hreflang et plan du site : toujours l'adresse propre de cha
     });
   });
 
-  it("le plan du site contient les deux catalogues dans les deux langues, avec leur adresse propre", () => {
-    const entrees = sitemap();
+  it("le plan du site contient les deux catalogues dans les deux langues, avec leur adresse propre", async () => {
+    const entrees = await sitemap();
     const urls = entrees.map((e) => e.url);
     expect(urls).toEqual(
       expect.arrayContaining([
@@ -87,5 +90,25 @@ describe("canonique, hreflang et plan du site : toujours l'adresse propre de cha
       en: "http://localhost:3000/en/accessories",
       "x-default": "http://localhost:3000/fr/accessoires",
     });
+  });
+});
+
+describe("fiches produit : adresses [slug] par langue", () => {
+  it("l'adresse d'une fiche suit celle de son catalogue dans chaque langue", () => {
+    expect(cheminLocalise("fr", "/accessoires/mon-produit")).toBe("/fr/accessoires/mon-produit");
+    expect(cheminLocalise("en", "/accessoires/mon-produit")).toBe("/en/accessories/mon-produit");
+    expect(cheminLocalise("en", "/cosplays/mon-produit")).toBe("/en/cosplays/mon-produit");
+    expect(alternatives("/accessoires/mon-produit")).toEqual({
+      fr: "http://localhost:3000/fr/accessoires/mon-produit",
+      en: "http://localhost:3000/en/accessories/mon-produit",
+      "x-default": "http://localhost:3000/fr/accessoires/mon-produit",
+    });
+  });
+
+  it("/en/accessoires/<slug> redirige (308) vers /en/accessories/<slug>, et le sélecteur de langue garde le slug", () => {
+    // La règle « :chemin* » couvre toute la suite du chemin, donc les fiches.
+    expect(redirectionsAdresses()).toContainEqual({ source: "/en/accessoires/:chemin*", destination: "/en/accessories/:chemin*", permanent: true });
+    expect(cheminAutreLangue("/accessoires/mon-produit", "fr", "en")).toBe("/accessories/mon-produit");
+    expect(cheminAutreLangue("/accessories/mon-produit", "en", "fr")).toBe("/accessoires/mon-produit");
   });
 });

@@ -716,5 +716,57 @@
       "enCours": "Loading…",
       "erreur": "Could not load more right now. Try again."
     }
+  },
+  "Fiche": {
+    "fil": {
+      "navigation": "Breadcrumb",
+      "accueil": "Home"
+    },
+    "erreur": "This page is unavailable right now. Please try again in a moment.",
+    "meta": {
+      "descriptionRepli": "{titre} on {nomSite}. Handover in Goma and Bukavu."
+    },
+    "galerie": {
+      "titre": "Product photos",
+      "position": "Photo {n} of {total}",
+      "precedente": "Previous photo",
+      "suivante": "Next photo",
+      "voir": "View photo {n}",
+      "agrandir": "Enlarge",
+      "agrandirTitre": "Enlarged photo",
+      "zoomAvant": "Zoom in",
+      "zoomArriere": "Zoom out",
+      "zone": "Enlarged photo, scrollable"
+    },
+    "bandeau": "Handover only in Goma and Bukavu",
+    "tailles": {
+      "legende": "Size",
+      "invite": "Pick a size to see its availability.",
+      "sur_mesure": "Made to measure",
+      "enStock": "In stock",
+      "surCommande": "Made to order",
+      "surMesure": "Made to measure",
+      "delai": "Production time: {n, plural, one {# day} other {# days}}",
+      "complet": "Orders are full for now",
+      "indisponible": "Unavailable for now"
+    },
+    "remise": {
+      "titre": "Getting your order",
+      "goma": "Goma",
+      "bukavu": "Bukavu",
+      "retrait": "Free pickup: {lieu}",
+      "livraison": "Delivery: {prix}",
+      "remiseGoma": "handover in under a day",
+      "remiseBukavu": "handover within a day",
+      "delaiSimple": "Time: {remise}",
+      "delaiFabrication": "Time: {n, plural, one {# day} other {# days}} of production, then {remise}",
+      "delaiFabricationInconnu": "Time: made to order, then {remise}",
+      "fabricationAChoisir": "Made to order: pick a size to see the production time"
+    },
+    "partage": {
+      "bouton": "Share",
+      "copie": "Link copied",
+      "echec": "The link could not be shared right now."
+    }
   }
 }
