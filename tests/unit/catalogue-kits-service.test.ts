@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-import { TAILLE_MAX_FICHIER_KIT, TAILLE_MAX_TRANSCRIPTION } from "@/modules/catalogue/fichiers-kit";
+import { TAILLE_LECTURE_SVG, TAILLE_MAX_FICHIER_KIT, TAILLE_MAX_TRANSCRIPTION } from "@/modules/catalogue/fichiers-kit";
 import {
   annulerEnvoiFichierKit,
   demanderEnvoiFichierKit,
@@ -214,7 +214,7 @@ describe("demanderEnvoiFichierKit", () => {
   it("remplacement : le format est celui de la base, pas celui du navigateur", async () => {
     const { deps, appels } = creer({ fichierKit: { produitId: TEST_KIT_ID, format: "svg" } });
     expect(await demanderEnvoiFichierKit(deps, demande({ fichierId: FICHIER, nomFichier: "nouveau.pdf", format: "pdf_a4" }))).toEqual({ ok: false, erreur: "format_invalide" });
-    const r = await demanderEnvoiFichierKit(deps, demande({ fichierId: FICHIER, nomFichier: "nouveau.svg", format: "pdf_a4" }));
+    const r = await demanderEnvoiFichierKit(deps, demande({ fichierId: FICHIER, nomFichier: "nouveau.svg", format: "pdf_a4", taille: TAILLE_LECTURE_SVG }));
     expect(r.ok && r.objet.endsWith(".svg")).toBe(true);
     expect(appels.ordre).not.toContain("familleProduit");
   });
@@ -403,10 +403,10 @@ describe("finaliserFichierKit", () => {
     expect(appels.suppressions).toEqual([]);
   });
 
-  it("lecture de l'objet en erreur : generique, objet effacé", async () => {
+  it("lecture de l'objet en erreur : generique, objet conservé (l'erreur ne refuse pas le fichier)", async () => {
     const { deps, appels } = creer({ erreurLectureObjetKit: "TEST_stockage" });
     expect(await finaliserFichierKit(deps, fin())).toEqual({ ok: false, erreur: "generique" });
-    expect(suppressionsKit(appels)).toEqual([OBJET_PDF]);
+    expect(suppressionsKit(appels)).toEqual([]);
   });
 
   it("sans droit : rien n'est lu ni écrit", async () => {

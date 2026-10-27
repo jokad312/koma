@@ -9,6 +9,7 @@ import {
   objetKitDuProduit,
   objetKitValide,
   octetsAVerifier,
+  TAILLE_LECTURE_SVG,
   TAILLE_MAX_FICHIER_KIT,
   TAILLE_MAX_TRANSCRIPTION,
   tailleLisible,
@@ -36,6 +37,7 @@ describe("constantes", () => {
     expect(EXTENSION_FORMAT).toEqual({ pdf_a4: "pdf", pdf_letter: "pdf", svg: "svg", stl: "stl", transcription: "txt" });
     expect(tailleMaxFormat("transcription")).toBe(TAILLE_MAX_TRANSCRIPTION);
     expect(tailleMaxFormat("stl")).toBe(TAILLE_MAX_FICHIER_KIT);
+    expect(tailleMaxFormat("svg")).toBe(TAILLE_LECTURE_SVG);
   });
 });
 

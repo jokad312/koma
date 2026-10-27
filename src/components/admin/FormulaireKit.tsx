@@ -104,11 +104,13 @@ export function FormulaireKit({ univers, liables, produit = null, choixFamille }
   }
 
   const erreur = etat?.statut === "erreur" ? etat : null;
+  // Un code d'erreur absent des messages retombe sur le message générique.
+  const code = (c: string) => (c in (t.raw("erreurs") as object) ? c : "generique");
   // Message d'un champ : seulement si l'erreur lui est rattachée.
   const erreurDe = (champ: ChampProduit): string | null => {
     if (!erreur || erreur.champ !== champ) return null;
     if (erreur.erreur === "slug_pris") return erreur.slugPropose ? t("erreurs.slug_pris_propose", { adresse: erreur.slugPropose }) : t("erreurs.slug_pris");
-    return t(`erreurs.${erreur.erreur}`);
+    return t(`erreurs.${code(erreur.erreur)}`);
   };
   const erreurGlobale = erreur && !erreur.champ ? erreur.erreur : null;
   const nomUnivers = (u: UniversAdmin) => (locale === "en" ? u.nomEn : u.nomFr);
@@ -123,7 +125,7 @@ export function FormulaireKit({ univers, liables, produit = null, choixFamille }
     >
       {erreur ? (
         <div ref={refResume} tabIndex={-1} className="outline-none">
-          <MessageEtat type="erreur">{erreurGlobale ? t(`erreurs.${erreurGlobale}`) : t("resume")}</MessageEtat>
+          <MessageEtat type="erreur">{erreurGlobale ? t(`erreurs.${code(erreurGlobale)}`) : t("resume")}</MessageEtat>
         </div>
       ) : null}
       {etat?.statut === "succes" ? <MessageEtat type="succes">{t("succes")}</MessageEtat> : null}

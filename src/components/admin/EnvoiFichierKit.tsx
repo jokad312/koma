@@ -308,18 +308,20 @@ export function EnvoiFichierKit({ produitId, fichier, onSucces, onFermer }: Prop
         ) : null}
       </div>
 
-      {/* Progression : valeur en texte (jamais la barre seule) ; résultat réel annoncé en statut. */}
-      <div role="status" className="flex flex-col gap-2">
-        {phase === "envoi" ? (
-          <>
-            <progress value={pourcentage} max={100} aria-label={t("ajout.progression", { pourcentage })} className="h-3 w-full" />
-            <p className="t-small text-text-primary">{t("ajout.progression", { pourcentage })}</p>
-            {reprise ? <p className="t-small text-text-secondary">{t("ajout.reprise")}</p> : null}
-          </>
-        ) : null}
-        {phase === "traitement" ? <p className="t-small text-text-primary">{t("ajout.traitement")}</p> : null}
-        {message ? <p className="t-small text-text-primary">{message}</p> : null}
-      </div>
+      {/* Progression : valeur en texte (jamais la barre seule) ; les mises à jour de pourcentage ne sont pas des états annonçables. */}
+      {phase === "envoi" ? (
+        <div className="flex flex-col gap-2" aria-live="off">
+          <progress value={pourcentage} max={100} aria-label={t("ajout.progression", { pourcentage })} className="h-3 w-full" />
+          <p className="t-small text-text-primary">{t("ajout.progression", { pourcentage })}</p>
+          {reprise ? <p className="t-small text-text-secondary">{t("ajout.reprise")}</p> : null}
+        </div>
+      ) : null}
+      {phase !== "envoi" && (phase === "traitement" || message) ? (
+        <div role="status" className="flex flex-col gap-2">
+          {phase === "traitement" ? <p className="t-small text-text-primary">{t("ajout.traitement")}</p> : null}
+          {message ? <p className="t-small text-text-primary">{message}</p> : null}
+        </div>
+      ) : null}
     </form>
   );
 }

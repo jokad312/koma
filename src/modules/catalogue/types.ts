@@ -72,7 +72,7 @@ export type ChampProduit =
   | "kit_lie";
 
 // Ce qui manque à un produit pour être publié, dans l'ordre d'affichage (le titre français est déjà obligatoire).
-export const MANQUES_PUBLICATION = ["prix", "photo", "titre_en", "description_fr", "description_en", "variante"] as const;
+export const MANQUES_PUBLICATION = ["prix", "photo", "titre_en", "description_fr", "description_en", "variante", "kit"] as const;
 export type ManquePublication = (typeof MANQUES_PUBLICATION)[number];
 
 // Photos : formats acceptés, 15 Mo au plus, 10 photos au plus par produit.

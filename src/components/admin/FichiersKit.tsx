@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { CLASSES_SECONDAIRE } from "@/components/ui/classes";
 import { Dialogue } from "@/components/ui/Dialogue";
@@ -30,6 +30,20 @@ export function FichiersKit({ produitId, fichiers }: { produitId: string; fichie
   const [aSupprimer, setASupprimer] = useState<FichierKitAdmin | null>(null);
   const [suppressionEnCours, setSuppressionEnCours] = useState(false);
   const enVol = useRef(false);
+  // Élément qui reçoit le focus quand la liste se réécrit après une suppression : le fichier voisin, ou le message d'état vide.
+  const focusAPres = useRef<{ id: string } | { vide: true } | null>(null);
+  const refBoutonsRemplacer = useRef(new Map<string, HTMLButtonElement | null>());
+  const refVide = useRef<HTMLParagraphElement>(null);
+
+  // Après une suppression, la liste relue arrive : le focus va sur le fichier voisin, ou sur le message « Aucun fichier pour le moment ».
+  // Le bouton qui avait le focus a disparu avec son fichier.
+  useEffect(() => {
+    const cible = focusAPres.current;
+    if (cible === null) return;
+    focusAPres.current = null;
+    if ("id" in cible) refBoutonsRemplacer.current.get(cible.id)?.focus();
+    else refVide.current?.focus();
+  }, [fichiers]);
 
   const nomDe = (f: FichierKitAdmin) => (locale === "en" ? f.nomEn : f.nomFr);
   const taille = (octets: number) => {
@@ -49,6 +63,10 @@ export function FichiersKit({ produitId, fichiers }: { produitId: string; fichie
       const etat = await supprimerFichierKit({ fichierId: fichier.id });
       if (etat.statut === "succes") {
         setAnnonce(t("supprime"));
+        // Le bouton qui avait le focus disparaît avec le fichier : le focus va au fichier suivant, ou au message d'état vide.
+        const rang = fichiers.findIndex((f) => f.id === fichier.id);
+        const suivant = fichiers[rang + 1];
+        focusAPres.current = suivant ? { id: suivant.id } : { vide: true };
         router.refresh();
       } else {
         setErreur(messageErreur(etat.erreur));
@@ -66,7 +84,11 @@ export function FichiersKit({ produitId, fichiers }: { produitId: string; fichie
     <div className="flex flex-col gap-4">
       <p className="t-body text-text-secondary">{t("intro", PARAMS_TAILLE)}</p>
       <p className="t-small text-text-secondary">{t("nombre", { nombre: fichiers.length })}</p>
-      {fichiers.length === 0 ? <p className="t-body text-text-secondary">{t("vide")}</p> : null}
+      {fichiers.length === 0 ? (
+        <p ref={refVide} tabIndex={-1} className="t-body text-text-secondary">
+          {t("vide")}
+        </p>
+      ) : null}
       {fichiers.length > 0 ? (
         <ol aria-label={t("legende")} className="flex flex-col gap-3">
           {fichiers.map((f) => (
@@ -82,6 +104,10 @@ export function FichiersKit({ produitId, fichiers }: { produitId: string; fichie
                   <button
                     type="button"
                     className={BOUTON}
+                    ref={(el) => {
+                      if (el) refBoutonsRemplacer.current.set(f.id, el);
+                      else refBoutonsRemplacer.current.delete(f.id);
+                    }}
                     aria-expanded={remplacement === f.id}
                     onClick={() => {
                       setAnnonce(null);
@@ -90,7 +116,11 @@ export function FichiersKit({ produitId, fichiers }: { produitId: string; fichie
                   >
                     {t("remplacer", { nom: nomDe(f) })}
                   </button>
-                  <button type="button" className={`${BOUTON} text-danger`} onClick={() => setASupprimer(f)}>
+                  <button
+                    type="button"
+                    className={`${BOUTON} text-danger`}
+                    onClick={() => setASupprimer(f)}
+                  >
                     {t("supprimer", { nom: nomDe(f) })}
                   </button>
                 </div>
@@ -103,6 +133,8 @@ export function FichiersKit({ produitId, fichiers }: { produitId: string; fichie
                     onSucces={(message) => {
                       setRemplacement(null);
                       setAnnonce(message);
+                      // Le panneau de remplacement disparaît : le focus revient sur le fichier qui a été remplacé.
+                      refBoutonsRemplacer.current.get(f.id)?.focus();
                     }}
                     onFermer={() => setRemplacement(null)}
                   />

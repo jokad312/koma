@@ -283,6 +283,12 @@ describe("FichiersKit", () => {
     expect(screen.getByText("2 fichiers")).toBeTruthy();
   });
 
+  it("le formulaire d'ajout est présent : un fichier peut être déposé", () => {
+    rendre(<FichiersKit produitId={KIT} fichiers={[]} />);
+    expect(screen.getByLabelText("Fichier à envoyer")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Ajouter le fichier" })).toBeTruthy();
+  });
+
   it("Remplacer ouvre le panneau de ce fichier, au format imposé", async () => {
     const user = userEvent.setup();
     rendre(<FichiersKit produitId={KIT} fichiers={FICHIERS} />);
@@ -344,6 +350,26 @@ describe("FichiersKit", () => {
     rendre(<FichiersKit produitId={KIT} fichiers={FICHIERS} />);
     expect(screen.getByRole("button", { name: "Remplacer TEST_Patron" }).className).toContain("min-h-touch");
     expect(screen.getByRole("button", { name: "Supprimer TEST_Patron" }).className).toContain("min-h-touch");
+  });
+
+  it("remplacement réussi : le panneau se ferme et l'annonce « Fichier remplacé. » s'affiche", async () => {
+    faux.demanderEnvoiFichierKit.mockResolvedValueOnce({ statut: "succes", objet: `${KIT}/u.pdf`, jeton: "TEST_jeton", contentType: "application/pdf" });
+    faux.demarrerEnvoiTus.mockImplementationOnce(async (p: { onProgression: (a: number, b: number) => void }) => {
+      p.onProgression(100, 100);
+      return { terminer: Promise.resolve(), annuler: vi.fn() };
+    });
+    let finir: (v: unknown) => void = () => {};
+    faux.finaliserFichierKit.mockReturnValueOnce(new Promise((r) => (finir = r)));
+    const user = userEvent.setup({ applyAccept: false });
+    rendre(<FichiersKit produitId={KIT} fichiers={FICHIERS} />);
+    await user.click(screen.getByRole("button", { name: "Remplacer TEST_Patron" }));
+    expect(screen.getByRole("heading", { name: "Remplacer le fichier TEST_Patron" })).toBeTruthy();
+    await user.upload(screen.getByLabelText("Nouveau fichier"), new File(["%PDF-1.7"], "patron.pdf", { type: "application/pdf" }));
+    await user.click(screen.getByRole("button", { name: "Remplacer le fichier" }));
+    await act(async () => finir({ statut: "succes", id: "TEST_f1" }));
+    expect(await screen.findByText("Fichier remplacé.")).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Remplacer le fichier TEST_Patron" })).toBeNull();
+    expect(faux.finaliserFichierKit).toHaveBeenCalledWith({ produitId: KIT, objet: `${KIT}/u.pdf`, format: "pdf_a4", taille: 8, nomFr: "", nomEn: "", fichierId: "TEST_f1" });
   });
 });
 

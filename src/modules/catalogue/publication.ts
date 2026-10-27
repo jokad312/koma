@@ -1,9 +1,13 @@
 import { MANQUES_PUBLICATION } from "./types";
-import type { ManquePublication, ProduitPourPublication } from "./types";
+import type { FamilleProduit, ManquePublication, ProduitPourPublication } from "./types";
 
 // Ce qui manque à un produit pour être publié (la base fait le même contrôle : manques_publication).
 // Le titre français est déjà obligatoire ; le texte alternatif de chaque photo l'est à l'ajout.
-export function manquesPublication(p: Pick<ProduitPourPublication, "prixCents" | "titreEn" | "descriptionFr" | "descriptionEn" | "nbPhotos" | "nbVariantes">): ManquePublication[] {
+export function manquesPublication(
+  p: Pick<ProduitPourPublication, "prixCents" | "titreEn" | "descriptionFr" | "descriptionEn" | "nbPhotos" | "nbVariantes"> & { famille?: FamilleProduit },
+): ManquePublication[] {
+  // Un Kit n'est pas publiable : sa publication (vidéo, fichiers, sous-titres) est définie par la story 3.2.
+  if (p.famille === "kit") return ["kit"];
   const vide = (t: string | null) => (t ?? "").trim() === "";
   const manque: Record<ManquePublication, boolean> = {
     prix: p.prixCents === null,
@@ -12,6 +16,7 @@ export function manquesPublication(p: Pick<ProduitPourPublication, "prixCents" |
     description_fr: vide(p.descriptionFr),
     description_en: vide(p.descriptionEn),
     variante: p.nbVariantes < 1,
+    kit: false,
   };
   return MANQUES_PUBLICATION.filter((m) => manque[m]);
 }

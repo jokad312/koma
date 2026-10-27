@@ -54,3 +54,6 @@ gofullpage-*
 
 # Worktrees locaux de Claude Code
 .claude/worktrees/
+
+# Relais entre agents (contenu des sessions) : jamais dans le dépôt public
+.relais/

@@ -3,13 +3,13 @@ import { routing } from "@/i18n/routing";
 import { alternatives, urlLocalisee } from "@/lib/seo/url";
 import { PAGES_LEGALES } from "@/lib/vitrine/pages-legales";
 import { lireSlugsPublies } from "@/modules/catalogue/queries";
-import type { FamillePhysique } from "@/modules/catalogue/types";
+import type { FamilleProduit } from "@/modules/catalogue/types";
 
 // Pages publiques existantes, en deux langues. Admin, compte et /api n'y figurent jamais.
 // Les catalogues sont donnés par leur dossier interne : l'adresse de chaque langue vient de src/i18n/adresses.ts.
 const PAGES_PUBLIQUES = ["", "/cosplays", "/accessoires", "/a-propos", "/faq", "/contact", ...PAGES_LEGALES.map((p) => p.chemin)];
 
-const DOSSIER_FICHE: Record<FamillePhysique, string> = { cosplay: "/cosplays", accessoire: "/accessoires" };
+const DOSSIER_FICHE: Record<FamilleProduit, string> = { cosplay: "/cosplays", accessoire: "/accessoires", kit: "/kits" };
 
 function entrees(chemins: readonly string[]): MetadataRoute.Sitemap {
   return chemins.flatMap((chemin) =>

@@ -531,6 +531,8 @@ export async function finaliserFichierKit(
     const lu = await deps.lireObjetKit({ objet: entree.objet, octets: octetsAVerifier(format, entree.taille) });
     if (lu.erreur) {
       journaliser("lecture de l'objet", lu.erreur);
+      // L'erreur de lecture ne refuse pas le fichier : l'objet envoyé est conservé (un orphelin sera purgé en 3.6).
+      aEffacer = null;
       return { ok: false, erreur: "generique" };
     }
     if (!lu.trouve) return { ok: false, erreur: "envoi_incomplet" };

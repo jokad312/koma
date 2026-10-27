@@ -213,3 +213,155 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-6-heros-video-de-l-accueil.md`
   summary: Parcours e2e avec une vraie vidéo encodée (affichage, Pause mémorisée, repli sur erreur) non automatisé : aucune vidéo de test encodable sans ffmpeg ni donnée de test publiée.
   evidence: couvert par les tests unitaires du service, le test réseau réel de la signature TUS et le test SQL ; essai manuel dans `journal-enchainement.md`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 1.2 — la liste des formats est écrite deux fois, sans test d'accord.
+  evidence: migration `20261030100000_kits_et_fichiers.sql` (contrainte ligne 105, `extension_fichier_kit` lignes 149-162).
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 1.3 — `taille_octets` vient de l'appelant, la base ne vérifie pas l'objet.
+  evidence: `service.ts:563` compare la taille réelle lue à l'annoncée ; le contrôle direct en base reste muet.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 1.4 — le test RLS positif pose `publie_le` à la main, un état que le trigger refuse.
+  evidence: `supabase/tests/kits_fichiers.test.sql:577-593` (rollback rend l'état transitoire acceptable).
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 1.5 — l'assertion « aucune politique storage » est trop large.
+  evidence: `supabase/tests/kits_fichiers.test.sql:19-24` compte toutes les politiques du schéma, pas seulement celles de `kits-private`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 1.6 — l'assertion « publier un Kit est refusé » ne prouve pas le refus dédié.
+  evidence: `supabase/tests/kits_fichiers.test.sql:357-361`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 1.7 — aucune contrainte ne garantit qu'un Kit n'a ni variante, ni délai, ni stock.
+  evidence: migration `20261030100000_kits_et_fichiers.sql` (contrainte `produit_kit_champs`) ; réserve sur le flux applicatif.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 2.3 — un STL ASCII exporté avec BOM ou espace en tête est refusé.
+  evidence: `src/modules/catalogue/fichiers-kit.ts:154`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 2.4 — une lecture partielle devient « format_invalide » au lieu de « envoi_incomplet ».
+  evidence: `src/modules/catalogue/fichiers-kit.ts:159` et `src/modules/catalogue/dependances.ts:133-147`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  statut: corrigé depuis la revue (constat 2.5) — l'objet envoyé est conservé en erreur de lecture, comme la branche exception.
+  summary: Constat mineur 2.5 — une erreur de lecture réseau efface un envoi de 50 Mo.
+  evidence: `src/modules/catalogue/service.ts:531-535` puis `:592-594`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  statut: corrigé depuis la revue (constat 2.6) — « kit » ajouté à `MANQUES_PUBLICATION`, court-circuit en place.
+  summary: Constat mineur 2.6 — `MANQUES_PUBLICATION` ignore `kit`, que la base renvoie pourtant.
+  evidence: `src/modules/catalogue/types.ts:75` et `src/modules/catalogue/publication.ts`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 2.7 — `lireProduitsLiables` charge tous les cosplays et accessoires sans limite.
+  evidence: `src/modules/catalogue/queries.ts:92-101`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 2.8 — `annulerEnvoiFichierKit` renvoie `produit_introuvable` pour un chemin d'objet invalide.
+  evidence: `src/modules/catalogue/service.ts:602`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 2.9 — un commentaire renvoie à la fonction des photos.
+  evidence: `src/lib/supabase/envoi-tus.ts:67`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 2.10 — `KS_CHEMIN_INVALIDE` devient « fichier déjà enregistré », même pour un chemin mal formé.
+  evidence: `src/modules/catalogue/service.ts:419`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.4 — l'aide du panneau de remplacement n'affiche pas la taille maximale.
+  evidence: `src/components/admin/EnvoiFichierKit.tsx:244` et `messages/fr.json:873`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.5 — l'aide du groupe « Format de page du PDF » n'est pas reliée au group.
+  evidence: `src/components/admin/EnvoiFichierKit.tsx:266-268`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.6 — les noms FR/EN restent modifiables pendant l'envoi et sont ignorés.
+  evidence: `src/components/admin/EnvoiFichierKit.tsx:284-285`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.7 — aucun moyen de revenir à « aucun niveau ».
+  evidence: `src/components/admin/FormulaireKit.tsx:205-224`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.8 — passer en famille « Kit » puis revenir efface la saisie du Kit.
+  evidence: `src/components/admin/FormulaireProduit.tsx:137-146`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.9 — en mode fixe, l'erreur « famille » n'est plus affichée.
+  evidence: `src/components/admin/ChoixFamille.tsx:23-31`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.10 — deux clés de traduction mortes.
+  evidence: `messages/fr.json:733` et `messages/en.json:815`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.11 — le code d'erreur `kit_non_publiable` est inatteignable dans l'interface.
+  evidence: `src/components/admin/PublicationProduit.tsx:81`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.12 — « Supprimer » reste actif pendant le remplacement du même fichier.
+  evidence: `src/components/admin/FichiersKit.tsx:93-95`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  statut: corrigé depuis la revue (constat 3.13) — le repli `generique` est appliqué dans `FormulaireKit`.
+  summary: Constat mineur 3.13 — `t()` sans repli sur un code d'erreur inconnu.
+  evidence: `src/components/admin/FormulaireKit.tsx:111` et `src/components/admin/EnvoiFichierKit.tsx:71`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.14 — l'aide de « Matériel nécessaire en anglais » n'explique rien.
+  evidence: `messages/fr.json:763` et `messages/en.json`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.15 — le titre d'un test ne correspond plus au code.
+  evidence: `tests/unit/catalogue-fichiers-kit.test.ts:117`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.16 — aucun contrôle de parité des variables ICU entre les deux langues.
+  evidence: `tests/unit/messages-parite.test.ts:12-22`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.17 — la fiche d'un Kit parle de « produit ».
+  evidence: `src/app/[locale]/admin/produits/[id]/page.tsx:80` et `:86`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.18 — sous `/en`, la liste des cosplays à lier affiche des titres français.
+  evidence: `src/components/admin/FormulaireKit.tsx:245`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  statut: corrigé depuis la revue (constat 3.19) — le focus après suppression/remplacement, comme `GaleriePhotos`.
+  summary: Constat mineur 3.19 — après une suppression ou un remplacement, le focus tombe sur `<body>`.
+  evidence: `src/components/admin/FichiersKit.tsx:41-63` et `:103-107`, `src/components/admin/EnvoiFichierKit.tsx:178`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.20 — les erreurs de champ du formulaire d'envoi ne sont pas annoncées.
+  evidence: `src/components/admin/EnvoiFichierKit.tsx:258-262`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.21 — à zéro fichier, « Aucun fichier » s'affiche deux fois.
+  evidence: `src/components/admin/FichiersKit.tsx:68-69`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.22 — un envoi TUS abandonné laisse un objet dans `kits-private`.
+  evidence: `src/components/admin/EnvoiFichierKit.tsx:146-151`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.23 — un fichier de 0 octet est refusé avec le message « format_invalide ».
+  evidence: `src/components/admin/EnvoiFichierKit.tsx:111`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.24 — le message de succès reste affiché quand on choisit un nouveau fichier.
+  evidence: `src/components/admin/EnvoiFichierKit.tsx:82-88`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.25 — les contrôles avant envoi réimplémentent `lireAnnonceFichierKit`.
+  evidence: `src/components/admin/EnvoiFichierKit.tsx:104-116` vs `src/modules/catalogue/fichiers-kit.ts:61-72`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Constat mineur 3.26 — `aria-expanded` sans `aria-controls` sur « Remplacer ».
+  evidence: `src/components/admin/FichiersKit.tsx:85`.

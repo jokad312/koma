@@ -44,6 +44,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Notes de relais et brouillons de revue : jamais du code à revoir.
+    ".relais/**",
   ]),
 ]);
 

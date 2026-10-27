@@ -61,7 +61,7 @@
 - Correctif trouvé en chemin : la lecture du bloc 2 était annulée pendant le prérendu de Next.js et aurait masqué le bloc en permanence ; elle attend maintenant la requête (`connection()`).
 
 ## Epic 2 : état
-- Livrées : 2.1, 2.2, 2.3, 2.4, 2.5, 2.7. **2.6 (héros vidéo) reste en backlog** : elle exige la bibliothèque Bunny Stream publique et ses clés (`BUNNY_PUBLIC_*`, réglage manuel chez Bunny) ; l'epic 2 n'est donc pas terminé.
+- Livrées : 2.1, 2.2, 2.3, 2.4, 2.5, 2.7. **2.6 (héros vidéo) livrée** : commits 92f5d2c et 4fc7be6, CI verte, Bunny publiques réglées (MP4 Fallback activé, référents ouverts). L'epic 2 est donc terminé.
 
 ## Correctif 2.2 : suppression d'une photo, texte alternatif modifiable, purge de galerie-attente
 - Migration `20261028100000_supprimer_et_corriger_photo.sql` (`supprimer_photo_produit`, `modifier_alt_photo`, déclencheur différé `produit_photo_publie_complet`), à appliquer avec `npm run db:push` après la revue, puis `npm run types`. Test SQL : `supabase/tests/photo_suppression_alt.test.sql` (36 vérifications, exécutées dans une transaction annulée sur koma-dev, tout passe ; la CI les rejoue).
@@ -96,4 +96,4 @@
 - **Le MP4 doit être exporté sans piste audio** : le serveur lit la structure du fichier rendu par Bunny et refuse une piste audio (« Cette vidéo contient une piste audio »).
 - À tester à la main : `/fr/admin/reglages`, section « Héros de l'accueil » : (1) choisir un cosplay publié comme vedette ; (2) envoyer la photo de repli avec ses textes FR/EN, la remplacer, corriger les textes seuls ; (3) envoyer un MP4 court sans son : progression, « Encodage en cours… », puis « La vidéo est prête » ; (4) `/fr` sur téléphone : photo puis vidéo en fondu, bouton Pause (clavier, `aria-pressed`), choix mémorisé après rechargement ; (5) réglage système « réduire les animations » : photo seule, pas de bouton ; (6) mesurer le héros en moins de 2,5 s sur 4G dans le navigateur intégré d'Instagram (non automatisable) ; (7) dépublier la vedette : la tuile disparaît.
 - À fournir par Jonathan : le Cosplay vedette (publié), la vidéo MP4 sans piste audio, la photo de repli et ses textes alternatifs FR/EN.
-- Variables d'environnement : `.env.local` ligne 16 est mal formée (`BUNNY_PRIVE_API_KEY` suivie d'une tabulation et de `koma-prive`) ; la CLI Supabase refuse de lire le fichier tant qu'elle n'est pas corrigée (format attendu `NOM=valeur`). Pour pousser les migrations, le fichier a été écarté le temps de la commande puis remis en place, intact.
+- Variables d'environnement : `.env.local` est désormais corrigé (`BUNNY_PRIVE_API_KEY` présent et valide) et les 21 migrations sont appliquées sur koma-dev.

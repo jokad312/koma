@@ -1,5 +1,7 @@
 # KOMA SHOP — instructions pour Claude Code
 
+Langue : réponds toujours en français à Jonathan, quel que soit le modèle utilisé.
+
 ## Le produit
 Boutique en ligne pour otakus, tenue par un seul créateur : Jonathan Manduara Tshimpaka, NATHANGROUP SARL, Goma, RDC.
 Domaine : pas encore acheté (Q-D1) ; l'adresse du site est lue dans NEXT_PUBLIC_SITE_URL, jamais écrite en dur. Développement et tests en local d'abord. Cible : d'abord les otakus africains, l'international ensuite.
@@ -68,3 +70,11 @@ Le projet suit la méthode BMad v6, installée dans `_bmad/` et `.claude/skills/
 - `npm run db:link` puis `npm run db:push` : relier et migrer `koma-dev` ; `npm run types` : génère `src/lib/supabase/types.ts` depuis le projet lié
 - Répartition (décision du 2026-10-20) : en local, on développe sur `koma-dev` en ligne, sans Docker ; les tests SQL sont exécutés par la CI
 - Aide BMad : `/bmad-help` (prérequis : `uv` installé)
+
+## Relais entre outils (Claude Code, claude-free, OpenCode)
+Quand les jetons Claude sont épuisés, le travail continue sur des modèles gratuits, avec les mêmes règles et le même parcours BMad :
+- `claude-free --continue` reprend la même session Claude Code via FreeLLMAPI (sur limite de quota, une fenêtre s'ouvre toute seule) ;
+- OpenCode lit aussi ce fichier (`opencode.json`) et les skills de `.claude/skills/`, dont les `bmad-*`.
+- `.relais/derniere-session-claude.md` est exporté automatiquement après chaque réponse de Claude Code (hook local) ; `.relais/NOTES.md` est la note écrite par l'agent qui passe la main. Ce dossier n'est jamais versionné.
+- Pour reprendre un travail en cours ou passer la main : skill `relais`.
+- Revue de code (`bmad-code-review`) : de préférence par un autre modèle que celui qui a codé.

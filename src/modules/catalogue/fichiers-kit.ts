@@ -32,7 +32,10 @@ export function estFormatFichierKit(valeur: unknown): valeur is FormatFichierKit
 }
 
 export function tailleMaxFormat(format: FormatFichierKit): number {
-  return format === "transcription" ? TAILLE_MAX_TRANSCRIPTION : TAILLE_MAX_FICHIER_KIT;
+  // Une transcription est limitée à 1 Mo ; un SVG est limité à ce que l'on lit pour contrôler tout son contenu.
+  if (format === "transcription") return TAILLE_MAX_TRANSCRIPTION;
+  if (format === "svg") return TAILLE_LECTURE_SVG;
+  return TAILLE_MAX_FICHIER_KIT;
 }
 
 // Format proposé d'après l'extension d'un nom de fichier (PDF : A4 par défaut ; le choix A4 / US Letter reste à l'admin).
