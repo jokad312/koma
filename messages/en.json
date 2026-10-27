@@ -382,7 +382,7 @@
     },
     "produits": {
       "titre": "Products",
-      "intro": "Your cosplays and accessories. A product created here stays a draft: nobody sees it on the site.",
+      "intro": "Your cosplays, accessories and kits. A product created here stays a draft: nobody sees it on the site.",
       "nouveau": "New product",
       "nombre": "{nombre, plural, =0 {No products} one {# product} other {# products}}",
       "erreurLecture": "The products could not be loaded. Reload the page.",
@@ -401,7 +401,8 @@
       },
       "famille": {
         "cosplay": "Cosplay",
-        "accessoire": "Accessory"
+        "accessoire": "Accessory",
+        "kit": "Kit"
       },
       "statut": {
         "brouillon": "Draft",
@@ -423,8 +424,10 @@
           "libelle": "Category",
           "options": {
             "cosplay": "Cosplay (full costume)",
-            "accessoire": "Accessory"
-          }
+            "accessoire": "Accessory",
+            "kit": "Kit (patterns, files and tutorial)"
+          },
+          "fixe": "The category of an existing product can no longer change."
         },
         "titreFr": {
           "libelle": "Title in French"
@@ -593,7 +596,8 @@
           "produit_publie_verrouille": "A published product cannot change its address or family.",
           "produit_introuvable": "This product no longer exists. Go back to the product list.",
           "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
-          "generique": "The change could not be saved. Try again."
+          "generique": "The change could not be saved. Try again.",
+          "kit_non_publiable": "A Kit cannot be published yet: publishing arrives with the video, chapters and subtitles."
         }
       }
     },
@@ -626,6 +630,173 @@
           "univers_existe": "A universe already has this name, in French or in English.",
           "non_autorise": "You no longer have the right to create universes. Reload the page or sign in again.",
           "generique": "The universe could not be created. Your input is kept: try again."
+        }
+      }
+    },
+    "kits": {
+      "pageEdition": {
+        "publicationBientot": "A Kit cannot be published yet: publishing arrives with the video, chapters and subtitles.",
+        "fichiersTitre": "Kit files"
+      },
+      "formulaire": {
+        "resume": "There are errors to fix. Your input is kept.",
+        "titreFr": {
+          "libelle": "Title in French"
+        },
+        "titreEn": {
+          "libelle": "Title in English",
+          "aide": "Optional for a draft."
+        },
+        "slug": {
+          "libelle": "Kit address",
+          "aide": "Lowercase letters without accents, digits and hyphens. Suggested from the French title; you can change it.",
+          "utiliser": "Use {adresse}"
+        },
+        "descriptionFr": {
+          "libelle": "Description in French",
+          "aide": "Optional for a draft. 5,000 characters at most."
+        },
+        "descriptionEn": {
+          "libelle": "Description in English",
+          "aide": "Optional for a draft. 5,000 characters at most."
+        },
+        "materielFr": {
+          "libelle": "Materials needed in French",
+          "aide": "What to get in order to make the costume or accessory. Optional for a draft. 5,000 characters at most."
+        },
+        "materielEn": {
+          "libelle": "Materials needed in English",
+          "aide": "Optional for a draft. 5,000 characters at most."
+        },
+        "univers": {
+          "libelle": "Universe",
+          "aucun": "No universe",
+          "vide": "No universe exists yet. Create one to classify this Kit.",
+          "lienVide": "Go to universes"
+        },
+        "prix": {
+          "libelle": "Price in US dollars (USD)",
+          "aide": "For example 9.90. 0 USD is reserved for the free Kit. The price is the same in every country. Leave empty to set it later."
+        },
+        "niveau": {
+          "libelle": "Level",
+          "aide": "Optional for a draft.",
+          "options": {
+            "debutant": "Beginner",
+            "intermediaire": "Intermediate",
+            "avance": "Advanced"
+          }
+        },
+        "lie": {
+          "libelle": "Linked cosplay or accessory",
+          "aide": "A cosplay or accessory has only one Kit: only those without a Kit yet are offered.",
+          "aucun": "No link",
+          "option": "{titre} ({famille})"
+        },
+        "enregistrer": "Save",
+        "enCours": "Saving…",
+        "succes": "Kit saved.",
+        "erreurs": {
+          "famille_invalide": "This product is not a Kit. Go back to the product list.",
+          "titre_invalide": "The title must be 1 to 120 characters long.",
+          "slug_invalide": "The address may only contain lowercase letters without accents, digits and hyphens, up to 80 characters.",
+          "slug_pris": "This address is already used by another product.",
+          "slug_pris_propose": "This address is already used by another product. First free address: {adresse}.",
+          "prix_invalide": "Enter a price in dollars from 0 to 10,000, with at most two decimals (for example 9.90). 0 USD is reserved for the free Kit.",
+          "univers_invalide": "This universe does not exist. Reload the page.",
+          "texte_invalide": "The text must not exceed 5,000 characters.",
+          "niveau_invalide": "Choose Beginner, Intermediate or Advanced.",
+          "kit_lie_invalide": "This cosplay or accessory already has a Kit, or no longer exists. Reload the page.",
+          "produit_introuvable": "This Kit no longer exists. Go back to the product list.",
+          "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
+          "generique": "The Kit could not be saved. Your input is kept: try again."
+        }
+      },
+      "fichiers": {
+        "titre": "Files",
+        "intro": "Accepted formats: PDF (A4 or US Letter), SVG, STL and text transcription (.txt). {max} MB at most per file, {maxTranscription} MB for a transcription. Files are stored privately: no direct address opens them.",
+        "vide": "No files yet.",
+        "nombre": "{nombre, plural, =0 {No files} one {# file} other {# files}}",
+        "legende": "Kit files, in the order they were added",
+        "version": "Version {version}",
+        "details": "{format} · {taille} · version {version}",
+        "nomFr": "Name in French: {nom}",
+        "nomEn": "Name in English: {nom}",
+        "taille": {
+          "octets": "{valeur} B",
+          "ko": "{valeur} KB",
+          "mo": "{valeur} MB"
+        },
+        "formats": {
+          "pdf_a4": "PDF A4",
+          "pdf_letter": "PDF US Letter",
+          "svg": "SVG",
+          "stl": "STL",
+          "transcription": "Transcription (text)"
+        },
+        "remplacer": "Replace {nom}",
+        "supprimer": "Delete {nom}",
+        "supprime": "File deleted.",
+        "suppression": {
+          "titre": "Delete the file {nom}?",
+          "texte": "The file is removed from the Kit and erased from private storage. This cannot be undone.",
+          "confirmer": "Delete",
+          "annuler": "Cancel",
+          "enCours": "Deleting…"
+        },
+        "ajout": {
+          "titre": "Add a file",
+          "fichier": {
+            "libelle": "File to upload",
+            "aide": "PDF, SVG, STL or text (.txt). {max} MB at most, {maxTranscription} MB for a transcription."
+          },
+          "format": {
+            "libelle": "PDF page format",
+            "aide": "Choose the page size this PDF is printed for."
+          },
+          "formatDetecte": "Format: {format}",
+          "nomFr": {
+            "libelle": "Name in French",
+            "aide": "The name the customer will see, from 1 to 120 characters."
+          },
+          "nomEn": {
+            "libelle": "Name in English",
+            "aide": "From 1 to 120 characters."
+          },
+          "ajouter": "Add the file",
+          "annuler": "Cancel the upload",
+          "progression": "Uploading: {pourcentage}%",
+          "traitement": "Checking the file…",
+          "reprise": "Connection lost: the upload will resume by itself.",
+          "succes": "File added.",
+          "annule": "Upload cancelled.",
+          "annulerIndisponible": "The file is being checked: the upload can no longer be cancelled."
+        },
+        "remplacement": {
+          "titre": "Replace the file {nom}",
+          "fichier": {
+            "libelle": "New file",
+            "aide": "Same format as the current file ({format}). Its version goes up by 1."
+          },
+          "envoyer": "Replace the file",
+          "fermer": "Cancel",
+          "succes": "File replaced."
+        },
+        "erreurs": {
+          "fichier_manquant": "Choose a file to upload.",
+          "format_invalide": "This file is not accepted. Accepted formats: PDF (A4 or US Letter), SVG, STL or text transcription (.txt), with content that matches the extension.",
+          "fichier_trop_lourd": "This file is too large: {max} MB at most, {maxTranscription} MB for a transcription.",
+          "nom_invalide": "Write the file name in French and in English, from 1 to 120 characters.",
+          "envoi_incomplet": "The file did not arrive in full. Try the upload again.",
+          "envoi_echec": "The upload failed. Check your connection and try again.",
+          "fichier_introuvable": "This file no longer exists. Reload the page.",
+          "famille_invalide": "This product is not a Kit. Go back to the product list.",
+          "produit_introuvable": "This Kit no longer exists. Go back to the product list.",
+          "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
+          "generique": "The file could not be saved. Try again.",
+          "fichier_deja_enregistre": "This file is already registered in the Kit: nothing was changed or erased. Start a new upload if you want to replace it.",
+          "contenu_actif": "This SVG contains active content (script, event handler, javascript: link, embedded object or external reference). Export it again without these elements.",
+          "entete_illisible": "The header of this SVG is not readable: it must be UTF-8 text starting with a tag. Export it again as UTF-8."
         }
       }
     }

@@ -5,6 +5,8 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { EnvoiPhoto } from "@/components/admin/EnvoiPhoto";
+import { FichiersKit } from "@/components/admin/FichiersKit";
+import { FormulaireKit } from "@/components/admin/FormulaireKit";
 import { FormulaireProduit } from "@/components/admin/FormulaireProduit";
 import { GaleriePhotos } from "@/components/admin/GaleriePhotos";
 import { PublicationProduit } from "@/components/admin/PublicationProduit";
@@ -15,9 +17,9 @@ import { routing, type Locale } from "@/i18n/routing";
 import { exigerAdminPage } from "@/lib/auth/droits";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
-import { lireProduitAdmin, lireUniversAdmin } from "@/modules/catalogue/queries";
+import { lireProduitAdmin, lireProduitsLiables, lireUniversAdmin } from "@/modules/catalogue/queries";
 import { idSchema } from "@/modules/catalogue/schemas";
-import type { ProduitAdmin, UniversAdmin } from "@/modules/catalogue/types";
+import type { ProduitAdmin, ProduitLiable, UniversAdmin } from "@/modules/catalogue/types";
 
 // Les identifiants de produits ne sont connus qu'à la requête (jamais à la compilation). Un seul exemplaire, jamais un vrai produit
 // (la page lit la base sous Suspense et rend 404 pour un identifiant inconnu), permet à Next.js de préparer la coque statique de la route :
@@ -57,12 +59,16 @@ async function ProduitSelonDroit({
   const cree = (Array.isArray(crees) ? crees[0] : crees) === "1";
   const t = await getTranslations("Admin.produits");
   const tp = await getTranslations("Admin.produits.photos");
+  const tk = await getTranslations("Admin.kits");
   if (!idSchema.safeParse(id).success) notFound();
   let produit: ProduitAdmin | null = null;
   let univers: UniversAdmin[] | null = null;
+  let liables: ProduitLiable[] = [];
   let lecture = true;
   try {
     [produit, univers] = await Promise.all([lireProduitAdmin(id), lireUniversAdmin()]);
+    // Un Kit propose les cosplays et accessoires sans Kit, plus celui qu'il lie déjà.
+    if (produit?.famille === "kit") liables = await lireProduitsLiables(produit.id);
   } catch {
     lecture = false;
     console.error("[catalogue] lecture du produit impossible");
@@ -78,7 +84,19 @@ async function ProduitSelonDroit({
           </Link>
         </p>
         {cree ? <MessageEtat type="succes">{t("pageEdition.cree")}</MessageEtat> : null}
-        {produit && univers ? (
+        {produit && univers && produit.famille === "kit" ? (
+          <>
+            {/* La publication d'un Kit (vidéo, fichiers, sous-titres) est définie par la story 3.2 : la base la refuse d'ici là. */}
+            <MessageEtat type="information">{tk("pageEdition.publicationBientot")}</MessageEtat>
+            <FormulaireKit univers={univers} liables={liables} produit={produit} />
+            <section aria-labelledby="fichiers-titre" className="flex max-w-2xl flex-col gap-4">
+              <h2 id="fichiers-titre" className="t-h2">
+                {tk("fichiers.titre")}
+              </h2>
+              <FichiersKit produitId={produit.id} fichiers={produit.fichiers} />
+            </section>
+          </>
+        ) : produit && univers ? (
           <>
             <PublicationProduit produitId={produit.id} publie={produit.publieLe !== null} />
             <FormulaireProduit univers={univers} produit={produit} />

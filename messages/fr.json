@@ -382,7 +382,7 @@
     },
     "produits": {
       "titre": "Produits",
-      "intro": "Tes cosplays et accessoires. Un produit créé ici reste un brouillon : personne ne le voit sur le site.",
+      "intro": "Tes cosplays, accessoires et kits. Un produit créé ici reste un brouillon : personne ne le voit sur le site.",
       "nouveau": "Nouveau produit",
       "nombre": "{nombre, plural, =0 {Aucun produit} one {# produit} other {# produits}}",
       "erreurLecture": "Les produits n'ont pas pu être lus. Recharge la page.",
@@ -401,7 +401,8 @@
       },
       "famille": {
         "cosplay": "Cosplay",
-        "accessoire": "Accessoire"
+        "accessoire": "Accessoire",
+        "kit": "Kit"
       },
       "statut": {
         "brouillon": "Brouillon",
@@ -423,8 +424,10 @@
           "libelle": "Famille",
           "options": {
             "cosplay": "Cosplay (costume complet)",
-            "accessoire": "Accessoire"
-          }
+            "accessoire": "Accessoire",
+            "kit": "Kit (patrons, fichiers et tutoriel)"
+          },
+          "fixe": "La famille d'un produit existant ne peut plus changer."
         },
         "titreFr": {
           "libelle": "Titre en français"
@@ -593,7 +596,8 @@
           "produit_publie_verrouille": "Un produit publié ne peut pas changer d'adresse ni de famille.",
           "produit_introuvable": "Ce produit n'existe plus. Retourne à la liste des produits.",
           "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
-          "generique": "Le changement n'a pas pu être enregistré. Réessaie."
+          "generique": "Le changement n'a pas pu être enregistré. Réessaie.",
+          "kit_non_publiable": "Un Kit ne peut pas encore être publié : la publication arrive avec la vidéo, les chapitres et les sous-titres."
         }
       }
     },
@@ -626,6 +630,173 @@
           "univers_existe": "Un univers porte déjà ce nom, en français ou en anglais.",
           "non_autorise": "Tu n'as plus le droit de créer des univers. Recharge la page ou reconnecte-toi.",
           "generique": "L'univers n'a pas pu être créé. Ta saisie est conservée : réessaie."
+        }
+      }
+    },
+    "kits": {
+      "pageEdition": {
+        "publicationBientot": "Un Kit ne peut pas encore être publié : la publication arrive avec la vidéo, les chapitres et les sous-titres.",
+        "fichiersTitre": "Fichiers du Kit"
+      },
+      "formulaire": {
+        "resume": "Il y a des erreurs à corriger. Ta saisie est conservée.",
+        "titreFr": {
+          "libelle": "Titre en français"
+        },
+        "titreEn": {
+          "libelle": "Titre en anglais",
+          "aide": "Facultatif pour un brouillon."
+        },
+        "slug": {
+          "libelle": "Adresse du Kit",
+          "aide": "Lettres minuscules sans accent, chiffres et tirets. Proposée depuis le titre français ; tu peux la modifier.",
+          "utiliser": "Utiliser {adresse}"
+        },
+        "descriptionFr": {
+          "libelle": "Description en français",
+          "aide": "Facultatif pour un brouillon. 5 000 caractères au plus."
+        },
+        "descriptionEn": {
+          "libelle": "Description en anglais",
+          "aide": "Facultatif pour un brouillon. 5 000 caractères au plus."
+        },
+        "materielFr": {
+          "libelle": "Matériel nécessaire en français",
+          "aide": "Ce qu'il faut se procurer pour fabriquer le costume ou l'accessoire. Facultatif pour un brouillon. 5 000 caractères au plus."
+        },
+        "materielEn": {
+          "libelle": "Matériel nécessaire en anglais",
+          "aide": "Facultatif pour un brouillon. 5 000 caractères au plus."
+        },
+        "univers": {
+          "libelle": "Univers",
+          "aucun": "Aucun univers",
+          "vide": "Aucun univers n'existe encore. Crée-en un pour classer ce Kit.",
+          "lienVide": "Aller aux univers"
+        },
+        "prix": {
+          "libelle": "Prix en dollars US (USD)",
+          "aide": "Par exemple 9,90. 0 USD est réservé au Kit gratuit. Le prix est le même dans tous les pays. Laisse vide pour le fixer plus tard."
+        },
+        "niveau": {
+          "libelle": "Niveau",
+          "aide": "Facultatif pour un brouillon.",
+          "options": {
+            "debutant": "Débutant",
+            "intermediaire": "Intermédiaire",
+            "avance": "Avancé"
+          }
+        },
+        "lie": {
+          "libelle": "Cosplay ou accessoire lié",
+          "aide": "Un cosplay ou un accessoire n'a qu'un seul Kit : seuls ceux qui n'en ont pas encore sont proposés.",
+          "aucun": "Aucun lien",
+          "option": "{titre} ({famille})"
+        },
+        "enregistrer": "Enregistrer",
+        "enCours": "Enregistrement…",
+        "succes": "Kit enregistré.",
+        "erreurs": {
+          "famille_invalide": "Ce produit n'est pas un Kit. Retourne à la liste des produits.",
+          "titre_invalide": "Le titre doit avoir de 1 à 120 caractères.",
+          "slug_invalide": "L'adresse ne doit contenir que des lettres minuscules sans accent, des chiffres et des tirets, sur 80 caractères au plus.",
+          "slug_pris": "Cette adresse est déjà utilisée par un autre produit.",
+          "slug_pris_propose": "Cette adresse est déjà utilisée par un autre produit. Première adresse libre : {adresse}.",
+          "prix_invalide": "Saisis un prix en dollars de 0 à 10 000, avec deux décimales au plus (par exemple 9,90). 0 USD est réservé au Kit gratuit.",
+          "univers_invalide": "Cet univers n'existe pas. Recharge la page.",
+          "texte_invalide": "Le texte ne doit pas dépasser 5 000 caractères.",
+          "niveau_invalide": "Choisis Débutant, Intermédiaire ou Avancé.",
+          "kit_lie_invalide": "Ce cosplay ou cet accessoire a déjà un Kit, ou n'existe plus. Recharge la page.",
+          "produit_introuvable": "Ce Kit n'existe plus. Retourne à la liste des produits.",
+          "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
+          "generique": "Le Kit n'a pas pu être enregistré. Ta saisie est conservée : réessaie."
+        }
+      },
+      "fichiers": {
+        "titre": "Fichiers",
+        "intro": "Formats acceptés : PDF (A4 ou US Letter), SVG, STL et transcription texte (.txt). {max} Mo au plus par fichier, {maxTranscription} Mo pour une transcription. Les fichiers sont stockés en privé : aucune adresse directe ne les ouvre.",
+        "vide": "Aucun fichier pour le moment.",
+        "nombre": "{nombre, plural, =0 {Aucun fichier} one {# fichier} other {# fichiers}}",
+        "legende": "Fichiers du Kit, dans l'ordre d'ajout",
+        "version": "Version {version}",
+        "details": "{format} · {taille} · version {version}",
+        "nomFr": "Nom en français : {nom}",
+        "nomEn": "Nom en anglais : {nom}",
+        "taille": {
+          "octets": "{valeur} o",
+          "ko": "{valeur} Ko",
+          "mo": "{valeur} Mo"
+        },
+        "formats": {
+          "pdf_a4": "PDF A4",
+          "pdf_letter": "PDF US Letter",
+          "svg": "SVG",
+          "stl": "STL",
+          "transcription": "Transcription (texte)"
+        },
+        "remplacer": "Remplacer {nom}",
+        "supprimer": "Supprimer {nom}",
+        "supprime": "Fichier supprimé.",
+        "suppression": {
+          "titre": "Supprimer le fichier {nom} ?",
+          "texte": "Le fichier est retiré du Kit et effacé du stockage privé. Cette action ne peut pas être annulée.",
+          "confirmer": "Supprimer",
+          "annuler": "Annuler",
+          "enCours": "Suppression…"
+        },
+        "ajout": {
+          "titre": "Ajouter un fichier",
+          "fichier": {
+            "libelle": "Fichier à envoyer",
+            "aide": "PDF, SVG, STL ou texte (.txt). {max} Mo au plus, {maxTranscription} Mo pour une transcription."
+          },
+          "format": {
+            "libelle": "Format de page du PDF",
+            "aide": "Choisis la taille de page pour laquelle ce PDF est imprimé."
+          },
+          "formatDetecte": "Format : {format}",
+          "nomFr": {
+            "libelle": "Nom en français",
+            "aide": "Le nom que verra le client, de 1 à 120 caractères."
+          },
+          "nomEn": {
+            "libelle": "Nom en anglais",
+            "aide": "De 1 à 120 caractères."
+          },
+          "ajouter": "Ajouter le fichier",
+          "annuler": "Annuler l'envoi",
+          "progression": "Envoi en cours : {pourcentage} %",
+          "traitement": "Vérification du fichier…",
+          "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
+          "succes": "Fichier ajouté.",
+          "annule": "Envoi annulé.",
+          "annulerIndisponible": "Le fichier est en cours de vérification : l'envoi ne peut plus être annulé."
+        },
+        "remplacement": {
+          "titre": "Remplacer le fichier {nom}",
+          "fichier": {
+            "libelle": "Nouveau fichier",
+            "aide": "Même format que le fichier actuel ({format}). Sa version augmente de 1."
+          },
+          "envoyer": "Remplacer le fichier",
+          "fermer": "Annuler",
+          "succes": "Fichier remplacé."
+        },
+        "erreurs": {
+          "fichier_manquant": "Choisis un fichier à envoyer.",
+          "format_invalide": "Ce fichier n'est pas accepté. Formats acceptés : PDF (A4 ou US Letter), SVG, STL ou transcription texte (.txt), avec un contenu qui correspond à l'extension.",
+          "fichier_trop_lourd": "Ce fichier est trop lourd : {max} Mo au plus, {maxTranscription} Mo pour une transcription.",
+          "nom_invalide": "Écris le nom du fichier en français et en anglais, de 1 à 120 caractères.",
+          "envoi_incomplet": "Le fichier n'est pas arrivé en entier. Réessaie l'envoi.",
+          "envoi_echec": "L'envoi a échoué. Vérifie ta connexion puis réessaie.",
+          "fichier_introuvable": "Ce fichier n'existe plus. Recharge la page.",
+          "famille_invalide": "Ce produit n'est pas un Kit. Retourne à la liste des produits.",
+          "produit_introuvable": "Ce Kit n'existe plus. Retourne à la liste des produits.",
+          "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
+          "generique": "Le fichier n'a pas pu être enregistré. Réessaie.",
+          "fichier_deja_enregistre": "Ce fichier est déjà enregistré dans le Kit : rien n'a été modifié ni effacé. Choisis un nouvel envoi si tu veux le remplacer.",
+          "contenu_actif": "Ce SVG contient du contenu actif (script, gestionnaire d'événement, lien javascript:, objet embarqué ou référence externe). Exporte-le à nouveau sans ces éléments.",
+          "entete_illisible": "L'en-tête de ce SVG n'est pas lisible : il doit être en texte UTF-8 et commencer par une balise. Exporte-le à nouveau en UTF-8."
         }
       }
     }

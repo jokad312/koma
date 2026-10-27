@@ -1,8 +1,8 @@
 import { z } from "zod";
-import { analyserPrixUsd } from "@/lib/argent";
+import { analyserMontantUsd, analyserPrixUsd, PRIX_MAX_CENTS } from "@/lib/argent";
 import { SLUG_MAX, SLUG_REGEX } from "./slug";
-import { FAMILLES_PHYSIQUES, FORMATS_PHOTO, PHOTO_TAILLE_MAX, TAILLES } from "./types";
-import type { ChampProduit, ChampUnivers, CodeErreurCatalogue, EntreeProduit, EntreeUnivers, ErreurCatalogue, ProduitEcrit, Taille, VarianteEcrite } from "./types";
+import { FAMILLES_PHYSIQUES, FORMATS_PHOTO, NIVEAUX_KIT, PHOTO_TAILLE_MAX, TAILLES } from "./types";
+import type { ChampProduit, ChampUnivers, CodeErreurCatalogue, EntreeKit, EntreeProduit, EntreeUnivers, ErreurCatalogue, KitEcrit, ProduitEcrit, Taille, VarianteEcrite } from "./types";
 
 export const idSchema = z.uuid();
 
@@ -119,6 +119,79 @@ export function lireProduit(
       delai_fabrication_jours: delai.valeur,
     },
     variantes,
+  };
+}
+
+// Valide ce que le formulaire de Kit envoie et le convertit en ce que la base recevra (la base revalide tout : AD-13).
+// Un brouillon de Kit peut être incomplet : seuls le titre français et l'adresse sont obligatoires. Prix : 0 admis (Kit gratuit).
+export function lireKit(entree: EntreeKit): { ok: true; id: string | null; kit: KitEcrit } | ErreurCatalogue {
+  const titreFr = titreSchema.safeParse(entree.titreFr);
+  if (!titreFr.success) return echec("titre_invalide", "titre_fr");
+  const titreEn = titreFacultatifSchema.safeParse(entree.titreEn);
+  if (!titreEn.success) return echec("titre_invalide", "titre_en");
+
+  const slug = slugSchema.safeParse(entree.slug);
+  if (!slug.success) return echec("slug_invalide", "slug");
+
+  let prixCents: number | null = null;
+  const prix = analyserMontantUsd(entree.prix, PRIX_MAX_CENTS);
+  if (prix.ok) prixCents = prix.cents;
+  else if (prix.raison === "invalide") return echec("prix_invalide", "prix");
+
+  let niveau: KitEcrit["niveau"] = null;
+  if (entree.niveau.trim() !== "") {
+    const lu = z.enum(NIVEAUX_KIT).safeParse(entree.niveau.trim());
+    if (!lu.success) return echec("niveau_invalide", "niveau");
+    niveau = lu.data;
+  }
+
+  let universId: string | null = null;
+  if (entree.universId.trim() !== "") {
+    const univers = idSchema.safeParse(entree.universId.trim());
+    if (!univers.success) return echec("univers_invalide", "univers");
+    universId = univers.data;
+  }
+
+  let produitLieId: string | null = null;
+  if (entree.produitLieId.trim() !== "") {
+    const lie = idSchema.safeParse(entree.produitLieId.trim());
+    if (!lie.success) return echec("kit_lie_invalide", "kit_lie");
+    produitLieId = lie.data;
+  }
+
+  const descriptionFr = texteSchema.safeParse(entree.descriptionFr);
+  if (!descriptionFr.success) return echec("texte_invalide", "description_fr");
+  const descriptionEn = texteSchema.safeParse(entree.descriptionEn);
+  if (!descriptionEn.success) return echec("texte_invalide", "description_en");
+  const materielFr = texteSchema.safeParse(entree.materielFr);
+  if (!materielFr.success) return echec("texte_invalide", "materiel_fr");
+  const materielEn = texteSchema.safeParse(entree.materielEn);
+  if (!materielEn.success) return echec("texte_invalide", "materiel_en");
+
+  let id: string | null = null;
+  if (entree.id.trim() !== "") {
+    const lu = idSchema.safeParse(entree.id.trim());
+    if (!lu.success) return echec("produit_introuvable");
+    id = lu.data;
+  }
+
+  return {
+    ok: true,
+    id,
+    kit: {
+      famille: "kit",
+      slug: slug.data,
+      titre_fr: titreFr.data,
+      titre_en: titreEn.data || null,
+      description_fr: descriptionFr.data || null,
+      description_en: descriptionEn.data || null,
+      materiel_fr: materielFr.data || null,
+      materiel_en: materielEn.data || null,
+      univers_id: universId,
+      prix_cents: prixCents,
+      niveau,
+      produit_lie_id: produitLieId,
+    },
   };
 }
 

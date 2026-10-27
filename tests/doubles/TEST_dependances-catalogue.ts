@@ -1,5 +1,6 @@
 import { vi } from "vitest";
-import type { DependancesCatalogue, ProduitPourPublication } from "@/modules/catalogue/types";
+import type { FormatFichierKit } from "@/modules/catalogue/fichiers-kit";
+import type { DependancesCatalogue, FamilleProduit, ProduitPourPublication } from "@/modules/catalogue/types";
 
 // Faux serveur de test (règle 13 : tests uniquement, jamais importé par src/).
 export const TEST_ADMIN_ID = "TEST_admin-0001";
@@ -39,7 +40,34 @@ type Reglages = {
   // Tranches de prix.
   erreurTranches?: string | null;
   invalidationReglagesEnEchec?: boolean;
+  // Kits et fichiers (story 3.1).
+  erreurKit?: string | null;
+  idKit?: string | null;
+  // Chemin déjà enregistré en base (par défaut non). Lève si cheminKitEnregistreLeve.
+  cheminEnregistre?: boolean;
+  cheminKitEnregistreLeve?: boolean;
+  erreurDeplacerObjet?: string | null;
+  // Famille lue pour le produit : par défaut « cosplay » (les tests de Kit demandent « kit »). null : produit inconnu.
+  familleProduit?: FamilleProduit | null;
+  // Fichier lu pour un remplacement : par défaut le fichier TEST_fichier-0001 du produit TEST_produit-0001 au format pdf_a4. null : inconnu.
+  fichierKit?: { produitId: string; format: FormatFichierKit } | null;
+  erreurSignerKit?: string | null;
+  // Objet lu après l'envoi : par défaut absent (trouve: false).
+  objetKit?: { trouve: boolean; taille: number; debut: Uint8Array } | null;
+  erreurLectureObjetKit?: string | null;
+  erreurFichierKit?: string | null;
+  erreurRemplacerFichier?: string | null;
+  erreurSupprimerFichier?: string | null;
+  // L'appel LÈVE au lieu de répondre : résultat inconnu.
+  leveFichierKit?: boolean;
+  leveRemplacerFichier?: boolean;
+  // Chemin renvoyé par le remplacement / la suppression (par défaut un chemin TEST_).
+  ancienChemin?: string | null;
+  cheminSupprime?: string | null;
 };
+
+// Identifiant (minuscules, forme d'un uuid) du Kit des tests de fichiers.
+export const TEST_KIT_ID = "00000000-0000-4000-8000-000000000001";
 
 export const TEST_PRODUIT_COMPLET: ProduitPourPublication = {
   prixCents: 4990,
@@ -69,6 +97,13 @@ export function creerTestDependancesCatalogue(r: Reglages = {}) {
     invalidations: 0,
     tranches: [] as Array<Parameters<DependancesCatalogue["ecrireTranches"]>[0]>,
     invalidationsReglages: 0,
+    kits: [] as Array<Parameters<DependancesCatalogue["ecrireKit"]>[0]>,
+    signaturesKit: [] as string[],
+    lecturesObjetKit: [] as Array<{ objet: string; octets: number }>,
+    fichiersKit: [] as Array<Parameters<DependancesCatalogue["ecrireFichierKit"]>[0]>,
+    remplacementsKit: [] as Array<Parameters<DependancesCatalogue["remplacerFichierKit"]>[0]>,
+    deplacementsKit: [] as Array<{ de: string; vers: string }>,
+    suppressionsFichierKit: [] as Array<Parameters<DependancesCatalogue["supprimerFichierKit"]>[0]>,
   };
   const deps: DependancesCatalogue = {
     exigerDroit: vi.fn(async (droit) => {
@@ -158,6 +193,58 @@ export function creerTestDependancesCatalogue(r: Reglages = {}) {
       if (r.lectureProduitEnEchec) throw new Error("TEST_lecture");
       const p = r.produitComplet === undefined ? TEST_PRODUIT_COMPLET : r.produitComplet;
       return typeof p === "function" ? p() : p;
+    }),
+    ecrireKit: vi.fn(async (args) => {
+      appels.ordre.push("kit");
+      appels.kits.push(args);
+      return { erreur: r.erreurKit ?? null, id: r.erreurKit ? null : (r.idKit === undefined ? (args.id ?? "TEST_kit-0001") : r.idKit) };
+    }),
+    lireFamilleProduit: vi.fn(async () => {
+      appels.ordre.push("familleProduit");
+      return r.familleProduit === undefined ? "cosplay" : r.familleProduit;
+    }),
+    lireFichierKit: vi.fn(async () => {
+      appels.ordre.push("lireFichierKit");
+      return r.fichierKit === undefined ? { produitId: TEST_KIT_ID, format: "pdf_a4" as const } : r.fichierKit;
+    }),
+    cheminKitEnregistre: vi.fn(async () => {
+      appels.ordre.push("cheminEnregistre");
+      if (r.cheminKitEnregistreLeve) throw new Error("TEST_lecture");
+      return r.cheminEnregistre ?? false;
+    }),
+    deplacerObjetKit: vi.fn(async (args) => {
+      appels.ordre.push("deplacer");
+      appels.deplacementsKit.push(args);
+      return { erreur: r.erreurDeplacerObjet ?? null };
+    }),
+    signerEnvoiFichierKit: vi.fn(async ({ objet }) => {
+      appels.ordre.push("signerKit");
+      appels.signaturesKit.push(objet);
+      return { erreur: r.erreurSignerKit ?? null, jeton: r.erreurSignerKit ? null : "TEST_jeton-kit" };
+    }),
+    lireObjetKit: vi.fn(async (args) => {
+      appels.ordre.push("lireObjetKit");
+      appels.lecturesObjetKit.push(args);
+      if (r.erreurLectureObjetKit) return { erreur: r.erreurLectureObjetKit, trouve: false, taille: 0, debut: new Uint8Array(0) };
+      const o = r.objetKit ?? { trouve: false, taille: 0, debut: new Uint8Array(0) };
+      return { erreur: null, ...o };
+    }),
+    ecrireFichierKit: vi.fn(async (args) => {
+      appels.ordre.push("fichierKit");
+      appels.fichiersKit.push(args);
+      if (r.leveFichierKit) throw new Error("TEST_coupure");
+      return { erreur: r.erreurFichierKit ?? null, id: r.erreurFichierKit ? null : "TEST_fichier-0001" };
+    }),
+    remplacerFichierKit: vi.fn(async (args) => {
+      appels.ordre.push("remplacerFichierKit");
+      appels.remplacementsKit.push(args);
+      if (r.leveRemplacerFichier) throw new Error("TEST_coupure");
+      return { erreur: r.erreurRemplacerFichier ?? null, ancienChemin: r.erreurRemplacerFichier ? null : (r.ancienChemin === undefined ? "TEST_kit/TEST_ancien.pdf" : r.ancienChemin) };
+    }),
+    supprimerFichierKit: vi.fn(async (args) => {
+      appels.ordre.push("supprimerFichierKit");
+      appels.suppressionsFichierKit.push(args);
+      return { erreur: r.erreurSupprimerFichier ?? null, chemin: r.erreurSupprimerFichier ? null : (r.cheminSupprime === undefined ? "TEST_kit/TEST_fichier.pdf" : r.cheminSupprime) };
     }),
   };
   return { deps, appels };

@@ -8,17 +8,18 @@ import { useRouter } from "@/i18n/navigation";
 import { prixPourSaisie } from "@/lib/argent";
 import { enregistrerProduit, type EtatProduit } from "@/modules/catalogue/actions";
 import { proposerSlug } from "@/modules/catalogue/slug";
-import { FAMILLES_PHYSIQUES, TAILLES } from "@/modules/catalogue/types";
-import type { ChampProduit, ProduitAdmin, Taille, UniversAdmin } from "@/modules/catalogue/types";
+import { TAILLES } from "@/modules/catalogue/types";
+import type { ChampProduit, ProduitAdmin, ProduitLiable, Taille, UniversAdmin } from "@/modules/catalogue/types";
 import { ChampTexte, CLASSE_CHAMP } from "./ChampTexte";
+import { ChoixFamille } from "./ChoixFamille";
 import { EditeurVariantes, VARIANTES_VIDES, type EtatVariante, type EtatVariantes } from "./EditeurVariantes";
-
-const OPTION =
-  "relative flex min-h-touch cursor-pointer items-center gap-3 rounded-md border border-border-field bg-surface px-4 py-3 has-[:checked]:border-2 has-[:checked]:border-primary has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2";
+import { FormulaireKit } from "./FormulaireKit";
 
 type Props = {
   univers: readonly UniversAdmin[];
-  // Produit à modifier ; absent : création d'un brouillon.
+  // Cosplays et accessoires qu'un nouveau Kit peut lier (famille « kit », création seulement).
+  liables?: readonly ProduitLiable[];
+  // Produit à modifier ; absent : création d'un brouillon. La famille d'un produit existant ne change plus.
   produit?: ProduitAdmin | null;
 };
 
@@ -37,7 +38,7 @@ function variantesDepuis(produit: ProduitAdmin | null | undefined): EtatVariante
 
 // Création et modification d'un brouillon de produit physique. Le succès n'apparaît qu'après la réponse de l'action serveur,
 // la saisie est conservée après un échec (champs contrôlés, jamais remontés), aucun choix ne déclenche d'action.
-export function FormulaireProduit({ univers, produit = null }: Props) {
+export function FormulaireProduit({ univers, liables = [], produit = null }: Props) {
   const t = useTranslations("Admin.produits.formulaire");
   const locale = useLocale();
   const router = useRouter();
@@ -133,6 +134,17 @@ export function FormulaireProduit({ univers, produit = null }: Props) {
   const erreurGlobale = erreur && !erreur.champ ? erreur.erreur : null;
   const nomUnivers = (u: UniversAdmin) => (locale === "en" ? u.nomEn : u.nomFr);
 
+  // Famille « kit » (création) : le formulaire du Kit prend la suite, le choix de la famille reste en tête.
+  if (famille === "kit" && produit === null) {
+    return (
+      <FormulaireKit
+        univers={univers}
+        liables={liables}
+        choixFamille={<ChoixFamille base={base} famille={famille} onChange={setFamille} />}
+      />
+    );
+  }
+
   return (
     <form
       onSubmit={surEnvoi}
@@ -146,31 +158,7 @@ export function FormulaireProduit({ univers, produit = null }: Props) {
       ) : null}
       {etat?.statut === "succes" ? <MessageEtat type="succes">{t("succes")}</MessageEtat> : null}
 
-      <fieldset className="flex flex-col gap-2">
-        <legend className="t-label mb-2 text-text-primary">{t("famille.libelle")}</legend>
-        {FAMILLES_PHYSIQUES.map((valeur) => (
-          <label key={valeur} className={OPTION}>
-            <input
-              type="radio"
-              name="famille"
-              value={valeur}
-              checked={famille === valeur}
-              onChange={() => setFamille(valeur)}
-              className="peer sr-only"
-              aria-describedby={erreurDe("famille") ? `${base}-famille-erreur` : undefined}
-            />
-            <svg aria-hidden="true" viewBox="0 0 16 16" className="invisible size-4 shrink-0 fill-none stroke-primary stroke-2 peer-checked:visible">
-              <path d="M3 8.5 6.5 12 13 4.5" />
-            </svg>
-            {t(`famille.options.${valeur}`)}
-          </label>
-        ))}
-        {erreurDe("famille") ? (
-          <p id={`${base}-famille-erreur`} className="t-small text-danger">
-            {erreurDe("famille")}
-          </p>
-        ) : null}
-      </fieldset>
+      <ChoixFamille base={base} famille={famille} onChange={produit ? undefined : setFamille} erreur={erreurDe("famille")} />
 
       <ChampTexte
         id={`${base}-titre-fr`}

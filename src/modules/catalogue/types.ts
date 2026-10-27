@@ -1,9 +1,17 @@
 import type { AuteurCompte } from "@/lib/auth/auteur";
 import type { Droit } from "@/lib/auth/matrice-droits";
+import type { FormatFichierKit } from "./fichiers-kit";
 
-// Familles de produits physiques de cette phase (la famille « kit » arrive à l'epic 3).
+// Familles de produits physiques (cosplay, accessoire) ; la famille « kit » (numérique) est gérée par ses propres fonctions.
 export const FAMILLES_PHYSIQUES = ["cosplay", "accessoire"] as const;
 export type FamillePhysique = (typeof FAMILLES_PHYSIQUES)[number];
+
+export const FAMILLES_PRODUIT = ["cosplay", "accessoire", "kit"] as const;
+export type FamilleProduit = (typeof FAMILLES_PRODUIT)[number];
+
+// Niveau d'un Kit (Débutant / Intermédiaire / Avancé ; Beginner / Intermediate / Advanced).
+export const NIVEAUX_KIT = ["debutant", "intermediaire", "avance"] as const;
+export type NiveauKit = (typeof NIVEAUX_KIT)[number];
 
 export const TAILLES = ["XS", "S", "M", "L", "XL", "XXL", "sur_mesure"] as const;
 export type Taille = (typeof TAILLES)[number];
@@ -36,6 +44,14 @@ export type CodeErreurCatalogue =
   | "tranche_bornes_invalides"
   | "tranches_trop_nombreuses"
   | "produit_publie_verrouille"
+  | "niveau_invalide"
+  | "kit_lie_invalide"
+  | "fichier_introuvable"
+  | "envoi_incomplet"
+  | "fichier_deja_enregistre"
+  | "contenu_actif"
+  | "entete_illisible"
+  | "kit_non_publiable"
   | "generique";
 
 // Champ du formulaire de produit auquel une erreur se rattache (absent : erreur du formulaire entier).
@@ -49,7 +65,11 @@ export type ChampProduit =
   | "univers"
   | "prix"
   | "delai"
-  | "variantes";
+  | "variantes"
+  | "materiel_fr"
+  | "materiel_en"
+  | "niveau"
+  | "kit_lie";
 
 // Ce qui manque à un produit pour être publié, dans l'ordre d'affichage (le titre français est déjà obligatoire).
 export const MANQUES_PUBLICATION = ["prix", "photo", "titre_en", "description_fr", "description_en", "variante"] as const;
@@ -109,6 +129,22 @@ export type EntreeProduit = {
   variantes: EntreeVariante[];
 };
 
+// Kit tel que le formulaire l'envoie : toutes les valeurs arrivent en texte.
+export type EntreeKit = {
+  id: string;
+  slug: string;
+  titreFr: string;
+  titreEn: string;
+  descriptionFr: string;
+  descriptionEn: string;
+  materielFr: string;
+  materielEn: string;
+  universId: string;
+  prix: string;
+  niveau: string;
+  produitLieId: string;
+};
+
 export type EntreeUnivers = { nomFr: string; nomEn: string };
 
 // Ce que la base reçoit (fonction enregistrer_produit) : centimes entiers, null pour une valeur absente.
@@ -122,6 +158,22 @@ export type ProduitEcrit = {
   univers_id: string | null;
   prix_cents: number | null;
   delai_fabrication_jours: number | null;
+};
+
+// Ce que la base reçoit (fonction enregistrer_kit) : centimes entiers (0 admis), null pour une valeur absente.
+export type KitEcrit = {
+  famille: "kit";
+  slug: string;
+  titre_fr: string;
+  titre_en: string | null;
+  description_fr: string | null;
+  description_en: string | null;
+  materiel_fr: string | null;
+  materiel_en: string | null;
+  univers_id: string | null;
+  prix_cents: number | null;
+  niveau: NiveauKit | null;
+  produit_lie_id: string | null;
 };
 
 export type VarianteEcrite = {
@@ -148,7 +200,7 @@ export type DependancesCatalogue = {
   signerEnvoiPhoto(args: { objet: string }): Promise<{ erreur: string | null; jeton: string | null }>;
   lireObjetAttente(objet: string): Promise<{ erreur: string | null; octets: Uint8Array | null }>;
   ecrireObjetPublic(args: { objet: string; octets: Uint8Array; contentType: string }): Promise<{ erreur: string | null }>;
-  supprimerObjets(args: { bucket: "galerie-attente" | "produits-public"; objets: string[] }): Promise<{ erreur: string | null }>;
+  supprimerObjets(args: { bucket: "galerie-attente" | "produits-public" | "kits-private"; objets: string[] }): Promise<{ erreur: string | null }>;
   ecrirePhoto(args: { auteur: AuteurCompte; produitId: string; fichier: string; altFr: string; altEn: string }): Promise<{ erreur: string | null; id: string | null }>;
   deplacerPhoto(args: { auteur: AuteurCompte; photoId: string; sens: "haut" | "bas" }): Promise<{ erreur: string | null }>;
   // Supprime la ligne (positions renumérotées par la base) et renvoie le fichier du bucket public, à effacer ensuite par supprimerObjets.
@@ -163,6 +215,34 @@ export type DependancesCatalogue = {
   invaliderCatalogue(): Promise<void>;
   // Lit (et lève en cas d'erreur de lecture) l'état d'un produit pour la complétude ; null si inconnu.
   lireProduitComplet(id: string): Promise<ProduitPourPublication | null>;
+  // Kits (story 3.1).
+  ecrireKit(args: { auteur: AuteurCompte; id: string | null; kit: KitEcrit }): Promise<{ erreur: string | null; id: string | null }>;
+  // Famille d'un produit (lève en cas d'erreur de lecture) ; null si inconnu.
+  lireFamilleProduit(id: string): Promise<FamilleProduit | null>;
+  // Format et produit d'un fichier de Kit (lève en cas d'erreur de lecture) ; null si inconnu.
+  lireFichierKit(id: string): Promise<{ produitId: string; format: FormatFichierKit } | null>;
+  // Vrai si ce chemin de kits-private est déjà enregistré dans fichier_kit_prive (lève en cas d'erreur de lecture).
+  // Un objet référencé n'est JAMAIS effacé par un envoi, une finalisation ou une annulation.
+  cheminKitEnregistre(chemin: string): Promise<boolean>;
+  // Déplace un objet de kits-private vers un nouveau chemin choisi par le serveur (le jeton d'envoi ne vaut plus que pour l'ancien).
+  deplacerObjetKit(args: { de: string; vers: string }): Promise<{ erreur: string | null }>;
+  // Autorisation d'envoi vers kits-private : jeton signé pour l'objet choisi par le serveur.
+  signerEnvoiFichierKit(args: { objet: string }): Promise<{ erreur: string | null; jeton: string | null }>;
+  // Lit l'existence, la taille réelle et les premiers octets d'un objet de kits-private (jamais l'objet entier sauf une transcription).
+  lireObjetKit(args: { objet: string; octets: number }): Promise<{ erreur: string | null; trouve: boolean; taille: number; debut: Uint8Array }>;
+  ecrireFichierKit(args: {
+    auteur: AuteurCompte;
+    produitId: string;
+    nomFr: string;
+    nomEn: string;
+    format: FormatFichierKit;
+    taille: number;
+    chemin: string;
+  }): Promise<{ erreur: string | null; id: string | null }>;
+  // Renvoie l'ancien chemin, à effacer ensuite par supprimerObjets.
+  remplacerFichierKit(args: { auteur: AuteurCompte; fichierId: string; taille: number; chemin: string }): Promise<{ erreur: string | null; ancienChemin: string | null }>;
+  // Renvoie le chemin de l'objet, à effacer ensuite par supprimerObjets.
+  supprimerFichierKit(args: { auteur: AuteurCompte; fichierId: string }): Promise<{ erreur: string | null; chemin: string | null }>;
 };
 
 // Ce que la complétude d'un produit lit en base.
@@ -181,13 +261,19 @@ export type PhotoAdmin = { id: string; fichier: string; altFr: string; altEn: st
 // Lectures admin.
 export type UniversAdmin = { id: string; nomFr: string; nomEn: string };
 
-export type ProduitListe = { id: string; famille: FamillePhysique; titreFr: string; slug: string; prixCents: number | null; publieLe: string | null };
+export type ProduitListe = { id: string; famille: FamilleProduit; titreFr: string; slug: string; prixCents: number | null; publieLe: string | null };
 
 export type VarianteAdmin = { taille: Taille; stock: number; fabricationSurCommande: boolean; delaiFabricationJours: number | null };
 
+// Fichier d'un Kit pour l'admin : jamais le chemin de stockage.
+export type FichierKitAdmin = { id: string; nomFr: string; nomEn: string; format: FormatFichierKit; tailleOctets: number; ordre: number; version: number };
+
+// Cosplay ou accessoire qu'un Kit peut lier (sans Kit, ou déjà lié au Kit édité).
+export type ProduitLiable = { id: string; titreFr: string; famille: FamillePhysique };
+
 export type ProduitAdmin = {
   id: string;
-  famille: FamillePhysique;
+  famille: FamilleProduit;
   slug: string;
   titreFr: string;
   titreEn: string | null;
@@ -199,6 +285,12 @@ export type ProduitAdmin = {
   publieLe: string | null;
   variantes: VarianteAdmin[];
   photos: PhotoAdmin[];
+  // Kit seulement (null / vide sinon).
+  materielFr: string | null;
+  materielEn: string | null;
+  niveau: NiveauKit | null;
+  produitLieId: string | null;
+  fichiers: FichierKitAdmin[];
 };
 
 // Choix de la question « univers » : nom déjà rendu dans la langue de la route.

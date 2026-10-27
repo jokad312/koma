@@ -8,7 +8,8 @@ import { encoderCurseur } from "./adresse";
 import { contientMarqueur } from "@/lib/vitrine/marqueur";
 import { choisirSlugLibre, SLUG_REGEX } from "./slug";
 import { CUMUL_MAX_CATALOGUE, DISPONIBILITES, TAILLE_PAGE_CATALOGUE, TAILLES } from "./types";
-import type { CarteProduit, Disponibilite, FamillePhysique, FicheProduit, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
+import type { FormatFichierKit } from "./fichiers-kit";
+import type { CarteProduit, Disponibilite, FamillePhysique, FamilleProduit, FichierKitAdmin, FicheProduit, NiveauKit, ProduitLiable, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
 
 // Lectures admin par le client service (après le droit vérifié par la page) : une erreur de lecture est relancée,
 // jamais une liste vide inventée. Aucune valeur de repli (règle 15).
@@ -26,7 +27,7 @@ export async function lireProduitsAdmin(): Promise<ProduitListe[]> {
   if (error) throw new Error("Lecture des produits impossible.");
   return (data ?? []).map((p) => ({
     id: p.id,
-    famille: p.famille as FamillePhysique,
+    famille: p.famille as FamilleProduit,
     titreFr: p.titre_fr,
     slug: p.slug,
     prixCents: p.prix_cents,
@@ -40,7 +41,7 @@ export async function lireProduitAdmin(id: string): Promise<ProduitAdmin | null>
   const { data, error } = await client
     .from("produit")
     .select(
-      "id, famille, slug, titre_fr, titre_en, description_fr, description_en, univers_id, prix_cents, delai_fabrication_jours, publie_le",
+      "id, famille, slug, titre_fr, titre_en, description_fr, description_en, univers_id, prix_cents, delai_fabrication_jours, publie_le, materiel_fr, materiel_en, niveau, produit_lie_id",
     )
     .eq("id", id)
     .maybeSingle();
@@ -53,9 +54,12 @@ export async function lireProduitAdmin(id: string): Promise<ProduitAdmin | null>
   if (variantes.error) throw new Error("Lecture des variantes impossible.");
   const photos = await client.from("produit_photo").select("id, fichier, alt_fr, alt_en, position").eq("produit_id", id).order("position", { ascending: true });
   if (photos.error) throw new Error("Lecture des photos impossible.");
+  // Fichiers d'un Kit : jamais le chemin de stockage (table fichier_kit_prive).
+  const fichiers = await client.from("fichier_kit").select("id, nom_fr, nom_en, format, taille_octets, ordre, version").eq("produit_id", id).order("ordre", { ascending: true });
+  if (fichiers.error) throw new Error("Lecture des fichiers impossible.");
   return {
     id: data.id,
-    famille: data.famille as FamillePhysique,
+    famille: data.famille as FamilleProduit,
     slug: data.slug,
     titreFr: data.titre_fr,
     titreEn: data.titre_en,
@@ -65,6 +69,13 @@ export async function lireProduitAdmin(id: string): Promise<ProduitAdmin | null>
     prixCents: data.prix_cents,
     delaiFabricationJours: data.delai_fabrication_jours,
     publieLe: data.publie_le,
+    materielFr: data.materiel_fr,
+    materielEn: data.materiel_en,
+    niveau: data.niveau as NiveauKit | null,
+    produitLieId: data.produit_lie_id,
+    fichiers: (fichiers.data ?? []).map(
+      (f): FichierKitAdmin => ({ id: f.id, nomFr: f.nom_fr, nomEn: f.nom_en, format: f.format as FormatFichierKit, tailleOctets: Number(f.taille_octets), ordre: f.ordre, version: f.version }),
+    ),
     variantes: (variantes.data ?? []).map((v) => ({
       taille: v.taille as Taille,
       stock: v.stock,
@@ -75,6 +86,32 @@ export async function lireProduitAdmin(id: string): Promise<ProduitAdmin | null>
       (ph): PhotoAdmin => ({ id: ph.id, fichier: ph.fichier, altFr: ph.alt_fr, altEn: ph.alt_en, position: ph.position }),
     ),
   };
+}
+
+// Cosplays et accessoires qu'un Kit peut lier : ceux qui n'ont pas de Kit, plus celui du Kit édité (kitId). Une erreur est relancée.
+export async function lireProduitsLiables(kitId: string | null): Promise<ProduitLiable[]> {
+  const client = creerClientService();
+  const [cibles, kits] = await Promise.all([
+    client.from("produit").select("id, titre_fr, famille").in("famille", ["cosplay", "accessoire"]).order("titre_fr", { ascending: true }),
+    client.from("produit").select("id, produit_lie_id").eq("famille", "kit").not("produit_lie_id", "is", null),
+  ]);
+  if (cibles.error || kits.error) throw new Error("Lecture des produits à lier impossible.");
+  const pris = new Set((kits.data ?? []).filter((k) => k.id !== kitId).map((k) => k.produit_lie_id));
+  return (cibles.data ?? []).filter((c) => !pris.has(c.id)).map((c) => ({ id: c.id, titreFr: c.titre_fr, famille: c.famille as FamillePhysique }));
+}
+
+// Famille d'un produit (null si inconnu) ; une erreur de lecture est relancée.
+export async function lireFamilleProduit(id: string): Promise<FamilleProduit | null> {
+  const { data, error } = await creerClientService().from("produit").select("famille").eq("id", id).maybeSingle();
+  if (error) throw new Error("Lecture du produit impossible.");
+  return data ? (data.famille as FamilleProduit) : null;
+}
+
+// Produit et format d'un fichier de Kit (null si inconnu) ; une erreur de lecture est relancée.
+export async function lireFichierKit(id: string): Promise<{ produitId: string; format: FormatFichierKit } | null> {
+  const { data, error } = await creerClientService().from("fichier_kit").select("produit_id, format").eq("id", id).maybeSingle();
+  if (error) throw new Error("Lecture du fichier impossible.");
+  return data ? { produitId: data.produit_id, format: data.format as FormatFichierKit } : null;
 }
 
 // Ce que la complétude d'un produit lit en base (comptes de photos et de variantes) ; null si le produit est inconnu.

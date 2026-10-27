@@ -1,6 +1,6 @@
 import { BUCKET_ATTENTE } from "./stockage";
 
-// Envoi direct du navigateur vers le bucket privé galerie-attente, en TUS (reprise après coupure), sur autorisation signée par le serveur :
+// Envoi direct du navigateur vers un bucket privé (galerie-attente par défaut, kits-private pour les fichiers de Kit), en TUS (reprise après coupure), sur autorisation signée par le serveur :
 // le jeton (x-signature) n'ouvre que l'objet choisi par le serveur. Aucune clé secrète ne passe ici.
 export const TAILLE_MORCEAU_TUS = 6 * 1024 * 1024;
 
@@ -12,6 +12,8 @@ export type ParametresEnvoiTus = {
   contentType: string;
   objet: string;
   jeton: string;
+  // Bucket privé visé (le jeton du serveur n'ouvre que l'objet qu'il a choisi) ; galerie-attente par défaut.
+  bucket?: string;
   // Adresse du projet Supabase (NEXT_PUBLIC_SUPABASE_URL) et clé publique (publishable), toutes deux publiques par conception.
   adresseSupabase: string;
   clePublique: string;
@@ -41,7 +43,7 @@ export async function demarrerEnvoiTus(p: ParametresEnvoiTus): Promise<EnvoiTus>
       uploadDataDuringCreation: true,
       removeFingerprintOnSuccess: true,
       headers: { "x-signature": p.jeton, apikey: p.clePublique },
-      metadata: { bucketName: BUCKET_ATTENTE, objectName: p.objet, contentType: p.contentType, cacheControl: "3600" },
+      metadata: { bucketName: p.bucket ?? BUCKET_ATTENTE, objectName: p.objet, contentType: p.contentType, cacheControl: "3600" },
       onShouldRetry: (erreur, nombreDeTentatives, options) => {
         // Un refus du serveur (jeton invalide, fichier refusé) ne se réessaie pas ; une coupure réseau ou une erreur serveur, si.
         const statut = erreur.originalResponse?.getStatus();

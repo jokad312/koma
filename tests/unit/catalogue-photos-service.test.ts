@@ -265,7 +265,7 @@ describe("publierProduit", () => {
   it("produit complet : publié puis étiquette invalidée, dans cet ordre", async () => {
     const { deps, appels } = creerTestDependancesCatalogue();
     expect(await publierProduit(deps, { id: PRODUIT })).toEqual({ ok: true });
-    expect(appels.ordre).toEqual(["droit", "publication", "invalidation"]);
+    expect(appels.ordre).toEqual(["droit", "familleProduit", "publication", "invalidation"]);
     expect(appels.publications).toEqual([{ auteur: AUTEUR, id: PRODUIT, publier: true }]);
   });
 

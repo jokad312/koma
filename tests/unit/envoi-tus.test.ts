@@ -46,6 +46,24 @@ beforeEach(() => {
 });
 
 describe("demarrerEnvoiTus", () => {
+  it("bucket paramétré : kits-private pour un fichier de Kit, jeton et objet inchangés", async () => {
+    await demarrerEnvoiTus({
+      fichier: new Blob(["x"]),
+      contentType: "application/pdf",
+      objet: "P/U.pdf",
+      jeton: "TEST_jeton",
+      bucket: "kits-private",
+      adresseSupabase: "https://exemple.invalid",
+      clePublique: "TEST_cle",
+      onProgression: vi.fn(),
+      onReprise: vi.fn(),
+    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const options = faux.options as Record<string, any>;
+    expect(options.metadata).toEqual({ bucketName: "kits-private", objectName: "P/U.pdf", contentType: "application/pdf", cacheControl: "3600" });
+    expect(options.headers).toEqual({ "x-signature": "TEST_jeton", apikey: "TEST_cle" });
+  });
+
   it("options : point d'accès signé, x-signature, apikey, métadonnées, morceaux de 6 Mo, reprise", async () => {
     const { options, blob } = await lancer();
     expect(faux.fichier).toBe(blob);

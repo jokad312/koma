@@ -11,8 +11,8 @@ import { routing, type Locale } from "@/i18n/routing";
 import { exigerAdminPage } from "@/lib/auth/droits";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
-import { lireUniversAdmin } from "@/modules/catalogue/queries";
-import type { UniversAdmin } from "@/modules/catalogue/types";
+import { lireProduitsLiables, lireUniversAdmin } from "@/modules/catalogue/queries";
+import type { ProduitLiable, UniversAdmin } from "@/modules/catalogue/types";
 
 const CHEMIN = "/admin/produits/nouveau";
 
@@ -36,8 +36,9 @@ async function NouveauSelonDroit({ locale }: { locale: Locale }) {
   await exigerAdminPage(locale, CHEMIN, "produits.modifier");
   const t = await getTranslations("Admin.produits");
   let univers: UniversAdmin[] | null = null;
+  let liables: ProduitLiable[] | null = null;
   try {
-    univers = await lireUniversAdmin();
+    [univers, liables] = await Promise.all([lireUniversAdmin(), lireProduitsLiables(null)]);
   } catch {
     console.error("[catalogue] lecture des univers impossible");
   }
@@ -47,7 +48,7 @@ async function NouveauSelonDroit({ locale }: { locale: Locale }) {
         <h1 className="t-h1">{t("pageNouveau.titre")}</h1>
         <p className="t-body text-text-secondary">{t("pageNouveau.intro")}</p>
         {/* Sans lecture des univers, le formulaire n'est pas montré : il prétendrait qu'aucun univers n'existe. */}
-        {univers ? <FormulaireProduit univers={univers} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
+        {univers && liables ? <FormulaireProduit univers={univers} liables={liables} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
       </div>
     </CoqueAdmin>
   );

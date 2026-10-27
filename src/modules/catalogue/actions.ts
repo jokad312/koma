@@ -2,7 +2,7 @@
 
 import { dependances } from "./dependances";
 import * as service from "./service";
-import type { ChampProduit, ChampTranche, ChampUnivers, CodeErreurCatalogue, EntreeProduit, EntreeTranche, EntreeUnivers, ManquePublication, Taille } from "./types";
+import type { ChampProduit, ChampTranche, ChampUnivers, CodeErreurCatalogue, EntreeKit, EntreeProduit, EntreeTranche, EntreeUnivers, ManquePublication, Taille } from "./types";
 
 // Résultats rendus aux formulaires : le succès n'existe qu'après la réponse réelle de la base (règle 13).
 // Les écritures passent toujours par ces actions (jamais depuis le navigateur) ; le droit est revérifié dans le service.
@@ -104,4 +104,35 @@ export async function enregistrerTranchesPrix(entree: EntreeTranche[]): Promise<
     console.error("[catalogue] tranches : exception inattendue");
     return { statut: "erreur", erreur: "generique" };
   }
+}
+
+// ---- Kits et leurs fichiers (story 3.1) ----
+
+export async function enregistrerKit(entree: EntreeKit): Promise<EtatProduit> {
+  try {
+    const resultat = await service.enregistrerKit(dependances(), entree);
+    if (!resultat.ok) {
+      return { statut: "erreur", erreur: resultat.erreur, champ: resultat.champ as ChampProduit | undefined, slugPropose: resultat.slugPropose };
+    }
+    return { statut: "succes", id: resultat.id, cree: resultat.cree };
+  } catch {
+    console.error("[catalogue] kit : exception inattendue");
+    return { statut: "erreur", erreur: "generique" };
+  }
+}
+
+export async function demanderEnvoiFichierKit(entree: { produitId: string; nomFichier: string; format: string; taille: number; fichierId?: string }) {
+  return envelopper<{ objet: string; jeton: string; contentType: string }>("envoi de fichier", () => service.demanderEnvoiFichierKit(dependances(), entree));
+}
+
+export async function finaliserFichierKit(entree: { produitId: string; objet: string; format: string; taille: number; nomFr: string; nomEn: string; fichierId?: string }) {
+  return envelopper<{ id: string }>("fichier de kit", () => service.finaliserFichierKit(dependances(), entree));
+}
+
+export async function annulerEnvoiFichierKit(entree: { produitId: string; objet: string }) {
+  return envelopper<object>("annulation d'envoi de fichier", () => service.annulerEnvoiFichierKit(dependances(), entree));
+}
+
+export async function supprimerFichierKit(entree: { fichierId: string }) {
+  return envelopper<object>("suppression de fichier", () => service.supprimerFichierKit(dependances(), entree));
 }

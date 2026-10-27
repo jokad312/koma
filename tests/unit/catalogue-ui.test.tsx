@@ -171,6 +171,11 @@ describe("FormulaireProduit", () => {
     publieLe: null,
     variantes: [{ taille: "M", stock: 2, fabricationSurCommande: false, delaiFabricationJours: null }],
     photos: [],
+    materielFr: null,
+    materielEn: null,
+    niveau: null,
+    produitLieId: null,
+    fichiers: [],
   };
 
   it("création : adresse proposée depuis le titre français tant qu'elle n'est pas modifiée à la main", async () => {
@@ -198,7 +203,7 @@ describe("FormulaireProduit", () => {
     const user = userEvent.setup();
     rendre(<FormulaireProduit univers={UNIVERS} />);
     const radios = screen.getAllByRole("radio");
-    expect(radios.map((r) => (r as HTMLInputElement).value)).toEqual(["cosplay", "accessoire"]);
+    expect(radios.map((r) => (r as HTMLInputElement).value)).toEqual(["cosplay", "accessoire", "kit"]);
     // Aucune famille choisie par défaut.
     expect(radios.some((r) => (r as HTMLInputElement).checked)).toBe(false);
     await user.click(screen.getByRole("radio", { name: /Cosplay/ }));

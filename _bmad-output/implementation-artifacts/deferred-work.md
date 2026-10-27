@@ -181,3 +181,23 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-correctif-stock-non-expose.md`
   summary: Coût de `lister_catalogue` : depuis ce correctif l état (stock via `stock_disponible`, capacité) est toujours calculé par variante avant le `LIMIT`, y compris sans filtre de disponibilité. À mesurer avec EXPLAIN en même temps que les index déjà notés en 2.4 (« Index et coût de `lister_catalogue` ») ; les deux constats se traitent ensemble.
   evidence: fonction en `security definer` qui appelle `stock_disponible` et `etat_disponibilite` pour chaque variante des produits candidats.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Téléchargement (3.6) : les liens signés doivent forcer `Content-Disposition: attachment` (option `download` de la signature), car le type de contenu d'un objet de `kits-private` vient du client (métadonnées TUS) et n'est pas contrôlé.
+  evidence: le bucket n'a pas de liste de types MIME ; un SVG ou un texte pourrait sinon être affiché en ligne par le navigateur.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Purge des objets de `kits-private` jamais enregistrés (envois abandonnés, onglet fermé avant la finalisation).
+  evidence: aucune ligne dans `fichier_kit_prive` pour ces objets ; à traiter avec les tâches Cron (lister le bucket, comparer à `fichier_kit_prive.chemin_stockage`, effacer les objets sans ligne et de plus de 24 h).
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Modifier ou supprimer un fichier d'un Kit publié casse les téléchargements des acheteurs : garde à définir en 3.2 / 3.6 (par exemple refuser la suppression d'un fichier d'un Kit publié, ou conserver l'ancienne version).
+  evidence: `supprimer_fichier_kit` et `remplacer_fichier_kit` n'ont aucune garde sur la publication ; un Kit ne peut pas être publié en 3.1.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Prix 0 d'un Kit : aucun paiement ne doit être créé pour 0 USD ; l'accès du Kit gratuit passe par la Commande `offerte` (3.5) et l'epic 4 doit refuser un Kit à 0 dans un paiement.
+  evidence: la base accepte `prix_cents = 0` pour la famille `kit` (Kit gratuit) ; rien n'empêche encore un futur paiement à 0.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
+  summary: Test de rendu de la page d'édition d'un Kit (branche Kit / physique de `produits/[id]/page.tsx`) à ajouter quand un harnais de test authentifié existera.
+  evidence: la page exige un admin connecté ; la branche Kit n'est couverte que par les tests de composants.

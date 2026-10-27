@@ -39,6 +39,73 @@ export type Database = {
   }
   public: {
     Tables: {
+      fichier_kit: {
+        Row: {
+          cree_le: string
+          format: string
+          id: string
+          nom_en: string
+          nom_fr: string
+          ordre: number
+          produit_id: string
+          taille_octets: number
+          version: number
+        }
+        Insert: {
+          cree_le?: string
+          format: string
+          id?: string
+          nom_en: string
+          nom_fr: string
+          ordre: number
+          produit_id: string
+          taille_octets: number
+          version?: number
+        }
+        Update: {
+          cree_le?: string
+          format?: string
+          id?: string
+          nom_en?: string
+          nom_fr?: string
+          ordre?: number
+          produit_id?: string
+          taille_octets?: number
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fichier_kit_produit_id_fkey"
+            columns: ["produit_id"]
+            isOneToOne: false
+            referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fichier_kit_prive: {
+        Row: {
+          chemin_stockage: string
+          fichier_id: string
+        }
+        Insert: {
+          chemin_stockage: string
+          fichier_id: string
+        }
+        Update: {
+          chemin_stockage?: string
+          fichier_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fichier_kit_prive_fichier_id_fkey"
+            columns: ["fichier_id"]
+            isOneToOne: true
+            referencedRelation: "fichier_kit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       journal_audit: {
         Row: {
           action: string
@@ -132,8 +199,12 @@ export type Database = {
           devise: string
           famille: string
           id: string
+          materiel_en: string | null
+          materiel_fr: string | null
           modifie_le: string
+          niveau: string | null
           prix_cents: number | null
+          produit_lie_id: string | null
           publie_le: string | null
           slug: string
           titre_en: string | null
@@ -148,8 +219,12 @@ export type Database = {
           devise?: string
           famille: string
           id?: string
+          materiel_en?: string | null
+          materiel_fr?: string | null
           modifie_le?: string
+          niveau?: string | null
           prix_cents?: number | null
+          produit_lie_id?: string | null
           publie_le?: string | null
           slug: string
           titre_en?: string | null
@@ -164,8 +239,12 @@ export type Database = {
           devise?: string
           famille?: string
           id?: string
+          materiel_en?: string | null
+          materiel_fr?: string | null
           modifie_le?: string
+          niveau?: string | null
           prix_cents?: number | null
+          produit_lie_id?: string | null
           publie_le?: string | null
           slug?: string
           titre_en?: string | null
@@ -173,6 +252,13 @@ export type Database = {
           univers_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "produit_produit_lie_id_fkey"
+            columns: ["produit_lie_id"]
+            isOneToOne: true
+            referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "produit_univers_id_fkey"
             columns: ["univers_id"]
@@ -408,6 +494,18 @@ export type Database = {
         Returns: boolean
       }
       admin_sante: { Args: never; Returns: number }
+      ajouter_fichier_kit: {
+        Args: {
+          p_auteur: Json
+          p_chemin: string
+          p_format: string
+          p_nom_en: string
+          p_nom_fr: string
+          p_produit_id: string
+          p_taille: number
+        }
+        Returns: string
+      }
       ajouter_photo_produit: {
         Args: {
           p_alt_en: string
@@ -476,6 +574,10 @@ export type Database = {
           taille: string
         }[]
       }
+      enregistrer_kit: {
+        Args: { p_auteur: Json; p_id: string; p_kit: Json }
+        Returns: string
+      }
       enregistrer_message_contact: {
         Args: {
           p_auteur: Json
@@ -523,6 +625,7 @@ export type Database = {
         Returns: string
       }
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
+      extension_fichier_kit: { Args: { p_format: string }; Returns: string }
       lister_catalogue: {
         Args: {
           p_curseur_date?: string
@@ -572,8 +675,21 @@ export type Database = {
       }
       questions_accueil_vues: { Args: { p_compte: string }; Returns: boolean }
       rang_disponibilite: { Args: { p_etat: string }; Returns: number }
+      remplacer_fichier_kit: {
+        Args: {
+          p_auteur: Json
+          p_chemin: string
+          p_fichier_id: string
+          p_taille: number
+        }
+        Returns: string
+      }
       seuil_dernieres_pieces: { Args: never; Returns: number }
       stock_disponible: { Args: { p_variante: string }; Returns: number }
+      supprimer_fichier_kit: {
+        Args: { p_auteur: Json; p_fichier_id: string }
+        Returns: string
+      }
       supprimer_photo_produit: {
         Args: { p_auteur: Json; p_photo_id: string }
         Returns: string

@@ -78,5 +78,5 @@ export function PublicationProduit({ produitId, publie }: { produitId: string; p
 }
 
 function erreurConnue(code: string): string {
-  return ["publication_incomplete", "produit_publie_verrouille", "produit_introuvable", "non_autorise"].includes(code) ? code : "generique";
+  return ["publication_incomplete", "produit_publie_verrouille", "produit_introuvable", "non_autorise", "kit_non_publiable"].includes(code) ? code : "generique";
 }
