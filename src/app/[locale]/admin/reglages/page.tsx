@@ -6,11 +6,13 @@ import { Suspense } from "react";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { EditeurTranchesPrix } from "@/components/admin/EditeurTranchesPrix";
 import { FormulaireReglage } from "@/components/admin/FormulaireReglage";
+import { ReglageHeros } from "@/components/admin/heros/ReglageHeros";
 import { Squelette } from "@/components/ui/Squelette";
 import { routing, type Locale } from "@/i18n/routing";
 import { exigerAdminPage } from "@/lib/auth/droits";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
+import { lireHerosAdmin } from "@/modules/accueil/heros-queries";
 import { lireReglagesAdmin } from "@/modules/admin/queries";
 import { lireTranchesPrixAdmin } from "@/modules/catalogue/queries";
 
@@ -34,7 +36,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/admin/re
 // Droit vérifié sur la page elle-même (le layout ne suffit pas), puis lecture des valeurs par le client service.
 async function ReglagesSelonDroit({ locale }: { locale: Locale }) {
   await exigerAdminPage(locale, CHEMIN, "reglages.modifier");
-  const [reglages, tranches] = await Promise.all([lireReglagesAdmin(), lireTranchesPrixAdmin()]);
+  const [reglages, tranches, heros] = await Promise.all([lireReglagesAdmin(), lireTranchesPrixAdmin(), lireHerosAdmin()]);
   const t = await getTranslations("Admin.reglages");
   return (
     <CoqueAdmin>
@@ -59,6 +61,7 @@ async function ReglagesSelonDroit({ locale }: { locale: Locale }) {
         <FormulaireReglage cle="retrait_goma_en" valeur={reglages.retraitGomaEn} />
         <FormulaireReglage cle="plafond_fabrication" valeur={reglages.plafondFabrication} />
         <EditeurTranchesPrix tranches={tranches} />
+        <ReglageHeros heros={heros} />
       </div>
     </CoqueAdmin>
   );

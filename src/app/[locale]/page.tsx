@@ -5,9 +5,9 @@ import type { Metadata } from "next";
 import { Suspense, type ReactNode } from "react";
 import { BlocCosplaysRecents } from "@/components/accueil/BlocCosplaysRecents";
 import { BlocFaqCourte } from "@/components/accueil/BlocFaqCourte";
+import { HerosAccueil, HerosCoque } from "@/components/accueil/HerosAccueil";
 import { BlocJonathan } from "@/components/accueil/BlocJonathan";
 import { TuilesCategories } from "@/components/accueil/TuilesCategories";
-import { TitreVitrine } from "@/components/ui/TitreVitrine";
 import { routing, type Locale } from "@/i18n/routing";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
@@ -23,6 +23,13 @@ export async function generateMetadata({ params }: PageProps<"/[locale]">): Prom
 // Rendu de chaque bloc affiché. L'ordre et les emplacements réservés (rien à rendre) viennent de src/modules/accueil/blocs.ts.
 function rendreBloc(id: string, locale: Locale): ReactNode {
   switch (id) {
+    case "heros":
+      // Accroche (H1) dans la coque ; vedette, photo et vidéo lues à chaque requête.
+      return (
+        <Suspense fallback={<HerosCoque locale={locale} />}>
+          <HerosAccueil locale={locale} />
+        </Suspense>
+      );
     case "categories":
       return <TuilesCategories />;
     case "cosplaysRecents":
@@ -45,11 +52,9 @@ export default async function Accueil({ params }: PageProps<"/[locale]">) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
-  const t = await getTranslations("Accueil");
 
   return (
     <div className="flex flex-col gap-10">
-      <TitreVitrine niveau={1}>{t("titre")}</TitreVitrine>
       {blocsAffiches().map((bloc) => (
         <div key={bloc.id} className="contents">
           {rendreBloc(bloc.id, locale)}

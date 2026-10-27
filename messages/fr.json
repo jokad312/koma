@@ -56,7 +56,15 @@
     }
   },
   "Accueil": {
-    "titre": "Cosplay, accessoires et kits pour otakus",
+    "heros": {
+      "region": "Présentation",
+      "surtitre": "Fait main à Goma",
+      "accroche": "Deviens ton personnage.",
+      "pretAPorter": "Prêt à porter",
+      "delai": "{n, plural, one {Fabrication : # jour} other {Fabrication : # jours}}",
+      "pause": "Mettre la vidéo en pause",
+      "lecture": "Lire la vidéo"
+    },
     "categories": {
       "titre": "CATEGORIES",
       "cosplays": {
@@ -362,6 +370,92 @@
           "tranches_trop_nombreuses": "Il y a trop de tranches : 8 au plus.",
           "non_autorise": "Tu n'as plus le droit de modifier ce réglage. Recharge la page ou reconnecte-toi.",
           "generique": "Les tranches n'ont pas pu être enregistrées. Ta saisie est conservée : réessaie."
+        }
+      },
+      "heros": {
+        "titre": "Héros de l'accueil",
+        "intro": "Ce que le visiteur voit en arrivant : le Cosplay vedette, la vidéo de fabrication et la photo qui la remplace quand la vidéo ne peut pas se lire. Sans vidéo ni photo, l'accueil n'affiche que l'accroche.",
+        "bunnyAbsent": "La bibliothèque Bunny publique n'est pas configurée sur ce serveur (identifiant, clé ou adresse du CDN manquants). Aucune vidéo ne peut être envoyée.",
+        "vedette": {
+          "titre": "Cosplay vedette",
+          "libelle": "Cosplay vedette",
+          "aide": "Un cosplay publié. Il alimente le bouton « Prêt à porter » du héros.",
+          "aucunPublie": "Aucun cosplay n'est publié pour le moment.",
+          "aucune": "Aucun cosplay vedette",
+          "enregistrer": "Enregistrer la vedette",
+          "succes": "Cosplay vedette enregistré.",
+          "retiree": "Cosplay vedette retiré."
+        },
+        "video": {
+          "titre": "Vidéo du héros",
+          "intro": "Un MP4 court, sans piste audio, 200 Mo au plus. Le site ne la montre qu'une fois l'encodage terminé et le fichier vérifié.",
+          "aucune": "Aucune vidéo pour le moment.",
+          "verification": "Vérification de la vidéo…",
+          "encodage": "Encodage en cours chez Bunny : {pourcentage} %",
+          "prete": "La vidéo est prête et affichée sur l'accueil.",
+          "verifier": "Vérifier maintenant",
+          "retirer": "Retirer la vidéo",
+          "retiree": "Vidéo retirée.",
+          "envoiEnCours": "Un envoi est en cours.",
+          "fichier": {
+            "libelle": "Fichier vidéo",
+            "aide": "MP4, MOV ou WebM, 200 Mo au plus. La vidéo ne doit pas contenir de piste audio."
+          },
+          "envoyer": "Envoyer la vidéo",
+          "remplacer": "Remplacer la vidéo",
+          "annuler": "Annuler l'envoi",
+          "progression": "Envoi en cours : {pourcentage} %",
+          "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
+          "finalisation": "Enregistrement de la vidéo…",
+          "envoyee": "Vidéo envoyée. L'encodage peut prendre quelques minutes.",
+          "annule": "Envoi annulé."
+        },
+        "repli": {
+          "titre": "Photo de repli",
+          "intro": "Affichée à la place de la vidéo quand elle ne peut pas se lire, et sous « mouvement réduit ». JPEG, PNG ou WebP, 15 Mo au plus ; la position GPS et les autres métadonnées sont supprimées.",
+          "actuelle": "Photo de repli actuelle",
+          "aucune": "Aucune photo de repli pour le moment.",
+          "fichier": {
+            "libelle": "Fichier de la photo",
+            "aide": "JPEG, PNG ou WebP, 15 Mo au plus."
+          },
+          "altFr": {
+            "libelle": "Texte alternatif en français",
+            "aide": "Décris la photo pour les personnes qui ne la voient pas, de 1 à 200 caractères."
+          },
+          "altEn": {
+            "libelle": "Texte alternatif en anglais",
+            "aide": "De 1 à 200 caractères."
+          },
+          "envoyer": "Envoyer la photo",
+          "remplacer": "Remplacer la photo",
+          "corrigerTextes": "Corriger les textes alternatifs",
+          "annuler": "Annuler l'envoi",
+          "progression": "Envoi en cours : {pourcentage} %",
+          "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
+          "traitement": "Traitement de la photo…",
+          "succes": "Photo de repli enregistrée.",
+          "altSucces": "Textes alternatifs enregistrés.",
+          "annule": "Envoi annulé."
+        },
+        "erreurs": {
+          "generique": "Une erreur est survenue. Réessaie dans un instant.",
+          "non_autorise": "Tu n'as pas le droit de faire cela.",
+          "bunny_non_configure": "La bibliothèque Bunny publique n'est pas configurée sur ce serveur.",
+          "bunny_indisponible": "Bunny ne répond pas pour le moment. Réessaie dans un instant.",
+          "vedette_invalide": "Ce cosplay n'est pas publié. Choisis un cosplay publié.",
+          "fichier_manquant": "Choisis un fichier à envoyer.",
+          "type_invalide": "Ce fichier n'est pas accepté. Formats acceptés : MP4, MOV ou WebM.",
+          "format_invalide": "Ce fichier n'est pas accepté. Formats acceptés : JPEG, PNG ou WebP, 15 Mo au plus.",
+          "fichier_trop_lourd": "Ce fichier est trop lourd.",
+          "alt_invalide": "Écris le texte alternatif, de 1 à 200 caractères.",
+          "photo_introuvable": "Il n'y a pas encore de photo de repli.",
+          "video_introuvable": "Cette vidéo n'existe plus chez Bunny. Envoie-la de nouveau.",
+          "envoi_echec": "L'envoi a échoué. Réessaie.",
+          "encodage_echec": "Bunny n'a pas pu encoder cette vidéo. Envoie un autre fichier.",
+          "mp4_indisponible": "Le fichier MP4 n'est pas lisible depuis le CDN. Dans la bibliothèque Bunny, active « MP4 Fallback » et vérifie que le site est autorisé, puis clique sur « Vérifier maintenant ».",
+          "video_illisible": "Le fichier vidéo est illisible. Envoie un autre fichier.",
+          "video_avec_audio": "Cette vidéo contient une piste audio. Exporte-la sans son, puis envoie-la de nouveau."
         }
       }
     },

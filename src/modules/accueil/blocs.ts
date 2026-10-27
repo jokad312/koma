@@ -2,7 +2,7 @@
 // Un emplacement « reserve » n'affiche rien : ni espace, ni titre, ni texte. Il garde sa place pour l'epic qui le remplira.
 // Chaque emplacement porte le numéro du bloc dans FR-2 et l'epic qui l'ajoute.
 export type BlocAccueil =
-  | { id: "heros"; numero: null; etat: "reserve"; arrivePar: "story 2.6 (héros vidéo, en attente des clés Bunny)" }
+  | { id: "heros"; numero: null; etat: "affiche" }
   | { id: "categories"; numero: null; etat: "affiche" }
   | { id: "kits"; numero: 1; etat: "reserve"; arrivePar: "epic 3" }
   | { id: "cosplaysRecents"; numero: 2; etat: "affiche" }
@@ -14,7 +14,7 @@ export type BlocAccueil =
   | { id: "faqCourte"; numero: 8; etat: "affiche" };
 
 export const BLOCS_ACCUEIL: readonly BlocAccueil[] = [
-  { id: "heros", numero: null, etat: "reserve", arrivePar: "story 2.6 (héros vidéo, en attente des clés Bunny)" },
+  { id: "heros", numero: null, etat: "affiche" },
   { id: "categories", numero: null, etat: "affiche" },
   { id: "kits", numero: 1, etat: "reserve", arrivePar: "epic 3" },
   { id: "cosplaysRecents", numero: 2, etat: "affiche" },

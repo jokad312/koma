@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 import { redirectionsAdresses, reecrituresAdresses } from "./src/i18n/adresses";
 import { photosAutorisees } from "./src/lib/supabase/images-distantes";
+import { lireHoteCdnPublic } from "./src/lib/bunny/config";
 import { entetesSecurite } from "./src/lib/securite/entetes";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
@@ -18,6 +19,7 @@ const nextConfig: NextConfig = {
         headers: entetesSecurite({
           adresseSite: process.env.NEXT_PUBLIC_SITE_URL,
           adresseSupabase: process.env.NEXT_PUBLIC_SUPABASE_URL,
+          hoteVideoPublic: lireHoteCdnPublic(),
           production: process.env.NODE_ENV === "production",
         }),
       },

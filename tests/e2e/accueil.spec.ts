@@ -96,3 +96,34 @@ for (const langue of ["fr", "en"] as const) {
     await expect(page.locator(`main a[href="/${langue}"]`)).toBeVisible();
   });
 }
+
+// Héros (story 2.6). Les réglages du héros vivent en base : les tests tiennent quelle que soit la configuration de Jonathan.
+const ACCROCHES = { fr: "Deviens ton personnage.", en: "Become your character." } as const;
+
+for (const langue of ["fr", "en"] as const) {
+  test(`/${langue} : l'accroche du héros est le H1, en texte réel`, async ({ page }) => {
+    await page.goto(`/${langue}`);
+    await expect(page.locator("h1")).toHaveText(ACCROCHES[langue], { ignoreCase: true });
+  });
+}
+
+test("héros : sans vidéo, pas de bouton Pause ; avec vidéo, elle est muette, en boucle et masquée aux lecteurs d'écran", async ({ page }) => {
+  await page.goto("/fr");
+  const video = page.locator("video");
+  await page.waitForLoadState("networkidle");
+  if ((await video.count()) === 0) {
+    await expect(page.getByRole("button", { name: /vidéo/i })).toHaveCount(0);
+    return;
+  }
+  await expect(video).toHaveJSProperty("muted", true);
+  await expect(video).toHaveJSProperty("loop", true);
+  await expect(video).toHaveAttribute("aria-hidden", "true");
+});
+
+test("héros : sous mouvement réduit, la vidéo n'est pas chargée et le bouton Pause est absent", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/fr");
+  await page.waitForLoadState("networkidle");
+  await expect(page.locator("video")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /vidéo/i })).toHaveCount(0);
+});

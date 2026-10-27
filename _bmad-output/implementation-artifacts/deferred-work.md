@@ -201,3 +201,15 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
   summary: Test de rendu de la page d'édition d'un Kit (branche Kit / physique de `produits/[id]/page.tsx`) à ajouter quand un harnais de test authentifié existera.
   evidence: la page exige un admin connecté ; la branche Kit n'est couverte que par les tests de composants.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-6-heros-video-de-l-accueil.md`
+  summary: Vidéos orphelines dans la bibliothèque Bunny publique : un envoi abandonné (onglet fermé avant la fin ou la finalisation) laisse une vidéo `koma-heros-…` non rattachée au héros.
+  evidence: l'annulation volontaire l'efface (`annulerEnvoiVideo`) ; un onglet fermé ne le peut pas. À traiter avec les tâches Cron : lister la bibliothèque, comparer à `heros_accueil.video_id`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-6-heros-video-de-l-accueil.md`
+  summary: Le Cosplay vedette dépublié disparaît du héros sans avertir l'admin (la page Réglages affiche « aucun » car il n'est plus dans la liste des publiés).
+  evidence: la RLS cache le produit au public ; `lireHerosAdmin` ne propose que les cosplays publiés.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-2-6-heros-video-de-l-accueil.md`
+  summary: Parcours e2e avec une vraie vidéo encodée (affichage, Pause mémorisée, repli sur erreur) non automatisé : aucune vidéo de test encodable sans ffmpeg ni donnée de test publiée.
+  evidence: couvert par les tests unitaires du service, le test réseau réel de la signature TUS et le test SQL ; essai manuel dans `journal-enchainement.md`.

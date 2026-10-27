@@ -56,7 +56,15 @@
     }
   },
   "Accueil": {
-    "titre": "Cosplay, accessories and kits for otaku",
+    "heros": {
+      "region": "Introduction",
+      "surtitre": "Handmade in Goma",
+      "accroche": "Become your character.",
+      "pretAPorter": "Ready to wear",
+      "delai": "{n, plural, one {Made to order: # day} other {Made to order: # days}}",
+      "pause": "Pause the video",
+      "lecture": "Play the video"
+    },
     "categories": {
       "titre": "CATEGORIES",
       "cosplays": {
@@ -362,6 +370,92 @@
           "tranches_trop_nombreuses": "There are too many ranges: 8 at most.",
           "non_autorise": "You no longer have the right to change this setting. Reload the page or sign in again.",
           "generique": "The ranges could not be saved. Your entry is kept: try again."
+        }
+      },
+      "heros": {
+        "titre": "Home page hero",
+        "intro": "What visitors see on arrival: the featured cosplay, the making-of video and the photo that replaces it when the video cannot play. With no video and no photo, the home page shows only the tagline.",
+        "bunnyAbsent": "The public Bunny library is not configured on this server (library ID, key or CDN address missing). No video can be uploaded.",
+        "vedette": {
+          "titre": "Featured cosplay",
+          "libelle": "Featured cosplay",
+          "aide": "A published cosplay. It powers the hero's “Ready to wear” button.",
+          "aucunPublie": "No cosplay is published yet.",
+          "aucune": "No featured cosplay",
+          "enregistrer": "Save featured cosplay",
+          "succes": "Featured cosplay saved.",
+          "retiree": "Featured cosplay removed."
+        },
+        "video": {
+          "titre": "Hero video",
+          "intro": "A short MP4 with no audio track, 200 MB at most. The site shows it only once encoding is finished and the file has been checked.",
+          "aucune": "No video yet.",
+          "verification": "Checking the video…",
+          "encodage": "Encoding at Bunny: {pourcentage}%",
+          "prete": "The video is ready and shown on the home page.",
+          "verifier": "Check now",
+          "retirer": "Remove the video",
+          "retiree": "Video removed.",
+          "envoiEnCours": "An upload is in progress.",
+          "fichier": {
+            "libelle": "Video file",
+            "aide": "MP4, MOV or WebM, 200 MB at most. The video must not contain an audio track."
+          },
+          "envoyer": "Upload the video",
+          "remplacer": "Replace the video",
+          "annuler": "Cancel the upload",
+          "progression": "Uploading: {pourcentage}%",
+          "reprise": "Connection lost: the upload will resume by itself.",
+          "finalisation": "Saving the video…",
+          "envoyee": "Video uploaded. Encoding can take a few minutes.",
+          "annule": "Upload cancelled."
+        },
+        "repli": {
+          "titre": "Fallback photo",
+          "intro": "Shown instead of the video when it cannot play, and under reduced motion. JPEG, PNG or WebP, 15 MB at most; GPS position and other metadata are removed.",
+          "actuelle": "Current fallback photo",
+          "aucune": "No fallback photo yet.",
+          "fichier": {
+            "libelle": "Photo file",
+            "aide": "JPEG, PNG or WebP, 15 MB at most."
+          },
+          "altFr": {
+            "libelle": "Alternative text in French",
+            "aide": "Describe the photo for people who cannot see it, 1 to 200 characters."
+          },
+          "altEn": {
+            "libelle": "Alternative text in English",
+            "aide": "1 to 200 characters."
+          },
+          "envoyer": "Upload the photo",
+          "remplacer": "Replace the photo",
+          "corrigerTextes": "Correct the alternative texts",
+          "annuler": "Cancel the upload",
+          "progression": "Uploading: {pourcentage}%",
+          "reprise": "Connection lost: the upload will resume by itself.",
+          "traitement": "Processing the photo…",
+          "succes": "Fallback photo saved.",
+          "altSucces": "Alternative texts saved.",
+          "annule": "Upload cancelled."
+        },
+        "erreurs": {
+          "generique": "Something went wrong. Try again in a moment.",
+          "non_autorise": "You are not allowed to do this.",
+          "bunny_non_configure": "The public Bunny library is not configured on this server.",
+          "bunny_indisponible": "Bunny is not responding right now. Try again in a moment.",
+          "vedette_invalide": "This cosplay is not published. Choose a published cosplay.",
+          "fichier_manquant": "Choose a file to upload.",
+          "type_invalide": "This file is not accepted. Accepted formats: MP4, MOV or WebM.",
+          "format_invalide": "This file is not accepted. Accepted formats: JPEG, PNG or WebP, 15 MB at most.",
+          "fichier_trop_lourd": "This file is too large.",
+          "alt_invalide": "Write the alternative text, 1 to 200 characters.",
+          "photo_introuvable": "There is no fallback photo yet.",
+          "video_introuvable": "This video no longer exists at Bunny. Upload it again.",
+          "envoi_echec": "The upload failed. Try again.",
+          "encodage_echec": "Bunny could not encode this video. Upload another file.",
+          "mp4_indisponible": "The MP4 file cannot be read from the CDN. In the Bunny library, turn on “MP4 Fallback” and check that the site is allowed, then click “Check now”.",
+          "video_illisible": "The video file cannot be read. Upload another file.",
+          "video_avec_audio": "This video contains an audio track. Export it without sound, then upload it again."
         }
       }
     },

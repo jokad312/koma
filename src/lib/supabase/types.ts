@@ -106,6 +106,47 @@ export type Database = {
           },
         ]
       }
+      heros_accueil: {
+        Row: {
+          id: boolean
+          mis_a_jour_le: string
+          produit_id: string | null
+          repli_alt_en: string | null
+          repli_alt_fr: string | null
+          repli_fichier: string | null
+          video_fichier: string | null
+          video_id: string | null
+        }
+        Insert: {
+          id?: boolean
+          mis_a_jour_le?: string
+          produit_id?: string | null
+          repli_alt_en?: string | null
+          repli_alt_fr?: string | null
+          repli_fichier?: string | null
+          video_fichier?: string | null
+          video_id?: string | null
+        }
+        Update: {
+          id?: boolean
+          mis_a_jour_le?: string
+          produit_id?: string | null
+          repli_alt_en?: string | null
+          repli_alt_fr?: string | null
+          repli_fichier?: string | null
+          video_fichier?: string | null
+          video_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "heros_accueil_produit_id_fkey"
+            columns: ["produit_id"]
+            isOneToOne: false
+            referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       journal_audit: {
         Row: {
           action: string
@@ -532,6 +573,10 @@ export type Database = {
         Returns: undefined
       }
       capacite_fabrication_atteinte: { Args: never; Returns: boolean }
+      choisir_vedette_heros: {
+        Args: { p_auteur: Json; p_produit_id: string }
+        Returns: undefined
+      }
       compte_complet: { Args: { p_compte: string }; Returns: boolean }
       consommer_essai: {
         Args: { p_cle: string; p_fenetre_secondes: number; p_maximum: number }
@@ -611,9 +656,22 @@ export type Database = {
         Args: { p_auteur: Json; p_cle: string; p_valeur: string }
         Returns: undefined
       }
+      enregistrer_repli_heros: {
+        Args: {
+          p_alt_en: string
+          p_alt_fr: string
+          p_auteur: Json
+          p_fichier: string
+        }
+        Returns: string
+      }
       enregistrer_tranches_prix: {
         Args: { p_auteur: Json; p_tranches: Json }
         Returns: undefined
+      }
+      enregistrer_video_heros: {
+        Args: { p_auteur: Json; p_video_id: string }
+        Returns: string
       }
       est_mineur: { Args: { p_compte: string }; Returns: boolean }
       etat_disponibilite: {
@@ -693,6 +751,10 @@ export type Database = {
       supprimer_photo_produit: {
         Args: { p_auteur: Json; p_photo_id: string }
         Returns: string
+      }
+      valider_video_heros: {
+        Args: { p_auteur: Json; p_fichier: string; p_video_id: string }
+        Returns: undefined
       }
     }
     Enums: {
