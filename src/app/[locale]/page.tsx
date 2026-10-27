@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { Suspense, type ReactNode } from "react";
 import { BlocCosplaysRecents } from "@/components/accueil/BlocCosplaysRecents";
 import { BlocFaqCourte } from "@/components/accueil/BlocFaqCourte";
-import { HerosAccueil, HerosCoque } from "@/components/accueil/HerosAccueil";
+import { HerosAccueil } from "@/components/accueil/HerosAccueil";
 import { BlocJonathan } from "@/components/accueil/BlocJonathan";
 import { TuilesCategories } from "@/components/accueil/TuilesCategories";
 import { routing, type Locale } from "@/i18n/routing";
@@ -24,12 +24,8 @@ export async function generateMetadata({ params }: PageProps<"/[locale]">): Prom
 function rendreBloc(id: string, locale: Locale): ReactNode {
   switch (id) {
     case "heros":
-      // Accroche (H1) dans la coque ; vedette, photo et vidéo lues à chaque requête.
-      return (
-        <Suspense fallback={<HerosCoque locale={locale} />}>
-          <HerosAccueil locale={locale} />
-        </Suspense>
-      );
+      // Accroche (H1) dans la coque statique ; vedette, photo et vidéo lues à chaque requête.
+      return <HerosAccueil locale={locale} />;
     case "categories":
       return <TuilesCategories />;
     case "cosplaysRecents":

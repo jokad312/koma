@@ -90,6 +90,7 @@ Revue faite en une passe par l'agent unique (pas de sous-agent possible depuis u
 | Effacement chez Bunny d'une vidéo étrangère par un identifiant forgé | high | patch (déjà couvert) | préfixe de titre vérifié avant tout effacement ; test `n'efface jamais une vidéo étrangère` |
 | Validation d'une vidéo remplacée entre-temps | medium | patch (déjà couvert) | `valider_video_heros` compare `video_id` ; test SQL |
 | MP4 lu sans `Referer` alors que la bibliothèque limiterait les référents | medium | patch | `Referer` = `NEXT_PUBLIC_SITE_URL` dans `ouvrirLecteurMp4` |
+| H1 en double dans le HTML (coque + contenu diffusé), contenu du héros invisible sans JavaScript (CI : `gabarit.spec.ts`) | high | patch | H1 déplacé dans la coque statique, une seule fois ; média, bouton et tuile dans leurs propres limites d'attente, une lecture partagée par `cache()` |
 | Vidéos Bunny orphelines (onglet fermé en plein envoi) | low | defer | `deferred-work.md` |
 | Vedette dépubliée : le héros perd sa tuile sans avertir l'admin | low | defer | `deferred-work.md` |
 | Mesure < 2,5 s sur 4G/Instagram non automatisable | low | defer | à mesurer sur appareil (journal) |
