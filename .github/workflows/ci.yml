@@ -35,5 +35,7 @@ jobs:
       - run: npm test
       - run: npm run test:sql
       - run: npm run build
+      # Statuts HTTP réels (404 des pages et fiches inconnues) sur le build de production servi par next start.
+      - run: npm run test:e2e:prod
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e

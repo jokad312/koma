@@ -12,6 +12,7 @@
     "test": "vitest run",
     "test:sql": "node scripts/test-sql.mjs",
     "test:e2e": "playwright test",
+    "test:e2e:prod": "node scripts/test-e2e-prod.mjs",
     "types": "node scripts/generer-types.mjs",
     "admin:attribuer": "node --env-file-if-exists=.env.local scripts/attribuer-admin.mjs",
     "db:link": "supabase link",

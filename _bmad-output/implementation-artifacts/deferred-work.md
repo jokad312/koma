@@ -79,8 +79,12 @@
   summary: `a_le_role` reste exécutable par anon/authenticated : n'importe qui peut sonder le rôle d'un identifiant de Compte connu.
   evidence: exigé par la spec (AD-13, exception unique de lecture) ; à réexaminer quand les politiques RLS qui l'utilisent existent (epic 7) ; restreindre à `auth.uid()` ou révoquer si aucune politique ne l'appelle.
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-7-acces-admin-roles-journal-et-reglage-whatsapp.md`
-  summary: Statut HTTP de la 404 et de la redirection admin sous Suspense (cacheComponents) peut être 200. Gravité non vérifiée : moyenne.
-  evidence: le contrôle de droit s'exécute dans un Suspense ; à régler par `curl -I` sur `/fr/admin` ; le contenu et `noindex` sont corrects.
+  summary: Statut HTTP de la 404 des pages inconnues et des fiches sous Suspense (cacheComponents) pouvait être 200.
+  evidence: le statut partait avant `notFound()` pour les fiches ; les pages inconnues répondaient déjà 404.
+  statut: traité par le correctif `spec-correctif-statut-404.md` (proxy + test `test:e2e:prod`).
+- source_spec: `_bmad-output/implementation-artifacts/spec-1-7-acces-admin-roles-journal-et-reglage-whatsapp.md`
+  summary: Statut HTTP de la redirection admin sous Suspense (cacheComponents) : `/fr/admin` et `/admin/produits/<identifiant inconnu>` répondent encore 200 en production pour un visiteur non connecté. Gravité non vérifiée : moyenne.
+  evidence: le contrôle de droit s'exécute dans un Suspense ; un correctif exigerait de vérifier le rôle dans le proxy sans révéler l'existence de la page ; le contenu et `noindex` sont corrects.
 - source_spec: `_bmad-output/implementation-artifacts/spec-1-7-acces-admin-roles-journal-et-reglage-whatsapp.md`
   summary: Pas de `retirer_role`, pas de protection du dernier admin (y compris par `corriger_age` sous 13 ans), trigger de suppression en cascade qui écrase `ks.auteur` quand la profondeur dépasse 1.
   evidence: hors périmètre de la 1.7 ; à traiter avec l'écran des rôles (epic 7) ; la correction d'âge n'a aucun écran pour l'instant.
@@ -140,6 +144,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-5-fiche-d-un-produit-physique.md`
   summary: Une fiche inconnue ou dépubliée répond 200 + noindex en production (le texte 404 s'affiche, pas le statut HTTP).
   evidence: la route `[slug]` est prérendue en coque partielle ; le statut part avant `notFound()`. Piste : tester l'adresse dans `proxy.ts` avant le rendu (lecture rapide) puis réécrire vers la 404.
+  statut: traité par le correctif `spec-correctif-statut-404.md` (proxy + test `test:e2e:prod`).
 
 - source_spec: `_bmad-output/implementation-artifacts/spec-2-5-fiche-d-un-produit-physique.md`
   summary: Les e2e de la fiche (structure, JSON-LD, galerie au clavier, axe, 375 px) sont sautés tant qu'aucun produit publié n'existe dans la base de test.

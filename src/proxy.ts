@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { lireEnvPublique } from "@/lib/env";
 import { choisirLangue } from "@/i18n/detection";
 import { NOM_COOKIE_LANGUE, routing } from "@/i18n/routing";
+import { analyserAdresseFiche, ficheExiste } from "@/modules/catalogue/existence";
 
 const intl = createIntlMiddleware(routing);
 
@@ -48,7 +49,16 @@ export async function proxy(request: NextRequest) {
     reponse.headers.set("Vary", "Accept-Language, Cookie");
     reponse.headers.set("Cache-Control", "no-store");
   } else if (estCheminLocalise(chemin)) {
-    reponse = intl(request);
+    // Fiche inconnue, dépubliée ou d'une autre famille : le statut 404 doit partir avant le flux (coque prérendue). On réécrit vers une
+    // adresse que personne ne sert : la route attrape-tout rend la page « introuvable » traduite, avec le statut 404.
+    const fiche = analyserAdresseFiche(chemin);
+    if (fiche && (await ficheExiste(fiche.famille, fiche.segment)) === "non") {
+      const cible = request.nextUrl.clone();
+      cible.pathname = `/${fiche.locale}/introuvable`;
+      reponse = NextResponse.rewrite(cible, { status: 404 });
+    } else {
+      reponse = intl(request);
+    }
   } else {
     return reponseSession;
   }
