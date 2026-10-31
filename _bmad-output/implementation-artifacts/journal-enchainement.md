@@ -126,3 +126,4 @@
 - Revue (1 relecteur) : 0 grave ; correctifs appliqués : clé d'idempotence liée au Kit, verrou Compte-clé, focus au succès, retour au lien de connexion si la session expire, tests SQL renforcés (49) et tests d'interface.
 - À fournir par Jonathan : le texte de la case « Licence de kit » (Q-5, marqueur visible, le build de production le refuse).
 - À tester à la main : publier un Kit à 0 USD (admin), puis sur `/fr/kits/<slug>` à 375 px : non connecté, « Obtenir le kit gratuit » mène à la connexion puis revient ; connecté avec âge déclaré, case à cocher puis bouton ; message avec le numéro de Commande ; recharger la fiche : « Ouvrir dans ma bibliothèque » (404 jusqu'à la 3.6). Le Kit gratuit ne se publie qu'à partir de la 5e semaine (PRD §6.2).
+- CI : le garde de stock refuse toute colonne « quantite » lisible par un client ; `ligne_commande.quantite` renommée `nombre` par `20261112100000_ligne_commande_nombre.sql`.

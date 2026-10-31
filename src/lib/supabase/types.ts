@@ -319,27 +319,27 @@ export type Database = {
           commande_id: string
           cree_le: string
           id: string
+          nombre: number
           prix_cents: number
           produit_id: string
-          quantite: number
           reduction_cents: number
         }
         Insert: {
           commande_id: string
           cree_le?: string
           id?: string
+          nombre?: number
           prix_cents: number
           produit_id: string
-          quantite?: number
           reduction_cents?: number
         }
         Update: {
           commande_id?: string
           cree_le?: string
           id?: string
+          nombre?: number
           prix_cents?: number
           produit_id?: string
-          quantite?: number
           reduction_cents?: number
         }
         Relationships: [

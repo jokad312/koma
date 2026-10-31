@@ -24,7 +24,7 @@ route: 'dispatch'
 
 ## Réalisé
 
-- Migrations `20261110100000_commande_offerte_et_acces_kit.sql` et `20261111100000_offrir_commande_cle_et_verrous.sql` (correctif de revue : une clé ne rejoue que la Commande du même Kit ; verrou aussi sur le couple Compte-clé), appliquées sur koma-dev, types régénérés.
+- Migrations `20261110100000_commande_offerte_et_acces_kit.sql`, `20261111100000_offrir_commande_cle_et_verrous.sql` (correctif de revue : une clé ne rejoue que la Commande du même Kit ; verrou aussi sur le couple Compte-clé), appliquées sur koma-dev, types régénérés.
 - Fonctions `exiger_client`, `bibliotheque_ouvrir_acces` (internes, aucun rôle), `offrir_commande`, `possede_kit` (service seulement). RLS : lecture de ses propres lignes, aucune écriture.
 - Modules `commande` et `bibliotheque` ; composant `ObtentionKit` ; textes FR/EN `Kit.obtention`.
 - Tests : pgTAP `kit_gratuit.test.sql` (49, en CI), Vitest (service, état, interface, marqueur). Le comportement SQL a aussi été vérifié sur koma-dev dans une transaction annulée.
