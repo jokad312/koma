@@ -138,6 +138,8 @@ select ok(
 );
 select ok((select publie_le is not null from public.produit where id = (select k from ks_ck)), 'le Kit reste publié');
 select is(public.manques_publication((select k from ks_ck)), array['sous_titres_extrait_fr'], 'le manque reste signalé (publier_produit l''exige)');
+-- Les essais ci-dessus ont forcé « set constraints all immediate » pour le reste de la transaction : on revient au mode différé.
+set constraints all deferred;
 
 -- Le Kit dépublié, la publication reste refusée tant que l'extrait parlé n'a pas de FR.
 select set_config('ks.auteur', '{"type":"systeme","nom":"test"}', true);
