@@ -162,7 +162,7 @@ insert into public.produit (famille, slug, titre_fr, prix_cents, niveau, publie_
   ('kit', 'ck-brouillon', 'Brouillon', 900, 'debutant', null),
   ('kit', 'ck-sans-photo', 'Sans photo', 900, 'debutant', now() - interval '1 minute');
 insert into public.produit_photo (produit_id, fichier, alt_fr, alt_en, position)
-select p.id, p.id::text || '/a.jpg', 'Alt ' || p.slug, 'Alt en ' || p.slug, 1 from public.produit p where p.slug like 'ck-%' and p.slug <> 'ck-sans-photo';
+select p.id, p.id::text || '/a.jpg', 'Alt ' || p.slug, 'Alt en ' || p.slug, 1 from public.produit p where p.slug like 'ck-%' and p.slug not in ('ck-sans-photo', 'ck-extrait');
 
 select throws_ok(
   $$select * from public.lister_catalogue('inconnue', 'fr')$$,
