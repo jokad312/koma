@@ -2,7 +2,7 @@
 title: 'Story 3.5 : obtenir le Kit gratuit'
 type: 'feature'
 created: '2026-10-31'
-status: 'review'
+status: 'done'
 route: 'dispatch'
 ---
 
