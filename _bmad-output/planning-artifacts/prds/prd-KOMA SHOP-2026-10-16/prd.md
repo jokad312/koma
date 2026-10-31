@@ -45,7 +45,7 @@ Le paiement suit la réalité africaine. Le mobile money passe d'abord par plusi
 Les montants et délais affichés dans ces parcours viennent toujours de la fiche produit et de l'admin.
 
 **UJ-1. Grâce, à Bukavu, commande un cosplay sur mesure.**
-Grâce voit une vidéo de fabrication sur TikTok et arrive sur la fiche du cosplay depuis son téléphone. Elle hésite entre « Prêt à porter » et « Le fabriquer moi-même », puis choisit « Prêt à porter », en Sur-mesure, et saisit ses Mesures à l'aide du schéma. Comme elle habite Bukavu, la livraison est obligatoire et payante (forfait Bukavu). À Goma, elle aurait pu choisir entre retrait gratuit et livraison payante. Elle écrit son adresse dans un champ libre. Le Panier affiche le prix, le forfait Bukavu et le délai total (fabrication + livraison). Avant de payer, elle crée son Compte et revient à son Panier. Elle paie par M-Pesa : le serveur choisit l'agrégateur prioritaire qui couvre RDC + M-Pesa, et en propose un autre s'il échoue. Elle valide sur son téléphone.
+Grâce voit une vidéo de fabrication sur TikTok et arrive sur la fiche du cosplay depuis son téléphone. Elle hésite entre « Prêt à porter » et « Le fabriquer moi-même », puis choisit « Prêt à porter », en Sur-mesure. Après sa commande, elle touche « Envoyer mes mesures sur WhatsApp » et envoie ses mesures à Jonathan directement sur WhatsApp ; le site ne les garde pas. Comme elle habite Bukavu, la livraison est obligatoire et payante (forfait Bukavu). À Goma, elle aurait pu choisir entre retrait gratuit et livraison payante. Elle écrit son adresse dans un champ libre. Le Panier affiche le prix, le forfait Bukavu et le délai total (fabrication + livraison). Avant de payer, elle crée son Compte et revient à son Panier. Elle paie par M-Pesa : le serveur choisit l'agrégateur prioritaire qui couvre RDC + M-Pesa, et en propose un autre s'il échoue. Elle valide sur son téléphone.
 Avant de couper le tissu, Jonathan vérifie ses Mesures. En cas de doute, il la contacte et corrige lui-même les Mesures dans l'admin ; il complète aussi l'adresse si besoin. Grâce reçoit un email à chaque étape : payée, en fabrication, expédiée (avec le numéro de suivi s'il existe), livrée. Pendant l'attente, elle pose une question via le bouton WhatsApp de la page de suivi.
 À la livraison, on l'invite à partager une photo, par WhatsApp ou sur le site. Elle donne son accord explicite et choisit d'afficher ou non son prénom (ou pseudo) et sa ville. Jonathan valide la photo avant publication, et Grâce peut en demander le retrait à tout moment.
 **Cas limite :** si elle avait voulu annuler, elle aurait pu le faire seulement avant le début de la fabrication.
@@ -74,7 +74,7 @@ Le jour J, un bénévole scanne chaque Code QR à l'entrée. L'écran affiche le
 **Cas limite :** jusqu'à 48 h avant l'Événement, elle aurait pu annuler un Pass et demander son remboursement. Jonathan valide chaque demande, et un pourcentage de frais est retenu.
 
 **UJ-6. Jonathan gère la boutique depuis l'admin.**
-Le matin, Jonathan ouvre l'admin. Il voit d'abord les nouvelles Commandes payées, puis les graphiques de paiement et les tâches en attente : Mesures à vérifier, demandes d'annulation, de remboursement ou de remplacement, photos à valider. Il vérifie les Mesures d'une Commande Sur-mesure, contacte la cliente en cas de doute, et fait avancer les Commandes. Il ajoute un Cosplay et son Kit lié, publie un Article, crée un Événement avec ses trois Types de pass, crée un Code promo pour un influenceur et consulte les ventes et la commission de ce Code promo. La veille de l'Événement, il crée un Accès bénévole d'une journée.
+Le matin, Jonathan ouvre l'admin. Il voit d'abord les nouvelles Commandes payées, puis les graphiques de paiement et les tâches en attente : Mesures à recevoir, demandes d'annulation, de remboursement ou de remplacement, photos à valider. Il reçoit les mesures d'une Commande Sur-mesure sur WhatsApp, les confirme reçues dans l'admin, et fait avancer les Commandes. Il ajoute un Cosplay et son Kit lié, publie un Article, crée un Événement avec ses trois Types de pass, crée un Code promo pour un influenceur et consulte les ventes et la commission de ce Code promo. La veille de l'Événement, il crée un Accès bénévole d'une journée.
 Plus tard, deux Assistants l'aideront avec un rôle restreint (FR-53).
 
 ## 3. Glossaire
@@ -89,7 +89,7 @@ Plus tard, deux Assistants l'aideront avec un rôle restreint (FR-53).
 - **Fichiers de kit** — PDF (A4 et US Letter), SVG, STL. Stockés dans le bucket privé `kits-private`.
 - **Vidéo de kit** — tutoriel complet découpé en chapitres, lu en ligne uniquement.
 - **Bibliothèque** — espace du Compte (« Ma bibliothèque ») où s'ouvrent les Kits achetés.
-- **Sur-mesure** — option de Cosplay pour laquelle le client saisit ses Mesures.
+- **Sur-mesure** — option de Cosplay pour laquelle le client envoie ses mesures à Jonathan sur WhatsApp ; le site ne collecte ni ne stocke aucune mesure.
 - **Mesures** — valeurs saisies par le client avec le schéma d'aide, vérifiées par l'Admin avant fabrication.
 - **Fabrication sur commande** — Produit physique fabriqué après paiement, avec un Délai de fabrication.
 - **Délai de fabrication** — fixé par produit ou variante dans l'admin, affiché avant paiement.
@@ -109,7 +109,7 @@ Plus tard, deux Assistants l'aideront avec un rôle restreint (FR-53).
 - **Délai de paiement** — durée, réglée dans l'admin, pendant laquelle une Commande `en attente` réserve son stock et sa place dans le Plafond de fabrication.
 - **Trop-perçu** — paiement réussi reçu pour une Commande déjà payée, expirée ou impossible à honorer. Toujours signalé à l'Admin pour remboursement.
 - **Prestataire** — service de paiement : un Agrégateur mobile money ou Polar.
-- **Agrégateur** — PawaPay, K-Pay, MaishaPay ou GeniusPay.
+- **Agrégateur** — PawaPay, K-Pay ou MaishaPay.
 - **Adaptateur** — module qui branche un Prestataire sur la couche de paiement commune.
 - **Couverture** — couples pays-opérateur qu'un Agrégateur sait encaisser.
 - **Ordre de priorité** — ordre des Agrégateurs réglé dans l'admin, utilisé pour choisir et pour basculer.
@@ -180,7 +180,7 @@ Le visiteur voit une galerie de photos (zoom sur mobile), le titre, le prix en U
 Sur la fiche d'un Cosplay qui a un Kit lié, le visiteur choisit « Prêt à porter » ou « Le fabriquer moi-même » ; le second affiche le prix du Kit et mène à sa fiche. Réalise UJ-1, UJ-4.
 
 #### FR-8 : Sur-mesure
-Le visiteur qui choisit le Sur-mesure saisit ses Mesures avec un schéma d'aide ; il ne peut pas ajouter le Cosplay au Panier sans Mesures complètes. Réalise UJ-1.
+Le visiteur peut ajouter un Cosplay en Sur-mesure au Panier sans rien saisir ; la fiche et le Panier expliquent que ses mesures s'envoient sur WhatsApp après la commande et que le Délai de fabrication court à partir de leur réception. Pour une Commande qui contient une ligne Sur-mesure, la page de commande et l'email de confirmation affichent le bouton « Envoyer mes mesures sur WhatsApp » : il ouvre WhatsApp vers le numéro réglé dans les réglages, avec un message pré-rempli contenant le numéro de commande. Le client envoie ses mesures ou une capture directement sur WhatsApp. Le site ne collecte et ne stocke aucune mesure (décision du 2026-10-31, E-10 abandonné). Réalise UJ-1.
 - Après le paiement, le client ne peut plus modifier ses Mesures ; l'Admin les corrige après l'avoir contacté.
 
 #### FR-9 : Fiche d'un Kit
@@ -210,7 +210,7 @@ Le visiteur crée un Compte sans rien acheter, ou au moment de payer. Il se conn
 
 #### FR-13 : Étape de commande
 Le client saisit son téléphone, choisit la Zone de remise (Goma ou Bukavu) et, à Goma seulement, le Mode de remise (retrait gratuit ou livraison). Il saisit son adresse dans un champ libre si le Mode de remise est la livraison. Ces champs n'apparaissent pas pour un Panier 100 % numérique. Réalise UJ-1.
-- Le client coche l'acceptation des CGV. Pour un Kit, il coche aussi une case par laquelle il demande l'accès immédiat, renonce à son droit de rétractation et accepte la Licence de kit ; les Kits ne sont pas remboursables. Pour un Cosplay en Sur-mesure, il coche une case qui confirme ses Mesures et le fait que l'annulation n'est plus possible après le début de la fabrication.
+- Le client coche l'acceptation des CGV. Pour un Kit, il coche aussi une case par laquelle il demande l'accès immédiat, renonce à son droit de rétractation et accepte la Licence de kit ; les Kits ne sont pas remboursables. Pour un Cosplay en Sur-mesure, il coche une case qui confirme qu'il enverra ses mesures sur WhatsApp, que le Délai de fabrication court à partir de leur réception, et que l'annulation n'est plus possible après le début de la fabrication.
 - Le serveur recalcule depuis la base le sous-total, le Forfait de livraison, la réduction du Code promo et le total (règle 3), vérifie le stock et le Plafond de fabrication, puis crée la Commande `en attente`.
 - La Commande `en attente` réserve son stock et sa place dans le Plafond de fabrication pendant le Délai de paiement. À l'échéance, sans paiement vérifié, elle passe `expirée` et libère la réservation. Le client qui revient est ramené à son Panier, avec les champs déjà saisis, et repart sur une nouvelle Commande.
 
@@ -221,17 +221,17 @@ Avant de payer, le client voit le prix de chaque article en USD, le Forfait de l
 
 **Description :** décision de Jonathan du 2026-10-16, intégrée telle quelle. Elle remplace les règles 9 à 11 d'origine de `CLAUDE.md` et la section « Paiement et livraison » du guide.
 
-1. **Mobile money : plusieurs Agrégateurs en parallèle.** KOMA SHOP utilise quatre Agrégateurs de mobile money : PawaPay, K-Pay, MaishaPay et GeniusPay. Objectif : couvrir plus de pays et d'opérateurs, et disposer d'une solution de secours si un Agrégateur est en panne. Le client choisit son pays et son opérateur ; le serveur choisit l'Agrégateur qui couvre ce couple pays-opérateur, selon un Ordre de priorité réglable dans l'admin. Si l'Agrégateur prioritaire échoue ou est désactivé, le serveur propose le suivant qui couvre le même couple. La Couverture de chaque Agrégateur n'est pas inventée : elle reste une question ouverte, à remplir depuis leur documentation officielle et les contrats marchands de Jonathan.
-2. **Carte bancaire pour les Produits physiques** (Cosplays, Accessoires) : paiement par carte via K-Pay. Jamais Polar. MaishaPay et GeniusPay acceptent aussi les cartes : solutions de secours possibles, à activer plus tard, non branchées au lancement.
+1. **Mobile money : plusieurs Agrégateurs en parallèle.** KOMA SHOP utilise trois Agrégateurs de mobile money : PawaPay, K-Pay et MaishaPay (GeniusPay abandonné le 2026-10-31). Objectif : couvrir plus de pays et d'opérateurs, et disposer d'une solution de secours si un Agrégateur est en panne. Le client choisit son pays et son opérateur ; le serveur choisit l'Agrégateur qui couvre ce couple pays-opérateur, selon un Ordre de priorité réglable dans l'admin. Si l'Agrégateur prioritaire échoue ou est désactivé, le serveur propose le suivant qui couvre le même couple. La Couverture de chaque Agrégateur n'est pas inventée : elle reste une question ouverte, à remplir depuis leur documentation officielle et les contrats marchands de Jonathan.
+2. **Carte bancaire pour les Produits physiques** (Cosplays, Accessoires) : paiement par carte via K-Pay. Jamais Polar. MaishaPay accepte aussi les cartes : solution de secours possible, à activer plus tard, non branchée au lancement.
 3. **Carte bancaire pour les Kits** : Polar, uniquement pour un Panier 100 % numérique. Dès qu'un Cosplay ou un Accessoire est dans le Panier, Polar disparaît des choix ; la carte passe par K-Pay.
-4. **Pass** : mobile money via les quatre Agrégateurs, carte via K-Pay. Jamais Polar sans accord écrit de Polar (la vente de billets est une activité restreinte dans sa politique d'usage).
+4. **Pass** : mobile money via les trois Agrégateurs, carte via K-Pay. Jamais Polar sans accord écrit de Polar (la vente de billets est une activité restreinte dans sa politique d'usage).
 5. Prix affichés en USD, identiques partout ; la conversion en devise locale est faite par le Prestataire.
 
 Réalise UJ-1, UJ-2, UJ-3, UJ-3b, UJ-5.
 
 #### FR-15 : Couche de paiement à Adaptateurs
 Le système encaisse via une couche de paiement commune, avec un Adaptateur par Prestataire. Ajouter ou retirer un Agrégateur ne touche pas au reste du site.
-- Adaptateurs au lancement : PawaPay (API v2, mobile money), K-Pay (mobile money et carte), MaishaPay (mobile money), Polar (carte, Kits). Ceux de K-Pay et MaishaPay sont construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation. Ils utilisent les comptes marchands de NATHANGROUP SARL, dont les clés restent dans les variables d'environnement. Celui de GeniusPay est en attente de sa documentation (§11, Q-2) : rien de son API n'est supposé.
+- Adaptateurs au lancement : PawaPay (API v2, mobile money), K-Pay (mobile money et carte), MaishaPay (mobile money), Polar (carte, Kits). Ceux de K-Pay et MaishaPay sont construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation. Ils utilisent les comptes marchands de NATHANGROUP SARL, dont les clés restent dans les variables d'environnement.
 
 #### FR-16 : Choix du moyen de paiement
 Le client choisit mobile money (pays + opérateur + numéro) ou carte. Le système ne propose que les Prestataires autorisés pour ce Panier ou cet achat de Pass, selon les points 1 à 4 du §4.4.
@@ -282,8 +282,8 @@ L'Admin active ou désactive chaque Prestataire, règle l'Ordre de priorité des
 Le client voit, dans son Compte, ses Commandes et une frise des Statuts de commande avec leurs dates, le numéro de suivi s'il existe, et un bouton WhatsApp. Réalise UJ-1.
 
 #### FR-23 : Vérification des Mesures
-Pour une Commande Sur-mesure payée, l'Admin voit une tâche « Mesures à vérifier ». Il contacte le client hors du site (WhatsApp, téléphone), corrige les Mesures si besoin et les valide avant de passer la Commande `en fabrication`. Réalise UJ-1.
-- Une Commande Sur-mesure ne peut pas passer `en fabrication` sans Mesures validées.
+Pour une Commande Sur-mesure payée, l'Admin voit une tâche « Mesures à recevoir ». Quand le client lui a envoyé ses mesures sur WhatsApp, il confirme la réception dans la Commande : le site enregistre seulement la date de réception, jamais les mesures. Le Délai de fabrication court à partir de cette date. Réalise UJ-1.
+- Une Commande Sur-mesure ne peut pas passer `en fabrication` sans réception des mesures confirmée.
 
 #### FR-24 : Avancement manuel des Commandes
 L'Admin fait passer une Commande par ses Statuts de commande, saisit à la main un numéro de suivi facultatif (texte libre) et corrige l'adresse. Chaque changement de statut envoie l'email correspondant (FR-44).
@@ -492,7 +492,7 @@ Une fiche partagée sur WhatsApp ou un réseau social affiche la grande photo du
 
 ### 6.1 Lancement
 - Page d'accueil et pages vitrines (§4.1), catalogue et fiches (§4.2), Panier, Compte et commande (§4.3).
-- Paiement : mobile money via PawaPay, K-Pay, MaishaPay et GeniusPay (K-Pay et MaishaPay construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation ; GeniusPay dès que sa documentation est lue), carte via K-Pay (Produits physiques et Pass) et via Polar (Paniers 100 % numériques) (§4.4).
+- Paiement : mobile money via PawaPay, K-Pay et MaishaPay (K-Pay et MaishaPay construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation), carte via K-Pay (Produits physiques et Pass) et via Polar (Paniers 100 % numériques) (§4.4).
 - Remise à Goma et Bukavu, retrait à Goma, suivi manuel, annulation, réclamation et remplacement (§4.5).
 - Bibliothèque de kits (§4.6).
 - Événements, Pass, Scan avec mode hors ligne, Accès bénévole (§4.7).
@@ -514,7 +514,7 @@ Les autres Agrégateurs et Polar s'ajoutent dès qu'ils sont prêts, sans bloque
 
 ### 6.3 Plus tard (non planifié)
 - Rôle Assistant (FR-53 ; prévu dans le modèle de droits dès le lancement).
-- MaishaPay et GeniusPay comme secours pour la carte.
+- MaishaPay comme secours pour la carte.
 - Envoi automatique des Alertes événement par WhatsApp (API WhatsApp Business).
 - Polar pour les Pass, seulement après accord écrit de Polar.
 - Remise hors de Goma et Bukavu.
@@ -538,7 +538,7 @@ Les autres Agrégateurs et Polar s'ajoutent dès qu'ils sont prêts, sans bloque
 **Signaux d'alerte (à ne pas sacrifier aux ventes)**
 - **SM-C1** Commandes remises après le délai annoncé. Contrebalance SM-1 : vendre plus que la capacité de fabrication.
 - **SM-C2** Taux d'échec des paiements par Agrégateur. Contrebalance SM-1 ; sert à régler l'Ordre de priorité.
-- **SM-C3** Commandes Sur-mesure dont les Mesures ont dû être corrigées. Signale un schéma d'aide mal compris.
+- **SM-C3** Délai moyen entre le paiement d'une Commande Sur-mesure et la réception des mesures. Signale les clients qui tardent à les envoyer.
 - **SM-C4** Demandes de remboursement de Pass. Contrebalance SM-4.
 - **SM-C5** Désinscriptions des Relances. Contrebalance la fréquence de FR-45.
 - **SM-C6** Héros chargé en plus de 2,5 s. Contrebalance SM-2 : un héros plus riche mais plus lent.
@@ -550,7 +550,7 @@ Les autres Agrégateurs et Polar s'ajoutent dès qu'ils sont prêts, sans bloque
 |---|---|---|---|
 | R-1 | Un seul créateur face à un périmètre large (boutique, Événements, Blog, Relances, Codes promo) | Délais non tenus, site incomplet au lancement | Plafond de fabrication ; blocs masqués sans contenu ; Assistants plus tard ; suivi de SM-C1 |
 | R-2 | Contenu de lancement insuffisant | Rien à vendre au cœur du projet | Selon Jonathan, des Kits sont déjà filmés et des Produits prêts ; un Kit filmé reste une condition d'ouverture (§6.1) |
-| R-3 | Documentation et Couverture des Agrégateurs pas encore transmises | Adaptateurs impossibles à développer | Selon Jonathan, les quatre couvrent la RDC et sont testés ; documents à transmettre (Q-1, Q-2) ; un seul Agrégateur suffit pour ouvrir (§6.1) |
+| R-3 | Documentation et Couverture des Agrégateurs pas encore transmises | Adaptateurs impossibles à développer | Selon Jonathan, les trois couvrent la RDC et sont testés ; documents à transmettre (Q-1) ; un seul Agrégateur suffit pour ouvrir (§6.1) |
 | R-4 | K-Pay refuse les pièces « inspirées de » ou les Pass | Plus de paiement par carte pour le physique ou les Pass | K-Pay déjà en production avec un compte marchand de NATHANGROUP SARL (Q-14 réglée) ; avis juridique (Q-7) |
 | R-5 | Polar ne verse pas les fonds à une société en RDC | Ventes de Kits par carte bloquées | Compte Polar déjà vérifié au nom de NATHANGROUP SARL (Q-13 réglée) |
 | R-6 | Double débit ou paiement perdu lors d'un repli | Perte de confiance, remboursements manuels | Tentatives de paiement, aucun repli sur délai dépassé, Trop-perçus signalés (FR-17, FR-19) |
@@ -576,8 +576,8 @@ Les autres Agrégateurs et Polar s'ajoutent dès qu'ils sont prêts, sans bloque
 
 ## 11. Questions ouvertes
 
-1. **Q-1 Couverture des Agrégateurs** : tableau des pays et opérateurs couverts par PawaPay, K-Pay, MaishaPay et GeniusPay, tiré de leur documentation et des contrats marchands de Jonathan. Pour la RDC, Jonathan indique M-Pesa, Airtel Money, Orange Money et Africell chez les quatre. *Bloque FR-16 en production.*
-2. **Q-2 Documentation GeniusPay** : lien transmis le 2026-10-16 (https://geniuspay.ci/docs/api). Reste à vérifier, à partir de ce document, ce que son API permet (Notification de paiement vérifiable, remboursement, devise) avant de développer son Adaptateur, sans rien supposer. K-Pay et MaishaPay : leurs Adaptateurs sont construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation.
+1. **Q-1 Couverture des Agrégateurs** : tableau des pays et opérateurs couverts par PawaPay, K-Pay et MaishaPay, tiré de leur documentation et des contrats marchands de Jonathan. Pour la RDC, Jonathan indique M-Pesa, Airtel Money, Orange Money et Africell chez les trois. *Bloque FR-16 en production.*
+2. **Q-2 (abandonnée le 2026-10-31)** : GeniusPay n'est plus utilisé. K-Pay et MaishaPay : leurs Adaptateurs sont construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation.
 3. **Q-3 Devise débitée** : chaque Prestataire débite-t-il en USD ou convertit-il ? Quel montant afficher au client au moment de valider ?
 4. **Q-4 Remboursements par API** : chaque Prestataire permet-il de rembourser par son API (annulation de Cosplay, Pass) ? Sinon, comment Jonathan rembourse-t-il à la main ?
 5. **Q-5 Textes légaux** : mentions légales, CGV, livraison et retours, confidentialité et cookies, mention sur le droit à l'image des Événements, conditions de l'opération « 10 pass gratuits », identifiants RCCM, Id. Nat. et NIF. À valider par un juriste : âge minimum de 13 ans et Emails commerciaux envoyés aux mineurs, publication des photos d'événement sur la seule mention acceptée par l'acheteur. Un brouillon des CGV et de la politique de confidentialité sera préparé dans une session séparée, puis validé par un juriste avant la première vente.

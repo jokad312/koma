@@ -40,7 +40,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 - **FR-5 Catalogues** : catalogues Cosplays, Accessoires et Kits ; filtres (univers, prix, disponibilité, niveau pour les Kits) et tri (nouveauté, prix). Seuls les Produits publiés apparaissent ; un brouillon est introuvable (catalogue, plan du site, URL directe).
 - **FR-6 Fiche d'un Produit physique** : galerie photo (zoom mobile), titre, prix USD, description, tailles XS à XXL ou Sur-mesure, disponibilité (« En stock » ou « Fabrication sur commande » + Délai de fabrication), Modes de remise et Forfaits de livraison, délai total (fabrication + remise). Avant l'ajout au Panier : « Remise uniquement à Goma et Bukavu », affiché à tous sans détection de pays, avec le Kit lié s'il existe.
 - **FR-7 Double option Cosplay / Kit lié** : sur la fiche d'un Cosplay avec Kit lié, choix « Prêt à porter » ou « Le fabriquer moi-même » ; le second affiche le prix du Kit et mène à sa fiche.
-- **FR-8 Sur-mesure** : saisie des Mesures avec un schéma d'aide ; ajout au Panier impossible sans Mesures complètes ; après paiement, le client ne modifie plus ses Mesures (l'Admin les corrige).
+- **FR-8 Sur-mesure** (décision du 2026-10-31, E-10 abandonné) : aucune mesure saisie, collectée ni stockée par le site ; ajout au Panier libre ; pour une Commande avec ligne Sur-mesure, la page de commande et l'email de confirmation affichent « Envoyer mes mesures sur WhatsApp » (numéro des réglages, message pré-rempli avec le numéro de commande) ; le Délai de fabrication court à partir de la réception des mesures et est affiché clairement.
 - **FR-9 Fiche d'un Kit** : contenu (Fichiers de kit et formats, plan des chapitres, extrait vidéo public, niveau, matériel), prix, résumé de la Licence de kit ; aucun lien vers `kits-private` ; Kit déjà possédé → « Ouvrir dans ma bibliothèque ».
 - **FR-10 Stock et Plafond de fabrication** : la quantité saisie pour les articles fabriqués diminue à chaque Commande payée ; stock à zéro et Plafond non atteint → Fabrication sur commande avec délai ; Plafond atteint → « Commandes complètes pour le moment » (jamais « Épuisé ») + Kit lié proposé, articles en stock toujours vendables ; vérification côté serveur au paiement.
 
@@ -48,12 +48,12 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 
 - **FR-11 Panier sans compte** : ajouter, modifier, retirer sans Compte ; Panier conservé et fusionné avec le Compte à la connexion ; un Kit en un exemplaire au plus et jamais s'il est déjà possédé ; jamais de Pass dans le Panier.
 - **FR-12 Création de compte et connexion** : Compte créé sans achat ou au moment de payer ; connexion par code à 6 chiffres reçu par email (partout) ou Google (hors navigateurs intégrés) ; retour à la page et au Panier quittés ; âge déclaré à la création (moins de 13 ans refusé, 13 à 17 ans = Compte mineur qui peut acheter, obtenir des Pass et participer à « 10 pass gratuits ») ; trois questions d'accueil facultatives (« Comment nous as-tu connus ? », « Quel univers préfères-tu ? », « Tu préfères porter ou fabriquer ? ») qui alimentent FR-54 et FR-59.
-- **FR-13 Étape de commande** : téléphone, Zone de remise (Goma ou Bukavu), Mode de remise à Goma seulement (retrait gratuit ou livraison), adresse en champ libre si livraison ; aucun de ces champs pour un Panier 100 % numérique. Cases : CGV ; Kit (accès immédiat, renonciation au droit de rétractation, Licence de kit ; non remboursable) ; Sur-mesure (Mesures confirmées, pas d'annulation après le début de la fabrication). Le serveur recalcule depuis la base sous-total, Forfait, réduction et total, vérifie stock et Plafond, crée la Commande `en attente` qui réserve stock et place pendant le Délai de paiement ; à l'échéance sans paiement vérifié → `expirée`, réservation libérée ; le client qui revient retrouve son Panier et ses champs, puis repart sur une nouvelle Commande.
+- **FR-13 Étape de commande** : téléphone, Zone de remise (Goma ou Bukavu), Mode de remise à Goma seulement (retrait gratuit ou livraison), adresse en champ libre si livraison ; aucun de ces champs pour un Panier 100 % numérique. Cases : CGV ; Kit (accès immédiat, renonciation au droit de rétractation, Licence de kit ; non remboursable) ; Sur-mesure (engagement à envoyer les mesures sur WhatsApp, délai compté depuis leur réception, pas d'annulation après le début de la fabrication). Le serveur recalcule depuis la base sous-total, Forfait, réduction et total, vérifie stock et Plafond, crée la Commande `en attente` qui réserve stock et place pendant le Délai de paiement ; à l'échéance sans paiement vérifié → `expirée`, réservation libérée ; le client qui revient retrouve son Panier et ses champs, puis repart sur une nouvelle Commande.
 - **FR-14 Récapitulatif avant paiement** : prix de chaque article en USD, Forfait de livraison, réduction, total USD, délai total de chaque Produit physique.
 
-**§4.4 Paiement** (décision du 2026-10-16 : mobile money via PawaPay, K-Pay, MaishaPay, GeniusPay ; carte via K-Pay pour tout panier avec Produit physique et pour les Pass ; Polar seulement pour un Panier 100 % numérique ; prix USD, conversion faite par le Prestataire)
+**§4.4 Paiement** (décision du 2026-10-16, GeniusPay abandonné le 2026-10-31 : mobile money via PawaPay, K-Pay, MaishaPay ; carte via K-Pay pour tout panier avec Produit physique et pour les Pass ; Polar seulement pour un Panier 100 % numérique ; prix USD, conversion faite par le Prestataire)
 
-- **FR-15 Couche de paiement à Adaptateurs** : une couche commune et un Adaptateur par Prestataire ; ajouter ou retirer un Agrégateur ne touche pas au reste du site. Au lancement : PawaPay (API v2), K-Pay (mobile money et carte), MaishaPay (mobile money), Polar (carte, Kits). K-Pay et MaishaPay sont construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation (Q-S1) ; GeniusPay attend Q-2, rien de son API n'est supposé.
+- **FR-15 Couche de paiement à Adaptateurs** : une couche commune et un Adaptateur par Prestataire ; ajouter ou retirer un Agrégateur ne touche pas au reste du site. Au lancement : PawaPay (API v2), K-Pay (mobile money et carte), MaishaPay (mobile money), Polar (carte, Kits). K-Pay et MaishaPay sont construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation (Q-S1) ; GeniusPay est abandonné (2026-10-31).
 - **FR-16 Choix du moyen de paiement** : le client choisit son pays d'abord ; mobile money proposé en premier si un Agrégateur actif couvre ce pays, sinon carte seule. Seuls les Prestataires autorisés sont proposés : Panier mixte ou avec Produit physique + carte → K-Pay, jamais Polar ; Panier 100 % numérique + carte → Polar, sinon « Carte indisponible » (aucun remplaçant) ; Pass + carte → K-Pay ; mobile money → Agrégateur actif prioritaire couvrant le couple pays-opérateur ; couple non couvert → message et invitation à choisir un autre opérateur ou la carte. Avant validation : « Paiement traité par {Prestataire} », en texte, sans logo.
 - **FR-17 Repli entre Agrégateurs** : chaque essai = une Tentative de paiement distincte ; repli proposé au client vers l'Agrégateur suivant couvrant le même couple seulement si l'Agrégateur est désactivé ou si la Tentative est confirmée en échec par l'Agrégateur ; sans réponse ou réponse ambiguë → jamais traité comme un échec, « paiement en cours de vérification », aucun repli ; échec dû au client → pas de bascule, réessai possible ; une seule Tentative en cours par Commande ; test automatique : un délai dépassé ne déclenche pas de repli.
 - **FR-18 Vérification serveur du Prestataire** : la route qui choisit le Prestataire vérifie en base la Famille de chaque article, la présence d'un Pass, le moyen, le pays et l'opérateur. Tests automatiques : Panier mixte jamais chez Polar ; Pass jamais chez Polar ; repli vers l'Agrégateur suivant du couple ; Référence de transaction déjà utilisée refusée.
@@ -64,7 +64,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 **§4.5 Remise, suivi et service après-vente**
 
 - **FR-22 Suivi de commande client** : dans le Compte, liste des Commandes et frise des Statuts avec dates, numéro de suivi s'il existe, bouton WhatsApp.
-- **FR-23 Vérification des Mesures** : tâche « Mesures à vérifier » pour toute Commande Sur-mesure payée ; l'Admin contacte le client hors du site, corrige et valide ; pas de passage `en fabrication` sans Mesures validées.
+- **FR-23 Réception des mesures** : tâche « Mesures à recevoir » pour toute Commande Sur-mesure payée ; l'Admin confirme la réception (date seule, aucune mesure enregistrée) ; pas de passage `en fabrication` sans réception confirmée.
 - **FR-24 Avancement manuel des Commandes** : l'Admin fait avancer les statuts (transitions autorisées seulement), saisit un numéro de suivi facultatif (texte libre, Q-9) et corrige l'adresse ; chaque changement envoie l'email correspondant ; un article en stock passe directement de `payée` à `expédiée` ; aucun retour en arrière (correction hors site, journalisée) ; retrait à Goma : `expédiée` s'affiche « Prête à retirer ».
 - **FR-25 Annulation d'une Commande de Cosplay** : demandée par le client tant que la Commande n'est pas `en fabrication`, validée par l'Admin → `annulée`, stock et place dans le Plafond libérés ; `remboursée` seulement quand l'Admin confirme le remboursement avec une preuve. Commande mixte : toutes les pièces physiques annulées ensemble, Kit conservé et non remboursé, montant rendu = pièces physiques + Forfait ; pas d'annulation partielle ; mécanisme de remboursement selon Q-4.
 - **FR-26 Réclamation et remplacement** : dans les 48 h suivant la livraison, signalement d'un Produit physique abîmé ou différent (Accessoire ou Cosplay en taille standard) ; validation par l'Admin ; retour de l'article et remplacement, refabriqué si besoin ; pas de remboursement des Produits physiques livrés ; Kits jamais remboursables ; au-delà de 48 h, plus de réclamation en ligne ; cas de remplacement impossible : CGV (Q-6).
@@ -151,7 +151,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 **Structure et conventions**
 
 - Monolithe modulaire : `src/app/[locale]/…` (pages), `src/app/api/…` (notifications, cron, kits, mesure, état de commande), `src/modules/<module>/` (`actions.ts`, `service.ts`, `queries.ts`, `schemas.ts`, `types.ts`, `server-only` sauf types et schémas), `src/modules/paiement/adaptateurs/<prestataire>/`, `src/lib/` (supabase, auth, cache, seo, env, argent, dates, journal), `supabase/migrations/`, `supabase/tests/`, `tests/e2e/`, `tests/doubles/`, `messages/fr.json` et `en.json`, `public/sw-scan.js`, `src/proxy.ts`.
-- AD-1 : chaque table appartient à un seul module (catalogue, commande, paiement, bibliotheque, evenements, communaute, blog, promo, comptes, envois, mesure, admin) ; effets entre modules par fonctions internes SQL `<module>_<verbe>` ; aucun trigger métier entre modules ; un `CREATE OR REPLACE` part de la dernière version appliquée et tous les tests livrés repassent.
+- AD-1 : chaque table appartient à un seul module (catalogue, commande, paiement, bibliotheque, evenements, communaute, blog, promo, comptes, envois, mesure (audience), admin) ; effets entre modules par fonctions internes SQL `<module>_<verbe>` ; aucun trigger métier entre modules ; un `CREATE OR REPLACE` part de la dernière version appliquée et tous les tests livrés repassent.
 - AD-2 : le navigateur n'écrit jamais dans une table métier ; toute écriture passe par Server Action ou route API validée par Zod ; trois clients Supabase seulement (`public.ts`, `session.ts`, `service.ts`) ; exceptions : téléversements directs sur autorisation signée, file de scans hors ligne en IndexedDB.
 - AD-3 : statuts et compteurs de stock modifiés uniquement par des fonctions Postgres `SECURITY DEFINER`, `search_path = ''`, verrou de ligne, matrice de transitions, journal ; `REVOKE` à `anon`/`authenticated`, `GRANT` à `service_role` ; test CI qui échoue si une fonction exécutable par `anon`/`authenticated` écrit ; aucun statut ne recule.
 - AD-14 : vocabulaire du Glossaire, sans accent, `snake_case` au singulier en base ; statuts imposés (Commande, Tentative, Pass, Demande client) ; fichiers TS en `kebab-case`, composants en `PascalCase.tsx` ; migrations `AAAAMMJJHHMMSS_verbe_objet.sql`.
@@ -173,7 +173,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 - AD-28 : statuts de Tentative `en_cours`, `reussie`, `echouee` (cause `client` ou `prestataire`), `abandonnee` ; au plus une Tentative `en_cours` par Commande (index unique partiel).
 - AD-29 : `a_deja_achete`, `utilisations_code_promo` ; utilisation réservée à la création de la Commande, libérée à l'expiration ou l'annulation ; aucun compteur sur `code_promo`.
 - AD-31 : `demande_client` (annulation_commande, annulation_pass, reclamation) avancée par `traiter_demande` ; `remboursement` figé (Commande, Pass, Trop-perçu) ; `confirmer_remboursement` exige une preuve ; réclamation `acceptee → article_rendu → remplacement_remis`.
-- AD-32 : Mesures en `jsonb` validées par un seul schéma Zod versionné `schemaMesures` (centimètres entiers ; liste et bornes : E-10) ; `corriger_mesures`, `valider_mesures`.
+- AD-32 : aucune mesure stockée ; bouton WhatsApp avec numéro des réglages ; `ligne_commande.mesures_recues_le` posé par `confirmer_mesures_recues`, exigé par `avancer_statut` vers `en_fabrication`.
 - AD-34 : acceptations exigées par `creer_commande` et `offrir_commande` (`KS_ACCEPTATION_MANQUANTE`) et enregistrées avec version et horodatage ; consentements dans la table `consentement`.
 - AD-35 : page de retour et écran d'attente ignorent tout paramètre de statut de l'URL ; état lu par `GET /api/commande/[numero]/etat` (404 si la Commande n'est pas au Compte connecté) ; retour POST du Prestataire redirigé en GET.
 
@@ -205,17 +205,17 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 **Questions ouvertes qui bloquent des stories (architecture)**
 
 - **Q-S1 (redéfinie le 2026-10-20)** : aucune intégration existante n'est reprise. Jonathan fournit la documentation officielle de K-Pay et de MaishaPay, tirée de ses espaces marchands, dans `docs/references/paiements/` (dossier exclu du dépôt par `.gitignore`, lu en local seulement). Les clés API et identifiants marchands vont uniquement dans `.env.local` et dans les variables d'environnement de Hostinger, remplis par Jonathan. → bloque les adaptateurs K-Pay et MaishaPay ; leur Couverture (Q-1) et leur règle de comparaison du montant (Q-3) seront tirées de cette documentation, sans rien deviner.
-- **Q-1** : Couverture pays-opérateur, surtout PawaPay et GeniusPay → bloque FR-16 en production.
-- **Q-2** : API GeniusPay (notification vérifiable, remboursement, devise) → bloque l'adaptateur GeniusPay.
-- **Q-3** : devise débitée et règle de comparaison du montant → bloque `comparerMontant` de PawaPay et GeniusPay, et désormais aussi de K-Pay et MaishaPay (construits à partir de leur documentation officielle).
-- **Q-4** : remboursement par API → ne bloque aucune story (remboursement manuel avec preuve, AD-31) ; PawaPay et GeniusPay ne dépendent que de Q-1, Q-2 et Q-3 (décision du 2026-10-20).
+- **Q-1** : Couverture pays-opérateur, surtout PawaPay → bloque FR-16 en production.
+- **Q-2** : abandonnée le 2026-10-31 (GeniusPay n'est plus utilisé).
+- **Q-3** : devise débitée et règle de comparaison du montant → bloque `comparerMontant` de PawaPay, K-Pay et MaishaPay (construits à partir de leur documentation officielle).
+- **Q-4** : remboursement par API → ne bloque aucune story (remboursement manuel avec preuve, AD-31) ; PawaPay ne dépend que de Q-1 et Q-3 (décision du 2026-10-20).
 - **Q-5** : textes légaux, durée de conservation, suppression de Compte → bloque l'ouverture des ventes.
 - **Q-N1** : nom affiché définitif du site (KOMA SHOP ou KOMA FEST). Valeur de départ provisoire « KOMA SHOP » dans le réglage `nom_site`, seule source du nom (titres SEO, JSON-LD Organization, emails, pied de page, filigrane), modifiable dans l'admin. Bloque seulement la mise en ligne.
 - **Q-D1** : nom de domaine pas encore acheté ; développement et tests en local ; adresse lue dans `NEXT_PUBLIC_SITE_URL` → bloque seulement la story de mise en ligne.
 - **Q-C1 Candidature Stand (ajoutée le 2026-10-21)** : Jonathan veut une candidature pour le Pass Stand (description de ce que l'exposant vend, 3 photos, Instagram ; validation par l'Admin ; lien de paiement valable 48 h ; condition écrite : propres créations, aucune contrefaçon). À passer par bmad-correct-course juste après ce découpage (modification de FR-33 et AD-7), puis à ajouter comme story 7.11. Le transfert de Pass n'est pas prévu au lancement (FR-34 inchangé).
 - **Décision M5 tranchée le 2026-10-21** : tunnel Cloudflare (`cloudflared`) en développement seulement, ouvert pendant les essais de paiement, pour recevoir les notifications sandbox ; exception à la règle 14 notée dans le journal de décisions de l'architecture ; jamais en production.
 - **Q-A1** (tarifs Bunny), **Q-A2** (Hostinger) → budget et première mise en ligne. **Q-F1** (Sakura Town) → reste ouverte ; bloque la mise en ligne avec Sakura Town, pas le développement (repli Barlow Condensed). Décision du 2026-10-21 : `Sakura Town.otf` retiré de l'index Git et son dossier ignoré ; historique non réécrit tant que l'éditeur n'a pas répondu ; s'il refuse l'usage commercial, nettoyage de l'historique (`main` et `production`) dans une tâche séparée.
-- **E-10** : liste et bornes des Mesures, fournies par Jonathan → bloque seulement la story Sur-mesure. **E-36** : tranchée le 2026-10-21 : « Voir plus », 12 éléments par clic, vrai lien avec curseur dans l'adresse.
+- **E-10** : abandonné le 2026-10-31 (aucune mesure stockée) ; ne bloque plus rien. **E-36** : tranchée le 2026-10-21 : « Voir plus », 12 éléments par clic, vrai lien avec curseur dans l'adresse.
 
 ### Exigences de conception UX
 
@@ -256,7 +256,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 
 - **UX-DR22 Galerie photo produit** : photos dans l'ordre de l'admin, alt obligatoire ; balayage **et** boutons « Photo précédente / suivante » ; vignettes au clavier ; position « Photo 2 sur 5 » annoncée ; zoom par pincement **et** bouton « Agrandir » (Boîte de dialogue avec +/−) ; zoom natif jamais bloqué ; pas de défilement automatique.
 - **UX-DR23 Sélecteurs à options** : radios natifs ou `radiogroup`, flèches, **aucune sélection ne change de page ni ne déclenche d'action** ; double option : « Le fabriquer moi-même » affiche sur place un panneau « Kit lié » (prix, accès immédiat, lien « Voir le kit ») et masque tailles, délai, bandeau et bouton d'ajout ; Retrait / Livraison seulement si Zone = Goma, avec lieu et modalités du Réglage ; sélecteur de tailles (XS à XXL, Sur-mesure ; Plafond atteint : seules les tailles en stock restent, sinon le sélecteur disparaît) ; sélection = bordure rouge 2 px **et** coche.
-- **UX-DR24 Schéma des Mesures** : illustration au trait (alt court renvoyant à la liste), champs numérotés avec unité, `inputmode="decimal"`, bornes plausibles avec message clair, instructions en texte ; ajout au Panier bloqué tant que les Mesures sont incomplètes (liste et bornes : E-10).
+- **UX-DR24 Bouton « Envoyer mes mesures sur WhatsApp »** (remplace le Schéma des Mesures, 2026-10-31) : lien natif vers WhatsApp, libellé clair, message pré-rempli avec le numéro de commande ; affiché sur la page de commande et dans l'email de confirmation d'une Commande avec ligne Sur-mesure ; texte visible qui dit que le Délai de fabrication court à partir de la réception des mesures ; aucun champ de mesure.
 - **UX-DR25 Bandeau d'information** : surface + barre rouge 4 px ; avertissement de zone affiché à tous, avant le bouton d'ajout, avec le Kit lié ; bandeau navigateur intégré « Ouvrir dans Chrome » non bloquant, `role="region"` libellé, bouton « Fermer le bandeau » 44 px, choix mémorisé, ne recouvre jamais un élément focalisé.
 - **UX-DR26 Bouton Obtenir le Kit gratuit** : sans Panier, Récapitulatif, choix de paiement ni Prestataire ; non connecté → connexion puis retour sur la fiche ; verrouillé au toucher ; succès → « Ouvrir dans ma bibliothèque » ; résumé de la Licence et case d'acceptation obligatoire au-dessus ; aucun bouton d'ajout au Panier sur ce Kit.
 
@@ -288,7 +288,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 
 - **UX-DR42 Navigation admin** : barre latérale sur ordinateur (`nav aria-label="Administration"`, Tableau de bord, Commandes, Produits, Événements, Galerie, Blog, Codes promo, Prestataires, Réglages ; entrée courante avec trait rouge 4 px ; compteur dans le nom accessible) ; barre d'onglets en bas sur mobile (Tableau de bord, Commandes, Mesures et tâches, Scan, 58 px) + ☰ pour le reste ; même thème que le site, sans Sakura Town ni motif manga.
 - **UX-DR43 Composants admin** : carte de tâche (compteur réel, lien vers la liste filtrée, carte à zéro atténuée) ; graphique en barres (valeur écrite sur chaque barre, « Voir les données en tableau », aucune donnée fictive, aucune couleur par série) ; tableau de données (`<caption>`, `<th scope>`, nombre de résultats annoncé, cartes sur mobile, filtres repliés dans `<details>`) ; pastille de statut (icône + mot, tâche liée écrite dessous) ; bloc Paiement en lecture seule (Prestataire, moyen, référence, montant, devise, date de notification vérifiée, phrase « le statut payée ne se pose jamais à la main ») ; interrupteur (`role="switch"`, mot « Actif » / « Désactivé » mis à jour après enregistrement réel) ; boutons Monter / Descendre (44 px, nom complet, `aria-disabled` en bout de liste).
-- **UX-DR44 Transitions admin** : une transition non autorisée est **absente** ; une transition autorisée dont la condition manque est affichée en `aria-disabled` avec la raison (« Valide d'abord les mesures… ») ; remboursement sans preuve → résumé d'erreur et erreur sur le champ « Preuve du remboursement » ; Réglage sans valeur → « Valeur à fixer », aucune valeur inventée ; Couverture non saisie → chaque couple « À vérifier » avec la source à citer ; « Admin : rien de nouveau » en messages d'état, aucun zéro décoratif.
+- **UX-DR44 Transitions admin** : une transition non autorisée est **absente** ; une transition autorisée dont la condition manque est affichée en `aria-disabled` avec la raison (« Confirme d'abord la réception des mesures… ») ; remboursement sans preuve → résumé d'erreur et erreur sur le champ « Preuve du remboursement » ; Réglage sans valeur → « Valeur à fixer », aucune valeur inventée ; Couverture non saisie → chaque couple « À vérifier » avec la source à citer ; « Admin : rien de nouveau » en messages d'état, aucun zéro décoratif.
 
 **États, ton, interactions, accessibilité, responsive (EXPERIENCE.md)**
 
@@ -317,7 +317,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 4. Échec de paiement → Commande `cancelled` (phase 6) ↔ `échouée`, repayable (FR-19).
 5. Annuler ou rembourser une Commande retire les accès aux Kits ; remise à zéro des téléchargements (phase 4) ↔ `acces_kit` jamais supprimé, Kit conservé dans une Commande mixte annulée (AD-11, FR-25), téléchargements illimités.
 6. Retours : pièce en stock retournable sous 14 jours, Kit remboursé si fichier illisible (section Légal) ↔ aucun remboursement d'un Produit physique livré, remplacement sous 48 h, Kits jamais remboursables (FR-26, FR-13).
-7. Case Sur-mesure « ni reprise ni échangée » (phase 5) ↔ Mesures confirmées et annulation impossible après le début de la fabrication (FR-13).
+7. Case Sur-mesure « ni reprise ni échangée » (phase 5) ↔ engagement à envoyer les mesures sur WhatsApp et annulation impossible après le début de la fabrication (FR-13).
 8. Compte créé automatiquement avec l'email au paiement (phase 5, user stories) ↔ Compte obligatoire avant paiement, par code à 6 chiffres ou Google (FR-12).
 9. Ordre des moyens de paiement selon l'origine du visiteur (« mobile money en premier pour les visiteurs africains ») ↔ pays choisi par le client, aucune détection (FR-16).
 10. Délais de remise : Bukavu « moins d'un jour » et Goma « à préciser » (guide) ↔ Goma en moins d'un jour, Bukavu en un jour au plus (CLAUDE.md, EXPERIENCE.md E-26).
@@ -341,7 +341,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 | FR-5 | 2, 3 | Catalogues Cosplays et Accessoires (epic 2) ; catalogue Kits et filtre niveau (epic 3) |
 | FR-6 | 2 | Fiche d'un Produit physique, avertissement de zone |
 | FR-7 | 3 | Double option « Prêt à porter » / « Le fabriquer moi-même » |
-| FR-8 | 6 | Sur-mesure et Schéma des Mesures (story bloquée par E-10) |
+| FR-8 | 6 | Sur-mesure : bouton WhatsApp (plus aucune saisie de mesures) |
 | FR-9 | 3 | Fiche Kit et « Ouvrir dans ma bibliothèque » |
 | FR-10 | 2, 4 | Disponibilité affichée (epic 2) ; vérification et réservation au paiement (epic 4) |
 | FR-11 | 4 | Panier sans compte, fusion, règles des Kits |
@@ -356,7 +356,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 | FR-20 | 4 | Page de retour après paiement |
 | FR-21 | 4, 5 | Activation et ordre (epic 4) ; Couverture (epic 5) |
 | FR-22 | 6 | Suivi de commande client |
-| FR-23 | 6 | Vérification des Mesures |
+| FR-23 | 6 | Réception des mesures confirmée |
 | FR-24 | 6 | Avancement manuel, numéro de suivi |
 | FR-25 | 6 | Annulation d'une Commande de Cosplay, remboursement avec preuve |
 | FR-26 | 6 | Réclamation et remplacement |
@@ -421,12 +421,12 @@ Le visiteur remplit son Panier sans Compte, se connecte, passe commande, paie un
 ### Epic 5 : Le mobile money et la carte K-Pay
 Le client paie par mobile money (pays, opérateur, Agrégateur prioritaire, repli proposé) et paie ses Produits physiques et ses Pass par carte via K-Pay.
 **FRs couvertes :** FR-15 (adaptateurs), FR-16 (Couverture), FR-17, FR-21 (Couverture), NFR-6
-**Notes :** stories K-Pay (mobile money et carte) et MaishaPay bloquées par Q-S1 (documentation officielle dans `docs/references/paiements/`, hors dépôt), avec Q-1 et Q-3 tirées de cette documentation ; PawaPay bloquée par Q-1 et Q-3 ; GeniusPay bloquée par Q-1, Q-2 et Q-3. Stories communes (attente, repli, réconciliation, Trop-perçu, saisie de la Couverture) non bloquées. Condition d'ouverture §6.1 : au moins un Agrégateur RDC et K-Pay carte.
+**Notes :** stories K-Pay (mobile money et carte) et MaishaPay bloquées par Q-S1 (documentation officielle dans `docs/references/paiements/`, hors dépôt), avec Q-1 et Q-3 tirées de cette documentation ; PawaPay bloquée par Q-1 et Q-3. Stories communes (attente, repli, réconciliation, Trop-perçu, saisie de la Couverture) non bloquées. Condition d'ouverture §6.1 : au moins un Agrégateur RDC et K-Pay carte.
 
 ### Epic 6 : Le suivi et l'après-vente des Produits physiques
-Une cliente commande un cosplay sur mesure ; Jonathan vérifie les Mesures, fait avancer la Commande et elle reçoit un email à chaque étape ; le client peut annuler avant fabrication ou réclamer sous 48 h ; Jonathan confirme les remboursements avec preuve.
+Une cliente commande un cosplay sur mesure ; Jonathan confirme la réception des mesures, fait avancer la Commande et elle reçoit un email à chaque étape ; le client peut annuler avant fabrication ou réclamer sous 48 h ; Jonathan confirme les remboursements avec preuve.
 **FRs couvertes :** FR-8, FR-22, FR-23, FR-24, FR-25, FR-26, FR-44 (statuts), FR-49 (Commandes admin)
-**Notes :** story Sur-mesure bloquée par E-10 (Jonathan fournit la liste). Les tests automatiques créent des Commandes physiques dans `koma-dev` (règle 13) ; le test réel de bout en bout attend l'epic 5.
+**Notes :** stories 6.4 et 6.5 : plus bloquées (E-10 abandonné). Les tests automatiques créent des Commandes physiques dans `koma-dev` (règle 13) ; le test réel de bout en bout attend l'epic 5.
 
 ### Epic 7 : Le Festival, les Pass et le Scan
 Une visiteuse trouve l'Événement, achète ses Pass nominatifs et les reçoit avec leur Code QR ; le jour J, un bénévole scanne, même hors ligne ; Jonathan crée l'Événement, l'Accès bénévole et traite les annulations.
@@ -1002,7 +1002,7 @@ afin de décider sans mauvaise surprise sur le prix, le délai ou la remise.
 **Quand** son adresse est ouverte
 **Alors** la page 404 s'affiche
 
-**Note :** l'ajout au Panier arrive à l'epic 4, le Schéma des Mesures du Sur-mesure à l'epic 6, et la proposition du Kit lié à l'epic 3.
+**Note :** l'ajout au Panier arrive à l'epic 4, le bouton WhatsApp du Sur-mesure à l'epic 6, et la proposition du Kit lié à l'epic 3.
 
 ### Story 2.6 : Héros vidéo de l'accueil
 
@@ -1327,7 +1327,7 @@ afin de préparer mon achat à mon rythme.
 **Étant donné** la fiche d'un produit physique
 **Quand** le visiteur choisit une taille puis touche « Ajouter au panier »
 **Alors** l'article est ajouté, « Ajouté au panier » est annoncé (`role="status"`) sans déplacer le focus, et le compteur de l'en-tête devient « Panier, N articles » (UX-DR10)
-**Et** pour la taille Sur-mesure, le bouton reste en `aria-disabled` avec la raison « Les mesures sont nécessaires pour le sur-mesure. » et le serveur refuse l'ajout tant que les Mesures ne sont pas saisies (FR-8 ; saisie des Mesures à l'epic 6)
+**Et** pour la taille Sur-mesure, l'ajout au Panier est libre (aucune mesure saisie) ; la fiche indique que les mesures s'envoient sur WhatsApp après la commande (FR-8, story 6.4)
 
 **Étant donné** la fiche d'un Kit payant
 **Quand** le visiteur l'ajoute
@@ -1560,12 +1560,12 @@ afin d'ouvrir mon Kit même sans mobile money.
 
 ## Epic 5 : Le mobile money et la carte K-Pay
 
-Le client paie par mobile money (pays, opérateur, Agrégateur prioritaire, repli proposé) et paie ses Produits physiques par carte via K-Pay. Les stories 5.1 à 5.3 ne dépendent d'aucune question ouverte ; chaque adaptateur (5.4 à 5.8) démarre quand sa documentation est disponible, dans l'ordre K-Pay mobile money, K-Pay carte, MaishaPay, PawaPay, GeniusPay, modifiable selon l'arrivée des documentations.
+Le client paie par mobile money (pays, opérateur, Agrégateur prioritaire, repli proposé) et paie ses Produits physiques par carte via K-Pay. Les stories 5.1 à 5.3 ne dépendent d'aucune question ouverte ; chaque adaptateur (5.4 à 5.7) démarre quand sa documentation est disponible, dans l'ordre K-Pay mobile money, K-Pay carte, MaishaPay, PawaPay, modifiable selon l'arrivée des documentations.
 
 **Règles propres aux stories d'adaptateur (décision de Jonathan du 2026-10-21) :**
 
 - **Essais** : environnement de test du Prestataire s'il existe ; sinon, petits paiements réels faits par Jonathan sur `koma-dev`, au plus petit montant accepté, remboursés à la main et notés dans le journal de décisions (date, Prestataire, montant, remboursement fait), sans clé, numéro de marchand ni donnée personnelle (règle 4).
-- **Applications dédiées à KOMA SHOP (décision du 2026-10-21)** : K-Pay et MaishaPay permettent plusieurs applications par compte marchand. Jonathan crée chez chacun une application dédiée à KOMA SHOP, séparée de celle de son autre produit, avec ses propres clés et ses propres adresses de notification ; KOMA SHOP n'utilise jamais les clés ni les réglages de l'autre application. Les adresses de notification et de retour de KOMA SHOP sont aussi envoyées avec chaque paiement quand l'API le permet (K-Pay : paramètre `returl`). Pour PawaPay et GeniusPay, si un réglage s'applique à tout le compte, la story vérifie d'abord que ce compte ne sert qu'à KOMA SHOP, sinon elle s'arrête et le signale (règle 15).
+- **Applications dédiées à KOMA SHOP (décision du 2026-10-21)** : K-Pay et MaishaPay permettent plusieurs applications par compte marchand. Jonathan crée chez chacun une application dédiée à KOMA SHOP, séparée de celle de son autre produit, avec ses propres clés et ses propres adresses de notification ; KOMA SHOP n'utilise jamais les clés ni les réglages de l'autre application. Les adresses de notification et de retour de KOMA SHOP sont aussi envoyées avec chaque paiement quand l'API le permet (K-Pay : paramètre `returl`). Pour PawaPay, si un réglage s'applique à tout le compte, la story vérifie d'abord que ce compte ne sert qu'à KOMA SHOP, sinon elle s'arrête et le signale (règle 15).
 - **Clés** : les clés de l'application KOMA SHOP restent uniquement dans `.env.local`, puis dans les variables d'environnement de Hostinger à la mise en ligne ; jamais dans le dépôt, dans `koma-dev` en ligne, ni dans les journaux (règle 4).
 - **Tunnel** : le tunnel Cloudflare (`cloudflared`) reçoit les notifications de tous les Prestataires, ouvert seulement pendant les essais de Jonathan, jamais en production.
 - **Rien n'est deviné** : appels, devises, codes d'erreur, classement des échecs (client, Prestataire, inconnu), vérification des notifications et `comparerMontant` viennent de la documentation officielle du Prestataire ; un code inconnu est classé `inconnu` (règle 15, AD-5, AD-8).
@@ -1758,32 +1758,13 @@ afin d'élargir les pays et opérateurs acceptés.
 **Quand** Jonathan teste sur son téléphone
 **Alors** un paiement via PawaPay aboutit en environnement de test, ou par un petit paiement réel remboursé et noté
 
-### Story 5.8 : Paiement mobile money via GeniusPay
+### Story 5.8 : (abandonnée) Paiement mobile money via GeniusPay
 
-En tant que client,
-je veux payer via GeniusPay quand il couvre mon opérateur,
-afin d'avoir un Agrégateur de plus en secours.
-
-**Bloquée par :** Q-1, Q-2 (ce que permet l'API : notification vérifiable, remboursement, devise) et Q-3.
-
-**Critères d'acceptation :**
-
-**Étant donné** la documentation de GeniusPay (https://geniuspay.ci/docs/api)
-**Quand** la story démarre
-**Alors** elle vérifie d'abord que l'API permet une notification vérifiable ou une contre-vérification du statut ; sinon, elle s'arrête et le signale à Jonathan, sans adaptateur partiel (règles 2 et 15)
-
-**Étant donné** l'adaptateur `geniuspay`
-**Quand** il est écrit
-**Alors** il suit les mêmes exigences que les autres adaptateurs (port commun, aucun accès à Supabase, adresses envoyées avec chaque paiement, codes inconnus classés `inconnu`)
-**Et** la carte GeniusPay n'est pas branchée (règle 10)
-
-**Étant donné** la fin de la story
-**Quand** Jonathan teste sur son téléphone
-**Alors** un paiement via GeniusPay aboutit en environnement de test, ou par un petit paiement réel remboursé et noté
+Story retirée le 2026-10-31 : GeniusPay est abandonné. Le mobile money passe par PawaPay, K-Pay et MaishaPay. Le numéro 5.8 n'est pas réutilisé.
 
 ## Epic 6 : Le suivi et l'après-vente des Produits physiques
 
-Une cliente commande un cosplay sur mesure ; Jonathan vérifie les Mesures, fait avancer la Commande et elle reçoit un email à chaque étape ; le client peut annuler avant la fabrication ou réclamer sous 48 h ; Jonathan confirme les remboursements avec preuve.
+Une cliente commande un cosplay sur mesure ; Jonathan confirme la réception des mesures, fait avancer la Commande et elle reçoit un email à chaque étape ; le client peut annuler avant la fabrication ou réclamer sous 48 h ; Jonathan confirme les remboursements avec preuve.
 
 **Tests (décision de Jonathan du 2026-10-21) :** les tests automatiques couvrent tout l'epic avec des données `TEST_` ; aucun script ne crée de Commande `TEST_` hors des tests automatiques (règle 13). Le test de Jonathan sur téléphone attend la story 5.5 (K-Pay carte) ; si elle est encore bloquée à la fin de l'epic 6, l'agent le signale à Jonathan.
 
@@ -1858,57 +1839,56 @@ afin de tenir mes clients informés sans écrire chaque message.
 **Et** l'email `commande_livree` invite le client à envoyer sa photo par WhatsApp, avec le lien vers le numéro réglé ; le lien vers le site arrivera à l'epic 8 (décision du 2026-10-21)
 **Et** une Commande 100 % numérique ne reçoit jamais `commande_livree`
 
-### Story 6.4 : Saisie des Mesures du Sur-mesure
+### Story 6.4 : Envoi des mesures du Sur-mesure sur WhatsApp
 
 En tant que cliente,
-je veux saisir mes mesures avec un schéma clair,
-afin de recevoir un cosplay à ma taille.
+je veux envoyer mes mesures à Jonathan directement sur WhatsApp depuis ma commande,
+afin de recevoir un cosplay à ma taille sans que le site garde mes mesures.
 
-**Bloquée par :** E-10 (liste des Mesures et bornes, fournies par Jonathan).
+**Décision du 2026-10-31 :** E-10 est abandonné ; le site ne collecte ni ne stocke aucune mesure. Aucune table, colonne ni champ de mesures.
 
 **Critères d'acceptation :**
 
-**Étant donné** `schemaMesures` (schéma Zod versionné, centimètres entiers, liste et bornes fournies par Jonathan, AD-32)
-**Quand** la cliente choisit Sur-mesure sur la fiche d'un cosplay
-**Alors** le Schéma des Mesures s'affiche : illustration avec alt court renvoyant à la liste, champs numérotés avec unité (« 3. Tour de poitrine (cm) »), `inputmode="decimal"`, instructions en texte (UX-DR24)
-**Et** une valeur hors bornes affiche un message clair relié au champ
-
-**Étant donné** des Mesures incomplètes
-**Quand** la cliente touche « Ajouter au panier »
-**Alors** l'ajout est refusé, le bouton est en `aria-disabled` avec la raison, et le focus va à la première mesure manquante ; le serveur refuse aussi (FR-8)
-**Et** avec des Mesures complètes, l'ajout réussit et les Mesures sont gardées dans `ligne_panier.mesures`
+**Étant donné** la fiche d'un cosplay en Sur-mesure
+**Quand** la cliente choisit Sur-mesure
+**Alors** aucun champ de mesure n'apparaît ; un texte dit que les mesures s'envoient sur WhatsApp après la commande et que le Délai de fabrication court à partir de leur réception
+**Et** « Ajouter au panier » fonctionne sans condition de mesures (FR-8)
 
 **Étant donné** l'étape de commande d'un Panier avec Sur-mesure
 **Quand** la cliente valide
-**Alors** une case confirme ses Mesures et le fait que l'annulation n'est plus possible après le début de la fabrication ; sans elle, `creer_commande` refuse (FR-13, AD-34)
-**Et** `creer_commande` copie les Mesures dans `mesures` avec la version du schéma ; la ligne est toujours d'origine `fabrication` (AD-26)
+**Alors** une case confirme qu'elle enverra ses mesures sur WhatsApp, que le Délai de fabrication court à partir de leur réception, et que l'annulation n'est plus possible après le début de la fabrication ; sans elle, `creer_commande` refuse (FR-13, AD-34)
 
-**Étant donné** une Commande payée
-**Quand** la cliente consulte ses Mesures
-**Alors** elle les voit sans pouvoir les modifier (FR-8)
+**Étant donné** une Commande qui contient au moins une ligne Sur-mesure
+**Quand** la cliente ouvre sa page de commande ou lit l'email de confirmation
+**Alors** le bouton « Envoyer mes mesures sur WhatsApp » est affiché ; il ouvre WhatsApp vers le numéro réglé dans les réglages (jamais en dur), avec un message pré-rempli qui contient le numéro de commande (UX-DR24)
+**Et** le texte « Le délai de fabrication court à partir de la réception de tes mesures » est visible juste à côté, en français et en anglais
+**Et** une Commande sans ligne Sur-mesure n'affiche jamais ce bouton
 
-### Story 6.5 : Vérification des Mesures par Jonathan
+**Étant donné** le numéro WhatsApp absent des réglages
+**Quand** la page de commande est affichée
+**Alors** le bouton est remplacé par un message qui invite à contacter Jonathan, et l'absence du réglage est signalée dans l'admin (règle 15 : aucun numéro inventé)
+
+### Story 6.5 : Réception des mesures confirmée par Jonathan
 
 En tant que Jonathan,
-je veux vérifier et corriger les Mesures avant de couper le tissu,
+je veux confirmer que j'ai reçu les mesures sur WhatsApp avant de couper le tissu,
 afin de ne pas fabriquer un costume à la mauvaise taille.
 
-**Bloquée par :** E-10 ; s'appuie sur la story 6.4.
+**Dépend de :** story 6.4. Aucune mesure n'est saisie ni enregistrée : seule la date de réception l'est (`ligne_commande.mesures_recues_le`, AD-32).
 
 **Critères d'acceptation :**
 
 **Étant donné** une Commande Sur-mesure payée
 **Quand** Jonathan ouvre ses tâches
-**Alors** « Mesures à vérifier » apparaît avec un compteur réel et un lien vers la Commande (FR-23, UX-DR43)
+**Alors** « Mesures à recevoir » apparaît avec un compteur réel et un lien vers la Commande (FR-23, UX-DR43)
 
 **Étant donné** le détail de la Commande
-**Quand** Jonathan corrige une Mesure après avoir contacté la cliente hors du site
-**Alors** `corriger_mesures` enregistre la nouvelle valeur, validée par `schemaMesures`, et journalise l'ancienne et la nouvelle valeur
-**Et** `valider_mesures` pose `valide_par` et `valide_le`
+**Quand** Jonathan a reçu les mesures sur WhatsApp et touche « Mesures reçues »
+**Alors** `confirmer_mesures_recues` pose `mesures_recues_le` et journalise l'action ; le Délai de fabrication affiché au client court à partir de cette date
 
-**Étant donné** une Commande Sur-mesure sans Mesures validées
+**Étant donné** une Commande Sur-mesure sans réception confirmée
 **Quand** Jonathan ouvre la Commande
-**Alors** « Passer en fabrication » est affiché en `aria-disabled` avec la raison « Valide d'abord les mesures. » ; `avancer_statut` refuse aussi côté serveur (FR-23, AD-32, UX-DR44)
+**Alors** « Passer en fabrication » est affiché en `aria-disabled` avec la raison « Confirme d'abord la réception des mesures. » ; `avancer_statut` refuse aussi côté serveur (FR-23, AD-32, UX-DR44)
 
 ### Story 6.6 : Annulation d'une Commande de Cosplay et remboursement
 
@@ -2573,7 +2553,7 @@ afin de faire l'essentiel avant d'ouvrir l'atelier.
 
 **Étant donné** l'ouverture de l'admin
 **Quand** le tableau de bord s'affiche
-**Alors** il montre d'abord les nouvelles Commandes payées, puis les graphiques de paiement (par Prestataire, par Famille, dans le temps), puis les cartes de tâche de `taches_admin` (Mesures, annulations, remboursements, remplacements, Trop-perçus, photos, Réalisations, messages de contact, anomalies), puis les indicateurs (FR-49, UX-DR43)
+**Alors** il montre d'abord les nouvelles Commandes payées, puis les graphiques de paiement (par Prestataire, par Famille, dans le temps), puis les cartes de tâche de `taches_admin` (Mesures à recevoir, annulations, remboursements, remplacements, Trop-perçus, photos, Réalisations, messages de contact, anomalies), puis les indicateurs (FR-49, UX-DR43)
 **Et** les indicateurs couvrent SM-1 à SM-10 et les signaux d'alerte SM-C1 à SM-C7 du PRD §7, calculés sur 7 et 30 jours
 **Et** chaque graphique écrit sa valeur sur chaque barre et propose « Voir les données en tableau » ; aucune donnée fictive, aucune couleur par série (règle 13)
 **Et** sans donnée : « Aucune nouvelle commande payée aujourd'hui. », « Aucune tâche en attente. », « Aucun paiement vérifié aujourd'hui. » avec un lien vers les 7 derniers jours (UX-DR44)

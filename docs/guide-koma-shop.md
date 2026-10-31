@@ -149,7 +149,7 @@ Le navigateur ne fait que lancer le paiement. La commande n'est validée que par
 
 ## Paiement et livraison
 
-> **Partie paiement remplacée par la décision de Jonathan du 2026-10-16.** Mobile money via quatre agrégateurs (PawaPay, K-Pay, MaishaPay, GeniusPay) ; carte via K-Pay pour les paniers avec produit physique ; Polar pour les paniers 100 % kits. Voir le PRD (`_bmad-output/planning-artifacts/prds/prd-KOMA SHOP-2026-10-16/prd.md`) et CLAUDE.md, règles 2 et 9 à 11. Le texte paiement ci-dessous est conservé pour mémoire et ne fait plus foi.
+> **Partie paiement remplacée par la décision de Jonathan du 2026-10-16.** Mobile money via trois agrégateurs (PawaPay, K-Pay, MaishaPay ; GeniusPay abandonné le 2026-10-31) ; carte via K-Pay pour les paniers avec produit physique ; Polar pour les paniers 100 % kits. Voir le PRD (`_bmad-output/planning-artifacts/prds/prd-KOMA SHOP-2026-10-16/prd.md`) et CLAUDE.md, règles 2 et 9 à 11. Le texte paiement ci-dessous est conservé pour mémoire et ne fait plus foi.
 
 Au lancement, tout passe par K-Pay : il accepte à la fois le mobile money et les cartes Visa et Mastercard ([doc K-Pay](https://www.kpay.africa/docs/)). Polar ne peut pas servir pour les costumes et accessoires : il ne vend que des produits numériques ([politique Polar](https://docs.polar.sh/merchant-of-record/acceptable-use)).
 
@@ -479,7 +479,7 @@ OBJECTIF : passer du panier à une commande prête à payer, avec un total juste
 
 ### Phase 6 — Paiement K-Pay
 
-> **Remplacée par la décision du 2026-10-16.** Mobile money via quatre agrégateurs (PawaPay, K-Pay, MaishaPay, GeniusPay), carte via K-Pay (produits physiques et pass) ou Polar (paniers 100 % kits). Voir le PRD (§4.4) et CLAUDE.md, règles 2 et 9 à 11.
+> **Remplacée par la décision du 2026-10-16.** Mobile money via trois agrégateurs (PawaPay, K-Pay, MaishaPay ; GeniusPay abandonné le 2026-10-31), carte via K-Pay (produits physiques et pass) ou Polar (paniers 100 % kits). Voir le PRD (§4.4) et CLAUDE.md, règles 2 et 9 à 11.
 
 Colle dans cette phase la documentation K-Pay de ton compte marchand, ou le code d'intégration déjà fait pour SwitchPro : Claude Code ne peut pas le deviner.
 

@@ -36,8 +36,8 @@ tracking_system: file-system
 story_location: _bmad-output/implementation-artifacts
 # NOTES KOMA SHOP (2026-10-21)
 # - Epic 7 : ne démarre qu'après le bmad-correct-course de la candidature Stand (Q-C1, FR-33 et AD-7), puis ajout de la story 7.11.
-# - Stories bloquées (restent en backlog) : Q-S1 (documentation K-Pay et MaishaPay : 5.4, 5.5, 5.6), Q-1 / Q-2 / Q-3 (5.4 à 5.8),
-#   E-10 (6.4 Sur-mesure), Q-D1 (9.9 mise en ligne).
+# - Stories bloquées (restent en backlog) : Q-S1 (documentation K-Pay et MaishaPay : 5.4, 5.5, 5.6), Q-1 / Q-3 (5.4 à 5.7) ; GeniusPay abandonné le 2026-10-31 (5.8 retirée),
+#   Q-D1 (9.9 mise en ligne). Story 5.8 (GeniusPay) retirée le 2026-10-31 ; 6.4 et 6.5 redéfinies (E-10 abandonné), plus bloquées.
 # - Story 1.1 : la protection de la branche production sur GitHub est faite par Jonathan ; le réglage hPanel est dans la story 9.9.
 development_status:
   epic-1: done
@@ -90,15 +90,14 @@ development_status:
   5-5-paiement-par-carte-via-k-pay-produits-physiques-et-paniers-m: backlog
   5-6-paiement-mobile-money-via-maishapay: backlog
   5-7-paiement-mobile-money-via-pawapay: backlog
-  5-8-paiement-mobile-money-via-geniuspay: backlog
   epic-5-retrospective: optional
 
   epic-6: backlog
   6-1-mes-commandes-et-suivi-client: backlog
   6-2-commandes-dans-l-admin: backlog
   6-3-avancement-manuel-des-commandes-et-emails-de-statut: backlog
-  6-4-saisie-des-mesures-du-sur-mesure: backlog
-  6-5-vérification-des-mesures-par-jonathan: backlog
+  6-4-envoi-des-mesures-du-sur-mesure-sur-whatsapp: backlog
+  6-5-réception-des-mesures-confirmée-par-jonathan: backlog
   6-6-annulation-d-une-commande-de-cosplay-et-remboursement: backlog
   6-7-réclamation-et-remplacement: backlog
   epic-6-retrospective: optional

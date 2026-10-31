@@ -147,7 +147,7 @@ Comportement seulement ; l'aspect est dans `DESIGN.md` › Components, sous les 
 
 | Composant | Usage | Règles de comportement |
 |---|---|---|
-| **Bouton principal** | Une action par zone | Pilule rouge. Condition non remplie (Mesures complètes, cases cochées) : `aria-disabled="true"` (reste focalisable) + `aria-describedby` vers la raison affichée à côté ; au clic, l'action est refusée et le focus va au premier champ manquant. Jamais un bouton désactivé sans explication. **Bouton qui lance un paiement ou une Commande** : verrouillé au premier toucher (voir State Patterns « Paiement lancé »). |
+| **Bouton principal** | Une action par zone | Pilule rouge. Condition non remplie (cases cochées) : `aria-disabled="true"` (reste focalisable) + `aria-describedby` vers la raison affichée à côté ; au clic, l'action est refusée et le focus va au premier champ manquant. Jamais un bouton désactivé sans explication. **Bouton qui lance un paiement ou une Commande** : verrouillé au premier toucher (voir State Patterns « Paiement lancé »). |
 | **Bouton secondaire** | Actions alternatives | Pilule surface ; jamais pour l'action de paiement. |
 | **Bouton WhatsApp** | Contact, À propos, suivi, échec de paiement, Trop-perçu | Ouvre WhatsApp vers le numéro réglé dans l'admin (FR-51), message prérempli [HYPOTHÈSE]. |
 | **Bouton de partage** | Chaque fiche et chaque Événement | Partage natif du téléphone si disponible, sinon copie du lien [HYPOTHÈSE], « Lien copié » annoncé (`role="status"`) ; l'aperçu montre la grande photo et le titre (FR-57). |
@@ -175,7 +175,7 @@ Comportement seulement ; l'aspect est dans `DESIGN.md` › Components, sous les 
 | **Galerie photo produit** | Fiche Produit physique | Photos dans l'ordre fixé dans l'admin, alt obligatoire (FR-50). Balayage horizontal **et** boutons « Photo précédente » / « Photo suivante » ; vignettes atteignables au clavier ; position annoncée « Photo 2 sur 5 ». Zoom : pincement **et** bouton « Agrandir » qui ouvre une **Boîte de dialogue** avec boutons +/−. Le zoom natif du navigateur n'est jamais bloqué (`user-scalable` interdit). Pas de défilement automatique. |
 | **Sélecteur à deux options** | Fiche Cosplay avec Kit lié ; Retrait / Livraison ; questions d'accueil | **Aucune sélection ne change de page ni ne déclenche d'action** (WCAG 3.2.2) : `radiogroup` ou `<input type="radio">` natifs, flèches pour se déplacer. Double option : « Prêt à porter » garde le parcours d'achat sur la fiche ; choisir « Le fabriquer moi-même » affiche **sur place** un panneau « Kit lié » (prix du Kit, délai d'accès immédiat) avec un **lien explicite « Voir le kit »** qui mène à sa fiche (FR-7) ; tailles, délai, bandeau et bouton d'ajout du Cosplay se masquent alors ([key-fiche-cosplay](mockups/key-fiche-cosplay.html), cadre 2). Retrait / Livraison : seulement si Zone de remise = Goma ; « Retrait » affiche le lieu et les modalités de retrait lus du Réglage (FR-51). |
 | **Sélecteur de tailles** | Fiche Cosplay (« Prêt à porter ») | Mêmes règles que le Sélecteur à deux options, à N valeurs : radios natifs, flèches pour se déplacer, aucune action au choix. Affiche les tailles proposées dans l'admin (XS à XXL) et Sur-mesure ; Sur-mesure affiche le **Schéma des Mesures**. Plafond atteint : seules les tailles en stock restent, sinon le sélecteur disparaît (FR-10) ([key-fiche-cosplay](mockups/key-fiche-cosplay.html)). |
-| **Schéma des Mesures** | Fiche Cosplay Sur-mesure | Illustration (alt court qui renvoie à la liste) + champs numérotés avec unité (« 3. Tour de poitrine (cm) »), `inputmode="decimal"`, bornes plausibles avec message clair ; instructions de prise de mesure **en texte** ; ajout au Panier bloqué tant que les Mesures sont incomplètes (FR-8) ; la case Sur-mesure de l'Étape de commande sert d'étape de vérification. Liste des mesures et bornes : E-10. |
+| **Bouton « Envoyer mes mesures sur WhatsApp »** | Page de commande et email de confirmation (Commande avec ligne Sur-mesure) | Lien natif vers WhatsApp (numéro des réglages), message pré-rempli avec le numéro de commande ; texte visible à côté : « Le délai de fabrication court à partir de la réception de tes mesures ». Aucun champ de mesure : le site ne collecte ni ne stocke aucune mesure (décision du 2026-10-31, E-10 abandonné). |
 | **Bandeau d'information** | Fiche Produit physique, navigateur intégré | Avertissement de zone : affiché à **tous**, sans détection de pays, **avant** le bouton d'ajout au Panier, avec le Kit lié s'il existe (FR-6). Navigateur intégré : « Ouvrir dans Chrome », **non bloquant**, `role="region"` avec libellé, bouton « Fermer le bandeau » 44 px, focus ensuite sur l'élément suivant, choix mémorisé (FR-3). Ne recouvre jamais un élément focalisé. |
 | **Bouton Obtenir le Kit gratuit** | Fiche Kit gratuit | **Sans Panier, sans Récapitulatif, sans choix de paiement, sans Prestataire** (FR-58). Visiteur non connecté → connexion puis retour sur la fiche. Au toucher : verrouillé, le serveur crée la Commande `offerte` (0 USD) et ouvre le Kit ; succès = lien « Ouvrir dans ma bibliothèque ». Déjà obtenu → le bouton devient « Ouvrir dans ma bibliothèque ». Résumé de la Licence de kit affiché ; case d'acceptation de la Licence obligatoire, sans renonciation (E-33). Ne compte pas comme premier achat pour un Code promo. Aucun bouton d'ajout au Panier sur le Kit gratuit. |
 
@@ -185,7 +185,7 @@ Comportement seulement ; l'aspect est dans `DESIGN.md` › Components, sous les 
 |---|---|---|
 | **Champ de formulaire** | Partout | Libellé visible (jamais un placeholder comme libellé) ; `autocomplete` (`email`, `tel`, `name`, `address-level2`, `street-address`, `country`) ; `inputmode="tel"` pour le numéro mobile money, indicatif en aide ; validation à la perte de focus **seulement si le champ a été modifié**, et à l'envoi ; erreur sous le champ, reliée par `aria-describedby`, qui dit comment corriger. À l'envoi : résumé d'erreurs en tête (`role="alert"`, liens vers les champs), focus sur le résumé. **Rien n'est ressaisi** après un échec de paiement, un « Réessayer », une connexion en cours de route ou une expiration (téléphone, opérateur, Zone de remise, adresse conservés). |
 | **Champ du code de connexion** | Connexion / création de Compte | **Un seul** champ `<input type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6">`, libellé visible ; **coller toujours permis** ; durée de validité du code annoncée en texte (valeur : E-34) ; lien « Renvoyer le code » (avec délai réel avant renvoi, s'il existe, affiché en texte) ; erreur reliée au champ ; pas de soumission automatique non annoncée ; l'email met le code **en texte**. Après connexion : retour à la page et au Panier quittés (FR-12). États : voir State Patterns. |
-| **Case de consentement** | Étape de commande, Pass, photo, Alertes événement | Jamais pré-cochée ; libellé entier cliquable. CGV ; Kit (accès immédiat, renonciation, Licence) ; Sur-mesure (Mesures confirmées, pas d'annulation après fabrication) ; mention photos (Pass) ; accord de publication (photo) ; emails commerciaux. Textes : Q-5. |
+| **Case de consentement** | Étape de commande, Pass, photo, Alertes événement | Jamais pré-cochée ; libellé entier cliquable. CGV ; Kit (accès immédiat, renonciation, Licence) ; Sur-mesure (engagement à envoyer les mesures sur WhatsApp, délai compté depuis leur réception, pas d'annulation après fabrication) ; mention photos (Pass) ; accord de publication (photo) ; emails commerciaux. Textes : Q-5. |
 | **Formulaire « Me prévenir »** | Page Événement, accueil bloc 5 | Email, Compte ou numéro WhatsApp au choix ; consentement explicite ; désinscription (FR-32). Forme (un champ ou trois options) : E-12. |
 | **Message d'état** | Panier, paiement, compte, admin | Un message = un état réel lu côté serveur ; succès / attention / erreur / information ; jamais simulé (règle 13). Icône + texte, jamais la couleur seule. |
 | **Barre de progression** | Envoi de photo / Réalisation, téléversements admin | `role="progressbar"` (ou `<progress>` natif) avec valeur ; valeur aussi écrite en texte ; coupure → reprise automatique annoncée en texte, rien n'est perdu ; « Annuler l'envoi » disponible. |
@@ -222,7 +222,7 @@ Comportement seulement ; l'aspect est dans `DESIGN.md` › Components, sous les 
 |---|---|---|
 | **Barre latérale admin** | Admin, ordinateur | `<nav aria-label="Administration">` ; entrée courante en `aria-current="page"` ; compteur d'attente inclus dans le nom accessible (« Commandes, 3 en attente ») ([key-admin-tableau](mockups/key-admin-tableau.html)). |
 | **Barre d'onglets admin** | Admin, mobile | Quatre onglets fixes en bas : Tableau de bord, Commandes, Mesures et tâches, Scan ; le reste dans ☰. Onglet courant en `aria-current="page"` ; une page atteinte par ☰ (Produits…) n'active aucun onglet ; compteur dans le nom accessible. |
-| **Carte de tâche admin** | Tableau de bord | Compteur réel + lien vers la liste filtrée, étendu à toute la carte ; nom de lien complet (« 3 Mesures à vérifier »). Une carte à zéro reste affichée, en ton atténué. |
+| **Carte de tâche admin** | Tableau de bord | Compteur réel + lien vers la liste filtrée, étendu à toute la carte ; nom de lien complet (« 3 Mesures à recevoir »). Une carte à zéro reste affichée, en ton atténué. |
 | **Graphique en barres** | Tableau de bord admin | Valeur écrite sur chaque barre ; « Voir les données en tableau » (`<details>` natif) ouvre le Tableau de données équivalent ; légende « fictif » interdite en production : données réelles seulement (règle 13). Aucune donnée → Message d'état, pas de barres à zéro décoratives. |
 | **Tableau de données admin** | Listes et doublures de graphiques | `<table>` avec `<caption>` et `<th scope>` ; nombre de résultats annoncé (`role="status"`) quand un filtre change ; filtres natifs + « Effacer les filtres ». Mobile : lignes en cartes cliquables par le numéro, filtres repliés dans `<details>`. Pagination : E-36. |
 | **Pastille de statut** | Listes et détails admin, Mes commandes | Statut réel lu du serveur, icône + mot, jamais la couleur seule ; tâche liée écrite dessous. |
@@ -262,7 +262,6 @@ Maquettes : [key-fiche-cosplay](mockups/key-fiche-cosplay.html), [key-fiche-kit]
 | **En stock / Fabrication sur commande** | Fiche, carte | Badge + Délai de fabrication avant paiement. |
 | **Commandes complètes** (Plafond atteint) | Fiche, carte | Fabrication sur commande retirée ; « Commandes complètes pour le moment » (EN : « Orders full for now ») [EN : HYPOTHÈSE de traduction] ; **Kit lié proposé** ; articles en stock toujours vendables (FR-10). |
 | **Hors zone** | Fiche Produit physique | **Bandeau d'information** avant l'ajout + Kit lié, pour tous (FR-6). |
-| **Mesures incomplètes** | Fiche Sur-mesure | Bouton d'ajout en `aria-disabled` avec la raison ; au clic, focus sur la première mesure manquante. |
 | **Kit déjà possédé** | Fiche Kit, Panier | Le bouton devient « Ouvrir dans ma bibliothèque » ; ajout au Panier impossible (FR-9, FR-11). |
 | **Kit déjà possédé après fusion** | Panier, à la connexion | Kit retiré du Panier fusionné, avec message « Tu possèdes déjà ce kit : il est dans ta bibliothèque. » (FR-11). |
 | **Kit en double dans le Panier** | Panier | Un exemplaire maximum (FR-11). |
@@ -332,7 +331,7 @@ Maquettes : [key-bibliotheque](mockups/key-bibliotheque.html), [key-pass-photo](
 | **Admin : publication refusée** | Gestion des Produits | Liste des manques (prix, photo, alt, fichier de Kit, **sous-titres FR de la Vidéo de kit** ; les sous-titres EN sont facultatifs) (FR-50, PRD Q-15). |
 | **Admin : téléversement interrompu** | Gestion des Produits | Progression + reprise après coupure (FR-50). |
 | **Admin : transition interdite** | Commandes, Pass | L'action est **absente**, pas désactivée (voir § Admin). |
-| **Admin : transition autorisée, condition non remplie** | Détail d'une Commande | Exemple : « Passer en fabrication » sans Mesures validées. Bouton affiché en `aria-disabled` avec la raison écrite à côté (« Valide d'abord les mesures… ») (décision). |
+| **Admin : transition autorisée, condition non remplie** | Détail d'une Commande | Exemple : « Passer en fabrication » sans réception des mesures confirmée. Bouton affiché en `aria-disabled` avec la raison écrite à côté (« Confirme d'abord la réception des mesures… ») (décision). |
 | **Admin : rien de nouveau** | Tableau de bord | « Aucune nouvelle commande payée aujourd'hui. » (information) ; « Aucune tâche en attente. » (succès, icône + texte) ; « Aucun paiement vérifié aujourd'hui. » + lien vers les 7 derniers jours. Aucun zéro décoratif. |
 | **Admin : remboursement sans preuve** | Détail d'une Commande annulée | Résumé d'erreur (`role="alert"`) + erreur reliée au champ « Preuve du remboursement » ; la Commande reste `annulée`. |
 | **Admin : valeur de Réglage non fournie** | Réglages | Champ laissé vide avec « Valeur à fixer » (par exemple frais d'annulation des Pass) ; aucune valeur par défaut inventée (règle 15). Le Délai de paiement n'est pas concerné : il démarre à 30 minutes, valeur décidée par Jonathan (E-9). |
@@ -397,7 +396,7 @@ Maquettes : [key-admin-tableau](mockups/key-admin-tableau.html), [key-admin-comm
 
 | Surface | Rôle | Source |
 |---|---|---|
-| Tableau de bord | D'abord les nouvelles Commandes payées, puis graphiques de paiement, puis tâches (Mesures à vérifier, annulations, remboursements, remplacements, Trop-perçus à rembourser, photos, Réalisations) et indicateurs | FR-49 |
+| Tableau de bord | D'abord les nouvelles Commandes payées, puis graphiques de paiement, puis tâches (Mesures à recevoir, annulations, remboursements, remplacements, Trop-perçus à rembourser, photos, Réalisations) et indicateurs | FR-49 |
 | Commandes (liste + détail) | Filtres Statut, Famille, Prestataire, Zone de remise ; **avancement manuel limité aux transitions autorisées** ; numéro de suivi (texte libre) ; Mesures ; correction d'adresse | FR-23, FR-24 |
 | Produits | Création, photos ordonnées avec alt, variantes, délais, Kit lié, fichiers, vidéo, chapitres et **sous-titres** (publication refusée sans sous-titres FR ; EN facultatifs) | FR-50, décision |
 | Réglages, Prestataires | Délai de paiement, forfaits, lieu et modalités du retrait, Plafond, WhatsApp, héros (Cosplay vedette, vidéo, photo de repli) ; activation par **Interrupteur**, Ordre de priorité par **Boutons Monter / Descendre**, Couverture saisie à la main avec source ; règle carte affichée verrouillée (K-Pay : physique et Pass ; Polar : 100 % kits) | FR-21, FR-51 |
@@ -410,7 +409,7 @@ Règle 2 : **l'admin ne peut jamais mettre une Commande en `payée`** ; seule la
 
 | De | Vers | Condition | Source |
 |---|---|---|---|
-| `payée` | `en fabrication` | Commande avec Produit physique ; Sur-mesure : **Mesures validées** obligatoires. Sans elles, « Passer en fabrication » est affiché en `aria-disabled` avec la raison (décision) | FR-23, FR-24 |
+| `payée` | `en fabrication` | Commande avec Produit physique ; Sur-mesure : **réception des mesures confirmée** obligatoire. Sans elles, « Passer en fabrication » est affiché en `aria-disabled` avec la raison (décision) | FR-23, FR-24 |
 | `payée` | `expédiée` | Accessoire ou Cosplay en stock, sans fabrication (E-24) | FR-24 |
 | `en fabrication` | `expédiée` | — | FR-24 |
 | `expédiée` | `livrée` | — | FR-24 |
@@ -455,7 +454,7 @@ Maquettes : [key-fiche-cosplay](mockups/key-fiche-cosplay.html), [key-panier-com
 
 1. Grâce arrive d'une vidéo TikTok sur la **Fiche Produit physique** du Cosplay, sur son téléphone ; elle fait défiler la **Galerie photo produit**.
 2. Le **Sélecteur à deux options** lui présente « Prêt à porter » et « Le fabriquer moi-même » ; elle garde « Prêt à porter », puis choisit Sur-mesure.
-3. Elle remplit le **Schéma des Mesures** ; l'ajout au Panier se débloque quand tout est complet.
+3. Elle ajoute le cosplay au Panier sans rien saisir ; après la commande, le **bouton « Envoyer mes mesures sur WhatsApp »** lui permet d'envoyer ses mesures à Jonathan.
 4. Le **Bandeau d'information** lui a rappelé la remise à Goma et Bukavu ; à l'étape de commande, elle choisit la Zone de remise Bukavu : livraison obligatoire, forfait Bukavu, adresse en champ libre.
 5. Le **Récapitulatif** montre prix, forfait et délai total (fabrication + remise).
 6. Elle crée son Compte (**Champ du code de connexion**) et revient à son Panier.
@@ -545,8 +544,8 @@ Maquettes : [key-evenements](mockups/key-evenements.html), [key-pass-photo](mock
 Maquettes : [key-admin-tableau](mockups/key-admin-tableau.html), [key-admin-commandes](mockups/key-admin-commandes.html), [key-admin-produits](mockups/key-admin-produits.html), [key-admin-reglages](mockups/key-admin-reglages.html).
 
 1. Le matin, sur son téléphone, Jonathan ouvre le **Tableau de bord** : nouvelles Commandes payées en premier.
-2. Il parcourt les graphiques de paiement puis les **Cartes de tâche admin** (Mesures, annulations, remboursements, remplacements, Trop-perçus, photos).
-3. Il vérifie les Mesures d'une Commande Sur-mesure, contacte la cliente, corrige, valide.
+2. Il parcourt les graphiques de paiement puis les **Cartes de tâche admin** (Mesures à recevoir, annulations, remboursements, remplacements, Trop-perçus, photos).
+3. Il reçoit les mesures sur WhatsApp et confirme leur réception dans la Commande Sur-mesure.
 4. **Moment fort** : il passe la Commande `en fabrication` d'un geste — seules les transitions autorisées lui sont proposées — et l'email part réellement à la cliente ; l'essentiel est fait avant d'ouvrir l'atelier.
 5. Il ajoute un Cosplay et son Kit lié (téléversement repris après coupure, sous-titres de la vidéo joints), publie un Article, crée un Événement avec ses trois Types de pass, crée un Code promo et consulte ses ventes et sa commission.
 6. La veille de l'Événement, il crée un Accès bénévole d'une journée.
@@ -561,7 +560,6 @@ Maquettes : [key-admin-tableau](mockups/key-admin-tableau.html), [key-admin-comm
 | E-4 | **C-20** : bloc « Produits liés (même univers) » (Guide) — absent du PRD ; non ajouté ici. | Non. |
 | E-7 | **Q-3** : montant et devise débités à afficher au moment de valider. Tant qu'elle est ouverte : USD seul, aucune conversion. | **Oui** pour le récapitulatif si autre chose que l'USD doit apparaître. |
 | E-8 | **Q-1** : Couverture pays-opérateur du sélecteur. | **Oui** en production (FR-16). |
-| E-10 | Liste exacte des Mesures, bornes plausibles et illustration du schéma. | **Oui** pour la story Sur-mesure. |
 | E-11 | Format du délai total (jours, jours ouvrés, fourchette). | Non. |
 | E-12 | Forme du formulaire « Me prévenir » (un champ ou trois options). | Non. |
 | E-14 | Écran de Scan : vibration ou son distinct, couleurs par Type de pass. | Non. |

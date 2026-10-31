@@ -43,7 +43,7 @@ flowchart TD
   API["src/app/api (notifications, cron, kits, mesure)"] --> SVC["modules/*/service.ts"]
   ACT --> SVC
   SVC --> PORT["paiement : port PrestatairePaiement"]
-  PORT --> ADP["adaptateurs : pawapay, kpay, polar, maishapay, geniuspay"]
+  PORT --> ADP["adaptateurs : pawapay, kpay, polar, maishapay"]
   SVC --> RPC["fonctions Postgres de transition (service role)"]
   RPC --> INT["fonctions internes des modules propriétaires"]
   QRY --> DB[("Postgres + RLS")]
@@ -89,7 +89,7 @@ stateDiagram-v2
   en_attente --> expiree : expirer_commande (Délai de paiement dépassé)
   echouee --> expiree : expirer_commande
   expiree --> payee : honorer_trop_percu (Admin, paiement vérifié, stock ou Capacité encore disponibles)
-  payee --> en_fabrication : avancer_statut (Mesures validées si Sur-mesure)
+  payee --> en_fabrication : avancer_statut (réception des mesures confirmée si Sur-mesure)
   payee --> expediee : avancer_statut (toutes les lignes physiques d'origine stock)
   payee --> livree : confirmer_paiement (100 % numérique, même transaction)
   offerte --> livree : offrir_commande (Kit gratuit, même transaction)
@@ -117,7 +117,7 @@ Une Commande `produits` 100 % numérique passe `payee` puis `livree` dans la tra
 
 - **Binds:** FR-15..FR-17, FR-19, FR-21 ; CLAUDE.md règles 2, 9, 13
 - **Prevents:** un adaptateur qui écrit en base ; un délai dépassé traité comme un échec ; une tempête de rejeux ; un repli décidé dans le dos du client.
-- **Rule:** chaque adaptateur implémente `PrestatairePaiement` : `initier(tentative)`, `verifierNotification(requete)`, `consulterStatut(reference)`, `comparerMontant(attendu, recu, devise)`. Il renvoie un résultat normalisé `succes | echec_client | echec_prestataire | inconnu` avec montant et devise reçus et n'a aucun accès à Supabase. Vérification : PawaPay par signature RFC 9421 (rappels signés activés dans son tableau de bord), Polar par Standard Webhooks, K-Pay **uniquement** par contre-vérification `consulterStatut` : sa notification n'est qu'un signal, l'interrogation de son API fait foi. Les adaptateurs K-Pay et MaishaPay sont construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation (appels, devises, vérification des notifications), sans rien deviner. Une route par prestataire, `POST /api/paiement/notification/[prestataire]` : vérifie (401 si la vérification échoue), enregistre la notification dans `notification_recue` (`UNIQUE (prestataire, id_notification)`), appelle le service, puis répond **200** même si la transition est refusée (le refus devient une `anomalie` `transition_refusee`). Repli : seulement sur `echec_prestataire` confirmé ou Agrégateur désactivé, jamais sur `echec_client` ni `inconnu`, et toujours proposé au client (« Réessayer avec … »), qui déclenche lui-même la nouvelle Tentative. Adaptateurs au lancement : PawaPay (API v2), K-Pay (mobile money et carte), MaishaPay (mobile money), Polar ; GeniusPay après Q-2. MaishaPay carte reste un secours non branché tant que Jonathan ne l'a pas confirmé.
+- **Rule:** chaque adaptateur implémente `PrestatairePaiement` : `initier(tentative)`, `verifierNotification(requete)`, `consulterStatut(reference)`, `comparerMontant(attendu, recu, devise)`. Il renvoie un résultat normalisé `succes | echec_client | echec_prestataire | inconnu` avec montant et devise reçus et n'a aucun accès à Supabase. Vérification : PawaPay par signature RFC 9421 (rappels signés activés dans son tableau de bord), Polar par Standard Webhooks, K-Pay **uniquement** par contre-vérification `consulterStatut` : sa notification n'est qu'un signal, l'interrogation de son API fait foi. Les adaptateurs K-Pay et MaishaPay sont construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation (appels, devises, vérification des notifications), sans rien deviner. Une route par prestataire, `POST /api/paiement/notification/[prestataire]` : vérifie (401 si la vérification échoue), enregistre la notification dans `notification_recue` (`UNIQUE (prestataire, id_notification)`), appelle le service, puis répond **200** même si la transition est refusée (le refus devient une `anomalie` `transition_refusee`). Repli : seulement sur `echec_prestataire` confirmé ou Agrégateur désactivé, jamais sur `echec_client` ni `inconnu`, et toujours proposé au client (« Réessayer avec … »), qui déclenche lui-même la nouvelle Tentative. Adaptateurs au lancement : PawaPay (API v2), K-Pay (mobile money et carte), MaishaPay (mobile money), Polar (GeniusPay abandonné le 2026-10-31). MaishaPay carte reste un secours non branché tant que Jonathan ne l'a pas confirmé.
 
 ### AD-6 — Un seul aiguilleur de prestataire [ADOPTED]
 
@@ -275,11 +275,11 @@ Une Commande `produits` 100 % numérique passe `payee` puis `livree` dans la tra
 - **Prevents:** trois formes de remboursement ; un montant de Pass recalculé au prix du jour ; un remplacement traité comme une nouvelle Commande.
 - **Rule:** `demande_client(type ∈ {annulation_commande, annulation_pass, reclamation}, statut, …)` appartient au module `commande` et avance par `traiter_demande` ; l'acceptation d'une `annulation_pass` appelle `annuler_pass` (module `evenements`) ; les deux Pass d'un Stand s'annulent ensemble. `remboursement(cible_type ∈ {commande, pass, trop_percu}, cible_id, montant_cents, devise, preuve_reference, valide_par, valide_le)` appartient au module `paiement` ; le montant est calculé et figé par la fonction qui accepte la demande : Commande (AD-27) ; Pass = (prix figé − `reduction_cents`) de sa ligne / nombre de Pass de la ligne × (1 − frais figés), arrondi au centime inférieur ; Trop-perçu = montant reçu. `confirmer_remboursement(p_auteur, remboursement, preuve)` est la seule fonction qui passe `annulee → remboursee`, `annule → rembourse` ou clôt un Trop-perçu ; elle exige une preuve. Une réclamation acceptée suit `acceptee → article_rendu → remplacement_remis` dans la même `demande_client` ; un remplacement pris en stock décrémente le stock par `catalogue_decrementer_stock` ; la Commande `livree` ne change pas.
 
-### AD-32 — Mesures du Sur-mesure [ADOPTED]
+### AD-32 — Sur-mesure : mesures envoyées sur WhatsApp, jamais stockées [ADOPTED]
 
-- **Binds:** FR-8, FR-23 ; E-10
-- **Prevents:** des Mesures stockées en trois formes ; une Commande Sur-mesure qui part en fabrication sans validation.
-- **Rule:** les Mesures sont un objet `jsonb` dont les clés et bornes sont définies par un seul schéma Zod versionné, `schemaMesures` (`src/modules/commande/schemas.ts`), en centimètres entiers (liste et bornes : E-10). Elles vivent dans `ligne_panier.mesures`, sont copiées par `creer_commande` dans `mesures(ligne_commande, valeurs, version_schema, valide_par, valide_le)`, ne sont plus modifiables par le client, sont corrigées par `corriger_mesures` et validées par `valider_mesures`. `avancer_statut` vers `en_fabrication` exige `valide_le` pour chaque ligne Sur-mesure.
+- **Binds:** FR-8, FR-23 (décision du 2026-10-31 : E-10 abandonné)
+- **Prevents:** des mesures du corps stockées ou collectées par le site ; une Commande Sur-mesure qui part en fabrication sans que Jonathan ait reçu les mesures.
+- **Rule:** le site ne collecte ni ne stocke aucune mesure : ni table, ni colonne, ni `jsonb` de mesures, ni champ de saisie. Le client envoie ses mesures sur WhatsApp. Pour une Commande qui contient une ligne Sur-mesure, la page de commande et l'email de confirmation affichent « Envoyer mes mesures sur WhatsApp », lien `https://wa.me/<numéro réglé dans les réglages>?text=<message pré-rempli avec le numéro de commande>` (numéro lu dans le réglage WhatsApp de la story 1.7, jamais en dur). `ligne_commande.mesures_recues_le timestamptz` (nul par défaut) est posé par `confirmer_mesures_recues` (Admin seulement, journalisé) quand Jonathan a reçu les mesures ; `avancer_statut` vers `en_fabrication` l'exige pour chaque ligne Sur-mesure. Le Délai de fabrication affiché court à partir de cette date, et la page de commande, le Panier et l'email le disent clairement.
 
 ### AD-33 — Pass offerts « 10 pass gratuits » [ADOPTED]
 
@@ -291,7 +291,7 @@ Une Commande `produits` 100 % numérique passe `payee` puis `livree` dans la tra
 
 - **Binds:** FR-13, FR-32, FR-33, FR-40, FR-45, FR-58, FR-59
 - **Prevents:** une case cochée vérifiée seulement dans le navigateur ; un consentement sans trace de version ni de date.
-- **Rule:** `creer_commande` et `offrir_commande` refusent (`KS_ACCEPTATION_MANQUANTE`) une Commande sans les acceptations exigées par son contenu (CGV ; Kit : accès immédiat, renonciation au droit de rétractation et Licence de kit, sauf Kit gratuit : Licence seule ; Sur-mesure : confirmation des Mesures ; Pass : mention photos et vidéos) et les enregistrent dans `commande.acceptations` avec la version du texte et l'horodatage. Les consentements aux Emails commerciaux, aux Alertes événement et à la publication d'une photo vivent dans `consentement(compte ou contact, objet, version, donne_le, retire_le)` ; la boîte d'envoi (AD-9) et la Galerie ne lisent que cette table.
+- **Rule:** `creer_commande` et `offrir_commande` refusent (`KS_ACCEPTATION_MANQUANTE`) une Commande sans les acceptations exigées par son contenu (CGV ; Kit : accès immédiat, renonciation au droit de rétractation et Licence de kit, sauf Kit gratuit : Licence seule ; Sur-mesure : engagement à envoyer les mesures sur WhatsApp ; Pass : mention photos et vidéos) et les enregistrent dans `commande.acceptations` avec la version du texte et l'horodatage. Les consentements aux Emails commerciaux, aux Alertes événement et à la publication d'une photo vivent dans `consentement(compte ou contact, objet, version, donne_le, retire_le)` ; la boîte d'envoi (AD-9) et la Galerie ne lisent que cette table.
 
 ### AD-35 — Retour de paiement et attente [ADOPTED]
 
@@ -365,7 +365,7 @@ flowchart LR
   H --> PP["PawaPay"]
   H --> KP["K-Pay"]
   H --> PO["Polar"]
-  H -.-> MG["MaishaPay, GeniusPay (après Q-2)"]
+  H -.-> MG["MaishaPay"]
   PP -- "notification signée" --> H
   KP -- "notification, contre-vérifiée" --> H
   PO -- "notification signée" --> H
@@ -393,7 +393,7 @@ flowchart LR
 | Module | Tables possédées |
 | --- | --- |
 | `catalogue` | `produit`, `variante`, `fichier_kit`, `fichier_kit_prive`, `video_kit`, `video_kit_prive`, `chapitre_kit`, `univers` |
-| `commande` | `panier`, `ligne_panier`, `commande`, `ligne_commande`, `reservation`, `mesures`, `adresse_remise`, `demande_client` |
+| `commande` | `panier`, `ligne_panier`, `commande`, `ligne_commande`, `reservation`, `adresse_remise`, `demande_client` |
 | `paiement` | `prestataire`, `couverture`, `tentative_paiement`, `notification_recue`, `trop_percu`, `remboursement` |
 | `bibliotheque` | `acces_kit`, `progression_video`, `copie_filigranee` |
 | `evenements` | `evenement`, `type_pass`, `pass`, `scan`, `verrou_hors_ligne`, `alerte_evenement` |
@@ -420,7 +420,6 @@ erDiagram
   commande }o--o| code_promo : utilise
   ligne_commande }o--o| variante : vend
   ligne_commande }o--o| type_pass : vend
-  ligne_commande ||--o| mesures : porte
   produit ||--o{ variante : decline
   produit |o--o| produit : kit_lie
   produit ||--o{ fichier_kit : fournit
@@ -490,7 +489,6 @@ koma/
 
 | Sujet | Pourquoi ça peut attendre | Revoir quand |
 | --- | --- | --- |
-| Adaptateur GeniusPay | API pas encore lue (Q-2) ; le port AD-5 l'accueille sans changement | Documentation lue |
 | Carte via MaishaPay (secours) | Non branchée au lancement (CLAUDE.md règle 10) | Confirmation de Jonathan |
 | Annulation partielle d'une Commande | Hors lancement | Si le besoin apparaît |
 | `comparerMontant` de chaque adaptateur | Dépend de la devise débitée (Q-3) | Story de chaque adaptateur |
@@ -501,17 +499,16 @@ koma/
 | Durée de conservation des données et suppression d'un Compte à la demande | Dépend des textes légaux (Q-5) ; AD-21 masque déjà les données personnelles du journal | Textes légaux validés |
 | Forme de la pagination | Tranché le 2026-10-21 (E-36) : « Voir plus », 12 produits par clic, vrai lien avec curseur ; la pagination serveur par curseur est fixée | Stories catalogue, Blog, admin |
 | Nommage de la rubrique Événements | Tranché le 2026-10-21 : « Festival » (`/fr/festival`, `/en/festival`) ; `evenement` dans le code et la base | Epic 7 |
-| Liste des Mesures et bornes | E-10 ; la forme est fixée (AD-32) | Story Sur-mesure |
 | Mode de connexion d'un Accès bénévole | Détail de story dans le cadre d'AD-13 | Story Accès bénévole |
-| Alertes WhatsApp automatiques, Polar pour les Pass, carte via MaishaPay ou GeniusPay, remise hors Goma et Bukavu | Hors lancement (PRD §6.3) | Nouvelle décision de Jonathan |
+| Alertes WhatsApp automatiques, Polar pour les Pass, carte via MaishaPay, remise hors Goma et Bukavu | Hors lancement (PRD §6.3) | Nouvelle décision de Jonathan |
 | Création des comptes Assistant | Après le lancement ; les droits sont déjà dans AD-13 | Décision de Jonathan |
 
 ## Questions ouvertes
 
 | # | Question | Bloque |
 | --- | --- | --- |
-| Q-1 | Couverture pays-opérateur de chaque Agrégateur, surtout PawaPay et GeniusPay | FR-16 en production |
-| Q-2 | Ce que permet l'API GeniusPay (notification vérifiable, remboursement, devise) | Adaptateur GeniusPay |
+| Q-1 | Couverture pays-opérateur de chaque Agrégateur, surtout PawaPay | FR-16 en production |
+| Q-2 | Abandonnée le 2026-10-31 (GeniusPay n'est plus utilisé) | Aucune |
 | Q-3 | Devise débitée et règle de comparaison du montant pour chaque Agrégateur (K-Pay et MaishaPay : tirées de leur documentation officielle, voir Q-S1) | `comparerMontant` de ces Prestataires |
 | Q-4 | Remboursement par API | Rien au lancement (remboursement manuel) |
 | Q-S1 | Documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; adaptateurs construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation | Adaptateurs K-Pay et MaishaPay |
