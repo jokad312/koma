@@ -373,3 +373,11 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-3-2-video-chapitres-sous-titres-et-publication-d-un-kit.md`
   summary: Remplacer la vidéo par une vidéo plus courte que le dernier chapitre : refus `KS_CHAPITRES_HORS_DUREE` après l'envoi et l'encodage complets, puis effacement chez Bunny, sans avertissement préalable.
   evidence: `enregistrer_video_kit` contrôle les chapitres après encodage ; la durée n'est connue qu'à ce moment. Piste : lire la durée locale du fichier (`<video>` metadata) avant l'envoi et prévenir.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-3-catalogue-kits-et-fiche-kit.md`
+  summary: Sous-titres d'extrait remplacés : l'adresse CDN `/<extrait>/captions/<langue>.vtt` ne change pas ; vérifier que Bunny purge le cache au dépôt, sinon purger ou versionner l'adresse.
+  evidence: non vérifié (maybe-false) : à régler par un essai réel sur un extrait de koma-public.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-3-catalogue-kits-et-fiche-kit.md`
+  summary: Rattrapage `extrait_le = now()` de la migration 20261103100000 non testé sur une ligne antérieure.
+  evidence: aucune ligne `video_kit` sur koma-dev au moment de la migration ; pgTAP tourne sur un schéma déjà migré.

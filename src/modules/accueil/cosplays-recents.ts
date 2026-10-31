@@ -5,7 +5,7 @@ import { listerCatalogue } from "@/modules/catalogue/queries";
 import type { CarteProduit } from "@/modules/catalogue/types";
 import { NB_COSPLAYS_ACCUEIL } from "./blocs";
 
-const PARAMS_NOUVEAUTES = { univers: null, prixBas: null, prixHaut: null, dispo: null, tri: "nouveautes", curseur: null } as const;
+const PARAMS_NOUVEAUTES = { univers: null, niveau: null, prixBas: null, prixHaut: null, dispo: null, tri: "nouveautes", curseur: null } as const;
 
 // Les derniers cosplays publiés (tri nouveautés), lus à chaque requête (le badge dépend du stock : AD-17).
 // Lecture en erreur : l'erreur est journalisée et la liste est vide (le bloc se masque), jamais une carte inventée.

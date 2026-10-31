@@ -32,6 +32,7 @@ import {
   annulerEnvoiFichierKit,
   demanderEnvoiFichierKit,
   demanderEnvoiVideoKit,
+  deposerSousTitresExtrait,
   enregistrerKit,
   finaliserFichierKit,
   supprimerFichierKit,
@@ -309,6 +310,43 @@ describe("Server Actions des médias d'un Kit (envelopperMedias)", () => {
     expect(await ajouterChapitreKit({ produitId: TEST_KIT_ID, titreFr: "A", titreEn: "B", debut: "12:00" })).toEqual({ statut: "erreur", erreur: "chapitre_invalide", champ: "debut" });
   });
 
+  describe("deposerSousTitresExtrait (FormData réel)", () => {
+    const EXTRAIT = "00000000-0000-4000-8000-0000000000e9";
+    const VTT = ["WEBVTT", "", "00:00:01.000 --> 00:00:03.000", "TEST_réplique", ""].join(String.fromCharCode(10));
+    const formulaire = (fichier?: File) => {
+      const d = new FormData();
+      d.set("produitId", TEST_KIT_ID);
+      d.set("langue", "fr");
+      if (fichier) d.set("fichier", fichier);
+      return d;
+    };
+
+    it("succès : les octets du fichier arrivent au service, puis chez Bunny en base64", async () => {
+      const { deps } = creerTestDependancesMediasKit({ videoKit: { bunnyIdPrive: UUID, extraitId: EXTRAIT, dureeSecondes: 600 } });
+      const corps: string[] = [];
+      const reseau = deps.reseau;
+      deps.reseau = (async (url: string, init?: RequestInit) => {
+        if (String(url).includes("/captions/")) corps.push(String(init?.body));
+        return reseau(url, init);
+      }) as typeof fetch;
+      faux.medias = deps;
+      const r = await deposerSousTitresExtrait(formulaire(new File([VTT], "extrait.vtt", { type: "text/vtt" })));
+      expect(r).toEqual({ statut: "succes" });
+      expect(Buffer.from(JSON.parse(corps[0]).captionsFile, "base64").toString("utf8")).toBe(VTT);
+      expect(deps.ecrireSousTitresExtrait).toHaveBeenCalledWith(expect.objectContaining({ produitId: TEST_KIT_ID, langue: "fr" }));
+    });
+
+    it("fichier absent : format_invalide ; plus de 512 Ko : fichier_trop_lourd, sans appel au service", async () => {
+      const { deps } = creerTestDependancesMediasKit({ videoKit: { bunnyIdPrive: UUID, extraitId: EXTRAIT, dureeSecondes: 600 } });
+      faux.medias = deps;
+      expect(await deposerSousTitresExtrait(formulaire())).toEqual({ statut: "erreur", erreur: "format_invalide", champ: undefined });
+      const lourd = new File([new Uint8Array(512 * 1024 + 1)], "extrait.vtt", { type: "text/vtt" });
+      expect(await deposerSousTitresExtrait(formulaire(lourd))).toEqual({ statut: "erreur", erreur: "fichier_trop_lourd", champ: undefined });
+      expect(deps.exigerDroit).not.toHaveBeenCalled();
+      expect(deps.ecrireSousTitresExtrait).not.toHaveBeenCalled();
+    });
+  });
+
   it("exception de dependancesMediasKit() : erreur générique, jamais un succès", async () => {
     faux.medias = new Error("TEST_panne");
     const generique = { statut: "erreur", erreur: "generique" };
@@ -390,5 +428,20 @@ describe("câblage réel des médias d'un Kit", () => {
     expect(faux.filtres).toContainEqual(["video_kit_prive", "eq", "produit_id", TEST_KIT_ID]);
     faux.tables = {};
     expect(await lireVideoKitService(TEST_KIT_ID)).toBeNull();
+  });
+
+  it("sous-titres de l'extrait et case sans parole : les trois fonctions Postgres, avec leurs paramètres", async () => {
+    const { deps } = await charger();
+    faux.rpc.mockResolvedValue({ data: null, error: null });
+    expect(await deps.ecrireSousTitresExtrait({ auteur: AUTEUR, produitId: TEST_KIT_ID, langue: "fr" })).toEqual({ erreur: null });
+    expect(await deps.supprimerSousTitresExtrait({ auteur: AUTEUR, produitId: TEST_KIT_ID, langue: "en" })).toEqual({ erreur: null });
+    expect(await deps.definirExtraitSansParole({ auteur: AUTEUR, produitId: TEST_KIT_ID, valeur: true })).toEqual({ erreur: null });
+    expect(faux.rpc.mock.calls).toEqual([
+      ["enregistrer_sous_titres_extrait_kit", { p_auteur: AUTEUR, p_produit_id: TEST_KIT_ID, p_langue: "fr" }],
+      ["supprimer_sous_titres_extrait_kit", { p_auteur: AUTEUR, p_produit_id: TEST_KIT_ID, p_langue: "en" }],
+      ["definir_extrait_sans_parole", { p_auteur: AUTEUR, p_produit_id: TEST_KIT_ID, p_valeur: true }],
+    ]);
+    faux.rpc.mockResolvedValueOnce({ data: null, error: { message: "KS_EXTRAIT_ABSENT" } });
+    expect(await deps.ecrireSousTitresExtrait({ auteur: AUTEUR, produitId: TEST_KIT_ID, langue: "fr" })).toEqual({ erreur: "KS_EXTRAIT_ABSENT" });
   });
 });

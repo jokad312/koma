@@ -6,10 +6,12 @@ import type { Locale } from "@/i18n/routing";
 import { formaterUsd } from "@/lib/argent";
 import type { CarteProduit as Donnees } from "@/modules/catalogue/types";
 import { BadgeDisponibilite } from "./BadgeDisponibilite";
+import { BadgeNiveau } from "./BadgeNiveau";
 
-const DOSSIER: Record<Donnees["famille"], string> = { cosplay: "/cosplays", accessoire: "/accessoires" };
+const DOSSIER: Record<Donnees["famille"], string> = { cosplay: "/cosplays", accessoire: "/accessoires", kit: "/kits" };
 
-// Carte d'un produit : photo (texte alternatif de la photo), nom en h3 > a étendu à toute la carte, prix en USD, badge de disponibilité.
+// Carte d'un produit : photo (texte alternatif de la photo), nom en h3 > a étendu à toute la carte, prix en USD, badge de disponibilité
+// (produit physique) ou niveau (Kit, toujours disponible).
 // Utilisable côté serveur et côté client (« Voir plus » ajoute des cartes dans le navigateur).
 export function CarteProduit({ produit }: { produit: Donnees }) {
   const locale = useLocale() as Locale;
@@ -29,7 +31,7 @@ export function CarteProduit({ produit }: { produit: Donnees }) {
           </Link>
         </h3>
         <p className="t-price-card text-text-primary">{formaterUsd(produit.prixCents, locale)}</p>
-        <BadgeDisponibilite etat={produit.disponibilite} />
+        {produit.famille === "kit" ? (produit.niveau ? <BadgeNiveau niveau={produit.niveau} /> : null) : <BadgeDisponibilite etat={produit.disponibilite} />}
       </div>
     </article>
   );

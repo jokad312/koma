@@ -53,6 +53,10 @@
     "accessoires": {
       "titre": "Accessories",
       "description": "Wigs, prop weapons, masks, armor and jewelry for otaku fans, made in Goma. Filter by universe, price and availability."
+    },
+    "kits": {
+      "titre": "Kits",
+      "description": "DIY cosplay kits: PDF, SVG and STL patterns and a video tutorial in chapters, lifetime access. Filter by universe, price and level."
     }
   },
   "Accueil": {
@@ -690,7 +694,8 @@
           "variante": "At least one size",
           "fichier": "At least one file",
           "video": "The full video",
-          "sous_titres_fr": "The French subtitles"
+          "sous_titres_fr": "The French subtitles",
+          "sous_titres_extrait_fr": "The preview's French subtitles (or the “Preview without speech” box)"
         },
         "erreurs": {
           "publication_incomplete": "Some items are missing to publish. Reload the page.",
@@ -1093,6 +1098,59 @@
           "sous_titres_introuvables": "These subtitles no longer exist. Reload the page.",
           "publication_incomplete": "A published Kit keeps its French subtitles. Unpublish it first to remove them."
         }
+      },
+      "sousTitresExtrait": {
+        "titre": "Preview subtitles",
+        "intro": "WebVTT files (.vtt), 512 KB max, stored with the preview in the public Bunny library. If the preview has speech, French is required to publish; English is optional.",
+        "sansParole": {
+          "libelle": "Preview without speech",
+          "aide": "Check this box if the preview contains no speech: no preview subtitles are then required.",
+          "enregistre": "Choice saved."
+        },
+        "langues": {
+          "fr": "Preview subtitles in French",
+          "en": "Preview subtitles in English"
+        },
+        "nomsLangues": {
+          "fr": "French",
+          "en": "English"
+        },
+        "obligatoire": "Required to publish if the preview has speech.",
+        "facultatif": "Optional.",
+        "presents": "Stored at Bunny.",
+        "absents": "No file yet.",
+        "fichier": {
+          "libelle": "Preview .vtt file in {langue}",
+          "aide": "The file starts with WEBVTT; timings are those of the preview. 512 KB max."
+        },
+        "envoyer": "Upload preview subtitles in {langue}",
+        "remplacer": "Replace preview subtitles in {langue}",
+        "envoyes": "Preview subtitles saved.",
+        "supprimer": "Delete preview subtitles in {langue}",
+        "supprimes": "Preview subtitles deleted.",
+        "suppression": {
+          "titre": "Delete preview subtitles in {langue}?",
+          "texte": "The file is removed from the preview and deleted at Bunny. This cannot be undone.",
+          "confirmer": "Delete",
+          "annuler": "Cancel",
+          "enCours": "Deleting…"
+        },
+        "erreurs": {
+          "generique": "The preview subtitles could not be saved. Try again.",
+          "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
+          "produit_introuvable": "This kit no longer exists. Go back to the product list.",
+          "famille_invalide": "This product is not a kit. Go back to the product list.",
+          "fichier_manquant": "Choose a .vtt file to upload.",
+          "format_invalide": "This file is not valid WebVTT: it must be UTF-8, start with WEBVTT and contain at least one cue like 00:00:01.000 --> 00:00:04.000. Nothing was sent to Bunny.",
+          "fichier_trop_lourd": "This file is too large: 512 KB max.",
+          "langue_invalide": "Unknown language. Reload the page.",
+          "video_absente": "Upload the full video first.",
+          "extrait_absent": "Upload the preview first: its subtitles come next.",
+          "bunny_non_configure": "The public Bunny library is not configured on this server.",
+          "bunny_indisponible": "Bunny is not responding: nothing was saved. Try again in a moment.",
+          "sous_titres_introuvables": "These subtitles no longer exist. Reload the page.",
+          "publication_incomplete": "A published kit whose preview has speech keeps its French subtitles. Unpublish it first."
+        }
       }
     }
   },
@@ -1186,7 +1244,8 @@
   "Catalogue": {
     "titre": {
       "cosplay": "Cosplays",
-      "accessoire": "Accessories"
+      "accessoire": "Accessories",
+      "kit": "Kits"
     },
     "fil": {
       "navigation": "Breadcrumb",
@@ -1208,7 +1267,8 @@
       "tous": "All",
       "enStock": "In stock",
       "surCommande": "Made to order",
-      "effacer": "Clear filters"
+      "effacer": "Clear filters",
+      "niveau": "Level"
     },
     "tri": {
       "nouveautes": "Newest",
@@ -1279,6 +1339,62 @@
       "bouton": "Share",
       "copie": "Link copied",
       "echec": "The link could not be shared right now."
+    }
+  },
+  "Kit": {
+    "niveau": {
+      "debutant": "Beginner",
+      "intermediaire": "Intermediate",
+      "avance": "Advanced"
+    },
+    "niveauLibelle": "Level: {niveau}",
+    "meta": {
+      "descriptionRepli": "{titre}, a DIY cosplay kit on {nomSite}."
+    },
+    "materiel": {
+      "titre": "Materials needed"
+    },
+    "fichiers": {
+      "titre": "Included files",
+      "vide": "The file list is not available yet.",
+      "ligne": "{nom} · {format} · {taille}",
+      "formats": {
+        "pdf_a4": "PDF A4",
+        "pdf_letter": "PDF US Letter",
+        "svg": "SVG",
+        "stl": "STL",
+        "transcription": "Transcript (text)"
+      },
+      "taille": {
+        "octets": "{valeur} B",
+        "ko": "{valeur} KB",
+        "mo": "{valeur} MB"
+      }
+    },
+    "chapitres": {
+      "titre": "Video tutorial outline",
+      "duree": "Total length: {duree}",
+      "vide": "The chapter outline is not available yet.",
+      "debut": "· starts at {instant}"
+    },
+    "sousTitres": {
+      "sansAnglais": "English subtitles are not available for this kit.",
+      "langues": {
+        "fr": "French",
+        "en": "English"
+      }
+    },
+    "licence": {
+      "titre": "Kit license",
+      "texte": "The files and the video of this kit are for your personal use only. You may not resell, share or distribute them."
+    },
+    "extrait": {
+      "titre": "Tutorial preview",
+      "aide": "Public preview, no autoplay. Subtitles appear in your language when available; use the player's subtitles button to change or hide them.",
+        "sansAnglais": "English subtitles are not available for this preview.",
+      "nomVideo": "Tutorial preview: {titre}",
+      "erreur": "The preview cannot be played right now. Try again later.",
+      "nonPrisEnCharge": "Your browser cannot play this preview."
     }
   }
 }

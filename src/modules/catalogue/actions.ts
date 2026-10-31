@@ -3,6 +3,7 @@
 import { dependances, dependancesMediasKit } from "./dependances";
 import * as medias from "./medias-kit";
 import * as service from "./service";
+import { SOUS_TITRES_EXTRAIT_TAILLE_MAX } from "./types";
 import type { ChampChapitre, EnvoiVideoKit, EtatVideoKit, GenreVideoKit, ResultatMediasKit } from "./types";
 import type { ChampProduit, ChampTranche, ChampUnivers, CodeErreurCatalogue, EntreeKit, EntreeProduit, EntreeTranche, EntreeUnivers, ManquePublication, Taille } from "./types";
 
@@ -208,4 +209,27 @@ export async function annulerEnvoiSousTitres(entree: { produitId: string; objet:
 
 export async function supprimerSousTitres(entree: { produitId: string; langue: string }) {
   return envelopperMedias<object>("suppression de sous-titres", () => medias.supprimerSousTitres(dependancesMediasKit(), entree));
+}
+
+// Sous-titres de l'extrait (story 3.3) : le fichier .vtt arrive dans un FormData (512 Ko au plus, sous la limite de corps par défaut des
+// Server Actions) ; sa taille est contrôlée avant toute lecture, son contenu vérifié par le service avant le dépôt chez Bunny.
+export async function deposerSousTitresExtrait(donnees: FormData) {
+  return envelopperMedias<object>("sous-titres de l'extrait", async () => {
+    const produitId = donnees.get("produitId");
+    const langue = donnees.get("langue");
+    const fichier = donnees.get("fichier");
+    if (typeof produitId !== "string" || typeof langue !== "string") return { ok: false, erreur: "generique" };
+    if (!(fichier instanceof File) || fichier.size < 1) return { ok: false, erreur: "format_invalide" };
+    if (fichier.size > SOUS_TITRES_EXTRAIT_TAILLE_MAX) return { ok: false, erreur: "fichier_trop_lourd" };
+    const octets = new Uint8Array(await fichier.arrayBuffer());
+    return medias.deposerSousTitresExtrait(dependancesMediasKit(), { produitId, langue, nomFichier: fichier.name, octets });
+  });
+}
+
+export async function supprimerSousTitresExtrait(entree: { produitId: string; langue: string }) {
+  return envelopperMedias<object>("suppression des sous-titres de l'extrait", () => medias.supprimerSousTitresExtrait(dependancesMediasKit(), entree));
+}
+
+export async function definirExtraitSansParole(entree: { produitId: string; valeur: boolean }) {
+  return envelopperMedias<object>("case sans parole", () => medias.definirExtraitSansParole(dependancesMediasKit(), entree));
 }

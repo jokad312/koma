@@ -86,6 +86,7 @@ export const TEST_PRODUIT_COMPLET: ProduitPourPublication = {
   nbFichiers: 0,
   videoPrete: false,
   sousTitresFr: false,
+  extraitSansSousTitresFr: false,
 };
 
 // Kit complet (story 3.2) : sans sous-titres anglais ni extrait, qui ne bloquent pas la publication.
@@ -105,6 +106,7 @@ export const TEST_KIT_COMPLET: ProduitPourPublication = {
   nbFichiers: 1,
   videoPrete: true,
   sousTitresFr: true,
+  extraitSansSousTitresFr: false,
 };
 
 export function creerTestDependancesCatalogue(r: Reglages = {}) {
@@ -310,6 +312,10 @@ type ReglagesMedias = {
   leveSousTitres?: boolean;
   ancienCheminSousTitres?: string | null;
   erreurSupprimerSousTitres?: string | null;
+  // Sous-titres de l'extrait (story 3.3).
+  captionsEnEchec?: boolean;
+  erreurSousTitresExtrait?: string | null;
+  erreurSansParole?: string | null;
 };
 
 const TEST_BUNNY = "https://video.bunnycdn.com/library/";
@@ -347,6 +353,8 @@ export function creerTestDependancesMediasKit(r: ReglagesMedias = {}) {
       const chemin = url.replace(TEST_BUNNY, "");
       appels.bunny.push(`${methode} ${chemin}`);
       appels.ordre.push(`bunny:${methode}`);
+      // API captions (sous-titres de l'extrait) : dépôt ou suppression, échec réglable.
+      if (url.includes("/captions/")) return new Response("{}", { status: r.captionsEnEchec ? 503 : 200 });
       const id = url.split("/videos/")[1];
       if (methode === "POST") {
         if (r.creationEnEchec) return new Response("{}", { status: 500 });
@@ -429,6 +437,18 @@ export function creerTestDependancesMediasKit(r: ReglagesMedias = {}) {
       appels.ordre.push("supprimerObjets");
       appels.suppressionsObjets.push(objets);
       return { erreur: null };
+    }),
+    ecrireSousTitresExtrait: vi.fn(async () => {
+      appels.ordre.push("ecrireSousTitresExtrait");
+      return { erreur: r.erreurSousTitresExtrait ?? null };
+    }),
+    supprimerSousTitresExtrait: vi.fn(async () => {
+      appels.ordre.push("supprimerSousTitresExtrait");
+      return { erreur: r.erreurSousTitresExtrait ?? null };
+    }),
+    definirExtraitSansParole: vi.fn(async () => {
+      appels.ordre.push("definirSansParole");
+      return { erreur: r.erreurSansParole ?? null };
     }),
     invaliderCatalogue: vi.fn(async () => {
       appels.ordre.push("invalidation");

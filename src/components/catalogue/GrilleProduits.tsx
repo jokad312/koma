@@ -5,15 +5,15 @@ import { useEffect, useRef, useState } from "react";
 import { cheminPublic } from "@/i18n/adresses";
 import type { Locale } from "@/i18n/routing";
 import { adresseAvecRequete, requeteAvecCurseur } from "@/modules/catalogue/adresse";
-import type { CarteProduit as Donnees, FamillePhysique } from "@/modules/catalogue/types";
+import type { CarteProduit as Donnees, FamilleProduit } from "@/modules/catalogue/types";
 import { chargerPlusProduits } from "@/modules/catalogue/voir-plus";
 import { CarteProduit } from "./CarteProduit";
 import { VoirPlus } from "./VoirPlus";
 
-const DOSSIER: Record<FamillePhysique, string> = { cosplay: "/cosplays", accessoire: "/accessoires" };
+const DOSSIER: Record<FamilleProduit, string> = { cosplay: "/cosplays", accessoire: "/accessoires", kit: "/kits" };
 
 type Props = {
-  famille: FamillePhysique;
+  famille: FamilleProduit;
   produits: Donnees[];
   // Requête (sans « ? ») de la page suivante, curseur compris ; null s'il n'en reste plus.
   requeteSuite: string | null;

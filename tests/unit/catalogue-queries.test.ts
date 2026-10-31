@@ -174,12 +174,12 @@ describe("lireProduitAdmin", () => {
       variante: { data: [], error: null },
       produit_photo: { data: [], error: null },
       fichier_kit: { data: [], error: null },
-      video_kit: { data: { duree_secondes: 754, extrait_bunny_id: "00000000-0000-4000-8000-0000000000e9" }, error: null },
+      video_kit: { data: { duree_secondes: 754, extrait_bunny_id: "00000000-0000-4000-8000-0000000000e9", extrait_sans_parole: false, extrait_sous_titres: ["en", "fr"] }, error: null },
       chapitre_kit: { data: [{ id: "TEST_c1", titre_fr: "Intro", titre_en: "Intro en", debut_secondes: 0, ordre: 1 }], error: null },
       sous_titre_kit: { data: [{ langue: "fr", taille_octets: 2048, version: 2 }], error: null },
     };
     const produit = await lireProduitAdmin("TEST_p");
-    expect(produit?.video).toEqual({ dureeSecondes: 754, extrait: true });
+    expect(produit?.video).toEqual({ dureeSecondes: 754, extrait: true, extraitSansParole: false, extraitSousTitres: ["fr", "en"] });
     expect(produit?.chapitres).toEqual([{ id: "TEST_c1", titreFr: "Intro", titreEn: "Intro en", debutSecondes: 0, ordre: 1 }]);
     expect(produit?.sousTitres).toEqual([{ langue: "fr", tailleOctets: 2048, version: 2 }]);
     expect(JSON.stringify(produit)).not.toContain("00000000-0000-4000-8000-0000000000e9");

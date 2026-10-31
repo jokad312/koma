@@ -1,9 +1,9 @@
 import type { AuteurCompte } from "@/lib/auth/auteur";
-import { creerVideoBunny, estIdVideo, lireVideoBunny, signerEnvoiBunny, supprimerVideoBunny } from "@/lib/bunny/api";
+import { creerVideoBunny, deposerSousTitresBunny, estIdVideo, lireVideoBunny, signerEnvoiBunny, supprimerSousTitresBunny, supprimerVideoBunny } from "@/lib/bunny/api";
 import { BunnyNonConfigureError, type ConfigBunny } from "@/lib/bunny/config";
 import { idSchema } from "./schemas";
 import { lireAnnonceSousTitres, lireInstant, objetSousTitresValide, verifierWebVtt } from "./sous-titres";
-import { EXTRAIT_KIT_TAILLE_MAX, LANGUES_SOUS_TITRES, SOUS_TITRES_TAILLE_MAX, TYPES_VIDEO_KIT, VIDEO_KIT_TAILLE_MAX } from "./types";
+import { EXTRAIT_KIT_TAILLE_MAX, LANGUES_SOUS_TITRES, SOUS_TITRES_EXTRAIT_TAILLE_MAX, SOUS_TITRES_TAILLE_MAX, TYPES_VIDEO_KIT, VIDEO_KIT_TAILLE_MAX } from "./types";
 import type {
   ChampChapitre,
   CodeErreurCatalogue,
@@ -52,6 +52,8 @@ const ERREURS_BASE: ReadonlyArray<readonly [string, CodeErreurCatalogue, ChampCh
   ["KS_TAILLE_FICHIER_INVALIDE", "fichier_trop_lourd", undefined],
   ["KS_CHEMIN_INVALIDE", "fichier_deja_enregistre", undefined],
   ["KS_SOUS_TITRES_INTROUVABLES", "sous_titres_introuvables", undefined],
+  ["KS_EXTRAIT_ABSENT", "extrait_absent", undefined],
+  ["KS_VALEUR_INVALIDE", "generique", undefined],
   ["KS_PUBLICATION_INCOMPLETE", "publication_incomplete", undefined],
   ["KS_DROIT_REFUSE", "non_autorise", undefined],
   ["KS_AUTEUR_MANQUANT", "non_autorise", undefined],
@@ -523,6 +525,114 @@ export async function supprimerSousTitres(deps: DependancesMediasKit, entree: { 
     return { ok: true };
   } catch (e) {
     journaliser("suppression des sous-titres", e);
+    return { ok: false, erreur: "generique" };
+  }
+}
+
+// ---- Sous-titres de l'extrait public (story 3.3, décision de Jonathan du 2026-10-31) ----
+// Le fichier .vtt (512 Ko au plus) arrive au serveur par une Server Action, est vérifié (verifierWebVtt), puis déposé dans les sous-titres de
+// la vidéo d'extrait chez Bunny (bibliothèque publique) ; la langue n'est enregistrée en base qu'APRÈS la réponse réelle de Bunny (règle 13).
+
+// Extrait enregistré du Kit (identifiant de la bibliothèque publique) ou le code d'erreur.
+async function lireExtrait(deps: DependancesMediasKit, produitId: string): Promise<{ id: string; extraitId: string } | { erreur: CodeErreurCatalogue }> {
+  const kit = await lireKit(deps, produitId);
+  if ("erreur" in kit) return kit;
+  const video = await deps.lireVideoKit(kit.id);
+  if (!video) return { erreur: "video_absente" };
+  if (!video.extraitId) return { erreur: "extrait_absent" };
+  return { id: kit.id, extraitId: video.extraitId };
+}
+
+export async function deposerSousTitresExtrait(
+  deps: DependancesMediasKit,
+  entree: { produitId: string; langue: string; nomFichier: string; octets: Uint8Array },
+): Promise<ResultatMediasKit> {
+  const droit = await verifierDroit(deps);
+  if ("erreur" in droit) return { ok: false, erreur: droit.erreur };
+  if (!estLangue(entree.langue)) return { ok: false, erreur: "langue_invalide" };
+  const langue = entree.langue;
+  if (!/[.]vtt$/i.test(entree.nomFichier.trim()) || entree.octets.length < 1) return { ok: false, erreur: "format_invalide" };
+  if (entree.octets.length > SOUS_TITRES_EXTRAIT_TAILLE_MAX) return { ok: false, erreur: "fichier_trop_lourd" };
+  // Contenu vérifié AVANT tout appel à Bunny : un fichier invalide n'y est jamais déposé.
+  if (!verifierWebVtt(entree.octets)) return { ok: false, erreur: "format_invalide" };
+  try {
+    const extrait = await lireExtrait(deps, entree.produitId);
+    if ("erreur" in extrait) return { ok: false, erreur: extrait.erreur };
+    const config = lireConfig(deps, "extrait");
+    if (typeof config === "string") return { ok: false, erreur: config };
+    try {
+      await deposerSousTitresBunny(config, extrait.extraitId, langue, langue, entree.octets, deps.reseau);
+    } catch (e) {
+      journaliser("dépôt des sous-titres de l'extrait chez Bunny", e);
+      return { ok: false, erreur: "bunny_indisponible" };
+    }
+    const { erreur } = await deps.ecrireSousTitresExtrait({ auteur: droit.auteur, produitId: extrait.id, langue });
+    if (erreur) {
+      journaliser("sous-titres de l'extrait refusés", erreur);
+      // Rien n'est enregistré en base : le fichier déposé chez Bunny (public) est retiré ; un échec n'est que journalisé.
+      try {
+        await supprimerSousTitresBunny(config, extrait.extraitId, langue, deps.reseau);
+      } catch (e) {
+        journaliser("retrait des sous-titres de l'extrait chez Bunny", e);
+      }
+      return { ok: false, ...erreurBase(erreur) };
+    }
+    await invalider(deps);
+    return { ok: true };
+  } catch (e) {
+    journaliser("sous-titres de l'extrait", e);
+    return { ok: false, erreur: "generique" };
+  }
+}
+
+// Supprime les sous-titres d'une langue de l'extrait : la base d'abord (elle refuse le français de l'extrait parlé d'un Kit publié), puis
+// l'effacement chez Bunny (échec journalisé, non bloquant : la page ne propose plus que les langues enregistrées).
+export async function supprimerSousTitresExtrait(deps: DependancesMediasKit, entree: { produitId: string; langue: string }): Promise<ResultatMediasKit> {
+  const droit = await verifierDroit(deps);
+  if ("erreur" in droit) return { ok: false, erreur: droit.erreur };
+  if (!estLangue(entree.langue)) return { ok: false, erreur: "langue_invalide" };
+  const langue = entree.langue;
+  try {
+    const extrait = await lireExtrait(deps, entree.produitId);
+    if ("erreur" in extrait) return { ok: false, erreur: extrait.erreur };
+    const { erreur } = await deps.supprimerSousTitresExtrait({ auteur: droit.auteur, produitId: extrait.id, langue });
+    if (erreur) {
+      journaliser("suppression des sous-titres de l'extrait refusée", erreur);
+      return { ok: false, ...erreurBase(erreur) };
+    }
+    const config = lireConfig(deps, "extrait");
+    if (typeof config !== "string") {
+      try {
+        await supprimerSousTitresBunny(config, extrait.extraitId, langue, deps.reseau);
+      } catch (e) {
+        journaliser("effacement des sous-titres de l'extrait chez Bunny", e);
+      }
+    }
+    await invalider(deps);
+    return { ok: true };
+  } catch (e) {
+    journaliser("suppression des sous-titres de l'extrait", e);
+    return { ok: false, erreur: "generique" };
+  }
+}
+
+// Case « Extrait sans parole » : cochée, aucun sous-titre d'extrait n'est exigé pour publier.
+export async function definirExtraitSansParole(deps: DependancesMediasKit, entree: { produitId: string; valeur: boolean }): Promise<ResultatMediasKit> {
+  const droit = await verifierDroit(deps);
+  if ("erreur" in droit) return { ok: false, erreur: droit.erreur };
+  if (typeof entree.valeur !== "boolean") return { ok: false, erreur: "generique" };
+  try {
+    const kit = await lireKit(deps, entree.produitId);
+    if ("erreur" in kit) return { ok: false, erreur: kit.erreur };
+    const { erreur } = await deps.definirExtraitSansParole({ auteur: droit.auteur, produitId: kit.id, valeur: entree.valeur });
+    if (erreur) {
+      journaliser("case sans parole refusée", erreur);
+      return { ok: false, ...erreurBase(erreur) };
+    }
+    await invalider(deps);
+    return { ok: true };
+  } catch (e) {
+    journaliser("case sans parole", e);
     return { ok: false, erreur: "generique" };
   }
 }

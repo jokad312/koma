@@ -146,6 +146,7 @@ describe("listerCatalogue", () => {
       photoUrl: "http://127.0.0.1:54321/storage/v1/object/public/produits-public/00000000-0000-4000-8000-000000000001/a.jpg",
       prixCents: 1001,
       disponibilite: "complet",
+      niveau: null,
     });
     expect(JSON.stringify(produits)).not.toMatch(/stock|quantite/i);
   });
@@ -170,7 +171,7 @@ describe("chargerPlusProduits (Server Action « Voir plus »)", () => {
   });
 
   it("refuse une famille ou une langue inconnue sans appeler la base", async () => {
-    expect(await chargerPlusProduits("kit", "", "fr")).toEqual({ ok: false });
+    expect(await chargerPlusProduits("costume", "", "fr")).toEqual({ ok: false });
     expect(await chargerPlusProduits("cosplay", "", "de")).toEqual({ ok: false });
     expect(await chargerPlusProduits("cosplay", "x".repeat(1001), "fr")).toEqual({ ok: false });
     expect(faux.appels).toHaveLength(0);
@@ -186,5 +187,26 @@ describe("chargerPlusProduits (Server Action « Voir plus »)", () => {
     const erreur = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(await chargerPlusProduits("cosplay", "", "fr")).toEqual({ ok: false });
     erreur.mockRestore();
+  });
+});
+
+describe("catalogue Kits (story 3.3)", () => {
+  it("transmet le niveau, jamais la disponibilité ; la carte porte le niveau", async () => {
+    faux.resultat = { data: [ligne(1, { famille: "kit", niveau: "debutant" })], error: null };
+    const { produits } = await listerCatalogue("kit", analyserRequete({ niveau: "debutant", dispo: "en_stock" }), "fr");
+    expect(faux.appels[0].args).toMatchObject({ p_famille: "kit", p_niveau: "debutant", p_dispo: undefined });
+    expect(produits[0]).toMatchObject({ famille: "kit", niveau: "debutant", disponibilite: "disponible" });
+  });
+
+  it("catalogue physique : le niveau n'est jamais transmis", async () => {
+    faux.resultat = { data: [ligne(1)], error: null };
+    await listerCatalogue("cosplay", analyserRequete({ niveau: "avance" }), "fr");
+    expect(faux.appels[0].args).toMatchObject({ p_famille: "cosplay", p_niveau: undefined });
+  });
+
+  it("« Voir plus » accepte la famille kit", async () => {
+    faux.resultat = { data: [ligne(1, { famille: "kit", niveau: "avance" })], error: null };
+    expect((await chargerPlusProduits("kit", "niveau=avance", "en")).ok).toBe(true);
+    expect(faux.appels[0].args).toMatchObject({ p_famille: "kit", p_niveau: "avance", p_langue: "en" });
   });
 });

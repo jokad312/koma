@@ -12,28 +12,29 @@ import { JsonLd } from "@/lib/seo/balise-jsonld";
 import { filArianeJsonLd } from "@/lib/seo/jsonld";
 import { construireMetadata } from "@/lib/seo/metadata";
 import { urlLocalisee } from "@/lib/seo/url";
-import { aFiltreOuTri, analyserRequete, encoderCurseur, sansCurseur, serialiserRequete, type RequeteBrute } from "@/modules/catalogue/adresse";
+import { aFiltreOuTri, analyserRequeteFamille, encoderCurseur, sansCurseur, serialiserRequete, type RequeteBrute } from "@/modules/catalogue/adresse";
 import { listerCatalogue, lireTranchesPrix, lireUniversPublics } from "@/modules/catalogue/queries";
-import type { FamillePhysique } from "@/modules/catalogue/types";
+import type { FamilleProduit } from "@/modules/catalogue/types";
 import { FiltresCatalogue } from "./FiltresCatalogue";
 import { GrilleProduits } from "./GrilleProduits";
 
 // Dossier interne de chaque catalogue (l'adresse de chaque langue vient de src/i18n/adresses.ts) et clé des textes de métadonnées.
-const CATALOGUES: Record<FamillePhysique, { chemin: string; cleMeta: "cosplays" | "accessoires" }> = {
+const CATALOGUES: Record<FamilleProduit, { chemin: string; cleMeta: "cosplays" | "accessoires" | "kits" }> = {
   cosplay: { chemin: "/cosplays", cleMeta: "cosplays" },
   accessoire: { chemin: "/accessoires", cleMeta: "accessoires" },
+  kit: { chemin: "/kits", cleMeta: "kits" },
 };
 
 const SEPARATEUR_FIL = "›";
 
-type Props = { famille: FamillePhysique; locale: Locale; searchParams: Promise<RequeteBrute> };
+type Props = { famille: FamilleProduit; locale: Locale; searchParams: Promise<RequeteBrute> };
 
 // Métadonnées d'un catalogue. Page filtrée ou triée : noindex, follow, canonique vers la page de base.
 // Page à curseur sans filtre : indexable, canonique propre (avec son curseur). Lit searchParams : métadonnées servies à la requête.
 export async function metadataCatalogue({ famille, locale, searchParams }: Props): Promise<Metadata> {
   const { chemin, cleMeta } = CATALOGUES[famille];
   const t = await getTranslations({ locale, namespace: `Metadata.${cleMeta}` });
-  const params = analyserRequete(await searchParams);
+  const params = analyserRequeteFamille(await searchParams, famille);
   const filtree = aFiltreOuTri(params);
   // Curseur périmé (plus rien après lui) ou lecture impossible : la page affichée est la première, donc le canonique est la page de base.
   let curseurValide = !filtree && params.curseur !== null;
@@ -92,7 +93,7 @@ export async function PageCatalogue({ famille, locale, searchParams }: Props) {
 // Filtres, nombre de résultats et grille : lus à chaque requête (le badge dépend du stock et de la capacité : AD-17).
 async function ContenuCatalogue({ famille, locale, searchParams }: Props) {
   // La lecture de l'adresse reste hors du try : elle sert de signal de rendu à la requête.
-  const params = analyserRequete(await searchParams);
+  const params = analyserRequeteFamille(await searchParams, famille);
   const t = await getTranslations({ locale, namespace: "Catalogue" });
   const chemin = cheminPublic(locale, CATALOGUES[famille].chemin);
 
@@ -127,7 +128,7 @@ async function ContenuCatalogue({ famille, locale, searchParams }: Props) {
 
   return (
     <div className="flex flex-col gap-6">
-      <FiltresCatalogue locale={locale} chemin={chemin} params={params} univers={univers} tranches={tranches} />
+      <FiltresCatalogue famille={famille} locale={locale} chemin={chemin} params={params} univers={univers} tranches={tranches} />
       {page.produits.length === 0 ? (
         <p role="status" className="t-body text-text-secondary">
           {t("videFiltres")}

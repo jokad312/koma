@@ -35,7 +35,7 @@ select ok(
   and has_function_privilege('anon', 'public.capacite_fabrication_atteinte()', 'execute')
   and has_function_privilege('anon', 'public.disponibilite_variantes(uuid)', 'execute')
   and has_function_privilege('authenticated', 'public.disponibilite_variantes(uuid)', 'execute')
-  and has_function_privilege('authenticated', 'public.lister_catalogue(text, text, uuid, integer, integer, text, text, timestamptz, integer, uuid, integer)', 'execute'),
+  and has_function_privilege('authenticated', 'public.lister_catalogue(text, text, uuid, integer, integer, text, text, timestamptz, integer, uuid, integer, text)', 'execute'),
   'les fonctions de disponibilité et de listage (liste blanche) sont exécutables par anon et authenticated, sauf stock_disponible'
 );
 

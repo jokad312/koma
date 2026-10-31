@@ -2,12 +2,13 @@ import { MANQUES_PUBLICATION } from "./types";
 import type { ManquePublication, ProduitPourPublication } from "./types";
 
 type ChampsPhysiques = "prixCents" | "titreEn" | "descriptionFr" | "descriptionEn" | "nbPhotos" | "nbVariantes";
-type ChampsKit = "famille" | "titreFr" | "materielFr" | "materielEn" | "niveau" | "nbFichiers" | "videoPrete" | "sousTitresFr";
+type ChampsKit = "famille" | "titreFr" | "materielFr" | "materielEn" | "niveau" | "nbFichiers" | "videoPrete" | "sousTitresFr" | "extraitSansSousTitresFr";
 
 // Ce qui manque à un produit pour être publié (la base fait le même contrôle : manques_publication).
 // Produit physique : le titre français est déjà obligatoire ; le texte alternatif de chaque photo l'est à l'ajout.
 // Kit (story 3.2) : prix, photo, titres, descriptions et matériel FR et EN, niveau, au moins un fichier, vidéo complète, sous-titres
 // français. L'absence de sous-titres anglais et d'extrait ne bloque pas. Un champ de Kit absent compte comme manquant.
+// Story 3.3 : un extrait parlé (case « Extrait sans parole » décochée) demande ses sous-titres français.
 export function manquesPublication(p: Pick<ProduitPourPublication, ChampsPhysiques> & Partial<Pick<ProduitPourPublication, ChampsKit>>): ManquePublication[] {
   const vide = (t: string | null | undefined) => (t ?? "").trim() === "";
   const kit = p.famille === "kit";
@@ -25,6 +26,7 @@ export function manquesPublication(p: Pick<ProduitPourPublication, ChampsPhysiqu
     fichier: kit && (p.nbFichiers ?? 0) < 1,
     video: kit && !p.videoPrete,
     sous_titres_fr: kit && !p.sousTitresFr,
+    sous_titres_extrait_fr: kit && Boolean(p.extraitSansSousTitresFr),
   };
   return MANQUES_PUBLICATION.filter((m) => manque[m]);
 }

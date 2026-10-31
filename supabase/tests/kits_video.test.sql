@@ -1,7 +1,7 @@
 -- Story 3.2 : vidéo, chapitres, sous-titres et publication d'un Kit (types MIME de kits-private, RLS, aucune lecture des tables _prive,
 -- droits, famille, durée, chapitres, sous-titres, manques, garde différée, journal). Données créées dans la transaction, puis annulées.
 begin;
-select plan(97);
+select plan(99);
 
 insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-0000000000d1', 'test-video1@example.invalid', '{}'),
@@ -362,6 +362,10 @@ select throws_ok(
   $$select public.enregistrer_sous_titre_kit(pg_temp.adm(), (select k from ks_k), 'fr', 200, (select k from ks_k)::text || '/sous-titres/33333333-3333-4333-8333-333333333333.vtt')$$,
   'P0001', 'KS_CHEMIN_INVALIDE', 'remplacer par le chemin courant est refusé'
 );
+
+-- Story 3.3 : l'extrait (parlé par défaut) demande ses sous-titres français, déposés ici.
+select is(public.manques_publication((select k from ks_k)), array['sous_titres_extrait_fr'], 'extrait parlé sans sous-titres français : manque (story 3.3)');
+select lives_ok($$select public.enregistrer_sous_titres_extrait_kit(pg_temp.adm(), (select k from ks_k), 'fr')$$, 'sous-titres français de l''extrait enregistrés');
 
 -- Publication : sans sous-titres anglais ni extrait obligatoire, le Kit complet est publiable.
 select is(public.manques_publication((select k from ks_k)), '{}'::text[], 'Kit complet : rien ne manque (anglais facultatif)');

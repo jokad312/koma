@@ -249,6 +249,18 @@ export function dependancesMediasKit(): DependancesMediasKit {
       const { error } = await admin.storage.from(BUCKET_KITS).remove(objets);
       return { erreur: error ? error.message : null };
     },
+    ecrireSousTitresExtrait: async ({ auteur, produitId, langue }) => {
+      const { error } = await admin.rpc("enregistrer_sous_titres_extrait_kit", { p_auteur: auteur as never, p_produit_id: produitId, p_langue: langue });
+      return { erreur: error ? error.message : null };
+    },
+    supprimerSousTitresExtrait: async ({ auteur, produitId, langue }) => {
+      const { error } = await admin.rpc("supprimer_sous_titres_extrait_kit", { p_auteur: auteur as never, p_produit_id: produitId, p_langue: langue });
+      return { erreur: error ? error.message : null };
+    },
+    definirExtraitSansParole: async ({ auteur, produitId, valeur }) => {
+      const { error } = await admin.rpc("definir_extrait_sans_parole", { p_auteur: auteur as never, p_produit_id: produitId, p_valeur: valeur });
+      return { erreur: error ? error.message : null };
+    },
     invaliderCatalogue: async () => {
       updateTag(ETIQUETTES.catalogue);
     },

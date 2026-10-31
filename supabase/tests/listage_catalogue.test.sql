@@ -95,8 +95,8 @@ grant execute on function pg_temp.ks_parcourir(text, integer) to public;
 
 -- Droits et nature des fonctions.
 select ok(
-  has_function_privilege('anon', 'public.lister_catalogue(text, text, uuid, integer, integer, text, text, timestamptz, integer, uuid, integer)', 'execute')
-  and has_function_privilege('authenticated', 'public.lister_catalogue(text, text, uuid, integer, integer, text, text, timestamptz, integer, uuid, integer)', 'execute')
+  has_function_privilege('anon', 'public.lister_catalogue(text, text, uuid, integer, integer, text, text, timestamptz, integer, uuid, integer, text)', 'execute')
+  and has_function_privilege('authenticated', 'public.lister_catalogue(text, text, uuid, integer, integer, text, text, timestamptz, integer, uuid, integer, text)', 'execute')
   and has_function_privilege('anon', 'public.capacite_fabrication_atteinte()', 'execute')
   and has_function_privilege('authenticated', 'public.capacite_fabrication_atteinte()', 'execute'),
   'anon et authenticated exécutent lister_catalogue et capacite_fabrication_atteinte'

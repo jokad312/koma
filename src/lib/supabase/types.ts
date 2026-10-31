@@ -626,6 +626,9 @@ export type Database = {
           cree_le: string
           duree_secondes: number
           extrait_bunny_id: string | null
+          extrait_le: string | null
+          extrait_sans_parole: boolean
+          extrait_sous_titres: string[]
           prete_le: string
           produit_id: string
         }
@@ -633,6 +636,9 @@ export type Database = {
           cree_le?: string
           duree_secondes: number
           extrait_bunny_id?: string | null
+          extrait_le?: string | null
+          extrait_sans_parole?: boolean
+          extrait_sous_titres?: string[]
           prete_le?: string
           produit_id: string
         }
@@ -640,6 +646,9 @@ export type Database = {
           cree_le?: string
           duree_secondes?: number
           extrait_bunny_id?: string | null
+          extrait_le?: string | null
+          extrait_sans_parole?: boolean
+          extrait_sous_titres?: string[]
           prete_le?: string
           produit_id?: string
         }
@@ -760,6 +769,10 @@ export type Database = {
         Args: { p_age: number; p_auteur: Json; p_compte: string }
         Returns: undefined
       }
+      definir_extrait_sans_parole: {
+        Args: { p_auteur: Json; p_produit_id: string; p_valeur: boolean }
+        Returns: undefined
+      }
       definir_langue_profil: {
         Args: { p_auteur: Json; p_compte: string; p_langue: string }
         Returns: undefined
@@ -844,6 +857,10 @@ export type Database = {
         }
         Returns: string
       }
+      enregistrer_sous_titres_extrait_kit: {
+        Args: { p_auteur: Json; p_langue: string; p_produit_id: string }
+        Returns: undefined
+      }
       enregistrer_tranches_prix: {
         Args: { p_auteur: Json; p_tranches: Json }
         Returns: undefined
@@ -881,6 +898,7 @@ export type Database = {
           p_famille: string
           p_langue?: string
           p_limite?: number
+          p_niveau?: string
           p_prix_bas?: number
           p_prix_haut?: number
           p_tri?: string
@@ -891,6 +909,7 @@ export type Database = {
           disponibilite: string
           famille: string
           id: string
+          niveau: string
           photo_alt: string
           photo_fichier: string
           prix_cents: number
@@ -957,6 +976,10 @@ export type Database = {
       supprimer_sous_titre_kit: {
         Args: { p_auteur: Json; p_langue: string; p_produit_id: string }
         Returns: string
+      }
+      supprimer_sous_titres_extrait_kit: {
+        Args: { p_auteur: Json; p_langue: string; p_produit_id: string }
+        Returns: undefined
       }
       supprimer_video_kit: {
         Args: { p_auteur: Json; p_produit_id: string }

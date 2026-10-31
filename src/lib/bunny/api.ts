@@ -110,6 +110,37 @@ export async function supprimerVideoBunny(config: ConfigBunny, id: string, resea
   if (!r.ok && r.status !== 404) throw new BunnyErreur("suppression", r.status);
 }
 
+// Sous-titres d'une vidéo (API captions documentée par Bunny) : POST /library/{bibliotheque}/videos/{video}/captions/{langue} avec le fichier
+// en base64 (captionsFile) ; suppression par DELETE sur la même adresse. Servis ensuite par le CDN : /<video>/captions/<langue>.vtt.
+const LANGUE_CAPTIONS = /^[a-z]{2}$/;
+
+export async function deposerSousTitresBunny(
+  config: ConfigBunny,
+  videoId: string,
+  langue: string,
+  libelle: string,
+  octets: Uint8Array,
+  reseau: Reseau = fetch,
+): Promise<void> {
+  if (!UUID.test(videoId) || !LANGUE_CAPTIONS.test(langue)) throw new BunnyErreur("sous-titres : paramètres invalides", null);
+  const r = await appeler(reseau, "dépôt des sous-titres", `${API}/library/${config.bibliothequeId}/videos/${videoId}/captions/${langue}`, {
+    method: "POST",
+    headers: { ...entetes(config), "content-type": "application/json" },
+    body: JSON.stringify({ srclang: langue, label: libelle, captionsFile: Buffer.from(octets).toString("base64") }),
+  });
+  if (!r.ok) throw new BunnyErreur("dépôt des sous-titres", r.status);
+}
+
+// Un 404 vaut « déjà effacés ».
+export async function supprimerSousTitresBunny(config: ConfigBunny, videoId: string, langue: string, reseau: Reseau = fetch): Promise<void> {
+  if (!UUID.test(videoId) || !LANGUE_CAPTIONS.test(langue)) return;
+  const r = await appeler(reseau, "suppression des sous-titres", `${API}/library/${config.bibliothequeId}/videos/${videoId}/captions/${langue}`, {
+    method: "DELETE",
+    headers: entetes(config),
+  });
+  if (!r.ok && r.status !== 404) throw new BunnyErreur("suppression des sous-titres", r.status);
+}
+
 export type AutorisationEnvoiBunny = {
   adresse: string;
   signature: string;

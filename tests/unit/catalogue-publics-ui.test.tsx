@@ -38,7 +38,7 @@ import { CarteProduit } from "@/components/catalogue/CarteProduit";
 import { DetailsFiltres } from "@/components/catalogue/DetailsFiltres";
 import { FiltresCatalogue } from "@/components/catalogue/FiltresCatalogue";
 import { GrilleProduits } from "@/components/catalogue/GrilleProduits";
-import { analyserRequete } from "@/modules/catalogue/adresse";
+import { analyserRequeteFamille } from "@/modules/catalogue/adresse";
 import type { CarteProduit as Donnees, Disponibilite } from "@/modules/catalogue/types";
 
 const UNIVERS = "00000000-0000-4000-8000-0000000000a1";
@@ -53,6 +53,7 @@ function produit(n: number, surcharge: Partial<Donnees> = {}): Donnees {
     photoUrl: `http://127.0.0.1:54321/storage/v1/object/public/produits-public/${n}/a.jpg`,
     prixCents: 4990,
     disponibilite: "disponible",
+    niveau: null,
     ...surcharge,
   };
 }
@@ -115,14 +116,28 @@ describe("CarteProduit", () => {
     rendre(<CarteProduit produit={produit(3, { famille: "cosplay" })} />);
     expect(screen.getByRole("link", { name: "TEST_Titre 3" }).getAttribute("href")).toBe("/cosplays/test-produit-3");
   });
+
+  it("un Kit mène à /kits/<slug> et montre son niveau, jamais un badge de disponibilité", () => {
+    const { container } = rendre(<CarteProduit produit={produit(4, { famille: "kit", niveau: "avance" })} />);
+    expect(screen.getByRole("link", { name: "TEST_Titre 4" }).getAttribute("href")).toBe("/kits/test-produit-4");
+    expect(screen.getByText("Niveau : Avancé")).toBeTruthy();
+    expect(screen.queryByText("En stock")).toBeNull();
+    expect(container.querySelector("svg")).toBeNull();
+  });
 });
 
 describe("FiltresCatalogue", () => {
-  async function rendreFiltres(requete: Record<string, string>, opts: { univers?: boolean; tranches?: boolean } = {}, locale: "fr" | "en" = "fr") {
+  async function rendreFiltres(
+    requete: Record<string, string>,
+    opts: { univers?: boolean; tranches?: boolean; famille?: "accessoire" | "kit" } = {},
+    locale: "fr" | "en" = "fr",
+  ) {
+    const kit = opts.famille === "kit";
     const element = await FiltresCatalogue({
+      famille: opts.famille ?? "accessoire",
       locale,
-      chemin: locale === "fr" ? "/accessoires" : "/accessories",
-      params: analyserRequete(requete),
+      chemin: kit ? "/kits" : locale === "fr" ? "/accessoires" : "/accessories",
+      params: analyserRequeteFamille(requete, opts.famille ?? "accessoire"),
       univers: opts.univers === false ? [] : [{ id: UNIVERS, nom: "TEST_Univers A" }],
       tranches:
         opts.tranches === false
@@ -155,6 +170,19 @@ describe("FiltresCatalogue", () => {
     }
     expect(screen.getByRole("link", { name: "TEST_Grand" }).getAttribute("aria-current")).toBeNull();
     expect(screen.getByRole("link", { name: "Effacer les filtres" }).getAttribute("href")).toBe("/accessoires");
+  });
+
+  it("Kits : groupe Niveau (liens niveau=, aria-current sur le choix actif), aucun lien de disponibilité", async () => {
+    await rendreFiltres({ niveau: "debutant" }, { famille: "kit" });
+    expect(screen.getByText("Filtrer (1)")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Niveau" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "Disponibilité" })).toBeNull();
+    const debutant = screen.getByRole("link", { name: "Débutant" });
+    expect(debutant.getAttribute("aria-current")).toBe("true");
+    expect(debutant.getAttribute("href")).toBe("/kits?niveau=debutant");
+    expect(screen.getByRole("link", { name: "Avancé" }).getAttribute("href")).toBe("/kits?niveau=avance");
+    expect(screen.getByRole("link", { name: "Avancé" }).getAttribute("aria-current")).toBeNull();
+    expect(screen.getAllByRole("link").some((a) => a.getAttribute("href")?.includes("dispo="))).toBe(false);
   });
 
   it("un tri non par défaut seul suffit pour proposer « Effacer les filtres »", async () => {

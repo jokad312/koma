@@ -15,7 +15,7 @@ const DATE = "2026-10-26 10:00:00.123456+00";
 
 describe("analyserRequete", () => {
   it("adresse vide : valeurs par défaut", () => {
-    expect(analyserRequete({})).toEqual({ univers: null, prixBas: null, prixHaut: null, dispo: null, tri: "nouveautes", curseur: null });
+    expect(analyserRequete({})).toEqual({ univers: null, niveau: null, prixBas: null, prixHaut: null, dispo: null, tri: "nouveautes", curseur: null });
     expect(aFiltreOuTri(analyserRequete({}))).toBe(false);
   });
 
@@ -125,14 +125,14 @@ describe("curseur", () => {
 
 describe("serialiserRequete", () => {
   it("n'écrit que les valeurs non par défaut, dans un ordre stable", () => {
-    expect(serialiserRequete({ univers: null, prixBas: null, prixHaut: null, dispo: null, tri: "nouveautes" })).toBe("");
-    expect(serialiserRequete({ univers: ID, prixBas: 1500, prixHaut: null, dispo: "sur_commande", tri: "prix_asc" }, "CUR")).toBe(
+    expect(serialiserRequete({ univers: null, niveau: null, prixBas: null, prixHaut: null, dispo: null, tri: "nouveautes" })).toBe("");
+    expect(serialiserRequete({ univers: ID, niveau: null, prixBas: 1500, prixHaut: null, dispo: "sur_commande", tri: "prix_asc" }, "CUR")).toBe(
       `univers=${ID}&prix=1500-&dispo=sur_commande&tri=prix_asc&curseur=CUR`,
     );
   });
 
   it("relit ce qu'elle a écrit", () => {
-    const base = { univers: ID, prixBas: 1500, prixHaut: 3000, dispo: "en_stock" as const, tri: "prix_desc" as const };
+    const base = { univers: ID, niveau: null, prixBas: 1500, prixHaut: 3000, dispo: "en_stock" as const, tri: "prix_desc" as const };
     expect(analyserRequete(new URLSearchParams(serialiserRequete(base)))).toEqual({ ...base, curseur: null });
   });
 

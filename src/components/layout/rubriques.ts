@@ -7,5 +7,6 @@ export type Rubrique = { cle: "cosplays" | "accessoires" | "kits" | "festival" |
 export const RUBRIQUES: readonly Rubrique[] = [
   { cle: "cosplays", href: "/cosplays" },
   { cle: "accessoires", href: "/accessoires" },
+  { cle: "kits", href: "/kits" },
   { cle: "aPropos", href: "/a-propos" },
 ];

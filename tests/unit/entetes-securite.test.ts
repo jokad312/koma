@@ -46,10 +46,12 @@ describe("en-têtes de sécurité", () => {
     expect(regles?.[0].headers.map((e) => e.key)).toEqual(expect.arrayContaining(["X-Frame-Options", "Content-Security-Policy-Report-Only"]));
   });
 
-  it("autorise seulement le CDN de la vidéo du héros comme média externe, et l'API de Bunny pour l'envoi", () => {
+  it("autorise seulement le CDN public de Bunny comme média externe (héros, extrait HLS en blob:), et l'API de Bunny pour l'envoi", () => {
     const csp = politiqueContenu({ adresseSupabase: "https://projet.supabase.co", hoteVideoPublic: "vz-test.b-cdn.net", production: true });
-    expect(csp).toContain("media-src 'self' https://vz-test.b-cdn.net");
-    expect(csp).toContain("https://video.bunnycdn.com");
-    expect(politiqueContenu({ production: true })).toContain("media-src 'self';");
+    expect(csp).toContain("media-src 'self' blob: https://vz-test.b-cdn.net");
+    expect(csp).toContain("connect-src 'self' https://projet.supabase.co https://video.bunnycdn.com https://vz-test.b-cdn.net");
+    expect(csp).toContain("img-src 'self' data: blob: https://vz-test.b-cdn.net");
+    expect(csp).toContain("worker-src 'self' blob:");
+    expect(politiqueContenu({ production: true })).toContain("media-src 'self' blob:;");
   });
 });

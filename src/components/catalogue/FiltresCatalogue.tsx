@@ -2,11 +2,12 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { adresseAvecRequete, aFiltreOuTri, compterFiltres, sansCurseur, serialiserRequete } from "@/modules/catalogue/adresse";
-import { TRIS_CATALOGUE } from "@/modules/catalogue/types";
-import type { FiltreDisponibilite, ParamsCatalogue, TranchePrix, UniversChoix } from "@/modules/catalogue/types";
+import { NIVEAUX_KIT, TRIS_CATALOGUE } from "@/modules/catalogue/types";
+import type { FamilleProduit, FiltreDisponibilite, ParamsCatalogue, TranchePrix, UniversChoix } from "@/modules/catalogue/types";
 import { DetailsFiltres } from "./DetailsFiltres";
 
 type Props = {
+  famille: FamilleProduit;
   locale: Locale;
   // Adresse de la page, propre à la langue (sans préfixe de langue).
   chemin: string;
@@ -22,8 +23,9 @@ type Choix = { cle: string; libelle: string; actif: boolean; href: string };
 
 // Filtres en liens (aucun JavaScript requis) : une pilule de 44 px par choix, aria-current sur le choix actif.
 // Changer un filtre ou le tri ramène à la première page (le curseur n'est jamais conservé).
-export async function FiltresCatalogue({ locale, chemin, params, univers, tranches }: Props) {
+export async function FiltresCatalogue({ famille, locale, chemin, params, univers, tranches }: Props) {
   const t = await getTranslations({ locale, namespace: "Catalogue" });
+  const tn = await getTranslations({ locale, namespace: "Kit.niveau" });
   const lien = (changement: Partial<ParamsCatalogue>) =>
     adresseAvecRequete(chemin, serialiserRequete({ ...sansCurseur(params), ...changement }));
 
@@ -56,18 +58,30 @@ export async function FiltresCatalogue({ locale, chemin, params, univers, tranch
     });
   }
 
-  const dispos: Array<{ cle: FiltreDisponibilite; libelle: string }> = [
-    { cle: "en_stock", libelle: t("filtres.enStock") },
-    { cle: "sur_commande", libelle: t("filtres.surCommande") },
-  ];
-  groupes.push({
-    cle: "dispo",
-    titre: t("filtres.disponibilite"),
-    choix: [
-      { cle: "tous", libelle: t("filtres.tous"), actif: params.dispo === null, href: lien({ dispo: null }) },
-      ...dispos.map((d) => ({ cle: d.cle, libelle: d.libelle, actif: params.dispo === d.cle, href: lien({ dispo: d.cle }) })),
-    ],
-  });
+  // Un Kit est toujours disponible : son catalogue filtre par niveau à la place de la disponibilité.
+  if (famille === "kit") {
+    groupes.push({
+      cle: "niveau",
+      titre: t("filtres.niveau"),
+      choix: [
+        { cle: "tous", libelle: t("filtres.tous"), actif: params.niveau === null, href: lien({ niveau: null }) },
+        ...NIVEAUX_KIT.map((n) => ({ cle: n, libelle: tn(n), actif: params.niveau === n, href: lien({ niveau: n }) })),
+      ],
+    });
+  } else {
+    const dispos: Array<{ cle: FiltreDisponibilite; libelle: string }> = [
+      { cle: "en_stock", libelle: t("filtres.enStock") },
+      { cle: "sur_commande", libelle: t("filtres.surCommande") },
+    ];
+    groupes.push({
+      cle: "dispo",
+      titre: t("filtres.disponibilite"),
+      choix: [
+        { cle: "tous", libelle: t("filtres.tous"), actif: params.dispo === null, href: lien({ dispo: null }) },
+        ...dispos.map((d) => ({ cle: d.cle, libelle: d.libelle, actif: params.dispo === d.cle, href: lien({ dispo: d.cle }) })),
+      ],
+    });
+  }
 
   groupes.push({
     cle: "tri",

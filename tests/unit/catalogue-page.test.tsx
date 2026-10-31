@@ -55,6 +55,7 @@ function carte(n: number): CarteProduit {
     photoUrl: `http://127.0.0.1:54321/storage/v1/object/public/produits-public/${n}/a.jpg`,
     prixCents: 4990,
     disponibilite: n % 2 === 0 ? "sur_commande" : "disponible",
+    niveau: null,
   };
 }
 
@@ -184,7 +185,7 @@ describe("PageCatalogue", () => {
     faux.lister.mockResolvedValue({ produits: [carte(1)], suite: null });
     const page = await rendre({ tri: "hasard", dispo: "zzz", prix: "abc", univers: "x", curseur: "!!!" });
     expect(page).toContain("TEST_Titre 1");
-    expect(faux.lister.mock.calls[0][1]).toEqual({ univers: null, prixBas: null, prixHaut: null, dispo: null, tri: "nouveautes", curseur: null });
+    expect(faux.lister.mock.calls[0][1]).toEqual({ univers: null, niveau: null, prixBas: null, prixHaut: null, dispo: null, tri: "nouveautes", curseur: null });
   });
 
   it("filtre d'univers absent sans univers, filtre de prix absent sans tranche ; présents quand réglés", async () => {

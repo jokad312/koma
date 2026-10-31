@@ -9,6 +9,7 @@ export type AdresseLocalisee = { interne: string; fr: string; en: string };
 export const ADRESSES: readonly AdresseLocalisee[] = [
   { interne: "/cosplays", fr: "/cosplays", en: "/cosplays" },
   { interne: "/accessoires", fr: "/accessoires", en: "/accessories" },
+  { interne: "/kits", fr: "/kits", en: "/kits" },
 ];
 
 const LANGUES: readonly LangueAdresse[] = ["fr", "en"];

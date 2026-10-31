@@ -12,6 +12,8 @@ const faux = vi.hoisted(() => ({
   supprime: vi.fn(),
   compteurs: { photo: 0, variante: 0 },
   produit: { data: null as unknown, error: null as unknown },
+  // Réponse par table de maybeSingle() (sinon faux.produit) : vidéo du Kit pour extraitSansSousTitresFr.
+  parTable: {} as Record<string, { data: unknown; error: unknown }>,
   tag: vi.fn(),
   buckets: [] as string[],
 }));
@@ -89,11 +91,11 @@ describe("câblage réel de modules/catalogue pour les photos", () => {
             return { createSignedUploadUrl: faux.signe, download: faux.telecharge, upload: faux.televerse, remove: faux.supprime };
           },
         },
-        from: () => {
+        from: (table: string) => {
           const requete: Record<string, unknown> = {
             select: () => requete,
             eq: () => requete,
-            maybeSingle: async () => faux.produit,
+            maybeSingle: async () => faux.parTable[table] ?? faux.produit,
             then: (resolve: (v: unknown) => unknown) => resolve({ error: null, count: 2 }),
           };
           return requete;
@@ -112,6 +114,7 @@ describe("câblage réel de modules/catalogue pour les photos", () => {
     faux.supprime.mockReset();
     faux.tag.mockReset();
     faux.buckets = [];
+    faux.parTable = {};
   });
 
   it("signature, lecture, écriture publique et effacement passent par les bons buckets", async () => {
@@ -180,13 +183,29 @@ describe("câblage réel de modules/catalogue pour les photos", () => {
       nbFichiers: 0,
       videoPrete: false,
       sousTitresFr: false,
+      extraitSansSousTitresFr: false,
     });
     // Kit : fichiers, vidéo et sous-titres français comptés en base (faux : 2 lignes partout).
     faux.produit = {
       data: { famille: "kit", prix_cents: 0, titre_fr: "K", titre_en: "K", description_fr: "d", description_en: "e", publie_le: null, materiel_fr: "m", materiel_en: "m", niveau: "avance" },
       error: null,
     };
+    faux.parTable.video_kit = { data: { extrait_bunny_id: null, extrait_sans_parole: false, extrait_sous_titres: [] }, error: null };
     expect(await deps.lireProduitComplet(PRODUIT)).toMatchObject({ famille: "kit", niveau: "avance", nbFichiers: 2, videoPrete: true, sousTitresFr: true });
+    // Story 3.3 : extrait parlé sans FR → manque ; avec FR, sans parole ou sans extrait → aucun.
+    const extrait = "00000000-0000-4000-8000-0000000000e9";
+    const cas: Array<[{ extrait_bunny_id: string | null; extrait_sans_parole: boolean; extrait_sous_titres: string[] }, boolean]> = [
+      [{ extrait_bunny_id: extrait, extrait_sans_parole: false, extrait_sous_titres: ["en"] }, true],
+      [{ extrait_bunny_id: extrait, extrait_sans_parole: false, extrait_sous_titres: ["fr"] }, false],
+      [{ extrait_bunny_id: extrait, extrait_sans_parole: true, extrait_sous_titres: [] }, false],
+      [{ extrait_bunny_id: null, extrait_sans_parole: false, extrait_sous_titres: [] }, false],
+    ];
+    for (const [video, attendu] of cas) {
+      faux.parTable.video_kit = { data: video, error: null };
+      expect((await deps.lireProduitComplet(PRODUIT))?.extraitSansSousTitresFr, JSON.stringify(video)).toBe(attendu);
+    }
+    faux.parTable.video_kit = { data: null, error: null };
+    expect(await deps.lireProduitComplet(PRODUIT)).toMatchObject({ videoPrete: false, extraitSansSousTitresFr: false });
     faux.produit = { data: null, error: null };
     expect(await deps.lireProduitComplet(PRODUIT)).toBeNull();
     faux.produit = { data: null, error: { message: "TEST" } };

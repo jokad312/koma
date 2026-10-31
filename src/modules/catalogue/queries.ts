@@ -4,12 +4,12 @@ import { ETIQUETTES } from "@/lib/cache/etiquettes";
 import { creerClientPublic } from "@/lib/supabase/public";
 import { creerClientService } from "@/lib/supabase/service";
 import { urlPhotoPublique } from "@/lib/supabase/stockage";
-import { encoderCurseur } from "./adresse";
+import { encoderCurseur, pourFamille } from "./adresse";
 import { contientMarqueur } from "@/lib/vitrine/marqueur";
 import { choisirSlugLibre, SLUG_REGEX } from "./slug";
-import { CUMUL_MAX_CATALOGUE, DISPONIBILITES, TAILLE_PAGE_CATALOGUE, TAILLES } from "./types";
-import type { FormatFichierKit } from "./fichiers-kit";
-import type { CarteProduit, ChapitreAdmin, Disponibilite, LangueSousTitres, SousTitreAdmin, FamillePhysique, FamilleProduit, FichierKitAdmin, FicheProduit, NiveauKit, ProduitLiable, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
+import { CUMUL_MAX_CATALOGUE, DISPONIBILITES, LANGUES_SOUS_TITRES, NIVEAUX_KIT, TAILLE_PAGE_CATALOGUE, TAILLES } from "./types";
+import { FORMATS_FICHIER_KIT, type FormatFichierKit } from "./fichiers-kit";
+import type { FicheKit, CarteProduit, ChapitreAdmin, Disponibilite, LangueSousTitres, SousTitreAdmin, FamillePhysique, FamilleProduit, FichierKitAdmin, FicheProduit, NiveauKit, ProduitLiable, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
 
 // Lectures admin par le client service (après le droit vérifié par la page) : une erreur de lecture est relancée,
 // jamais une liste vide inventée. Aucune valeur de repli (règle 15).
@@ -59,7 +59,7 @@ export async function lireProduitAdmin(id: string): Promise<ProduitAdmin | null>
   if (fichiers.error) throw new Error("Lecture des fichiers impossible.");
   // Vidéo, chapitres et sous-titres d'un Kit : jamais l'identifiant Bunny privé (video_kit_prive) ni un chemin (sous_titre_kit_prive).
   const [video, chapitres, sousTitres] = await Promise.all([
-    client.from("video_kit").select("duree_secondes, extrait_bunny_id").eq("produit_id", id).maybeSingle(),
+    client.from("video_kit").select("duree_secondes, extrait_bunny_id, extrait_sans_parole, extrait_sous_titres").eq("produit_id", id).maybeSingle(),
     client.from("chapitre_kit").select("id, titre_fr, titre_en, debut_secondes, ordre").eq("produit_id", id).order("ordre", { ascending: true }),
     client.from("sous_titre_kit").select("langue, taille_octets, version").eq("produit_id", id).order("langue", { ascending: false }),
   ]);
@@ -80,7 +80,14 @@ export async function lireProduitAdmin(id: string): Promise<ProduitAdmin | null>
     materielEn: data.materiel_en,
     niveau: data.niveau as NiveauKit | null,
     produitLieId: data.produit_lie_id,
-    video: video.data ? { dureeSecondes: video.data.duree_secondes, extrait: video.data.extrait_bunny_id !== null } : null,
+    video: video.data
+      ? {
+          dureeSecondes: video.data.duree_secondes,
+          extrait: video.data.extrait_bunny_id !== null,
+          extraitSansParole: video.data.extrait_sans_parole,
+          extraitSousTitres: languesSousTitres(video.data.extrait_sous_titres),
+        }
+      : null,
     chapitres: (chapitres.data ?? []).map(
       (c): ChapitreAdmin => ({ id: c.id, titreFr: c.titre_fr, titreEn: c.titre_en, debutSecondes: c.debut_secondes, ordre: c.ordre }),
     ),
@@ -148,18 +155,21 @@ export async function lireProduitPourPublication(id: string): Promise<ProduitPou
   let nbFichiers = 0;
   let videoPrete = false;
   let sousTitresFr = false;
+  let extraitSansSousTitresFr = false;
   if (famille === "kit") {
     const [fichiers, video, sousTitres] = await Promise.all([
       client.from("fichier_kit").select("id", { count: "exact", head: true }).eq("produit_id", id),
-      client.from("video_kit").select("produit_id", { count: "exact", head: true }).eq("produit_id", id),
+      client.from("video_kit").select("extrait_bunny_id, extrait_sans_parole, extrait_sous_titres").eq("produit_id", id).maybeSingle(),
       client.from("sous_titre_kit").select("id", { count: "exact", head: true }).eq("produit_id", id).eq("langue", "fr"),
     ]);
-    if (fichiers.error || video.error || sousTitres.error || fichiers.count === null || video.count === null || sousTitres.count === null) {
+    if (fichiers.error || video.error || sousTitres.error || fichiers.count === null || sousTitres.count === null) {
       throw new Error("Lecture du produit impossible.");
     }
     nbFichiers = fichiers.count;
-    videoPrete = video.count > 0;
+    videoPrete = video.data !== null;
     sousTitresFr = sousTitres.count > 0;
+    extraitSansSousTitresFr =
+      video.data !== null && Boolean(video.data.extrait_bunny_id) && !video.data.extrait_sans_parole && !(video.data.extrait_sous_titres ?? []).includes("fr");
   }
   return {
     famille,
@@ -177,7 +187,14 @@ export async function lireProduitPourPublication(id: string): Promise<ProduitPou
     nbFichiers,
     videoPrete,
     sousTitresFr,
+    extraitSansSousTitresFr,
   };
+}
+
+// Langues de sous-titres connues, dans l'ordre fr puis en ; une valeur inconnue est ignorée.
+function languesSousTitres(brut: readonly string[] | null): LangueSousTitres[] {
+  const lues = new Set(brut ?? []);
+  return LANGUES_SOUS_TITRES.filter((l) => lues.has(l));
 }
 
 // Vidéo enregistrée d'un Kit, pour le service seulement (client service) : identifiant privé compris, jamais rendu au navigateur.
@@ -245,6 +262,7 @@ export async function lireTranchesPrixAdmin(): Promise<TranchePrix[]> {
 }
 
 const DISPONIBILITES_CONNUES: readonly string[] = DISPONIBILITES;
+const NIVEAUX_CONNUS: readonly (string | null)[] = NIVEAUX_KIT;
 
 // Une page d'un catalogue public, par la fonction SQL lister_catalogue (client public : la RLS ne montre que les produits publiés).
 // Rendue à chaque requête, jamais en cache (le badge dépend du stock et de la capacité : AD-17). La base ne renvoie qu'un état, jamais une quantité. Une erreur de lecture est relancée :
@@ -254,11 +272,13 @@ const DISPONIBILITES_CONNUES: readonly string[] = DISPONIBILITES;
 //  - sinon (Server Action « Voir plus ») : seulement les 12 suivants, par la clé de tri.
 // Le curseur rendu porte dans les deux cas le nombre total de produits affichés après cette lecture.
 export async function listerCatalogue(
-  famille: FamillePhysique,
-  params: ParamsCatalogue,
+  famille: FamilleProduit,
+  paramsBruts: ParamsCatalogue,
   locale: "fr" | "en",
   options: { cumul?: boolean } = {},
 ): Promise<PageCatalogue> {
+  // Niveau pour les Kits seulement, disponibilité pour les produits physiques seulement.
+  const params = pourFamille(paramsBruts, famille);
   const cumul = Boolean(options.cumul && params.curseur);
   const dejaVus = params.curseur?.n ?? 0;
   const taille = TAILLE_PAGE_CATALOGUE + (cumul ? dejaVus : 0);
@@ -274,6 +294,7 @@ export async function listerCatalogue(
     p_curseur_prix: cumul ? undefined : (params.curseur?.prix ?? undefined),
     p_curseur_id: cumul ? undefined : (params.curseur?.id ?? undefined),
     p_limite: taille + 1,
+    p_niveau: params.niveau ?? undefined,
   });
   if (error || !Array.isArray(data)) throw new Error("Lecture du catalogue impossible.");
 
@@ -283,12 +304,13 @@ export async function listerCatalogue(
     return {
       id: l.id,
       slug: l.slug,
-      famille: l.famille as FamillePhysique,
+      famille: l.famille as FamilleProduit,
       titre: l.titre,
       photoAlt: l.photo_alt,
       photoUrl: urlPhotoPublique(l.photo_fichier),
       prixCents: l.prix_cents,
       disponibilite: l.disponibilite as Disponibilite,
+      niveau: NIVEAUX_CONNUS.includes(l.niveau) ? (l.niveau as NiveauKit) : null,
     };
   });
   const dernier = lignes[lignes.length - 1];
@@ -353,9 +375,8 @@ export async function lireFicheProduit(famille: FamillePhysique, slug: string, l
   };
 }
 
-// Adresses des cosplays et accessoires publiés qui ont une photo et un prix (les autres donnent une 404), pour le plan du site. Les Kits
-// n'y figurent pas tant que leur fiche n'existe pas (story 3.3) : lues par pages de 1000 jusqu'à
-// épuisement, en cache `catalogue` (vidé à la publication). Une erreur de lecture est relancée.
+// Adresses des cosplays, accessoires et Kits publiés qui ont une photo et un prix (les autres donnent une 404), pour le plan du site :
+// lues par pages de 1000 jusqu'à épuisement, en cache `catalogue` (vidé à la publication). Une erreur de lecture est relancée.
 export async function lireSlugsPublies(): Promise<ProduitPublie[]> {
   "use cache";
   cacheTag(ETIQUETTES.catalogue);
@@ -365,13 +386,70 @@ export async function lireSlugsPublies(): Promise<ProduitPublie[]> {
     const { data, error } = await creerClientPublic()
       .from("produit")
       .select("famille, slug, produit_photo!inner(id)")
-      .in("famille", ["cosplay", "accessoire"])
+      .in("famille", ["cosplay", "accessoire", "kit"])
       .not("prix_cents", "is", null)
       .order("publie_le", { ascending: false })
       .order("id", { ascending: true })
       .range(debut, debut + TAILLE - 1);
     if (error || !data) throw new Error("Lecture des produits publiés impossible.");
-    produits.push(...data.map((p) => ({ famille: p.famille as FamillePhysique, slug: p.slug })));
+    produits.push(...data.map((p) => ({ famille: p.famille as FamilleProduit, slug: p.slug })));
     if (data.length < TAILLE) return produits;
   }
+}
+
+// Fiche d'un Kit publié, par le client public (la RLS ne montre que les Kits publiés et leurs données publiables) : photos, fichiers (nom
+// dans la langue, format, taille), chapitres, langues des sous-titres et extrait public. Jamais une table _prive, jamais un chemin de
+// kits-private ni un identifiant de la bibliothèque Bunny privée. Rendue à chaque requête (prix lu en base : règle 3). null : Kit inconnu,
+// brouillon, dépublié, sans prix ou sans photo. Une erreur de lecture est relancée : jamais une fiche inventée.
+export async function lireFicheKit(slug: string, langue: "fr" | "en"): Promise<FicheKit | null> {
+  const client = creerClientPublic();
+  const produit = await client
+    .from("produit")
+    .select("id, slug, titre_fr, titre_en, description_fr, description_en, materiel_fr, materiel_en, prix_cents, niveau")
+    .eq("slug", slug)
+    .eq("famille", "kit")
+    .maybeSingle();
+  if (produit.error) throw new Error("Lecture de la fiche impossible.");
+  const p = produit.data;
+  if (!p || p.prix_cents === null) return null;
+
+  const [photos, fichiers, chapitres, sousTitres, video] = await Promise.all([
+    client.from("produit_photo").select("fichier, alt_fr, alt_en, position").eq("produit_id", p.id).order("position", { ascending: true }),
+    client.from("fichier_kit").select("nom_fr, nom_en, format, taille_octets, ordre").eq("produit_id", p.id).order("ordre", { ascending: true }),
+    client.from("chapitre_kit").select("titre_fr, titre_en, debut_secondes, ordre").eq("produit_id", p.id).order("ordre", { ascending: true }),
+    client.from("sous_titre_kit").select("langue").eq("produit_id", p.id),
+    client
+      .from("video_kit")
+      .select("duree_secondes, extrait_bunny_id, extrait_sans_parole, extrait_sous_titres, extrait_le")
+      .eq("produit_id", p.id)
+      .maybeSingle(),
+  ]);
+  if (photos.error || !photos.data || fichiers.error || chapitres.error || sousTitres.error || video.error) throw new Error("Lecture de la fiche impossible.");
+  if (photos.data.length === 0) return null;
+
+  const en = langue === "en";
+  const formats: readonly string[] = FORMATS_FICHIER_KIT;
+  const v = video.data;
+  return {
+    id: p.id,
+    slug: p.slug,
+    titre: (en ? p.titre_en?.trim() : "") || p.titre_fr,
+    description: descriptionDeLaLangue(en, p.description_en, p.description_fr),
+    materiel: descriptionDeLaLangue(en, p.materiel_en, p.materiel_fr),
+    prixCents: p.prix_cents,
+    niveau: NIVEAUX_CONNUS.includes(p.niveau) ? (p.niveau as NiveauKit) : null,
+    photos: photos.data.map((ph) => ({ url: urlPhotoPublique(ph.fichier), alt: en ? ph.alt_en.trim() || ph.alt_fr : ph.alt_fr })),
+    fichiers: (fichiers.data ?? []).map((f) => {
+      if (!formats.includes(f.format)) throw new Error("Lecture de la fiche impossible.");
+      return { nom: (en ? f.nom_en.trim() : "") || f.nom_fr, format: f.format as FormatFichierKit, tailleOctets: Number(f.taille_octets) };
+    }),
+    chapitres: (chapitres.data ?? []).map((c) => ({ ordre: c.ordre, titre: (en ? c.titre_en.trim() : "") || c.titre_fr, debutSecondes: c.debut_secondes })),
+    sousTitres: languesSousTitres((sousTitres.data ?? []).map((st) => st.langue)),
+    dureeSecondes: v ? v.duree_secondes : null,
+    // Un extrait parlé sans sous-titres français n'est pas montré au public (amendement de la revue 1) : ni lecteur ni VideoObject.
+    extrait:
+      v && v.extrait_bunny_id && (v.extrait_sans_parole || (v.extrait_sous_titres ?? []).includes("fr"))
+        ? { id: v.extrait_bunny_id, sousTitres: languesSousTitres(v.extrait_sous_titres), sansParole: v.extrait_sans_parole, enregistreLe: v.extrait_le }
+        : null,
+  };
 }

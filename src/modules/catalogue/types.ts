@@ -67,6 +67,7 @@ export type CodeErreurCatalogue =
   | "chapitre_introuvable"
   | "langue_invalide"
   | "sous_titres_introuvables"
+  | "extrait_absent"
   | "generique";
 
 // Champ du formulaire de produit auquel une erreur se rattache (absent : erreur du formulaire entier).
@@ -87,7 +88,8 @@ export type ChampProduit =
   | "kit_lie";
 
 // Ce qui manque à un produit pour être publié, dans l'ordre d'affichage. Produit physique : prix, photo, titre anglais, descriptions,
-// variante. Kit : prix, photo, titres, descriptions, matériel, niveau, fichier, vidéo complète, sous-titres français (story 3.2).
+// variante. Kit : prix, photo, titres, descriptions, matériel, niveau, fichier, vidéo complète, sous-titres français (story 3.2) ; sous-titres
+// français de l'extrait quand il existe et n'est pas « sans parole » (story 3.3).
 export const MANQUES_PUBLICATION = [
   "prix",
   "photo",
@@ -102,6 +104,7 @@ export const MANQUES_PUBLICATION = [
   "fichier",
   "video",
   "sous_titres_fr",
+  "sous_titres_extrait_fr",
 ] as const;
 export type ManquePublication = (typeof MANQUES_PUBLICATION)[number];
 
@@ -292,6 +295,8 @@ export type ProduitPourPublication = {
   nbFichiers: number;
   videoPrete: boolean;
   sousTitresFr: boolean;
+  // Story 3.3 : un extrait existe, n'est pas « sans parole » et n'a pas de sous-titres français.
+  extraitSansSousTitresFr: boolean;
 };
 
 export type PhotoAdmin = { id: string; fichier: string; altFr: string; altEn: string; position: number };
@@ -350,8 +355,12 @@ export const SOUS_TITRES_TAILLE_MAX = 1_048_576;
 export const LANGUES_SOUS_TITRES = ["fr", "en"] as const;
 export type LangueSousTitres = (typeof LANGUES_SOUS_TITRES)[number];
 
-// Vidéo d'un Kit pour l'admin : durée lue chez Bunny et présence de l'extrait, sans aucun identifiant.
-export type VideoKitAdmin = { dureeSecondes: number; extrait: boolean };
+// Vidéo d'un Kit pour l'admin : durée lue chez Bunny et présence de l'extrait, sans aucun identifiant ; case « Extrait sans parole » et
+// langues des sous-titres de l'extrait déposées chez Bunny (story 3.3).
+export type VideoKitAdmin = { dureeSecondes: number; extrait: boolean; extraitSansParole: boolean; extraitSousTitres: LangueSousTitres[] };
+
+// Sous-titres de l'extrait : envoyés au serveur (Server Action, sous la limite de corps par défaut), 512 Ko au plus.
+export const SOUS_TITRES_EXTRAIT_TAILLE_MAX = 512 * 1024;
 export type ChapitreAdmin = { id: string; titreFr: string; titreEn: string; debutSecondes: number; ordre: number };
 export type SousTitreAdmin = { langue: LangueSousTitres; tailleOctets: number; version: number };
 
@@ -396,6 +405,10 @@ export type DependancesMediasKit = {
   ecrireSousTitres(args: { auteur: AuteurCompte; produitId: string; langue: LangueSousTitres; taille: number; chemin: string }): Promise<{ erreur: string | null; ancienChemin: string | null }>;
   supprimerSousTitres(args: { auteur: AuteurCompte; produitId: string; langue: LangueSousTitres }): Promise<{ erreur: string | null; chemin: string | null }>;
   supprimerObjetsKit(objets: string[]): Promise<{ erreur: string | null }>;
+  // Sous-titres de l'extrait (story 3.3) : la base ne garde que la langue ; le fichier est chez Bunny (bibliothèque publique).
+  ecrireSousTitresExtrait(args: { auteur: AuteurCompte; produitId: string; langue: LangueSousTitres }): Promise<{ erreur: string | null }>;
+  supprimerSousTitresExtrait(args: { auteur: AuteurCompte; produitId: string; langue: LangueSousTitres }): Promise<{ erreur: string | null }>;
+  definirExtraitSansParole(args: { auteur: AuteurCompte; produitId: string; valeur: boolean }): Promise<{ erreur: string | null }>;
   invaliderCatalogue(): Promise<void>;
 };
 
@@ -434,6 +447,8 @@ export const CUMUL_MAX_CATALOGUE = 240;
 // Ce que l'adresse d'un catalogue demande, une fois analysée (jamais d'erreur : une valeur mal formée est ignorée).
 export type ParamsCatalogue = {
   univers: string | null;
+  // Catalogue Kits seulement (story 3.3) : niveau du Kit ; toujours nul sur les catalogues physiques.
+  niveau: NiveauKit | null;
   // Tranche de prix en centimes : bas inclus, haut exclu (null = tranche ouverte). Les deux nuls = pas de filtre de prix.
   prixBas: number | null;
   prixHaut: number | null;
@@ -445,13 +460,15 @@ export type ParamsCatalogue = {
 export type CarteProduit = {
   id: string;
   slug: string;
-  famille: FamillePhysique;
+  famille: FamilleProduit;
   titre: string;
   photoAlt: string;
   // Adresse publique de la première photo (calculée côté serveur).
   photoUrl: string;
   prixCents: number;
+  // Un Kit est toujours « disponible » (aucune variante, aucun stock) : la carte montre son niveau à la place.
   disponibilite: Disponibilite;
+  niveau: NiveauKit | null;
 };
 
 export type PageCatalogue = {
@@ -479,4 +496,28 @@ export type FicheProduit = {
   tailles: TailleFiche[];
 };
 
-export type ProduitPublie = { famille: FamillePhysique; slug: string };
+export type ProduitPublie = { famille: FamilleProduit; slug: string };
+
+// ---- Fiche d'un Kit (story 3.3) : lecture publique (RLS), jamais une table _prive ni un identifiant de la bibliothèque privée ----
+
+export type FichierFiche = { nom: string; format: FormatFichierKit; tailleOctets: number };
+export type ChapitreFiche = { ordre: number; titre: string; debutSecondes: number };
+// Extrait public : identifiant de la vidéo de la bibliothèque Bunny PUBLIQUE (il figure dans son adresse publique), langues de ses sous-titres.
+export type ExtraitFiche = { id: string; sousTitres: LangueSousTitres[]; sansParole: boolean; enregistreLe: string | null };
+
+export type FicheKit = {
+  id: string;
+  slug: string;
+  titre: string;
+  description: string | null;
+  materiel: string | null;
+  prixCents: number;
+  niveau: NiveauKit | null;
+  photos: PhotoFiche[];
+  fichiers: FichierFiche[];
+  chapitres: ChapitreFiche[];
+  // Langues des sous-titres de la vidéo complète (FR obligatoire pour publier).
+  sousTitres: LangueSousTitres[];
+  dureeSecondes: number | null;
+  extrait: ExtraitFiche | null;
+};

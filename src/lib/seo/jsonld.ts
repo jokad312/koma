@@ -91,3 +91,19 @@ export function produitJsonLd({ nom, description, images, url, langue, prixCents
     },
   };
 }
+
+type DonneesVideo = { nom: string; description: string; vignette: string; dateEnvoi: string; contenu: string; langue: string };
+
+// VideoObject de l'extrait public d'un Kit : adresses du CDN public seulement (jamais de la bibliothèque privée), date d'enregistrement lue en base.
+export function videoJsonLd({ nom, description, vignette, dateEnvoi, contenu, langue }: DonneesVideo) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: nom,
+    description,
+    thumbnailUrl: [vignette],
+    uploadDate: dateEnvoi,
+    contentUrl: contenu,
+    inLanguage: langue,
+  };
+}

@@ -180,8 +180,8 @@ describe("lireSlugsPublies", () => {
     expect(faux.tables).toEqual(["produit"]);
     expect(faux.selections[0]).toContain("produit_photo!inner");
     expect(faux.filtres).toContainEqual(["prix_cents", "is", null]);
-    // Un Kit publié n'a pas encore de fiche (story 3.3) : il n'est jamais lu pour le plan du site.
-    expect(faux.dans).toContainEqual(["famille", ["cosplay", "accessoire"]]);
+    // Story 3.3 : les Kits publiés ont leur fiche, ils sont lus pour le plan du site.
+    expect(faux.dans).toContainEqual(["famille", ["cosplay", "accessoire", "kit"]]);
   });
 
   it("pagine par range() jusqu'à épuisement", async () => {

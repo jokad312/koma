@@ -1,7 +1,7 @@
-import { CUMUL_MAX_CATALOGUE, TAILLE_PAGE_CATALOGUE, TRIS_CATALOGUE, TRI_PAR_DEFAUT, FILTRES_DISPONIBILITE } from "./types";
-import type { CurseurCatalogue, FiltreDisponibilite, ParamsCatalogue, TriCatalogue } from "./types";
+import { CUMUL_MAX_CATALOGUE, NIVEAUX_KIT, TAILLE_PAGE_CATALOGUE, TRIS_CATALOGUE, TRI_PAR_DEFAUT, FILTRES_DISPONIBILITE } from "./types";
+import type { CurseurCatalogue, FamilleProduit, FiltreDisponibilite, NiveauKit, ParamsCatalogue, TriCatalogue } from "./types";
 
-// Analyse et sérialisation de la requête d'un catalogue (?univers=&prix=&dispo=&tri=&curseur=). Fonctions pures.
+// Analyse et sérialisation de la requête d'un catalogue (?univers=&prix=&dispo=&niveau=&tri=&curseur=). Fonctions pures.
 // Un paramètre inconnu ou mal formé est ignoré : jamais d'erreur, jamais d'exception (une adresse partagée reste ouvrable).
 
 export type RequeteBrute = Record<string, string | string[] | undefined> | URLSearchParams;
@@ -72,9 +72,11 @@ export function analyserRequete(brut: RequeteBrute): ParamsCatalogue {
   const tri = (TRIS_CATALOGUE as readonly string[]).includes(triBrut ?? "") ? (triBrut as TriCatalogue) : TRI_PAR_DEFAUT;
   const universBrut = valeur(brut, "univers");
   const dispoBrut = valeur(brut, "dispo");
+  const niveauBrut = valeur(brut, "niveau");
   const prix = lirePrix(valeur(brut, "prix"));
   return {
     univers: universBrut && UUID.test(universBrut) ? universBrut.toLowerCase() : null,
+    niveau: (NIVEAUX_KIT as readonly string[]).includes(niveauBrut ?? "") ? (niveauBrut as NiveauKit) : null,
     prixBas: prix ? prix.bas : null,
     prixHaut: prix ? prix.haut : null,
     dispo: (FILTRES_DISPONIBILITE as readonly string[]).includes(dispoBrut ?? "") ? (dispoBrut as FiltreDisponibilite) : null,
@@ -87,9 +89,20 @@ export function aUnPrix(p: Pick<ParamsCatalogue, "prixBas" | "prixHaut">): boole
   return p.prixBas !== null;
 }
 
-// Nombre de filtres actifs (univers, prix, disponibilité) : le tri n'en fait pas partie.
+// Paramètres propres à une famille : le niveau n'existe que pour les Kits, la disponibilité que pour les produits physiques (un Kit est
+// toujours disponible). Un paramètre d'une autre famille est ignoré, comme une valeur inconnue.
+export function pourFamille<T extends Omit<ParamsCatalogue, "curseur">>(p: T, famille: FamilleProduit): T {
+  return famille === "kit" ? { ...p, dispo: null } : { ...p, niveau: null };
+}
+
+// Analyse d'une requête pour une famille donnée.
+export function analyserRequeteFamille(brut: RequeteBrute, famille: FamilleProduit): ParamsCatalogue {
+  return pourFamille(analyserRequete(brut), famille);
+}
+
+// Nombre de filtres actifs (univers, prix, disponibilité, niveau) : le tri n'en fait pas partie.
 export function compterFiltres(p: ParamsCatalogue): number {
-  return (p.univers ? 1 : 0) + (aUnPrix(p) ? 1 : 0) + (p.dispo ? 1 : 0);
+  return (p.univers ? 1 : 0) + (aUnPrix(p) ? 1 : 0) + (p.dispo ? 1 : 0) + (p.niveau ? 1 : 0);
 }
 
 // Un filtre ou un tri non par défaut est actif (le curseur n'en est pas un).
@@ -104,6 +117,7 @@ export function serialiserRequete(p: Omit<ParamsCatalogue, "curseur">, curseur: 
   if (p.univers) q.set("univers", p.univers);
   if (p.prixBas !== null) q.set("prix", `${p.prixBas}-${p.prixHaut ?? ""}`);
   if (p.dispo) q.set("dispo", p.dispo);
+  if (p.niveau) q.set("niveau", p.niveau);
   if (p.tri !== TRI_PAR_DEFAUT) q.set("tri", p.tri);
   if (curseur) q.set("curseur", curseur);
   return q.toString();
@@ -123,5 +137,5 @@ export function requeteAvecCurseur(requeteBase: string, curseur: string): string
 
 // Les paramètres sans le curseur (changer de filtre ou de tri ramène toujours à la première page).
 export function sansCurseur(p: ParamsCatalogue): Omit<ParamsCatalogue, "curseur"> {
-  return { univers: p.univers, prixBas: p.prixBas, prixHaut: p.prixHaut, dispo: p.dispo, tri: p.tri };
+  return { univers: p.univers, niveau: p.niveau, prixBas: p.prixBas, prixHaut: p.prixHaut, dispo: p.dispo, tri: p.tri };
 }

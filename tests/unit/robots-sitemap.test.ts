@@ -37,6 +37,8 @@ describe("sitemap", () => {
       "http://localhost:3000/en/cosplays",
       "http://localhost:3000/fr/accessoires",
       "http://localhost:3000/en/accessories",
+      "http://localhost:3000/fr/kits",
+      "http://localhost:3000/en/kits",
       "http://localhost:3000/fr/a-propos",
       "http://localhost:3000/en/a-propos",
       "http://localhost:3000/fr/faq",
@@ -53,7 +55,7 @@ describe("sitemap", () => {
       "http://localhost:3000/en/confidentialite",
     ]);
     // Catalogues : adresse propre à chaque langue (vérifiée dans adresses-langues.test.ts).
-    for (const chemin of ["", "/cosplays", "/a-propos", "/faq", "/contact", "/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite"]) {
+    for (const chemin of ["", "/cosplays", "/kits", "/a-propos", "/faq", "/contact", "/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite"]) {
       const e = entrees.find((x) => x.url === `http://localhost:3000/fr${chemin}`);
       expect(e?.alternates?.languages).toEqual({
         fr: `http://localhost:3000/fr${chemin}`,
@@ -67,6 +69,7 @@ describe("sitemap", () => {
     faux.lire.mockResolvedValue([
       { famille: "cosplay", slug: "test-cosplay" },
       { famille: "accessoire", slug: "test-accessoire" },
+      { famille: "kit", slug: "test-kit" },
     ]);
     const entrees = await sitemap();
     const urls = entrees.map((e) => e.url);
@@ -76,6 +79,8 @@ describe("sitemap", () => {
         "http://localhost:3000/en/cosplays/test-cosplay",
         "http://localhost:3000/fr/accessoires/test-accessoire",
         "http://localhost:3000/en/accessories/test-accessoire",
+        "http://localhost:3000/fr/kits/test-kit",
+        "http://localhost:3000/en/kits/test-kit",
       ]),
     );
     expect(urls).not.toContain("http://localhost:3000/en/accessoires/test-accessoire");
@@ -92,7 +97,7 @@ describe("sitemap", () => {
     const urls = (await sitemap()).map((e) => e.url);
     expect(urls).toContain("http://localhost:3000/fr/cosplays");
     expect(urls).toContain("http://localhost:3000/en/accessories");
-    expect(urls).toHaveLength(20);
+    expect(urls).toHaveLength(22);
     expect(erreur).toHaveBeenCalled();
     erreur.mockRestore();
   });

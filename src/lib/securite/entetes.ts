@@ -11,18 +11,24 @@ type Options = {
 // CSP en mode Report-Only (story 1.4) : elle ne bloque rien, elle laisse le navigateur signaler. 'unsafe-inline' couvre le script
 // du thème et les scripts de Next ; la story 9.9 passe en mode strict (nonce si nécessaire).
 export function politiqueContenu({ adresseSupabase, hoteVideoPublic, production }: Pick<Options, "adresseSupabase" | "hoteVideoPublic" | "production">): string {
-  // L'envoi TUS de la vidéo du héros part du navigateur vers l'API de Bunny (admin seulement).
-  const connexions = ["'self'", adresseSupabase, "https://video.bunnycdn.com"].filter(Boolean).join(" ");
-  const medias = ["'self'", hoteVideoPublic ? `https://${hoteVideoPublic}` : null].filter(Boolean).join(" ");
+  const cdnPublic = hoteVideoPublic ? `https://${hoteVideoPublic}` : null;
+  // L'envoi TUS de la vidéo du héros part du navigateur vers l'API de Bunny (admin seulement). L'extrait d'un Kit (story 3.3) est lu en HLS
+  // par hls.js : playlist, segments et sous-titres sont chargés depuis le CDN public, puis joués depuis une source blob:.
+  const connexions = ["'self'", adresseSupabase, "https://video.bunnycdn.com", cdnPublic].filter(Boolean).join(" ");
+  const medias = ["'self'", "blob:", cdnPublic].filter(Boolean).join(" ");
+  // Affiche de l'extrait (thumbnail.jpg du CDN public).
+  const images = ["'self'", "data:", "blob:", cdnPublic].filter(Boolean).join(" ");
   const scripts = ["'self'", "'unsafe-inline'", production ? null : "'unsafe-eval'"].filter(Boolean).join(" ");
   return [
     "default-src 'self'",
     `script-src ${scripts}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
+    `img-src ${images}`,
     `media-src ${medias}`,
     "font-src 'self' data:",
     `connect-src ${connexions}`,
+    // hls.js transcode les segments dans un worker créé depuis une source blob:.
+    "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

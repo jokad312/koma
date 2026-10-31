@@ -11,6 +11,7 @@ import { FormulaireKit } from "@/components/admin/FormulaireKit";
 import { FormulaireProduit } from "@/components/admin/FormulaireProduit";
 import { GaleriePhotos } from "@/components/admin/GaleriePhotos";
 import { PublicationProduit } from "@/components/admin/PublicationProduit";
+import { SousTitresExtraitKit } from "@/components/admin/SousTitresExtraitKit";
 import { SousTitresKit } from "@/components/admin/SousTitresKit";
 import { VideoKit } from "@/components/admin/VideoKit";
 import { MessageEtat } from "@/components/ui/MessageEtat";
@@ -116,6 +117,13 @@ async function ProduitSelonDroit({
               extraitPresent={produit.video?.extrait ?? false}
               bunnyConfigure={bunnyPublic}
             />
+            {produit.video?.extrait ? (
+              <SousTitresExtraitKit
+                produitId={produit.id}
+                sansParole={produit.video.extraitSansParole}
+                langues={produit.video.extraitSousTitres}
+              />
+            ) : null}
             <ChapitresKit produitId={produit.id} chapitres={produit.chapitres} dureeSecondes={produit.video?.dureeSecondes ?? null} />
             <SousTitresKit produitId={produit.id} sousTitres={produit.sousTitres} />
             {/* Publication en dernier : la liste des manques couvre toutes les sections ci-dessus. */}

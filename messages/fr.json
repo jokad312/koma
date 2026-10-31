@@ -53,6 +53,10 @@
     "accessoires": {
       "titre": "Accessoires",
       "description": "Perruques, armes factices, masques, armures et bijoux d'otaku, faits à Goma. Filtre par univers, prix et disponibilité."
+    },
+    "kits": {
+      "titre": "Kits",
+      "description": "Kits de cosplay à fabriquer soi-même : patrons PDF, SVG et STL et tutoriel vidéo en chapitres, accès à vie. Filtre par univers, prix et niveau."
     }
   },
   "Accueil": {
@@ -690,7 +694,8 @@
           "variante": "Au moins une taille",
           "fichier": "Au moins un fichier",
           "video": "La vidéo complète",
-          "sous_titres_fr": "Les sous-titres en français"
+          "sous_titres_fr": "Les sous-titres en français",
+          "sous_titres_extrait_fr": "Les sous-titres en français de l'extrait (ou la case « Extrait sans parole »)"
         },
         "erreurs": {
           "publication_incomplete": "Il manque des éléments pour publier. Recharge la page.",
@@ -1093,6 +1098,59 @@
           "sous_titres_introuvables": "Ces sous-titres n'existent plus. Recharge la page.",
           "publication_incomplete": "Un Kit publié garde ses sous-titres en français. Dépublie-le d'abord pour les retirer."
         }
+      },
+      "sousTitresExtrait": {
+        "titre": "Sous-titres de l'extrait",
+        "intro": "Fichiers WebVTT (.vtt), 512 Ko au plus, déposés avec l'extrait dans la bibliothèque Bunny publique. Si l'extrait est parlé, le français est obligatoire pour publier ; l'anglais est facultatif.",
+        "sansParole": {
+          "libelle": "Extrait sans parole",
+          "aide": "Coche cette case si l'extrait ne contient aucune parole : aucun sous-titre d'extrait n'est alors exigé.",
+          "enregistre": "Choix enregistré."
+        },
+        "langues": {
+          "fr": "Sous-titres de l'extrait en français",
+          "en": "Sous-titres de l'extrait en anglais"
+        },
+        "nomsLangues": {
+          "fr": "français",
+          "en": "anglais"
+        },
+        "obligatoire": "Obligatoires pour publier si l'extrait est parlé.",
+        "facultatif": "Facultatifs.",
+        "presents": "Déposés chez Bunny.",
+        "absents": "Aucun fichier pour le moment.",
+        "fichier": {
+          "libelle": "Fichier .vtt de l'extrait en {langue}",
+          "aide": "Le fichier commence par WEBVTT ; les horaires sont ceux de l'extrait. 512 Ko au plus."
+        },
+        "envoyer": "Envoyer les sous-titres de l'extrait en {langue}",
+        "remplacer": "Remplacer les sous-titres de l'extrait en {langue}",
+        "envoyes": "Sous-titres de l'extrait enregistrés.",
+        "supprimer": "Supprimer les sous-titres de l'extrait en {langue}",
+        "supprimes": "Sous-titres de l'extrait supprimés.",
+        "suppression": {
+          "titre": "Supprimer les sous-titres de l'extrait en {langue} ?",
+          "texte": "Le fichier est retiré de l'extrait et effacé chez Bunny. Cette action ne peut pas être annulée.",
+          "confirmer": "Supprimer",
+          "annuler": "Annuler",
+          "enCours": "Suppression…"
+        },
+        "erreurs": {
+          "generique": "Les sous-titres de l'extrait n'ont pas pu être enregistrés. Réessaie.",
+          "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
+          "produit_introuvable": "Ce Kit n'existe plus. Retourne à la liste des produits.",
+          "famille_invalide": "Ce produit n'est pas un Kit. Retourne à la liste des produits.",
+          "fichier_manquant": "Choisis un fichier .vtt à envoyer.",
+          "format_invalide": "Ce fichier n'est pas un WebVTT valide : il doit être en UTF-8, commencer par WEBVTT et contenir au moins une réplique de la forme 00:00:01.000 --> 00:00:04.000. Rien n'a été envoyé chez Bunny.",
+          "fichier_trop_lourd": "Ce fichier est trop lourd : 512 Ko au plus.",
+          "langue_invalide": "Langue inconnue. Recharge la page.",
+          "video_absente": "Envoie d'abord la vidéo complète.",
+          "extrait_absent": "Envoie d'abord l'extrait : ses sous-titres s'ajoutent ensuite.",
+          "bunny_non_configure": "La bibliothèque Bunny publique n'est pas configurée sur ce serveur.",
+          "bunny_indisponible": "Bunny ne répond pas : rien n'a été enregistré. Réessaie dans un instant.",
+          "sous_titres_introuvables": "Ces sous-titres n'existent plus. Recharge la page.",
+          "publication_incomplete": "Un Kit publié dont l'extrait est parlé garde ses sous-titres en français. Dépublie-le d'abord."
+        }
       }
     }
   },
@@ -1186,7 +1244,8 @@
   "Catalogue": {
     "titre": {
       "cosplay": "Cosplays",
-      "accessoire": "Accessoires"
+      "accessoire": "Accessoires",
+      "kit": "Kits"
     },
     "fil": {
       "navigation": "Fil d'Ariane",
@@ -1208,7 +1267,8 @@
       "tous": "Tous",
       "enStock": "En stock",
       "surCommande": "Fabrication sur commande",
-      "effacer": "Effacer les filtres"
+      "effacer": "Effacer les filtres",
+      "niveau": "Niveau"
     },
     "tri": {
       "nouveautes": "Nouveautés",
@@ -1279,6 +1339,62 @@
       "bouton": "Partager",
       "copie": "Lien copié",
       "echec": "Impossible de partager le lien pour le moment."
+    }
+  },
+  "Kit": {
+    "niveau": {
+      "debutant": "Débutant",
+      "intermediaire": "Intermédiaire",
+      "avance": "Avancé"
+    },
+    "niveauLibelle": "Niveau : {niveau}",
+    "meta": {
+      "descriptionRepli": "{titre}, kit de cosplay à fabriquer soi-même sur {nomSite}."
+    },
+    "materiel": {
+      "titre": "Matériel nécessaire"
+    },
+    "fichiers": {
+      "titre": "Fichiers inclus",
+      "vide": "La liste des fichiers n'est pas encore disponible.",
+      "ligne": "{nom} · {format} · {taille}",
+      "formats": {
+        "pdf_a4": "PDF A4",
+        "pdf_letter": "PDF US Letter",
+        "svg": "SVG",
+        "stl": "STL",
+        "transcription": "Transcription (texte)"
+      },
+      "taille": {
+        "octets": "{valeur} o",
+        "ko": "{valeur} Ko",
+        "mo": "{valeur} Mo"
+      }
+    },
+    "chapitres": {
+      "titre": "Plan du tutoriel vidéo",
+      "duree": "Durée totale : {duree}",
+      "vide": "Le plan des chapitres n'est pas encore disponible.",
+      "debut": "· début à {instant}"
+    },
+    "sousTitres": {
+      "sansAnglais": "Les sous-titres anglais ne sont pas disponibles pour ce kit.",
+      "langues": {
+        "fr": "Français",
+        "en": "Anglais"
+      }
+    },
+    "licence": {
+      "titre": "Licence de kit",
+      "texte": "Les fichiers et la vidéo de ce kit sont réservés à ton usage personnel. Tu ne peux ni les revendre, ni les partager, ni les diffuser."
+    },
+    "extrait": {
+      "titre": "Extrait du tutoriel",
+      "aide": "Extrait public, sans lecture automatique. Les sous-titres s'affichent dans ta langue quand ils existent ; le bouton des sous-titres du lecteur permet de les changer ou de les masquer.",
+        "sansAnglais": "Les sous-titres anglais ne sont pas disponibles pour cet extrait.",
+      "nomVideo": "Extrait du tutoriel : {titre}",
+      "erreur": "L'extrait ne peut pas être lu pour le moment. Réessaie plus tard.",
+      "nonPrisEnCharge": "Ton navigateur ne peut pas lire cet extrait."
     }
   }
 }
