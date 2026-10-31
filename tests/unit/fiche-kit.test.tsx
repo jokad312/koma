@@ -4,6 +4,9 @@ import { NextIntlClientProvider } from "next-intl";
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ cacheTag: vi.fn() }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/fr/kits/test" }));
+vi.mock("@/modules/bibliotheque/actions", () => ({ lireEtatKit: vi.fn(async () => "anonyme") }));
+vi.mock("@/modules/commande/actions", () => ({ obtenirKitGratuit: vi.fn() }));
 vi.mock("next/image", () => ({ default: ({ src, alt }: { src: string; alt: string }) => (
     // eslint-disable-next-line @next/next/no-img-element
     <img src={src} alt={alt} />

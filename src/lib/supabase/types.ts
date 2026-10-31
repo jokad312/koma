@@ -39,6 +39,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      acces_kit: {
+        Row: {
+          commande_origine: string
+          compte_id: string
+          cree_le: string
+          id: string
+          produit_id: string
+        }
+        Insert: {
+          commande_origine: string
+          compte_id: string
+          cree_le?: string
+          id?: string
+          produit_id: string
+        }
+        Update: {
+          commande_origine?: string
+          compte_id?: string
+          cree_le?: string
+          id?: string
+          produit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acces_kit_commande_origine_fkey"
+            columns: ["commande_origine"]
+            isOneToOne: false
+            referencedRelation: "commande"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "acces_kit_produit_id_fkey"
+            columns: ["produit_id"]
+            isOneToOne: false
+            referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chapitre_kit: {
         Row: {
           cree_le: string
@@ -76,6 +115,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      commande: {
+        Row: {
+          acceptations: Json
+          cle_idempotence: string | null
+          compte_id: string
+          cree_le: string
+          devise: string
+          id: string
+          mis_a_jour_le: string
+          numero: string
+          offerte: boolean
+          paye_le: string | null
+          prestataire: string | null
+          reference_transaction: string | null
+          sous_total_cents: number
+          statut: string
+          total_cents: number
+          type: string
+        }
+        Insert: {
+          acceptations?: Json
+          cle_idempotence?: string | null
+          compte_id: string
+          cree_le?: string
+          devise?: string
+          id?: string
+          mis_a_jour_le?: string
+          numero?: string
+          offerte?: boolean
+          paye_le?: string | null
+          prestataire?: string | null
+          reference_transaction?: string | null
+          sous_total_cents: number
+          statut: string
+          total_cents: number
+          type: string
+        }
+        Update: {
+          acceptations?: Json
+          cle_idempotence?: string | null
+          compte_id?: string
+          cree_le?: string
+          devise?: string
+          id?: string
+          mis_a_jour_le?: string
+          numero?: string
+          offerte?: boolean
+          paye_le?: string | null
+          prestataire?: string | null
+          reference_transaction?: string | null
+          sous_total_cents?: number
+          statut?: string
+          total_cents?: number
+          type?: string
+        }
+        Relationships: []
       }
       fichier_kit: {
         Row: {
@@ -217,6 +313,51 @@ export type Database = {
           id?: never
         }
         Relationships: []
+      }
+      ligne_commande: {
+        Row: {
+          commande_id: string
+          cree_le: string
+          id: string
+          prix_cents: number
+          produit_id: string
+          quantite: number
+          reduction_cents: number
+        }
+        Insert: {
+          commande_id: string
+          cree_le?: string
+          id?: string
+          prix_cents: number
+          produit_id: string
+          quantite?: number
+          reduction_cents?: number
+        }
+        Update: {
+          commande_id?: string
+          cree_le?: string
+          id?: string
+          prix_cents?: number
+          produit_id?: string
+          quantite?: number
+          reduction_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ligne_commande_commande_id_fkey"
+            columns: ["commande_id"]
+            isOneToOne: false
+            referencedRelation: "commande"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ligne_commande_produit_id_fkey"
+            columns: ["produit_id"]
+            isOneToOne: false
+            referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       limite_essai: {
         Row: {
@@ -742,6 +883,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      bibliotheque_ouvrir_acces: {
+        Args: { p_commande: string; p_compte: string; p_produit: string }
+        Returns: boolean
+      }
       capacite_fabrication_atteinte: { Args: never; Returns: boolean }
       choisir_vedette_heros: {
         Args: { p_auteur: Json; p_produit_id: string }
@@ -888,6 +1033,7 @@ export type Database = {
         Returns: string
       }
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
+      exiger_client: { Args: { p_auteur: Json }; Returns: string }
       extension_fichier_kit: { Args: { p_format: string }; Returns: string }
       lister_catalogue: {
         Args: {
@@ -943,7 +1089,20 @@ export type Database = {
         }
         Returns: undefined
       }
+      offrir_commande: {
+        Args: {
+          p_acceptations: Json
+          p_auteur: Json
+          p_cle_idempotence: string
+          p_produit: string
+        }
+        Returns: Json
+      }
       places_fabrication_utilisees: { Args: never; Returns: number }
+      possede_kit: {
+        Args: { p_compte: string; p_produit: string }
+        Returns: boolean
+      }
       publier_produit: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined

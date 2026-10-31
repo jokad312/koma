@@ -16,6 +16,7 @@ import type { FicheKit as Donnees } from "@/modules/catalogue/types";
 import { BoutonPartager } from "./BoutonPartager";
 import { GaleriePhotos } from "./GaleriePhotos";
 import { LecteurExtrait } from "./LecteurExtrait";
+import { ObtentionKit } from "./ObtentionKit";
 
 export const DOSSIER_KITS = "/kits";
 const SEPARATEUR_FIL = "›";
@@ -25,7 +26,7 @@ type Props = { fiche: Donnees; locale: Locale; hoteCdn: string | null };
 const texteReel = (t: string | null) => (t && !contientMarqueur(t) ? t : null);
 
 // Fiche d'un Kit : galerie, titre, prix USD, niveau, description, matériel, fichiers (format, taille), plan des chapitres, résumé de la
-// Licence de kit, extrait public lisible au clavier et sous-titré. Pas d'achat (epic 4) ni d'obtention (story 3.5). Le HTML ne contient
+// Licence de kit, extrait public lisible au clavier et sous-titré. Pas d'achat (epic 4) ; le Kit gratuit s'obtient par ObtentionKit (story 3.5). Le HTML ne contient
 // jamais de chemin kits-private ni d'identifiant de la bibliothèque Bunny privée : seules les données publiables sont lues.
 export async function FicheKit({ fiche, locale, hoteCdn }: Props) {
   const tf = await getTranslations({ locale, namespace: "Fiche.fil" });
@@ -102,6 +103,7 @@ export async function FicheKit({ fiche, locale, hoteCdn }: Props) {
           <p className="t-price-card text-text-primary">{formaterUsd(fiche.prixCents, locale)}</p>
           {fiche.niveau ? <p className="t-body text-text-primary">{t("niveauLibelle", { niveau: t(`niveau.${fiche.niveau}`) })}</p> : null}
           {description ? <p className="t-body whitespace-pre-line text-text-primary">{description}</p> : null}
+          <ObtentionKit produitId={fiche.id} prixCents={fiche.prixCents} />
           <BoutonPartager titre={fiche.titre} url={urlFiche} />
         </div>
       </div>

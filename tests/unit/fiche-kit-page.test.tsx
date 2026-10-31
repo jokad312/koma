@@ -12,7 +12,10 @@ vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new Error("TEST_NOT_FOUND");
   },
+  usePathname: () => "/fr/kits/test",
 }));
+vi.mock("@/modules/bibliotheque/actions", () => ({ lireEtatKit: vi.fn(async () => "anonyme") }));
+vi.mock("@/modules/commande/actions", () => ({ obtenirKitGratuit: vi.fn() }));
 vi.mock("@/modules/catalogue/queries", () => ({ lireFicheKit: (...a: unknown[]) => faux.fiche(...a) }));
 vi.mock("@/lib/reglages", () => ({ lireNomSite: async () => "TEST_Boutique" }));
 vi.mock("@/i18n/navigation", () => ({

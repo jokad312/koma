@@ -1384,6 +1384,23 @@
         "en": "English"
       }
     },
+      "obtention": {
+        "obtenir": "Get the free kit",
+        "enCours": "Opening your kit…",
+        "ouvrir": "Open in my library",
+        "licenceCase": "[Texte à fournir]",
+        "raisonLicence": "Tick the Kit license box first.",
+        "succes": "Your kit is open. Order {numero}.",
+        "erreurs": {
+          "licence": "Tick the Kit license box first.",
+          "non_connecte": "Sign in to get the kit.",
+          "compte_incomplet": "Finish signing in by giving your age, then come back here.",
+          "deja_possede": "You already have this kit.",
+          "indisponible": "This kit is not available for free.",
+          "invalide": "The request is not valid. Reload the page and try again.",
+          "erreur": "The kit could not be opened. Try again."
+        }
+      },
     "licence": {
       "titre": "Kit license",
       "texte": "The files and the video of this kit are for your personal use only. You may not resell, share or distribute them."

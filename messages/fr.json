@@ -1384,6 +1384,23 @@
         "en": "Anglais"
       }
     },
+      "obtention": {
+        "obtenir": "Obtenir le kit gratuit",
+        "enCours": "Ouverture de ton kit…",
+        "ouvrir": "Ouvrir dans ma bibliothèque",
+        "licenceCase": "[Texte à fournir]",
+        "raisonLicence": "Coche d'abord la case de la Licence de kit.",
+        "succes": "Ton kit est ouvert. Commande {numero}.",
+        "erreurs": {
+          "licence": "Coche d'abord la case de la Licence de kit.",
+          "non_connecte": "Connecte-toi pour obtenir le kit.",
+          "compte_incomplet": "Termine ta connexion en indiquant ton âge, puis reviens ici.",
+          "deja_possede": "Tu as déjà ce kit.",
+          "indisponible": "Ce kit n'est pas disponible gratuitement.",
+          "invalide": "La demande n'est pas valide. Recharge la page et réessaie.",
+          "erreur": "Le kit n'a pas pu être ouvert. Réessaie."
+        }
+      },
     "licence": {
       "titre": "Licence de kit",
       "texte": "Les fichiers et la vidéo de ce kit sont réservés à ton usage personnel. Tu ne peux ni les revendre, ni les partager, ni les diffuser."
