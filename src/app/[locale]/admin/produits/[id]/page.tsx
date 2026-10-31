@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { ChapitresKit } from "@/components/admin/ChapitresKit";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { EnvoiPhoto } from "@/components/admin/EnvoiPhoto";
 import { FichiersKit } from "@/components/admin/FichiersKit";
@@ -10,11 +11,14 @@ import { FormulaireKit } from "@/components/admin/FormulaireKit";
 import { FormulaireProduit } from "@/components/admin/FormulaireProduit";
 import { GaleriePhotos } from "@/components/admin/GaleriePhotos";
 import { PublicationProduit } from "@/components/admin/PublicationProduit";
+import { SousTitresKit } from "@/components/admin/SousTitresKit";
+import { VideoKit } from "@/components/admin/VideoKit";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
 import { Link } from "@/i18n/navigation";
 import { routing, type Locale } from "@/i18n/routing";
 import { exigerAdminPage } from "@/lib/auth/droits";
+import { bunnyConfigure } from "@/lib/bunny/config";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
 import { lireProduitAdmin, lireProduitsLiables, lireUniversAdmin } from "@/modules/catalogue/queries";
@@ -74,6 +78,9 @@ async function ProduitSelonDroit({
     console.error("[catalogue] lecture du produit impossible");
   }
   if (lecture && !produit) notFound();
+  // Présence des variables Bunny (jamais leur valeur) : sans elles, l'envoi de vidéo est désactivé et expliqué.
+  const bunnyPrive = bunnyConfigure("prive");
+  const bunnyPublic = bunnyConfigure("public");
   return (
     <CoqueAdmin>
       <div className="flex flex-col gap-6">
@@ -86,15 +93,33 @@ async function ProduitSelonDroit({
         {cree ? <MessageEtat type="succes">{t("pageEdition.cree")}</MessageEtat> : null}
         {produit && univers && produit.famille === "kit" ? (
           <>
-            {/* La publication d'un Kit (vidéo, fichiers, sous-titres) est définie par la story 3.2 : la base la refuse d'ici là. */}
-            <MessageEtat type="information">{tk("pageEdition.publicationBientot")}</MessageEtat>
             <FormulaireKit univers={univers} liables={liables} produit={produit} />
+            <section aria-labelledby="photos-titre" className="flex max-w-2xl flex-col gap-4">
+              <h2 id="photos-titre" className="t-h2">
+                {tp("titre")}
+              </h2>
+              <p className="t-body text-text-secondary">{tp("intro")}</p>
+              <GaleriePhotos photos={produit.photos} />
+              <EnvoiPhoto produitId={produit.id} />
+            </section>
             <section aria-labelledby="fichiers-titre" className="flex max-w-2xl flex-col gap-4">
               <h2 id="fichiers-titre" className="t-h2">
                 {tk("fichiers.titre")}
               </h2>
               <FichiersKit produitId={produit.id} fichiers={produit.fichiers} />
             </section>
+            <VideoKit produitId={produit.id} genre="complete" dureeSecondes={produit.video?.dureeSecondes ?? null} extraitPresent={false} bunnyConfigure={bunnyPrive} />
+            <VideoKit
+              produitId={produit.id}
+              genre="extrait"
+              dureeSecondes={produit.video?.dureeSecondes ?? null}
+              extraitPresent={produit.video?.extrait ?? false}
+              bunnyConfigure={bunnyPublic}
+            />
+            <ChapitresKit produitId={produit.id} chapitres={produit.chapitres} dureeSecondes={produit.video?.dureeSecondes ?? null} />
+            <SousTitresKit produitId={produit.id} sousTitres={produit.sousTitres} />
+            {/* Publication en dernier : la liste des manques couvre toutes les sections ci-dessus. */}
+            <PublicationProduit produitId={produit.id} publie={produit.publieLe !== null} />
           </>
         ) : produit && univers ? (
           <>

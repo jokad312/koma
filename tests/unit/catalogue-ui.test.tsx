@@ -176,6 +176,9 @@ describe("FormulaireProduit", () => {
     niveau: null,
     produitLieId: null,
     fichiers: [],
+    video: null,
+    chapitres: [],
+    sousTitres: [],
   };
 
   it("création : adresse proposée depuis le titre français tant qu'elle n'est pas modifiée à la main", async () => {

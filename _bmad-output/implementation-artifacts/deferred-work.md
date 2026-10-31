@@ -365,3 +365,11 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-3-1-creer-un-kit-et-ses-fichiers.md`
   summary: Constat mineur 3.26 — `aria-expanded` sans `aria-controls` sur « Remplacer ».
   evidence: `src/components/admin/FichiersKit.tsx:85`.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-2-video-chapitres-sous-titres-et-publication-d-un-kit.md`
+  summary: Vidéos Bunny orphelines (onglet fermé, rechargement pendant l'encodage, suivi dépassé, annulation échouée) : ni reprise ni tâche de nettoyage par titre `KIT_<id>` / `KIT_EXTRAIT_<id>`.
+  evidence: `demanderEnvoiVideoKit` crée la vidéo chez Bunny avant l'envoi ; l'identifiant n'existe ensuite que dans le navigateur (`VideoKit.tsx`, `videoEnCours`). Même nature que la purge de `kits-private` déjà reportée.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-3-2-video-chapitres-sous-titres-et-publication-d-un-kit.md`
+  summary: Remplacer la vidéo par une vidéo plus courte que le dernier chapitre : refus `KS_CHAPITRES_HORS_DUREE` après l'envoi et l'encodage complets, puis effacement chez Bunny, sans avertissement préalable.
+  evidence: `enregistrer_video_kit` contrôle les chapitres après encodage ; la durée n'est connue qu'à ce moment. Piste : lire la durée locale du fichier (`<video>` metadata) avant l'envoi et prévenir.

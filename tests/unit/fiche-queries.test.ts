@@ -13,6 +13,7 @@ const faux = vi.hoisted(() => ({
   filtres: [] as Array<[string, string, unknown]>,
   plages: [] as Array<[number, number]>,
   eq: [] as Array<[string, string]>,
+  dans: [] as Array<[string, unknown]>,
   rpc: [] as Array<[string, unknown]>,
   tables: [] as string[],
 }));
@@ -32,6 +33,10 @@ vi.mock("@/lib/supabase/public", () => ({
         },
         eq: (colonne: string, valeur: string) => {
           faux.eq.push([colonne, valeur]);
+          return b;
+        },
+        in: (colonne: string, valeurs: unknown) => {
+          faux.dans.push([colonne, valeurs]);
           return b;
         },
         order: () => (table === "produit_photo" ? Promise.resolve(faux.photos) : b),
@@ -175,6 +180,8 @@ describe("lireSlugsPublies", () => {
     expect(faux.tables).toEqual(["produit"]);
     expect(faux.selections[0]).toContain("produit_photo!inner");
     expect(faux.filtres).toContainEqual(["prix_cents", "is", null]);
+    // Un Kit publié n'a pas encore de fiche (story 3.3) : il n'est jamais lu pour le plan du site.
+    expect(faux.dans).toContainEqual(["famille", ["cosplay", "accessoire"]]);
   });
 
   it("pagine par range() jusqu'à épuisement", async () => {

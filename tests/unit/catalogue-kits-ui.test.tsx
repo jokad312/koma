@@ -83,6 +83,9 @@ const kitExistant: ProduitAdmin = {
   niveau: "intermediaire",
   produitLieId: "TEST_cosplay-1",
   fichiers: [],
+  video: null,
+  chapitres: [],
+  sousTitres: [],
 };
 
 describe("ListeProduits", () => {

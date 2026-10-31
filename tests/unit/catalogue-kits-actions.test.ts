@@ -1,10 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { creerTestDependancesCatalogue, TEST_KIT_ID } from "../doubles/TEST_dependances-catalogue";
+import { creerTestDependancesCatalogue, creerTestDependancesMediasKit, TEST_KIT_ID } from "../doubles/TEST_dependances-catalogue";
 
 vi.mock("server-only", () => ({}));
 
 const faux = vi.hoisted(() => ({
   courant: null as unknown,
+  medias: null as unknown,
   rpc: vi.fn(),
   signe: vi.fn(),
   info: vi.fn(),
@@ -20,9 +21,22 @@ vi.mock("@/modules/catalogue/dependances", () => ({
     if (faux.courant instanceof Error) throw faux.courant;
     return faux.courant;
   },
+  dependancesMediasKit: () => {
+    if (faux.medias instanceof Error) throw faux.medias;
+    return faux.medias;
+  },
 }));
 
-import { annulerEnvoiFichierKit, demanderEnvoiFichierKit, enregistrerKit, finaliserFichierKit, supprimerFichierKit } from "@/modules/catalogue/actions";
+import {
+  ajouterChapitreKit,
+  annulerEnvoiFichierKit,
+  demanderEnvoiFichierKit,
+  demanderEnvoiVideoKit,
+  enregistrerKit,
+  finaliserFichierKit,
+  supprimerFichierKit,
+  supprimerSousTitres,
+} from "@/modules/catalogue/actions";
 
 // Les tests de Kit lisent par défaut un produit de famille « kit » (le double lit « cosplay » par défaut).
 const creer = (r: Parameters<typeof creerTestDependancesCatalogue>[0] = {}) => creerTestDependancesCatalogue({ familleProduit: "kit", ...r });
@@ -279,5 +293,102 @@ describe("câblage réel de modules/catalogue pour les Kits", () => {
     const deps = await charger();
     await deps.invaliderCatalogue();
     expect(faux.tag).toHaveBeenCalledWith("catalogue");
+  });
+});
+
+describe("Server Actions des médias d'un Kit (envelopperMedias)", () => {
+  it("succès : demanderEnvoiVideoKit rend { statut: succes, envoi } après la réponse réelle", async () => {
+    faux.medias = creerTestDependancesMediasKit().deps;
+    const r = await demanderEnvoiVideoKit({ produitId: TEST_KIT_ID, genre: "complete", type: "video/mp4", taille: 1000 });
+    expect(r).toMatchObject({ statut: "succes", envoi: { bibliothequeId: "111", titre: `KIT_${TEST_KIT_ID}` } });
+    expect(JSON.stringify(r)).not.toContain("TEST_cle-privee");
+  });
+
+  it("refus : ajouterChapitreKit rend l'erreur et le champ", async () => {
+    faux.medias = creerTestDependancesMediasKit({ erreurChapitre: "KS_CHAPITRE_INVALIDE" }).deps;
+    expect(await ajouterChapitreKit({ produitId: TEST_KIT_ID, titreFr: "A", titreEn: "B", debut: "12:00" })).toEqual({ statut: "erreur", erreur: "chapitre_invalide", champ: "debut" });
+  });
+
+  it("exception de dependancesMediasKit() : erreur générique, jamais un succès", async () => {
+    faux.medias = new Error("TEST_panne");
+    const generique = { statut: "erreur", erreur: "generique" };
+    expect(await demanderEnvoiVideoKit({ produitId: TEST_KIT_ID, genre: "complete", type: "video/mp4", taille: 1000 })).toMatchObject(generique);
+    expect(await ajouterChapitreKit({ produitId: TEST_KIT_ID, titreFr: "A", titreEn: "B", debut: "0:10" })).toMatchObject(generique);
+    expect(await supprimerSousTitres({ produitId: TEST_KIT_ID, langue: "fr" })).toMatchObject(generique);
+  });
+});
+
+// Câblage réel (sans réseau) : bibliothèques privée et publique jamais inversées, fonctions Postgres et lecture de video_kit_prive.
+describe("câblage réel des médias d'un Kit", () => {
+  const AUTEUR = { type: "compte" as const, id: "TEST_admin", role: "admin" as const };
+
+  async function charger() {
+    vi.resetModules();
+    vi.doUnmock("@/modules/catalogue/dependances");
+    vi.doMock("server-only", () => ({}));
+    vi.doMock("@/lib/auth/droits", () => ({ exigerDroit: vi.fn() }));
+    vi.doMock("next/cache", () => ({ updateTag: faux.tag, cacheTag: vi.fn() }));
+    vi.doMock("@/lib/supabase/service", () => ({
+      creerClientService: () => ({
+        rpc: faux.rpc,
+        storage: { from: (bucket: string) => (faux.buckets.push(bucket), { remove: faux.supprime }) },
+        from: (table: string) => {
+          const requete: Record<string, unknown> = {
+            select: () => requete,
+            eq: (colonne: string, valeur: unknown) => {
+              faux.filtres.push([table, "eq", colonne, valeur]);
+              return requete;
+            },
+            maybeSingle: async () => faux.tables[table] ?? { data: null, error: null },
+          };
+          return requete;
+        },
+      }),
+    }));
+    const { dependancesMediasKit } = await import("@/modules/catalogue/dependances");
+    const { lireVideoKitService } = await import("@/modules/catalogue/queries");
+    return { deps: dependancesMediasKit(), lireVideoKitService };
+  }
+
+  beforeEach(() => {
+    faux.rpc.mockReset();
+    faux.supprime.mockReset();
+    faux.buckets = [];
+    faux.tables = {};
+    faux.filtres = [];
+    vi.stubEnv("BUNNY_PRIVE_LIBRARY_ID", "111");
+    vi.stubEnv("BUNNY_PRIVE_API_KEY", "TEST_cle-privee");
+    vi.stubEnv("BUNNY_PUBLIC_LIBRARY_ID", "222");
+    vi.stubEnv("BUNNY_PUBLIC_API_KEY", "TEST_cle-publique");
+    vi.stubEnv("NEXT_PUBLIC_BUNNY_PUBLIC_CDN_HOSTNAME", "vz-test.b-cdn.net");
+  });
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("configBunnyPrive() lit la bibliothèque privée, configBunnyPublic() la publique", async () => {
+    const { deps } = await charger();
+    expect(deps.configBunnyPrive()).toEqual({ bibliothequeId: "111", cle: "TEST_cle-privee" });
+    expect(deps.configBunnyPublic()).toMatchObject({ bibliothequeId: "222", cle: "TEST_cle-publique" });
+  });
+
+  it("supprimerVideoKit lit data.prive et data.extrait de supprimer_video_kit", async () => {
+    const { deps } = await charger();
+    faux.rpc.mockResolvedValueOnce({ data: { prive: "TEST_prive", extrait: "TEST_extrait" }, error: null });
+    expect(await deps.supprimerVideoKit({ auteur: AUTEUR, produitId: TEST_KIT_ID })).toEqual({ erreur: null, prive: "TEST_prive", extrait: "TEST_extrait" });
+    expect(faux.rpc.mock.calls[0]).toEqual(["supprimer_video_kit", { p_auteur: AUTEUR, p_produit_id: TEST_KIT_ID }]);
+    faux.rpc.mockResolvedValueOnce({ data: null, error: { message: "KS_PUBLICATION_INCOMPLETE" } });
+    expect(await deps.supprimerVideoKit({ auteur: AUTEUR, produitId: TEST_KIT_ID })).toEqual({ erreur: "KS_PUBLICATION_INCOMPLETE", prive: null, extrait: null });
+  });
+
+  it("lireVideoKitService : identifiant privé lu dans video_kit_prive ; null sans ligne", async () => {
+    const { deps, lireVideoKitService } = await charger();
+    expect(deps.lireVideoKit).toBe(lireVideoKitService);
+    faux.tables = {
+      video_kit: { data: { duree_secondes: 754, extrait_bunny_id: null }, error: null },
+      video_kit_prive: { data: { bunny_video_id_prive: "TEST_prive" }, error: null },
+    };
+    expect(await lireVideoKitService(TEST_KIT_ID)).toEqual({ bunnyIdPrive: "TEST_prive", extraitId: null, dureeSecondes: 754 });
+    expect(faux.filtres).toContainEqual(["video_kit_prive", "eq", "produit_id", TEST_KIT_ID]);
+    faux.tables = {};
+    expect(await lireVideoKitService(TEST_KIT_ID)).toBeNull();
   });
 });

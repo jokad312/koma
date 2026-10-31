@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { BunnyErreur, choisirFichierMp4, creerVideoBunny, lireVideoBunny, signerEnvoiBunny, supprimerVideoBunny } from "@/lib/bunny/api";
-import { BunnyNonConfigureError, lireConfigBunnyPublic, normaliserHote } from "@/lib/bunny/config";
+import { bunnyConfigure, BunnyNonConfigureError, lireConfigBunnyPrive, lireConfigBunnyPublic, normaliserHote } from "@/lib/bunny/config";
 import { adresseVideoHeros, resumerDisponibilite } from "@/modules/accueil/heros-affichage";
 
 // Valeurs de test (TEST_) : aucune vraie clé ni identifiant.
@@ -39,6 +39,35 @@ describe("configuration Bunny publique", () => {
   });
 });
 
+describe("configuration Bunny privée (vidéos des Kits)", () => {
+  it("TEST_ lit l'identifiant et la clé de la bibliothèque privée", () => {
+    expect(lireConfigBunnyPrive({ BUNNY_PRIVE_LIBRARY_ID: "77", BUNNY_PRIVE_API_KEY: "TEST_cle-privee" })).toEqual({ bibliothequeId: "77", cle: "TEST_cle-privee" });
+  });
+
+  it("TEST_ une variable absente nomme la variable, jamais une valeur ; bunnyConfigure ne lève jamais", () => {
+    try {
+      lireConfigBunnyPrive({ BUNNY_PRIVE_LIBRARY_ID: "abc", BUNNY_PRIVE_API_KEY: "TEST_cle-privee" });
+      expect.unreachable();
+    } catch (e) {
+      expect(e).toBeInstanceOf(BunnyNonConfigureError);
+      expect((e as Error).message).toContain("BUNNY_PRIVE_LIBRARY_ID");
+      expect((e as Error).message).not.toContain("TEST_cle-privee");
+    }
+    expect(bunnyConfigure("prive", {})).toBe(false);
+    expect(bunnyConfigure("prive", { BUNNY_PRIVE_LIBRARY_ID: "77", BUNNY_PRIVE_API_KEY: "TEST_cle-privee" })).toBe(true);
+    expect(bunnyConfigure("public", { BUNNY_PRIVE_LIBRARY_ID: "77", BUNNY_PRIVE_API_KEY: "TEST_cle-privee" })).toBe(false);
+  });
+
+  it("TEST_ la durée (length) est lue en secondes entières ; absente ou invalide : 0", async () => {
+    const duree = async (length: unknown) => (await lireVideoBunny(CONFIG, ID, reseau(200, { guid: ID, title: "t", status: 4, length })))?.duree;
+    expect(await duree(754)).toBe(754);
+    expect(await duree(12.9)).toBe(12);
+    expect(await duree(undefined)).toBe(0);
+    expect(await duree("600")).toBe(0);
+    expect(await duree(-3)).toBe(0);
+  });
+});
+
 describe("signature d'envoi TUS", () => {
   it("TEST_ SHA-256 de bibliothèque + clé + expiration + vidéo, sans la clé dans le résultat", () => {
     const a = signerEnvoiBunny(CONFIG, ID, 1_000_000_000_000);
@@ -67,6 +96,10 @@ describe("appels à l'API Bunny", () => {
     expect(await etat(4)).toBe("termine");
     expect(await etat(5)).toBe("echec");
     expect(await etat(6)).toBe("echec");
+    // Statut inconnu (7, 8 JIT, futurs codes) : jamais « echec » (la vidéo serait effacée), toujours « encodage ».
+    expect(await etat(7)).toBe("encodage");
+    expect(await etat(8)).toBe("encodage");
+    expect(await etat(42)).toBe("encodage");
   });
 
   it("TEST_ lecture : 404 = null, autre erreur = exception sans la clé", async () => {

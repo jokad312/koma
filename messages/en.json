@@ -680,18 +680,24 @@
         "manques": {
           "prix": "The price",
           "photo": "At least one photo",
+          "titre_fr": "The French title",
           "titre_en": "The English title",
           "description_fr": "The French description",
           "description_en": "The English description",
-          "variante": "At least one size"
+          "materiel_fr": "The materials needed in French",
+          "materiel_en": "The materials needed in English",
+          "niveau": "The level",
+          "variante": "At least one size",
+          "fichier": "At least one file",
+          "video": "The full video",
+          "sous_titres_fr": "The French subtitles"
         },
         "erreurs": {
           "publication_incomplete": "Some items are missing to publish. Reload the page.",
           "produit_publie_verrouille": "A published product cannot change its address or family.",
           "produit_introuvable": "This product no longer exists. Go back to the product list.",
           "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
-          "generique": "The change could not be saved. Try again.",
-          "kit_non_publiable": "A Kit cannot be published yet: publishing arrives with the video, chapters and subtitles."
+          "generique": "The change could not be saved. Try again."
         }
       }
     },
@@ -729,7 +735,6 @@
     },
     "kits": {
       "pageEdition": {
-        "publicationBientot": "A Kit cannot be published yet: publishing arrives with the video, chapters and subtitles.",
         "fichiersTitre": "Kit files"
       },
       "formulaire": {
@@ -890,7 +895,203 @@
           "generique": "The file could not be saved. Try again.",
           "fichier_deja_enregistre": "This file is already registered in the Kit: nothing was changed or erased. Start a new upload if you want to replace it.",
           "contenu_actif": "This SVG contains active content (script, event handler, javascript: link, embedded object or external reference). Export it again without these elements.",
-          "entete_illisible": "The header of this SVG is not readable: it must be UTF-8 text starting with a tag. Export it again as UTF-8."
+          "entete_illisible": "The header of this SVG is not readable: it must be UTF-8 text starting with a tag. Export it again as UTF-8.",
+          "publication_incomplete": "A published Kit keeps at least one file. Unpublish it first to remove its last file."
+        }
+      },
+      "video": {
+        "titre": "Full video",
+        "intro": "The full tutorial, uploaded to the private Bunny library: only buyers will be able to watch it. The video is saved only once Bunny has finished encoding it.",
+        "bunnyAbsent": "The private Bunny library is not configured on this server: the video cannot be uploaded.",
+        "aucune": "No video yet.",
+        "sansVideo": "No video yet.",
+        "prete": "Video ready · length {duree}",
+        "fichier": {
+          "libelle": "Video file",
+          "aide": "MP4, MOV or WebM, 4 GB at most."
+        },
+        "envoyer": "Upload the video",
+        "remplacer": "Replace the video",
+        "annuler": "Cancel upload",
+        "progression": "Uploading: {pourcentage}%",
+        "reprise": "Connection lost: the upload will resume on its own.",
+        "envoyee": "Video uploaded. Encoding at Bunny can take several minutes.",
+        "verification": "Checking the encoding…",
+        "encodage": "Bunny is encoding: {pourcentage}%",
+        "resteSurPage": "Stay on this page until encoding is finished: the video is saved only once it is ready.",
+        "verifier": "Check now",
+        "enregistree": "Video ready and saved.",
+        "annule": "Upload cancelled.",
+        "retirer": "Remove the video",
+        "retiree": "Video removed.",
+        "suppression": {
+          "titre": "Remove the full video?",
+          "texte": "The video and its preview are removed from the Kit and deleted at Bunny. Chapters are kept. This cannot be undone.",
+          "confirmer": "Remove",
+          "annuler": "Cancel",
+          "enCours": "Removing…"
+        }
+      },
+      "extrait": {
+        "titre": "Public preview",
+        "intro": "Optional. A short clip everyone can watch on the Kit page, uploaded to the public Bunny library.",
+        "bunnyAbsent": "The public Bunny library is not configured on this server: the preview cannot be uploaded.",
+        "aucune": "No preview yet.",
+        "sansVideo": "Upload the full video first: the preview comes next.",
+        "prete": "Preview ready.",
+        "fichier": {
+          "libelle": "Preview file",
+          "aide": "MP4, MOV or WebM, 200 MB at most."
+        },
+        "envoyer": "Upload the preview",
+        "remplacer": "Replace the preview",
+        "annuler": "Cancel upload",
+        "progression": "Uploading: {pourcentage}%",
+        "reprise": "Connection lost: the upload will resume on its own.",
+        "envoyee": "Preview uploaded. Encoding at Bunny can take a few minutes.",
+        "verification": "Checking the encoding…",
+        "encodage": "Bunny is encoding: {pourcentage}%",
+        "resteSurPage": "Stay on this page until encoding is finished: the preview is saved only once it is ready.",
+        "verifier": "Check now",
+        "enregistree": "Preview ready and saved.",
+        "annule": "Upload cancelled.",
+        "retirer": "Remove the preview",
+        "retiree": "Preview removed.",
+        "suppression": {
+          "titre": "Remove the preview?",
+          "texte": "The preview is removed from the Kit and deleted at Bunny. This cannot be undone.",
+          "confirmer": "Remove",
+          "annuler": "Cancel",
+          "enCours": "Removing…"
+        }
+      },
+      "videoErreurs": {
+        "generique": "Something went wrong. Try again in a moment.",
+        "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
+        "produit_introuvable": "This Kit no longer exists. Go back to the product list.",
+        "famille_invalide": "This product is not a Kit. Go back to the product list.",
+        "fichier_manquant": "Choose a video file to upload.",
+        "format_invalide": "This file is not accepted. Accepted formats: MP4, MOV or WebM.",
+        "fichier_trop_lourd": "This file is too large: check the maximum size shown under the field.",
+        "bunny_non_configure": "The Bunny library is not configured on this server.",
+        "bunny_indisponible": "Bunny is not responding right now. Try again in a moment.",
+        "envoi_echec": "The upload failed. Check your connection, then try again.",
+        "video_introuvable": "This video no longer exists at Bunny. Upload it again.",
+        "video_echec": "Bunny could not encode this video: nothing was saved and the video was deleted. Upload another file.",
+        "video_absente": "Upload the full video first.",
+        "duree_invalide": "Bunny has not given the video length yet. Tap “Check now” in a moment.",
+        "chapitres_hors_duree": "Some chapters start after the end of this video: nothing was saved. Edit or delete those chapters, then upload the video again.",
+        "publication_incomplete": "A published Kit keeps its full video. Unpublish it first to remove it."
+      },
+      "chapitres": {
+        "titre": "Chapters",
+        "intro": "Split the tutorial into chapters: French and English title, start time (mm:ss or h:mm:ss). {max} chapters at most. The order is up to you: use Move up and Move down.",
+        "sansVideo": "Upload the full video first: each chapter must start before its end.",
+        "vide": "No chapters yet.",
+        "nombre": "{nombre, plural, =0 {No chapters} one {# chapter} other {# chapters}}",
+        "legende": "Video chapters, in order",
+        "ligne": "{numero}. {debut} · {titre}",
+        "titreEnLigne": "In English: {titre}",
+        "titreFrLigne": "In French: {titre}",
+        "monter": "Move chapter {numero} up: {titre}",
+        "descendre": "Move chapter {numero} down: {titre}",
+        "modifier": "Edit chapter {numero}",
+        "supprimer": "Delete chapter {numero}",
+        "deplace": "Chapter moved to position {numero}.",
+        "supprime": "Chapter deleted.",
+        "modifie": "Chapter updated.",
+        "ajoute": "Chapter added.",
+        "limite": "This Kit already has {max} chapters: delete one to add another.",
+        "formulaire": {
+          "ajoutTitre": "Add a chapter",
+          "modificationTitre": "Edit chapter {numero}",
+          "titreFr": "French title",
+          "titreEn": "English title",
+          "titreAide": "1 to 120 characters.",
+          "debut": "Start time",
+          "debutAide": "As mm:ss or h:mm:ss, before the end of the video ({duree}). For example 2:30.",
+          "ajouter": "Add the chapter",
+          "enregistrer": "Save the chapter",
+          "fermer": "Cancel",
+          "enCours": "Saving…"
+        },
+        "suppression": {
+          "titre": "Delete chapter {numero}?",
+          "texte": "The chapter is removed from the video outline. This cannot be undone.",
+          "confirmer": "Delete",
+          "annuler": "Cancel",
+          "enCours": "Deleting…"
+        },
+        "erreurs": {
+          "generique": "The chapter could not be saved. Your input is kept: try again.",
+          "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
+          "produit_introuvable": "This Kit no longer exists. Go back to the product list.",
+          "famille_invalide": "This product is not a Kit. Go back to the product list.",
+          "titre_invalide": "Write the chapter title in French and English, 1 to 120 characters.",
+          "instant_invalide": "Write the time as mm:ss or h:mm:ss, for example 2:30.",
+          "chapitre_invalide": "The chapter must start before the end of the video ({duree}).",
+          "chapitre_debut_pris": "Another chapter already starts at this time.",
+          "chapitres_limite": "This Kit already has {max} chapters.",
+          "chapitre_introuvable": "This chapter no longer exists. Reload the page.",
+          "video_absente": "Upload the full video first."
+        }
+      },
+      "sousTitres": {
+        "titre": "Subtitles",
+        "intro": "WebVTT files (.vtt), 1 MB at most, stored privately. French is required to publish; English is optional.",
+        "langues": {
+          "fr": "French subtitles",
+          "en": "English subtitles"
+        },
+        "nomsLangues": {
+          "fr": "French",
+          "en": "English"
+        },
+        "obligatoire": "Required to publish.",
+        "facultatif": "Optional.",
+        "absents": "No file yet.",
+        "presents": "Version {version} · {taille}",
+        "taille": {
+          "octets": "{valeur} B",
+          "ko": "{valeur} KB",
+          "mo": "{valeur} MB"
+        },
+        "fichier": {
+          "libelle": "{langue} .vtt file",
+          "aide": "The file starts with WEBVTT and each cue looks like 00:00:01.000 --> 00:00:04.000. 1 MB at most."
+        },
+        "envoyer": "Upload the {langue} subtitles",
+        "remplacer": "Replace the {langue} subtitles",
+        "annuler": "Cancel upload",
+        "progression": "Uploading: {pourcentage}%",
+        "reprise": "Connection lost: the upload will resume on its own.",
+        "traitement": "Checking the file…",
+        "envoyes": "Subtitles saved.",
+        "annule": "Upload cancelled.",
+        "envoiEnCours": "An upload is in progress.",
+        "supprimer": "Delete the {langue} subtitles",
+        "supprimes": "Subtitles deleted.",
+        "suppression": {
+          "titre": "Delete the {langue} subtitles?",
+          "texte": "The file is removed from the Kit and deleted from private storage. This cannot be undone.",
+          "confirmer": "Delete",
+          "annuler": "Cancel",
+          "enCours": "Deleting…"
+        },
+        "erreurs": {
+          "generique": "The subtitles could not be saved. Try again.",
+          "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
+          "produit_introuvable": "This Kit no longer exists. Go back to the product list.",
+          "famille_invalide": "This product is not a Kit. Go back to the product list.",
+          "fichier_manquant": "Choose a .vtt file to upload.",
+          "format_invalide": "This file is not valid WebVTT: it must be UTF-8, start with WEBVTT and contain at least one cue like 00:00:01.000 --> 00:00:04.000, with the end after the start. Nothing was saved.",
+          "fichier_trop_lourd": "This file is too large: 1 MB at most.",
+          "envoi_incomplet": "The file did not arrive in full. Try the upload again.",
+          "envoi_echec": "The upload failed. Check your connection, then try again.",
+          "fichier_deja_enregistre": "This file is already saved: nothing was changed or deleted.",
+          "langue_invalide": "Unknown language. Reload the page.",
+          "sous_titres_introuvables": "These subtitles no longer exist. Reload the page.",
+          "publication_incomplete": "A published Kit keeps its French subtitles. Unpublish it first to remove them."
         }
       }
     }

@@ -12,7 +12,7 @@ import {
   supprimerFichierKit,
 } from "@/modules/catalogue/service";
 import type { EntreeKit } from "@/modules/catalogue/types";
-import { creerTestDependancesCatalogue, TEST_ADMIN_ID, TEST_KIT_ID } from "../doubles/TEST_dependances-catalogue";
+import { creerTestDependancesCatalogue, TEST_ADMIN_ID, TEST_KIT_COMPLET, TEST_KIT_ID } from "../doubles/TEST_dependances-catalogue";
 
 // Les tests de Kit lisent par défaut un produit de famille « kit » (le double lit « cosplay » par défaut).
 const creer = (r: Parameters<typeof creerTestDependancesCatalogue>[0] = {}) => creerTestDependancesCatalogue({ familleProduit: "kit", ...r });
@@ -481,10 +481,45 @@ describe("finaliserFichierKit", () => {
 });
 
 describe("publication d'un Kit", () => {
-  it("publierProduit d'un Kit : kit_non_publiable, la base n'est pas appelée", async () => {
-    const { deps, appels } = creer();
-    expect(await publierProduit(deps, { id: TEST_KIT_ID })).toEqual({ ok: false, erreur: "kit_non_publiable" });
+  it("Kit sans vidéo ni sous-titres FR : refus avec la liste video, sous_titres_fr ; la base n'est pas appelée", async () => {
+    const { deps, appels } = creer({ produitComplet: { ...TEST_KIT_COMPLET, videoPrete: false, sousTitresFr: false } });
+    expect(await publierProduit(deps, { id: TEST_KIT_ID })).toEqual({ ok: false, erreur: "publication_incomplete", manques: ["video", "sous_titres_fr"] });
     expect(appels.publications).toEqual([]);
+  });
+
+  it("Kit complet sans sous-titres anglais ni extrait : publié après la réponse réelle de la base", async () => {
+    const { deps, appels } = creer({ produitComplet: TEST_KIT_COMPLET });
+    expect(await publierProduit(deps, { id: TEST_KIT_ID })).toEqual({ ok: true });
+    expect(appels.publications).toEqual([{ auteur: AUTEUR, id: TEST_KIT_ID, publier: true }]);
+    expect(appels.ordre.slice(-2)).toEqual(["publication", "invalidation"]);
+  });
+
+  it("Kit vide : tous les manques du Kit, dans l'ordre d'affichage (jamais « variante »)", async () => {
+    const vide = {
+      ...TEST_KIT_COMPLET,
+      prixCents: null,
+      titreEn: null,
+      descriptionFr: null,
+      descriptionEn: "  ",
+      materielFr: null,
+      materielEn: "",
+      niveau: null,
+      nbPhotos: 0,
+      nbFichiers: 0,
+      videoPrete: false,
+      sousTitresFr: false,
+    };
+    const { deps } = creer({ produitComplet: vide });
+    expect(await publierProduit(deps, { id: TEST_KIT_ID })).toEqual({
+      ok: false,
+      erreur: "publication_incomplete",
+      manques: ["prix", "photo", "titre_en", "description_fr", "description_en", "materiel_fr", "materiel_en", "niveau", "fichier", "video", "sous_titres_fr"],
+    });
+  });
+
+  it("dernier fichier d'un Kit publié : la base refuse, publication_incomplete", async () => {
+    const { deps } = creer({ erreurSupprimerFichier: "KS_PUBLICATION_INCOMPLETE" });
+    expect(await supprimerFichierKit(deps, { fichierId: FICHIER })).toEqual({ ok: false, erreur: "publication_incomplete" });
   });
 });
 

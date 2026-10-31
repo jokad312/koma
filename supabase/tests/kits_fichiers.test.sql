@@ -350,14 +350,18 @@ select lives_ok(
   'le cosplay délié reçoit un autre Kit'
 );
 
--- Publication refusée : un Kit, même complet, n'est pas publiable dans cette story.
-select is(public.manques_publication((select k from ks_kits)), array['kit'], 'manques_publication d''un Kit : non publiable');
+-- Publication refusée : un Kit sans fichier, sans vidéo ni sous-titres n'est pas publiable (manques d'un Kit : story 3.2).
+select is(
+  public.manques_publication((select k from ks_kits)),
+  array['photo', 'titre_en', 'description_fr', 'description_en', 'materiel_fr', 'materiel_en', 'niveau', 'fichier', 'video', 'sous_titres_fr'],
+  'manques_publication d''un Kit : liste des manques du Kit'
+);
 select is(public.manques_publication('00000000-0000-0000-0000-00000000ffff'), null, 'manques_publication d''un produit inconnu : null');
 select is(public.manques_publication((select cos from ks_ids)), array['prix', 'photo', 'titre_en', 'description_fr', 'description_en', 'variante'], 'manques_publication d''un cosplay est inchangée');
 insert into public.produit_photo (produit_id, fichier, alt_fr, alt_en, position) values ((select k from ks_kits), (select k from ks_kits)::text || '/a.jpg', 'Alt', 'Alt', 1);
 select throws_ok(
   $$select public.publier_produit(pg_temp.adm(), (select k from ks_kits))$$,
-  'P0001', 'KS_PUBLICATION_INCOMPLETE', 'publier un Kit est refusé, même avec prix, photo et textes'
+  'P0001', 'KS_PUBLICATION_INCOMPLETE', 'publier un Kit sans fichier, vidéo ni sous-titres est refusé'
 );
 select is((select publie_le is null from public.produit where id = (select k from ks_kits)), true, 'le refus ne publie rien');
 
@@ -574,7 +578,7 @@ select throws_ok($$select count(*) from public.fichier_kit_prive$$, '42501', nul
 select throws_ok($$update public.fichier_kit set version = 9$$, '42501', null, 'un Compte connecté n''écrit pas dans fichier_kit');
 reset role;
 
--- Un Kit publié (posé directement : la publication d'un Kit est la story 3.2) montre ses fichiers publiables, jamais ses chemins.
+-- Un Kit publié (posé directement, sans passer par publier_produit) montre ses fichiers publiables, jamais ses chemins.
 select set_config('ks.auteur', '{"type":"systeme","nom":"test"}', true);
 update public.produit set publie_le = now() - interval '1 minute' where id = (select k from ks_kits);
 set local role anon;

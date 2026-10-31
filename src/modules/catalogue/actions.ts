@@ -1,7 +1,9 @@
 "use server";
 
-import { dependances } from "./dependances";
+import { dependances, dependancesMediasKit } from "./dependances";
+import * as medias from "./medias-kit";
 import * as service from "./service";
+import type { ChampChapitre, EnvoiVideoKit, EtatVideoKit, GenreVideoKit, ResultatMediasKit } from "./types";
 import type { ChampProduit, ChampTranche, ChampUnivers, CodeErreurCatalogue, EntreeKit, EntreeProduit, EntreeTranche, EntreeUnivers, ManquePublication, Taille } from "./types";
 
 // Résultats rendus aux formulaires : le succès n'existe qu'après la réponse réelle de la base (règle 13).
@@ -135,4 +137,75 @@ export async function annulerEnvoiFichierKit(entree: { produitId: string; objet:
 
 export async function supprimerFichierKit(entree: { fichierId: string }) {
   return envelopper<object>("suppression de fichier", () => service.supprimerFichierKit(dependances(), entree));
+}
+
+// ---- Vidéo, chapitres et sous-titres d'un Kit (story 3.2) ----
+
+export type EtatMediasKit<T extends object = object> = ({ statut: "succes" } & T) | { statut: "erreur"; erreur: CodeErreurCatalogue; champ?: ChampChapitre };
+
+// Même schéma : droit revérifié dans le service, succès rendu après la réponse réelle de la base, de Bunny ou du stockage, une exception
+// ne devient jamais un succès.
+async function envelopperMedias<T extends object>(nom: string, appel: () => Promise<ResultatMediasKit<T>>): Promise<EtatMediasKit<T>> {
+  try {
+    const r = await appel();
+    if (!r.ok) return { statut: "erreur", erreur: r.erreur, champ: r.champ };
+    const { ok, ...reste } = r;
+    void ok;
+    return { statut: "succes", ...(reste as unknown as T) };
+  } catch {
+    console.error(`[kit] ${nom} : exception inattendue`);
+    return { statut: "erreur", erreur: "generique" };
+  }
+}
+
+export async function demanderEnvoiVideoKit(entree: { produitId: string; genre: GenreVideoKit; type: string; taille: number }) {
+  return envelopperMedias<{ envoi: EnvoiVideoKit }>("envoi de vidéo", () => medias.demanderEnvoiVideoKit(dependancesMediasKit(), entree));
+}
+
+export async function verifierVideoKit(entree: { produitId: string; genre: GenreVideoKit; videoId: string }) {
+  return envelopperMedias<{ video: EtatVideoKit }>("vérification de vidéo", () => medias.verifierVideoKit(dependancesMediasKit(), entree));
+}
+
+export async function annulerEnvoiVideoKit(entree: { produitId: string; genre: GenreVideoKit; videoId: string }) {
+  return envelopperMedias<object>("annulation de vidéo", () => medias.annulerEnvoiVideoKit(dependancesMediasKit(), entree));
+}
+
+export async function supprimerVideoKit(entree: { produitId: string }) {
+  return envelopperMedias<object>("retrait de vidéo", () => medias.supprimerVideoKit(dependancesMediasKit(), entree));
+}
+
+export async function retirerExtraitKit(entree: { produitId: string }) {
+  return envelopperMedias<object>("retrait de l'extrait", () => medias.retirerExtraitKit(dependancesMediasKit(), entree));
+}
+
+export async function ajouterChapitreKit(entree: { produitId: string; titreFr: string; titreEn: string; debut: string }) {
+  return envelopperMedias<{ id: string }>("chapitre", () => medias.ajouterChapitreKit(dependancesMediasKit(), entree));
+}
+
+export async function modifierChapitreKit(entree: { chapitreId: string; titreFr: string; titreEn: string; debut: string }) {
+  return envelopperMedias<object>("modification de chapitre", () => medias.modifierChapitreKit(dependancesMediasKit(), entree));
+}
+
+export async function deplacerChapitreKit(entree: { chapitreId: string; sens: string }) {
+  return envelopperMedias<object>("déplacement de chapitre", () => medias.deplacerChapitreKit(dependancesMediasKit(), entree));
+}
+
+export async function supprimerChapitreKit(entree: { chapitreId: string }) {
+  return envelopperMedias<object>("suppression de chapitre", () => medias.supprimerChapitreKit(dependancesMediasKit(), entree));
+}
+
+export async function demanderEnvoiSousTitres(entree: { produitId: string; langue: string; nomFichier: string; taille: number }) {
+  return envelopperMedias<{ objet: string; jeton: string; contentType: string }>("envoi de sous-titres", () => medias.demanderEnvoiSousTitres(dependancesMediasKit(), entree));
+}
+
+export async function finaliserSousTitres(entree: { produitId: string; langue: string; objet: string; taille: number }) {
+  return envelopperMedias<object>("sous-titres", () => medias.finaliserSousTitres(dependancesMediasKit(), entree));
+}
+
+export async function annulerEnvoiSousTitres(entree: { produitId: string; objet: string }) {
+  return envelopperMedias<object>("annulation de sous-titres", () => medias.annulerEnvoiSousTitres(dependancesMediasKit(), entree));
+}
+
+export async function supprimerSousTitres(entree: { produitId: string; langue: string }) {
+  return envelopperMedias<object>("suppression de sous-titres", () => medias.supprimerSousTitres(dependancesMediasKit(), entree));
 }

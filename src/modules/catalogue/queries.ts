@@ -9,7 +9,7 @@ import { contientMarqueur } from "@/lib/vitrine/marqueur";
 import { choisirSlugLibre, SLUG_REGEX } from "./slug";
 import { CUMUL_MAX_CATALOGUE, DISPONIBILITES, TAILLE_PAGE_CATALOGUE, TAILLES } from "./types";
 import type { FormatFichierKit } from "./fichiers-kit";
-import type { CarteProduit, Disponibilite, FamillePhysique, FamilleProduit, FichierKitAdmin, FicheProduit, NiveauKit, ProduitLiable, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
+import type { CarteProduit, ChapitreAdmin, Disponibilite, LangueSousTitres, SousTitreAdmin, FamillePhysique, FamilleProduit, FichierKitAdmin, FicheProduit, NiveauKit, ProduitLiable, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
 
 // Lectures admin par le client service (après le droit vérifié par la page) : une erreur de lecture est relancée,
 // jamais une liste vide inventée. Aucune valeur de repli (règle 15).
@@ -57,6 +57,13 @@ export async function lireProduitAdmin(id: string): Promise<ProduitAdmin | null>
   // Fichiers d'un Kit : jamais le chemin de stockage (table fichier_kit_prive).
   const fichiers = await client.from("fichier_kit").select("id, nom_fr, nom_en, format, taille_octets, ordre, version").eq("produit_id", id).order("ordre", { ascending: true });
   if (fichiers.error) throw new Error("Lecture des fichiers impossible.");
+  // Vidéo, chapitres et sous-titres d'un Kit : jamais l'identifiant Bunny privé (video_kit_prive) ni un chemin (sous_titre_kit_prive).
+  const [video, chapitres, sousTitres] = await Promise.all([
+    client.from("video_kit").select("duree_secondes, extrait_bunny_id").eq("produit_id", id).maybeSingle(),
+    client.from("chapitre_kit").select("id, titre_fr, titre_en, debut_secondes, ordre").eq("produit_id", id).order("ordre", { ascending: true }),
+    client.from("sous_titre_kit").select("langue, taille_octets, version").eq("produit_id", id).order("langue", { ascending: false }),
+  ]);
+  if (video.error || chapitres.error || sousTitres.error) throw new Error("Lecture des médias du Kit impossible.");
   return {
     id: data.id,
     famille: data.famille as FamilleProduit,
@@ -73,6 +80,13 @@ export async function lireProduitAdmin(id: string): Promise<ProduitAdmin | null>
     materielEn: data.materiel_en,
     niveau: data.niveau as NiveauKit | null,
     produitLieId: data.produit_lie_id,
+    video: video.data ? { dureeSecondes: video.data.duree_secondes, extrait: video.data.extrait_bunny_id !== null } : null,
+    chapitres: (chapitres.data ?? []).map(
+      (c): ChapitreAdmin => ({ id: c.id, titreFr: c.titre_fr, titreEn: c.titre_en, debutSecondes: c.debut_secondes, ordre: c.ordre }),
+    ),
+    sousTitres: (sousTitres.data ?? []).map(
+      (st): SousTitreAdmin => ({ langue: st.langue as LangueSousTitres, tailleOctets: st.taille_octets, version: st.version }),
+    ),
     fichiers: (fichiers.data ?? []).map(
       (f): FichierKitAdmin => ({ id: f.id, nomFr: f.nom_fr, nomEn: f.nom_en, format: f.format as FormatFichierKit, tailleOctets: Number(f.taille_octets), ordre: f.ordre, version: f.version }),
     ),
@@ -114,12 +128,13 @@ export async function lireFichierKit(id: string): Promise<{ produitId: string; f
   return data ? { produitId: data.produit_id, format: data.format as FormatFichierKit } : null;
 }
 
-// Ce que la complétude d'un produit lit en base (comptes de photos et de variantes) ; null si le produit est inconnu.
+// Ce que la complétude d'un produit lit en base (comptes de photos et de variantes ; pour un Kit, matériel, niveau, fichiers, vidéo et
+// sous-titres français) ; null si le produit est inconnu. Une erreur de lecture est relancée.
 export async function lireProduitPourPublication(id: string): Promise<ProduitPourPublication | null> {
   const client = creerClientService();
   const { data, error } = await client
     .from("produit")
-    .select("prix_cents, titre_en, description_fr, description_en, publie_le")
+    .select("famille, prix_cents, titre_fr, titre_en, description_fr, description_en, publie_le, materiel_fr, materiel_en, niveau")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error("Lecture du produit impossible.");
@@ -129,15 +144,52 @@ export async function lireProduitPourPublication(id: string): Promise<ProduitPou
     client.from("variante").select("id", { count: "exact", head: true }).eq("produit_id", id),
   ]);
   if (photos.error || variantes.error || photos.count === null || variantes.count === null) throw new Error("Lecture du produit impossible.");
+  const famille = data.famille as FamilleProduit;
+  let nbFichiers = 0;
+  let videoPrete = false;
+  let sousTitresFr = false;
+  if (famille === "kit") {
+    const [fichiers, video, sousTitres] = await Promise.all([
+      client.from("fichier_kit").select("id", { count: "exact", head: true }).eq("produit_id", id),
+      client.from("video_kit").select("produit_id", { count: "exact", head: true }).eq("produit_id", id),
+      client.from("sous_titre_kit").select("id", { count: "exact", head: true }).eq("produit_id", id).eq("langue", "fr"),
+    ]);
+    if (fichiers.error || video.error || sousTitres.error || fichiers.count === null || video.count === null || sousTitres.count === null) {
+      throw new Error("Lecture du produit impossible.");
+    }
+    nbFichiers = fichiers.count;
+    videoPrete = video.count > 0;
+    sousTitresFr = sousTitres.count > 0;
+  }
   return {
+    famille,
     prixCents: data.prix_cents,
+    titreFr: data.titre_fr,
     titreEn: data.titre_en,
     descriptionFr: data.description_fr,
     descriptionEn: data.description_en,
     nbPhotos: photos.count,
     nbVariantes: variantes.count,
     publieLe: data.publie_le,
+    materielFr: data.materiel_fr,
+    materielEn: data.materiel_en,
+    niveau: data.niveau as NiveauKit | null,
+    nbFichiers,
+    videoPrete,
+    sousTitresFr,
   };
+}
+
+// Vidéo enregistrée d'un Kit, pour le service seulement (client service) : identifiant privé compris, jamais rendu au navigateur.
+// null si aucune vidéo ; une erreur de lecture est relancée.
+export async function lireVideoKitService(produitId: string): Promise<{ bunnyIdPrive: string; extraitId: string | null; dureeSecondes: number } | null> {
+  const client = creerClientService();
+  const { data, error } = await client.from("video_kit").select("duree_secondes, extrait_bunny_id").eq("produit_id", produitId).maybeSingle();
+  if (error) throw new Error("Lecture de la vidéo impossible.");
+  if (!data) return null;
+  const prive = await client.from("video_kit_prive").select("bunny_video_id_prive").eq("produit_id", produitId).maybeSingle();
+  if (prive.error || !prive.data) throw new Error("Lecture de la vidéo impossible.");
+  return { bunnyIdPrive: prive.data.bunny_video_id_prive, extraitId: data.extrait_bunny_id, dureeSecondes: data.duree_secondes };
 }
 
 // Première adresse libre à partir d'une base valide (en excluant le produit lui-même quand il est modifié).
@@ -301,7 +353,8 @@ export async function lireFicheProduit(famille: FamillePhysique, slug: string, l
   };
 }
 
-// Adresses des produits publiés qui ont une photo et un prix (les autres donnent une 404), pour le plan du site : lues par pages de 1000 jusqu'à
+// Adresses des cosplays et accessoires publiés qui ont une photo et un prix (les autres donnent une 404), pour le plan du site. Les Kits
+// n'y figurent pas tant que leur fiche n'existe pas (story 3.3) : lues par pages de 1000 jusqu'à
 // épuisement, en cache `catalogue` (vidé à la publication). Une erreur de lecture est relancée.
 export async function lireSlugsPublies(): Promise<ProduitPublie[]> {
   "use cache";
@@ -312,6 +365,7 @@ export async function lireSlugsPublies(): Promise<ProduitPublie[]> {
     const { data, error } = await creerClientPublic()
       .from("produit")
       .select("famille, slug, produit_photo!inner(id)")
+      .in("famille", ["cosplay", "accessoire"])
       .not("prix_cents", "is", null)
       .order("publie_le", { ascending: false })
       .order("id", { ascending: true })

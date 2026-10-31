@@ -680,18 +680,24 @@
         "manques": {
           "prix": "Le prix",
           "photo": "Au moins une photo",
+          "titre_fr": "Le titre en français",
           "titre_en": "Le titre en anglais",
           "description_fr": "La description en français",
           "description_en": "La description en anglais",
-          "variante": "Au moins une taille"
+          "materiel_fr": "Le matériel nécessaire en français",
+          "materiel_en": "Le matériel nécessaire en anglais",
+          "niveau": "Le niveau",
+          "variante": "Au moins une taille",
+          "fichier": "Au moins un fichier",
+          "video": "La vidéo complète",
+          "sous_titres_fr": "Les sous-titres en français"
         },
         "erreurs": {
           "publication_incomplete": "Il manque des éléments pour publier. Recharge la page.",
           "produit_publie_verrouille": "Un produit publié ne peut pas changer d'adresse ni de famille.",
           "produit_introuvable": "Ce produit n'existe plus. Retourne à la liste des produits.",
           "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
-          "generique": "Le changement n'a pas pu être enregistré. Réessaie.",
-          "kit_non_publiable": "Un Kit ne peut pas encore être publié : la publication arrive avec la vidéo, les chapitres et les sous-titres."
+          "generique": "Le changement n'a pas pu être enregistré. Réessaie."
         }
       }
     },
@@ -729,7 +735,6 @@
     },
     "kits": {
       "pageEdition": {
-        "publicationBientot": "Un Kit ne peut pas encore être publié : la publication arrive avec la vidéo, les chapitres et les sous-titres.",
         "fichiersTitre": "Fichiers du Kit"
       },
       "formulaire": {
@@ -890,7 +895,203 @@
           "generique": "Le fichier n'a pas pu être enregistré. Réessaie.",
           "fichier_deja_enregistre": "Ce fichier est déjà enregistré dans le Kit : rien n'a été modifié ni effacé. Choisis un nouvel envoi si tu veux le remplacer.",
           "contenu_actif": "Ce SVG contient du contenu actif (script, gestionnaire d'événement, lien javascript:, objet embarqué ou référence externe). Exporte-le à nouveau sans ces éléments.",
-          "entete_illisible": "L'en-tête de ce SVG n'est pas lisible : il doit être en texte UTF-8 et commencer par une balise. Exporte-le à nouveau en UTF-8."
+          "entete_illisible": "L'en-tête de ce SVG n'est pas lisible : il doit être en texte UTF-8 et commencer par une balise. Exporte-le à nouveau en UTF-8.",
+          "publication_incomplete": "Un Kit publié garde au moins un fichier. Dépublie-le d'abord pour retirer son dernier fichier."
+        }
+      },
+      "video": {
+        "titre": "Vidéo complète",
+        "intro": "Le tutoriel complet, envoyé dans la bibliothèque Bunny privée : seuls les acheteurs pourront le regarder. La vidéo n'est enregistrée qu'une fois l'encodage terminé chez Bunny.",
+        "bunnyAbsent": "La bibliothèque Bunny privée n'est pas configurée sur ce serveur : l'envoi de la vidéo est impossible.",
+        "aucune": "Aucune vidéo pour le moment.",
+        "sansVideo": "Aucune vidéo pour le moment.",
+        "prete": "Vidéo prête · durée {duree}",
+        "fichier": {
+          "libelle": "Fichier vidéo",
+          "aide": "MP4, MOV ou WebM, 4 Go au plus."
+        },
+        "envoyer": "Envoyer la vidéo",
+        "remplacer": "Remplacer la vidéo",
+        "annuler": "Annuler l'envoi",
+        "progression": "Envoi en cours : {pourcentage} %",
+        "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
+        "envoyee": "Vidéo envoyée. L'encodage chez Bunny peut prendre plusieurs minutes.",
+        "verification": "Vérification de l'encodage…",
+        "encodage": "Encodage en cours chez Bunny : {pourcentage} %",
+        "resteSurPage": "Reste sur cette page jusqu'à la fin de l'encodage : la vidéo n'est enregistrée qu'une fois prête.",
+        "verifier": "Vérifier maintenant",
+        "enregistree": "Vidéo prête et enregistrée.",
+        "annule": "Envoi annulé.",
+        "retirer": "Retirer la vidéo",
+        "retiree": "Vidéo retirée.",
+        "suppression": {
+          "titre": "Retirer la vidéo complète ?",
+          "texte": "La vidéo et son extrait sont retirés du Kit et effacés chez Bunny. Les chapitres sont gardés. Cette action ne peut pas être annulée.",
+          "confirmer": "Retirer",
+          "annuler": "Annuler",
+          "enCours": "Retrait…"
+        }
+      },
+      "extrait": {
+        "titre": "Extrait public",
+        "intro": "Facultatif. Un court passage visible par tous sur la fiche du Kit, envoyé dans la bibliothèque Bunny publique.",
+        "bunnyAbsent": "La bibliothèque Bunny publique n'est pas configurée sur ce serveur : l'envoi de l'extrait est impossible.",
+        "aucune": "Aucun extrait pour le moment.",
+        "sansVideo": "Envoie d'abord la vidéo complète : l'extrait s'ajoute ensuite.",
+        "prete": "Extrait prêt.",
+        "fichier": {
+          "libelle": "Fichier de l'extrait",
+          "aide": "MP4, MOV ou WebM, 200 Mo au plus."
+        },
+        "envoyer": "Envoyer l'extrait",
+        "remplacer": "Remplacer l'extrait",
+        "annuler": "Annuler l'envoi",
+        "progression": "Envoi en cours : {pourcentage} %",
+        "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
+        "envoyee": "Extrait envoyé. L'encodage chez Bunny peut prendre quelques minutes.",
+        "verification": "Vérification de l'encodage…",
+        "encodage": "Encodage en cours chez Bunny : {pourcentage} %",
+        "resteSurPage": "Reste sur cette page jusqu'à la fin de l'encodage : l'extrait n'est enregistré qu'une fois prêt.",
+        "verifier": "Vérifier maintenant",
+        "enregistree": "Extrait prêt et enregistré.",
+        "annule": "Envoi annulé.",
+        "retirer": "Retirer l'extrait",
+        "retiree": "Extrait retiré.",
+        "suppression": {
+          "titre": "Retirer l'extrait ?",
+          "texte": "L'extrait est retiré du Kit et effacé chez Bunny. Cette action ne peut pas être annulée.",
+          "confirmer": "Retirer",
+          "annuler": "Annuler",
+          "enCours": "Retrait…"
+        }
+      },
+      "videoErreurs": {
+        "generique": "Une erreur est survenue. Réessaie dans un instant.",
+        "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
+        "produit_introuvable": "Ce Kit n'existe plus. Retourne à la liste des produits.",
+        "famille_invalide": "Ce produit n'est pas un Kit. Retourne à la liste des produits.",
+        "fichier_manquant": "Choisis un fichier vidéo à envoyer.",
+        "format_invalide": "Ce fichier n'est pas accepté. Formats acceptés : MP4, MOV ou WebM.",
+        "fichier_trop_lourd": "Ce fichier est trop lourd : vérifie la taille maximale indiquée sous le champ.",
+        "bunny_non_configure": "La bibliothèque Bunny n'est pas configurée sur ce serveur.",
+        "bunny_indisponible": "Bunny ne répond pas pour le moment. Réessaie dans un instant.",
+        "envoi_echec": "L'envoi a échoué. Vérifie ta connexion puis réessaie.",
+        "video_introuvable": "Cette vidéo n'existe plus chez Bunny. Envoie-la de nouveau.",
+        "video_echec": "Bunny n'a pas pu encoder cette vidéo : rien n'a été enregistré et la vidéo a été effacée. Envoie un autre fichier.",
+        "video_absente": "Envoie d'abord la vidéo complète.",
+        "duree_invalide": "Bunny n'a pas encore donné la durée de la vidéo. Touche « Vérifier maintenant » dans un instant.",
+        "chapitres_hors_duree": "Des chapitres commencent après la fin de cette vidéo : rien n'a été enregistré. Modifie ou supprime ces chapitres, puis renvoie la vidéo.",
+        "publication_incomplete": "Un Kit publié garde sa vidéo complète. Dépublie-le d'abord pour la retirer."
+      },
+      "chapitres": {
+        "titre": "Chapitres",
+        "intro": "Découpe le tutoriel en chapitres : titre en français et en anglais, instant de début (mm:ss ou h:mm:ss). {max} chapitres au plus. L'ordre est libre : utilise Monter et Descendre.",
+        "sansVideo": "Envoie d'abord la vidéo complète : l'instant de chaque chapitre doit se situer avant sa fin.",
+        "vide": "Aucun chapitre pour le moment.",
+        "nombre": "{nombre, plural, =0 {Aucun chapitre} one {# chapitre} other {# chapitres}}",
+        "legende": "Chapitres de la vidéo, dans l'ordre",
+        "ligne": "{numero}. {debut} · {titre}",
+        "titreEnLigne": "En anglais : {titre}",
+        "titreFrLigne": "En français : {titre}",
+        "monter": "Monter le chapitre {numero} : {titre}",
+        "descendre": "Descendre le chapitre {numero} : {titre}",
+        "modifier": "Modifier le chapitre {numero}",
+        "supprimer": "Supprimer le chapitre {numero}",
+        "deplace": "Chapitre déplacé en position {numero}.",
+        "supprime": "Chapitre supprimé.",
+        "modifie": "Chapitre modifié.",
+        "ajoute": "Chapitre ajouté.",
+        "limite": "Le Kit a déjà {max} chapitres : supprime un chapitre pour en ajouter un autre.",
+        "formulaire": {
+          "ajoutTitre": "Ajouter un chapitre",
+          "modificationTitre": "Modifier le chapitre {numero}",
+          "titreFr": "Titre en français",
+          "titreEn": "Titre en anglais",
+          "titreAide": "De 1 à 120 caractères.",
+          "debut": "Instant de début",
+          "debutAide": "Sous la forme mm:ss ou h:mm:ss, avant la fin de la vidéo ({duree}). Par exemple 2:30.",
+          "ajouter": "Ajouter le chapitre",
+          "enregistrer": "Enregistrer le chapitre",
+          "fermer": "Annuler",
+          "enCours": "Enregistrement…"
+        },
+        "suppression": {
+          "titre": "Supprimer le chapitre {numero} ?",
+          "texte": "Le chapitre est retiré du plan de la vidéo. Cette action ne peut pas être annulée.",
+          "confirmer": "Supprimer",
+          "annuler": "Annuler",
+          "enCours": "Suppression…"
+        },
+        "erreurs": {
+          "generique": "Le chapitre n'a pas pu être enregistré. Ta saisie est conservée : réessaie.",
+          "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
+          "produit_introuvable": "Ce Kit n'existe plus. Retourne à la liste des produits.",
+          "famille_invalide": "Ce produit n'est pas un Kit. Retourne à la liste des produits.",
+          "titre_invalide": "Écris le titre du chapitre en français et en anglais, de 1 à 120 caractères.",
+          "instant_invalide": "Écris l'instant sous la forme mm:ss ou h:mm:ss, par exemple 2:30.",
+          "chapitre_invalide": "Le chapitre doit commencer avant la fin de la vidéo ({duree}).",
+          "chapitre_debut_pris": "Un autre chapitre commence déjà à cet instant.",
+          "chapitres_limite": "Le Kit a déjà {max} chapitres.",
+          "chapitre_introuvable": "Ce chapitre n'existe plus. Recharge la page.",
+          "video_absente": "Envoie d'abord la vidéo complète."
+        }
+      },
+      "sousTitres": {
+        "titre": "Sous-titres",
+        "intro": "Fichiers WebVTT (.vtt), 1 Mo au plus, stockés en privé. Le français est obligatoire pour publier ; l'anglais est facultatif.",
+        "langues": {
+          "fr": "Sous-titres en français",
+          "en": "Sous-titres en anglais"
+        },
+        "nomsLangues": {
+          "fr": "français",
+          "en": "anglais"
+        },
+        "obligatoire": "Obligatoires pour publier.",
+        "facultatif": "Facultatifs.",
+        "absents": "Aucun fichier pour le moment.",
+        "presents": "Version {version} · {taille}",
+        "taille": {
+          "octets": "{valeur} o",
+          "ko": "{valeur} Ko",
+          "mo": "{valeur} Mo"
+        },
+        "fichier": {
+          "libelle": "Fichier .vtt en {langue}",
+          "aide": "Le fichier commence par WEBVTT et chaque réplique a la forme 00:00:01.000 --> 00:00:04.000. 1 Mo au plus."
+        },
+        "envoyer": "Envoyer les sous-titres en {langue}",
+        "remplacer": "Remplacer les sous-titres en {langue}",
+        "annuler": "Annuler l'envoi",
+        "progression": "Envoi en cours : {pourcentage} %",
+        "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
+        "traitement": "Vérification du fichier…",
+        "envoyes": "Sous-titres enregistrés.",
+        "annule": "Envoi annulé.",
+        "envoiEnCours": "Un envoi est en cours.",
+        "supprimer": "Supprimer les sous-titres en {langue}",
+        "supprimes": "Sous-titres supprimés.",
+        "suppression": {
+          "titre": "Supprimer les sous-titres en {langue} ?",
+          "texte": "Le fichier est retiré du Kit et effacé du stockage privé. Cette action ne peut pas être annulée.",
+          "confirmer": "Supprimer",
+          "annuler": "Annuler",
+          "enCours": "Suppression…"
+        },
+        "erreurs": {
+          "generique": "Les sous-titres n'ont pas pu être enregistrés. Réessaie.",
+          "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
+          "produit_introuvable": "Ce Kit n'existe plus. Retourne à la liste des produits.",
+          "famille_invalide": "Ce produit n'est pas un Kit. Retourne à la liste des produits.",
+          "fichier_manquant": "Choisis un fichier .vtt à envoyer.",
+          "format_invalide": "Ce fichier n'est pas un WebVTT valide : il doit être en UTF-8, commencer par WEBVTT et contenir au moins une réplique de la forme 00:00:01.000 --> 00:00:04.000, la fin après le début. Rien n'a été enregistré.",
+          "fichier_trop_lourd": "Ce fichier est trop lourd : 1 Mo au plus.",
+          "envoi_incomplet": "Le fichier n'est pas arrivé en entier. Réessaie l'envoi.",
+          "envoi_echec": "L'envoi a échoué. Vérifie ta connexion puis réessaie.",
+          "fichier_deja_enregistre": "Ce fichier est déjà enregistré : rien n'a été modifié ni effacé.",
+          "langue_invalide": "Langue inconnue. Recharge la page.",
+          "sous_titres_introuvables": "Ces sous-titres n'existent plus. Recharge la page.",
+          "publication_incomplete": "Un Kit publié garde ses sous-titres en français. Dépublie-le d'abord pour les retirer."
         }
       }
     }

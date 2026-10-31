@@ -4,8 +4,55 @@ import { exigerDroit } from "@/lib/auth/droits";
 import { ETIQUETTES } from "@/lib/cache/etiquettes";
 import { creerClientService } from "@/lib/supabase/service";
 import { BUCKET_ATTENTE, BUCKET_KITS, BUCKET_PUBLIC } from "@/lib/supabase/stockage";
-import { lireFamilleProduit, lireFichierKit, lireProduitPourPublication, premierSlugLibre } from "./queries";
-import type { DependancesCatalogue } from "./types";
+import { lireConfigBunnyPrive, lireConfigBunnyPublic } from "@/lib/bunny/config";
+import { lireFamilleProduit, lireFichierKit, lireProduitPourPublication, lireVideoKitService, premierSlugLibre } from "./queries";
+import type { DependancesCatalogue, DependancesMediasKit } from "./types";
+
+// Lit l'existence, la taille réelle et les premiers octets d'un objet de kits-private (fichiers et sous-titres des Kits).
+async function lireObjetKit(admin: ReturnType<typeof creerClientService>, { objet, octets }: { objet: string; octets: number }) {
+  const vide = new Uint8Array(0);
+  const stockage = admin.storage.from(BUCKET_KITS);
+  // Existence et taille réelle : métadonnées de l'objet, sans le télécharger.
+  const info = await stockage.info(objet);
+  if (info.error) {
+    const statut = (info.error as { status?: number; statusCode?: string | number }).status ?? Number((info.error as { statusCode?: string | number }).statusCode);
+    if (statut === 404 || /not.?found/i.test(info.error.message)) return { erreur: null, trouve: false, taille: 0, debut: vide };
+    return { erreur: info.error.message, trouve: false, taille: 0, debut: vide };
+  }
+  const taille = info.data?.size;
+  if (typeof taille !== "number") return { erreur: "taille de l'objet inconnue", trouve: false, taille: 0, debut: vide };
+  const aLire = Math.min(octets, taille);
+  if (aLire < 1) return { erreur: null, trouve: true, taille, debut: vide };
+  // Seul le début est lu (requête d'intervalle sur un lien signé de 60 secondes) : jamais un fichier de 50 Mo en mémoire.
+  const signe = await stockage.createSignedUrl(objet, 60);
+  if (signe.error || !signe.data) return { erreur: signe.error ? signe.error.message : "lien signé absent", trouve: true, taille, debut: vide };
+  // Délai maximal de 15 s : une lecture bloquée ne retient jamais la requête.
+  let reponse: Response;
+  try {
+    reponse = await fetch(signe.data.signedUrl, { headers: { Range: `bytes=0-${aLire - 1}` }, signal: AbortSignal.timeout(15_000) });
+  } catch {
+    return { erreur: "lecture de l'objet : délai dépassé ou réseau coupé", trouve: true, taille, debut: vide };
+  }
+  if (!reponse.ok || !reponse.body) return { erreur: `lecture de l'objet : statut ${reponse.status}`, trouve: true, taille, debut: vide };
+  const lecteur = reponse.body.getReader();
+  const morceaux: Uint8Array[] = [];
+  let recu = 0;
+  while (recu < aLire) {
+    const { done, value } = await lecteur.read();
+    if (done) break;
+    morceaux.push(value);
+    recu += value.byteLength;
+  }
+  await lecteur.cancel().catch(() => {});
+  const debut = new Uint8Array(Math.min(recu, aLire));
+  let position = 0;
+  for (const m of morceaux) {
+    const part = m.subarray(0, Math.max(0, debut.length - position));
+    debut.set(part, position);
+    position += part.length;
+  }
+  return { erreur: null, trouve: true, taille, debut };
+}
 
 // Les vrais clients donnés au service (en test, des faux nommés TEST_ les remplacent).
 // L'étiquette « catalogue » est vidée par updateTag à la publication et à la dépublication (le catalogue public arrive en 2.4 et 2.5).
@@ -102,50 +149,7 @@ export function dependances(): DependancesCatalogue {
       const { data, error } = await admin.storage.from(BUCKET_KITS).createSignedUploadUrl(objet);
       return { erreur: error ? error.message : null, jeton: data?.token ?? null };
     },
-    lireObjetKit: async ({ objet, octets }) => {
-      const vide = new Uint8Array(0);
-      const stockage = admin.storage.from(BUCKET_KITS);
-      // Existence et taille réelle : métadonnées de l'objet, sans le télécharger.
-      const info = await stockage.info(objet);
-      if (info.error) {
-        const statut = (info.error as { status?: number; statusCode?: string | number }).status ?? Number((info.error as { statusCode?: string | number }).statusCode);
-        if (statut === 404 || /not.?found/i.test(info.error.message)) return { erreur: null, trouve: false, taille: 0, debut: vide };
-        return { erreur: info.error.message, trouve: false, taille: 0, debut: vide };
-      }
-      const taille = info.data?.size;
-      if (typeof taille !== "number") return { erreur: "taille de l'objet inconnue", trouve: false, taille: 0, debut: vide };
-      const aLire = Math.min(octets, taille);
-      if (aLire < 1) return { erreur: null, trouve: true, taille, debut: vide };
-      // Seul le début est lu (requête d'intervalle sur un lien signé de 60 secondes) : jamais un fichier de 50 Mo en mémoire.
-      const signe = await stockage.createSignedUrl(objet, 60);
-      if (signe.error || !signe.data) return { erreur: signe.error ? signe.error.message : "lien signé absent", trouve: true, taille, debut: vide };
-      // Délai maximal de 15 s : une lecture bloquée ne retient jamais la requête.
-      let reponse: Response;
-      try {
-        reponse = await fetch(signe.data.signedUrl, { headers: { Range: `bytes=0-${aLire - 1}` }, signal: AbortSignal.timeout(15_000) });
-      } catch {
-        return { erreur: "lecture de l'objet : délai dépassé ou réseau coupé", trouve: true, taille, debut: vide };
-      }
-      if (!reponse.ok || !reponse.body) return { erreur: `lecture de l'objet : statut ${reponse.status}`, trouve: true, taille, debut: vide };
-      const lecteur = reponse.body.getReader();
-      const morceaux: Uint8Array[] = [];
-      let recu = 0;
-      while (recu < aLire) {
-        const { done, value } = await lecteur.read();
-        if (done) break;
-        morceaux.push(value);
-        recu += value.byteLength;
-      }
-      await lecteur.cancel().catch(() => {});
-      const debut = new Uint8Array(Math.min(recu, aLire));
-      let position = 0;
-      for (const m of morceaux) {
-        const part = m.subarray(0, Math.max(0, debut.length - position));
-        debut.set(part, position);
-        position += part.length;
-      }
-      return { erreur: null, trouve: true, taille, debut };
-    },
+    lireObjetKit: (args) => lireObjetKit(admin, args),
     ecrireFichierKit: async ({ auteur, produitId, nomFr, nomEn, format, taille, chemin }) => {
       const { data, error } = await admin.rpc("ajouter_fichier_kit", {
         p_auteur: auteur as never,
@@ -165,6 +169,88 @@ export function dependances(): DependancesCatalogue {
     supprimerFichierKit: async ({ auteur, fichierId }) => {
       const { data, error } = await admin.rpc("supprimer_fichier_kit", { p_auteur: auteur as never, p_fichier_id: fichierId });
       return { erreur: error ? error.message : null, chemin: typeof data === "string" ? data : null };
+    },
+  };
+}
+
+// Vidéo, chapitres et sous-titres d'un Kit (story 3.2) : vrais clients (base, stockage kits-private, API Bunny côté serveur).
+export function dependancesMediasKit(): DependancesMediasKit {
+  const admin = creerClientService();
+  return {
+    exigerDroit,
+    configBunnyPrive: () => lireConfigBunnyPrive(),
+    configBunnyPublic: () => lireConfigBunnyPublic(),
+    reseau: fetch,
+    maintenant: () => Date.now(),
+    lireFamilleProduit,
+    lireVideoKit: lireVideoKitService,
+    ecrireVideoKit: async ({ auteur, produitId, bunnyId, duree }) => {
+      const { data, error } = await admin.rpc("enregistrer_video_kit", { p_auteur: auteur as never, p_produit_id: produitId, p_bunny_id: bunnyId, p_duree: duree });
+      return { erreur: error ? error.message : null, ancien: typeof data === "string" ? data : null };
+    },
+    supprimerVideoKit: async ({ auteur, produitId }) => {
+      const { data, error } = await admin.rpc("supprimer_video_kit", { p_auteur: auteur as never, p_produit_id: produitId });
+      const o = (data ?? null) as { prive?: unknown; extrait?: unknown } | null;
+      return {
+        erreur: error ? error.message : null,
+        prive: typeof o?.prive === "string" ? o.prive : null,
+        extrait: typeof o?.extrait === "string" ? o.extrait : null,
+      };
+    },
+    ecrireExtraitKit: async ({ auteur, produitId, extraitId }) => {
+      const { data, error } = await admin.rpc("enregistrer_extrait_kit", { p_auteur: auteur as never, p_produit_id: produitId, p_extrait: (extraitId ?? null) as never });
+      return { erreur: error ? error.message : null, ancien: typeof data === "string" ? data : null };
+    },
+    ajouterChapitre: async ({ auteur, produitId, titreFr, titreEn, debut }) => {
+      const { data, error } = await admin.rpc("ajouter_chapitre_kit", { p_auteur: auteur as never, p_produit_id: produitId, p_titre_fr: titreFr, p_titre_en: titreEn, p_debut: debut });
+      return { erreur: error ? error.message : null, id: typeof data === "string" ? data : null };
+    },
+    modifierChapitre: async ({ auteur, chapitreId, titreFr, titreEn, debut }) => {
+      const { error } = await admin.rpc("modifier_chapitre_kit", { p_auteur: auteur as never, p_chapitre_id: chapitreId, p_titre_fr: titreFr, p_titre_en: titreEn, p_debut: debut });
+      return { erreur: error ? error.message : null };
+    },
+    deplacerChapitre: async ({ auteur, chapitreId, sens }) => {
+      const { error } = await admin.rpc("deplacer_chapitre_kit", { p_auteur: auteur as never, p_chapitre_id: chapitreId, p_sens: sens });
+      return { erreur: error ? error.message : null };
+    },
+    supprimerChapitre: async ({ auteur, chapitreId }) => {
+      const { error } = await admin.rpc("supprimer_chapitre_kit", { p_auteur: auteur as never, p_chapitre_id: chapitreId });
+      return { erreur: error ? error.message : null };
+    },
+    signerEnvoiSousTitres: async ({ objet }) => {
+      const { data, error } = await admin.storage.from(BUCKET_KITS).createSignedUploadUrl(objet);
+      return { erreur: error ? error.message : null, jeton: data?.token ?? null };
+    },
+    cheminSousTitresEnregistre: async (chemin) => {
+      const { data, error } = await admin.from("sous_titre_kit_prive").select("sous_titre_id").eq("chemin_stockage", chemin).maybeSingle();
+      if (error) throw new Error("Lecture des chemins impossible.");
+      return data !== null;
+    },
+    lireObjetKit: (args) => lireObjetKit(admin, args),
+    deplacerObjetKit: async ({ de, vers }) => {
+      const { error } = await admin.storage.from(BUCKET_KITS).move(de, vers);
+      return { erreur: error ? error.message : null };
+    },
+    ecrireSousTitres: async ({ auteur, produitId, langue, taille, chemin }) => {
+      const { data, error } = await admin.rpc("enregistrer_sous_titre_kit", {
+        p_auteur: auteur as never,
+        p_produit_id: produitId,
+        p_langue: langue,
+        p_taille: taille,
+        p_chemin: chemin,
+      });
+      return { erreur: error ? error.message : null, ancienChemin: typeof data === "string" ? data : null };
+    },
+    supprimerSousTitres: async ({ auteur, produitId, langue }) => {
+      const { data, error } = await admin.rpc("supprimer_sous_titre_kit", { p_auteur: auteur as never, p_produit_id: produitId, p_langue: langue });
+      return { erreur: error ? error.message : null, chemin: typeof data === "string" ? data : null };
+    },
+    supprimerObjetsKit: async (objets) => {
+      const { error } = await admin.storage.from(BUCKET_KITS).remove(objets);
+      return { erreur: error ? error.message : null };
+    },
+    invaliderCatalogue: async () => {
+      updateTag(ETIQUETTES.catalogue);
     },
   };
 }

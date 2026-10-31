@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { creerTestDependancesCatalogue } from "../doubles/TEST_dependances-catalogue";
+import { creerTestDependancesCatalogue, TEST_PRODUIT_COMPLET } from "../doubles/TEST_dependances-catalogue";
 
 vi.mock("server-only", () => ({}));
 
@@ -44,7 +44,7 @@ describe("Server Actions de photo et de publication", () => {
   });
 
   it("refus : l'erreur et la liste des manques sont rendues", async () => {
-    faux.courant = creerTestDependancesCatalogue({ produitComplet: { prixCents: null, titreEn: "x", descriptionFr: "x", descriptionEn: "x", nbPhotos: 1, nbVariantes: 1, publieLe: null } }).deps;
+    faux.courant = creerTestDependancesCatalogue({ produitComplet: { ...TEST_PRODUIT_COMPLET, prixCents: null } }).deps;
     expect(await publierProduit({ id: PRODUIT })).toEqual({ statut: "erreur", erreur: "publication_incomplete", manques: ["prix"] });
   });
 
@@ -159,8 +159,34 @@ describe("câblage réel de modules/catalogue pour les photos", () => {
 
   it("complétude : comptes de photos et de variantes lus en base", async () => {
     const deps = await charger();
-    faux.produit = { data: { prix_cents: 100, titre_en: "t", description_fr: "d", description_en: "e", publie_le: null }, error: null };
-    expect(await deps.lireProduitComplet(PRODUIT)).toEqual({ prixCents: 100, titreEn: "t", descriptionFr: "d", descriptionEn: "e", nbPhotos: 2, nbVariantes: 2, publieLe: null });
+    faux.produit = {
+      data: { famille: "cosplay", prix_cents: 100, titre_fr: "T", titre_en: "t", description_fr: "d", description_en: "e", publie_le: null, materiel_fr: null, materiel_en: null, niveau: null },
+      error: null,
+    };
+    // Produit physique : les tables du Kit ne sont pas lues.
+    expect(await deps.lireProduitComplet(PRODUIT)).toEqual({
+      famille: "cosplay",
+      prixCents: 100,
+      titreFr: "T",
+      titreEn: "t",
+      descriptionFr: "d",
+      descriptionEn: "e",
+      nbPhotos: 2,
+      nbVariantes: 2,
+      publieLe: null,
+      materielFr: null,
+      materielEn: null,
+      niveau: null,
+      nbFichiers: 0,
+      videoPrete: false,
+      sousTitresFr: false,
+    });
+    // Kit : fichiers, vidéo et sous-titres français comptés en base (faux : 2 lignes partout).
+    faux.produit = {
+      data: { famille: "kit", prix_cents: 0, titre_fr: "K", titre_en: "K", description_fr: "d", description_en: "e", publie_le: null, materiel_fr: "m", materiel_en: "m", niveau: "avance" },
+      error: null,
+    };
+    expect(await deps.lireProduitComplet(PRODUIT)).toMatchObject({ famille: "kit", niveau: "avance", nbFichiers: 2, videoPrete: true, sousTitresFr: true });
     faux.produit = { data: null, error: null };
     expect(await deps.lireProduitComplet(PRODUIT)).toBeNull();
     faux.produit = { data: null, error: { message: "TEST" } };

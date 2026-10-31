@@ -39,6 +39,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      chapitre_kit: {
+        Row: {
+          cree_le: string
+          debut_secondes: number
+          id: string
+          ordre: number
+          produit_id: string
+          titre_en: string
+          titre_fr: string
+        }
+        Insert: {
+          cree_le?: string
+          debut_secondes: number
+          id?: string
+          ordre: number
+          produit_id: string
+          titre_en: string
+          titre_fr: string
+        }
+        Update: {
+          cree_le?: string
+          debut_secondes?: number
+          id?: string
+          ordre?: number
+          produit_id?: string
+          titre_en?: string
+          titre_fr?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chapitre_kit_produit_id_fkey"
+            columns: ["produit_id"]
+            isOneToOne: false
+            referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fichier_kit: {
         Row: {
           cree_le: string
@@ -439,6 +477,64 @@ export type Database = {
         }
         Relationships: []
       }
+      sous_titre_kit: {
+        Row: {
+          cree_le: string
+          id: string
+          langue: string
+          produit_id: string
+          taille_octets: number
+          version: number
+        }
+        Insert: {
+          cree_le?: string
+          id?: string
+          langue: string
+          produit_id: string
+          taille_octets: number
+          version?: number
+        }
+        Update: {
+          cree_le?: string
+          id?: string
+          langue?: string
+          produit_id?: string
+          taille_octets?: number
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sous_titre_kit_produit_id_fkey"
+            columns: ["produit_id"]
+            isOneToOne: false
+            referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sous_titre_kit_prive: {
+        Row: {
+          chemin_stockage: string
+          sous_titre_id: string
+        }
+        Insert: {
+          chemin_stockage: string
+          sous_titre_id: string
+        }
+        Update: {
+          chemin_stockage?: string
+          sous_titre_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sous_titre_kit_prive_sous_titre_id_fkey"
+            columns: ["sous_titre_id"]
+            isOneToOne: true
+            referencedRelation: "sous_titre_kit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tranche_prix: {
         Row: {
           bas_cents: number
@@ -525,6 +621,61 @@ export type Database = {
           },
         ]
       }
+      video_kit: {
+        Row: {
+          cree_le: string
+          duree_secondes: number
+          extrait_bunny_id: string | null
+          prete_le: string
+          produit_id: string
+        }
+        Insert: {
+          cree_le?: string
+          duree_secondes: number
+          extrait_bunny_id?: string | null
+          prete_le?: string
+          produit_id: string
+        }
+        Update: {
+          cree_le?: string
+          duree_secondes?: number
+          extrait_bunny_id?: string | null
+          prete_le?: string
+          produit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_kit_produit_id_fkey"
+            columns: ["produit_id"]
+            isOneToOne: true
+            referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_kit_prive: {
+        Row: {
+          bunny_video_id_prive: string
+          produit_id: string
+        }
+        Insert: {
+          bunny_video_id_prive: string
+          produit_id: string
+        }
+        Update: {
+          bunny_video_id_prive?: string
+          produit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_kit_prive_produit_id_fkey"
+            columns: ["produit_id"]
+            isOneToOne: true
+            referencedRelation: "video_kit"
+            referencedColumns: ["produit_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -535,6 +686,16 @@ export type Database = {
         Returns: boolean
       }
       admin_sante: { Args: never; Returns: number }
+      ajouter_chapitre_kit: {
+        Args: {
+          p_auteur: Json
+          p_debut: number
+          p_produit_id: string
+          p_titre_en: string
+          p_titre_fr: string
+        }
+        Returns: string
+      }
       ajouter_fichier_kit: {
         Args: {
           p_auteur: Json
@@ -603,6 +764,10 @@ export type Database = {
         Args: { p_auteur: Json; p_compte: string; p_langue: string }
         Returns: undefined
       }
+      deplacer_chapitre_kit: {
+        Args: { p_auteur: Json; p_chapitre_id: string; p_sens: string }
+        Returns: undefined
+      }
       deplacer_photo_produit: {
         Args: { p_auteur: Json; p_photo_id: string; p_sens: string }
         Returns: undefined
@@ -618,6 +783,10 @@ export type Database = {
           etat: string
           taille: string
         }[]
+      }
+      enregistrer_extrait_kit: {
+        Args: { p_auteur: Json; p_extrait: string; p_produit_id: string }
+        Returns: string
       }
       enregistrer_kit: {
         Args: { p_auteur: Json; p_id: string; p_kit: Json }
@@ -665,12 +834,31 @@ export type Database = {
         }
         Returns: string
       }
+      enregistrer_sous_titre_kit: {
+        Args: {
+          p_auteur: Json
+          p_chemin: string
+          p_langue: string
+          p_produit_id: string
+          p_taille: number
+        }
+        Returns: string
+      }
       enregistrer_tranches_prix: {
         Args: { p_auteur: Json; p_tranches: Json }
         Returns: undefined
       }
       enregistrer_video_heros: {
         Args: { p_auteur: Json; p_video_id: string }
+        Returns: string
+      }
+      enregistrer_video_kit: {
+        Args: {
+          p_auteur: Json
+          p_bunny_id: string
+          p_duree: number
+          p_produit_id: string
+        }
         Returns: string
       }
       est_mineur: { Args: { p_compte: string }; Returns: boolean }
@@ -726,6 +914,16 @@ export type Database = {
         }
         Returns: undefined
       }
+      modifier_chapitre_kit: {
+        Args: {
+          p_auteur: Json
+          p_chapitre_id: string
+          p_debut: number
+          p_titre_en: string
+          p_titre_fr: string
+        }
+        Returns: undefined
+      }
       places_fabrication_utilisees: { Args: never; Returns: number }
       publier_produit: {
         Args: { p_auteur: Json; p_id: string }
@@ -744,6 +942,10 @@ export type Database = {
       }
       seuil_dernieres_pieces: { Args: never; Returns: number }
       stock_disponible: { Args: { p_variante: string }; Returns: number }
+      supprimer_chapitre_kit: {
+        Args: { p_auteur: Json; p_chapitre_id: string }
+        Returns: undefined
+      }
       supprimer_fichier_kit: {
         Args: { p_auteur: Json; p_fichier_id: string }
         Returns: string
@@ -752,10 +954,28 @@ export type Database = {
         Args: { p_auteur: Json; p_photo_id: string }
         Returns: string
       }
+      supprimer_sous_titre_kit: {
+        Args: { p_auteur: Json; p_langue: string; p_produit_id: string }
+        Returns: string
+      }
+      supprimer_video_kit: {
+        Args: { p_auteur: Json; p_produit_id: string }
+        Returns: Json
+      }
       valider_video_heros: {
         Args: { p_auteur: Json; p_fichier: string; p_video_id: string }
         Returns: undefined
       }
+      verifier_chapitre_kit: {
+        Args: {
+          p_debut: number
+          p_produit_id: string
+          p_titre_en: string
+          p_titre_fr: string
+        }
+        Returns: undefined
+      }
+      verrouiller_kit: { Args: { p_produit_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

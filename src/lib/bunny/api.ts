@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
-import type { ConfigBunnyPublic } from "./config";
+import type { ConfigBunny } from "./config";
 
-// API Bunny Stream (bibliothèque PUBLIQUE). Serveur seulement : la clé ne quitte jamais ce module, et aucune erreur n'en porte la valeur.
+// API Bunny Stream (bibliothèque publique ou privée, selon la configuration reçue). Serveur seulement : la clé ne quitte jamais ce module, et aucune erreur n'en porte la valeur.
 // Le réseau est injecté (fetch) pour que les tests n'appellent jamais Bunny, sauf le test réseau nommé TEST_.
 const API = "https://video.bunnycdn.com";
 export const ADRESSE_TUS_BUNNY = `${API}/tusupload`;
@@ -19,6 +19,8 @@ export type VideoBunny = {
   etat: EtatBunny;
   progression: number;
   resolutions: string[];
+  // Durée en secondes lue chez Bunny (champ « length ») ; 0 tant qu'elle n'est pas connue.
+  duree: number;
 };
 
 export type Reseau = typeof fetch;
@@ -33,11 +35,11 @@ export class BunnyErreur extends Error {
   }
 }
 
-function entetes(config: ConfigBunnyPublic): Record<string, string> {
+function entetes(config: ConfigBunny): Record<string, string> {
   return { AccessKey: config.cle, accept: "application/json" };
 }
 
-// Statuts documentés par Bunny : 0 créée, 1 envoyée, 2 en traitement, 3 en encodage, 4 terminée, 5 erreur, 6 échec de l'envoi.
+// Statuts documentés par Bunny : 0 créée, 1 envoyée, 2 en traitement, 3 en encodage, 4 terminée, 5 erreur, 6 échec de l'envoi ; seuls 5 et 6 sont des échecs.
 function etatDe(statut: unknown): EtatBunny {
   switch (statut) {
     case 0:
@@ -49,8 +51,12 @@ function etatDe(statut: unknown): EtatBunny {
       return "encodage";
     case 4:
       return "termine";
-    default:
+    case 5:
+    case 6:
       return "echec";
+    // Statut inconnu (7, 8 et codes futurs) : jamais un échec, donc jamais un effacement ; la vérification continue.
+    default:
+      return "encodage";
   }
 }
 
@@ -58,7 +64,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const estIdVideo = (v: string) => UUID.test(v);
 
 function lireVideo(brut: unknown): VideoBunny {
-  const o = brut as { guid?: unknown; title?: unknown; status?: unknown; encodeProgress?: unknown; availableResolutions?: unknown } | null;
+  const o = brut as { guid?: unknown; title?: unknown; status?: unknown; encodeProgress?: unknown; availableResolutions?: unknown; length?: unknown } | null;
   if (!o || typeof o.guid !== "string" || !UUID.test(o.guid)) throw new BunnyErreur("réponse inattendue", null);
   return {
     id: o.guid.toLowerCase(),
@@ -66,6 +72,7 @@ function lireVideo(brut: unknown): VideoBunny {
     etat: etatDe(o.status),
     progression: typeof o.encodeProgress === "number" ? o.encodeProgress : 0,
     resolutions: typeof o.availableResolutions === "string" ? o.availableResolutions.split(",").map((r) => r.trim()).filter(Boolean) : [],
+    duree: typeof o.length === "number" && Number.isFinite(o.length) && o.length > 0 ? Math.floor(o.length) : 0,
   };
 }
 
@@ -77,7 +84,7 @@ async function appeler(reseau: Reseau, contexte: string, url: string, init: Requ
   }
 }
 
-export async function creerVideoBunny(config: ConfigBunnyPublic, titre: string, reseau: Reseau = fetch): Promise<VideoBunny> {
+export async function creerVideoBunny(config: ConfigBunny, titre: string, reseau: Reseau = fetch): Promise<VideoBunny> {
   const r = await appeler(reseau, "création", `${API}/library/${config.bibliothequeId}/videos`, {
     method: "POST",
     headers: { ...entetes(config), "content-type": "application/json" },
@@ -88,7 +95,7 @@ export async function creerVideoBunny(config: ConfigBunnyPublic, titre: string, 
 }
 
 // null : la vidéo n'existe pas (404).
-export async function lireVideoBunny(config: ConfigBunnyPublic, id: string, reseau: Reseau = fetch): Promise<VideoBunny | null> {
+export async function lireVideoBunny(config: ConfigBunny, id: string, reseau: Reseau = fetch): Promise<VideoBunny | null> {
   if (!UUID.test(id)) return null;
   const r = await appeler(reseau, "lecture", `${API}/library/${config.bibliothequeId}/videos/${id}`, { headers: entetes(config) });
   if (r.status === 404) return null;
@@ -97,7 +104,7 @@ export async function lireVideoBunny(config: ConfigBunnyPublic, id: string, rese
 }
 
 // Efface une vidéo de la bibliothèque. Un 404 vaut « déjà effacée ».
-export async function supprimerVideoBunny(config: ConfigBunnyPublic, id: string, reseau: Reseau = fetch): Promise<void> {
+export async function supprimerVideoBunny(config: ConfigBunny, id: string, reseau: Reseau = fetch): Promise<void> {
   if (!UUID.test(id)) return;
   const r = await appeler(reseau, "suppression", `${API}/library/${config.bibliothequeId}/videos/${id}`, { method: "DELETE", headers: entetes(config) });
   if (!r.ok && r.status !== 404) throw new BunnyErreur("suppression", r.status);
@@ -112,7 +119,7 @@ export type AutorisationEnvoiBunny = {
 };
 
 // Autorisation d'envoi TUS : SHA-256 de (bibliothèque + clé + expiration + vidéo), documenté par Bunny. La clé sert au calcul, jamais transmise.
-export function signerEnvoiBunny(config: ConfigBunnyPublic, videoId: string, maintenantMs: number): AutorisationEnvoiBunny {
+export function signerEnvoiBunny(config: ConfigBunny, videoId: string, maintenantMs: number): AutorisationEnvoiBunny {
   const expiration = Math.floor(maintenantMs / 1000) + VALIDITE_ENVOI_SECONDES;
   const signature = createHash("sha256").update(`${config.bibliothequeId}${config.cle}${expiration}${videoId}`).digest("hex");
   return { adresse: ADRESSE_TUS_BUNNY, signature, expiration, videoId, bibliothequeId: config.bibliothequeId };

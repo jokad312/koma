@@ -1,5 +1,7 @@
 import type { AuteurCompte } from "@/lib/auth/auteur";
 import type { Droit } from "@/lib/auth/matrice-droits";
+import type { Reseau } from "@/lib/bunny/api";
+import type { ConfigBunny } from "@/lib/bunny/config";
 import type { FormatFichierKit } from "./fichiers-kit";
 
 // Familles de produits physiques (cosplay, accessoire) ; la famille « kit » (numérique) est gérée par ses propres fonctions.
@@ -51,7 +53,20 @@ export type CodeErreurCatalogue =
   | "fichier_deja_enregistre"
   | "contenu_actif"
   | "entete_illisible"
-  | "kit_non_publiable"
+  | "bunny_non_configure"
+  | "bunny_indisponible"
+  | "video_introuvable"
+  | "video_echec"
+  | "video_absente"
+  | "duree_invalide"
+  | "chapitres_hors_duree"
+  | "chapitre_invalide"
+  | "instant_invalide"
+  | "chapitre_debut_pris"
+  | "chapitres_limite"
+  | "chapitre_introuvable"
+  | "langue_invalide"
+  | "sous_titres_introuvables"
   | "generique";
 
 // Champ du formulaire de produit auquel une erreur se rattache (absent : erreur du formulaire entier).
@@ -71,8 +86,23 @@ export type ChampProduit =
   | "niveau"
   | "kit_lie";
 
-// Ce qui manque à un produit pour être publié, dans l'ordre d'affichage (le titre français est déjà obligatoire).
-export const MANQUES_PUBLICATION = ["prix", "photo", "titre_en", "description_fr", "description_en", "variante", "kit"] as const;
+// Ce qui manque à un produit pour être publié, dans l'ordre d'affichage. Produit physique : prix, photo, titre anglais, descriptions,
+// variante. Kit : prix, photo, titres, descriptions, matériel, niveau, fichier, vidéo complète, sous-titres français (story 3.2).
+export const MANQUES_PUBLICATION = [
+  "prix",
+  "photo",
+  "titre_fr",
+  "titre_en",
+  "description_fr",
+  "description_en",
+  "materiel_fr",
+  "materiel_en",
+  "niveau",
+  "variante",
+  "fichier",
+  "video",
+  "sous_titres_fr",
+] as const;
 export type ManquePublication = (typeof MANQUES_PUBLICATION)[number];
 
 // Photos : formats acceptés, 15 Mo au plus, 10 photos au plus par produit.
@@ -245,15 +275,23 @@ export type DependancesCatalogue = {
   supprimerFichierKit(args: { auteur: AuteurCompte; fichierId: string }): Promise<{ erreur: string | null; chemin: string | null }>;
 };
 
-// Ce que la complétude d'un produit lit en base.
+// Ce que la complétude d'un produit lit en base. Les champs du Kit (story 3.2) ne sont lus que pour un Kit (vides sinon).
 export type ProduitPourPublication = {
+  famille: FamilleProduit;
   prixCents: number | null;
+  titreFr: string | null;
   titreEn: string | null;
   descriptionFr: string | null;
   descriptionEn: string | null;
   nbPhotos: number;
   nbVariantes: number;
   publieLe: string | null;
+  materielFr: string | null;
+  materielEn: string | null;
+  niveau: NiveauKit | null;
+  nbFichiers: number;
+  videoPrete: boolean;
+  sousTitresFr: boolean;
 };
 
 export type PhotoAdmin = { id: string; fichier: string; altFr: string; altEn: string; position: number };
@@ -291,6 +329,74 @@ export type ProduitAdmin = {
   niveau: NiveauKit | null;
   produitLieId: string | null;
   fichiers: FichierKitAdmin[];
+  // Vidéo, chapitres et sous-titres d'un Kit (story 3.2) : jamais un identifiant Bunny privé ni un chemin de stockage.
+  video: VideoKitAdmin | null;
+  chapitres: ChapitreAdmin[];
+  sousTitres: SousTitreAdmin[];
+};
+
+// ---- Vidéo, chapitres et sous-titres d'un Kit (story 3.2) ----
+
+// Vidéo complète (bibliothèque Bunny privée) ou extrait public (bibliothèque Bunny publique).
+export type GenreVideoKit = "complete" | "extrait";
+// Types acceptés à l'envoi (Bunny les encode). Vidéo complète : 4 Go au plus (tutoriels longs) ; extrait : 200 Mo, comme le héros.
+export const TYPES_VIDEO_KIT = ["video/mp4", "video/quicktime", "video/webm"] as const;
+export const VIDEO_KIT_TAILLE_MAX = 4 * 1024 * 1024 * 1024;
+export const EXTRAIT_KIT_TAILLE_MAX = 200 * 1024 * 1024;
+// 50 chapitres au plus par Kit (miroir de la migration 20261102100000).
+export const CHAPITRES_MAX = 50;
+// Sous-titres WebVTT : 1 Mo au plus, français obligatoire pour publier, anglais facultatif.
+export const SOUS_TITRES_TAILLE_MAX = 1_048_576;
+export const LANGUES_SOUS_TITRES = ["fr", "en"] as const;
+export type LangueSousTitres = (typeof LANGUES_SOUS_TITRES)[number];
+
+// Vidéo d'un Kit pour l'admin : durée lue chez Bunny et présence de l'extrait, sans aucun identifiant.
+export type VideoKitAdmin = { dureeSecondes: number; extrait: boolean };
+export type ChapitreAdmin = { id: string; titreFr: string; titreEn: string; debutSecondes: number; ordre: number };
+export type SousTitreAdmin = { langue: LangueSousTitres; tailleOctets: number; version: number };
+
+// Champ du formulaire de chapitre auquel une erreur se rattache.
+export type ChampChapitre = "titre_fr" | "titre_en" | "debut";
+
+export type ResultatMediasKit<T extends object = object> = ({ ok: true } & T) | { ok: false; erreur: CodeErreurCatalogue; champ?: ChampChapitre };
+
+// État d'une vidéo envoyée, lu chez Bunny : encodage en cours, ou prête (enregistrée en base).
+export type EtatVideoKit = { etat: "en_cours"; progression: number } | { etat: "prete" };
+
+// Autorisation d'envoi TUS rendue au navigateur de l'admin (signature de durée limitée, jamais la clé). L'identifiant de la vidéo est
+// indispensable à l'envoi TUS (en-tête VideoId) : il n'est rendu que pour l'envoi en cours, jamais relu depuis la base ni écrit dans le HTML.
+export type EnvoiVideoKit = { adresse: string; signature: string; expiration: number; videoId: string; bibliothequeId: string; titre: string };
+
+// Ce que le service des médias d'un Kit attend du serveur : en production, les vrais clients ; en test, des faux nommés TEST_.
+export type DependancesMediasKit = {
+  exigerDroit(droit: Droit): Promise<{ auteur: AuteurCompte }>;
+  // Lèvent BunnyNonConfigureError si une variable manque.
+  configBunnyPrive(): ConfigBunny;
+  configBunnyPublic(): ConfigBunny;
+  reseau: Reseau;
+  maintenant(): number;
+  lireFamilleProduit(id: string): Promise<FamilleProduit | null>;
+  // Vidéo enregistrée (serveur seulement : les identifiants ne quittent jamais le service) ; null si aucune. Lève en cas d'erreur de lecture.
+  lireVideoKit(produitId: string): Promise<{ bunnyIdPrive: string; extraitId: string | null; dureeSecondes: number } | null>;
+  // Renvoie l'identifiant privé remplacé (à effacer chez Bunny après la base) ou null.
+  ecrireVideoKit(args: { auteur: AuteurCompte; produitId: string; bunnyId: string; duree: number }): Promise<{ erreur: string | null; ancien: string | null }>;
+  supprimerVideoKit(args: { auteur: AuteurCompte; produitId: string }): Promise<{ erreur: string | null; prive: string | null; extrait: string | null }>;
+  // extraitId nul : retire l'extrait. Renvoie l'extrait remplacé ou null.
+  ecrireExtraitKit(args: { auteur: AuteurCompte; produitId: string; extraitId: string | null }): Promise<{ erreur: string | null; ancien: string | null }>;
+  ajouterChapitre(args: { auteur: AuteurCompte; produitId: string; titreFr: string; titreEn: string; debut: number }): Promise<{ erreur: string | null; id: string | null }>;
+  modifierChapitre(args: { auteur: AuteurCompte; chapitreId: string; titreFr: string; titreEn: string; debut: number }): Promise<{ erreur: string | null }>;
+  deplacerChapitre(args: { auteur: AuteurCompte; chapitreId: string; sens: "haut" | "bas" }): Promise<{ erreur: string | null }>;
+  supprimerChapitre(args: { auteur: AuteurCompte; chapitreId: string }): Promise<{ erreur: string | null }>;
+  signerEnvoiSousTitres(args: { objet: string }): Promise<{ erreur: string | null; jeton: string | null }>;
+  // Vrai si ce chemin de kits-private est déjà enregistré dans sous_titre_kit_prive (lève en cas d'erreur de lecture).
+  cheminSousTitresEnregistre(chemin: string): Promise<boolean>;
+  lireObjetKit(args: { objet: string; octets: number }): Promise<{ erreur: string | null; trouve: boolean; taille: number; debut: Uint8Array }>;
+  deplacerObjetKit(args: { de: string; vers: string }): Promise<{ erreur: string | null }>;
+  // Renvoie l'ancien chemin (remplacement) ou null.
+  ecrireSousTitres(args: { auteur: AuteurCompte; produitId: string; langue: LangueSousTitres; taille: number; chemin: string }): Promise<{ erreur: string | null; ancienChemin: string | null }>;
+  supprimerSousTitres(args: { auteur: AuteurCompte; produitId: string; langue: LangueSousTitres }): Promise<{ erreur: string | null; chemin: string | null }>;
+  supprimerObjetsKit(objets: string[]): Promise<{ erreur: string | null }>;
+  invaliderCatalogue(): Promise<void>;
 };
 
 // Choix de la question « univers » : nom déjà rendu dans la langue de la route.

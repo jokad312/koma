@@ -153,13 +153,38 @@ describe("lireProduitAdmin", () => {
       niveau: null,
       produitLieId: null,
       fichiers: [],
+      video: null,
+      chapitres: [],
+      sousTitres: [],
     });
     expect(faux.eq).toEqual([
       ["produit", "id", "TEST_p"],
       ["variante", "produit_id", "TEST_p"],
       ["produit_photo", "produit_id", "TEST_p"],
       ["fichier_kit", "produit_id", "TEST_p"],
+      ["video_kit", "produit_id", "TEST_p"],
+      ["chapitre_kit", "produit_id", "TEST_p"],
+      ["sous_titre_kit", "produit_id", "TEST_p"],
     ]);
+  });
+
+  it("vidéo, chapitres et sous-titres d'un Kit : durée et présence de l'extrait seulement, jamais une table privée", async () => {
+    faux.parTable = {
+      produit: { data: { ...ligne, famille: "kit" }, error: null },
+      variante: { data: [], error: null },
+      produit_photo: { data: [], error: null },
+      fichier_kit: { data: [], error: null },
+      video_kit: { data: { duree_secondes: 754, extrait_bunny_id: "00000000-0000-4000-8000-0000000000e9" }, error: null },
+      chapitre_kit: { data: [{ id: "TEST_c1", titre_fr: "Intro", titre_en: "Intro en", debut_secondes: 0, ordre: 1 }], error: null },
+      sous_titre_kit: { data: [{ langue: "fr", taille_octets: 2048, version: 2 }], error: null },
+    };
+    const produit = await lireProduitAdmin("TEST_p");
+    expect(produit?.video).toEqual({ dureeSecondes: 754, extrait: true });
+    expect(produit?.chapitres).toEqual([{ id: "TEST_c1", titreFr: "Intro", titreEn: "Intro en", debutSecondes: 0, ordre: 1 }]);
+    expect(produit?.sousTitres).toEqual([{ langue: "fr", tailleOctets: 2048, version: 2 }]);
+    expect(JSON.stringify(produit)).not.toContain("00000000-0000-4000-8000-0000000000e9");
+    expect(faux.eq.map(([table]) => table)).not.toContain("video_kit_prive");
+    expect(faux.eq.map(([table]) => table)).not.toContain("sous_titre_kit_prive");
   });
 
   it("fichiers d'un Kit : chaque champ correspond, la taille est un nombre, aucun chemin n'est lu", async () => {

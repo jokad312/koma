@@ -3,13 +3,14 @@ import { routing } from "@/i18n/routing";
 import { alternatives, urlLocalisee } from "@/lib/seo/url";
 import { PAGES_LEGALES } from "@/lib/vitrine/pages-legales";
 import { lireSlugsPublies } from "@/modules/catalogue/queries";
-import type { FamilleProduit } from "@/modules/catalogue/types";
+import type { FamillePhysique } from "@/modules/catalogue/types";
 
 // Pages publiques existantes, en deux langues. Admin, compte et /api n'y figurent jamais.
 // Les catalogues sont donnés par leur dossier interne : l'adresse de chaque langue vient de src/i18n/adresses.ts.
 const PAGES_PUBLIQUES = ["", "/cosplays", "/accessoires", "/a-propos", "/faq", "/contact", ...PAGES_LEGALES.map((p) => p.chemin)];
 
-const DOSSIER_FICHE: Record<FamilleProduit, string> = { cosplay: "/cosplays", accessoire: "/accessoires", kit: "/kits" };
+// Fiches des produits physiques seulement : un Kit publié n'a pas encore de fiche (story 3.3), il n'apparaît donc pas dans le plan.
+const DOSSIER_FICHE: Record<FamillePhysique, string> = { cosplay: "/cosplays", accessoire: "/accessoires" };
 
 function entrees(chemins: readonly string[]): MetadataRoute.Sitemap {
   return chemins.flatMap((chemin) =>

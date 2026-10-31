@@ -327,8 +327,7 @@ export async function publierProduit(deps: DependancesCatalogue, entree: { id: s
   try {
     const produit = await deps.lireProduitComplet(id.data);
     if (!produit) return { ok: false, erreur: "produit_introuvable" };
-    // La publication d'un Kit est définie par la story 3.2 : la base la refuse, la liste des manques d'un produit physique n'a pas de sens ici.
-    if ((await deps.lireFamilleProduit(id.data)) === "kit") return { ok: false, erreur: "kit_non_publiable" };
+    // Produit physique ou Kit : la liste des manques dépend de la famille lue en base (story 3.2 pour le Kit).
     const manques = manquesPublication(produit);
     if (manques.length > 0) return { ok: false, erreur: "publication_incomplete", manques };
 
@@ -372,7 +371,7 @@ export async function depublierProduit(deps: DependancesCatalogue, entree: { id:
 
 // ---- Kits et leurs fichiers (story 3.1) ----
 
-// Crée (id vide) ou modifie un brouillon de Kit : droit, validation, une seule écriture atomique. Jamais de publication ici (story 3.2).
+// Crée (id vide) ou modifie un brouillon de Kit : droit, validation, une seule écriture atomique. Jamais de publication ici (publierProduit).
 // « ok » n'est renvoyé qu'après la réponse réelle de la base (règle 13).
 export async function enregistrerKit(deps: DependancesCatalogue, entree: EntreeKit): Promise<ResultatCatalogue<{ id: string; cree: boolean }>> {
   const droit = await verifierDroit(deps);
@@ -417,6 +416,8 @@ const ERREURS_FICHIER_KIT: ReadonlyArray<readonly [string, CodeErreurCatalogue]>
   ["KS_NOM_INVALIDE", "nom_invalide"],
   ["KS_TAILLE_FICHIER_INVALIDE", "fichier_trop_lourd"],
   ["KS_CHEMIN_INVALIDE", "fichier_deja_enregistre"],
+  // Le dernier fichier d'un Kit publié ne peut pas être supprimé (garde différée, story 3.2).
+  ["KS_PUBLICATION_INCOMPLETE", "publication_incomplete"],
   ["KS_DROIT_REFUSE", "non_autorise"],
   ["KS_AUTEUR_MANQUANT", "non_autorise"],
 ];
