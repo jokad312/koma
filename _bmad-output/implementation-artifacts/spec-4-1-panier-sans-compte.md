@@ -2,7 +2,7 @@
 title: 'Story 4.1 : panier sans compte'
 type: 'feature'
 created: '2026-11-01'
-status: 'review'
+status: 'done'
 route: 'dispatch'
 ---
 
