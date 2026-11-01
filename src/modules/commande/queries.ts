@@ -79,6 +79,21 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
   };
 }
 
+// Numéro de la Commande à payer (en attente ou échouée, échéance non passée) du Compte, ou null. Une seule est possible à la fois.
+export async function lireNumeroCommandeAPayer(compteId: string): Promise<string | null> {
+  const { data, error } = await creerClientService()
+    .from("commande")
+    .select("numero")
+    .eq("compte_id", compteId)
+    .in("statut", ["en_attente", "echouee"])
+    .gt("expire_le", new Date().toISOString())
+    .order("cree_le", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data.numero;
+}
+
 export type RemiseReprise = { zone: ZoneRemise | null; mode: ModeRemise | null; telephone: string | null; adresse: string | null };
 
 // Dernière Commande du Compte qui a eu un téléphone ou une remise : sert à pré-remplir l'étape de commande (« Reprendre mon panier », FR-13).

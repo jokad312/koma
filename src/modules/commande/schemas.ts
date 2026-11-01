@@ -44,6 +44,7 @@ export const creerCommandeSchema = z
     acceptations: z.object({ cgv: z.boolean(), kit: z.boolean().optional(), surMesure: z.boolean().optional() }),
     origine: origineSchema.nullish(),
     totalAttenduCents: z.number().int().min(0).max(100_000_000),
+    empreinte: z.string().regex(/^[0-9a-f]{32}$/),
     cleIdempotence: z.string().min(8).max(100),
   })
   .refine((v) => (v.zone == null) === (v.mode == null), { message: "remise_incomplete" })

@@ -2,7 +2,7 @@
 -- Kit déjà présent, indisponibilité), réservations qui comptent dans stock_disponible et places_fabrication_utilisees, expirer_commandes_echues,
 -- réglage delai_paiement. Données créées dans la transaction, puis annulées.
 begin;
-select plan(47);
+select plan(49);
 
 select set_config('ks.auteur', '{"type":"systeme","nom":"test"}', true);
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -41,7 +41,7 @@ select ok((select relrowsecurity from pg_class where oid = 'public.reservation':
 select is((select count(*)::int from information_schema.role_table_grants where table_schema = 'public' and table_name = 'reservation' and lower(grantee) in ('anon', 'authenticated', 'public')), 0, 'aucun droit client sur reservation');
 select is(
   (select count(*)::int from unnest(array[
-    'public.recapitulatif_commande(uuid, uuid, text, text)', 'public.creer_commande(jsonb, uuid, text, text, text, text, jsonb, text, integer, text)', 'public.expirer_commandes_echues()'
+    'public.recapitulatif_commande(uuid, uuid, text, text)', 'public.creer_commande(jsonb, uuid, text, text, text, text, jsonb, text, integer, text, text)', 'public.expirer_commandes_echues()'
   ]) f where not has_function_privilege('anon', f, 'execute') and not has_function_privilege('authenticated', f, 'execute') and has_function_privilege('service_role', f, 'execute')),
   3,
   'recapitulatif_commande, creer_commande et expirer_commandes_echues : service seulement'
@@ -63,6 +63,10 @@ select throws_ok($$select public.enregistrer_reglage(pg_temp.adm(), 'delai_paiem
 select throws_ok($$select public.enregistrer_reglage(pg_temp.adm(), 'delai_paiement', 'abc')$$, 'P0001', 'KS_REGLAGE_INVALIDE', 'texte : refusé');
 select lives_ok($$select public.enregistrer_reglage(pg_temp.adm(), 'delai_paiement', '30')$$, 'retour à 30 minutes');
 
+create temp table emp as select public.recapitulatif_commande('00000000-0000-0000-0000-0000000000a1', (select id from pp), 'goma', 'retrait') ->> 'empreinte' as v;
+grant select on emp to public;
+select is(length((select v from emp)), 32, 'le Récapitulatif porte une empreinte des lignes');
+
 -- Récapitulatif.
 select is((public.recapitulatif_commande('00000000-0000-0000-0000-0000000000a1', (select id from pp), 'goma', 'retrait') ->> 'total_cents')::int, 20990, 'retrait à Goma : 2 × 50 + 2 × 50 + 9,90, sans Forfait');
 select is((public.recapitulatif_commande('00000000-0000-0000-0000-0000000000a1', (select id from pp), 'goma', 'livraison') ->> 'forfait_cents')::int, 500, 'livraison à Goma : Forfait de Goma');
@@ -72,18 +76,19 @@ select throws_ok($$select public.recapitulatif_commande('00000000-0000-0000-0000
 select throws_ok($$select public.recapitulatif_commande('00000000-0000-0000-0000-0000000000a2', (select id from pp), 'goma', 'retrait')$$, 'P0001', 'KS_PANIER_INTROUVABLE', 'le Panier d''un autre Compte est introuvable');
 
 -- Refus de création.
-select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243990000000', null, '[{"objet":"cgv","version":"v1"}]'::jsonb, null, 20990, 'cle-cm-0001')$$, 'P0001', 'KS_ACCEPTATION_MANQUANTE', 'Kit sans la case « accès immédiat » : refusé');
-select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243990000000', null, '[{"objet":"kit_acces_immediat","version":"v1"}]'::jsonb, null, 20990, 'cle-cm-0001')$$, 'P0001', 'KS_ACCEPTATION_MANQUANTE', 'sans les CGV : refusé');
-select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243990000000', null, pg_temp.acc(), null, 1, 'cle-cm-0001')$$, 'P0001', 'KS_TOTAL_CHANGE', 'total différent de celui vu : refusé');
-select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', 'abc', null, pg_temp.acc(), null, 20990, 'cle-cm-0001')$$, 'P0001', 'KS_TELEPHONE_INVALIDE', 'téléphone invalide : refusé');
-select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'bukavu', 'livraison', '+243990000000', '', pg_temp.acc(), null, 21190, 'cle-cm-0001')$$, 'P0001', 'KS_ADRESSE_MANQUANTE', 'livraison sans adresse : refusé');
-select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), null, null, '+243990000000', null, pg_temp.acc(), null, 20990, 'cle-cm-0001')$$, 'P0001', 'KS_REMISE_MANQUANTE', 'produit physique sans remise : refusé');
-select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243990000000', null, pg_temp.acc(), 'Mauvaise Origine!', 20990, 'cle-cm-0001')$$, 'P0001', 'KS_ORIGINE_INVALIDE', 'origine de vente invalide : refusée');
-select throws_ok($$select public.creer_commande(pg_temp.c2(), (select id from pp), 'goma', 'retrait', '+243990000000', null, pg_temp.acc(), null, 20990, 'cle-cm-0001')$$, 'P0001', 'KS_PANIER_INTROUVABLE', 'le Panier d''un autre Compte : refusé');
+select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243990000000', null, '[{"objet":"cgv","version":"v1"}]'::jsonb, null, 20990, (select v from emp), 'cle-cm-0001')$$, 'P0001', 'KS_ACCEPTATION_MANQUANTE', 'Kit sans la case « accès immédiat » : refusé');
+select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243990000000', null, '[{"objet":"kit_acces_immediat","version":"v1"}]'::jsonb, null, 20990, (select v from emp), 'cle-cm-0001')$$, 'P0001', 'KS_ACCEPTATION_MANQUANTE', 'sans les CGV : refusé');
+select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243990000000', null, pg_temp.acc(), null, 1, (select v from emp), 'cle-cm-0001')$$, 'P0001', 'KS_TOTAL_CHANGE', 'total différent de celui vu : refusé');
+select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243990000000', null, pg_temp.acc(), null, 20990, 'mauvaise-empreinte', 'cle-cm-0001')$$, 'P0001', 'KS_RECAP_CHANGE', 'empreinte des lignes différente (délai ou disponibilité changés) : refusé');
+select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', 'abc', null, pg_temp.acc(), null, 20990, (select v from emp), 'cle-cm-0001')$$, 'P0001', 'KS_TELEPHONE_INVALIDE', 'téléphone invalide : refusé');
+select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'bukavu', 'livraison', '+243990000000', '', pg_temp.acc(), null, 21190, (select v from emp), 'cle-cm-0001')$$, 'P0001', 'KS_ADRESSE_MANQUANTE', 'livraison sans adresse : refusé');
+select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), null, null, '+243990000000', null, pg_temp.acc(), null, 20990, (select v from emp), 'cle-cm-0001')$$, 'P0001', 'KS_REMISE_MANQUANTE', 'produit physique sans remise : refusé');
+select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243990000000', null, pg_temp.acc(), 'Mauvaise Origine!', 20990, (select v from emp), 'cle-cm-0001')$$, 'P0001', 'KS_ORIGINE_INVALIDE', 'origine de vente invalide : refusée');
+select throws_ok($$select public.creer_commande(pg_temp.c2(), (select id from pp), 'goma', 'retrait', '+243990000000', null, pg_temp.acc(), null, 20990, (select v from emp), 'cle-cm-0001')$$, 'P0001', 'KS_PANIER_INTROUVABLE', 'le Panier d''un autre Compte : refusé');
 select is((select count(*)::int from public.commande where statut = 'en_attente'), 0, 'aucun refus ne crée de Commande');
 
 -- Création.
-create temp table cr as select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243 990 000 000', null, pg_temp.acc(), 'tiktok', 20990, 'cle-cm-0001') as r;
+create temp table cr as select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243 990 000 000', null, pg_temp.acc(), 'tiktok', 20990, (select v from emp), 'cle-cm-0001') as r;
 grant select on cr to public;
 select is((select statut from public.commande where id = (select (r ->> 'commande_id')::uuid from cr)), 'en_attente', 'Commande en attente');
 select is((select total_cents from public.commande where id = (select (r ->> 'commande_id')::uuid from cr)), 20990, 'total figé');
@@ -96,9 +101,9 @@ select is((select delai_fabrication_jours from public.ligne_commande where comma
 select is(public.stock_disponible((select id from vm)), 0, 'les réservations comptent dans stock_disponible');
 select is(public.places_fabrication_utilisees(), 2, 'les réservations sur commande comptent dans le Plafond');
 select is((select count(*)::int from public.ligne_panier where panier_id = (select id from pp)), 3, 'le Panier reste intact');
-select is((public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243 990 000 000', null, pg_temp.acc(), 'tiktok', 20990, 'cle-cm-0001') ->> 'rejeu')::boolean, true, 'même clé : la même Commande');
+select is((public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243 990 000 000', null, pg_temp.acc(), 'tiktok', 20990, (select v from emp), 'cle-cm-0001') ->> 'rejeu')::boolean, true, 'même clé : la même Commande');
 select is((select count(*)::int from public.commande where statut = 'en_attente'), 1, 'toujours une seule Commande');
-select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243990000000', null, pg_temp.acc(), null, 20990, 'cle-cm-0002')$$, 'P0001', 'KS_INDISPONIBLE', 'une seconde Commande identique : la dernière pièce en stock est réservée, refusée');
+select throws_ok($$select public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243990000000', null, pg_temp.acc(), null, 20990, (select v from emp), 'cle-cm-0002')$$, 'P0001', 'KS_COMMANDE_EN_ATTENTE', 'une seule Commande à payer par Compte : une seconde est refusée');
 
 -- Expiration.
 update public.commande set expire_le = now() - interval '1 minute' where statut = 'en_attente';

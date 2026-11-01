@@ -6,7 +6,7 @@ import { lireEtatCompte, lireSessionVerifiee } from "@/lib/auth/compte";
 import { lireRetraitGoma } from "@/lib/reglages";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { lireRecapitulatif } from "@/modules/commande/actions";
-import { lireRemiseReprise } from "@/modules/commande/queries";
+import { lireNumeroCommandeAPayer, lireRemiseReprise } from "@/modules/commande/queries";
 import { origineSchema } from "@/modules/commande/schemas";
 import type { ModeRemise, ZoneRemise } from "@/modules/commande/schemas";
 import { FormulaireCommande } from "./FormulaireCommande";
@@ -27,6 +27,10 @@ export async function PageCommande({ locale, origine }: { locale: Locale; origin
   if (etat === "anonyme" || etat === "incomplet") versConnexion(locale, retourVersCommande(locale));
   const session = await lireSessionVerifiee();
   if (!session) versConnexion(locale, retourVersCommande(locale));
+
+  // Une Commande est déjà à payer : on y retourne (une seule à la fois, pour ne pas bloquer le stock).
+  const aPayer = await lireNumeroCommandeAPayer(session.compteId).catch(() => null);
+  if (aPayer) redirect(`/${locale}${cheminPublic(locale, "/commande")}/${encodeURIComponent(aPayer)}`);
 
   const reprise = await lireRemiseReprise(session.compteId).catch(() => null);
   const zone: ZoneRemise | null = reprise?.zone ?? null;

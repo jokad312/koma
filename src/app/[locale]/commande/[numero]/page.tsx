@@ -35,6 +35,8 @@ async function Contenu({ locale, params }: { locale: "fr" | "en"; params: PagePr
 export default async function DetailCommande({ params }: PageProps<"/[locale]/commande/[numero]">) {
   const { locale, numero } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
+  // Un numéro mal formé n'est jamais affiché.
+  if (!/^KS-[0-9]{4}-[0-9]{6,}$/.test(numero)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Commande");
   return (

@@ -1570,7 +1570,9 @@
       "reglage_manquant": "The order is not possible right now: a shop setting is missing. Try again later.",
       "panier_vide": "Your cart is empty.",
       "panier_introuvable": "Your cart could not be found. Go back to the cart.",
-      "erreur": "The order could not be created. Try again."
+      "erreur": "The order could not be created. Try again.",
+      "recap_change": "The summary has changed (availability or time of an item). Check it, then confirm again.",
+      "commande_en_attente": "You already have an order to pay. Open it from your account or wait for it to expire to create another one."
     },
     "retourPanier": "Back to the cart",
     "detail": {

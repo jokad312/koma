@@ -14,6 +14,8 @@ export type CodeErreurCommande =
   | "adresse"
   | "remise"
   | "total_change" // le total relu en base n'est plus celui que le client a vu
+  | "recap_change" // même total, mais disponibilité ou délai d'une ligne changés depuis l'affichage
+  | "commande_en_attente" // le Compte a déjà une Commande à payer
   | "reglage_manquant"
   | "panier_vide"
   | "panier_introuvable";
@@ -49,6 +51,8 @@ export type Recapitulatif = {
   indisponible: boolean;
   // Produit physique dans le Panier mais Zone et Mode pas encore choisis.
   remiseManquante: boolean;
+  // Empreinte des lignes (nombre, origine, délai annoncé) à renvoyer à la création.
+  empreinte: string;
 };
 
 export type RecapBrut = {
@@ -74,6 +78,7 @@ export type RecapBrut = {
   total_cents: number;
   indisponible: boolean;
   remise_manquante: boolean;
+  empreinte: string;
 };
 
 // Ce que le service attend de l'extérieur (en test, des faux nommés TEST_ les remplacent).
@@ -100,6 +105,7 @@ export type DependancesCommande = {
     acceptations: { objet: string; version: string }[];
     origine: string | null;
     totalAttenduCents: number;
+    empreinte: string;
     cleIdempotence: string;
   }) => Promise<{ numero: string; expireLe: string } | { erreur: string }>;
 };

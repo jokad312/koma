@@ -30,7 +30,7 @@ export function dependances(): DependancesCommande {
       if (error || !data || typeof data !== "object" || Array.isArray(data)) return { erreur: error?.message ?? "recapitulatif_commande" };
       return { recap: data as unknown as RecapBrut };
     },
-    creerCommande: async ({ auteur, panierId, zone, mode, telephone, adresse, acceptations, origine, totalAttenduCents, cleIdempotence }) => {
+    creerCommande: async ({ auteur, panierId, zone, mode, telephone, adresse, acceptations, origine, totalAttenduCents, empreinte, cleIdempotence }) => {
       const { data, error } = await creerClientService().rpc("creer_commande", {
         p_auteur: auteur as never,
         p_panier: panierId,
@@ -41,6 +41,7 @@ export function dependances(): DependancesCommande {
         p_acceptations: acceptations as never,
         p_origine: origine as never,
         p_total_attendu_cents: totalAttenduCents,
+        p_empreinte: empreinte,
         p_cle_idempotence: cleIdempotence,
       });
       if (error || !data || typeof data !== "object" || Array.isArray(data)) return { erreur: error?.message ?? "creer_commande" };

@@ -1103,6 +1103,7 @@ export type Database = {
           p_adresse: string
           p_auteur: Json
           p_cle_idempotence: string
+          p_empreinte: string
           p_mode: string
           p_origine: string
           p_panier: string

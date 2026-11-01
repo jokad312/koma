@@ -30,7 +30,19 @@ route: 'dispatch'
 - Module commande (service, actions, queries), pages `/commande` et `/commande/[numero]`, composants `FormulaireCommande`, `RecapCommande`, réglage `delai_paiement` dans l'admin, `src/lib/dates.ts` (heure de Goma).
 - Tests : pgTAP `commande_en_attente.test.sql` (47, en CI), Vitest (service, formulaire, délai et dates).
 
+## Correctifs de revue (migration `20261119100000_commande_correctifs.sql`)
+
+- `stock_disponible` et `places_fabrication_utilisees` redeviennent « security invoker » (exigé par les tests de la 2.3, et plus de lecture publique des réservations) ; l'échéance qui compte est celle de la Commande (source unique).
+- Une seule Commande à payer par Compte (la page `/commande` renvoie vers elle) : plus de stock ni de Plafond monopolisés ; Plafond protégé par un verrou global ; le Kit est refusé aussi dans une Commande échouée encore payable.
+- Empreinte des lignes (nombre, origine, délai annoncé) comparée à la création : si une ligne bascule en fabrication au même prix, le client reconfirme (`recap_change`).
+- Navigation par le routeur localisé (plus de 404 après confirmation), numéro mal formé jamais affiché, clé d'idempotence renouvelée quand la Zone ou le Mode change.
+
 ## Reporté / dette
+
+- `?origine=` n'est pas conservé par « Passer la commande » ni par la connexion : `commande.origine` restera souvent nul (AD-19, à traiter avec la mesure d'audience, story 9.7).
+- Vider `delai_paiement` dans l'admin bloque toute commande (`KS_REGLAGE_MANQUANT`, voulu : aucune valeur de repli).
+- pg_cron : si la tâche manque sur une base, rien ne l'annonce ; elle existe sur koma-dev.
+- Accessibilité : les erreurs ne sont pas reliées champ par champ (`aria-describedby`) ; le résumé en haut du formulaire reçoit le focus.
 
 - Pas de test e2e navigateur de l'étape de commande (connexion réelle) : à faire à la main.
 - Le téléphone et l'adresse sont gardés dans la Commande (journal masqué) sans purge prévue.

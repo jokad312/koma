@@ -1570,7 +1570,9 @@
       "reglage_manquant": "La commande n'est pas possible pour le moment : un réglage de la boutique manque. Réessaie plus tard.",
       "panier_vide": "Ton panier est vide.",
       "panier_introuvable": "Ton panier est introuvable. Retourne au panier.",
-      "erreur": "La commande n'a pas pu être créée. Réessaie."
+      "erreur": "La commande n'a pas pu être créée. Réessaie.",
+      "recap_change": "Le récapitulatif a changé (disponibilité ou délai d'un article). Vérifie-le, puis confirme à nouveau.",
+      "commande_en_attente": "Tu as déjà une commande à payer. Ouvre-la depuis ton espace ou attends son expiration pour en créer une autre."
     },
     "retourPanier": "Retour au panier",
     "detail": {

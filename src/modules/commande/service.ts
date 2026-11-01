@@ -29,6 +29,8 @@ const CODES_BASE: [string, CodeErreurCommande][] = [
   ["KS_REMISE_MANQUANTE", "remise"],
   ["KS_REMISE_INVALIDE", "remise"],
   ["KS_TOTAL_CHANGE", "total_change"],
+  ["KS_RECAP_CHANGE", "recap_change"],
+  ["KS_COMMANDE_EN_ATTENTE", "commande_en_attente"],
   ["KS_REGLAGE_MANQUANT", "reglage_manquant"],
   ["KS_PANIER_VIDE", "panier_vide"],
   ["KS_PANIER_INTROUVABLE", "panier_introuvable"],
@@ -117,6 +119,7 @@ function enRecap(b: RecapBrut, langue: "fr" | "en"): Recapitulatif {
     totalCents: b.total_cents,
     indisponible: b.indisponible || lignes.length < b.lignes.length,
     remiseManquante: b.remise_manquante,
+    empreinte: b.empreinte,
   };
 }
 
@@ -152,7 +155,7 @@ export async function creerCommande(
   deps: DependancesCommande,
   entree: EntreeCreerCommande,
   langue: "fr" | "en",
-): Promise<ResultatCommande<{ numero: string; expireLe: string }> | { ok: false; erreur: "total_change"; recap: Recapitulatif | null }> {
+): Promise<ResultatCommande<{ numero: string; expireLe: string }> | { ok: false; erreur: "total_change" | "recap_change"; recap: Recapitulatif | null }> {
   const lu = creerCommandeSchema.safeParse(entree);
   if (!lu.success) return { ok: false, erreur: "invalide" };
   const v = await compteVerifie(deps);
@@ -175,13 +178,14 @@ export async function creerCommande(
       acceptations,
       origine: lu.data.origine ?? null,
       totalAttenduCents: lu.data.totalAttenduCents,
+      empreinte: lu.data.empreinte,
       cleIdempotence: lu.data.cleIdempotence,
     });
     if ("erreur" in r) {
       const erreur = codeDeLaBase(r.erreur);
-      if (erreur === "total_change") {
+      if (erreur === "total_change" || erreur === "recap_change") {
         const nouveau = await lireRecapitulatif(deps, { zone: lu.data.zone, mode: lu.data.mode }, langue);
-        return { ok: false, erreur: "total_change", recap: nouveau.ok ? nouveau.recap : null };
+        return { ok: false, erreur, recap: nouveau.ok ? nouveau.recap : null };
       }
       if (erreur === "erreur") journaliser("creer_commande", "échec");
       // La base dit « licence » pour une acceptation manquante : sur l'étape de commande, c'est une case à cocher.

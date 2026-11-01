@@ -33,6 +33,7 @@ function recapBrut(s: Partial<RecapBrut> = {}): RecapBrut {
     total_cents: 10500,
     indisponible: false,
     remise_manquante: false,
+    empreinte: "0123456789abcdef0123456789abcdef",
     ...s,
   };
 }
@@ -59,6 +60,7 @@ const commande = {
   adresse: "TEST_adresse",
   acceptations: { cgv: true },
   totalAttenduCents: 10500,
+  empreinte: "0123456789abcdef0123456789abcdef",
   cleIdempotence: CLE,
 };
 
@@ -117,6 +119,7 @@ describe("creerCommande", () => {
       ],
       origine: "tiktok",
       totalAttenduCents: 10500,
+      empreinte: "0123456789abcdef0123456789abcdef",
       cleIdempotence: CLE,
     });
   });
@@ -132,6 +135,7 @@ describe("creerCommande", () => {
     await expect(creerCommande(deps, { ...commande, zone: "bukavu", mode: "retrait" }, "fr")).resolves.toEqual({ ok: false, erreur: "invalide" });
     await expect(creerCommande(deps, { ...commande, cleIdempotence: "court" }, "fr")).resolves.toEqual({ ok: false, erreur: "invalide" });
     await expect(creerCommande(deps, { ...commande, origine: "x'; drop table" }, "fr")).resolves.toEqual({ ok: false, erreur: "invalide" });
+    await expect(creerCommande(deps, { ...commande, empreinte: "pas-une-empreinte" }, "fr")).resolves.toEqual({ ok: false, erreur: "invalide" });
     expect(deps.creerCommande).not.toHaveBeenCalled();
   });
 
@@ -144,8 +148,18 @@ describe("creerCommande", () => {
     expect(r).toMatchObject({ ok: false, erreur: "total_change", recap: { totalCents: 11000 } });
   });
 
+  it("même total mais disponibilité ou délai changés : « recap_change », rien n'est créé, le nouveau Récapitulatif est renvoyé", async () => {
+    const deps = faux({
+      creerCommande: vi.fn(async () => ({ erreur: "KS_RECAP_CHANGE" })),
+      recapitulatif: vi.fn(async () => ({ recap: recapBrut({ empreinte: "ffffffffffffffffffffffffffffffff" }) })),
+    });
+    const r = await creerCommande(deps, commande, "fr");
+    expect(r).toMatchObject({ ok: false, erreur: "recap_change", recap: { empreinte: "ffffffffffffffffffffffffffffffff" } });
+  });
+
   it.each([
     ["KS_ACCEPTATION_MANQUANTE", "acceptation"],
+    ["KS_COMMANDE_EN_ATTENTE", "commande_en_attente"],
     ["KS_TELEPHONE_INVALIDE", "telephone"],
     ["KS_ADRESSE_MANQUANTE", "adresse"],
     ["KS_REMISE_MANQUANTE", "remise"],

@@ -10,13 +10,14 @@ const faux = vi.hoisted(() => ({
   push: vi.fn(),
 }));
 vi.mock("server-only", () => ({}));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: faux.push, refresh: vi.fn() }), usePathname: () => "/fr/commande" }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/fr/commande" }));
 vi.mock("@/modules/commande/actions", () => ({
   creerCommande: (...a: unknown[]) => faux.creerCommande(...a),
   lireRecapitulatif: (...a: unknown[]) => faux.lireRecapitulatif(...a),
   obtenirKitGratuit: vi.fn(),
 }));
 vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ push: faux.push }),
   Link: ({ href, children, ...reste }: { href: string; children: React.ReactNode }) => (
     <a href={href} {...reste}>
       {children}
@@ -55,6 +56,7 @@ const recap = (s: Partial<Recapitulatif> = {}): Recapitulatif => ({
   totalCents: 10000,
   indisponible: false,
   remiseManquante: true,
+  empreinte: "0123456789abcdef0123456789abcdef",
   ...s,
 });
 
@@ -132,7 +134,7 @@ describe("FormulaireCommande", () => {
     await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
     await waitFor(() => expect(faux.push).toHaveBeenCalledWith("/commande/KS-2026-000042"));
     expect(faux.creerCommande).toHaveBeenCalledWith(
-      expect.objectContaining({ zone: "goma", mode: "retrait", telephone: "+243990000000", adresse: null, totalAttenduCents: 10000, acceptations: { cgv: true, kit: undefined, surMesure: undefined } }),
+      expect.objectContaining({ zone: "goma", mode: "retrait", telephone: "+243990000000", adresse: null, totalAttenduCents: 10000, acceptations: { cgv: true, kit: undefined, surMesure: undefined }, empreinte: "0123456789abcdef0123456789abcdef" }),
       "fr",
     );
   });
@@ -149,6 +151,29 @@ describe("FormulaireCommande", () => {
     await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
     await waitFor(() => expect(faux.push).toHaveBeenCalledWith("/commande/KS-2026-000043"));
     expect(faux.creerCommande).toHaveBeenLastCalledWith(expect.objectContaining({ totalAttenduCents: 11000 }), "fr");
+  });
+
+  it("disponibilité ou délai changés à total égal : message clair, nouveau Récapitulatif, nouvelle confirmation avec la nouvelle empreinte", async () => {
+    faux.creerCommande
+      .mockResolvedValueOnce({ ok: false, erreur: "recap_change", recap: recap({ remiseManquante: false, empreinte: "ffffffffffffffffffffffffffffffff" }) })
+      .mockResolvedValueOnce({ ok: true, numero: "KS-2026-000044", expireLe: "2026-11-01T12:30:00Z" });
+    rendre(<FormulaireCommande {...props} />);
+    await remplir();
+    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await screen.findByText("Le récapitulatif a changé (disponibilité ou délai d'un article). Vérifie-le, puis confirme à nouveau.");
+    expect(faux.push).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await waitFor(() => expect(faux.push).toHaveBeenCalledWith("/commande/KS-2026-000044"));
+    expect(faux.creerCommande).toHaveBeenLastCalledWith(expect.objectContaining({ empreinte: "ffffffffffffffffffffffffffffffff" }), "fr");
+  });
+
+  it("Commande déjà à payer : message dédié, jamais un faux succès", async () => {
+    faux.creerCommande.mockResolvedValue({ ok: false, erreur: "commande_en_attente" });
+    rendre(<FormulaireCommande {...props} />);
+    await remplir();
+    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await screen.findByText(/Tu as déjà une commande à payer/);
+    expect(faux.push).not.toHaveBeenCalled();
   });
 
   it("la même clé d'idempotence est renvoyée à chaque essai (un double toucher ne crée pas deux commandes)", async () => {

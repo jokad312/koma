@@ -1,12 +1,11 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "next/navigation";
 import { useId, useRef, useState, useTransition } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { cheminPublic } from "@/i18n/adresses";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { formaterUsd } from "@/lib/argent";
 import { creerCommande, lireRecapitulatif } from "@/modules/commande/actions";
@@ -58,7 +57,7 @@ export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, te
       try {
         const r = await lireRecapitulatif({ zone: z, mode: m }, locale);
         if (r.ok) setRecap(r.recap);
-        else if (r.erreur === "panier_vide") router.push(cheminPublic(locale, "/panier"));
+        else if (r.erreur === "panier_vide") router.push("/panier");
         else setErreurServeur(r.erreur);
       } catch {
         setErreurServeur("erreur");
@@ -72,12 +71,14 @@ export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, te
     setZone(z);
     setMode(m);
     setTotalChange(null);
+    cle.current = null;
     relire(z, m);
   }
 
   function choisirMode(m: ModeRemise) {
     setMode(m);
     setTotalChange(null);
+    cle.current = null;
     relire(zone, m);
   }
 
@@ -117,6 +118,7 @@ export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, te
             acceptations: { cgv, kit: recap.kit ? kit : undefined, surMesure: recap.surMesure ? surMesure : undefined },
             origine,
             totalAttenduCents: vu,
+            empreinte: recap.empreinte,
             cleIdempotence,
           },
           locale,
@@ -125,9 +127,10 @@ export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, te
           router.push(`/commande/${r.numero}`);
           return;
         }
-        if (r.erreur === "total_change" && "recap" in r && r.recap) {
+        if ((r.erreur === "total_change" || r.erreur === "recap_change") && "recap" in r && r.recap) {
           setRecap(r.recap);
-          setTotalChange({ ancien: vu, nouveau: r.recap.totalCents });
+          setTotalChange(r.erreur === "total_change" ? { ancien: vu, nouveau: r.recap.totalCents } : null);
+          if (r.erreur === "recap_change") setErreurServeur("recap_change");
         } else {
           setErreurServeur(r.erreur);
         }
@@ -188,7 +191,7 @@ export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, te
             />
           </section>
 
-          <fieldset className="flex flex-col gap-2" aria-invalid={erreurs.includes("zone") || undefined}>
+          <fieldset className="flex flex-col gap-2">
             <legend className="t-h2 mb-2">{t("remise.zone")}</legend>
             {(["goma", "bukavu"] as const).map((z) => (
               <label key={z} className={LIGNE_CHOIX}>
@@ -200,7 +203,7 @@ export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, te
           </fieldset>
 
           {zone === "goma" ? (
-            <fieldset className="flex flex-col gap-2" aria-invalid={erreurs.includes("mode") || undefined}>
+            <fieldset className="flex flex-col gap-2">
               <legend className="t-h2 mb-2">{t("remise.mode")}</legend>
               {(["retrait", "livraison"] as const).map((m) => (
                 <label key={m} className={LIGNE_CHOIX}>
