@@ -25,6 +25,7 @@ const CONFIG: Record<CleReglage, { texte: string; champ: "texte" | "tel" | "usd"
   retrait_goma_fr: { texte: "retraitFr", champ: "multiligne", erreur: "retrait_fr_invalide" },
   retrait_goma_en: { texte: "retraitEn", champ: "multiligne", erreur: "retrait_en_invalide" },
   plafond_fabrication: { texte: "plafond", champ: "entier", erreur: "plafond_invalide" },
+  delai_paiement: { texte: "delaiPaiement", champ: "entier", erreur: "delai_paiement_invalide" },
 };
 
 // Un réglage = un formulaire. Le succès n'apparaît qu'après la réponse de l'action serveur ; la saisie est conservée après un échec.

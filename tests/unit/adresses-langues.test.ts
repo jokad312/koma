@@ -51,6 +51,7 @@ describe("adresses propres à chaque langue", () => {
     expect(reecrituresAdresses()).toEqual([
       { source: "/en/accessories/:chemin*", destination: "/en/accessoires/:chemin*" },
       { source: "/en/cart/:chemin*", destination: "/en/panier/:chemin*" },
+      { source: "/en/checkout/:chemin*", destination: "/en/commande/:chemin*" },
     ]);
   });
 

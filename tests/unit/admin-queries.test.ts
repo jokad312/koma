@@ -39,6 +39,7 @@ describe("lireReglagesAdmin", () => {
       retraitGomaFr: null,
       retraitGomaEn: null,
       plafondFabrication: null,
+      delaiPaiement: null,
     });
     expect(faux.cles).toEqual([
       "nom_site",
@@ -48,6 +49,7 @@ describe("lireReglagesAdmin", () => {
       "retrait_goma_fr",
       "retrait_goma_en",
       "plafond_fabrication",
+      "delai_paiement",
     ]);
   });
 
@@ -61,6 +63,7 @@ describe("lireReglagesAdmin", () => {
       retraitGomaFr: null,
       retraitGomaEn: null,
       plafondFabrication: null,
+      delaiPaiement: null,
     });
   });
 
@@ -72,6 +75,7 @@ describe("lireReglagesAdmin", () => {
         { cle: "retrait_goma_fr", valeur: "Texte FR" },
         { cle: "retrait_goma_en", valeur: "Texte EN" },
         { cle: "plafond_fabrication", valeur: "40" },
+        { cle: "delai_paiement", valeur: "30" },
       ],
       error: null,
     };
@@ -81,6 +85,7 @@ describe("lireReglagesAdmin", () => {
       retraitGomaFr: "Texte FR",
       retraitGomaEn: "Texte EN",
       plafondFabrication: "40",
+      delaiPaiement: "30",
     });
   });
 

@@ -224,3 +224,12 @@ export async function fusionner(deps: DependancesPanier, compteId: string): Prom
     journaliser("fusion : exception");
   }
 }
+
+// Panier du cookie que ce Compte peut utiliser (utilisé par l'étape de commande, module commande), ou null.
+export async function panierIdAccessible(deps: DependancesPanier, compteId: string): Promise<string | null> {
+  try {
+    return await panierAccessible(deps, compteId);
+  } catch {
+    return null;
+  }
+}

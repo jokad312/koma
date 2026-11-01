@@ -61,6 +61,14 @@
     "panier": {
       "titre": "Cart",
       "description": "The items in your cart."
+    },
+    "commande": {
+      "titre": "Checkout",
+      "description": "Choose how you receive your order and check the total."
+    },
+    "commandeDetail": {
+      "titre": "My order",
+      "description": "The details of your order."
     }
   },
   "Accueil": {
@@ -348,7 +356,8 @@
         "retrait_en_invalide": "The English pickup place must be 500 characters at most.",
         "plafond_invalide": "The cap must be a whole number from 1 to 10000.",
         "non_autorise": "You no longer have the right to change this setting. Reload the page or sign in again.",
-        "generique": "The setting could not be saved. Your entry is kept: try again."
+        "generique": "The setting could not be saved. Your entry is kept: try again.",
+        "delai_paiement_invalide": "The time limit must be a whole number from 1 to 1440 minutes."
       },
       "tranches": {
         "titre": "Price ranges",
@@ -469,6 +478,11 @@
           "video_illisible": "The video file cannot be read. Upload another file.",
           "video_avec_audio": "This video contains an audio track. Export it without sound, then upload it again."
         }
+      },
+      "delaiPaiement": {
+        "titre": "Payment time limit",
+        "libelle": "Payment time limit (minutes)",
+        "aide": "Time given to the customer to pay a pending order, from 1 to 1440 minutes. After that, the order expires and the items are released. Leave empty to clear it: no order can then be created."
       }
     },
     "messages": {
@@ -1476,5 +1490,108 @@
     "raisonBloque": "Remove the items that are no longer available first.",
     "erreurLecture": "Your cart could not be loaded. Try again in a moment.",
     "kitDejaPossede": "You already own this kit: it is in your library."
+  },
+  "Commande": {
+    "titre": "Checkout",
+    "recap": {
+      "titre": "Summary",
+      "liste": "Order items",
+      "taille": "Size: {taille}",
+      "tailleSurMesure": "Size: made to measure",
+      "quantitePrix": "{nombre} × {prix}",
+      "forfait": "Delivery fee",
+      "forfaitGratuit": "Free pickup",
+      "forfaitAChoisir": "To choose above",
+      "sousTotal": "Subtotal",
+      "total": "Total",
+      "accesImmediat": "Digital kit: instant access after payment.",
+      "plusDisponible": "No longer available",
+      "plusDisponibleAide": "This item is not available right now. Remove it from your cart to continue.",
+      "delaiStock": "In stock: {remise}.",
+      "delaiFabrication": "Making: {n, plural, one {# day} other {# days}}, then {remise}.",
+      "delaiFabricationSurMesure": "Making: {n, plural, one {# day} other {# days}} starting when we receive your measurements, then {remise}.",
+      "remise": {
+        "inconnue": "handover depends on your zone",
+        "retrait": "free pickup in Goma",
+        "gomaLivraison": "delivery in Goma in under a day",
+        "bukavu": "delivery in Bukavu in one day at most"
+      }
+    },
+    "contact": {
+      "titre": "How to reach you",
+      "telephone": "Phone number",
+      "telephoneAide": "With the country code, for example +243…"
+    },
+    "remise": {
+      "zone": "Where do you receive your order?",
+      "goma": "Goma",
+      "bukavu": "Bukavu",
+      "mode": "How do you receive it?",
+      "retrait": "Free pickup in Goma",
+      "livraison": "Delivery",
+      "lieuRetrait": "Pickup place: {lieu}",
+      "bukavuAide": "In Bukavu, delivery is mandatory.",
+      "adresse": "Delivery address",
+      "adresseAide": "Write the address as you would tell it to a courier."
+    },
+    "cases": {
+      "titre": "Before you confirm",
+      "cgv": "I have read and accept the terms and conditions of sale.",
+      "cgvLien": "Read the terms and conditions of sale",
+      "kit": "I ask for immediate access to my kit, I give up my right of withdrawal and I accept the Kit license.",
+      "surMesure": "I will send my measurements on WhatsApp; the making time starts when they are received, and the order can no longer be cancelled once making has started."
+    },
+    "confirmer": "Confirm the order",
+    "enCours": "Creating the order…",
+    "raisonBloque": "Remove the items that are no longer available from your cart first.",
+    "totalChange": "The total has changed: {ancien} → {nouveau}. Check the summary, then confirm again.",
+    "resumeErreurs": "Fix the following:",
+    "champs": {
+      "telephone": "Enter your phone number, with the country code.",
+      "zone": "Choose Goma or Bukavu.",
+      "mode": "Choose how you receive your order.",
+      "adresse": "Enter your delivery address.",
+      "cgv": "Tick the terms and conditions box.",
+      "kit": "Tick the immediate kit access box.",
+      "surMesure": "Tick the made-to-measure box."
+    },
+    "erreurs": {
+      "non_connecte": "Your session has expired. Sign in to continue.",
+      "compte_incomplet": "Finish signing in by giving your age, then come back here.",
+      "licence": "Tick the requested boxes before confirming.",
+      "acceptation": "Tick the requested boxes before confirming.",
+      "deja_possede": "You already have this kit, or it is in another pending order. Remove it from your cart.",
+      "indisponible": "An item is not available right now. Remove it from your cart to continue.",
+      "invalide": "The request is not valid. Reload the page and try again.",
+      "telephone": "This phone number is not valid. Write it with the country code.",
+      "adresse": "Enter your delivery address.",
+      "remise": "Choose your zone and how you receive your order.",
+      "total_change": "The total has changed. Check the summary, then confirm again.",
+      "reglage_manquant": "The order is not possible right now: a shop setting is missing. Try again later.",
+      "panier_vide": "Your cart is empty.",
+      "panier_introuvable": "Your cart could not be found. Go back to the cart.",
+      "erreur": "The order could not be created. Try again."
+    },
+    "retourPanier": "Back to the cart",
+    "detail": {
+      "titre": "Order {numero}",
+      "statut": "Status: {statut}",
+      "statuts": {
+        "en_attente": "Waiting for payment",
+        "expiree": "Expired",
+        "echouee": "Payment failed",
+        "payee": "Paid",
+        "en_fabrication": "Being made",
+        "expediee": "Shipped",
+        "livree": "Delivered",
+        "annulee": "Cancelled",
+        "remboursee": "Refunded",
+        "offerte": "Free"
+      },
+      "aPayerAvant": "Pay before {heure}",
+      "expiree": "This order has expired: the items were released. Your cart is intact.",
+      "reprendre": "Resume my cart",
+      "introuvable": "This order could not be found."
+    }
   }
 }

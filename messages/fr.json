@@ -61,6 +61,14 @@
     "panier": {
       "titre": "Panier",
       "description": "Les articles de ton panier."
+    },
+    "commande": {
+      "titre": "Passer la commande",
+      "description": "Indique comment tu reçois ta commande et vérifie le total."
+    },
+    "commandeDetail": {
+      "titre": "Ma commande",
+      "description": "Le détail de ta commande."
     }
   },
   "Accueil": {
@@ -348,7 +356,8 @@
         "retrait_en_invalide": "Le lieu de retrait en anglais doit avoir au plus 500 caractères.",
         "plafond_invalide": "Le plafond doit être un nombre entier de 1 à 10000.",
         "non_autorise": "Tu n'as plus le droit de modifier ce réglage. Recharge la page ou reconnecte-toi.",
-        "generique": "Le réglage n'a pas pu être enregistré. Ta saisie est conservée : réessaie."
+        "generique": "Le réglage n'a pas pu être enregistré. Ta saisie est conservée : réessaie.",
+        "delai_paiement_invalide": "Le délai doit être un nombre entier de 1 à 1440 minutes."
       },
       "tranches": {
         "titre": "Tranches de prix",
@@ -469,6 +478,11 @@
           "video_illisible": "Le fichier vidéo est illisible. Envoie un autre fichier.",
           "video_avec_audio": "Cette vidéo contient une piste audio. Exporte-la sans son, puis envoie-la de nouveau."
         }
+      },
+      "delaiPaiement": {
+        "titre": "Délai de paiement",
+        "libelle": "Délai de paiement (minutes)",
+        "aide": "Temps laissé au client pour payer une commande en attente, de 1 à 1440 minutes. Passé ce délai, la commande expire et les articles sont libérés. Laisse vide pour l'effacer : aucune commande ne pourra alors être créée."
       }
     },
     "messages": {
@@ -1476,5 +1490,108 @@
     "raisonBloque": "Retire d'abord les articles qui ne sont plus disponibles.",
     "erreurLecture": "Ton panier n'a pas pu être chargé. Réessaie dans un instant.",
     "kitDejaPossede": "Tu possèdes déjà ce kit : il est dans ta bibliothèque."
+  },
+  "Commande": {
+    "titre": "Passer la commande",
+    "recap": {
+      "titre": "Récapitulatif",
+      "liste": "Articles de la commande",
+      "taille": "Taille : {taille}",
+      "tailleSurMesure": "Taille : sur mesure",
+      "quantitePrix": "{nombre} × {prix}",
+      "forfait": "Forfait de livraison",
+      "forfaitGratuit": "Retrait gratuit",
+      "forfaitAChoisir": "À choisir ci-dessus",
+      "sousTotal": "Sous-total",
+      "total": "Total",
+      "accesImmediat": "Kit numérique : accès immédiat après le paiement.",
+      "plusDisponible": "Plus disponible",
+      "plusDisponibleAide": "Cet article n'est plus disponible pour le moment. Retire-le de ton panier pour continuer.",
+      "delaiStock": "En stock : {remise}.",
+      "delaiFabrication": "Fabrication : {n, plural, one {# jour} other {# jours}}, puis {remise}.",
+      "delaiFabricationSurMesure": "Fabrication : {n, plural, one {# jour} other {# jours}} à partir de la réception de tes mesures, puis {remise}.",
+      "remise": {
+        "inconnue": "remise selon ta zone",
+        "retrait": "retrait gratuit à Goma",
+        "gomaLivraison": "livraison à Goma en moins d'un jour",
+        "bukavu": "livraison à Bukavu en un jour au plus"
+      }
+    },
+    "contact": {
+      "titre": "Pour te joindre",
+      "telephone": "Numéro de téléphone",
+      "telephoneAide": "Avec l'indicatif du pays, par exemple +243…"
+    },
+    "remise": {
+      "zone": "Où reçois-tu ta commande ?",
+      "goma": "Goma",
+      "bukavu": "Bukavu",
+      "mode": "Comment la reçois-tu ?",
+      "retrait": "Retrait gratuit à Goma",
+      "livraison": "Livraison",
+      "lieuRetrait": "Lieu de retrait : {lieu}",
+      "bukavuAide": "À Bukavu, la livraison est obligatoire.",
+      "adresse": "Adresse de livraison",
+      "adresseAide": "Écris l'adresse comme tu la dirais à un livreur."
+    },
+    "cases": {
+      "titre": "Avant de confirmer",
+      "cgv": "J'ai lu et j'accepte les conditions générales de vente.",
+      "cgvLien": "Lire les conditions générales de vente",
+      "kit": "Je demande l'accès immédiat à mon kit, je renonce à mon droit de rétractation et j'accepte la Licence de kit.",
+      "surMesure": "J'enverrai mes mesures sur WhatsApp ; le délai de fabrication court à partir de leur réception, et la commande ne peut plus être annulée après le début de la fabrication."
+    },
+    "confirmer": "Confirmer la commande",
+    "enCours": "Création de la commande…",
+    "raisonBloque": "Retire d'abord de ton panier les articles qui ne sont plus disponibles.",
+    "totalChange": "Le total a changé : {ancien} → {nouveau}. Vérifie le récapitulatif, puis confirme à nouveau.",
+    "resumeErreurs": "Corrige les points suivants :",
+    "champs": {
+      "telephone": "Indique ton numéro de téléphone, avec l'indicatif du pays.",
+      "zone": "Choisis Goma ou Bukavu.",
+      "mode": "Choisis comment tu reçois ta commande.",
+      "adresse": "Écris ton adresse de livraison.",
+      "cgv": "Coche la case des conditions générales de vente.",
+      "kit": "Coche la case de l'accès immédiat au kit.",
+      "surMesure": "Coche la case des mesures sur mesure."
+    },
+    "erreurs": {
+      "non_connecte": "Ta session a expiré. Connecte-toi pour continuer.",
+      "compte_incomplet": "Termine ta connexion en indiquant ton âge, puis reviens ici.",
+      "licence": "Coche les cases demandées avant de confirmer.",
+      "acceptation": "Coche les cases demandées avant de confirmer.",
+      "deja_possede": "Tu as déjà ce kit, ou il est dans une autre commande en attente. Retire-le de ton panier.",
+      "indisponible": "Un article n'est plus disponible pour le moment. Retire-le de ton panier pour continuer.",
+      "invalide": "La demande n'est pas valide. Recharge la page et réessaie.",
+      "telephone": "Ce numéro de téléphone n'est pas valide. Écris-le avec l'indicatif du pays.",
+      "adresse": "Écris ton adresse de livraison.",
+      "remise": "Choisis ta zone et la façon de recevoir ta commande.",
+      "total_change": "Le total a changé. Vérifie le récapitulatif, puis confirme à nouveau.",
+      "reglage_manquant": "La commande n'est pas possible pour le moment : un réglage de la boutique manque. Réessaie plus tard.",
+      "panier_vide": "Ton panier est vide.",
+      "panier_introuvable": "Ton panier est introuvable. Retourne au panier.",
+      "erreur": "La commande n'a pas pu être créée. Réessaie."
+    },
+    "retourPanier": "Retour au panier",
+    "detail": {
+      "titre": "Commande {numero}",
+      "statut": "Statut : {statut}",
+      "statuts": {
+        "en_attente": "En attente de paiement",
+        "expiree": "Expirée",
+        "echouee": "Paiement échoué",
+        "payee": "Payée",
+        "en_fabrication": "En fabrication",
+        "expediee": "Expédiée",
+        "livree": "Livrée",
+        "annulee": "Annulée",
+        "remboursee": "Remboursée",
+        "offerte": "Offerte"
+      },
+      "aPayerAvant": "À payer avant {heure}",
+      "expiree": "Cette commande a expiré : les articles ont été libérés. Ton panier est intact.",
+      "reprendre": "Reprendre mon panier",
+      "introuvable": "Cette commande est introuvable."
+    }
   }
 }

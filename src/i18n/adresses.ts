@@ -11,6 +11,7 @@ export const ADRESSES: readonly AdresseLocalisee[] = [
   { interne: "/accessoires", fr: "/accessoires", en: "/accessories" },
   { interne: "/kits", fr: "/kits", en: "/kits" },
   { interne: "/panier", fr: "/panier", en: "/cart" },
+  { interne: "/commande", fr: "/commande", en: "/checkout" },
 ];
 
 const LANGUES: readonly LangueAdresse[] = ["fr", "en"];

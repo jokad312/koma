@@ -15,3 +15,9 @@ export async function compterPanier() {
   await connection();
   return service.compter(dependances());
 }
+
+// Identifiant du Panier du cookie utilisable par ce Compte (étape de commande), ou null.
+export async function panierIdPourCompte(compteId: string) {
+  await connection();
+  return service.panierIdAccessible(dependances(), compteId);
+}

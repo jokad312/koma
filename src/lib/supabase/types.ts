@@ -119,57 +119,78 @@ export type Database = {
       commande: {
         Row: {
           acceptations: Json
+          adresse: string | null
           cle_idempotence: string | null
           compte_id: string
           cree_le: string
           devise: string
+          expire_le: string | null
+          forfait_cents: number
           id: string
           mis_a_jour_le: string
+          mode_remise: string | null
           numero: string
           offerte: boolean
+          origine: string | null
           paye_le: string | null
           prestataire: string | null
           reference_transaction: string | null
           sous_total_cents: number
           statut: string
+          telephone: string | null
           total_cents: number
           type: string
+          zone: string | null
         }
         Insert: {
           acceptations?: Json
+          adresse?: string | null
           cle_idempotence?: string | null
           compte_id: string
           cree_le?: string
           devise?: string
+          expire_le?: string | null
+          forfait_cents?: number
           id?: string
           mis_a_jour_le?: string
+          mode_remise?: string | null
           numero?: string
           offerte?: boolean
+          origine?: string | null
           paye_le?: string | null
           prestataire?: string | null
           reference_transaction?: string | null
           sous_total_cents: number
           statut: string
+          telephone?: string | null
           total_cents: number
           type: string
+          zone?: string | null
         }
         Update: {
           acceptations?: Json
+          adresse?: string | null
           cle_idempotence?: string | null
           compte_id?: string
           cree_le?: string
           devise?: string
+          expire_le?: string | null
+          forfait_cents?: number
           id?: string
           mis_a_jour_le?: string
+          mode_remise?: string | null
           numero?: string
           offerte?: boolean
+          origine?: string | null
           paye_le?: string | null
           prestataire?: string | null
           reference_transaction?: string | null
           sous_total_cents?: number
           statut?: string
+          telephone?: string | null
           total_cents?: number
           type?: string
+          zone?: string | null
         }
         Relationships: []
       }
@@ -318,29 +339,38 @@ export type Database = {
         Row: {
           commande_id: string
           cree_le: string
+          delai_fabrication_jours: number | null
           id: string
           nombre: number
+          origine: string | null
           prix_cents: number
           produit_id: string
           reduction_cents: number
+          variante_id: string | null
         }
         Insert: {
           commande_id: string
           cree_le?: string
+          delai_fabrication_jours?: number | null
           id?: string
           nombre?: number
+          origine?: string | null
           prix_cents: number
           produit_id: string
           reduction_cents?: number
+          variante_id?: string | null
         }
         Update: {
           commande_id?: string
           cree_le?: string
+          delai_fabrication_jours?: number | null
           id?: string
           nombre?: number
+          origine?: string | null
           prix_cents?: number
           produit_id?: string
           reduction_cents?: number
+          variante_id?: string | null
         }
         Relationships: [
           {
@@ -355,6 +385,13 @@ export type Database = {
             columns: ["produit_id"]
             isOneToOne: false
             referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ligne_commande_variante_id_fkey"
+            columns: ["variante_id"]
+            isOneToOne: false
+            referencedRelation: "variante"
             referencedColumns: ["id"]
           },
         ]
@@ -660,6 +697,64 @@ export type Database = {
           valeur?: string | null
         }
         Relationships: []
+      }
+      reservation: {
+        Row: {
+          commande_id: string
+          cree_le: string
+          expire_le: string
+          id: string
+          liberee_le: string | null
+          ligne_id: string
+          nombre: number
+          origine: string
+          variante_id: string
+        }
+        Insert: {
+          commande_id: string
+          cree_le?: string
+          expire_le: string
+          id?: string
+          liberee_le?: string | null
+          ligne_id: string
+          nombre: number
+          origine: string
+          variante_id: string
+        }
+        Update: {
+          commande_id?: string
+          cree_le?: string
+          expire_le?: string
+          id?: string
+          liberee_le?: string | null
+          ligne_id?: string
+          nombre?: number
+          origine?: string
+          variante_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservation_commande_id_fkey"
+            columns: ["commande_id"]
+            isOneToOne: false
+            referencedRelation: "commande"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservation_ligne_id_fkey"
+            columns: ["ligne_id"]
+            isOneToOne: true
+            referencedRelation: "ligne_commande"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservation_variante_id_fkey"
+            columns: ["variante_id"]
+            isOneToOne: false
+            referencedRelation: "variante"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       role_utilisateur: {
         Row: {
@@ -977,6 +1072,16 @@ export type Database = {
         Args: { p_auteur: Json; p_produit_id: string }
         Returns: undefined
       }
+      commande_calculer: {
+        Args: {
+          p_compte: string
+          p_mode: string
+          p_panier: string
+          p_strict: boolean
+          p_zone: string
+        }
+        Returns: Json
+      }
       compte_complet: { Args: { p_compte: string }; Returns: boolean }
       compter_panier: { Args: { p_panier: string }; Returns: number }
       consommer_essai: {
@@ -991,6 +1096,21 @@ export type Database = {
           p_raison: string
         }
         Returns: boolean
+      }
+      creer_commande: {
+        Args: {
+          p_acceptations: Json
+          p_adresse: string
+          p_auteur: Json
+          p_cle_idempotence: string
+          p_mode: string
+          p_origine: string
+          p_panier: string
+          p_telephone: string
+          p_total_attendu_cents: number
+          p_zone: string
+        }
+        Returns: Json
       }
       creer_panier: { Args: { p_auteur: Json }; Returns: string }
       creer_univers: {
@@ -1121,6 +1241,7 @@ export type Database = {
       }
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
       exiger_client: { Args: { p_auteur: Json }; Returns: string }
+      expirer_commandes_echues: { Args: never; Returns: number }
       extension_fichier_kit: { Args: { p_format: string }; Returns: string }
       fusionner_panier: {
         Args: { p_auteur: Json; p_compte: string; p_panier: string }
@@ -1229,6 +1350,15 @@ export type Database = {
       }
       questions_accueil_vues: { Args: { p_compte: string }; Returns: boolean }
       rang_disponibilite: { Args: { p_etat: string }; Returns: number }
+      recapitulatif_commande: {
+        Args: {
+          p_compte: string
+          p_mode: string
+          p_panier: string
+          p_zone: string
+        }
+        Returns: Json
+      }
       remplacer_fichier_kit: {
         Args: {
           p_auteur: Json

@@ -11,6 +11,9 @@ const entree = { produitId: PRODUIT, licenceAcceptee: true as const, cleIdempote
 function faux(surcharge: Partial<DependancesCommande> = {}): DependancesCommande {
   return {
     exigerCompte: vi.fn(async () => ({ compteId: "TEST_compte", auteur: construireAuteur("TEST_compte") })),
+    panierDuCompte: vi.fn(async () => null),
+    recapitulatif: vi.fn(async () => ({ erreur: "x" })),
+    creerCommande: vi.fn(async () => ({ erreur: "x" })),
     offrirCommande: vi.fn(async () => ({ erreur: null, numero: "KS-2026-000001" })),
     ...surcharge,
   };

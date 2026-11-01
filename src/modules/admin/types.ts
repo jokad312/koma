@@ -11,6 +11,7 @@ export type CodeErreurAdmin =
   | "retrait_fr_invalide"
   | "retrait_en_invalide"
   | "plafond_invalide"
+  | "delai_paiement_invalide"
   | "raison_manquante"
   | "age_invalide"
   | "age_non_declare"
@@ -27,7 +28,8 @@ export type CleReglage =
   | "forfait_livraison_bukavu_cents"
   | "retrait_goma_fr"
   | "retrait_goma_en"
-  | "plafond_fabrication";
+  | "plafond_fabrication"
+  | "delai_paiement";
 
 // Ce que le service attend du serveur : en production, les vrais clients ; en test, des faux nommés TEST_.
 export type DependancesAdmin = {
@@ -53,4 +55,5 @@ export type ReglagesAdmin = {
   retraitGomaFr: string | null;
   retraitGomaEn: string | null;
   plafondFabrication: string | null;
+  delaiPaiement: string | null;
 };
