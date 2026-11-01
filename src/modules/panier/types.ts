@@ -59,10 +59,13 @@ export type DependancesPanier = {
   // Valeur brute du cookie du Panier, ou null.
   lireCookie: () => Promise<string | null>;
   poserCookie: (valeur: string) => Promise<void>;
+  effacerCookie: () => Promise<void>;
   // Secret de signature (PANIER_COOKIE_SECRET).
   secret: () => string;
   // Session vérifiée : identifiant du Compte connecté, ou null.
   compteId: () => Promise<string | null>;
+  // Le Panier est-il sans Compte, ou lié au Compte donné (nul pour un visiteur sans session) ?
+  accessible: (panierId: string, compteId: string | null) => Promise<{ accessible: boolean } | { erreur: string }>;
   creerPanier: (auteur: Auteur) => Promise<{ id: string } | { erreur: string }>;
   ajouter: (e: { auteur: Auteur; panierId: string; compteId: string | null; produitId: string; taille: string | null; nombre: number }) => Promise<{ erreur: string | null }>;
   modifier: (e: { auteur: Auteur; panierId: string; ligneId: string; nombre: number }) => Promise<{ erreur: string | null }>;

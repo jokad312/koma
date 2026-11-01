@@ -1214,6 +1214,10 @@ export type Database = {
         }
         Returns: Json
       }
+      panier_accessible: {
+        Args: { p_compte: string; p_panier: string }
+        Returns: boolean
+      }
       places_fabrication_utilisees: { Args: never; Returns: number }
       possede_kit: {
         Args: { p_compte: string; p_produit: string }

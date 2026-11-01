@@ -27,9 +27,18 @@ function codeDeLaBase(message: string): CodeErreurPanier {
 
 const ETATS: readonly EtatLigne[] = ["disponible", "dernieres_pieces", "sur_commande", "complet", "epuise"];
 
-// Identifiant du Panier du cookie s'il est correctement signé, sinon null.
-async function panierDuCookie(deps: DependancesPanier): Promise<string | null> {
+// Identifiant du Panier du cookie, correctement signé, sans autre contrôle (la fusion s'en sert pour décider).
+async function panierSigne(deps: DependancesPanier): Promise<string | null> {
   return lirePanierSigne(await deps.lireCookie(), deps.secret());
+}
+
+// Panier du cookie que cette personne a le droit d'utiliser : signé, et soit sans Compte, soit lié au Compte de la session.
+// Un Panier lié à un autre Compte (appareil partagé après une déconnexion) est traité comme absent : jamais lu, jamais modifié.
+async function panierAccessible(deps: DependancesPanier, compteId: string | null): Promise<string | null> {
+  const id = await panierSigne(deps);
+  if (!id) return null;
+  const r = await deps.accessible(id, compteId);
+  return "accessible" in r && r.accessible ? id : null;
 }
 
 async function auteurCourant(deps: DependancesPanier): Promise<{ auteur: Auteur; compteId: string | null }> {
@@ -37,27 +46,40 @@ async function auteurCourant(deps: DependancesPanier): Promise<{ auteur: Auteur;
   return { auteur: compteId ? construireAuteur(compteId) : AUTEUR_VISITEUR, compteId };
 }
 
-// Crée un Panier en base, puis pose le cookie signé. Le cookie n'est posé qu'après la réponse réelle de la base (règle 13).
-async function nouveauPanier(deps: DependancesPanier, auteur: Auteur): Promise<string | null> {
+// Panier à utiliser quand le cookie n'en désigne aucun : celui du Compte connecté s'il existe (autre appareil, cookie expiré),
+// sinon un Panier neuf, rattaché au Compte s'il y en a un. Le cookie n'est posé qu'après la réponse réelle de la base (règle 13).
+async function panierPourAjout(deps: DependancesPanier, auteur: Auteur, compteId: string | null): Promise<string | null> {
+  if (compteId) {
+    const existant = await deps.fusionner({ auteur, compteId, panierId: null });
+    if (!("erreur" in existant) && existant.panierId) {
+      await deps.poserCookie(signerPanier(existant.panierId, deps.secret()));
+      return existant.panierId;
+    }
+  }
   const r = await deps.creerPanier(auteur);
   if ("erreur" in r) {
     journaliser("création du Panier impossible");
     return null;
   }
-  await deps.poserCookie(signerPanier(r.id, deps.secret()));
-  return r.id;
+  let id = r.id;
+  if (compteId) {
+    const lie = await deps.fusionner({ auteur, compteId, panierId: id });
+    if (!("erreur" in lie) && lie.panierId) id = lie.panierId;
+  }
+  await deps.poserCookie(signerPanier(id, deps.secret()));
+  return id;
 }
 
-// Ajoute un article. Un cookie absent, modifié ou devenu inconnu de la base donne un nouveau Panier (une seule reprise).
+// Ajoute un article. Cookie absent, modifié, inconnu de la base ou d'un autre Compte : le Panier du Compte connecté, ou un Panier neuf.
 export async function ajouter(deps: DependancesPanier, entree: EntreeAjout): Promise<ResultatPanier<{ nombre: number }>> {
   const lu = ajoutSchema.safeParse(entree);
   if (!lu.success) return { ok: false, erreur: "invalide" };
   try {
     const { auteur, compteId } = await auteurCourant(deps);
-    let panierId = await panierDuCookie(deps);
+    let panierId = await panierAccessible(deps, compteId);
     let neuf = false;
     if (!panierId) {
-      panierId = await nouveauPanier(deps, auteur);
+      panierId = await panierPourAjout(deps, auteur, compteId);
       if (!panierId) return { ok: false, erreur: "erreur" };
       neuf = true;
     }
@@ -66,7 +88,7 @@ export async function ajouter(deps: DependancesPanier, entree: EntreeAjout): Pro
     let r = await essai(panierId);
     let utilise = panierId;
     if (r.erreur?.includes("KS_PANIER_INTROUVABLE") && !neuf) {
-      const id = await nouveauPanier(deps, auteur);
+      const id = await panierPourAjout(deps, auteur, compteId);
       if (!id) return { ok: false, erreur: "erreur" };
       r = await essai(id);
       utilise = id;
@@ -88,9 +110,9 @@ export async function modifier(deps: DependancesPanier, entree: { ligneId: strin
   const lu = modificationSchema.safeParse(entree);
   if (!lu.success) return { ok: false, erreur: "quantite" };
   try {
-    const panierId = await panierDuCookie(deps);
+    const { auteur, compteId } = await auteurCourant(deps);
+    const panierId = await panierAccessible(deps, compteId);
     if (!panierId) return { ok: false, erreur: "introuvable" };
-    const { auteur } = await auteurCourant(deps);
     const r = await deps.modifier({ auteur, panierId, ligneId: lu.data.ligneId, nombre: lu.data.nombre });
     if (r.erreur) {
       if (r.erreur.includes("KS_LIGNE_INTROUVABLE") || r.erreur.includes("KS_PANIER_INTROUVABLE")) return { ok: false, erreur: "introuvable" };
@@ -109,9 +131,9 @@ export async function retirer(deps: DependancesPanier, entree: { ligneId: string
   const lu = retraitSchema.safeParse(entree);
   if (!lu.success) return { ok: false, erreur: "invalide" };
   try {
-    const panierId = await panierDuCookie(deps);
+    const { auteur, compteId } = await auteurCourant(deps);
+    const panierId = await panierAccessible(deps, compteId);
     if (!panierId) return { ok: false, erreur: "introuvable" };
-    const { auteur } = await auteurCourant(deps);
     const r = await deps.retirer({ auteur, panierId, ligneId: lu.data.ligneId });
     if (r.erreur) {
       if (r.erreur.includes("KS_LIGNE_INTROUVABLE") || r.erreur.includes("KS_PANIER_INTROUVABLE")) return { ok: false, erreur: "introuvable" };
@@ -143,19 +165,19 @@ function enLigne(b: LigneBrute, langue: "fr" | "en"): LignePanier | null {
   };
 }
 
-// Panier du visiteur, relu en base : prix, disponibilité et délai ne sont jamais figés (règle 3). Un Panier vide, absent ou illisible
-// donne une liste vide (la lecture impossible est signalée par `null`).
+// Panier du visiteur, relu en base : prix, disponibilité et délai ne sont jamais figés (règle 3). Un Panier vide, absent, d'un autre Compte
+// ou inaccessible donne une liste vide (la lecture impossible est signalée par `null`).
 export async function lire(deps: DependancesPanier, langue: "fr" | "en"): Promise<PanierLu | null> {
   const vide: PanierLu = { lignes: [], nombreArticles: 0, sousTotalCents: 0, bloque: false, avisKitPossede: false };
   try {
-    const panierId = await panierDuCookie(deps);
+    const compteId = await deps.compteId().catch(() => null);
+    const panierId = await panierAccessible(deps, compteId);
     if (!panierId) return vide;
-    const r = await deps.lire(panierId);
+    const [r, avis] = await Promise.all([deps.lire(panierId), deps.avis(panierId).catch(() => ({ erreur: "avis" }))]);
     if ("erreur" in r) {
       journaliser("lecture du Panier impossible");
       return null;
     }
-    const avis = await deps.avis(panierId);
     const lignes = r.lignes.map((b) => enLigne(b, langue)).filter((l): l is LignePanier => l !== null);
     const disponibles = lignes.filter((l) => l.etat !== "complet" && l.etat !== "epuise");
     return {
@@ -175,7 +197,8 @@ export async function lire(deps: DependancesPanier, langue: "fr" | "en"): Promis
 // Nombre d'articles pour l'en-tête. Toute erreur vaut 0 : l'en-tête ne bloque jamais la page.
 export async function compter(deps: DependancesPanier): Promise<number> {
   try {
-    const panierId = await panierDuCookie(deps);
+    const compteId = await deps.compteId().catch(() => null);
+    const panierId = await panierAccessible(deps, compteId);
     if (!panierId) return 0;
     const r = await deps.compter(panierId);
     return "nombre" in r ? r.nombre : 0;
@@ -185,16 +208,18 @@ export async function compter(deps: DependancesPanier): Promise<number> {
 }
 
 // À la connexion (story 4.2) : rattache le Panier du cookie au Compte, ou le réunit au Panier déjà lié au Compte, puis pointe le cookie
-// sur le Panier retenu. Ne bloque jamais la connexion : toute erreur est journalisée (code seulement) et le Panier reste tel quel.
+// sur le Panier retenu. Un cookie qui désigne un Panier d'un autre Compte est effacé. Ne bloque jamais la connexion : toute erreur est
+// journalisée (code seulement) et le Panier reste tel quel.
 export async function fusionner(deps: DependancesPanier, compteId: string): Promise<void> {
   try {
-    const courant = await panierDuCookie(deps);
+    const courant = await panierSigne(deps);
     const r = await deps.fusionner({ auteur: construireAuteur(compteId), compteId, panierId: courant });
     if ("erreur" in r) {
       journaliser("fusion du Panier impossible");
       return;
     }
     if (r.panierId && r.panierId !== courant) await deps.poserCookie(signerPanier(r.panierId, deps.secret()));
+    else if (!r.panierId && courant) await deps.effacerCookie();
   } catch {
     journaliser("fusion : exception");
   }

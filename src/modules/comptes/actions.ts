@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { cookies, headers } from "next/headers";
+import { NOM_COOKIE_PANIER } from "@/lib/panier/cookie";
 import { adresseSite } from "@/lib/seo/url";
 import { COOKIE_RETOUR_GOOGLE, DUREE_RETOUR_GOOGLE_S } from "./google";
 import { dependances } from "./dependances";
@@ -46,6 +47,8 @@ export async function deconnecter(_etat: EtatDeconnexion, formData: FormData): P
   const langue = langueSchema.catch("fr").parse(formData.get("langue"));
   const resultat = await service.fermerSession(await dependances());
   if (!resultat.ok) return { erreur: true };
+  // Le Panier d'un Compte ne reste pas sur l'appareil après la déconnexion (appareil partagé).
+  (await cookies()).delete({ name: NOM_COOKIE_PANIER, path: "/" });
   redirect(`/${langue}`);
 }
 

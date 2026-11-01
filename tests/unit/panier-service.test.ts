@@ -9,7 +9,7 @@ const NEUF = "6c1f8c1f-7d2d-4d54-8d6f-8e7d3e2c9b22";
 const PRODUIT = "00000000-0000-4000-8000-0000000000aa";
 const LIGNE = "00000000-0000-4000-8000-0000000000cc";
 
-const etat = vi.hoisted(() => ({ cookie: null as string | null, poses: [] as string[] }));
+const etat = vi.hoisted(() => ({ cookie: null as string | null, poses: [] as string[], efface: 0 }));
 
 function faux(s: Partial<DependancesPanier> = {}): DependancesPanier {
   return {
@@ -17,6 +17,10 @@ function faux(s: Partial<DependancesPanier> = {}): DependancesPanier {
     poserCookie: vi.fn(async (v: string) => {
       etat.poses.push(v);
     }),
+    effacerCookie: vi.fn(async () => {
+      etat.efface += 1;
+    }),
+    accessible: vi.fn(async () => ({ accessible: true })),
     secret: () => SECRET,
     compteId: vi.fn(async () => null),
     creerPanier: vi.fn(async () => ({ id: NEUF })),
@@ -49,6 +53,7 @@ const brute = (s: Partial<LigneBrute> = {}): LigneBrute => ({
 beforeEach(() => {
   etat.cookie = null;
   etat.poses = [];
+  etat.efface = 0;
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
@@ -245,10 +250,23 @@ describe("fusionner (connexion)", () => {
     expect(etat.poses).toEqual([signerPanier(NEUF, SECRET)]);
   });
 
-  it("même Panier, ou aucun Panier : le cookie n'est pas réécrit", async () => {
+  it("même Panier : le cookie n'est pas réécrit ni effacé", async () => {
     etat.cookie = signerPanier(PANIER, SECRET);
     await fusionner(faux({ fusionner: vi.fn(async () => ({ panierId: PANIER })) }), COMPTE);
+    expect(etat.poses).toEqual([]);
+    expect(etat.efface).toBe(0);
+  });
+
+  it("Panier du cookie ignoré (d'un autre Compte) et aucun Panier pour ce Compte : le cookie est effacé", async () => {
+    etat.cookie = signerPanier(PANIER, SECRET);
     await fusionner(faux({ fusionner: vi.fn(async () => ({ panierId: null })) }), COMPTE);
+    expect(etat.efface).toBe(1);
+    expect(etat.poses).toEqual([]);
+  });
+
+  it("aucun cookie et aucun Panier : rien à écrire ni à effacer", async () => {
+    await fusionner(faux({ fusionner: vi.fn(async () => ({ panierId: null })) }), COMPTE);
+    expect(etat.efface).toBe(0);
     expect(etat.poses).toEqual([]);
   });
 
@@ -257,5 +275,55 @@ describe("fusionner (connexion)", () => {
     await expect(fusionner(faux({ fusionner: vi.fn(async () => ({ erreur: "x" })) }), COMPTE)).resolves.toBeUndefined();
     await expect(fusionner(faux({ fusionner: vi.fn(async () => { throw new Error("x"); }) }), COMPTE)).resolves.toBeUndefined();
     expect(etat.poses).toEqual([]);
+  });
+});
+
+describe("Panier d'un autre Compte (appareil partagé)", () => {
+  it("un Panier inaccessible est traité comme absent : lecture vide, compteur à 0, modification et retrait refusés", async () => {
+    etat.cookie = signerPanier(PANIER, SECRET);
+    const deps = faux({ accessible: vi.fn(async () => ({ accessible: false })) });
+    await expect(lire(deps, "fr")).resolves.toMatchObject({ lignes: [], nombreArticles: 0 });
+    await expect(compter(deps)).resolves.toBe(0);
+    await expect(modifier(deps, { ligneId: LIGNE, nombre: 2 })).resolves.toEqual({ ok: false, erreur: "introuvable" });
+    await expect(retirer(deps, { ligneId: LIGNE })).resolves.toEqual({ ok: false, erreur: "introuvable" });
+    expect(deps.lire).not.toHaveBeenCalled();
+    expect(deps.modifier).not.toHaveBeenCalled();
+    expect(deps.retirer).not.toHaveBeenCalled();
+  });
+
+  it("le Compte de la session est transmis au contrôle d'accès", async () => {
+    etat.cookie = signerPanier(PANIER, SECRET);
+    const deps = faux({ compteId: vi.fn(async () => "TEST_compte") });
+    await compter(deps);
+    expect(deps.accessible).toHaveBeenCalledWith(PANIER, "TEST_compte");
+  });
+
+  it("ajout avec un Panier inaccessible : un autre Panier est utilisé, jamais celui d'autrui", async () => {
+    etat.cookie = signerPanier(PANIER, SECRET);
+    const deps = faux({ accessible: vi.fn(async () => ({ accessible: false })) });
+    await ajouter(deps, { produitId: PRODUIT, taille: "M" });
+    expect(deps.ajouter).toHaveBeenCalledWith(expect.objectContaining({ panierId: NEUF }));
+  });
+
+  it("Compte connecté sans cookie : son Panier existant est retrouvé et le cookie posé", async () => {
+    const deps = faux({ compteId: vi.fn(async () => "TEST_compte"), fusionner: vi.fn(async () => ({ panierId: PANIER })) });
+    await ajouter(deps, { produitId: PRODUIT, taille: "M" });
+    expect(deps.creerPanier).not.toHaveBeenCalled();
+    expect(deps.ajouter).toHaveBeenCalledWith(expect.objectContaining({ panierId: PANIER }));
+    expect(etat.poses).toEqual([signerPanier(PANIER, SECRET)]);
+  });
+
+  it("Compte connecté sans Panier : le Panier neuf est rattaché au Compte avant l'ajout", async () => {
+    const fusion = vi.fn().mockResolvedValueOnce({ panierId: null }).mockResolvedValueOnce({ panierId: NEUF });
+    const deps = faux({ compteId: vi.fn(async () => "TEST_compte"), fusionner: fusion });
+    await ajouter(deps, { produitId: PRODUIT, taille: "M" });
+    expect(fusion).toHaveBeenNthCalledWith(2, expect.objectContaining({ compteId: "TEST_compte", panierId: NEUF }));
+    expect(etat.poses).toEqual([signerPanier(NEUF, SECRET)]);
+  });
+
+  it("une annonce qui lève une exception n'empêche pas d'afficher le Panier", async () => {
+    etat.cookie = signerPanier(PANIER, SECRET);
+    const deps = faux({ lire: vi.fn(async () => ({ lignes: [brute()] })), avis: vi.fn(async () => { throw new Error("x"); }) });
+    await expect(lire(deps, "fr")).resolves.toMatchObject({ avisKitPossede: false });
   });
 });

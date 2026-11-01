@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const etat = vi.hoisted(() => ({ appels: [] as { nom: string; args: Record<string, unknown> }[] }));
 vi.mock("server-only", () => ({}));
-vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined, set: vi.fn() }) }));
+vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined, set: vi.fn(), delete: vi.fn() }) }));
 vi.mock("@/lib/auth/compte", () => ({ lireSessionVerifiee: async () => null }));
 vi.mock("@/lib/supabase/service", () => ({
   creerClientService: () => ({
@@ -39,6 +39,9 @@ describe("arguments des appels RPC du Panier", () => {
     await d.retirer({ auteur: { type: "visiteur" }, panierId: ID, ligneId: ID });
     await d.lire(ID);
     await d.compter(ID);
+    await d.accessible(ID, null);
+    await d.fusionner({ auteur: { type: "visiteur" }, compteId: ID, panierId: null });
+    await d.avis(ID);
     for (const a of etat.appels) expect(Object.values(a.args).every((v) => v !== undefined)).toBe(true);
   });
 });

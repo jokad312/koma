@@ -1,7 +1,7 @@
 -- Story 4.2 : fusion du Panier à la connexion. Rattachement, réunion avec le Panier du Compte (un Kit une seule fois, quantités additionnées),
 -- Kit déjà possédé retiré avec annonce, Panier d'un autre Compte ignoré, rejeu sans effet, droits. Données créées dans la transaction, puis annulées.
 begin;
-select plan(26);
+select plan(34);
 
 select set_config('ks.auteur', '{"type":"systeme","nom":"test"}', true);
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -79,20 +79,46 @@ select is((select nombre::int from public.ligne_panier where panier_id = (select
 
 -- Kit déjà possédé : retiré, annonce posée ; une action du client l'efface.
 insert into public.commande (compte_id, type, statut, sous_total_cents, total_cents) values ('00000000-0000-0000-0000-0000000000d1', 'produits', 'livree', 990, 990);
-insert into public.acces_kit (compte_id, produit_id, commande_origine) values ('00000000-0000-0000-0000-0000000000d1', (select kit from fu), (select id from public.commande));
+insert into public.acces_kit (compte_id, produit_id, commande_origine) values ('00000000-0000-0000-0000-0000000000d1', (select kit from fu), (select id from public.commande where compte_id = '00000000-0000-0000-0000-0000000000d1'));
 select public.ajouter_au_panier(pg_temp.vis(), (select id from p3), null, (select kit from fu), null, 1);
 create temp table r3 as select public.fusionner_panier(pg_temp.c1(), '00000000-0000-0000-0000-0000000000d1', (select id from p3)) as r;
 grant select on r3 to public;
 select is((select (r ->> 'retires')::int from r3), 1, 'le Kit possédé est retiré');
 select is((select count(*)::int from public.ligne_panier where panier_id = (select id from p1) and produit_id = (select kit from fu)), 0, 'plus de Kit possédé dans le Panier');
 select is(public.avis_kit_possede((select id from p1)), true, 'l''annonce « Kit déjà possédé » est posée');
-select lives_ok($$select public.retirer_ligne_panier(pg_temp.vis(), (select id from p1), (select id from public.ligne_panier where produit_id = (select kit2 from fu) and panier_id = (select id from p1)))$$, 'le client retire une ligne');
-select is(public.avis_kit_possede((select id from p1)), false, 'son action efface l''annonce');
+update public.panier set kit_possede_retire_le = now() - interval '25 hours' where id = (select id from p1);
+select is(public.avis_kit_possede((select id from p1)), false, 'l''annonce expire après 24 heures');
+select is(public.avis_kit_possede(gen_random_uuid()), false, 'Panier inconnu : pas d''annonce');
 
 -- Panier d'un autre Compte ignoré ; sans cookie, le Panier du Compte est renvoyé.
 select is((public.fusionner_panier(pg_temp.c2(), '00000000-0000-0000-0000-0000000000d2', (select id from p1)) ->> 'panier_id'), null, 'le Panier d''un autre Compte est ignoré : le Compte 2 n''en a pas');
 select is((select compte_id from public.panier where id = (select id from p1)), '00000000-0000-0000-0000-0000000000d1'::uuid, 'le Panier du Compte 1 n''est pas volé');
 select is((public.fusionner_panier(pg_temp.c1(), '00000000-0000-0000-0000-0000000000d1', null) ->> 'panier_id')::uuid, (select id from p1), 'sans cookie : le Panier du Compte est renvoyé');
+
+-- Accès : un Panier lié à un Compte n'est utilisable que par ce Compte.
+select is(public.panier_accessible((select id from p1), '00000000-0000-0000-0000-0000000000d1'), true, 'le Compte propriétaire accède à son Panier');
+select is(public.panier_accessible((select id from p1), '00000000-0000-0000-0000-0000000000d2'), false, 'un autre Compte n''y accède pas');
+select is(public.panier_accessible((select id from p1), null), false, 'un visiteur sans session n''y accède pas');
+create temp table p5 as select public.creer_panier(pg_temp.vis()) as id;
+grant select on p5 to public;
+select is(public.panier_accessible((select id from p5), null), true, 'un Panier sans Compte reste accessible au visiteur');
+select is(public.panier_accessible(gen_random_uuid(), null), false, 'Panier inconnu : inaccessible');
+
+-- Réunion et stock : jamais plus que le stock d'une taille non fabriquée sur commande.
+insert into public.variante (produit_id, taille, stock, fabrication_sur_commande) values ((select cos from fu), 'L', 4, false);
+create temp table p6 as select public.creer_panier(pg_temp.vis()) as id;
+create temp table p7 as select public.creer_panier(pg_temp.vis()) as id;
+grant select on p6, p7 to public;
+select public.ajouter_au_panier(pg_temp.vis(), (select id from p6), null, (select cos from fu), 'L', 3);
+select public.ajouter_au_panier(pg_temp.vis(), (select id from p7), null, (select cos from fu), 'L', 3);
+select public.fusionner_panier(pg_temp.c2(), '00000000-0000-0000-0000-0000000000d2', (select id from p6));
+select public.fusionner_panier(pg_temp.c2(), '00000000-0000-0000-0000-0000000000d2', (select id from p7));
+select is((select l.nombre::int from public.ligne_panier l join public.variante v on v.id = l.variante_id where l.panier_id = (select id from p6) and v.taille = 'L'), 4, 'réunion plafonnée au stock (4)');
+
+-- Supprimer un Compte supprime son Panier en cascade, sans auteur posé (mineur de moins de 13 ans, demande admin).
+select set_config('ks.auteur', '', true);
+select lives_ok($$delete from auth.users where id = '00000000-0000-0000-0000-0000000000d2'$$, 'supprimer un Compte qui a un Panier rattaché réussit');
+select is((select count(*)::int from public.panier where id = (select id from p6)), 0, 'son Panier est supprimé avec lui');
 
 select * from finish();
 rollback;

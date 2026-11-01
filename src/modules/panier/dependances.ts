@@ -19,6 +19,13 @@ export function dependances(): DependancesPanier {
         maxAge: DUREE_COOKIE_PANIER_S,
       });
     },
+    effacerCookie: async () => {
+      (await cookies()).delete({ name: NOM_COOKIE_PANIER, path: "/" });
+    },
+    accessible: async (panierId, compteId) => {
+      const { data, error } = await base().rpc("panier_accessible", { p_panier: panierId, p_compte: compteId as never });
+      return error || typeof data !== "boolean" ? { erreur: error?.message ?? "panier_accessible" } : { accessible: data };
+    },
     secret: () => lireSecretPanier(),
     compteId: async () => (await lireSessionVerifiee())?.compteId ?? null,
     creerPanier: async (auteur) => {

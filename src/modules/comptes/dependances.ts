@@ -1,7 +1,7 @@
-import { fusionnerPanierApresConnexion } from "@/modules/panier/fusion";
 import "server-only";
 import { creerClientService } from "@/lib/supabase/service";
 import { creerClientSession } from "@/lib/supabase/session";
+import { fusionnerPanierApresConnexion } from "@/modules/panier/fusion";
 import type { DependancesComptes } from "./types";
 
 // Les vrais clients Supabase donnés au service (en test, des faux nommés TEST_ les remplacent).
