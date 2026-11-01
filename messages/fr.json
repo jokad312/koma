@@ -1401,6 +1401,14 @@
         "invalide": "La demande n'est pas valide. Recharge la page et réessaie.",
         "erreur": "L'article n'a pas pu être ajouté. Réessaie."
       }
+    },
+    "option": {
+      "libelle": "Tu préfères porter ou fabriquer ?",
+      "porter": "Prêt à porter",
+      "fabriquer": "Le fabriquer moi-même",
+      "kitTitre": "Kit lié",
+      "acces": "Accès immédiat, à vie",
+      "voirLeKit": "Voir le kit"
     }
   },
   "Kit": {

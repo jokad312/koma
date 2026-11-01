@@ -1401,6 +1401,14 @@
         "invalide": "The request is not valid. Reload the page and try again.",
         "erreur": "The item could not be added. Try again."
       }
+    },
+    "option": {
+      "libelle": "Do you prefer wearing or making?",
+      "porter": "Ready to wear",
+      "fabriquer": "Make it yourself",
+      "kitTitre": "Kit lié",
+      "acces": "Immediate access, for life",
+      "voirLeKit": "See the kit"
     }
   },
   "Kit": {

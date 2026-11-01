@@ -13,6 +13,7 @@ import type { FicheProduit as Donnees } from "@/modules/catalogue/types";
 import { BandeauZone } from "./BandeauZone";
 import { BoutonPartager } from "./BoutonPartager";
 import { GaleriePhotos } from "./GaleriePhotos";
+import { DoubleOption } from "./DoubleOption";
 import { ZoneAchat } from "./ZoneAchat";
 
 // Dossier interne de chaque famille (l'adresse de chaque langue vient de src/i18n/adresses.ts).
@@ -83,8 +84,14 @@ export async function FicheProduit({ fiche, locale, forfaitGoma, forfaitBukavu, 
           <p className="t-price-card text-text-primary">{formaterUsd(fiche.prixCents, locale)}</p>
           {description ? <p className="t-body whitespace-pre-line text-text-primary">{description}</p> : null}
           <BoutonPartager titre={fiche.titre} url={urlFiche} />
-          <BandeauZone />
-          <ZoneAchat produitId={fiche.id} locale={locale} tailles={fiche.tailles} forfaitGoma={forfaitGoma} forfaitBukavu={forfaitBukavu} retraitGoma={retraitGoma} />
+          {fiche.kitLie ? (
+            <DoubleOption produitId={fiche.id} kit={fiche.kitLie} locale={locale} tailles={fiche.tailles} forfaitGoma={forfaitGoma} forfaitBukavu={forfaitBukavu} retraitGoma={retraitGoma} />
+          ) : (
+            <>
+              <BandeauZone />
+              <ZoneAchat produitId={fiche.id} locale={locale} tailles={fiche.tailles} forfaitGoma={forfaitGoma} forfaitBukavu={forfaitBukavu} retraitGoma={retraitGoma} />
+            </>
+          )}
         </div>
       </div>
     </article>

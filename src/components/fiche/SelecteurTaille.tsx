@@ -4,7 +4,8 @@ import { useTranslations } from "next-intl";
 import { useId } from "react";
 import type { Taille, TailleFiche } from "@/modules/catalogue/types";
 
-const OPTION =
+// Choix sélectionné : bordure rouge 2 px et coche (jamais la couleur seule).
+export const OPTION =
   "relative flex min-h-touch min-w-touch cursor-pointer items-center justify-center gap-2 rounded-md border border-border-field bg-surface px-4 py-3 text-text-primary has-[:checked]:border-2 has-[:checked]:border-primary has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2";
 
 type Props = {

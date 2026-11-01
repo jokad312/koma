@@ -182,6 +182,15 @@ describe("PageFiche", () => {
     expect(page).toContain("Cette fiche est indisponible pour le moment");
     expect(page).not.toContain("<h1");
   });
+
+  it("kit lié publié : sélecteur à deux options proposé, « Prêt à porter » par défaut, panneau « Kit lié » masqué", async () => {
+    faux.fiche.mockResolvedValue(fiche({ kitLie: { slug: "test-kit", titre: "TEST_Kit", prixCents: 18000, niveau: "debutant" } }));
+    const page = await rendre();
+    expect(page).toContain("Tu préfères porter ou fabriquer ?");
+    expect(page).toContain("Prêt à porter");
+    expect(page).toContain("Le fabriquer moi-même");
+    expect(page).not.toContain("Kit lié");
+  });
 });
 
 describe("metadataFiche", () => {

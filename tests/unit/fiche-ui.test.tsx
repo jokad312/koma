@@ -2,6 +2,7 @@
 import { act, fireEvent, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { ReactNode } from "react";
 import { rendre } from "./aides-dom";
 
 vi.mock("next/navigation", async (importOriginal) => ({ ...(await importOriginal<typeof import("next/navigation")>()), useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }) }));
@@ -13,14 +14,23 @@ vi.mock("next/image", () => ({
   ),
 }));
 
+vi.mock("@/i18n/navigation", () => ({
+  Link: ({ href, children, ...reste }: { href: string; children: ReactNode }) => (
+    <a href={href} {...reste}>
+      {children}
+    </a>
+  ),
+}));
+
 import { BandeauZone } from "@/components/fiche/BandeauZone";
 import { BoutonPartager } from "@/components/fiche/BoutonPartager";
+import { DoubleOption } from "@/components/fiche/DoubleOption";
 import { GaleriePhotos } from "@/components/fiche/GaleriePhotos";
 import { ModesRemise } from "@/components/fiche/ModesRemise";
 import { SelecteurTaille } from "@/components/fiche/SelecteurTaille";
 import { ZoneAchat } from "@/components/fiche/ZoneAchat";
 import { ID_RACINE_PAGE } from "@/components/layout/constantes";
-import type { PhotoFiche, TailleFiche } from "@/modules/catalogue/types";
+import type { KitLieFiche, PhotoFiche, TailleFiche } from "@/modules/catalogue/types";
 
 beforeEach(() => {
   vi.restoreAllMocks();
@@ -262,6 +272,53 @@ describe("BandeauZone", () => {
   it("annonce la zone de remise, sans argot ni emoji", () => {
     rendre(<BandeauZone />);
     expect(screen.getByText("Remise uniquement à Goma et Bukavu")).toBeTruthy();
+  });
+});
+
+describe("DoubleOption", () => {
+  const props = {
+    kit: { slug: "test-kit", titre: "TEST_Kit", prixCents: 18000, niveau: "debutant" } as KitLieFiche,
+    locale: "fr" as const,
+    tailles: [t("M", "disponible")],
+    forfaitGoma: null,
+    forfaitBukavu: null,
+    retraitGoma: null,
+  };
+
+  it("groupe « Prêt à porter » / « Le fabriquer moi-même », « Prêt à porter » par défaut, aucune sélection ne déclenche d'action", () => {
+    rendre(<DoubleOption {...props} />);
+    const groupe = screen.getByRole("group", { name: "Tu préfères porter ou fabriquer ?" });
+    expect(within(groupe).getAllByRole("radio").map((r) => (r as HTMLInputElement).value)).toEqual(["porter", "fabriquer"]);
+    expect((within(groupe).getByRole("radio", { name: "Prêt à porter" }) as HTMLInputElement).checked).toBe(true);
+    expect((within(groupe).getByRole("radio", { name: "Le fabriquer moi-même" }) as HTMLInputElement).checked).toBe(false);
+  });
+
+  it("choisir « Le fabriquer moi-même » affiche le panneau « Kit lié » et masque bandeau et tailles", async () => {
+    rendre(<DoubleOption {...props} />);
+    expect(screen.getByText("Remise uniquement à Goma et Bukavu")).toBeTruthy();
+    expect(screen.getByRole("group", { name: "Taille" })).toBeTruthy();
+
+    await userEvent.click(screen.getByRole("radio", { name: "Le fabriquer moi-même" }));
+    expect(screen.getByText("Kit lié")).toBeTruthy();
+    expect(screen.getByText("Accès immédiat, à vie")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Voir le kit" })).toBeTruthy();
+    expect(screen.queryByText("Remise uniquement à Goma et Bukavu")).toBeNull();
+    expect(screen.queryByRole("group", { name: "Taille" })).toBeNull();
+  });
+
+  it("retour à « Prêt à porter » : bandeau et tailles de retour", async () => {
+    rendre(<DoubleOption {...props} />);
+    await userEvent.click(screen.getByRole("radio", { name: "Le fabriquer moi-même" }));
+    await userEvent.click(screen.getByRole("radio", { name: "Prêt à porter" }));
+    expect(screen.getByText("Remise uniquement à Goma et Bukavu")).toBeTruthy();
+    expect(screen.getByRole("group", { name: "Taille" })).toBeTruthy();
+  });
+
+  it("navigation aux flèches entre les deux options", async () => {
+    rendre(<DoubleOption {...props} />);
+    await userEvent.click(screen.getByRole("radio", { name: "Le fabriquer moi-même" }));
+    await userEvent.keyboard("{ArrowRight}");
+    expect((screen.getByRole("radio", { name: "Prêt à porter" }) as HTMLInputElement).checked).toBe(true);
   });
 });
 
