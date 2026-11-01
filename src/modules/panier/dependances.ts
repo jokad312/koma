@@ -52,5 +52,15 @@ export function dependances(): DependancesPanier {
       const { data, error } = await base().rpc("compter_panier", { p_panier: panierId });
       return error || typeof data !== "number" ? { erreur: error?.message ?? "compter_panier" } : { nombre: data };
     },
+    fusionner: async ({ auteur, compteId, panierId }) => {
+      const { data, error } = await base().rpc("fusionner_panier", { p_auteur: auteur as never, p_compte: compteId, p_panier: panierId as never });
+      if (error || !data || typeof data !== "object" || Array.isArray(data)) return { erreur: error?.message ?? "fusionner_panier" };
+      const id = (data as Record<string, unknown>).panier_id;
+      return { panierId: typeof id === "string" ? id : null };
+    },
+    avis: async (panierId) => {
+      const { data, error } = await base().rpc("avis_kit_possede", { p_panier: panierId });
+      return error || typeof data !== "boolean" ? { erreur: error?.message ?? "avis_kit_possede" } : { avis: data };
+    },
   };
 }

@@ -1474,6 +1474,7 @@
     "sousTotalAide": "The delivery fee and discounts are calculated at checkout.",
     "passer": "Place order",
     "raisonBloque": "Remove the items that are no longer available first.",
-    "erreurLecture": "Your cart could not be loaded. Try again in a moment."
+    "erreurLecture": "Your cart could not be loaded. Try again in a moment.",
+    "kitDejaPossede": "You already own this kit: it is in your library."
   }
 }

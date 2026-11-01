@@ -23,6 +23,15 @@ async function garantirProfil(deps: DependancesComptes, compteId: string, langue
   return erreur;
 }
 
+// Le Panier du visiteur suit le Compte (story 4.2). Une erreur est journalisée et ne bloque jamais la connexion.
+async function fusionnerPanier(deps: DependancesComptes, compteId: string) {
+  try {
+    await deps.fusionnerPanier?.(compteId);
+  } catch {
+    console.error("[comptes] fusion du Panier impossible");
+  }
+}
+
 const CODES_LIMITE = new Set(["over_email_send_rate_limit", "over_request_rate_limit"]);
 
 // Envoie un code : le résultat ne dit « ok » qu'après la réponse réelle de Supabase (règle 13).
@@ -81,6 +90,7 @@ export async function verifierCode(deps: DependancesComptes, entree: Verificatio
     const compteId = data.user?.id ?? data.session?.user.id;
     if (!compteId) return { ok: false, erreur: "generique" };
     if (await garantirProfil(deps, compteId, lu.data.langue)) return { ok: false, erreur: "generique" };
+    await fusionnerPanier(deps, compteId);
     const etat = await deps.compteComplet(compteId);
     if ("erreur" in etat) return { ok: false, erreur: "generique" };
     const retour = cheminRetourValide(lu.data.retour, lu.data.langue);
@@ -196,6 +206,7 @@ export async function terminerGoogle(
     const compteId = data?.user?.id ?? data?.session?.user.id;
     if (!compteId) return { ok: false, erreur: "google" };
     if (await garantirProfil(deps, compteId, entree.langue)) return { ok: false, erreur: "generique" };
+    await fusionnerPanier(deps, compteId);
     const etat = await deps.compteComplet(compteId);
     if ("erreur" in etat) return { ok: false, erreur: "generique" };
     if (!etat.complet) {

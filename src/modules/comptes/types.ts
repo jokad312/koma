@@ -54,4 +54,6 @@ export type DependancesComptes = {
   definirLangue(args: { auteur: object; compteId: string; langue: string }): Promise<{ erreur: string | null }>;
   supprimerCompte(compteId: string): Promise<{ erreur: boolean }>;
   maintenant: () => number;
+  // Fusion du Panier du visiteur avec celui du Compte (story 4.2). Facultatif : une connexion ne dépend jamais du Panier.
+  fusionnerPanier?: (compteId: string) => Promise<void>;
 };

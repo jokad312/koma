@@ -1474,6 +1474,7 @@
     "sousTotalAide": "Le forfait de livraison et les réductions sont calculés à l'étape de commande.",
     "passer": "Passer la commande",
     "raisonBloque": "Retire d'abord les articles qui ne sont plus disponibles.",
-    "erreurLecture": "Ton panier n'a pas pu être chargé. Réessaie dans un instant."
+    "erreurLecture": "Ton panier n'a pas pu être chargé. Réessaie dans un instant.",
+    "kitDejaPossede": "Tu possèdes déjà ce kit : il est dans ta bibliothèque."
   }
 }

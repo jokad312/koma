@@ -1,3 +1,4 @@
+import { fusionnerPanierApresConnexion } from "@/modules/panier/fusion";
 import "server-only";
 import { creerClientService } from "@/lib/supabase/service";
 import { creerClientSession } from "@/lib/supabase/session";
@@ -45,5 +46,6 @@ export async function dependances(): Promise<DependancesComptes> {
       return { erreur: error !== null };
     },
     maintenant: () => Date.now(),
+    fusionnerPanier: fusionnerPanierApresConnexion,
   };
 }

@@ -146,7 +146,7 @@ function enLigne(b: LigneBrute, langue: "fr" | "en"): LignePanier | null {
 // Panier du visiteur, relu en base : prix, disponibilité et délai ne sont jamais figés (règle 3). Un Panier vide, absent ou illisible
 // donne une liste vide (la lecture impossible est signalée par `null`).
 export async function lire(deps: DependancesPanier, langue: "fr" | "en"): Promise<PanierLu | null> {
-  const vide: PanierLu = { lignes: [], nombreArticles: 0, sousTotalCents: 0, bloque: false };
+  const vide: PanierLu = { lignes: [], nombreArticles: 0, sousTotalCents: 0, bloque: false, avisKitPossede: false };
   try {
     const panierId = await panierDuCookie(deps);
     if (!panierId) return vide;
@@ -155,6 +155,7 @@ export async function lire(deps: DependancesPanier, langue: "fr" | "en"): Promis
       journaliser("lecture du Panier impossible");
       return null;
     }
+    const avis = await deps.avis(panierId);
     const lignes = r.lignes.map((b) => enLigne(b, langue)).filter((l): l is LignePanier => l !== null);
     const disponibles = lignes.filter((l) => l.etat !== "complet" && l.etat !== "epuise");
     return {
@@ -162,6 +163,8 @@ export async function lire(deps: DependancesPanier, langue: "fr" | "en"): Promis
       nombreArticles: lignes.reduce((s, l) => s + l.nombre, 0),
       sousTotalCents: disponibles.reduce((s, l) => s + l.prixCents * l.nombre, 0),
       bloque: disponibles.length < lignes.length,
+      // Une annonce illisible n'empêche jamais d'afficher le Panier.
+      avisKitPossede: "avis" in avis && avis.avis,
     };
   } catch {
     journaliser("lecture : exception");
@@ -178,5 +181,21 @@ export async function compter(deps: DependancesPanier): Promise<number> {
     return "nombre" in r ? r.nombre : 0;
   } catch {
     return 0;
+  }
+}
+
+// À la connexion (story 4.2) : rattache le Panier du cookie au Compte, ou le réunit au Panier déjà lié au Compte, puis pointe le cookie
+// sur le Panier retenu. Ne bloque jamais la connexion : toute erreur est journalisée (code seulement) et le Panier reste tel quel.
+export async function fusionner(deps: DependancesPanier, compteId: string): Promise<void> {
+  try {
+    const courant = await panierDuCookie(deps);
+    const r = await deps.fusionner({ auteur: construireAuteur(compteId), compteId, panierId: courant });
+    if ("erreur" in r) {
+      journaliser("fusion du Panier impossible");
+      return;
+    }
+    if (r.panierId && r.panierId !== courant) await deps.poserCookie(signerPanier(r.panierId, deps.secret()));
+  } catch {
+    journaliser("fusion : exception");
   }
 }

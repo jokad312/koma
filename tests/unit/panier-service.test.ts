@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { signerPanier } from "@/lib/panier/cookie";
-import { ajouter, compter, lire, modifier, retirer } from "@/modules/panier/service";
+import { ajouter, compter, fusionner, lire, modifier, retirer } from "@/modules/panier/service";
 import type { DependancesPanier, LigneBrute } from "@/modules/panier/types";
 
 const SECRET = "TEST_secret-du-panier-de-test-0123456789";
@@ -25,6 +25,8 @@ function faux(s: Partial<DependancesPanier> = {}): DependancesPanier {
     retirer: vi.fn(async () => ({ erreur: null })),
     lire: vi.fn(async () => ({ lignes: [] as LigneBrute[] })),
     compter: vi.fn(async () => ({ nombre: 3 })),
+    fusionner: vi.fn(async () => ({ panierId: null })),
+    avis: vi.fn(async () => ({ avis: false })),
     ...s,
   };
 }
@@ -170,7 +172,7 @@ describe("modifier et retirer", () => {
 describe("lire et compter", () => {
   it("sans cookie : Panier vide, sans interroger la base", async () => {
     const deps = faux();
-    await expect(lire(deps, "fr")).resolves.toEqual({ lignes: [], nombreArticles: 0, sousTotalCents: 0, bloque: false });
+    await expect(lire(deps, "fr")).resolves.toEqual({ lignes: [], nombreArticles: 0, sousTotalCents: 0, bloque: false, avisKitPossede: false });
     await expect(compter(deps)).resolves.toBe(0);
     expect(deps.lire).not.toHaveBeenCalled();
     expect(deps.compter).not.toHaveBeenCalled();
@@ -210,5 +212,50 @@ describe("lire et compter", () => {
     const deps = faux({ lire: vi.fn(async () => ({ erreur: "x" })), compter: vi.fn(async () => ({ erreur: "x" })) });
     await expect(lire(deps, "fr")).resolves.toBeNull();
     await expect(compter(deps)).resolves.toBe(0);
+  });
+});
+
+describe("avis « Kit déjà possédé »", () => {
+  it("relu avec le Panier ; une annonce illisible n'empêche pas d'afficher le Panier", async () => {
+    etat.cookie = signerPanier(PANIER, SECRET);
+    const avec = faux({ lire: vi.fn(async () => ({ lignes: [brute()] })), avis: vi.fn(async () => ({ avis: true })) });
+    expect((await lire(avec, "fr"))?.avisKitPossede).toBe(true);
+    const sans = faux({ lire: vi.fn(async () => ({ lignes: [brute()] })), avis: vi.fn(async () => ({ erreur: "x" })) });
+    expect((await lire(sans, "fr"))?.avisKitPossede).toBe(false);
+  });
+});
+
+describe("fusionner (connexion)", () => {
+  const COMPTE = "TEST_compte";
+
+  it("envoie le Panier du cookie (ou aucun) avec le Compte comme auteur", async () => {
+    etat.cookie = signerPanier(PANIER, SECRET);
+    const deps = faux({ fusionner: vi.fn(async () => ({ panierId: PANIER })) });
+    await fusionner(deps, COMPTE);
+    expect(deps.fusionner).toHaveBeenCalledWith({ auteur: { type: "compte", id: COMPTE, role: null }, compteId: COMPTE, panierId: PANIER });
+    const sansCookie = faux();
+    etat.cookie = null;
+    await fusionner(sansCookie, COMPTE);
+    expect(sansCookie.fusionner).toHaveBeenCalledWith(expect.objectContaining({ panierId: null }));
+  });
+
+  it("pose le cookie signé du Panier retenu quand il change (Panier du Compte, autre appareil)", async () => {
+    etat.cookie = signerPanier(PANIER, SECRET);
+    await fusionner(faux({ fusionner: vi.fn(async () => ({ panierId: NEUF })) }), COMPTE);
+    expect(etat.poses).toEqual([signerPanier(NEUF, SECRET)]);
+  });
+
+  it("même Panier, ou aucun Panier : le cookie n'est pas réécrit", async () => {
+    etat.cookie = signerPanier(PANIER, SECRET);
+    await fusionner(faux({ fusionner: vi.fn(async () => ({ panierId: PANIER })) }), COMPTE);
+    await fusionner(faux({ fusionner: vi.fn(async () => ({ panierId: null })) }), COMPTE);
+    expect(etat.poses).toEqual([]);
+  });
+
+  it("erreur ou exception : rien n'est posé et rien ne remonte", async () => {
+    etat.cookie = signerPanier(PANIER, SECRET);
+    await expect(fusionner(faux({ fusionner: vi.fn(async () => ({ erreur: "x" })) }), COMPTE)).resolves.toBeUndefined();
+    await expect(fusionner(faux({ fusionner: vi.fn(async () => { throw new Error("x"); }) }), COMPTE)).resolves.toBeUndefined();
+    expect(etat.poses).toEqual([]);
   });
 });

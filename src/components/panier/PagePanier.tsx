@@ -28,6 +28,7 @@ export async function PagePanier({ locale }: { locale: Locale }) {
   if (panier.lignes.length === 0) {
     return (
       <div className="flex flex-col items-start gap-4">
+        {panier.avisKitPossede ? <MessageEtat type="information">{t("kitDejaPossede")}</MessageEtat> : null}
         <p className="t-body text-text-primary">{t("vide")}</p>
         <p className="t-body text-text-secondary">{t("versCatalogues")}</p>
         <ul className="flex flex-wrap gap-4">
@@ -55,6 +56,7 @@ export async function PagePanier({ locale }: { locale: Locale }) {
 
   return (
     <div className="flex flex-col gap-6">
+      {panier.avisKitPossede ? <MessageEtat type="information">{t("kitDejaPossede")}</MessageEtat> : null}
       <ul aria-label={t("liste")} className="flex flex-col gap-4">
         {panier.lignes.map((l) => {
           const dossier = l.famille === "kit" ? DOSSIER_KITS : DOSSIERS_FICHE[l.famille];

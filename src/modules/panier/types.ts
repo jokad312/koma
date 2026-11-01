@@ -36,6 +36,8 @@ export type PanierLu = {
   sousTotalCents: number;
   // Au moins une ligne n'est plus disponible : « Passer la commande » est bloqué.
   bloque: boolean;
+  // Un Kit déjà possédé a été retiré par la fusion à la connexion et le client n'a pas encore modifié son Panier.
+  avisKitPossede: boolean;
 };
 
 export type LigneBrute = {
@@ -67,4 +69,8 @@ export type DependancesPanier = {
   retirer: (e: { auteur: Auteur; panierId: string; ligneId: string }) => Promise<{ erreur: string | null }>;
   lire: (panierId: string) => Promise<{ lignes: LigneBrute[] } | { erreur: string }>;
   compter: (panierId: string) => Promise<{ nombre: number } | { erreur: string }>;
+  // Fusion à la connexion (story 4.2) : renvoie le Panier à utiliser désormais (nul si le Compte n'en a aucun).
+  fusionner: (e: { auteur: Auteur; compteId: string; panierId: string | null }) => Promise<{ panierId: string | null } | { erreur: string }>;
+  // Vrai si la dernière fusion a retiré un Kit déjà possédé et que le client n'a pas encore modifié son Panier.
+  avis: (panierId: string) => Promise<{ avis: boolean } | { erreur: string }>;
 };

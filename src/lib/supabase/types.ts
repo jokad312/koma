@@ -464,18 +464,21 @@ export type Database = {
           compte_id: string | null
           cree_le: string
           id: string
+          kit_possede_retire_le: string | null
           mis_a_jour_le: string
         }
         Insert: {
           compte_id?: string | null
           cree_le?: string
           id?: string
+          kit_possede_retire_le?: string | null
           mis_a_jour_le?: string
         }
         Update: {
           compte_id?: string | null
           cree_le?: string
           id?: string
+          kit_possede_retire_le?: string | null
           mis_a_jour_le?: string
         }
         Relationships: []
@@ -964,6 +967,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      avis_kit_possede: { Args: { p_panier: string }; Returns: boolean }
       bibliotheque_ouvrir_acces: {
         Args: { p_commande: string; p_compte: string; p_produit: string }
         Returns: boolean
@@ -1118,6 +1122,10 @@ export type Database = {
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
       exiger_client: { Args: { p_auteur: Json }; Returns: string }
       extension_fichier_kit: { Args: { p_format: string }; Returns: string }
+      fusionner_panier: {
+        Args: { p_auteur: Json; p_compte: string; p_panier: string }
+        Returns: Json
+      }
       lire_panier: {
         Args: { p_panier: string }
         Returns: {

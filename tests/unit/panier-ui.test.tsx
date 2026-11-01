@@ -65,6 +65,7 @@ const panier = (lignes: LignePanier[], bloque = false): PanierLu => ({
   nombreArticles: lignes.reduce((s, l) => s + l.nombre, 0),
   sousTotalCents: lignes.filter((l) => l.etat !== "epuise" && l.etat !== "complet").reduce((s, l) => s + l.prixCents * l.nombre, 0),
   bloque,
+  avisKitPossede: false,
 });
 
 beforeEach(() => {
@@ -161,5 +162,17 @@ describe("PagePanier", () => {
     faux.lirePanier.mockResolvedValue(panier([ligne()]));
     rendre(await PagePanier({ locale: "fr" }));
     expect(screen.queryByText(/bpassb/i)).toBeNull();
+  });
+
+  it("Kit déjà possédé retiré à la fusion : l'annonce s'affiche, Panier vide compris", async () => {
+    faux.lirePanier.mockResolvedValue({ ...panier([]), avisKitPossede: true });
+    rendre(await PagePanier({ locale: "fr" }));
+    expect(screen.getByText("Tu possèdes déjà ce kit : il est dans ta bibliothèque.")).toBeTruthy();
+  });
+
+  it("sans retrait, aucune annonce", async () => {
+    faux.lirePanier.mockResolvedValue(panier([ligne()]));
+    rendre(await PagePanier({ locale: "fr" }));
+    expect(screen.queryByText(/Tu possèdes déjà ce kit/)).toBeNull();
   });
 });
