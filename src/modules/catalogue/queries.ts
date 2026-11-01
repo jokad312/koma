@@ -9,7 +9,7 @@ import { contientMarqueur } from "@/lib/vitrine/marqueur";
 import { choisirSlugLibre, SLUG_REGEX } from "./slug";
 import { CUMUL_MAX_CATALOGUE, DISPONIBILITES, LANGUES_SOUS_TITRES, NIVEAUX_KIT, TAILLE_PAGE_CATALOGUE, TAILLES } from "./types";
 import { FORMATS_FICHIER_KIT, type FormatFichierKit } from "./fichiers-kit";
-import type { FicheKit, CarteProduit, ChapitreAdmin, Disponibilite, LangueSousTitres, SousTitreAdmin, FamillePhysique, FamilleProduit, FichierKitAdmin, FicheProduit, NiveauKit, ProduitLiable, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
+import type { FicheKit, CarteProduit, ChapitreAdmin, Disponibilite, LangueSousTitres, SousTitreAdmin, FamillePhysique, FamilleProduit, FichierKitAdmin, FicheProduit, KitLieFiche, NiveauKit, ProduitLiable, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
 
 // Lectures admin par le client service (après le droit vérifié par la page) : une erreur de lecture est relancée,
 // jamais une liste vide inventée. Aucune valeur de repli (règle 15).
@@ -340,13 +340,34 @@ export async function lireFicheProduit(famille: FamillePhysique, slug: string, l
   const client = creerClientPublic();
   const produit = await client
     .from("produit")
-    .select("id, slug, famille, titre_fr, titre_en, description_fr, description_en, prix_cents")
+    .select("id, slug, famille, titre_fr, titre_en, description_fr, description_en, prix_cents, produit_lie_id")
     .eq("slug", slug)
     .eq("famille", famille)
     .maybeSingle();
   if (produit.error) throw new Error("Lecture de la fiche impossible.");
   const p = produit.data;
   if (!p || p.prix_cents === null) return null;
+
+  // Kit lié publié (double option, story 3.4) : un seul possible ; le visiteur n'est proposé qu'à fabriquer un Kit publié et
+  // visible publiquement. Le prix est celui du Kit, lu en base, jamais calculé côté client. null : pas de Kit lié, ou Kit non publié.
+  let kitLie: KitLieFiche | null = null;
+  if (p.produit_lie_id) {
+    const kit = await client
+      .from("produit")
+      .select("slug, titre_fr, titre_en, prix_cents, niveau, publie_le")
+      .eq("produit_lie_id", p.produit_lie_id)
+      .eq("famille", "kit")
+      .maybeSingle();
+    const k = kit.data;
+    if (k && k.publie_le && k.prix_cents !== null) {
+      kitLie = {
+        slug: k.slug,
+        titre: (langue === "en" ? k.titre_en?.trim() : "") || k.titre_fr,
+        prixCents: k.prix_cents,
+        niveau: NIVEAUX_CONNUS.includes(k.niveau) ? (k.niveau as NiveauKit) : null,
+      };
+    }
+  }
 
   const [photos, dispo] = await Promise.all([
     client.from("produit_photo").select("fichier, alt_fr, alt_en, position").eq("produit_id", p.id).order("position", { ascending: true }),
@@ -372,6 +393,7 @@ export async function lireFicheProduit(famille: FamillePhysique, slug: string, l
       alt: en ? ph.alt_en.trim() || ph.alt_fr : ph.alt_fr,
     })),
     tailles,
+    kitLie,
   };
 }
 

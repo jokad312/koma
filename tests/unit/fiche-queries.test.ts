@@ -151,6 +151,18 @@ describe("lireFicheProduit", () => {
     expect(await lireFicheProduit("cosplay", "test-produit", "fr")).toBeNull();
   });
 
+  it("kit lié publié : le Kit lié est porté dans la fiche, pour la double option", async () => {
+    faux.produit = { data: { ...PRODUIT, produit_lie_id: "TEST_kit", publie_le: "2026-10-31T00:00:00Z" }, error: null };
+    const fiche = await lireFicheProduit("cosplay", "test-produit", "fr");
+    expect(faux.eq).toEqual(expect.arrayContaining([["produit_lie_id", "TEST_kit"], ["famille", "kit"]]));
+    expect(fiche?.kitLie).toEqual({ slug: "test-produit", titre: "TEST_Titre", prixCents: 4990, niveau: null });
+  });
+
+  it("kit lié non publié : aucune double option (kitLie null)", async () => {
+    faux.produit = { data: { ...PRODUIT, produit_lie_id: "TEST_kit", publie_le: null }, error: null };
+    expect(await lireFicheProduit("cosplay", "test-produit", "fr")).toMatchObject({ kitLie: null });
+  });
+
   it("erreur de lecture : relancée, jamais une fiche inventée", async () => {
     faux.produit = { data: null, error: { message: "TEST" } };
     await expect(lireFicheProduit("cosplay", "test-produit", "fr")).rejects.toThrow();

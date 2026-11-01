@@ -65,6 +65,7 @@ function fiche(surcharge: Partial<FicheProduit> = {}): FicheProduit {
       { taille: "M", etat: "disponible", delaiJours: null },
       { taille: "L", etat: "sur_commande", delaiJours: 12 },
     ],
+    kitLie: null,
     ...surcharge,
   };
 }

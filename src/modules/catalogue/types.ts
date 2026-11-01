@@ -477,6 +477,10 @@ export type PageCatalogue = {
   suite: string | null;
 };
 
+// Kit lié à un produit physique publié, pour la double option (story 3.4) : le Kit est publié et visible publiquement,
+// sinon la fiche renvoie null et aucune double option n'est proposée. Le prix est celui du Kit, lu en base (jamais calculé).
+export type KitLieFiche = { slug: string; titre: string; prixCents: number; niveau: NiveauKit | null };
+
 // ---- Fiche d'un produit physique (story 2.5) ----
 
 export type PhotoFiche = { url: string; alt: string };
@@ -494,6 +498,8 @@ export type FicheProduit = {
   prixCents: number;
   photos: PhotoFiche[];
   tailles: TailleFiche[];
+  // Kit lié publié : la double option « Prêt à porter / Le fabriquer moi-même » (story 3.4) ; null si aucun Kit lié publié.
+  kitLie: KitLieFiche | null;
 };
 
 export type ProduitPublie = { famille: FamilleProduit; slug: string };
