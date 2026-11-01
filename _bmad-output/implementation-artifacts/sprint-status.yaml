@@ -74,7 +74,7 @@ development_status:
 
   epic-4: backlog
   4-1-panier-sans-compte: done
-  4-2-fusion-du-panier-à-la-connexion: review
+  4-2-fusion-du-panier-à-la-connexion: done
   4-3-étape-de-commande-et-commande-en-attente: backlog
   4-4-boîte-d-envoi-et-premiers-emails: backlog
   4-5-couche-de-paiement-aiguilleur-et-admin-des-prestataires: backlog
