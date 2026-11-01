@@ -6,9 +6,11 @@ import { MessageEtat } from "@/components/ui/MessageEtat";
 import { capaciteAtteinte, taillesChoisissables } from "@/modules/catalogue/fiche";
 import type { Taille, TailleFiche } from "@/modules/catalogue/types";
 import { ModesRemise } from "./ModesRemise";
+import { BoutonAjouterPanier } from "./BoutonAjouterPanier";
 import { SelecteurTaille } from "./SelecteurTaille";
 
 type Props = {
+  produitId: string;
   locale: "fr" | "en";
   tailles: readonly TailleFiche[];
   forfaitGoma: number | null;
@@ -17,9 +19,10 @@ type Props = {
 };
 
 // Zone d'achat : tailles (état et délai sur place) et modes de remise dont le délai suit la taille choisie.
-// Pas de bouton d'ajout au panier ici (epic 4), pas de Kit lié (epic 3).
-export function ZoneAchat({ locale, tailles, forfaitGoma, forfaitBukavu, retraitGoma }: Props) {
+// « Ajouter au panier » (story 4.1) ; sur mesure : les mesures s'envoient sur WhatsApp après la commande (aucune mesure saisie ici). Pas de Kit lié (story 3.4).
+export function ZoneAchat({ produitId, locale, tailles, forfaitGoma, forfaitBukavu, retraitGoma }: Props) {
   const t = useTranslations("Fiche.tailles");
+  const tp = useTranslations("Fiche.panier");
   const [choisie, setChoisie] = useState<Taille | null>(null);
   const choix = taillesChoisissables(tailles);
   const complet = capaciteAtteinte(tailles);
@@ -35,6 +38,12 @@ export function ZoneAchat({ locale, tailles, forfaitGoma, forfaitBukavu, retrait
       ) : complet ? null : (
         <MessageEtat type="information">{t("epuise")}</MessageEtat>
       )}
+      {choix.length > 0 ? (
+        <div className="flex flex-col items-start gap-3">
+          {choisie === "sur_mesure" ? <MessageEtat type="information">{tp("surMesure")}</MessageEtat> : null}
+          <BoutonAjouterPanier produitId={produitId} taille={choisie} />
+        </div>
+      ) : null}
       <ModesRemise locale={locale} forfaitGoma={forfaitGoma} forfaitBukavu={forfaitBukavu} retraitGoma={retraitGoma} fabrication={fabrication} />
     </div>
   );

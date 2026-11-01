@@ -16,7 +16,9 @@ vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new Error("TEST_NOT_FOUND");
   },
+  useRouter: () => ({ refresh: vi.fn() }),
 }));
+vi.mock("@/modules/panier/actions", () => ({ ajouterAuPanier: vi.fn() }));
 vi.mock("@/modules/catalogue/queries", () => ({ lireFicheProduit: (...a: unknown[]) => faux.fiche(...a) }));
 vi.mock("@/lib/reglages", () => ({
   lireNomSite: async () => "TEST_Boutique",

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState, useTransition } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
+import { BoutonAjouterPanier } from "./BoutonAjouterPanier";
 import type { Locale } from "@/i18n/routing";
 import { cheminRetourValide } from "@/lib/auth/retour";
 import { lireEtatKit } from "@/modules/bibliotheque/actions";
@@ -19,7 +20,7 @@ type Props = { produitId: string; prixCents: number };
 
 // Zone « Obtenir » de la fiche Kit. La fiche reste publique et en cache : l'état du visiteur est lu après l'affichage.
 // Kit gratuit : visiteur non connecté -> connexion puis retour sur la fiche (UX-DR26) ; Compte complet -> Licence à cocher puis un geste ;
-// Kit déjà possédé (gratuit ou payant) -> « Ouvrir dans ma bibliothèque ». Un Kit payant non possédé n'affiche rien ici (achat : epic 4).
+// Kit déjà possédé (gratuit ou payant) -> « Ouvrir dans ma bibliothèque ». Un Kit payant non possédé affiche « Ajouter au panier » (story 4.1).
 export function ObtentionKit({ produitId, prixCents }: Props) {
   const t = useTranslations("Kit.obtention");
   const locale = useLocale() as Locale;
@@ -93,7 +94,8 @@ export function ObtentionKit({ produitId, prixCents }: Props) {
     );
   }
 
-  if (!gratuit) return null;
+  // Kit payant non possédé : « Ajouter au panier » (un seul exemplaire). Le paiement arrive avec les stories 4.3 et suivantes.
+  if (!gratuit) return <BoutonAjouterPanier produitId={produitId} />;
 
   if (etat === "pret") {
     return (

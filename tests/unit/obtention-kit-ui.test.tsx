@@ -9,7 +9,8 @@ const faux = vi.hoisted(() => ({
   obtenirKitGratuit: vi.fn(),
 }));
 vi.mock("server-only", () => ({}));
-vi.mock("next/navigation", () => ({ usePathname: () => "/fr/kits/test-kit" }));
+vi.mock("next/navigation", () => ({ usePathname: () => "/fr/kits/test-kit", useRouter: () => ({ refresh: vi.fn() }) }));
+vi.mock("@/modules/panier/actions", () => ({ ajouterAuPanier: vi.fn() }));
 vi.mock("@/modules/bibliotheque/actions", () => ({ lireEtatKit: (...a: unknown[]) => faux.lireEtatKit(...a) }));
 vi.mock("@/modules/commande/actions", () => ({ obtenirKitGratuit: (...a: unknown[]) => faux.obtenirKitGratuit(...a) }));
 vi.mock("@/i18n/navigation", () => ({
@@ -78,11 +79,10 @@ describe("ObtentionKit", () => {
     expect(await screen.findByRole("link", { name: "Ouvrir dans ma bibliothèque" })).toBeTruthy();
   });
 
-  it("Kit payant non possédé : rien (l'achat arrive à l'epic 4)", async () => {
+  it("Kit payant non possédé : « Ajouter au panier » (l'achat arrive avec les stories suivantes)", async () => {
     faux.lireEtatKit.mockResolvedValue("pret");
-    const { container } = rendre(<ObtentionKit produitId={KIT} prixCents={990} />);
-    await waitFor(() => expect(faux.lireEtatKit).toHaveBeenCalled());
-    expect(container.textContent).toBe("");
+    rendre(<ObtentionKit produitId={KIT} prixCents={990} />);
+    expect(await screen.findByRole("button", { name: "Ajouter au panier" })).toBeTruthy();
   });
 
   it("l'état est lu après l'affichage, avec l'identifiant du Kit", async () => {

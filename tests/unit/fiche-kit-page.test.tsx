@@ -13,6 +13,7 @@ vi.mock("next/navigation", () => ({
     throw new Error("TEST_NOT_FOUND");
   },
   usePathname: () => "/fr/kits/test",
+  useRouter: () => ({ refresh: vi.fn() }),
 }));
 vi.mock("@/modules/bibliotheque/actions", () => ({ lireEtatKit: vi.fn(async () => "anonyme") }));
 vi.mock("@/modules/commande/actions", () => ({ obtenirKitGratuit: vi.fn() }));

@@ -73,7 +73,7 @@ development_status:
   epic-3-retrospective: optional
 
   epic-4: backlog
-  4-1-panier-sans-compte: backlog
+  4-1-panier-sans-compte: review
   4-2-fusion-du-panier-à-la-connexion: backlog
   4-3-étape-de-commande-et-commande-en-attente: backlog
   4-4-boîte-d-envoi-et-premiers-emails: backlog

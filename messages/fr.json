@@ -57,6 +57,10 @@
     "kits": {
       "titre": "Kits",
       "description": "Kits de cosplay à fabriquer soi-même : patrons PDF, SVG et STL et tutoriel vidéo en chapitres, accès à vie. Filtre par univers, prix et niveau."
+    },
+    "panier": {
+      "titre": "Panier",
+      "description": "Les articles de ton panier."
     }
   },
   "Accueil": {
@@ -112,6 +116,10 @@
       "festival": "Festival",
       "blog": "Blog",
       "aPropos": "À propos"
+    },
+    "panier": {
+      "lien": "Panier",
+      "libelle": "Panier, {count, plural, =0 {aucun article} one {# article} other {# articles}}"
     }
   },
   "Menu": {
@@ -1339,6 +1347,25 @@
       "bouton": "Partager",
       "copie": "Lien copié",
       "echec": "Impossible de partager le lien pour le moment."
+    },
+    "panier": {
+      "ajouter": "Ajouter au panier",
+      "enCours": "Ajout…",
+      "ajoute": "Ajouté au panier",
+      "voirPanier": "Voir mon panier",
+      "choisirTaille": "Choisis d'abord une taille.",
+      "surMesure": "Sur mesure : tu enverras tes mesures à Jonathan sur WhatsApp après ta commande. Le délai de fabrication court à partir de leur réception.",
+      "erreurs": {
+        "introuvable": "Cet article n'est plus en vente.",
+        "indisponible": "Cette taille n'est plus disponible pour le moment.",
+        "taille": "Cette taille n'existe pas pour cet article.",
+        "quantite": "Tu ne peux pas mettre plus de 10 exemplaires d'un même article.",
+        "gratuit": "Ce kit gratuit ne se met pas dans le panier : utilise « Obtenir le kit gratuit ».",
+        "deja_possede": "Tu as déjà ce kit.",
+        "ligne_unique": "Un kit s'achète en un seul exemplaire.",
+        "invalide": "La demande n'est pas valide. Recharge la page et réessaie.",
+        "erreur": "L'article n'a pas pu être ajouté. Réessaie."
+      }
     }
   },
   "Kit": {
@@ -1384,23 +1411,23 @@
         "en": "Anglais"
       }
     },
-      "obtention": {
-        "obtenir": "Obtenir le kit gratuit",
-        "enCours": "Ouverture de ton kit…",
-        "ouvrir": "Ouvrir dans ma bibliothèque",
-        "licenceCase": "[Texte à fournir]",
-        "raisonLicence": "Coche d'abord la case de la Licence de kit.",
-        "succes": "Ton kit est ouvert. Commande {numero}.",
-        "erreurs": {
-          "licence": "Coche d'abord la case de la Licence de kit.",
-          "non_connecte": "Connecte-toi pour obtenir le kit.",
-          "compte_incomplet": "Termine ta connexion en indiquant ton âge, puis reviens ici.",
-          "deja_possede": "Tu as déjà ce kit.",
-          "indisponible": "Ce kit n'est pas disponible gratuitement.",
-          "invalide": "La demande n'est pas valide. Recharge la page et réessaie.",
-          "erreur": "Le kit n'a pas pu être ouvert. Réessaie."
-        }
-      },
+    "obtention": {
+      "obtenir": "Obtenir le kit gratuit",
+      "enCours": "Ouverture de ton kit…",
+      "ouvrir": "Ouvrir dans ma bibliothèque",
+      "licenceCase": "[Texte à fournir]",
+      "raisonLicence": "Coche d'abord la case de la Licence de kit.",
+      "succes": "Ton kit est ouvert. Commande {numero}.",
+      "erreurs": {
+        "licence": "Coche d'abord la case de la Licence de kit.",
+        "non_connecte": "Connecte-toi pour obtenir le kit.",
+        "compte_incomplet": "Termine ta connexion en indiquant ton âge, puis reviens ici.",
+        "deja_possede": "Tu as déjà ce kit.",
+        "indisponible": "Ce kit n'est pas disponible gratuitement.",
+        "invalide": "La demande n'est pas valide. Recharge la page et réessaie.",
+        "erreur": "Le kit n'a pas pu être ouvert. Réessaie."
+      }
+    },
     "licence": {
       "titre": "Licence de kit",
       "texte": "Les fichiers et la vidéo de ce kit sont réservés à ton usage personnel. Tu ne peux ni les revendre, ni les partager, ni les diffuser."
@@ -1408,10 +1435,45 @@
     "extrait": {
       "titre": "Extrait du tutoriel",
       "aide": "Extrait public, sans lecture automatique. Les sous-titres s'affichent dans ta langue quand ils existent ; le bouton des sous-titres du lecteur permet de les changer ou de les masquer.",
-        "sansAnglais": "Les sous-titres anglais ne sont pas disponibles pour cet extrait.",
+      "sansAnglais": "Les sous-titres anglais ne sont pas disponibles pour cet extrait.",
       "nomVideo": "Extrait du tutoriel : {titre}",
       "erreur": "L'extrait ne peut pas être lu pour le moment. Réessaie plus tard.",
       "nonPrisEnCharge": "Ton navigateur ne peut pas lire cet extrait."
     }
+  },
+  "Panier": {
+    "titre": "Ton panier",
+    "vide": "Ton panier est vide.",
+    "versCatalogues": "Découvre nos cosplays, nos accessoires et nos kits.",
+    "liensCatalogues": {
+      "cosplays": "Cosplays",
+      "accessoires": "Accessoires",
+      "kits": "Kits"
+    },
+    "liste": "Articles du panier",
+    "taille": "Taille : {taille}",
+    "tailleSurMesure": "Taille : sur mesure",
+    "kitUnExemplaire": "Kit numérique, en un seul exemplaire",
+    "quantite": "Quantité",
+    "mettreAJour": "Mettre à jour",
+    "retirer": "Retirer",
+    "retirerNom": "Retirer {titre} du panier",
+    "prixUnitaire": "{prix} l'unité",
+    "totalLigne": "Total de la ligne : {prix}",
+    "etat": {
+      "disponible": "En stock",
+      "dernieres_pieces": "Dernières pièces",
+      "sur_commande": "Fabrication sur commande",
+      "complet": "Plus disponible",
+      "epuise": "Plus disponible"
+    },
+    "delai": "Délai de fabrication : {n, plural, one {# jour} other {# jours}}",
+    "delaiLivraison": "Le délai total (fabrication et livraison) est confirmé à l'étape de commande, selon ta zone de remise.",
+    "plusDisponible": "Cet article n'est plus disponible pour le moment. Retire-le pour continuer.",
+    "sousTotal": "Sous-total",
+    "sousTotalAide": "Le forfait de livraison et les réductions sont calculés à l'étape de commande.",
+    "passer": "Passer la commande",
+    "raisonBloque": "Retire d'abord les articles qui ne sont plus disponibles.",
+    "erreurLecture": "Ton panier n'a pas pu être chargé. Réessaie dans un instant."
   }
 }

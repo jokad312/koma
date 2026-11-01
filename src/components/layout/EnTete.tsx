@@ -11,10 +11,11 @@ import { RUBRIQUES, type Rubrique } from "./rubriques";
 import { LienConnexion } from "./LienConnexion";
 import { SelecteurLangue } from "./SelecteurLangue";
 import { ZoneCompte } from "./ZoneCompte";
+import { LienPanier, ZonePanier } from "./ZonePanier";
 
 type Props = { nomSite: string; rubriques?: readonly Rubrique[] };
 
-// En-tête collant en verre renforcé. Pas d'icône panier avant la story 4.1 ; pas de rubrique sans page.
+// En-tête collant en verre renforcé. Le panier (compteur lu dans le cookie, sous Suspense) est toujours visible ; pas de rubrique sans page.
 // Le logo est affiché tel quel (fichier d'origine, jamais recoloré) ; le cadrage 530 x 124 est fait par recadrage CSS.
 export async function EnTete({ nomSite, rubriques = RUBRIQUES }: Props) {
   const t = await getTranslations("Navigation");
@@ -73,6 +74,9 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES }: Props) {
               <ZoneCompte />
             </Suspense>
           </div>
+          <Suspense fallback={<LienPanier nombre={null} />}>
+            <ZonePanier />
+          </Suspense>
           <div className="lg:hidden">
             <MenuPanneau>
               {liens}

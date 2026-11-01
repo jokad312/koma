@@ -57,6 +57,10 @@
     "kits": {
       "titre": "Kits",
       "description": "DIY cosplay kits: PDF, SVG and STL patterns and a video tutorial in chapters, lifetime access. Filter by universe, price and level."
+    },
+    "panier": {
+      "titre": "Cart",
+      "description": "The items in your cart."
     }
   },
   "Accueil": {
@@ -112,6 +116,10 @@
       "festival": "Festival",
       "blog": "Blog",
       "aPropos": "About"
+    },
+    "panier": {
+      "lien": "Cart",
+      "libelle": "Cart, {count, plural, =0 {no items} one {# item} other {# items}}"
     }
   },
   "Menu": {
@@ -1339,6 +1347,25 @@
       "bouton": "Share",
       "copie": "Link copied",
       "echec": "The link could not be shared right now."
+    },
+    "panier": {
+      "ajouter": "Add to cart",
+      "enCours": "Adding…",
+      "ajoute": "Added to cart",
+      "voirPanier": "View my cart",
+      "choisirTaille": "Choose a size first.",
+      "surMesure": "Made to measure: you will send your measurements to Jonathan on WhatsApp after you order. The making time starts when he receives them.",
+      "erreurs": {
+        "introuvable": "This item is no longer for sale.",
+        "indisponible": "This size is not available right now.",
+        "taille": "This size does not exist for this item.",
+        "quantite": "You cannot put more than 10 copies of the same item in your cart.",
+        "gratuit": "This free kit does not go in the cart: use “Get the free kit”.",
+        "deja_possede": "You already have this kit.",
+        "ligne_unique": "A kit is bought as a single copy.",
+        "invalide": "The request is not valid. Reload the page and try again.",
+        "erreur": "The item could not be added. Try again."
+      }
     }
   },
   "Kit": {
@@ -1384,23 +1411,23 @@
         "en": "English"
       }
     },
-      "obtention": {
-        "obtenir": "Get the free kit",
-        "enCours": "Opening your kit…",
-        "ouvrir": "Open in my library",
-        "licenceCase": "[Texte à fournir]",
-        "raisonLicence": "Tick the Kit license box first.",
-        "succes": "Your kit is open. Order {numero}.",
-        "erreurs": {
-          "licence": "Tick the Kit license box first.",
-          "non_connecte": "Sign in to get the kit.",
-          "compte_incomplet": "Finish signing in by giving your age, then come back here.",
-          "deja_possede": "You already have this kit.",
-          "indisponible": "This kit is not available for free.",
-          "invalide": "The request is not valid. Reload the page and try again.",
-          "erreur": "The kit could not be opened. Try again."
-        }
-      },
+    "obtention": {
+      "obtenir": "Get the free kit",
+      "enCours": "Opening your kit…",
+      "ouvrir": "Open in my library",
+      "licenceCase": "[Texte à fournir]",
+      "raisonLicence": "Tick the Kit license box first.",
+      "succes": "Your kit is open. Order {numero}.",
+      "erreurs": {
+        "licence": "Tick the Kit license box first.",
+        "non_connecte": "Sign in to get the kit.",
+        "compte_incomplet": "Finish signing in by giving your age, then come back here.",
+        "deja_possede": "You already have this kit.",
+        "indisponible": "This kit is not available for free.",
+        "invalide": "The request is not valid. Reload the page and try again.",
+        "erreur": "The kit could not be opened. Try again."
+      }
+    },
     "licence": {
       "titre": "Kit license",
       "texte": "The files and the video of this kit are for your personal use only. You may not resell, share or distribute them."
@@ -1408,10 +1435,45 @@
     "extrait": {
       "titre": "Tutorial preview",
       "aide": "Public preview, no autoplay. Subtitles appear in your language when available; use the player's subtitles button to change or hide them.",
-        "sansAnglais": "English subtitles are not available for this preview.",
+      "sansAnglais": "English subtitles are not available for this preview.",
       "nomVideo": "Tutorial preview: {titre}",
       "erreur": "The preview cannot be played right now. Try again later.",
       "nonPrisEnCharge": "Your browser cannot play this preview."
     }
+  },
+  "Panier": {
+    "titre": "Your cart",
+    "vide": "Your cart is empty.",
+    "versCatalogues": "Browse our cosplays, accessories and kits.",
+    "liensCatalogues": {
+      "cosplays": "Cosplays",
+      "accessoires": "Accessories",
+      "kits": "Kits"
+    },
+    "liste": "Cart items",
+    "taille": "Size: {taille}",
+    "tailleSurMesure": "Size: made to measure",
+    "kitUnExemplaire": "Digital kit, single copy",
+    "quantite": "Quantity",
+    "mettreAJour": "Update",
+    "retirer": "Remove",
+    "retirerNom": "Remove {titre} from the cart",
+    "prixUnitaire": "{prix} each",
+    "totalLigne": "Line total: {prix}",
+    "etat": {
+      "disponible": "In stock",
+      "dernieres_pieces": "Last pieces",
+      "sur_commande": "Made to order",
+      "complet": "No longer available",
+      "epuise": "No longer available"
+    },
+    "delai": "Making time: {n, plural, one {# day} other {# days}}",
+    "delaiLivraison": "The total time (making and delivery) is confirmed at checkout, depending on your delivery zone.",
+    "plusDisponible": "This item is not available right now. Remove it to continue.",
+    "sousTotal": "Subtotal",
+    "sousTotalAide": "The delivery fee and discounts are calculated at checkout.",
+    "passer": "Place order",
+    "raisonBloque": "Remove the items that are no longer available first.",
+    "erreurLecture": "Your cart could not be loaded. Try again in a moment."
   }
 }

@@ -359,6 +359,55 @@ export type Database = {
           },
         ]
       }
+      ligne_panier: {
+        Row: {
+          cree_le: string
+          id: string
+          nombre: number
+          panier_id: string
+          produit_id: string
+          variante_id: string | null
+        }
+        Insert: {
+          cree_le?: string
+          id?: string
+          nombre: number
+          panier_id: string
+          produit_id: string
+          variante_id?: string | null
+        }
+        Update: {
+          cree_le?: string
+          id?: string
+          nombre?: number
+          panier_id?: string
+          produit_id?: string
+          variante_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ligne_panier_panier_id_fkey"
+            columns: ["panier_id"]
+            isOneToOne: false
+            referencedRelation: "panier"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ligne_panier_produit_id_fkey"
+            columns: ["produit_id"]
+            isOneToOne: false
+            referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ligne_panier_variante_id_fkey"
+            columns: ["variante_id"]
+            isOneToOne: false
+            referencedRelation: "variante"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       limite_essai: {
         Row: {
           cle: string
@@ -407,6 +456,27 @@ export type Database = {
           nom?: string
           statut?: string
           traite_le?: string | null
+        }
+        Relationships: []
+      }
+      panier: {
+        Row: {
+          compte_id: string | null
+          cree_le: string
+          id: string
+          mis_a_jour_le: string
+        }
+        Insert: {
+          compte_id?: string | null
+          cree_le?: string
+          id?: string
+          mis_a_jour_le?: string
+        }
+        Update: {
+          compte_id?: string | null
+          cree_le?: string
+          id?: string
+          mis_a_jour_le?: string
         }
         Relationships: []
       }
@@ -836,6 +906,17 @@ export type Database = {
         Returns: boolean
       }
       admin_sante: { Args: never; Returns: number }
+      ajouter_au_panier: {
+        Args: {
+          p_auteur: Json
+          p_compte: string
+          p_nombre: number
+          p_panier: string
+          p_produit: string
+          p_taille: string
+        }
+        Returns: Json
+      }
       ajouter_chapitre_kit: {
         Args: {
           p_auteur: Json
@@ -893,6 +974,7 @@ export type Database = {
         Returns: undefined
       }
       compte_complet: { Args: { p_compte: string }; Returns: boolean }
+      compter_panier: { Args: { p_panier: string }; Returns: number }
       consommer_essai: {
         Args: { p_cle: string; p_fenetre_secondes: number; p_maximum: number }
         Returns: boolean
@@ -906,6 +988,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      creer_panier: { Args: { p_auteur: Json }; Returns: string }
       creer_univers: {
         Args: { p_auteur: Json; p_nom_en: string; p_nom_fr: string }
         Returns: string
@@ -1035,6 +1118,22 @@ export type Database = {
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
       exiger_client: { Args: { p_auteur: Json }; Returns: string }
       extension_fichier_kit: { Args: { p_format: string }; Returns: string }
+      lire_panier: {
+        Args: { p_panier: string }
+        Returns: {
+          delai_jours: number
+          etat: string
+          famille: string
+          ligne_id: string
+          nombre: number
+          prix_cents: number
+          produit_id: string
+          slug: string
+          taille: string
+          titre_en: string
+          titre_fr: string
+        }[]
+      }
       lister_catalogue: {
         Args: {
           p_curseur_date?: string
@@ -1089,6 +1188,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      modifier_ligne_panier: {
+        Args: {
+          p_auteur: Json
+          p_ligne: string
+          p_nombre: number
+          p_panier: string
+        }
+        Returns: undefined
+      }
       offrir_commande: {
         Args: {
           p_acceptations: Json
@@ -1117,6 +1225,10 @@ export type Database = {
           p_taille: number
         }
         Returns: string
+      }
+      retirer_ligne_panier: {
+        Args: { p_auteur: Json; p_ligne: string; p_panier: string }
+        Returns: undefined
       }
       seuil_dernieres_pieces: { Args: never; Returns: number }
       stock_disponible: { Args: { p_variante: string }; Returns: number }

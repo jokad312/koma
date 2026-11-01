@@ -84,7 +84,7 @@ export async function FicheProduit({ fiche, locale, forfaitGoma, forfaitBukavu, 
           {description ? <p className="t-body whitespace-pre-line text-text-primary">{description}</p> : null}
           <BoutonPartager titre={fiche.titre} url={urlFiche} />
           <BandeauZone />
-          <ZoneAchat locale={locale} tailles={fiche.tailles} forfaitGoma={forfaitGoma} forfaitBukavu={forfaitBukavu} retraitGoma={retraitGoma} />
+          <ZoneAchat produitId={fiche.id} locale={locale} tailles={fiche.tailles} forfaitGoma={forfaitGoma} forfaitBukavu={forfaitBukavu} retraitGoma={retraitGoma} />
         </div>
       </div>
     </article>

@@ -48,7 +48,10 @@ describe("adresses propres à chaque langue", () => {
   });
 
   it("l'adresse anglaise est servie par le dossier interne, sans réécrire le français", () => {
-    expect(reecrituresAdresses()).toEqual([{ source: "/en/accessories/:chemin*", destination: "/en/accessoires/:chemin*" }]);
+    expect(reecrituresAdresses()).toEqual([
+      { source: "/en/accessories/:chemin*", destination: "/en/accessoires/:chemin*" },
+      { source: "/en/cart/:chemin*", destination: "/en/panier/:chemin*" },
+    ]);
   });
 
   it("aucune redirection ne boucle sur une adresse propre", () => {

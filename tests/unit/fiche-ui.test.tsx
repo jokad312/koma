@@ -4,6 +4,8 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { rendre } from "./aides-dom";
 
+vi.mock("next/navigation", async (importOriginal) => ({ ...(await importOriginal<typeof import("next/navigation")>()), useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }) }));
+vi.mock("@/modules/panier/actions", () => ({ ajouterAuPanier: vi.fn() }));
 vi.mock("next/image", () => ({
   default: ({ src, alt }: { src: string; alt: string }) => (
     // eslint-disable-next-line @next/next/no-img-element
@@ -125,7 +127,7 @@ describe("ZoneAchat : tailles", () => {
   const props = { locale: "fr" as const, forfaitGoma: null, forfaitBukavu: null, retraitGoma: null };
 
   it("radios natifs en groupe nommé ; choisir une taille met à jour son état et son délai sur place, sans quantité", async () => {
-    rendre(<ZoneAchat {...props} tailles={[t("M", "disponible", 14), t("L", "sur_commande", 12)]} />);
+    rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("M", "disponible", 14), t("L", "sur_commande", 12)]} />);
     const groupe = screen.getByRole("group", { name: "Taille" });
     const radios = within(groupe).getAllByRole("radio");
     expect(radios.map((r) => (r as HTMLInputElement).value)).toEqual(["M", "L"]);
@@ -146,7 +148,7 @@ describe("ZoneAchat : tailles", () => {
   });
 
   it("toutes les tailles sur commande, aucune choisie : texte « choisis une taille pour voir le délai » au lieu du délai de remise seul", async () => {
-    rendre(<ZoneAchat {...props} tailles={[t("M", "sur_commande", 12), t("L", "sur_commande", 20)]} />);
+    rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("M", "sur_commande", 12), t("L", "sur_commande", 20)]} />);
     expect(screen.getAllByText("Fabrication sur commande : choisis une taille pour voir le délai")).toHaveLength(2);
     expect(screen.queryByText(/Délai : remise/)).toBeNull();
     await userEvent.click(screen.getByRole("radio", { name: "L" }));
@@ -155,47 +157,47 @@ describe("ZoneAchat : tailles", () => {
   });
 
   it("une taille en stock existe : le délai de remise seul reste affiché avant le choix", () => {
-    rendre(<ZoneAchat {...props} tailles={[t("M", "disponible"), t("L", "sur_commande", 20)]} />);
+    rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("M", "disponible"), t("L", "sur_commande", 20)]} />);
     expect(screen.queryByText(/choisis une taille pour voir le délai/)).toBeNull();
     expect(screen.getByText("Délai : remise en moins d'un jour")).toBeTruthy();
   });
 
   it("navigation aux flèches entre les tailles", async () => {
-    rendre(<ZoneAchat {...props} tailles={[t("M", "disponible"), t("L", "disponible")]} />);
+    rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("M", "disponible"), t("L", "disponible")]} />);
     await userEvent.click(screen.getByRole("radio", { name: "M" }));
     await userEvent.keyboard("{ArrowRight}");
     expect((screen.getByRole("radio", { name: "L" }) as HTMLInputElement).checked).toBe(true);
   });
 
   it("Sur mesure : libellé et état « Sur mesure », sans schéma de mesures", async () => {
-    rendre(<ZoneAchat {...props} tailles={[t("sur_mesure", "sur_commande", 30)]} />);
+    rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("sur_mesure", "sur_commande", 30)]} />);
     await userEvent.click(screen.getByRole("radio", { name: "Sur mesure" }));
     expect(screen.getAllByText("Sur mesure").length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText("Délai de fabrication : 30 jours")).toBeTruthy();
   });
 
   it("capacité atteinte : « Commandes complètes pour le moment », seules les tailles en stock restent, jamais « Épuisé »", () => {
-    rendre(<ZoneAchat {...props} tailles={[t("M", "disponible"), t("L", "complet"), t("XL", "complet")]} />);
+    rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("M", "disponible"), t("L", "complet"), t("XL", "complet")]} />);
     expect(screen.getByText("Commandes complètes pour le moment")).toBeTruthy();
     expect(screen.getAllByRole("radio").map((r) => (r as HTMLInputElement).value)).toEqual(["M"]);
     expect(document.body.textContent).not.toMatch(/Épuisé/i);
   });
 
   it("capacité atteinte et aucune taille en stock : le sélecteur disparaît", () => {
-    rendre(<ZoneAchat {...props} tailles={[t("L", "complet"), t("sur_mesure", "complet")]} />);
+    rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("L", "complet"), t("sur_mesure", "complet")]} />);
     expect(screen.getByText("Commandes complètes pour le moment")).toBeTruthy();
     expect(screen.queryByRole("group", { name: "Taille" })).toBeNull();
     expect(screen.queryByRole("radio")).toBeNull();
   });
 
   it("aucune taille achetable sans capacité atteinte : épuisé", () => {
-    rendre(<ZoneAchat {...props} tailles={[t("M", "epuise")]} />);
+    rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("M", "epuise")]} />);
     expect(screen.getByText("Épuisé")).toBeTruthy();
     expect(screen.queryByRole("radio")).toBeNull();
   });
 
   it("dernières pièces : libellé « Dernières pièces » sur place, sans quantité", async () => {
-    rendre(<ZoneAchat {...props} tailles={[t("M", "dernieres_pieces"), t("L", "disponible")]} />);
+    rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("M", "dernieres_pieces"), t("L", "disponible")]} />);
     await userEvent.click(screen.getByRole("radio", { name: "M" }));
     expect(screen.getByText("Dernières pièces")).toBeTruthy();
     expect(document.body.textContent).not.toMatch(/plus que|\d+ (pièce|piece)/i);
@@ -212,9 +214,19 @@ describe("ZoneAchat : tailles", () => {
     }
   });
 
-  it("aucun bouton d'ajout au panier", () => {
-    rendre(<ZoneAchat {...props} tailles={[t("M", "disponible")]} />);
-    expect(screen.queryByRole("button", { name: /panier|cart/i })).toBeNull();
+  it("« Ajouter au panier » est bloqué tant qu'aucune taille n'est choisie, avec sa raison", () => {
+    rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("M", "disponible")]} />);
+    const bouton = screen.getByRole("button", { name: "Ajouter au panier" });
+    expect(bouton.getAttribute("aria-disabled")).toBe("true");
+    expect(screen.getByText("Choisis d'abord une taille.")).toBeTruthy();
+  });
+
+  it("taille choisie : le bouton est actif ; sur mesure : les mesures s'envoient sur WhatsApp, aucun champ de mesure", async () => {
+    rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("M", "disponible"), t("sur_mesure", "sur_commande", 20)]} />);
+    await userEvent.click(screen.getByRole("radio", { name: /Sur mesure/ }));
+    expect(screen.getByRole("button", { name: "Ajouter au panier" }).getAttribute("aria-disabled")).toBeNull();
+    expect(screen.getByText(/mesures à Jonathan sur WhatsApp/)).toBeTruthy();
+    expect(screen.queryByRole("spinbutton")).toBeNull();
   });
 });
 
