@@ -4,13 +4,13 @@ import { getTranslations } from "next-intl/server";
 import { unstable_rethrow } from "next/navigation";
 import { connection } from "next/server";
 import { BadgeDisponibilite } from "@/components/catalogue/BadgeDisponibilite";
-import { CLASSES_PRINCIPAL } from "@/components/ui/classes";
+import { CLASSES_PRINCIPAL, CLASSES_SECONDAIRE } from "@/components/ui/classes";
 import { TitreVitrine } from "@/components/ui/TitreVitrine";
 import { cheminPublic } from "@/i18n/adresses";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { formaterUsd } from "@/lib/argent";
-import { lireHerosPublic, type HerosPublic, type VedetteHeros } from "@/modules/accueil/heros-queries";
+import { lireHerosPublic, type Disponibilite, type HerosPublic, type VedetteHeros } from "@/modules/accueil/heros-queries";
 import { MediaHeros } from "./MediaHeros";
 
 const FOND = { backgroundImage: "linear-gradient(135deg, var(--ks-hero-wash-start), var(--ks-hero-wash-end))" } as const;
@@ -41,36 +41,76 @@ async function BoutonVedette({ locale }: { locale: Locale }) {
   const heros = await lireHeros(locale);
   if (!heros?.vedette) return null;
   const t = await getTranslations({ locale, namespace: "Accueil.heros" });
-  // Sur ordinateur, l'accès à la fiche est la tuile de droite.
-  return (
-    <Link href={cheminPublic(locale, heros.vedette.href)} className={`${CLASSES_PRINCIPAL} self-start lg:hidden`}>
+  const vedette = heros.vedette;
+  // Option « Prêt à porter » (UX-DR23) : bouton principal, par défaut. Bouton secondaire vers le Kit lié publié (FR-1) : il
+  // n'est rendu que si le Cosplay vedette a un Kit lié publié (sinon la double option n'existe pas). Aucune sélection ne change
+  // de page ni ne déclenche d'action : chaque bouton est un lien vers la fiche concernée.
+  const boutonPrincipal = (
+    <Link href={cheminPublic(locale, vedette.href)} className={`${CLASSES_PRINCIPAL} self-start lg:hidden`}>
       {t("pretAPorter")}
     </Link>
   );
+  const boutonSecondaire = vedette.hrefKit ? (
+    <Link href={cheminPublic(locale, vedette.hrefKit)} className={`${CLASSES_SECONDAIRE} self-start lg:hidden`}>
+      {t("fabriquer")}
+    </Link>
+  ) : null;
+  return (
+    <>
+      {boutonPrincipal}
+      {boutonSecondaire}
+    </>
+  );
 }
+
+type OptionVedette = {
+  id: "porter" | "fabriquer";
+  href: string;
+  titre: string;
+  prixCents: number;
+  delaiJours: number | null;
+  badge: Disponibilite | null;
+  photoUrl: string | null;
+  photoAlt: string;
+};
 
 async function TuileVedette({ locale }: { locale: Locale }) {
   const heros = await lireHeros(locale);
   const vedette: VedetteHeros | null = heros?.vedette ?? null;
   if (!vedette) return null;
   const t = await getTranslations({ locale, namespace: "Accueil.heros" });
+  // Double option (UX-DR23) : « Prêt à porter » (photo, prix, délai) puis « Le fabriquer moi-même » (Kit lié, prix). Deux tuiles
+  // verticales à droite du média ; une seule si le Cosplay vedette n'a pas de Kit lié publié.
+  const options: OptionVedette[] = [
+    { id: "porter", href: vedette.href, titre: vedette.titre, prixCents: vedette.prixCents, delaiJours: vedette.delaiJours, badge: vedette.disponibilite, photoUrl: vedette.photoUrl, photoAlt: vedette.photoAlt },
+  ];
+  if (vedette.hrefKit && vedette.titreKit && vedette.prixCentsKit !== null) {
+    options.push({ id: "fabriquer", href: vedette.hrefKit, titre: vedette.titreKit, prixCents: vedette.prixCentsKit, delaiJours: null, badge: null, photoUrl: null, photoAlt: "" });
+  }
   return (
-    <article className="verre-fort relative hidden overflow-hidden focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary lg:flex lg:w-1/3 lg:shrink-0 lg:flex-col">
-      <div className="relative aspect-[4/5] w-full bg-background">
-        <Image src={vedette.photoUrl} alt={vedette.photoAlt} fill sizes="33vw" className="object-cover" />
-      </div>
-      <div className="flex flex-col gap-1 p-4">
-        <p className="t-label text-text-primary">{t("pretAPorter")}</p>
-        <p className="t-h3">
-          <Link href={cheminPublic(locale, vedette.href)} className="text-text-primary no-underline after:absolute after:inset-0 focus-visible:outline-none">
-            {vedette.titre}
-          </Link>
-        </p>
-        <p className="t-price-card text-text-primary">{formaterUsd(vedette.prixCents, locale)}</p>
-        <BadgeDisponibilite etat={vedette.disponibilite} />
-        {vedette.delaiJours !== null ? <p className="t-small text-text-primary">{t("delai", { n: vedette.delaiJours })}</p> : null}
-      </div>
-    </article>
+    <div className="hidden lg:flex lg:w-1/3 lg:shrink-0 lg:flex-col lg:gap-4">
+      {options.map((o) => (
+        <article key={o.id} className="verre-fort relative overflow-hidden focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary">
+          {o.photoUrl ? (
+            <div className="relative aspect-[4/5] w-full bg-background">
+              <Image src={o.photoUrl} alt={o.photoAlt} fill sizes="33vw" className="object-cover" />
+            </div>
+          ) : null}
+          <div className="flex flex-col gap-1 p-4">
+            <p className="t-label text-text-primary">{o.id === "porter" ? t("pretAPorter") : t("fabriquer")}</p>
+            <p className="t-h3">
+              <Link href={cheminPublic(locale, o.href)} className="text-text-primary no-underline after:absolute after:inset-0 focus-visible:outline-none">
+                {o.titre}
+              </Link>
+            </p>
+            <p className="t-price-card text-text-primary">{formaterUsd(o.prixCents, locale)}</p>
+            {o.badge ? <BadgeDisponibilite etat={o.badge} /> : null}
+            {o.delaiJours !== null ? <p className="t-small text-text-primary">{t("delai", { n: o.delaiJours })}</p> : null}
+            {o.id === "fabriquer" ? <p className="t-small text-text-primary">{t("acces")}</p> : null}
+          </div>
+        </article>
+      ))}
+    </div>
   );
 }
 

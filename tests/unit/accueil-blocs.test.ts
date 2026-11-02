@@ -22,14 +22,14 @@ function carte(i: number) {
 }
 
 describe("liste ordonnée des blocs", () => {
-  it("suit l'ordre de FR-2 et affiche héros, tuiles, bloc 2, bloc 6 et bloc 8 seulement", () => {
+  it("suit l'ordre de FR-2 et affiche héros, tuiles, bloc 1 (kits), bloc 2, bloc 6 et bloc 8", () => {
     expect(BLOCS_ACCUEIL.map((b) => b.id)).toEqual(["heros", "categories", "kits", "cosplaysRecents", "galerie", "rendezVousOtaku", "guides", "jonathan", "bloc7", "faqCourte"]);
-    expect(blocsAffiches().map((b) => b.id)).toEqual(["heros", "categories", "cosplaysRecents", "jonathan", "faqCourte"]);
+    expect(blocsAffiches().map((b) => b.id)).toEqual(["heros", "categories", "kits", "cosplaysRecents", "jonathan", "faqCourte"]);
   });
 
-  it("les emplacements des blocs 1, 3, 4, 5 et 7 sont réservés et documentés", () => {
+  it("les emplacements des blocs 3, 4, 5 et 7 sont réservés et documentés", () => {
     const reserves = BLOCS_ACCUEIL.filter((b) => b.etat === "reserve");
-    expect(reserves.map((b) => b.numero)).toEqual([1, 3, 4, 5, 7]);
+    expect(reserves.map((b) => b.numero)).toEqual([3, 4, 5, 7]);
     for (const b of reserves) expect("arrivePar" in b && b.arrivePar.length > 0).toBe(true);
   });
 });
@@ -78,7 +78,7 @@ describe("textes de l'accueil", () => {
     });
 
     it(`${langue} : titres de blocs en majuscules sans accent`, () => {
-      for (const titre of [accueil.categories.titre, accueil.cosplaysRecents.titre, accueil.jonathan.titre, accueil.faqCourte.titre]) {
+      for (const titre of [accueil.categories.titre, accueil.kits.titre, accueil.cosplaysRecents.titre, accueil.jonathan.titre, accueil.faqCourte.titre]) {
         expect(titre).toBe(titre.toUpperCase());
         expect(titre.normalize("NFD")).not.toMatch(/[̀-ͯ]/);
       }
@@ -87,6 +87,7 @@ describe("textes de l'accueil", () => {
     it(`${langue} : tuiles vers les catalogues de la langue`, () => {
       expect(cheminPublic(langue, "/cosplays")).toBe("/cosplays");
       expect(cheminPublic(langue, "/accessoires")).toBe(langue === "fr" ? "/accessoires" : "/accessories");
+      expect(cheminPublic(langue, "/kits")).toBe("/kits");
     });
 
     it(`${langue} : la FAQ courte lit les entrées de Faq et n'a aucun JSON-LD tant qu'elles portent le marqueur`, () => {

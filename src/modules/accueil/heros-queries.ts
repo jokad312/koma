@@ -5,6 +5,7 @@ import { creerClientService } from "@/lib/supabase/service";
 import { urlPhotoPublique } from "@/lib/supabase/stockage";
 import { lireFicheProduit } from "@/modules/catalogue/queries";
 import type { Disponibilite } from "@/modules/catalogue/types";
+export type { Disponibilite };
 import { adresseVideoHeros, resumerDisponibilite } from "./heros-affichage";
 import type { EtatHeros } from "./heros-types";
 
@@ -62,9 +63,15 @@ export async function lireHerosAdmin(): Promise<HerosAdmin> {
 export type VedetteHeros = {
   titre: string;
   href: string;
+  // Kit lié publié à la fiche de la vedette (double option, story 3.4) : « /kits/<slug> ». Null si le Cosplay vedette n'a pas de Kit lié publié.
+  hrefKit: string | null;
+  // Titre du Kit lié publié (FR-1).
+  titreKit: string | null;
   photoUrl: string;
   photoAlt: string;
   prixCents: number;
+  // Prix du Kit lié publié (FR-1) ; null si le Cosplay vedette n'a pas de Kit lié publié.
+  prixCentsKit: number | null;
   disponibilite: Disponibilite;
   // Délai de fabrication (jours) le plus court parmi les tailles sur commande ; null s'il n'y en a pas.
   delaiJours: number | null;
@@ -93,12 +100,16 @@ export async function lireHerosPublic(locale: "fr" | "en", hoteCdn: string | nul
     const fiche = produit.data ? await lireFicheProduit("cosplay", produit.data.slug, locale) : null;
     if (fiche && fiche.photos[0]) {
       const { etat: disponibilite, delaiJours } = resumerDisponibilite(fiche);
+      const hrefKit = fiche.kitLie ? `/kits/${fiche.kitLie.slug}` : null;
       vedette = {
         titre: fiche.titre,
         href: `/cosplays/${fiche.slug}`,
+        hrefKit,
+        titreKit: fiche.kitLie?.titre ?? null,
         photoUrl: fiche.photos[0].url,
         photoAlt: fiche.photos[0].alt,
         prixCents: fiche.prixCents,
+        prixCentsKit: fiche.kitLie?.prixCents ?? null,
         disponibilite,
         delaiJours,
       };

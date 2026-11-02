@@ -52,20 +52,25 @@ for (const langue of ["fr", "en"] as const) {
     await page.goto(`/${langue}`);
     await expect(page.locator("h1")).toHaveCount(1);
     const titres = langue === "fr"
-      ? { categories: "CATEGORIES", cosplays: "FAIT MAIN A GOMA", jonathan: "JONATHAN EN TROIS PHRASES", faq: "REPONSES RAPIDES" }
-      : { categories: "CATEGORIES", cosplays: "HANDMADE IN GOMA", jonathan: "JONATHAN IN THREE SENTENCES", faq: "QUICK ANSWERS" };
+      ? { categories: "CATEGORIES", kits: "KITS", cosplays: "FAIT MAIN A GOMA", jonathan: "JONATHAN EN TROIS PHRASES", faq: "REPONSES RAPIDES" }
+      : { categories: "CATEGORIES", kits: "KITS", cosplays: "HANDMADE IN GOMA", jonathan: "JONATHAN IN THREE SENTENCES", faq: "QUICK ANSWERS" };
     const h2 = page.locator("main h2");
-    // « Fait main à Goma » n'existe que si des cartes sont affichées : le nombre de `li` de sa section en décide, sans tolérance.
+    // « Fait main à Goma » et le bloc Kits n'existent que si leurs sections portent des éléments : le nombre de `li` de la section en décide, sans tolérance.
     const sectionCosplays = page.locator('main section[aria-labelledby="accueil-cosplays-recents"]');
     const avecCartes = (await sectionCosplays.count()) === 1;
     if (avecCartes) expect(await sectionCosplays.locator("li").count()).toBeGreaterThan(0);
-    const attendus = avecCartes
-      ? [titres.categories, titres.cosplays, titres.jonathan, titres.faq]
-      : [titres.categories, titres.jonathan, titres.faq];
-    await expect(h2).toHaveText(attendus);
+    const sectionKits = page.locator('main section[aria-labelledby="accueil-kits"]');
+    const avecKits = (await sectionKits.count()) === 1;
+    if (avecKits) expect(await sectionKits.locator("li").count()).toBeGreaterThan(0);
+    const attentesH2: string[] = [titres.categories];
+    if (avecKits) attentesH2.push(titres.kits);
+    if (avecCartes) attentesH2.push(titres.cosplays);
+    attentesH2.push(titres.jonathan, titres.faq);
+    await expect(h2).toHaveText(attentesH2);
     const tuiles = page.locator('section[aria-labelledby="accueil-categories"]');
     await expect(tuiles.locator(`a[href="/${langue}/cosplays"]`)).toBeVisible();
     await expect(tuiles.locator(`a[href="/${langue}/${langue === "fr" ? "accessoires" : "accessories"}"]`)).toBeVisible();
+    await expect(tuiles.locator(`a[href="/${langue}/kits"]`)).toBeVisible();
     await expect(page.locator("main details")).toHaveCount(3);
   });
 
@@ -73,9 +78,11 @@ for (const langue of ["fr", "en"] as const) {
     await page.setViewportSize({ width: 320, height: 800 });
     await page.goto(`/${langue}`);
     const tuiles = page.locator('section[aria-labelledby="accueil-categories"] ul a');
-    await expect(tuiles).toHaveCount(2);
-    const [a, b] = await Promise.all([tuiles.nth(0).boundingBox(), tuiles.nth(1).boundingBox()]);
-    expect(a && b && Math.abs(a.x - b.x) < 1).toBe(true);
+    await expect(tuiles).toHaveCount(3);
+    const boites = await Promise.all([tuiles.nth(0).boundingBox(), tuiles.nth(1).boundingBox(), tuiles.nth(2).boundingBox()]);
+    for (const boite of boites) expect(boite).not.toBeNull();
+    const xs = boites.map((b) => b?.x ?? Number.NaN);
+    expect(new Set(xs).size).toBe(1);
     const deborde = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(deborde).toBe(false);
   });

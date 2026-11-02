@@ -77,6 +77,8 @@
       "surtitre": "Handmade in Goma",
       "accroche": "Become your character.",
       "pretAPorter": "Ready to wear",
+      "fabriquer": "Make it yourself",
+      "acces": "Immediate access",
       "delai": "{n, plural, one {Made to order: # day} other {Made to order: # days}}",
       "pause": "Pause the video",
       "lecture": "Play the video"
@@ -90,7 +92,16 @@
       "accessoires": {
         "nom": "Accessories",
         "description": "Wigs, prop weapons, masks, armor and jewelry"
+      },
+      "kits": {
+        "nom": "Kits",
+        "description": "DIY cosplay kits: PDF, SVG and STL patterns and a video tutorial in chapters, lifetime access"
       }
+    },
+    "kits": {
+      "titre": "KITS",
+      "gratuit": "Your first freebie, gifted.",
+      "voirTout": "See all kits"
     },
     "cosplaysRecents": {
       "titre": "HANDMADE IN GOMA",

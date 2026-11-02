@@ -77,6 +77,8 @@
       "surtitre": "Fait main à Goma",
       "accroche": "Deviens ton personnage.",
       "pretAPorter": "Prêt à porter",
+      "fabriquer": "Le fabriquer moi-même",
+      "acces": "Accès immédiat",
       "delai": "{n, plural, one {Fabrication : # jour} other {Fabrication : # jours}}",
       "pause": "Mettre la vidéo en pause",
       "lecture": "Lire la vidéo"
@@ -90,7 +92,16 @@
       "accessoires": {
         "nom": "Accessoires",
         "description": "Perruques, armes factices, masques, armures et bijoux"
+      },
+      "kits": {
+        "nom": "Kits",
+        "description": "Kits de cosplay à fabriquer soi-même : patrons PDF, SVG et STL et tutoriel vidéo en chapitres, accès à vie"
       }
+    },
+    "kits": {
+      "titre": "KITS",
+      "gratuit": "Ton premier accessoire, offert.",
+      "voirTout": "Voir tous les kits"
     },
     "cosplaysRecents": {
       "titre": "FAIT MAIN A GOMA",

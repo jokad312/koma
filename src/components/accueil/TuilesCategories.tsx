@@ -7,9 +7,10 @@ import type { Locale } from "@/i18n/routing";
 const CATEGORIES = [
   { cle: "cosplays", interne: "/cosplays" },
   { cle: "accessoires", interne: "/accessoires" },
+  { cle: "kits", interne: "/kits" },
 ] as const;
 
-// Deux tuiles de texte (aucune image : règle 6) vers les catalogues. Une colonne sous 360 px, deux au-delà.
+// Trois tuiles de texte (aucune image : règle 6) vers les catalogues. Une colonne sous 360 px, deux au-delà.
 // L'élévation au survol et au focus n'existe qu'en mouvement normal.
 export function TuilesCategories() {
   const t = useTranslations("Accueil.categories");

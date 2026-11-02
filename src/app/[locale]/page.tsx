@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Suspense, type ReactNode } from "react";
 import { BlocCosplaysRecents } from "@/components/accueil/BlocCosplaysRecents";
 import { BlocFaqCourte } from "@/components/accueil/BlocFaqCourte";
+import { BlocKits } from "@/components/accueil/BlocKits";
 import { HerosAccueil } from "@/components/accueil/HerosAccueil";
 import { BlocJonathan } from "@/components/accueil/BlocJonathan";
 import { TuilesCategories } from "@/components/accueil/TuilesCategories";
@@ -28,6 +29,13 @@ function rendreBloc(id: string, locale: Locale): ReactNode {
       return <HerosAccueil locale={locale} />;
     case "categories":
       return <TuilesCategories />;
+    case "kits":
+      // Les Kits publiés, le Kit gratuit en évidence ; le bloc se masque sans Kit publié (FR-2).
+      return (
+        <Suspense fallback={null}>
+          <BlocKits locale={locale} />
+        </Suspense>
+      );
     case "cosplaysRecents":
       // Lu à chaque requête (badge de disponibilité) ; pas de repli visible : le bloc n'existe qu'une fois ses cosplays lus.
       return (

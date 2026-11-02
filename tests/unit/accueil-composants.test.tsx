@@ -99,7 +99,7 @@ describe("TuilesCategories", () => {
       rendre(<TuilesCategories />, langue);
       expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(1);
       const liens = within(screen.getByRole("list")).getAllByRole("link");
-      expect(liens.map((l) => l.getAttribute("href"))).toEqual(["/cosplays", langue === "fr" ? "/accessoires" : "/accessories"]);
+      expect(liens.map((l) => l.getAttribute("href"))).toEqual(["/cosplays", langue === "fr" ? "/accessoires" : "/accessories", "/kits"]);
     });
   }
 });
