@@ -122,8 +122,9 @@ insert into public.variante (id, produit_id, taille, stock) values
   ('00000000-0000-0000-0000-00000000fb02', '00000000-0000-0000-0000-00000000fa02', 'M', 3);
 set local role anon;
 select throws_ok($$select public.stock_disponible('00000000-0000-0000-0000-00000000fb01')$$, '42501', null, 'anon : stock_disponible refusée (le stock exact n''est pas public)');
-select is(public.places_fabrication_utilisees(), 0, 'anon : aucune place de fabrication utilisée');
+select throws_ok($$select public.places_fabrication_utilisees()$$, '42501', null, 'anon : places_fabrication_utilisees refusée (le nombre de pièces sur commande n''est pas public)');
 reset role;
+select is(public.places_fabrication_utilisees(), 0, 'le propriétaire lit : aucune place de fabrication utilisée');
 select is(public.stock_disponible('00000000-0000-0000-0000-00000000fb01'), 7, 'le propriétaire lit le stock d''une variante publiée');
 select is(public.stock_disponible('00000000-0000-0000-0000-00000000fb02'), 3, 'le propriétaire voit le stock d''un brouillon');
 select is(public.stock_disponible('00000000-0000-0000-0000-00000000ffff'), null, 'variante inconnue : valeur nulle');
@@ -134,9 +135,10 @@ select ok(
   not has_function_privilege('anon', 'public.stock_disponible(uuid)', 'execute')
   and not has_function_privilege('authenticated', 'public.stock_disponible(uuid)', 'execute')
   and has_function_privilege('service_role', 'public.stock_disponible(uuid)', 'execute')
-  and has_function_privilege('anon', 'public.places_fabrication_utilisees()', 'execute')
-  and has_function_privilege('authenticated', 'public.places_fabrication_utilisees()', 'execute'),
-  'stock_disponible est réservée au service_role ; places_fabrication_utilisees reste publique'
+  and not has_function_privilege('anon', 'public.places_fabrication_utilisees()', 'execute')
+  and not has_function_privilege('authenticated', 'public.places_fabrication_utilisees()', 'execute')
+  and has_function_privilege('service_role', 'public.places_fabrication_utilisees()', 'execute'),
+  'stock_disponible et places_fabrication_utilisees sont réservées au service_role'
 );
 select ok(
   (select bool_and(p.provolatile = 's' and not p.prosecdef)

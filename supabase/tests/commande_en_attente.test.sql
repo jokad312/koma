@@ -2,7 +2,7 @@
 -- Kit déjà présent, indisponibilité), réservations qui comptent dans stock_disponible et places_fabrication_utilisees, expirer_commandes_echues,
 -- réglage delai_paiement. Données créées dans la transaction, puis annulées.
 begin;
-select plan(49);
+select plan(54);
 
 select set_config('ks.auteur', '{"type":"systeme","nom":"test"}', true);
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -49,8 +49,9 @@ select is(
 select ok(not has_function_privilege('service_role', 'public.commande_calculer(uuid, uuid, text, text, boolean)', 'execute'), 'commande_calculer est interne : aucun rôle');
 select ok(
   not has_function_privilege('anon', 'public.stock_disponible(uuid)', 'execute') and not has_function_privilege('authenticated', 'public.stock_disponible(uuid)', 'execute')
-  and has_function_privilege('anon', 'public.places_fabrication_utilisees()', 'execute'),
-  'stock_disponible reste fermée au public ; places_fabrication_utilisees reste ouverte'
+  and not has_function_privilege('anon', 'public.places_fabrication_utilisees()', 'execute')
+  and not has_function_privilege('authenticated', 'public.places_fabrication_utilisees()', 'execute'),
+  'stock_disponible et places_fabrication_utilisees sont fermées au public'
 );
 
 -- Réglage delai_paiement : valeur de départ, saisie par l'Admin, bornes.
@@ -100,6 +101,19 @@ select is((select origine from public.ligne_commande where commande_id = (select
 select is((select delai_fabrication_jours from public.ligne_commande where commande_id = (select (r ->> 'commande_id')::uuid from cr) and origine = 'fabrication'), 14, 'délai annoncé figé');
 select is(public.stock_disponible((select id from vm)), 0, 'les réservations comptent dans stock_disponible');
 select is(public.places_fabrication_utilisees(), 2, 'les réservations sur commande comptent dans le Plafond');
+
+-- Le public n'obtient que l'état du Plafond (atteint ou non), jamais le nombre de pièces sur commande.
+set local role anon;
+select is(public.capacite_fabrication_atteinte(), false, 'anon : 2 pièces réservées, Plafond 3 : état « non atteint »');
+select throws_ok($$select public.places_fabrication_utilisees()$$, '42501', null, 'anon : le nombre de pièces sur commande est refusé');
+select is(pg_typeof(public.capacite_fabrication_atteinte())::text, 'boolean', 'anon : la fonction publique ne renvoie qu''un booléen, pas un compte');
+reset role;
+update public.reglage set valeur = '2' where cle = 'plafond_fabrication';
+set local role anon;
+select is(public.capacite_fabrication_atteinte(), true, 'anon : 2 pièces réservées, Plafond 2 : état « atteint » (« Commandes complètes pour le moment »)');
+select is((select count(*)::int from public.reglage where cle = 'plafond_fabrication'), 0, 'anon : le Plafond lui-même reste illisible');
+reset role;
+update public.reglage set valeur = '3' where cle = 'plafond_fabrication';
 select is((select count(*)::int from public.ligne_panier where panier_id = (select id from pp)), 3, 'le Panier reste intact');
 select is((public.creer_commande(pg_temp.c1(), (select id from pp), 'goma', 'retrait', '+243 990 000 000', null, pg_temp.acc(), 'tiktok', 20990, (select v from emp), 'cle-cm-0001') ->> 'rejeu')::boolean, true, 'même clé : la même Commande');
 select is((select count(*)::int from public.commande where statut = 'en_attente'), 1, 'toujours une seule Commande');

@@ -11,7 +11,7 @@ create temp view ks_fonctions_ouvertes as
 select p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')' as fonction
 from pg_proc p
 where p.pronamespace = 'public'::regnamespace
-  and p.proname not in ('a_le_role', 'places_fabrication_utilisees', 'lister_catalogue', 'capacite_fabrication_atteinte', 'disponibilite_variantes')
+  and p.proname not in ('a_le_role', 'lister_catalogue', 'capacite_fabrication_atteinte', 'disponibilite_variantes')
   and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e')
   and (has_function_privilege('anon', p.oid, 'execute') or has_function_privilege('authenticated', p.oid, 'execute'));
 
@@ -31,7 +31,7 @@ select ok(
 select ok(
   not has_function_privilege('anon', 'public.stock_disponible(uuid)', 'execute')
   and not has_function_privilege('authenticated', 'public.stock_disponible(uuid)', 'execute')
-  and has_function_privilege('authenticated', 'public.places_fabrication_utilisees()', 'execute')
+  and not has_function_privilege('authenticated', 'public.places_fabrication_utilisees()', 'execute')
   and has_function_privilege('anon', 'public.capacite_fabrication_atteinte()', 'execute')
   and has_function_privilege('anon', 'public.disponibilite_variantes(uuid)', 'execute')
   and has_function_privilege('authenticated', 'public.disponibilite_variantes(uuid)', 'execute')
