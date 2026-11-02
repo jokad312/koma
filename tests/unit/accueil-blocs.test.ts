@@ -22,9 +22,9 @@ function carte(i: number) {
 }
 
 describe("liste ordonnée des blocs", () => {
-  it("suit l'ordre de FR-2 et affiche héros, tuiles, bloc 1 « Porte-le ou fabriquer-le », bloc 2, bloc 6 et bloc 8", () => {
-    expect(BLOCS_ACCUEIL.map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrire", "kits", "cosplaysRecents", "galerie", "rendezVousOtaku", "guides", "jonathan", "bloc7", "faqCourte"]);
-    expect(blocsAffiches().map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrire", "kits", "cosplaysRecents", "jonathan", "faqCourte"]);
+  it("suit l'ordre de FR-2 et affiche héros, tuiles, bloc 1 « Porte-le ou fabrique-le », bloc 2, bloc 6 et bloc 8", () => {
+    expect(BLOCS_ACCUEIL.map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrique", "kits", "cosplaysRecents", "galerie", "rendezVousOtaku", "guides", "jonathan", "bloc7", "faqCourte"]);
+    expect(blocsAffiches().map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrique", "kits", "cosplaysRecents", "jonathan", "faqCourte"]);
   });
 
   it("les emplacements des blocs 3, 4, 5 et 7 sont réservés et documentés", () => {
@@ -72,11 +72,9 @@ describe("textes de l'accueil", () => {
   for (const langue of ["fr", "en"] as const) {
     const accueil = messages[langue].Accueil;
 
-    it(`${langue} : seules les phrases du bloc « Jonathan » et, en anglais, le titre du bloc 1 portent le marqueur`, () => {
+    it(`${langue} : seules les phrases du bloc « Jonathan » portent le marqueur`, () => {
       const marqueurs = trouverMarqueurs(messages[langue], ["Accueil"]);
-      const attendus = langue === "fr"
-        ? ["Accueil.jonathan.phrase1", "Accueil.jonathan.phrase2", "Accueil.jonathan.phrase3"]
-        : ["Accueil.porteOuFabrire.titre", "Accueil.jonathan.phrase1", "Accueil.jonathan.phrase2", "Accueil.jonathan.phrase3"];
+      const attendus = ["Accueil.jonathan.phrase1", "Accueil.jonathan.phrase2", "Accueil.jonathan.phrase3"];
       expect(marqueurs).toEqual(attendus);
       expect(contientMarqueur(accueil.heros.accroche)).toBe(false);
     });
@@ -87,10 +85,10 @@ describe("textes de l'accueil", () => {
         expect(titre).toBe(titre.toUpperCase());
         expect(titre.normalize("NFD")).not.toMatch(/[̀-ͯ]/);
       }
-      // Bloc 1 « Porte-le ou fabriquer-le » : le FR est en majuscules sans accent ; l'EN attend le [Texte à fournir].
-      const titreBloc1 = accueil.porteOuFabrire.titre;
+      // Bloc 1 « Porte-le ou fabrique-le » : le FR est en majuscules sans accent ; l'EN est « Wear it or make it » en majuscules.
+      const titreBloc1 = accueil.porteOuFabrique.titre;
       if (langue === "fr") expect(titreBloc1).toBe("PORTE-LE OU FABRIQUE-LE");
-      else expect(titreBloc1).toBe("[Texte à fournir]");
+      else expect(titreBloc1).toBe("WEAR IT OR MAKE IT");
     });
 
     it(`${langue} : tuiles vers les catalogues de la langue`, () => {

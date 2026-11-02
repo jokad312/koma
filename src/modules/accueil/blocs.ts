@@ -4,7 +4,7 @@
 export type BlocAccueil =
   | { id: "heros"; numero: null; etat: "affiche" }
   | { id: "categories"; numero: null; etat: "affiche" }
-  | { id: "porteOuFabrire"; numero: 1; etat: "affiche" }
+  | { id: "porteOuFabrique"; numero: 1; etat: "affiche" }
   | { id: "kits"; numero: 3; etat: "affiche" }
   | { id: "cosplaysRecents"; numero: 2; etat: "affiche" }
   | { id: "galerie"; numero: 3; etat: "reserve"; arrivePar: "epic 3" }
@@ -17,7 +17,7 @@ export type BlocAccueil =
 export const BLOCS_ACCUEIL: readonly BlocAccueil[] = [
   { id: "heros", numero: null, etat: "affiche" },
   { id: "categories", numero: null, etat: "affiche" },
-  { id: "porteOuFabrire", numero: 1, etat: "affiche" },
+  { id: "porteOuFabrique", numero: 1, etat: "affiche" },
   { id: "kits", numero: 3, etat: "affiche" },
   { id: "cosplaysRecents", numero: 2, etat: "affiche" },
   { id: "galerie", numero: 3, etat: "reserve", arrivePar: "epic 3" },

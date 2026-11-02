@@ -340,7 +340,7 @@ export async function lireFicheProduit(famille: FamillePhysique, slug: string, l
   const client = creerClientPublic();
   const produit = await client
     .from("produit")
-    .select("id, slug, famille, titre_fr, titre_en, description_fr, description_en, prix_cents, produit_lie_id")
+    .select("id, slug, famille, titre_fr, titre_en, description_fr, description_en, prix_cents")
     .eq("slug", slug)
     .eq("famille", famille)
     .maybeSingle();
@@ -348,25 +348,25 @@ export async function lireFicheProduit(famille: FamillePhysique, slug: string, l
   const p = produit.data;
   if (!p || p.prix_cents === null) return null;
 
-  // Kit lié publié (double option, story 3.4) : un seul possible ; le visiteur n'est proposé qu'à fabriquer un Kit publié et
-  // visible publiquement. Le prix est celui du Kit, lu en base, jamais calculé côté client. null : pas de Kit lié, ou Kit non publié.
+  // Kit lié publié (double option, story 3.4) : le lien est porté par le Kit (produit_lie_id = id du produit physique, unique). Un seul
+  // possible ; le visiteur n'est proposé qu'à fabriquer un Kit publié et visible publiquement. Le prix est celui du Kit, lu en base,
+  // jamais calculé côté client. null : pas de Kit lié, ou Kit non publié. Une erreur de lecture est relancée.
   let kitLie: KitLieFiche | null = null;
-  if (p.produit_lie_id) {
-    const kit = await client
-      .from("produit")
-      .select("slug, titre_fr, titre_en, prix_cents, niveau, publie_le")
-      .eq("produit_lie_id", p.produit_lie_id)
-      .eq("famille", "kit")
-      .maybeSingle();
-    const k = kit.data;
-    if (k && k.publie_le && k.prix_cents !== null) {
-      kitLie = {
-        slug: k.slug,
-        titre: (langue === "en" ? k.titre_en?.trim() : "") || k.titre_fr,
-        prixCents: k.prix_cents,
-        niveau: NIVEAUX_CONNUS.includes(k.niveau) ? (k.niveau as NiveauKit) : null,
-      };
-    }
+  const kit = await client
+    .from("produit")
+    .select("slug, titre_fr, titre_en, prix_cents, niveau, publie_le")
+    .eq("famille", "kit")
+    .eq("produit_lie_id", p.id)
+    .maybeSingle();
+  if (kit.error) throw new Error("Lecture de la fiche impossible.");
+  const k = kit.data;
+  if (k && k.publie_le && k.prix_cents !== null) {
+    kitLie = {
+      slug: k.slug,
+      titre: (langue === "en" ? k.titre_en?.trim() : "") || k.titre_fr,
+      prixCents: k.prix_cents,
+      niveau: NIVEAUX_CONNUS.includes(k.niveau) ? (k.niveau as NiveauKit) : null,
+    };
   }
 
   const [photos, dispo] = await Promise.all([

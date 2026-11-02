@@ -201,7 +201,7 @@ describe("ZoneAchat : tailles", () => {
   });
 
   it("capacité atteinte et Kit lié publié : « Commandes complètes pour le moment » accompagné de la proposition du Kit (FR-10)", () => {
-    rendre(<ZoneAchat {...props} tailles={[t("M", "disponible"), t("L", "complet")]} kit={{ slug: "test-kit", titre: "TEST_Kit", prixCents: 18000, niveau: "debutant" } as KitLieFiche} />);
+    rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("M", "disponible"), t("L", "complet")]} kit={{ slug: "test-kit", titre: "TEST_Kit", prixCents: 18000, niveau: "debutant" } as KitLieFiche} />);
     expect(screen.getByText("Commandes complètes pour le moment")).toBeTruthy();
     expect(screen.getByText("Kit lié")).toBeTruthy();
     expect(screen.getByText("Accès immédiat, à vie")).toBeTruthy();
@@ -210,7 +210,7 @@ describe("ZoneAchat : tailles", () => {
   });
 
   it("capacité atteinte et sans Kit lié : le message seul, aucune proposition", () => {
-    rendre(<ZoneAchat {...props} tailles={[t("L", "complet")]} />);
+    rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("L", "complet")]} />);
     expect(screen.getByText("Commandes complètes pour le moment")).toBeTruthy();
     expect(screen.queryByText("Kit lié")).toBeNull();
     expect(screen.queryByRole("link", { name: "Voir le kit" })).toBeNull();
@@ -305,6 +305,7 @@ describe("BandeauZone", () => {
 
 describe("DoubleOption", () => {
   const props = {
+    produitId: "00000000-0000-4000-8000-0000000000bb",
     kit: { slug: "test-kit", titre: "TEST_Kit", prixCents: 18000, niveau: "debutant" } as KitLieFiche,
     locale: "fr" as const,
     tailles: [t("M", "disponible")],

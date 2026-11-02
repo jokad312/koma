@@ -63,10 +63,10 @@ for (const langue of ["fr", "en"] as const) {
     const avecKits = (await sectionKits.count()) === 1;
     if (avecKits) expect(await sectionKits.locator("li").count()).toBeGreaterThan(0);
     const attentesH2: string[] = [titres.categories];
-    const sectionPorteOuFabrire = page.locator('main section[aria-labelledby="accueil-porte-ou-fabrire"]');
-    const avecPorteOuFabrire = (await sectionPorteOuFabrire.count()) === 1;
-    const titrePorteOuFabrire = langue === "fr" ? "PORTE-LE OU FABRIQUE-LE" : "[Texte à fournir]";
-    if (avecPorteOuFabrire) attentesH2.push(titrePorteOuFabrire);
+    const sectionPorteOuFabrique = page.locator('main section[aria-labelledby="accueil-porte-ou-fabrique"]');
+    const avecPorteOuFabrique = (await sectionPorteOuFabrique.count()) === 1;
+    const titrePorteOuFabrique = langue === "fr" ? "PORTE-LE OU FABRIQUE-LE" : "WEAR IT OR MAKE IT";
+    if (avecPorteOuFabrique) attentesH2.push(titrePorteOuFabrique);
     if (avecKits) attentesH2.push(titres.kits);
     if (avecCartes) attentesH2.push(titres.cosplays);
     attentesH2.push(titres.jonathan, titres.faq);

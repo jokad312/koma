@@ -13,7 +13,7 @@ describe("texte en dur dans les props (point reporté de la 1.2)", () => {
     expect(await regles('export const A = () => <a title="Aide" href="/a" />;\n')).toContain("no-restricted-syntax");
     expect(await regles('export const A = () => <input placeholder="Nom" />;\n')).toContain("no-restricted-syntax");
     expect(await regles('export const A = () => <img alt={"x"} src="/a.png" />;\n')).toContain("no-restricted-syntax");
-  });
+  }, 90_000); // cinq passes ESLint à la suite : lent quand plusieurs fichiers de test tournent en parallèle
 
   it("accepte un texte venu des traductions et alt vide (image décorative)", async () => {
     const code = 'export const A = ({ t }: { t: (k: string) => string }) => (<><img alt={t("a")} src="/a.png" /><img alt="" src="/b.png" /></>);\n';

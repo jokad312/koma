@@ -2,7 +2,7 @@
 title: 'Story 3.4 : Double option et Kit lié dans toute la boutique'
 type: 'feature'
 created: '2026-11-01'
-status: 'ready-for-dev'
+status: 'done'
 baseline_commit: 'e573f4cc14bd3981bf8cab8efc4f86c0e8fb0d36'
 route: 'dispatch'
 context:
@@ -15,7 +15,7 @@ context:
 
 **Problem:** Un Cosplay lié à un Kit publié (relation un pour un, colonne `produit_lie_id`) n'offre au visiteur qu'une seule option : « Prêt à porter » (cosplay physique, rendu par la Zone d'achat et le bandeau de zone). Le visiteur qui veut fabriquer n'a pas d'option claire, et le Kit lié n'est jamais proposé sur la fiche ni sur l'accueil (héros, bloc 1, tuiles). Les FR-7, FR-6, FR-10, FR-1 et FR-2 de l'epic 3 restent partiellement non implémentées côté public.
 
-**Approach:** Double option sur la fiche d'un produit physique publié avec un Kit lié : un sélecteur à deux options « Prêt à porter » / « Le fabriquer moi-même » (radios natifs, « Prêt à porter » par défaut) ; le choix « fabriquer » affiche sur place le panneau « Kit lié » (prix du Kit, accès immédiat, lien « Voir le kit ») et masque tailles, délai, bandeau et zone d'achat, sans changement de page (UX-DR23). Le bandeau de zone propose aussi le Kit lié avec un lien vers sa fiche (FR-6, UX-DR25). Si le Plafond de fabrication est atteint, « Commandes complètes pour le moment » est accompagné du Kit lié (FR-10). Sur l'accueil : bouton « Le fabricher moi-même » du héros vers la fiche du Kit, tuile affichant le prix du Kit (FR-1) ; bloc 1 « Porte-le ou fabrique-le » en deux colonnes (porté : prix et délai ; pièces : prix du Kit), seulement si le Cosplay vedette a un Kit lié publié ; bloc 3 « Kits » avec le Kit gratuit en évidence (FR-2).
+**Approach:** Double option sur la fiche d'un produit physique publié avec un Kit lié : un sélecteur à deux options « Prêt à porter » / « Le fabriquer moi-même » (radios natifs, « Prêt à porter » par défaut) ; le choix « fabriquer » affiche sur place le panneau « Kit lié » (prix du Kit, accès immédiat, lien « Voir le kit ») et masque tailles, délai, bandeau et zone d'achat, sans changement de page (UX-DR23). Le bandeau de zone propose aussi le Kit lié avec un lien vers sa fiche (FR-6, UX-DR25). Si le Plafond de fabrication est atteint, « Commandes complètes pour le moment » est accompagné du Kit lié (FR-10). Sur l'accueil : bouton « Le fabriquer moi-même » du héros vers la fiche du Kit, tuile affichant le prix du Kit (FR-1) ; bloc 1 « Porte-le ou fabrique-le » en deux colonnes (porté : prix et délai ; pièces : prix du Kit), seulement si le Cosplay vedette a un Kit lié publié ; bloc 3 « Kits » avec le Kit gratuit en évidence (FR-2).
 
 ## Boundaries & Constraints
 
@@ -54,7 +54,7 @@ context:
 **Acceptance Criteria:**
 - Given une fiche d'un Cosplay dont le Kit lié est publié, when elle s'affiche, then un sélecteur à deux options est présent, « Prêt à porter » par défaut (FR-7) ; « Le fabriquer moi-même » affiche sur place le panneau « Kit lié » (prix, accès immédiat, « Voir le kit ») et masque tailles, délai, bandeau et zone d'achat, sans changer de page (UX-DR23).
 - Given une fiche d'un produit physique dont le Kit lié est publié, when le bandeau de zone s'affiche, then il propose aussi le Kit lié avec un lien vers sa fiche (FR-6, UX-DR25) ; si le Plafond est atteint, « Commandes complètes pour le moment » est accompagné du Kit lié (FR-10).
-- Given le héros de l'accueil et le Cosplay vedette a un Kit lié publié, then le bouton « Le fabricher moi-même » mène à la fiche du Kit, et sur ordinateur la tuile correspondante affiche son prix (FR-1).
+- Given le héros de l'accueil et le Cosplay vedette a un Kit lié publié, then le bouton « Le fabriquer moi-même » mène à la fiche du Kit, et sur ordinateur la tuile correspondante affiche son prix (FR-1).
 - Given l'accueil, when il s'affiche, then le bloc 1 « Porte-le ou fabrique-le » montre le Cosplay vedette sur deux colonnes (porté : prix et délai ; en pièces : prix du Kit), seulement s'il a un Kit lié publié ; le bloc 3 « Kits » montre les Kits publiés, avec le Kit gratuit en évidence (« Ton premier accessoire, offert. ») quand il existe et est publié ; la tuile de catégorie Kits apparaît ; un bloc sans contenu reste masqué (FR-2).
 
 ## Spec Change Log

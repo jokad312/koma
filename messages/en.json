@@ -98,8 +98,8 @@
         "description": "DIY cosplay kits: PDF, SVG and STL patterns and a video tutorial in chapters, lifetime access"
       }
     },
-    "porteOuFabrire": {
-      "titre": "[Texte à fournir]"
+    "porteOuFabrique": {
+      "titre": "WEAR IT OR MAKE IT"
     },
     "kits": {
       "titre": "KITS",
@@ -1420,7 +1420,7 @@
       "libelle": "Do you prefer wearing or making?",
       "porter": "Ready to wear",
       "fabriquer": "Make it yourself",
-      "kitTitre": "Kit lié",
+      "kitTitre": "Linked kit",
       "acces": "Immediate access, for life",
       "voirLeKit": "See the kit"
     }

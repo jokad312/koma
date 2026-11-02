@@ -29,7 +29,7 @@ vi.mock("@/components/ui/TitreVitrine", () => ({
 
 import { BlocCosplaysRecents } from "@/components/accueil/BlocCosplaysRecents";
 import { BlocFaqCourte } from "@/components/accueil/BlocFaqCourte";
-import { BlocPorteOuFabrire } from "@/components/accueil/BlocPorteOuFabrire";
+import { BlocPorteOuFabrique } from "@/components/accueil/BlocPorteOuFabrique";
 import { TuilesCategories } from "@/components/accueil/TuilesCategories";
 
 const MARQUEUR = "[Texte à fournir]";
@@ -106,7 +106,7 @@ describe("TuilesCategories", () => {
   }
 });
 
-describe("BlocPorteOuFabrire", () => {
+describe("BlocPorteOuFabrique", () => {
   const herosAvecKit = () => ({
     videoUrl: null,
     repli: null,
@@ -126,7 +126,7 @@ describe("BlocPorteOuFabrire", () => {
 
   it("sans Kit lié publié : le bloc n'est pas rendu, aucun titre ni texte", async () => {
     faux.lire.mockResolvedValue({ videoUrl: null, repli: null, vedette: null });
-    const { container } = rendre(<>{await BlocPorteOuFabrire({ locale: "fr" })}</>);
+    const { container } = rendre(<>{await BlocPorteOuFabrique({ locale: "fr" })}</>);
     expect(container.textContent).toBe("");
     expect(screen.queryByRole("heading", { level: 2 })).toBeNull();
   });
@@ -134,14 +134,14 @@ describe("BlocPorteOuFabrire", () => {
   it("sans Kit lié publié sur la vedette : le bloc n'est pas rendu, même avec un héros", async () => {
     const vedette = herosAvecKit().vedette;
     faux.lire.mockResolvedValue({ videoUrl: null, repli: null, vedette: { ...vedette, hrefKit: null, titreKit: null, prixCentsKit: null } });
-    const { container } = rendre(<>{await BlocPorteOuFabrire({ locale: "fr" })}</>);
+    const { container } = rendre(<>{await BlocPorteOuFabrique({ locale: "fr" })}</>);
     expect(container.textContent).toBe("");
     expect(screen.queryByRole("heading", { level: 2 })).toBeNull();
   });
 
   it("avec un Kit lié publié : un seul h2, les deux colonnes porté / fabriqué, prix et délai, liens vers la vedette et au Kit", async () => {
     faux.lire.mockResolvedValue({ videoUrl: null, repli: null, vedette: herosAvecKit().vedette });
-    const { container } = rendre(<>{await BlocPorteOuFabrire({ locale: "fr" })}</>);
+    const { container } = rendre(<>{await BlocPorteOuFabrique({ locale: "fr" })}</>);
     expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(1);
     expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("PORTE-LE OU FABRIQUE-LE");
     const colonnes = screen.getAllByRole("article");
@@ -159,9 +159,9 @@ describe("BlocPorteOuFabrire", () => {
   it("en : le titre vient des messages anglais, le bloc affiche les deux colonnes et le Kit", async () => {
     faux.messages = en;
     faux.lire.mockResolvedValue({ videoUrl: null, repli: null, vedette: herosAvecKit().vedette });
-    const { container } = rendre(<>{await BlocPorteOuFabrire({ locale: "en" })}</>, "en");
+    const { container } = rendre(<>{await BlocPorteOuFabrique({ locale: "en" })}</>, "en");
     expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(1);
-    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(MARQUEUR);
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("WEAR IT OR MAKE IT");
     expect(screen.getByText("Ready to wear")).toBeTruthy();
     expect(screen.getByText("Make it yourself")).toBeTruthy();
     expect(screen.getByText("Immediate access")).toBeTruthy();

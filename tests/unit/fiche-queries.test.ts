@@ -6,6 +6,7 @@ vi.mock("next/cache", () => ({ cacheTag: vi.fn() }));
 type Reponse = { data: unknown; error: unknown };
 const faux = vi.hoisted(() => ({
   produit: { data: null, error: null } as Reponse,
+  kit: { data: null, error: null } as Reponse,
   photos: { data: [], error: null } as Reponse,
   dispo: { data: [], error: null } as Reponse,
   publies: [] as Reponse[],
@@ -22,9 +23,12 @@ vi.mock("@/lib/supabase/public", () => ({
   creerClientPublic: () => ({
     from: (table: string) => {
       faux.tables.push(table);
+      // La lecture du Kit lié (colonnes niveau et publie_le) répond avec faux.kit, la lecture du produit avec faux.produit.
+      let lectureKit = false;
       const b: Record<string, unknown> = {
         select: (colonnes: string) => {
           faux.selections.push(colonnes);
+          lectureKit = colonnes.includes("niveau") && colonnes.includes("publie_le") && !colonnes.includes("id,");
           return b;
         },
         not: (colonne: string, operateur: string, valeur: unknown) => {
@@ -44,7 +48,7 @@ vi.mock("@/lib/supabase/public", () => ({
           faux.plages.push([debut, fin]);
           return Promise.resolve(faux.publies.shift() ?? { data: [], error: null });
         },
-        maybeSingle: () => Promise.resolve(faux.produit),
+        maybeSingle: () => Promise.resolve(lectureKit ? faux.kit : faux.produit),
       };
       return b;
     },
@@ -73,6 +77,7 @@ beforeEach(() => {
   process.env.NEXT_PUBLIC_SUPABASE_URL = "http://127.0.0.1:54321";
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "TEST_cle_publique";
   faux.produit = { data: PRODUIT, error: null };
+  faux.kit = { data: null, error: null };
   faux.photos = {
     data: [
       { fichier: "p1/a.jpg", alt_fr: "Alt fr 1", alt_en: "Alt en 1", position: 1 },
@@ -151,22 +156,37 @@ describe("lireFicheProduit", () => {
     expect(await lireFicheProduit("cosplay", "test-produit", "fr")).toBeNull();
   });
 
-  it("kit lié publié : le Kit lié est porté dans la fiche, pour la double option", async () => {
-    faux.produit = { data: { ...PRODUIT, produit_lie_id: "TEST_kit", publie_le: "2026-10-31T00:00:00Z" }, error: null };
+  it("kit lié publié : le Kit lié est cherché par produit_lie_id = id du produit physique (le lien est porté par le Kit)", async () => {
+    faux.produit = { data: PRODUIT, error: null };
+    faux.kit = { data: { slug: "kit-test", titre_fr: "TEST_Kit", titre_en: "TEST_Kit en", prix_cents: 990, niveau: null, publie_le: "2026-10-31T00:00:00Z" }, error: null };
     const fiche = await lireFicheProduit("cosplay", "test-produit", "fr");
-    expect(faux.eq).toEqual(expect.arrayContaining([["produit_lie_id", "TEST_kit"], ["famille", "kit"]]));
-    expect(fiche?.kitLie).toEqual({ slug: "test-produit", titre: "TEST_Titre", prixCents: 4990, niveau: null });
+    expect(faux.eq).toEqual(expect.arrayContaining([["produit_lie_id", "TEST_p1"], ["famille", "kit"]]));
+    expect(fiche?.kitLie).toEqual({ slug: "kit-test", titre: "TEST_Kit", prixCents: 990, niveau: null });
   });
 
-  it("kit lié non publié : aucune double option (kitLie null)", async () => {
-    faux.produit = { data: { ...PRODUIT, produit_lie_id: "TEST_kit", publie_le: null }, error: null };
+  it("kit lié publié, fiche anglaise : le titre anglais, repli français", async () => {
+    faux.kit = { data: { slug: "kit-test", titre_fr: "TEST_Kit", titre_en: "TEST_Kit en", prix_cents: 990, niveau: null, publie_le: "2026-10-31T00:00:00Z" }, error: null };
+    expect((await lireFicheProduit("cosplay", "test-produit", "en"))?.kitLie?.titre).toBe("TEST_Kit en");
+    faux.kit = { data: { slug: "kit-test", titre_fr: "TEST_Kit", titre_en: "  ", prix_cents: 990, niveau: null, publie_le: "2026-10-31T00:00:00Z" }, error: null };
+    expect((await lireFicheProduit("cosplay", "test-produit", "en"))?.kitLie?.titre).toBe("TEST_Kit");
+  });
+
+  it("aucun Kit lié, ou Kit non publié : aucune double option (kitLie null)", async () => {
     expect(await lireFicheProduit("cosplay", "test-produit", "fr")).toMatchObject({ kitLie: null });
+    faux.kit = { data: { slug: "kit-test", titre_fr: "TEST_Kit", titre_en: null, prix_cents: 990, niveau: null, publie_le: null }, error: null };
+    expect(await lireFicheProduit("cosplay", "test-produit", "fr")).toMatchObject({ kitLie: null });
+  });
+
+  it("erreur de lecture du Kit lié : relancée, jamais une double option devinée", async () => {
+    faux.kit = { data: null, error: { message: "TEST" } };
+    await expect(lireFicheProduit("cosplay", "test-produit", "fr")).rejects.toThrow();
   });
 
   it("erreur de lecture : relancée, jamais une fiche inventée", async () => {
     faux.produit = { data: null, error: { message: "TEST" } };
     await expect(lireFicheProduit("cosplay", "test-produit", "fr")).rejects.toThrow();
     faux.produit = { data: PRODUIT, error: null };
+  faux.kit = { data: null, error: null };
     faux.dispo = { data: null, error: { message: "TEST" } };
     await expect(lireFicheProduit("cosplay", "test-produit", "fr")).rejects.toThrow();
     faux.dispo = { data: [], error: null };

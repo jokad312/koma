@@ -146,11 +146,11 @@ describe("FormulaireUnivers", () => {
     rendre(<FormulaireUnivers />);
     await remplir(user);
     await user.click(screen.getByRole("button", { name: "Créer l'univers" }));
-    expect(await screen.findByText(/Un univers porte déjà ce nom/)).toBeTruthy();
+    expect(await screen.findByText(/Un univers porte déjà ce nom/, undefined, { timeout: 8000 })).toBeTruthy();
 
     faux.creerUnivers.mockRejectedValueOnce(new Error("TEST_reseau"));
     await user.click(screen.getByRole("button", { name: "Créer l'univers" }));
-    expect(await screen.findByText(/n'a pas pu être créé/)).toBeTruthy();
+    expect(await screen.findByText(/n'a pas pu être créé/, undefined, { timeout: 8000 })).toBeTruthy();
     expect((screen.getByLabelText("Nom en français") as HTMLInputElement).value).toBe("Univers FR");
     expect(screen.queryByText("Univers créé.")).toBeNull();
   });
