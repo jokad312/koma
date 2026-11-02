@@ -1,5 +1,12 @@
-import type { DependancesBlog, ResultatBlog, CodeErreurBlog, Article, ArticleImage } from "./types";
+import type { DependancesBlog, ResultatBlog, CodeErreurBlog, Article } from "./types";
 import { schemaArticle } from "./schemas";
+
+// Seule la cause est journalisée : le code KS_, jamais une valeur saisie ni un identifiant de Compte.
+function journaliser(contexte: string, erreur: unknown) {
+  const brut = erreur instanceof Error ? erreur.message : typeof erreur === "string" ? erreur : "";
+  const code = /KS_[A-Z_]+/.exec(brut)?.[0] ?? "inconnue";
+  console.error(`[blog] ${contexte} : ${code}`);
+}
 
 // Erreurs de la base propres à l'article (module blog) et leur code d'interface.
 const ERREURS_ARTICLE: ReadonlyArray<readonly [string, CodeErreurBlog]> = [
@@ -21,7 +28,7 @@ function erreurArticle(erreur: string): CodeErreurBlog {
 // Crée (id vide) ou modifie un brouillon d'article : droit, validation, une seule écriture atomique.
 export async function enregistrerArticle(
   deps: DependancesBlog,
-  entree: { id: string | null; article: { titreFr: string; texteFr: string; titreEn: string | null; texteEn: string | null; slug: string | null; lienProduitId: string | null; images: ArticleImage[] } },
+  entree: { id: string | null; article: { titreFr: string; texteFr: string; titreEn: string | null; texteEn: string | null; slug: string | null; lienProduitId: string | null; images: Article["images"] } },
 ): Promise<ResultatBlog<{ id: string; cree: boolean }>> {
   const droit = await deps.exigerDroit("blog.gerer");
   const lu = schemaArticle.safeParse(entree.article);
@@ -33,12 +40,13 @@ export async function enregistrerArticle(
   try {
     const { erreur, id } = await deps.enregistrerArticle({ auteur: droit.auteur, id: entree.id, article: lu.data, images: lu.data.images });
     if (erreur) {
-      // La journalisation est automatique via la trigger article_journaliser ; on retient juste le code d'interface.
+      journaliser("article refusé", erreur);
       return { ok: false, erreur: erreurArticle(erreur) };
     }
     if (!id) return { ok: false, erreur: "generique" };
     return { ok: true, id, cree: entree.id === null };
   } catch (e) {
+    journaliser("article", e);
     return { ok: false, erreur: "generique" };
   }
 }
@@ -49,6 +57,7 @@ export async function changerPublication(deps: DependancesBlog, entree: { id: st
   try {
     const { erreur } = await deps.changerPublication({ auteur: droit.auteur, id: entree.id, publier: entree.publier });
     if (erreur) {
+      journaliser("article", erreur);
       if (erreur.includes("KS_PUBLICATION_INCOMPLETE")) return { ok: false, erreur: "publication_incomplete" };
       if (erreur.includes("KS_ARTICLE_INTROUVABLE")) return { ok: false, erreur: "article_introuvable" };
       if (erreur.includes("KS_DROIT_REFUSE") || erreur.includes("KS_AUTEUR_MANQUANT")) return { ok: false, erreur: "non_autorise" };
@@ -56,6 +65,7 @@ export async function changerPublication(deps: DependancesBlog, entree: { id: st
     }
     return { ok: true, id: entree.id };
   } catch (e) {
+    journaliser("article", e);
     return { ok: false, erreur: "generique" };
   }
 }

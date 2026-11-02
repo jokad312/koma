@@ -2,30 +2,31 @@ import "server-only";
 import { creerClientService } from "@/lib/supabase/service";
 import { exigerDroit } from "@/lib/auth/droits";
 import type { DependancesBlog } from "./types";
-import type { ArticleImage } from "./types";
 
-// Schéma de validation Zod de l'article
-import { schemaArticle } from "./schemas";
+// Les fonctions de la story 8.6 ne figurent pas encore dans src/lib/supabase/types.ts (types générés depuis le projet lié,
+// que cette voie ne pousse pas) : même contournement local que pour les réglages publics (reglages.ts), les types générés
+// ne sont jamais modifiés à la main.
+type ReponseRpc = { data: unknown; error: { message: string; code?: string } | null };
+type AppelRpc = (nom: string, parametres: Record<string, unknown>) => Promise<ReponseRpc>;
 
 // Les vrais clients Supabase donnés au service (en test, des faux nommés TEST_ les remplacent).
 export function dependances(): DependancesBlog {
   const admin = creerClientService();
+  const rpc = admin.rpc as unknown as AppelRpc;
   return {
     exigerDroit,
     enregistrerArticle: async ({ auteur, id, article, images }) => {
-      const { error } = await admin.rpc("enregistrer_article" as never, {
-        p_auteur: auteur as never,
-        p_id: id as never,
-        p_article: article as never,
-        p_images: images as never,
-      } as never);
-      // Seule la cause est renvoyée : le code KS_ du refus, sinon le code SQL. Jamais de donnée saisie.
-      return { erreur: error ? (error.message.startsWith("KS_") ? error.message : (error.code || "inconnu")) : null, id: id ?? null };
+      const { data, error } = await rpc("enregistrer_article", { p_auteur: auteur, p_id: id, p_article: article, p_images: images });
+      // Seule la cause est renvoyée : le code KS_ du refus, sinon le code SQL. Jamais une donnée saisie.
+      return {
+        erreur: error ? (error.message.startsWith("KS_") ? error.message : (error.code || "inconnu")) : null,
+        id: typeof data === "string" ? data : (id ?? null),
+      };
     },
     changerPublication: async ({ auteur, id, publier }) => {
       const { error } = publier
-        ? await admin.rpc("publier_article" as never, { p_auteur: auteur as never, p_id: id as never } as never)
-        : await admin.rpc("depublier_article" as never, { p_auteur: auteur as never, p_id: id as never } as never);
+        ? await rpc("publier_article", { p_auteur: auteur, p_id: id })
+        : await rpc("depublier_article", { p_auteur: auteur, p_id: id });
       return { erreur: error ? (error.message.startsWith("KS_") ? error.message : (error.code || "inconnu")) : null };
     },
   };

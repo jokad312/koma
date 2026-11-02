@@ -1,17 +1,21 @@
 -- Story 8.6 : création de l'Article (module blog) et fonctions d'écriture.
--- Modèle reproduite à l'identique de celui des Produits (functions comme definir_langue_profil et enregistrer_produit) :
--- ecriture reservee au service_role, p_auteur verifie le droit admin, journal_audit declenche le trigger journaliser.
+-- Modèle reproduit à l'identique de celui des Produits et de definir_langue_profil (AD-25) :
+-- écriture réservée au service_role, p_auteur vérifié par exiger_admin, journal_audit alimenté par le trigger journaliser.
+-- Lecture publique : seulement les articles publiés (publie_le non nul et passé).
 
 create table public.article (
   id uuid primary key default gen_random_uuid(),
   auteur_id uuid not null,
-  titre_fr text not null,
-  titre_en text,
-  texte_fr text not null,
+  titre_fr text not null check (char_length(titre_fr) between 1 and 120),
+  titre_en text check (titre_en is null or char_length(titre_en) between 1 and 120),
+  -- Vide tant que l'article est un brouillon ; la publication exige un texte français.
+  texte_fr text,
   texte_en text,
-  slug text,
-  lien_produit_id uuid,
+  slug text check (slug is null or (char_length(slug) between 1 and 80 and slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$')),
+  lien_produit_id uuid references public.produit (id) on delete set null,
+  -- Photos : [{ fichier, alt_fr, alt_en }] ; le texte alternatif est exigé à la publication.
   images jsonb not null default '[]'::jsonb,
+  -- Posé par la publication, jamais à la rédaction : un article créé reste un brouillon.
   publie_le timestamptz,
   cree_le timestamptz not null default now(),
   modifie_le timestamptz not null default now()
@@ -19,32 +23,23 @@ create table public.article (
 
 alter table public.article enable row level security;
 
--- Lecture publique : un article n'est lisible que s'il est publie (publie_le renseigne).
+-- anon et authenticated : SELECT seulement, jamais d'écriture ; le serveur écrit par les fonctions ci-dessous.
+revoke all on public.article from public, anon, authenticated;
+grant select on public.article to anon, authenticated;
+
+-- Lecture publique : un article n'est lisible que s'il est publié (publie_le renseigné et passé).
 create policy article_lecture_publiee on public.article
   for select to anon, authenticated
   using (publie_le is not null and publie_le <= now());
 
 create index article_publie_le_idx on public.article (publie_le) where publie_le is not null;
+create index article_lien_produit_idx on public.article (lien_produit_id) where lien_produit_id is not null;
 
 create trigger article_journaliser
   after insert or update or delete on public.article
   for each row execute function public.journaliser('id');
 
--- Tient modifie_le a jour a chaque modification de l'article.
-create function public.toucher_modifie_le()
-returns trigger
-language plpgsql
-security definer
-set search_path = ''
-as $$
-begin
-  new.modifie_le := now();
-  return new;
-end;
-$$;
-
-revoke all on function public.toucher_modifie_le() from public, anon, authenticated;
-
+-- Tient modifie_le à jour : la fonction toucher_modifie_le() existe déjà (story 2.2), seule la pose du trigger est nouvelle.
 create trigger article_modifie_le
   before update on public.article
   for each row execute function public.toucher_modifie_le();
@@ -98,6 +93,13 @@ begin
   if jsonb_typeof(v_images) <> 'array' then
     raise exception 'KS_ARTICLE_INVALIDE' using errcode = 'P0001';
   end if;
+  -- Chaque image vient du circuit d'envoi des photos produit : un objet avec un fichier nommé.
+  if exists (
+    select 1 from jsonb_array_elements(v_images) img
+    where jsonb_typeof(img) <> 'object' or coalesce(img ->> 'fichier', '') = ''
+  ) then
+    raise exception 'KS_ARTICLE_INVALIDE' using errcode = 'P0001';
+  end if;
 
   perform set_config('ks.auteur', p_auteur::text, true);
   if p_id is null then
@@ -112,10 +114,12 @@ begin
           texte_en = v_texte_en,
           slug = v_slug,
           lien_produit_id = v_lien_produit_id,
-          images = v_images,
-          modifie_le = now()
+          images = v_images
     where id = p_id;
-    select id into v_id from public.article where id = p_id;
+    if not found then
+      raise exception 'KS_ARTICLE_INTROUVABLE' using errcode = 'P0001';
+    end if;
+    v_id := p_id;
   end if;
 
   return v_id;
@@ -125,8 +129,8 @@ $$;
 revoke all on function public.enregistrer_article(jsonb, uuid, jsonb, jsonb) from public, anon, authenticated;
 grant execute on function public.enregistrer_article(jsonb, uuid, jsonb, jsonb) to service_role;
 
--- Publie un article (admin) : refuse si titre FR ou texte FR absent (KS_PUBLICATION_INCOMPLETE), puis pose publie_le = now().
--- Une image sans texte alternatif FR ou EN est refusee (texte alternatif obligatoire, regle de publication).
+-- Publie un article (admin) : refuse si titre FR ou texte FR absent, ou si une image n'a pas ses deux textes alternatifs
+-- (KS_PUBLICATION_INCOMPLETE) ; puis pose publie_le = now(). Déjà publié : sans effet.
 create function public.publier_article(p_auteur jsonb, p_id uuid)
 returns void
 language plpgsql
@@ -167,7 +171,7 @@ $$;
 revoke all on function public.publier_article(jsonb, uuid) from public, anon, authenticated;
 grant execute on function public.publier_article(jsonb, uuid) to service_role;
 
--- Depublie un article (admin) : publie_le remis a null. Déjà brouillon : sans effet.
+-- Dépublie un article (admin) : publie_le remis à null. Déjà brouillon : sans effet.
 create function public.depublier_article(p_auteur jsonb, p_id uuid)
 returns void
 language plpgsql
