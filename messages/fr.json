@@ -315,7 +315,155 @@
       "messagesNouveaux": " ({nombre, plural, one {# nouveau message} other {# nouveaux messages}})",
       "produits": "Produits",
       "univers": "Univers",
+      "blog": "Blog",
       "taches": "Tâches"
+    },
+    "blog": {
+      "titre": "Blog",
+      "intro": "Les articles du blog : guides de fabrication et annonces. Un article reste invisible sur le site tant qu'il n'est pas publié.",
+      "nouveau": "Écrire un article",
+      "erreurLecture": "Les articles n'ont pas pu être lus. Recharge la page.",
+      "nombre": "{nombre, plural, =0 {Aucun article} one {# article} other {# articles}}",
+      "vide": {
+        "texte": "Aucun article pour le moment.",
+        "ecrire": "Écrire le premier article"
+      },
+      "statut": {
+        "brouillon": "Brouillon",
+        "publie": "Publié"
+      },
+      "liste": {
+        "legende": "Articles du blog",
+        "modifieLe": "Modifié le {date}",
+        "colonnes": {
+          "titre": "Titre",
+          "statut": "Statut",
+          "modifieLe": "Dernière modification"
+        }
+      },
+      "pageNouveau": {
+        "titre": "Écrire un article",
+        "retour": "Retour aux articles"
+      },
+      "pageEdition": {
+        "titre": "Modifier l'article",
+        "retour": "Retour aux articles",
+        "cree": "Article créé. Tu peux ajouter des images et le publier."
+      },
+      "formulaire": {
+        "titreFr": {
+          "libelle": "Titre en français",
+          "aide": "De 1 à 120 caractères. Il apparaît en tête de l'article."
+        },
+        "texteFr": {
+          "libelle": "Texte en français",
+          "aide": "Markdown simple : titres avec #, listes avec -, gras avec **, liens avec [texte](adresse). 5000 caractères au plus."
+        },
+        "titreEn": {
+          "libelle": "Titre en anglais",
+          "aide": "Facultatif. Sans version anglaise, l'article n'apparaît pas sous /en."
+        },
+        "texteEn": {
+          "libelle": "Texte en anglais",
+          "aide": "Facultatif. 5000 caractères au plus."
+        },
+        "slug": {
+          "libelle": "Adresse de l'article",
+          "aide": "Lettres minuscules, chiffres et tirets, par exemple guide-cosplay-goma."
+        },
+        "lienProduit": {
+          "libelle": "Lien vers un Produit",
+          "aide": "Facultatif : l'article renvoie vers la fiche de ce produit.",
+          "aucun": "Aucun produit"
+        },
+        "markdown": "Le texte est écrit en Markdown simple. Le HTML brut n'est pas interprété.",
+        "imagesTitre": "Images de l'article",
+        "imagesAide": "Chaque image exige un texte alternatif en français et en anglais. Les fichiers sont nettoyés de leurs métadonnées.",
+        "imagesApresCreation": "Enregistre d'abord l'article : tu pourras ensuite ajouter des images.",
+        "enregistrer": "Enregistrer",
+        "enCours": "Enregistrement…",
+        "succes": "Article enregistré.",
+        "resume": "L'article n'a pas pu être enregistré. Corrige les champs signalés.",
+        "apercu": {
+          "titre": "Aperçu",
+          "aide": "Aperçu du texte tel qu'il sera affiché, déjà nettoyé.",
+          "vide": "Rien à afficher pour le moment."
+        },
+        "erreurs": {
+          "article_invalide": "L'article n'a pas pu être enregistré : une information est invalide.",
+          "titre_invalide": "Le titre doit avoir de 1 à 120 caractères.",
+          "texte_invalide": "Le texte ne doit pas dépasser 5000 caractères.",
+          "slug_invalide": "L'adresse doit être en minuscules, avec des chiffres et des tirets seulement.",
+          "slug_pris": "Cette adresse est déjà utilisée par un autre article. Choisis-en une autre.",
+          "produit_inexistant": "Ce produit n'existe plus. Choisis-en un autre ou aucun.",
+          "article_introuvable": "Cet article n'existe plus. Retourne à la liste des articles.",
+          "non_autorise": "Tu n'as plus le droit de gérer le blog. Recharge la page ou reconnecte-toi.",
+          "generique": "L'article n'a pas pu être enregistré. Réessaie."
+        }
+      },
+      "images": {
+        "nombre": "{nombre} sur {max} images.",
+        "vide": "Aucune image pour le moment.",
+        "legende": "Images de l'article",
+        "image": "Image {numero}",
+        "texteFr": "Texte alternatif en français : {texte}",
+        "texteEn": "Texte alternatif en anglais : {texte}",
+        "retirer": "Retirer l'image {numero}",
+        "ajout": {
+          "titre": "Ajouter une image",
+          "fichier": {
+            "libelle": "Fichier",
+            "aide": "JPEG, PNG ou WebP, 15 Mo au plus."
+          },
+          "altFr": {
+            "libelle": "Texte alternatif en français",
+            "aide": "Décris l'image en une phrase, pour les personnes qui ne la voient pas."
+          },
+          "altEn": {
+            "libelle": "Texte alternatif en anglais",
+            "aide": "La même description, en anglais."
+          },
+          "ajouter": "Ajouter l'image",
+          "annuler": "Annuler l'envoi",
+          "progression": "Envoi : {pourcentage} %",
+          "reprise": "L'envoi reprend après une coupure.",
+          "traitement": "Vérification de l'image…",
+          "succes": "Image ajoutée. Elle sera enregistrée avec l'article.",
+          "annule": "Envoi annulé."
+        },
+        "erreurs": {
+          "format_invalide": "Ce fichier n'est pas une image JPEG, PNG ou WebP valide.",
+          "fichier_trop_lourd": "L'image dépasse 15 Mo.",
+          "alt_invalide": "Le texte alternatif doit avoir de 1 à 200 caractères.",
+          "images_limite": "Dix images au maximum par article.",
+          "non_autorise": "Tu n'as plus le droit de gérer le blog. Recharge la page ou reconnecte-toi.",
+          "generique": "L'image n'a pas pu être ajoutée. Réessaie."
+        }
+      },
+      "publication": {
+        "titre": "Publication",
+        "statutBrouillon": "Brouillon",
+        "statutPublie": "Publié",
+        "aideBrouillon": "Cet article est un brouillon : personne ne le voit sur le site.",
+        "aidePublie": "Cet article est publié : il est visible sur le site.",
+        "publier": "Publier",
+        "depublier": "Dépublier",
+        "enCours": "Un instant…",
+        "publieOk": "Article publié.",
+        "depublieOk": "Article dépublié : il n'est plus visible sur le site.",
+        "incomplet": "Il manque encore des éléments pour publier :",
+        "manques": {
+          "titre_fr": "Le titre en français",
+          "texte_fr": "Le texte en français",
+          "alt": "Un texte alternatif français et anglais pour chaque image"
+        },
+        "erreurs": {
+          "publication_incomplete": "Il manque des éléments pour publier. Vérifie le titre, le texte et les textes alternatifs des images.",
+          "article_introuvable": "Cet article n'existe plus. Retourne à la liste des articles.",
+          "non_autorise": "Tu n'as plus le droit de gérer le blog. Recharge la page ou reconnecte-toi.",
+          "generique": "Le changement n'a pas pu être enregistré. Réessaie."
+        }
+      }
     },
     "reglages": {
       "titre": "Réglages",

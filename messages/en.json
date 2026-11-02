@@ -315,7 +315,155 @@
       "messagesNouveaux": " ({nombre, plural, one {# new message} other {# new messages}})",
       "produits": "Products",
       "univers": "Universes",
+      "blog": "Blog",
       "taches": "Tasks"
+    },
+    "blog": {
+      "titre": "Blog",
+      "intro": "Blog articles: making guides and announcements. An article stays invisible on the site until it is published.",
+      "nouveau": "Write an article",
+      "erreurLecture": "The articles could not be read. Reload the page.",
+      "nombre": "{nombre, plural, =0 {No articles} one {# article} other {# articles}}",
+      "vide": {
+        "texte": "No articles yet.",
+        "ecrire": "Write the first article"
+      },
+      "statut": {
+        "brouillon": "Draft",
+        "publie": "Published"
+      },
+      "liste": {
+        "legende": "Blog articles",
+        "modifieLe": "Edited {date}",
+        "colonnes": {
+          "titre": "Title",
+          "statut": "Status",
+          "modifieLe": "Last edit"
+        }
+      },
+      "pageNouveau": {
+        "titre": "Write an article",
+        "retour": "Back to articles"
+      },
+      "pageEdition": {
+        "titre": "Edit the article",
+        "retour": "Back to articles",
+        "cree": "Article created. You can now add images and publish it."
+      },
+      "formulaire": {
+        "titreFr": {
+          "libelle": "Title in French",
+          "aide": "1 to 120 characters. It appears at the top of the article."
+        },
+        "texteFr": {
+          "libelle": "Text in French",
+          "aide": "Simple Markdown: headings with #, lists with -, bold with **, links with [text](address). 5000 characters at most."
+        },
+        "titreEn": {
+          "libelle": "Title in English",
+          "aide": "Optional. Without an English version, the article does not appear under /en."
+        },
+        "texteEn": {
+          "libelle": "Text in English",
+          "aide": "Optional. 5000 characters at most."
+        },
+        "slug": {
+          "libelle": "Article address",
+          "aide": "Lowercase letters, digits and hyphens, for example guide-cosplay-goma."
+        },
+        "lienProduit": {
+          "libelle": "Link to a Product",
+          "aide": "Optional: the article points to this product's page.",
+          "aucun": "No product"
+        },
+        "markdown": "The text is written in simple Markdown. Raw HTML is not interpreted.",
+        "imagesTitre": "Article images",
+        "imagesAide": "Every image needs alt text in French and in English. Files are cleaned of their metadata.",
+        "imagesApresCreation": "Save the article first: you can then add images.",
+        "enregistrer": "Save",
+        "enCours": "Saving…",
+        "succes": "Article saved.",
+        "resume": "The article could not be saved. Fix the flagged fields.",
+        "apercu": {
+          "titre": "Preview",
+          "aide": "Preview of the text as it will be displayed, already cleaned.",
+          "vide": "Nothing to display yet."
+        },
+        "erreurs": {
+          "article_invalide": "The article could not be saved: one value is invalid.",
+          "titre_invalide": "The title must be 1 to 120 characters long.",
+          "texte_invalide": "The text must not exceed 5000 characters.",
+          "slug_invalide": "The address must use lowercase letters, digits and hyphens only.",
+          "slug_pris": "This address is already used by another article. Choose another one.",
+          "produit_inexistant": "This product no longer exists. Choose another one or none.",
+          "article_introuvable": "This article no longer exists. Go back to the article list.",
+          "non_autorise": "You no longer have the right to manage the blog. Reload the page or sign in again.",
+          "generique": "The article could not be saved. Try again."
+        }
+      },
+      "images": {
+        "nombre": "{nombre} of {max} images.",
+        "vide": "No images yet.",
+        "legende": "Article images",
+        "image": "Image {numero}",
+        "texteFr": "Alt text in French: {texte}",
+        "texteEn": "Alt text in English: {texte}",
+        "retirer": "Remove image {numero}",
+        "ajout": {
+          "titre": "Add an image",
+          "fichier": {
+            "libelle": "File",
+            "aide": "JPEG, PNG or WebP, 15 MB at most."
+          },
+          "altFr": {
+            "libelle": "Alt text in French",
+            "aide": "Describe the image in one sentence, for people who cannot see it."
+          },
+          "altEn": {
+            "libelle": "Alt text in English",
+            "aide": "The same description, in English."
+          },
+          "ajouter": "Add the image",
+          "annuler": "Cancel upload",
+          "progression": "Upload: {pourcentage}%",
+          "reprise": "The upload resumes after a break.",
+          "traitement": "Checking the image…",
+          "succes": "Image added. It will be saved with the article.",
+          "annule": "Upload cancelled."
+        },
+        "erreurs": {
+          "format_invalide": "This file is not a valid JPEG, PNG or WebP image.",
+          "fichier_trop_lourd": "The image is larger than 15 MB.",
+          "alt_invalide": "Alt text must be 1 to 200 characters long.",
+          "images_limite": "Ten images at most per article.",
+          "non_autorise": "You no longer have the right to manage the blog. Reload the page or sign in again.",
+          "generique": "The image could not be added. Try again."
+        }
+      },
+      "publication": {
+        "titre": "Publication",
+        "statutBrouillon": "Draft",
+        "statutPublie": "Published",
+        "aideBrouillon": "This article is a draft: nobody sees it on the site.",
+        "aidePublie": "This article is published: it is visible on the site.",
+        "publier": "Publish",
+        "depublier": "Unpublish",
+        "enCours": "One moment…",
+        "publieOk": "Article published.",
+        "depublieOk": "Article unpublished: it is no longer visible on the site.",
+        "incomplet": "Some elements are still missing to publish:",
+        "manques": {
+          "titre_fr": "The title in French",
+          "texte_fr": "The text in French",
+          "alt": "French and English alt text for every image"
+        },
+        "erreurs": {
+          "publication_incomplete": "Some elements are missing to publish. Check the title, the text and the images' alt text.",
+          "article_introuvable": "This article no longer exists. Go back to the article list.",
+          "non_autorise": "You no longer have the right to manage the blog. Reload the page or sign in again.",
+          "generique": "The change could not be saved. Try again."
+        }
+      }
     },
     "reglages": {
       "titre": "Settings",

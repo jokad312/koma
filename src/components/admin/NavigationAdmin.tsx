@@ -7,6 +7,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 const ENTREES = [
   { cle: "produits", href: "/admin/produits" },
   { cle: "univers", href: "/admin/univers" },
+  { cle: "blog", href: "/admin/blog" },
   { cle: "messages", href: "/admin/messages" },
   { cle: "taches", href: "/admin/taches" },
   { cle: "reglages", href: "/admin/reglages" },
