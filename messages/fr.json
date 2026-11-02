@@ -69,6 +69,10 @@
     "commandeDetail": {
       "titre": "Ma commande",
       "description": "Le détail de ta commande."
+    },
+    "bibliotheque": {
+      "titre": "Ma bibliothèque",
+      "description": "Tes kits et leurs fichiers à télécharger."
     }
   },
   "Accueil": {
@@ -1662,6 +1666,31 @@
       "intro": "Le kit « {titre} » est ajouté à ton Compte (commande {numero}).",
       "lien": "Page du kit :",
       "bouton": "Voir mon kit"
+    }
+  },
+  "Bibliotheque": {
+    "titre": "Ma bibliothèque",
+    "compte": {
+      "titre": "Mon compte",
+      "navigation": "Navigation du compte"
+    },
+    "vide": "Aucun kit dans ta bibliothèque.",
+    "versCatalogue": "Voir les kits",
+    "indisponible": "Ta bibliothèque est indisponible pour le moment. Réessaie dans un instant.",
+    "detail": {
+      "retour": "Retour à ma bibliothèque",
+      "fichiers": "Tes fichiers",
+      "aucunFichier": "Aucun fichier pour ce kit pour le moment."
+    },
+    "telechargement": {
+      "bouton": "Télécharger {nom} ({format}, {taille})",
+      "preparation": "Préparation du lien…",
+      "echec": "Le téléchargement n'a pas abouti. Réessaie.",
+      "refuse": "Tu n'as pas accès à ce fichier.",
+      "connexion": "Ta session a pris fin. Connecte-toi à nouveau."
+    },
+    "filigrane": {
+      "texte": "Acheté par {email} · Commande {numero} · {site}"
     }
   }
 }

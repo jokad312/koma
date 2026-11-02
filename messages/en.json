@@ -69,6 +69,10 @@
     "commandeDetail": {
       "titre": "My order",
       "description": "The details of your order."
+    },
+    "bibliotheque": {
+      "titre": "My library",
+      "description": "Your kits and their files to download."
     }
   },
   "Accueil": {
@@ -1662,6 +1666,31 @@
       "intro": "The kit “{titre}” has been added to your Account (order {numero}).",
       "lien": "Kit page:",
       "bouton": "View my kit"
+    }
+  },
+  "Bibliotheque": {
+    "titre": "My library",
+    "compte": {
+      "titre": "My account",
+      "navigation": "Account navigation"
+    },
+    "vide": "No kits in your library yet.",
+    "versCatalogue": "Browse kits",
+    "indisponible": "Your library is unavailable right now. Try again in a moment.",
+    "detail": {
+      "retour": "Back to my library",
+      "fichiers": "Your files",
+      "aucunFichier": "No files for this kit yet."
+    },
+    "telechargement": {
+      "bouton": "Download {nom} ({format}, {taille})",
+      "preparation": "Preparing the link…",
+      "echec": "The download did not complete. Try again.",
+      "refuse": "You do not have access to this file.",
+      "connexion": "Your session has ended. Please sign in again."
+    },
+    "filigrane": {
+      "texte": "Purchased by {email} · Order {numero} · {site}"
     }
   }
 }

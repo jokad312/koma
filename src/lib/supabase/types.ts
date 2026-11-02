@@ -278,6 +278,41 @@ export type Database = {
         }
         Relationships: []
       }
+      fichier_filigrane: {
+        Row: {
+          chemin_stockage: string
+          compte_id: string
+          cree_le: string
+          fichier_id: string
+          id: string
+          version: number
+        }
+        Insert: {
+          chemin_stockage: string
+          compte_id: string
+          cree_le?: string
+          fichier_id: string
+          id?: string
+          version: number
+        }
+        Update: {
+          chemin_stockage?: string
+          compte_id?: string
+          cree_le?: string
+          fichier_id?: string
+          id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fichier_filigrane_fichier_id_fkey"
+            columns: ["fichier_id"]
+            isOneToOne: false
+            referencedRelation: "fichier_kit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fichier_kit: {
         Row: {
           cree_le: string
@@ -1176,6 +1211,36 @@ export type Database = {
         Returns: undefined
       }
       avis_kit_possede: { Args: { p_panier: string }; Returns: boolean }
+      bibliotheque_enregistrer_filigrane: {
+        Args: {
+          p_chemin: string
+          p_compte: string
+          p_fichier: string
+          p_version: number
+        }
+        Returns: string
+      }
+      bibliotheque_fichier_a_servir: {
+        Args: { p_compte: string; p_fichier: string }
+        Returns: Json
+      }
+      bibliotheque_kit: {
+        Args: { p_compte: string; p_slug: string }
+        Returns: Json
+      }
+      bibliotheque_lister: {
+        Args: { p_compte: string }
+        Returns: {
+          acces_le: string
+          alt_en: string
+          alt_fr: string
+          photo: string
+          produit_id: string
+          slug: string
+          titre_en: string
+          titre_fr: string
+        }[]
+      }
       bibliotheque_ouvrir_acces: {
         Args: { p_commande: string; p_compte: string; p_produit: string }
         Returns: boolean

@@ -43,3 +43,18 @@ Le fichier `READ THIS.txt`, commité à côté de la police, décrit une **versi
 ### Sakura Town : état dans le code (story 1.3)
 
 Le fichier `Sakura Town.otf` n'est pas copié dans `public/` ni dans `src/`. L'option `NEXT_PUBLIC_TITRES_SAKURA` est éteinte par défaut : tous les grands titres sont en Barlow Condensed. Quand Jonathan aura la version complète et l'accord écrit de l'éditeur, il dépose le fichier sous le nom `public/fonts/sakura-town.otf` (dossier ignoré par Git) et passe l'option à `true`. Pour une mise en ligne, il faudra alors décider comment livrer ce fichier sur Hostinger sans l'ajouter au dépôt public.
+
+## Barlow Regular (TTF) : filigrane des PDF de kit (story 3.6)
+
+| Champ | Valeur |
+| --- | --- |
+| Nom de la police | Barlow Regular (400), format TTF |
+| Auteurs | The Barlow Project Authors |
+| Licence | SIL Open Font License 1.1, la même que pour les fichiers `.woff2` ci-dessus (texte : `docs/licences/OFL-barlow.txt`) |
+| Usage dans KOMA SHOP | Texte du filigrane écrit par le serveur dans les PDF de kit (`@cantoo/pdf-lib`), à la première remise par Compte et par version. La police est embarquée en entier dans le PDF remis au client (le sous-ensemble échoue avec ce fichier TTF). |
+| Fichier dans le dépôt | `src/fonts/filigrane/Barlow-Regular.ttf` (SHA-256 `77fb1ac54d2ceb980e3ebdfa7a9d0f64e85a66e4fdfb7f914a7b0aa08fb33a5d`) |
+| Source du fichier | Paquet npm `@expo-google-fonts/barlow` 0.4.1 (`400Regular/Barlow_400Regular.ttf`), dont le fichier `LICENSE_FONT` reproduit la licence OFL 1.1 et la mention « Copyright 2017 The Barlow Project Authors ». Le paquet n'est pas une dépendance du projet : seul le fichier TTF est copié. |
+| Obligations OFL | Mention de droits d'auteur et licence conservées (ce fichier et `OFL-barlow.txt`) ; la police n'est pas vendue seule ; le nom réservé n'est pas utilisé pour une version modifiée (l'embarquement dans un PDF est une utilisation normale). |
+| Date de vérification | 2026-11-02 |
+
+Dépendances de code ajoutées par la même story : `@cantoo/pdf-lib` 2.11.1 (MIT) et `@pdf-lib/fontkit` 1.1.1 (MIT), versions épinglées, intégrées au bundle serveur ; aucun fichier de ces paquets n'est copié dans le dépôt.

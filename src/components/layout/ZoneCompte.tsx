@@ -1,3 +1,5 @@
+import { getTranslations } from "next-intl/server";
+import { Link } from "@/i18n/navigation";
 import { lireSessionVerifiee } from "@/lib/auth/compte";
 import { BoutonDeconnexion } from "./BoutonDeconnexion";
 import { LienConnexion } from "./LienConnexion";
@@ -11,5 +13,14 @@ export async function ZoneCompte() {
   } catch {
     // Supabase indisponible : l'en-tête reste utilisable comme pour un visiteur.
   }
-  return connecte ? <BoutonDeconnexion /> : <LienConnexion />;
+  if (!connecte) return <LienConnexion />;
+  const t = await getTranslations("Bibliotheque");
+  return (
+    <>
+      <Link href="/compte/bibliotheque" className="t-small inline-flex min-h-touch items-center text-text-primary underline underline-offset-4">
+        {t("titre")}
+      </Link>
+      <BoutonDeconnexion />
+    </>
+  );
 }
