@@ -200,6 +200,22 @@ describe("ZoneAchat : tailles", () => {
     expect(screen.queryByRole("radio")).toBeNull();
   });
 
+  it("capacité atteinte et Kit lié publié : « Commandes complètes pour le moment » accompagné de la proposition du Kit (FR-10)", () => {
+    rendre(<ZoneAchat {...props} tailles={[t("M", "disponible"), t("L", "complet")]} kit={{ slug: "test-kit", titre: "TEST_Kit", prixCents: 18000, niveau: "debutant" } as KitLieFiche} />);
+    expect(screen.getByText("Commandes complètes pour le moment")).toBeTruthy();
+    expect(screen.getByText("Kit lié")).toBeTruthy();
+    expect(screen.getByText("Accès immédiat, à vie")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Voir le kit" })).toBeTruthy();
+    expect(screen.getAllByRole("radio").map((r) => (r as HTMLInputElement).value)).toEqual(["M"]);
+  });
+
+  it("capacité atteinte et sans Kit lié : le message seul, aucune proposition", () => {
+    rendre(<ZoneAchat {...props} tailles={[t("L", "complet")]} />);
+    expect(screen.getByText("Commandes complètes pour le moment")).toBeTruthy();
+    expect(screen.queryByText("Kit lié")).toBeNull();
+    expect(screen.queryByRole("link", { name: "Voir le kit" })).toBeNull();
+  });
+
   it("aucune taille achetable sans capacité atteinte : épuisé", () => {
     rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("M", "epuise")]} />);
     expect(screen.getByText("Épuisé")).toBeTruthy();
@@ -272,6 +288,18 @@ describe("BandeauZone", () => {
   it("annonce la zone de remise, sans argot ni emoji", () => {
     rendre(<BandeauZone />);
     expect(screen.getByText("Remise uniquement à Goma et Bukavu")).toBeTruthy();
+  });
+
+  it("avec un Kit lié publié : le bandeau propose le Kit avec un lien vers sa fiche (FR-6)", () => {
+    rendre(<BandeauZone kit={{ slug: "test-kit", titre: "TEST_Kit", prixCents: 18000, niveau: "debutant" } as KitLieFiche} />);
+    expect(screen.getByText("Remise uniquement à Goma et Bukavu")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Voir le kit" })).toBeTruthy();
+  });
+
+  it("sans Kit lié : le bandeau n'annonce aucun Kit", () => {
+    rendre(<BandeauZone />);
+    expect(screen.getByText("Remise uniquement à Goma et Bukavu")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "Voir le kit" })).toBeNull();
   });
 });
 

@@ -62,8 +62,8 @@ export function DoubleOption({ produitId, kit, locale, tailles, forfaitGoma, for
         </section>
       ) : (
         <>
-          <BandeauZone />
-          <ZoneAchat produitId={produitId} locale={locale} tailles={tailles} forfaitGoma={forfaitGoma} forfaitBukavu={forfaitBukavu} retraitGoma={retraitGoma} />
+          <BandeauZone kit={kit} />
+          <ZoneAchat produitId={produitId} locale={locale} tailles={tailles} forfaitGoma={forfaitGoma} forfaitBukavu={forfaitBukavu} retraitGoma={retraitGoma} kit={kit} />
         </>
       )}
     </div>

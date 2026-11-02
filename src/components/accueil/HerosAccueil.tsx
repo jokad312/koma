@@ -17,7 +17,7 @@ const FOND = { backgroundImage: "linear-gradient(135deg, var(--ks-hero-wash-star
 
 // Héros lu à chaque requête (une seule lecture par requête, partagée par le média, le bouton et la tuile) (prix et disponibilité de la vedette : règle 3). Lecture en erreur : le héros reste en texte (accroche seule),
 // jamais un média ni un produit inventé.
-const lireHeros = cache(async (locale: Locale): Promise<HerosPublic | null> => {
+export const lireHeros = cache(async (locale: Locale): Promise<HerosPublic | null> => {
   // Attend la vraie requête : pendant le prérendu de la coque, Next.js annule les lectures non mises en cache.
   await connection();
   try {

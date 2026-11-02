@@ -6,6 +6,7 @@ import { Suspense, type ReactNode } from "react";
 import { BlocCosplaysRecents } from "@/components/accueil/BlocCosplaysRecents";
 import { BlocFaqCourte } from "@/components/accueil/BlocFaqCourte";
 import { BlocKits } from "@/components/accueil/BlocKits";
+import { BlocPorteOuFabrire } from "@/components/accueil/BlocPorteOuFabrire";
 import { HerosAccueil } from "@/components/accueil/HerosAccueil";
 import { BlocJonathan } from "@/components/accueil/BlocJonathan";
 import { TuilesCategories } from "@/components/accueil/TuilesCategories";
@@ -29,6 +30,13 @@ function rendreBloc(id: string, locale: Locale): ReactNode {
       return <HerosAccueil locale={locale} />;
     case "categories":
       return <TuilesCategories />;
+    case "porteOuFabrire":
+      // Bloc 1 « Porte-le ou fabriquer-le » : le Cosplay vedette porté et son Kit lié, deux colonnes ; masqué sans Kit publié (FR-2).
+      return (
+        <Suspense fallback={null}>
+          <BlocPorteOuFabrire locale={locale} />
+        </Suspense>
+      );
     case "kits":
       // Les Kits publiés, le Kit gratuit en évidence ; le bloc se masque sans Kit publié (FR-2).
       return (

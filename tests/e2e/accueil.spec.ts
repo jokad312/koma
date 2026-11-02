@@ -63,6 +63,10 @@ for (const langue of ["fr", "en"] as const) {
     const avecKits = (await sectionKits.count()) === 1;
     if (avecKits) expect(await sectionKits.locator("li").count()).toBeGreaterThan(0);
     const attentesH2: string[] = [titres.categories];
+    const sectionPorteOuFabrire = page.locator('main section[aria-labelledby="accueil-porte-ou-fabrire"]');
+    const avecPorteOuFabrire = (await sectionPorteOuFabrire.count()) === 1;
+    const titrePorteOuFabrire = langue === "fr" ? "PORTE-LE OU FABRIQUE-LE" : "[Texte à fournir]";
+    if (avecPorteOuFabrire) attentesH2.push(titrePorteOuFabrire);
     if (avecKits) attentesH2.push(titres.kits);
     if (avecCartes) attentesH2.push(titres.cosplays);
     attentesH2.push(titres.jonathan, titres.faq);

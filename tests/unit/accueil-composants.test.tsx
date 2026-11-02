@@ -15,6 +15,7 @@ vi.mock("next-intl/server", async () => {
   };
 });
 vi.mock("@/modules/accueil/cosplays-recents", () => ({ lireCosplaysRecents: faux.lire }));
+vi.mock("@/components/accueil/HerosAccueil", () => ({ lireHeros: faux.lire }));
 vi.mock("@/i18n/navigation", () => ({ Link: ({ href, children, ...r }: { href: string; children: React.ReactNode }) => <a href={href} {...r}>{children}</a> }));
 
 vi.mock("next/image", () => ({ default: ({ src, alt }: { src: string; alt: string }) => (
@@ -28,6 +29,7 @@ vi.mock("@/components/ui/TitreVitrine", () => ({
 
 import { BlocCosplaysRecents } from "@/components/accueil/BlocCosplaysRecents";
 import { BlocFaqCourte } from "@/components/accueil/BlocFaqCourte";
+import { BlocPorteOuFabrire } from "@/components/accueil/BlocPorteOuFabrire";
 import { TuilesCategories } from "@/components/accueil/TuilesCategories";
 
 const MARQUEUR = "[Texte à fournir]";
@@ -102,5 +104,70 @@ describe("TuilesCategories", () => {
       expect(liens.map((l) => l.getAttribute("href"))).toEqual(["/cosplays", langue === "fr" ? "/accessoires" : "/accessories", "/kits"]);
     });
   }
+});
+
+describe("BlocPorteOuFabrire", () => {
+  const herosAvecKit = () => ({
+    videoUrl: null,
+    repli: null,
+    vedette: {
+      titre: "Cosplay de test",
+      href: "/cosplays/test",
+      hrefKit: "/kits/test-kit",
+      titreKit: "TEST_Kit",
+      photoUrl: "https://exemple.test/p.jpg",
+      photoAlt: "Alt du cosplay de test",
+      prixCents: 1000,
+      prixCentsKit: 18000,
+      disponibilite: "disponible" as const,
+      delaiJours: 14,
+    },
+  });
+
+  it("sans Kit lié publié : le bloc n'est pas rendu, aucun titre ni texte", async () => {
+    faux.lire.mockResolvedValue({ videoUrl: null, repli: null, vedette: null });
+    const { container } = rendre(<>{await BlocPorteOuFabrire({ locale: "fr" })}</>);
+    expect(container.textContent).toBe("");
+    expect(screen.queryByRole("heading", { level: 2 })).toBeNull();
+  });
+
+  it("sans Kit lié publié sur la vedette : le bloc n'est pas rendu, même avec un héros", async () => {
+    const vedette = herosAvecKit().vedette;
+    faux.lire.mockResolvedValue({ videoUrl: null, repli: null, vedette: { ...vedette, hrefKit: null, titreKit: null, prixCentsKit: null } });
+    const { container } = rendre(<>{await BlocPorteOuFabrire({ locale: "fr" })}</>);
+    expect(container.textContent).toBe("");
+    expect(screen.queryByRole("heading", { level: 2 })).toBeNull();
+  });
+
+  it("avec un Kit lié publié : un seul h2, les deux colonnes porté / fabriqué, prix et délai, liens vers la vedette et au Kit", async () => {
+    faux.lire.mockResolvedValue({ videoUrl: null, repli: null, vedette: herosAvecKit().vedette });
+    const { container } = rendre(<>{await BlocPorteOuFabrire({ locale: "fr" })}</>);
+    expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(1);
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("PORTE-LE OU FABRIQUE-LE");
+    const colonnes = screen.getAllByRole("article");
+    expect(colonnes).toHaveLength(2);
+    expect(screen.getByText("Prêt à porter")).toBeTruthy();
+    expect(screen.getByText("Le fabriquer moi-même")).toBeTruthy();
+    expect(screen.getByText("Accès immédiat")).toBeTruthy();
+    expect(screen.getByText("Fabrication : 14 jours")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Cosplay de test" }).getAttribute("href")).toBe("/cosplays/test");
+    expect(screen.getByRole("link", { name: "TEST_Kit" }).getAttribute("href")).toBe("/kits/test-kit");
+    // Les deux colonnes portent le prix lu en base et le délai, jamais inventé.
+    expect(container.textContent).toContain("TEST_Kit");
+  });
+
+  it("en : le titre vient des messages anglais, le bloc affiche les deux colonnes et le Kit", async () => {
+    faux.messages = en;
+    faux.lire.mockResolvedValue({ videoUrl: null, repli: null, vedette: herosAvecKit().vedette });
+    const { container } = rendre(<>{await BlocPorteOuFabrire({ locale: "en" })}</>, "en");
+    expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(1);
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe(MARQUEUR);
+    expect(screen.getByText("Ready to wear")).toBeTruthy();
+    expect(screen.getByText("Make it yourself")).toBeTruthy();
+    expect(screen.getByText("Immediate access")).toBeTruthy();
+    expect(screen.getByText("Made to order: 14 days")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "TEST_Kit" }).getAttribute("href")).toBe("/kits/test-kit");
+    expect(container.textContent).toContain("TEST_Kit");
+  });
 });
 
