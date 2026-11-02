@@ -2,7 +2,7 @@
 title: 'Story 4.3 : étape de commande et Commande en attente'
 type: 'feature'
 created: '2026-11-01'
-status: 'review'
+status: 'done'
 route: 'dispatch'
 ---
 
