@@ -1944,6 +1944,39 @@
       "mobileMoneyIndisponible": "Le mobile money n'est pas encore disponible dans ton pays.",
       "carteIndisponible": "Le paiement par carte n'est pas disponible pour le moment.",
       "traitePar": "Paiement traité par {prestataire}"
+    },
+    "suivi": {
+      "titreOnglet": {
+        "attente": "Paiement en attente",
+        "payee": "Commande payée",
+        "echec": "Paiement non abouti"
+      },
+      "annonce": {
+        "payee": "Paiement confirmé.",
+        "echec": "Le paiement n'a pas abouti."
+      },
+      "attente": {
+        "titre": "Paiement en attente",
+        "texte": "Nous attendons la confirmation de ton paiement. Tu peux rester sur cette page."
+      },
+      "verification": "Paiement en cours de vérification.",
+      "payee": {
+        "titre": "Payée",
+        "bibliotheque": "Ouvrir dans ma bibliothèque"
+      },
+      "echec": {
+        "titre": "Paiement non abouti",
+        "texte": "Le paiement n'a pas abouti. Tu peux réessayer.",
+        "reessayer": "Réessayer"
+      },
+      "tropPercu": {
+        "titre": "Paiement reçu en trop",
+        "texte": {
+          "expiree": "Nous avons reçu un paiement pour cette commande alors qu'elle était expirée. Jonathan va te contacter pour le remboursement.",
+          "deja_payee": "Nous avons reçu un paiement pour cette commande alors qu'elle était déjà payée. Jonathan va te contacter pour le remboursement.",
+          "impossible": "Nous avons reçu un paiement pour cette commande alors qu'elle était impossible à honorer. Jonathan va te contacter pour le remboursement."
+        }
+      }
     }
   }
 }

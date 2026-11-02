@@ -10,8 +10,11 @@ import { formaterUsd } from "@/lib/argent";
 import { formaterDateHeureBoutique } from "@/lib/dates";
 import { lireCommande } from "@/modules/commande/queries";
 import { dependancesOptions } from "@/modules/paiement/dependances";
+import { lireEtatPaiement } from "@/modules/paiement/etat-queries";
 import { lireOptionsPaiement, type OptionsPaiement } from "@/modules/paiement/service";
+import { lireNumeroWhatsappOuNull } from "@/lib/reglages";
 import { MoyensPaiement } from "./MoyensPaiement";
+import { SuiviPaiement } from "./SuiviPaiement";
 import { retourVersCommande, versConnexion } from "./PageCommande";
 
 const CLASSES_LIEN = "t-body inline-flex min-h-touch items-center text-text-primary underline";
@@ -38,7 +41,17 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
   const heure = formaterDateHeureBoutique(commande.expireLe, locale);
   // Moyens de paiement : relus en base pour ce Compte (Familles comprises), seulement pour une Commande à payer. Erreur : message d'état.
   let options: OptionsPaiement | null = null;
-  if (commande.statut === "en_attente") {
+  // État réel du paiement, lu par la base pour ce Compte : jamais l'adresse, jamais le navigateur (FR-20).
+  let etatPaiement = null;
+  try {
+    etatPaiement = await lireEtatPaiement(session.compteId, numero);
+  } catch {
+    console.error("[paiement] lecture de l'état du paiement impossible");
+  }
+  const numeroWhatsapp = await lireNumeroWhatsappOuNull();
+  // Sans état lu, aucun choix de moyen n'est proposé : une Tentative en cours pourrait exister (UX-DR36, jamais de double paiement).
+  const choixPossible = etatPaiement !== null && (etatPaiement.phase === "a_payer" || etatPaiement.phase === "echec");
+  if (choixPossible) {
     try {
       options = await lireOptionsPaiement(dependancesOptions(), { commandeId: commande.id, compteId: session.compteId });
     } catch {
@@ -98,7 +111,9 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
         </dl>
       </section>
 
-      {commande.statut === "en_attente" ? (options ? <MoyensPaiement locale={locale} options={options} /> : <MessageEtat type="erreur">{t("erreurs.erreur")}</MessageEtat>) : null}
+      {etatPaiement ? <SuiviPaiement numero={commande.numero} etatInitial={etatPaiement} numeroWhatsapp={numeroWhatsapp} /> : <MessageEtat type="erreur">{t("erreurs.erreur")}</MessageEtat>}
+
+      {choixPossible ? (options ? <MoyensPaiement locale={locale} options={options} /> : <MessageEtat type="erreur">{t("erreurs.erreur")}</MessageEtat>) : null}
     </div>
   );
 }

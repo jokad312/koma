@@ -1772,6 +1772,10 @@ export type Database = {
         }
         Returns: string
       }
+      etat_paiement_commande: {
+        Args: { p_compte: string; p_numero: string }
+        Returns: Json
+      }
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
       exiger_client: { Args: { p_auteur: Json }; Returns: string }
       expirer_commandes_echues: { Args: never; Returns: number }

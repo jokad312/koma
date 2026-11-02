@@ -1944,6 +1944,39 @@
       "mobileMoneyIndisponible": "Mobile money is not available in your country yet.",
       "carteIndisponible": "Card payment is not available right now.",
       "traitePar": "Payment processed by {prestataire}"
+    },
+    "suivi": {
+      "titreOnglet": {
+        "attente": "Payment pending",
+        "payee": "Order paid",
+        "echec": "Payment failed"
+      },
+      "annonce": {
+        "payee": "Payment confirmed.",
+        "echec": "The payment did not go through."
+      },
+      "attente": {
+        "titre": "Payment pending",
+        "texte": "We are waiting for confirmation of your payment. You can stay on this page."
+      },
+      "verification": "Payment being verified.",
+      "payee": {
+        "titre": "Paid",
+        "bibliotheque": "Open in my library"
+      },
+      "echec": {
+        "titre": "Payment failed",
+        "texte": "The payment did not go through. You can try again.",
+        "reessayer": "Try again"
+      },
+      "tropPercu": {
+        "titre": "Payment received in excess",
+        "texte": {
+          "expiree": "We received a payment for this order while it was expired. Jonathan will contact you about the refund.",
+          "deja_payee": "We received a payment for this order while it was already paid. Jonathan will contact you about the refund.",
+          "impossible": "We received a payment for this order while it could not be fulfilled. Jonathan will contact you about the refund."
+        }
+      }
     }
   }
 }
