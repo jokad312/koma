@@ -59,6 +59,11 @@
 - Fin de la story 3.4 : bandeau de zone / Plafond de fabrication avec Kit lié (FR-6 / FR-10), bloc 1 « Porte-le ou fabrique-le » (FR-2). **Terminée.**
 - Puis la story 3.2 (vidéo chapitres / sous-titres / publication d'un Kit).
 
+## Textes validés par Jonathan (2026-11-02)
+
+- « Voir tous les kits » / « See all kits » : validé. Bandeau de zone : « Remise uniquement à Goma et Bukavu » conservé. EN `Fiche.tailles.complet` : « Orders full for now » (déjà en place).
+- EN `Accueil.kits.gratuit` : « Your first kit is on us. » (remplace « Your first freebie, gifted. »).
+
 ## Intégration sur main (2026-11-02, voie 1)
 
 - Rebase sur `d31f9f0` : conflits résolus dans `messages/*.json` (bloc `Fiche.panier` de la 4.1 conservé à côté de `Fiche.option`), `FicheProduit`, `DoubleOption` et `ZoneAchat` (`produitId` transmis au bouton « Ajouter au panier », absent de l'option « fabriquer »).
