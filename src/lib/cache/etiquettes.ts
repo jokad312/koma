@@ -3,4 +3,5 @@ export const ETIQUETTES = {
   reglages: "reglages",
   catalogue: "catalogue",
   articles: "articles",
+  prestataires: "prestataires",
 } as const;

@@ -668,6 +668,48 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_recue: {
+        Row: {
+          id: string
+          id_notification: string
+          prestataire: string
+          recue_le: string
+          signature_valide: boolean
+          tentative_id: string | null
+        }
+        Insert: {
+          id?: string
+          id_notification: string
+          prestataire: string
+          recue_le?: string
+          signature_valide: boolean
+          tentative_id?: string | null
+        }
+        Update: {
+          id?: string
+          id_notification?: string
+          prestataire?: string
+          recue_le?: string
+          signature_valide?: boolean
+          tentative_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_recue_prestataire_fkey"
+            columns: ["prestataire"]
+            isOneToOne: false
+            referencedRelation: "prestataire"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "notification_recue_tentative_id_fkey"
+            columns: ["tentative_id"]
+            isOneToOne: false
+            referencedRelation: "tentative_paiement"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       panier: {
         Row: {
           compte_id: string | null
@@ -689,6 +731,39 @@ export type Database = {
           id?: string
           kit_possede_retire_le?: string | null
           mis_a_jour_le?: string
+        }
+        Relationships: []
+      }
+      prestataire: {
+        Row: {
+          actif: boolean
+          carte: boolean
+          code: string
+          mobile_money: boolean
+          modifie_le: string
+          nom: string
+          ordre: number | null
+          type: string
+        }
+        Insert: {
+          actif?: boolean
+          carte: boolean
+          code: string
+          mobile_money: boolean
+          modifie_le?: string
+          nom: string
+          ordre?: number | null
+          type: string
+        }
+        Update: {
+          actif?: boolean
+          carte?: boolean
+          code?: string
+          mobile_money?: boolean
+          modifie_le?: string
+          nom?: string
+          ordre?: number | null
+          type?: string
         }
         Relationships: []
       }
@@ -1051,6 +1126,75 @@ export type Database = {
           },
         ]
       }
+      tentative_paiement: {
+        Row: {
+          cause: string | null
+          commande_id: string
+          cree_le: string
+          devise_recue: string | null
+          id: string
+          modifie_le: string
+          montant_attendu_cents: number
+          montant_recu: number | null
+          moyen: string
+          operateur: string | null
+          pays: string | null
+          prestataire: string
+          reference_interne: string
+          reference_transaction: string | null
+          statut: string
+        }
+        Insert: {
+          cause?: string | null
+          commande_id: string
+          cree_le?: string
+          devise_recue?: string | null
+          id?: string
+          modifie_le?: string
+          montant_attendu_cents: number
+          montant_recu?: number | null
+          moyen: string
+          operateur?: string | null
+          pays?: string | null
+          prestataire: string
+          reference_interne: string
+          reference_transaction?: string | null
+          statut?: string
+        }
+        Update: {
+          cause?: string | null
+          commande_id?: string
+          cree_le?: string
+          devise_recue?: string | null
+          id?: string
+          modifie_le?: string
+          montant_attendu_cents?: number
+          montant_recu?: number | null
+          moyen?: string
+          operateur?: string | null
+          pays?: string | null
+          prestataire?: string
+          reference_interne?: string
+          reference_transaction?: string | null
+          statut?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tentative_paiement_commande_id_fkey"
+            columns: ["commande_id"]
+            isOneToOne: false
+            referencedRelation: "commande"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tentative_paiement_prestataire_fkey"
+            columns: ["prestataire"]
+            isOneToOne: false
+            referencedRelation: "prestataire"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       tranche_prix: {
         Row: {
           bas_cents: number
@@ -1077,6 +1221,60 @@ export type Database = {
           ordre?: number
         }
         Relationships: []
+      }
+      trop_percu: {
+        Row: {
+          clos_le: string | null
+          commande_id: string
+          cree_le: string
+          devise_recue: string
+          id: string
+          montant_attendu_cents: number
+          montant_recu: number
+          motif: string
+          statut: string
+          tentative_id: string
+        }
+        Insert: {
+          clos_le?: string | null
+          commande_id: string
+          cree_le?: string
+          devise_recue: string
+          id?: string
+          montant_attendu_cents: number
+          montant_recu: number
+          motif: string
+          statut?: string
+          tentative_id: string
+        }
+        Update: {
+          clos_le?: string | null
+          commande_id?: string
+          cree_le?: string
+          devise_recue?: string
+          id?: string
+          montant_attendu_cents?: number
+          montant_recu?: number
+          motif?: string
+          statut?: string
+          tentative_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trop_percu_commande_id_fkey"
+            columns: ["commande_id"]
+            isOneToOne: false
+            referencedRelation: "commande"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trop_percu_tentative_id_fkey"
+            columns: ["tentative_id"]
+            isOneToOne: true
+            referencedRelation: "tentative_paiement"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       univers: {
         Row: {
@@ -1414,12 +1612,20 @@ export type Database = {
         Args: { p_auteur: Json; p_compte: string; p_langue: string }
         Returns: undefined
       }
+      definir_prestataire_actif: {
+        Args: { p_actif: boolean; p_auteur: Json; p_code: string }
+        Returns: undefined
+      }
       deplacer_chapitre_kit: {
         Args: { p_auteur: Json; p_chapitre_id: string; p_sens: string }
         Returns: undefined
       }
       deplacer_photo_produit: {
         Args: { p_auteur: Json; p_photo_id: string; p_sens: string }
+        Returns: undefined
+      }
+      deplacer_prestataire: {
+        Args: { p_auteur: Json; p_code: string; p_sens: string }
         Returns: undefined
       }
       depublier_article: {
@@ -1570,6 +1776,10 @@ export type Database = {
       exiger_client: { Args: { p_auteur: Json }; Returns: string }
       expirer_commandes_echues: { Args: never; Returns: number }
       extension_fichier_kit: { Args: { p_format: string }; Returns: string }
+      familles_commande: {
+        Args: { p_commande: string; p_compte: string }
+        Returns: string[]
+      }
       fusionner_panier: {
         Args: { p_auteur: Json; p_compte: string; p_panier: string }
         Returns: Json
@@ -1745,7 +1955,12 @@ export type Database = {
       verrouiller_kit: { Args: { p_produit_id: string }; Returns: undefined }
     }
     Enums: {
-      anomalie_type: "envoi_echec_definitif"
+      anomalie_type:
+        | "envoi_echec_definitif"
+        | "montant_insuffisant"
+        | "notification_invalide"
+        | "transition_refusee"
+        | "kit_deja_possede"
       envoi_modele: "commande_payee" | "kit_ouvert"
       envoi_statut: "a_envoyer" | "envoye" | "echec" | "abandonne" | "ignore"
     }
@@ -1878,7 +2093,13 @@ export const Constants = {
   },
   public: {
     Enums: {
-      anomalie_type: ["envoi_echec_definitif"],
+      anomalie_type: [
+        "envoi_echec_definitif",
+        "montant_insuffisant",
+        "notification_invalide",
+        "transition_refusee",
+        "kit_deja_possede",
+      ],
       envoi_modele: ["commande_payee", "kit_ouvert"],
       envoi_statut: ["a_envoyer", "envoye", "echec", "abandonne", "ignore"],
     },

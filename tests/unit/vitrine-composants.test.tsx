@@ -18,6 +18,8 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 vi.mock("server-only", () => ({}));
+const moyensActifs = vi.hoisted(() => vi.fn());
+vi.mock("@/modules/paiement/queries", () => ({ lireMoyensPaiementActifs: () => moyensActifs() }));
 // Composants serveur asynchrones : getTranslations lit les vrais messages français.
 vi.mock("next-intl/server", async () => {
   const { createTranslator } = await import("next-intl");
@@ -160,6 +162,10 @@ describe("FormulaireContact", () => {
 });
 
 describe("PiedDePage : carte Aide", () => {
+  beforeEach(() => {
+    moyensActifs.mockResolvedValue([]);
+  });
+
   async function rendrePied(numero: string | null) {
     const element = await PiedDePage({ nomSite: "TEST_SITE", numeroWhatsapp: numero });
     return rendre(element);
@@ -186,6 +192,20 @@ describe("PiedDePage : carte Aide", () => {
     const liens = within(legal).getAllByRole("link");
     expect(liens.map((l) => l.getAttribute("href"))).toEqual(["/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite"]);
     for (const l of liens) expect(l.className).toContain("min-h-touch");
+  });
+
+  it("carte Paiement : les moyens des Prestataires actifs seulement, masquée sans Prestataire actif", async () => {
+    const html = async () =>
+      renderToStaticMarkup(
+        <NextIntlClientProvider locale="fr" messages={fr}>
+          {await PiedDePage({ nomSite: "TEST_SITE", numeroWhatsapp: null })}
+        </NextIntlClientProvider>,
+      );
+    expect(await html()).not.toContain("pied-paiement");
+    moyensActifs.mockResolvedValue([{ code: "kpay", nom: "TEST_K-Pay", moyens: ["mobile_money", "carte"] }]);
+    const avec = await html();
+    expect(avec).toContain("TEST_K-Pay : mobile money, carte");
+    expect(avec).not.toContain("Polar");
   });
 
   it("le pied rendu côté serveur est rendable avec les messages français", async () => {

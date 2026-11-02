@@ -9,6 +9,9 @@ import { lireEtatCompte, lireSessionVerifiee } from "@/lib/auth/compte";
 import { formaterUsd } from "@/lib/argent";
 import { formaterDateHeureBoutique } from "@/lib/dates";
 import { lireCommande } from "@/modules/commande/queries";
+import { dependancesOptions } from "@/modules/paiement/dependances";
+import { lireOptionsPaiement, type OptionsPaiement } from "@/modules/paiement/service";
+import { MoyensPaiement } from "./MoyensPaiement";
 import { retourVersCommande, versConnexion } from "./PageCommande";
 
 const CLASSES_LIEN = "t-body inline-flex min-h-touch items-center text-text-primary underline";
@@ -33,6 +36,15 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
   if (!commande) notFound();
 
   const heure = formaterDateHeureBoutique(commande.expireLe, locale);
+  // Moyens de paiement : relus en base pour ce Compte (Familles comprises), seulement pour une Commande à payer. Erreur : message d'état.
+  let options: OptionsPaiement | null = null;
+  if (commande.statut === "en_attente") {
+    try {
+      options = await lireOptionsPaiement(dependancesOptions(), { commandeId: commande.id, compteId: session.compteId });
+    } catch {
+      console.error("[paiement] lecture des moyens de paiement impossible");
+    }
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -85,6 +97,8 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
           </div>
         </dl>
       </section>
+
+      {commande.statut === "en_attente" ? (options ? <MoyensPaiement locale={locale} options={options} /> : <MessageEtat type="erreur">{t("erreurs.erreur")}</MessageEtat>) : null}
     </div>
   );
 }

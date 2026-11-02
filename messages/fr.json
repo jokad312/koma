@@ -183,6 +183,14 @@
       "cgv": "Conditions générales de vente",
       "livraison": "Livraison et retours",
       "confidentialite": "Politique de confidentialité"
+    },
+    "paiement": {
+      "titre": "Paiement",
+      "ligne": "{prestataire} : {moyens}",
+      "moyen": {
+        "mobile_money": "mobile money",
+        "carte": "carte"
+      }
     }
   },
   "Composants": {
@@ -323,7 +331,8 @@
       "produits": "Produits",
       "univers": "Univers",
       "blog": "Blog",
-      "taches": "Tâches"
+      "taches": "Tâches",
+      "prestataires": "Prestataires"
     },
     "blog": {
       "titre": "Blog",
@@ -1370,6 +1379,39 @@
         "commande_payee": "commande payée",
         "kit_ouvert": "kit ouvert"
       }
+    },
+    "prestataires": {
+      "titre": "Prestataires de paiement",
+      "intro": "Active ou désactive un prestataire, et règle l'ordre de priorité des agrégateurs de mobile money. Un prestataire ne peut être activé que lorsque son adaptateur est branché.",
+      "erreurLecture": "Les prestataires n'ont pas pu être chargés. Réessaie dans un instant.",
+      "etat": {
+        "actif": "Actif",
+        "desactive": "Désactivé"
+      },
+      "activer": "Activer {prestataire}",
+      "desactiver": "Désactiver {prestataire}",
+      "monter": "Monter {prestataire}",
+      "descendre": "Descendre {prestataire}",
+      "rang": "Ordre de priorité : {rang}",
+      "moyens": "Moyens : {moyens}",
+      "moyen": {
+        "mobile_money": "mobile money",
+        "carte": "carte"
+      },
+      "adaptateurAbsent": "Adaptateur pas encore branché : ce prestataire ne peut pas être activé.",
+      "regleCarte": {
+        "titre": "Règle de la carte (verrouillée)",
+        "kpay": "K-Pay : paniers avec un produit physique et pass d'événement.",
+        "polar": "Polar : paniers 100 % kits."
+      },
+      "erreurs": {
+        "non_autorise": "Tu n'as plus le droit de gérer les prestataires. Recharge la page ou reconnecte-toi.",
+        "prestataire_inconnu": "Ce prestataire n'existe pas.",
+        "adaptateur_absent": "Cet adaptateur n'est pas encore branché : le prestataire ne peut pas être activé.",
+        "sens_invalide": "Ce déplacement n'est pas possible.",
+        "generique": "Le changement n'a pas pu être enregistré. Réessaie."
+      },
+      "deplacementImpossible": "Ce déplacement n'est pas possible : le prestataire est déjà au bord de la liste."
     }
   },
   "Whatsapp": {
@@ -1892,6 +1934,16 @@
     "progression": {
       "chapitre": "Chapitre {numero} sur {total} · {termines, plural, =0 {aucun chapitre terminé} one {# chapitre terminé} other {# chapitres terminés}}",
       "reprendre": "Reprendre au chapitre {numero}"
+    }
+  },
+  "Paiement": {
+    "moyens": {
+      "titre": "Moyen de paiement",
+      "mobileMoney": "Mobile money",
+      "carte": "Carte",
+      "mobileMoneyIndisponible": "Le mobile money n'est pas encore disponible dans ton pays.",
+      "carteIndisponible": "Le paiement par carte n'est pas disponible pour le moment.",
+      "traitePar": "Paiement traité par {prestataire}"
     }
   }
 }

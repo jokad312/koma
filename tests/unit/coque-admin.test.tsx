@@ -24,21 +24,21 @@ async function coque(enfants: React.ReactNode) {
 }
 
 describe("CoqueAdmin", () => {
-  it("une navigation « Administration » avec Produits, Univers, Blog, Messages, Tâches et Réglages, la page courante marquée", async () => {
+  it("une navigation « Administration » avec Produits, Univers, Blog, Messages, Tâches, Prestataires et Réglages, la page courante marquée", async () => {
     chemin.courant = "/admin/reglages";
     compteur.valeur = 0;
     rendre(await coque(<h1>Contenu</h1>));
     const nav = screen.getByRole("navigation", { name: "Administration" });
     const liens = within(nav).getAllByRole("link");
-    expect(liens.map((l) => l.textContent)).toEqual(["Produits", "Univers", "Blog", "Messages", "Tâches", "Réglages"]);
-    expect(liens.map((l) => l.getAttribute("href"))).toEqual(["/admin/produits", "/admin/univers", "/admin/blog", "/admin/messages", "/admin/taches", "/admin/reglages"]);
-    expect(liens[5].getAttribute("aria-current")).toBe("page");
+    expect(liens.map((l) => l.textContent)).toEqual(["Produits", "Univers", "Blog", "Messages", "Tâches", "Prestataires", "Réglages"]);
+    expect(liens.map((l) => l.getAttribute("href"))).toEqual(["/admin/produits", "/admin/univers", "/admin/blog", "/admin/messages", "/admin/taches", "/admin/prestataires", "/admin/reglages"]);
+    expect(liens[6].getAttribute("aria-current")).toBe("page");
     expect(liens[0].getAttribute("aria-current")).toBeNull();
     // Barre rouge de 4 px sur l'entrée courante, cible tactile de 44 px.
-    expect(liens[5].className).toContain("border-primary");
-    expect(liens[5].className).toContain("border-t-4");
-    expect(liens[5].className).toContain("md:border-l-4");
-    expect(liens[5].className).toContain("min-h-touch");
+    expect(liens[6].className).toContain("border-primary");
+    expect(liens[6].className).toContain("border-t-4");
+    expect(liens[6].className).toContain("md:border-l-4");
+    expect(liens[6].className).toContain("min-h-touch");
     expect(screen.getByRole("heading", { name: "Contenu" })).toBeTruthy();
   });
 

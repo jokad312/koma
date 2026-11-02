@@ -16,6 +16,7 @@ export type LigneCommandeLue = {
 };
 
 export type CommandeLue = {
+  id: string;
   numero: string;
   statut: StatutAffiche;
   sousTotalCents: number;
@@ -43,7 +44,7 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
   const { data, error } = await creerClientService()
     .from("commande")
     .select(
-      "numero, statut, sous_total_cents, forfait_cents, total_cents, expire_le, zone, mode_remise, ligne_commande(prix_cents, nombre, origine, delai_fabrication_jours, produit(slug, famille, titre_fr, titre_en), variante(taille))",
+      "id, numero, statut, sous_total_cents, forfait_cents, total_cents, expire_le, zone, mode_remise, ligne_commande(prix_cents, nombre, origine, delai_fabrication_jours, produit(slug, famille, titre_fr, titre_en), variante(taille))",
     )
     .eq("compte_id", compteId)
     .eq("numero", numero)
@@ -67,6 +68,7 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
     };
   });
   return {
+    id: data.id,
     numero: data.numero,
     statut,
     sousTotalCents: data.sous_total_cents,

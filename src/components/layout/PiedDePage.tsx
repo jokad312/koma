@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { PAGES_LEGALES } from "@/lib/vitrine/pages-legales";
 import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
+import { lireMoyensPaiementActifs } from "@/modules/paiement/queries";
 
 const LIEN = "t-small inline-flex min-h-touch items-center text-text-primary underline";
 
@@ -11,6 +12,8 @@ export async function PiedDePage({ nomSite, numeroWhatsapp = null }: { nomSite: 
   const t = await getTranslations("Pied");
   const tw = await getTranslations("Whatsapp");
   const whatsapp = lienWhatsapp(numeroWhatsapp);
+  // Moyens des Prestataires actifs, lus côté serveur : aucun Prestataire inactif ; sans Prestataire actif, la carte n'est pas affichée.
+  const moyensPaiement = await lireMoyensPaiementActifs();
   return (
     <footer className="mt-12 px-marge pb-8">
       <div className="mx-auto grid max-w-7xl gap-ecart-cartes md:grid-cols-2 lg:grid-cols-4">
@@ -45,6 +48,20 @@ export async function PiedDePage({ nomSite, numeroWhatsapp = null }: { nomSite: 
             ) : null}
           </ul>
         </section>
+        {moyensPaiement.length > 0 ? (
+          <section aria-labelledby="pied-paiement" className="rounded-lg border border-border bg-surface p-5">
+            <h2 id="pied-paiement" className="t-label text-text-primary">
+              {t("paiement.titre")}
+            </h2>
+            <ul className="mt-2 flex flex-col items-start">
+              {moyensPaiement.map((p) => (
+                <li key={p.code} className="t-small text-text-primary">
+                  {t("paiement.ligne", { prestataire: p.nom, moyens: p.moyens.map((m) => t(`paiement.moyen.${m}`)).join(", ") })}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
         <section aria-labelledby="pied-legal" className="rounded-lg border border-border bg-surface p-5">
           <h2 id="pied-legal" className="t-label text-text-primary">
             {t("legal.titre")}

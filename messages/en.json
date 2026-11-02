@@ -183,6 +183,14 @@
       "cgv": "Terms and conditions of sale",
       "livraison": "Delivery and returns",
       "confidentialite": "Privacy policy"
+    },
+    "paiement": {
+      "titre": "Payment",
+      "ligne": "{prestataire}: {moyens}",
+      "moyen": {
+        "mobile_money": "mobile money",
+        "carte": "card"
+      }
     }
   },
   "Composants": {
@@ -323,7 +331,8 @@
       "produits": "Products",
       "univers": "Universes",
       "blog": "Blog",
-      "taches": "Tasks"
+      "taches": "Tasks",
+      "prestataires": "Providers"
     },
     "blog": {
       "titre": "Blog",
@@ -1370,6 +1379,39 @@
         "commande_payee": "order paid",
         "kit_ouvert": "kit open"
       }
+    },
+    "prestataires": {
+      "titre": "Payment providers",
+      "intro": "Turn a provider on or off, and set the priority order of the mobile money aggregators. A provider can only be turned on once its adapter is connected.",
+      "erreurLecture": "The providers could not be loaded. Try again in a moment.",
+      "etat": {
+        "actif": "Active",
+        "desactive": "Off"
+      },
+      "activer": "Turn on {prestataire}",
+      "desactiver": "Turn off {prestataire}",
+      "monter": "Move {prestataire} up",
+      "descendre": "Move {prestataire} down",
+      "rang": "Priority order: {rang}",
+      "moyens": "Methods: {moyens}",
+      "moyen": {
+        "mobile_money": "mobile money",
+        "carte": "card"
+      },
+      "adaptateurAbsent": "Adapter not connected yet: this provider cannot be turned on.",
+      "regleCarte": {
+        "titre": "Card rule (locked)",
+        "kpay": "K-Pay: carts with a physical product and event passes.",
+        "polar": "Polar: carts with kits only."
+      },
+      "erreurs": {
+        "non_autorise": "You can no longer manage providers. Reload the page or sign in again.",
+        "prestataire_inconnu": "This provider does not exist.",
+        "adaptateur_absent": "This adapter is not connected yet: the provider cannot be turned on.",
+        "sens_invalide": "This move is not possible.",
+        "generique": "The change could not be saved. Try again."
+      },
+      "deplacementImpossible": "This move is not possible: the provider is already at the edge of the list."
     }
   },
   "Whatsapp": {
@@ -1892,6 +1934,16 @@
     "progression": {
       "chapitre": "Chapter {numero} of {total} · {termines, plural, =0 {no chapter finished} one {# chapter finished} other {# chapters finished}}",
       "reprendre": "Resume at chapter {numero}"
+    }
+  },
+  "Paiement": {
+    "moyens": {
+      "titre": "Payment method",
+      "mobileMoney": "Mobile money",
+      "carte": "Card",
+      "mobileMoneyIndisponible": "Mobile money is not available in your country yet.",
+      "carteIndisponible": "Card payment is not available right now.",
+      "traitePar": "Payment processed by {prestataire}"
     }
   }
 }

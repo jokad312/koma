@@ -10,6 +10,7 @@ const ENTREES = [
   { cle: "blog", href: "/admin/blog" },
   { cle: "messages", href: "/admin/messages" },
   { cle: "taches", href: "/admin/taches" },
+  { cle: "prestataires", href: "/admin/prestataires" },
   { cle: "reglages", href: "/admin/reglages" },
 ] as const;
 
