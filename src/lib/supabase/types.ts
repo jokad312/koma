@@ -283,6 +283,47 @@ export type Database = {
         }
         Relationships: []
       }
+      couverture: {
+        Row: {
+          cree_le: string
+          etat: string
+          id: string
+          modifie_le: string
+          operateur: string
+          pays: string
+          prestataire: string
+          source: string
+        }
+        Insert: {
+          cree_le?: string
+          etat?: string
+          id?: string
+          modifie_le?: string
+          operateur: string
+          pays: string
+          prestataire: string
+          source: string
+        }
+        Update: {
+          cree_le?: string
+          etat?: string
+          id?: string
+          modifie_le?: string
+          operateur?: string
+          pays?: string
+          prestataire?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "couverture_prestataire_fkey"
+            columns: ["prestataire"]
+            isOneToOne: false
+            referencedRelation: "prestataire"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       envoi: {
         Row: {
           cle: string
@@ -1459,6 +1500,16 @@ export type Database = {
         }
         Returns: string
       }
+      ajouter_couverture: {
+        Args: {
+          p_auteur: Json
+          p_operateur: string
+          p_pays: string
+          p_prestataire: string
+          p_source: string
+        }
+        Returns: string
+      }
       ajouter_fichier_kit: {
         Args: {
           p_auteur: Json
@@ -1566,6 +1617,10 @@ export type Database = {
       }
       compte_complet: { Args: { p_compte: string }; Returns: boolean }
       compter_panier: { Args: { p_panier: string }; Returns: number }
+      confirmer_couverture: {
+        Args: { p_auteur: Json; p_id: string }
+        Returns: undefined
+      }
       consommer_essai: {
         Args: { p_cle: string; p_fenetre_secondes: number; p_maximum: number }
         Returns: boolean
@@ -1912,6 +1967,10 @@ export type Database = {
           p_taille: number
         }
         Returns: string
+      }
+      retirer_couverture: {
+        Args: { p_auteur: Json; p_id: string }
+        Returns: undefined
       }
       retirer_ligne_panier: {
         Args: { p_auteur: Json; p_ligne: string; p_panier: string }

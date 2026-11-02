@@ -33,10 +33,10 @@ import { ListePrestataires, type PrestataireAdmin } from "@/components/admin/Lis
 import { MoyensPaiement } from "@/components/commande/MoyensPaiement";
 
 const base: PrestataireAdmin[] = [
-  { code: "pawapay", nom: "TEST_PawaPay", type: "agregateur", mobileMoney: true, carte: false, actif: false, ordre: 1, adaptateurBranche: true },
-  { code: "kpay", nom: "TEST_K-Pay", type: "agregateur", mobileMoney: true, carte: true, actif: true, ordre: 2, adaptateurBranche: true },
-  { code: "maishapay", nom: "TEST_MaishaPay", type: "agregateur", mobileMoney: true, carte: false, actif: false, ordre: 3, adaptateurBranche: false },
-  { code: "polar", nom: "TEST_Polar", type: "carte", mobileMoney: false, carte: true, actif: false, ordre: null, adaptateurBranche: false },
+  { code: "pawapay", nom: "TEST_PawaPay", type: "agregateur", mobileMoney: true, carte: false, actif: false, ordre: 1, adaptateurBranche: true, couples: [] },
+  { code: "kpay", nom: "TEST_K-Pay", type: "agregateur", mobileMoney: true, carte: true, actif: true, ordre: 2, adaptateurBranche: true, couples: [] },
+  { code: "maishapay", nom: "TEST_MaishaPay", type: "agregateur", mobileMoney: true, carte: false, actif: false, ordre: 3, adaptateurBranche: false, couples: [] },
+  { code: "polar", nom: "TEST_Polar", type: "carte", mobileMoney: false, carte: true, actif: false, ordre: null, adaptateurBranche: false, couples: [] },
 ];
 
 beforeEach(() => {

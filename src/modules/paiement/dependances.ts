@@ -6,6 +6,7 @@ import { creerClientService } from "@/lib/supabase/service";
 import type { Json } from "@/lib/supabase/types";
 import { ADAPTATEURS_BRANCHES } from "./registre";
 import { lireAchat, lireCouverture, lirePrestataires } from "./queries";
+import type { DependancesCouverture } from "./couverture";
 import type { DependancesAdminPaiement, DependancesOptions } from "./service";
 
 export function dependancesOptions(): DependancesOptions {
@@ -26,5 +27,24 @@ export function dependancesAdminPaiement(): DependancesAdminPaiement {
     },
     invalider: async () => updateTag(ETIQUETTES.prestataires),
     adaptateursBranches: ADAPTATEURS_BRANCHES,
+  };
+}
+
+export function dependancesCouverture(): DependancesCouverture {
+  const client = creerClientService();
+  return {
+    exigerDroit: () => exigerDroit("prestataires.gerer"),
+    ajouter: async (auteur, c) => {
+      const { error } = await client.rpc("ajouter_couverture", { p_auteur: auteur as Json, p_prestataire: c.prestataire, p_pays: c.pays, p_operateur: c.operateur, p_source: c.source });
+      return { erreur: error ? error.message : null };
+    },
+    confirmer: async (auteur, id) => {
+      const { error } = await client.rpc("confirmer_couverture", { p_auteur: auteur as Json, p_id: id });
+      return { erreur: error ? error.message : null };
+    },
+    retirer: async (auteur, id) => {
+      const { error } = await client.rpc("retirer_couverture", { p_auteur: auteur as Json, p_id: id });
+      return { erreur: error ? error.message : null };
+    },
   };
 }

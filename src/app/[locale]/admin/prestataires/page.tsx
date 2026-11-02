@@ -12,7 +12,7 @@ import { exigerAdminPage } from "@/lib/auth/droits";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
 import { adaptateurBranche } from "@/modules/paiement/registre";
-import { lirePrestataires } from "@/modules/paiement/queries";
+import { lireCouvertureAdmin, lirePrestataires } from "@/modules/paiement/queries";
 
 const CHEMIN = "/admin/prestataires";
 
@@ -30,7 +30,8 @@ async function PrestatairesSelonDroit({ locale }: { locale: Locale }) {
   const t = await getTranslations("Admin.prestataires");
   let prestataires: PrestataireAdmin[] | null = null;
   try {
-    prestataires = (await lirePrestataires()).map((p) => ({ ...p, adaptateurBranche: adaptateurBranche(p.code) }));
+    const [liste, couverture] = await Promise.all([lirePrestataires(), lireCouvertureAdmin()]);
+    prestataires = liste.map((p) => ({ ...p, adaptateurBranche: adaptateurBranche(p.code), couples: couverture.filter((c) => c.prestataire === p.code) }));
   } catch {
     console.error("[paiement] lecture des Prestataires impossible");
   }

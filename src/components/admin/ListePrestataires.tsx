@@ -7,9 +7,11 @@ import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { changerEtatPrestataireAction, deplacerPrestataireAction } from "@/modules/paiement/actions";
 import type { ErreurPrestataire, ResultatPrestataire } from "@/modules/paiement/service";
+import type { CoupleCouverture } from "@/modules/paiement/couverture";
 import type { Prestataire } from "@/modules/paiement/types";
+import { CouvertureAgregateur } from "./CouvertureAgregateur";
 
-export type PrestataireAdmin = Prestataire & { adaptateurBranche: boolean };
+export type PrestataireAdmin = Prestataire & { adaptateurBranche: boolean; couples: CoupleCouverture[] };
 
 // Liste des Prestataires (FR-21). L'état « Actif » ou « Désactivé » affiché est celui de la base : la liste est relue après chaque
 // réponse réelle du serveur (règle 13). La règle de la carte est affichée verrouillée : elle ne se règle pas ici (règle 10).
@@ -84,6 +86,7 @@ export function ListePrestataires({ prestataires }: { prestataires: PrestataireA
                   </>
                 ) : null}
               </div>
+              {p.type === "agregateur" ? <CouvertureAgregateur prestataire={p.code} nom={p.nom} couples={p.couples} /> : null}
             </li>
           );
         })}

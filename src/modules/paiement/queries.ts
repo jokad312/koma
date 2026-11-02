@@ -3,6 +3,7 @@ import { cacheTag } from "next/cache";
 import { ETIQUETTES } from "@/lib/cache/etiquettes";
 import { creerClientService } from "@/lib/supabase/service";
 import { ADAPTATEURS_BRANCHES } from "./registre";
+import { couplesConfirmes, type CoupleCouverture } from "./couverture";
 import { moyensActifs, type MoyensPrestataire } from "./service";
 import { CODES_PRESTATAIRE, type Achat, type CodePrestataire, type Couverture, type FamilleProduit, type Prestataire } from "./types";
 
@@ -57,8 +58,19 @@ export async function lireAchat(commandeId: string, compteId: string): Promise<A
   };
 }
 
-// Couverture pays-opérateur : la table arrive avec la story 5.1 (saisie par Jonathan, tirée de la documentation de chaque Agrégateur).
-// Tant qu'elle n'existe pas, aucune Couverture n'est connue : le mobile money n'est jamais proposé (règle 15, rien n'est supposé).
+// Tous les couples de la Couverture, pour l'admin (à vérifier et confirmés). Une erreur de lecture est relancée.
+export async function lireCouvertureAdmin(): Promise<CoupleCouverture[]> {
+  const { data, error } = await creerClientService().from("couverture").select("id, prestataire, pays, operateur, source, etat").order("prestataire").order("pays").order("operateur");
+  if (error) throw new Error("Lecture de la Couverture impossible.");
+  return (data ?? []).flatMap((l) =>
+    (CODES_PRESTATAIRE as readonly string[]).includes(l.prestataire) && (l.etat === "a_verifier" || l.etat === "confirme")
+      ? [{ id: l.id, prestataire: l.prestataire as CodePrestataire, pays: l.pays, operateur: l.operateur, source: l.source, etat: l.etat }]
+      : [],
+  );
+}
+
+// Couverture utilisable pour le paiement : les couples CONFIRMÉS seulement (règle 9, story 5.1). Aucune ligne n'existe tant que Jonathan n'en a
+// pas saisi : le mobile money n'est alors jamais proposé. Le service y ajoute la condition « Agrégateur actif ».
 export async function lireCouverture(): Promise<Couverture> {
-  return [];
+  return couplesConfirmes(await lireCouvertureAdmin());
 }

@@ -197,3 +197,11 @@
 - Correctif de CI : l'assertion de `envois.test.sql` (4.4) sur l'énumération des anomalies tient compte des quatre valeurs ajoutées par la 4.5 (la CI de `448e745` était rouge pour cette seule raison).
 - Le test pgTAP `etat_paiement.test.sql` n'a **pas** été exécuté sur koma-dev (Jonathan a refusé le script, à raison : il contenait deux UPDATE sans WHERE) ; il tourne dans la CI.
 - À tester à la main : ouvrir la page d'une Commande à payer (aucun suivi, moyens indisponibles) ; en base de dev, poser une Tentative `en_cours` et recharger : « Paiement en attente », aucun choix ; la passer `echouee` : message d'échec, « Réessayer », WhatsApp ; statut `payee` avec un Kit : « Payée » et « Ouvrir dans ma bibliothèque » ; `/api/paiement/retour/kpay?numero=KS-…&status=success` : redirige vers la page sans rien afficher de plus.
+
+## Story 5.1 : saisie de la Couverture des Agrégateurs (voie 1, Claude Code)
+- Migrations `20261201100000_couverture.sql` et `20261202100000_couverture_casse.sql` appliquées sur koma-dev, types régénérés. Spec : `spec-5-1-saisie-de-la-couverture-des-agregateurs.md`.
+- Inclus : table `couverture` **sans aucune ligne** (aucun pays ni opérateur en dur), fonctions Admin `ajouter_couverture` (source obligatoire), `confirmer_couverture`, `retirer_couverture`, journal ; section « Couverture » par Agrégateur dans `/admin/prestataires` (couple « À vérifier » / « Confirmé », erreurs reliées au champ) ; `lireCouverture` ne passe à l'aiguilleur que les couples **confirmés** ; l'aiguilleur n'y retient que les Agrégateurs actifs.
+- Revue (1 relecteur) : aucun bloquant. Corrigé : unicité insensible à la casse (« MTN » = « mtn »), erreurs de champ annoncées (`role="alert"`) avec l'aide de la source toujours lue.
+- Le test pgTAP `couverture.test.sql` n'a pas été exécuté sur koma-dev ; il tourne en CI.
+- **À faire par Jonathan quand il aura la documentation des Agrégateurs** (Q-1) : saisir les couples réels, avec leur source, puis les confirmer. Aucun n'est inventé.
+- À tester à la main : `/fr/admin/prestataires` : ajouter un couple sans source (erreur sous le champ), puis avec ; le confirmer, le retirer ; ajouter deux fois le même couple en casse différente (refusé).

@@ -83,7 +83,7 @@ development_status:
   epic-4-retrospective: optional
 
   epic-5: backlog
-  5-1-saisie-de-la-couverture-des-agrégateurs: backlog
+  5-1-saisie-de-la-couverture-des-agrégateurs: done
   5-2-choix-du-mobile-money-par-le-client: backlog
   5-3-écran-d-attente-mobile-money-et-repli-entre-agrégateurs: backlog
   5-4-paiement-mobile-money-via-k-pay: backlog

@@ -1411,7 +1411,37 @@
         "sens_invalide": "This move is not possible.",
         "generique": "The change could not be saved. Try again."
       },
-      "deplacementImpossible": "This move is not possible: the provider is already at the edge of the list."
+      "deplacementImpossible": "This move is not possible: the provider is already at the edge of the list.",
+      "couverture": {
+        "titre": "{prestataire} coverage",
+        "vide": "No country-operator pair entered: mobile money is not offered with this aggregator.",
+        "etat": {
+          "a_verifier": "To verify",
+          "confirme": "Confirmed"
+        },
+        "source": "Source: {source}",
+        "confirmer": "Confirm {couple}",
+        "retirer": "Remove {couple}",
+        "ajouter": {
+          "titre": "Add a country-operator pair",
+          "pays": "Country code (2 letters, ISO standard)",
+          "operateur": "Operator",
+          "source": "Source (document or contract)",
+          "aideSource": "Give the official document or contract this pair comes from. It is required.",
+          "bouton": "Add to {prestataire} coverage"
+        },
+        "erreurs": {
+          "non_autorise": "You can no longer manage providers. Reload the page or sign in again.",
+          "source_manquante": "The source is required: give the document or contract.",
+          "source_invalide": "The source must be 3 to 300 characters long.",
+          "pays_invalide": "The country code must be exactly 2 letters.",
+          "operateur_invalide": "The operator name must be 1 to 40 characters long.",
+          "agregateur_invalide": "Only aggregators have coverage.",
+          "couple_existant": "This country-operator pair already exists for this aggregator.",
+          "introuvable": "This pair no longer exists. The list has been refreshed.",
+          "generique": "The change could not be saved. Try again."
+        }
+      }
     }
   },
   "Whatsapp": {

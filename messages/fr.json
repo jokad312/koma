@@ -1411,7 +1411,37 @@
         "sens_invalide": "Ce déplacement n'est pas possible.",
         "generique": "Le changement n'a pas pu être enregistré. Réessaie."
       },
-      "deplacementImpossible": "Ce déplacement n'est pas possible : le prestataire est déjà au bord de la liste."
+      "deplacementImpossible": "Ce déplacement n'est pas possible : le prestataire est déjà au bord de la liste.",
+      "couverture": {
+        "titre": "Couverture de {prestataire}",
+        "vide": "Aucun couple pays-opérateur saisi : le mobile money n'est pas proposé avec cet agrégateur.",
+        "etat": {
+          "a_verifier": "À vérifier",
+          "confirme": "Confirmé"
+        },
+        "source": "Source : {source}",
+        "confirmer": "Confirmer {couple}",
+        "retirer": "Retirer {couple}",
+        "ajouter": {
+          "titre": "Ajouter un couple pays-opérateur",
+          "pays": "Code du pays (2 lettres, norme ISO)",
+          "operateur": "Opérateur",
+          "source": "Source (document ou contrat)",
+          "aideSource": "Indique le document officiel ou le contrat dont ce couple est tiré. Elle est obligatoire.",
+          "bouton": "Ajouter à la couverture de {prestataire}"
+        },
+        "erreurs": {
+          "non_autorise": "Tu n'as plus le droit de gérer les prestataires. Recharge la page ou reconnecte-toi.",
+          "source_manquante": "La source est obligatoire : indique le document ou le contrat.",
+          "source_invalide": "La source doit avoir de 3 à 300 caractères.",
+          "pays_invalide": "Le code du pays doit avoir exactement 2 lettres.",
+          "operateur_invalide": "Le nom de l'opérateur doit avoir de 1 à 40 caractères.",
+          "agregateur_invalide": "Seuls les agrégateurs ont une couverture.",
+          "couple_existant": "Ce couple pays-opérateur existe déjà pour cet agrégateur.",
+          "introuvable": "Ce couple n'existe plus. La liste a été actualisée.",
+          "generique": "Le changement n'a pas pu être enregistré. Réessaie."
+        }
+      }
     }
   },
   "Whatsapp": {
