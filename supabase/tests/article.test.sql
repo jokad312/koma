@@ -262,33 +262,33 @@ select lives_ok(
 
 -- Un article publié ne peut ni être vidé ni changer d'adresse (correctif 20261126100000).
 select lives_ok(
-  $select public.publier_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
-    (select id from public.article where slug = 'premier'))$,
+  $$select public.publier_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
+    (select id from public.article where slug = 'premier'))$$,
   'republier l''article pour tester sa protection'
 );
 select throws_ok(
-  $select public.enregistrer_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
+  $$select public.enregistrer_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
     (select id from public.article where slug = 'premier'),
-    '{"titre_fr":"Premier","texte_fr":"","slug":"premier"}'::jsonb, '[]'::jsonb)$,
+    '{"titre_fr":"Premier","texte_fr":"","slug":"premier"}'::jsonb, '[]'::jsonb)$$,
   'P0001', 'KS_PUBLICATION_INCOMPLETE', 'un article publié ne peut pas être vidé de son texte français'
 );
 select throws_ok(
-  $select public.enregistrer_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
+  $$select public.enregistrer_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
     (select id from public.article where slug = 'premier'),
-    '{"titre_fr":"Premier","texte_fr":"Texte","slug":"premier-bis"}'::jsonb, '[]'::jsonb)$,
+    '{"titre_fr":"Premier","texte_fr":"Texte","slug":"premier-bis"}'::jsonb, '[]'::jsonb)$$,
   'P0001', 'KS_SLUG_PUBLIE', 'l''adresse d''un article publié est figée'
 );
 select lives_ok(
-  $select public.enregistrer_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
+  $$select public.enregistrer_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
     (select id from public.article where slug = 'premier'),
-    '{"titre_fr":"Premier, corrigé","texte_fr":"Texte corrigé","slug":"premier"}'::jsonb, '[]'::jsonb)$,
+    '{"titre_fr":"Premier, corrigé","texte_fr":"Texte corrigé","slug":"premier"}'::jsonb, '[]'::jsonb)$$,
   'un article publié se corrige sans changer d''adresse'
 );
 select is((select titre_fr from public.article where slug = 'premier'), 'Premier, corrigé', 'la correction est enregistrée');
 select throws_ok(
-  $select public.enregistrer_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
+  $$select public.enregistrer_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
     (select id from public.article where slug = 'premier'),
-    '{"titre_fr":"Premier","texte_fr":"Texte","slug":"premier"}'::jsonb, '[{"fichier":"articles/x.jpg","alt_fr":"","alt_en":"Alt"}]'::jsonb)$,
+    '{"titre_fr":"Premier","texte_fr":"Texte","slug":"premier"}'::jsonb, '[{"fichier":"articles/x.jpg","alt_fr":"","alt_en":"Alt"}]'::jsonb)$$,
   'P0001', 'KS_PUBLICATION_INCOMPLETE', 'un article publié ne garde pas une image sans texte alternatif'
 );
 
