@@ -46,6 +46,44 @@ export type ArticleListe = {
   modifieLe: string;
 };
 
+// ---- Lecture publique (story 8.7) ----
+
+// Carte de la liste publique : vignette (première image, ou aucune), titre et date de la langue.
+export type CarteArticle = {
+  id: string;
+  slug: string;
+  titre: string;
+  publieLe: string;
+  vignetteUrl: string | null;
+  vignetteAlt: string | null;
+};
+
+export type ArticleImagePublique = { url: string; alt: string };
+
+export type ProduitLie = { titre: string; famille: "cosplay" | "accessoire" | "kit"; slug: string };
+
+export type ArticlePublic = {
+  id: string;
+  slug: string;
+  titre: string;
+  texte: string;
+  publieLe: string;
+  modifieLe: string;
+  images: ArticleImagePublique[];
+  produitLie: ProduitLie | null;
+  // Version anglaise réellement publiée : commande le 404 sous /en et le hreflang.
+  versionAnglaise: boolean;
+};
+
+export type PageArticles = { articles: CarteArticle[]; suite: string | null };
+
+// Curseur de pagination : date et identifiant du dernier article affiché, nombre déjà affiché (12, 24, …).
+export type CurseurArticles = { date: string; id: string; n: number };
+
+// 12 Articles par page (FR-43, E-36) ; plafond de sécurité pour un curseur forgé.
+export const TAILLE_PAGE_ARTICLES = 12;
+export const CUMUL_MAX_ARTICLES = 1200;
+
 // Choix de lien vers un Produit : seuls le titre et l'identifiant servent au formulaire.
 export type ProduitLien = { id: string; titreFr: string };
 

@@ -8,5 +8,6 @@ export const RUBRIQUES: readonly Rubrique[] = [
   { cle: "cosplays", href: "/cosplays" },
   { cle: "accessoires", href: "/accessoires" },
   { cle: "kits", href: "/kits" },
+  { cle: "blog", href: "/blog" },
   { cle: "aPropos", href: "/a-propos" },
 ];

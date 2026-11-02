@@ -73,6 +73,10 @@
     "bibliotheque": {
       "titre": "My library",
       "description": "Your kits and their files to download."
+    },
+    "blog": {
+      "titre": "Blog",
+      "description": "Cosplay guides, crafting tutorials and news, handmade in Goma."
     }
   },
   "Accueil": {
@@ -123,6 +127,9 @@
     "faqCourte": {
       "titre": "QUICK ANSWERS",
       "toutes": "See all questions"
+    },
+    "bloc7": {
+      "titre": "GUIDES"
     }
   },
   "NonTrouve": {
@@ -1495,6 +1502,20 @@
       "libelle": "See more",
       "enCours": "Loading…",
       "erreur": "Could not load more right now. Try again."
+    }
+  },
+  "Blog": {
+    "titre": "Blog",
+    "fil": {
+      "navigation": "Breadcrumb",
+      "accueil": "Home"
+    },
+    "vide": "No articles yet.",
+    "retourAccueil": "Back to the home page",
+    "erreur": "Something went wrong. Try again in a moment.",
+    "voirPlus": {
+      "libelle": "See more",
+      "enCours": "Loading…"
     }
   },
   "Fiche": {

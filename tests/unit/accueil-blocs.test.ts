@@ -22,15 +22,21 @@ function carte(i: number) {
 }
 
 describe("liste ordonnée des blocs", () => {
-  it("suit l'ordre de FR-2 et affiche héros, tuiles, bloc 1 « Porte-le ou fabrique-le », bloc 2, bloc 6 et bloc 8", () => {
+  it("suit l'ordre de FR-2 et affiche héros, tuiles, bloc 1 « Porte-le ou fabrique-le », bloc 2, bloc 6, bloc 7 et bloc 8", () => {
     expect(BLOCS_ACCUEIL.map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrique", "kits", "cosplaysRecents", "galerie", "rendezVousOtaku", "guides", "jonathan", "bloc7", "faqCourte"]);
-    expect(blocsAffiches().map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrique", "kits", "cosplaysRecents", "jonathan", "faqCourte"]);
+    expect(blocsAffiches().map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrique", "kits", "cosplaysRecents", "jonathan", "bloc7", "faqCourte"]);
   });
 
-  it("les emplacements des blocs 3, 4, 5 et 7 sont réservés et documentés", () => {
+  it("les emplacements des blocs 3, 4 et 5 sont réservés et documentés", () => {
     const reserves = BLOCS_ACCUEIL.filter((b) => b.etat === "reserve");
-    expect(reserves.map((b) => b.numero)).toEqual([3, 4, 5, 7]);
+    expect(reserves.map((b) => b.numero)).toEqual([3, 4, 5]);
     for (const b of reserves) expect("arrivePar" in b && b.arrivePar.length > 0).toBe(true);
+  });
+
+  it("le bloc 7 « Guides » est affiché par la story 8.7 ; l'emplacement 5 garde sa place", () => {
+    const bloc7 = BLOCS_ACCUEIL.find((b) => b.id === "bloc7");
+    expect(bloc7).toEqual({ id: "bloc7", numero: 7, etat: "affiche" });
+    expect(BLOCS_ACCUEIL.find((b) => b.id === "guides")).toEqual({ id: "guides", numero: 5, etat: "reserve", arrivePar: "epic 7" });
   });
 });
 
@@ -80,7 +86,7 @@ describe("textes de l'accueil", () => {
     });
 
     it(`${langue} : titres de blocs en majuscules sans accent`, () => {
-      const titres = [accueil.categories.titre, accueil.kits.titre, accueil.cosplaysRecents.titre, accueil.jonathan.titre, accueil.faqCourte.titre];
+      const titres = [accueil.categories.titre, accueil.kits.titre, accueil.cosplaysRecents.titre, accueil.jonathan.titre, accueil.bloc7.titre, accueil.faqCourte.titre];
       for (const titre of titres) {
         expect(titre).toBe(titre.toUpperCase());
         expect(titre.normalize("NFD")).not.toMatch(/[̀-ͯ]/);

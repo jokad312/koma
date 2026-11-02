@@ -5,6 +5,7 @@ import { lireEnvPublique } from "@/lib/env";
 import { choisirLangue } from "@/i18n/detection";
 import { NOM_COOKIE_LANGUE, routing } from "@/i18n/routing";
 import { analyserAdresseFiche, ficheExiste } from "@/modules/catalogue/existence";
+import { analyserAdresseArticle, articleExiste } from "@/modules/blog/existence";
 
 const intl = createIntlMiddleware(routing);
 
@@ -49,12 +50,20 @@ export async function proxy(request: NextRequest) {
     reponse.headers.set("Vary", "Accept-Language, Cookie");
     reponse.headers.set("Cache-Control", "no-store");
   } else if (estCheminLocalise(chemin)) {
-    // Fiche inconnue, dépubliée ou d'une autre famille : le statut 404 doit partir avant le flux (coque prérendue). On réécrit vers une
-    // adresse que personne ne sert : la route attrape-tout rend la page « introuvable » traduite, avec le statut 404.
-    const fiche = analyserAdresseFiche(chemin);
-    if (fiche && (await ficheExiste(fiche.famille, fiche.segment)) === "non") {
+    // Fiche ou Article inconnu, dépublié, d'une autre famille, ou sans version anglaise : le statut 404 doit partir avant le flux
+    // (coque prérendue). On réécrit vers une adresse que personne ne sert : la route attrape-tout rend la page « introuvable »
+    // traduite, avec le statut 404. Une base muette (« incertain ») laisse le chemin normal décider.
+    let localeIntrouvable: "fr" | "en" | null = null;
+    const article = analyserAdresseArticle(chemin);
+    if (article) {
+      if ((await articleExiste(article.locale, article.segment)) === "non") localeIntrouvable = article.locale;
+    } else {
+      const fiche = analyserAdresseFiche(chemin);
+      if (fiche && (await ficheExiste(fiche.famille, fiche.segment)) === "non") localeIntrouvable = fiche.locale;
+    }
+    if (localeIntrouvable) {
       const cible = request.nextUrl.clone();
-      cible.pathname = `/${fiche.locale}/introuvable`;
+      cible.pathname = `/${localeIntrouvable}/introuvable`;
       reponse = NextResponse.rewrite(cible, { status: 404 });
     } else {
       reponse = intl(request);

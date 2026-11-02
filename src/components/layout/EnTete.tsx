@@ -13,11 +13,11 @@ import { SelecteurLangue } from "./SelecteurLangue";
 import { ZoneCompte } from "./ZoneCompte";
 import { LienPanier, ZonePanier } from "./ZonePanier";
 
-type Props = { nomSite: string; rubriques?: readonly Rubrique[] };
+type Props = { nomSite: string; rubriques?: readonly Rubrique[]; sansTraduction?: readonly string[] };
 
 // En-tête collant en verre renforcé. Le panier (compteur lu dans le cookie, sous Suspense) est toujours visible ; pas de rubrique sans page.
 // Le logo est affiché tel quel (fichier d'origine, jamais recoloré) ; le cadrage 530 x 124 est fait par recadrage CSS.
-export async function EnTete({ nomSite, rubriques = RUBRIQUES }: Props) {
+export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }: Props) {
   const t = await getTranslations("Navigation");
   const locale = (await getLocale()) as Locale;
   const liens =
@@ -68,7 +68,7 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES }: Props) {
           <div className="hidden items-center gap-2 lg:flex">
             <BasculeTheme />
             <Suspense fallback={<LangueRepli />}>
-              <SelecteurLangue />
+              <SelecteurLangue sansTraduction={sansTraduction} />
             </Suspense>
             <Suspense fallback={<LienConnexion />}>
               <ZoneCompte />
@@ -82,7 +82,7 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES }: Props) {
               {liens}
               <BasculeTheme />
               <Suspense fallback={<LangueRepli />}>
-                <SelecteurLangue />
+                <SelecteurLangue sansTraduction={sansTraduction} />
               </Suspense>
               <Suspense fallback={<LienConnexion />}>
                 <ZoneCompte />

@@ -19,8 +19,10 @@ export function urlLocalisee(locale: Locale, chemin = "", requete = ""): string 
   return `${adresseSite()}${cheminLocalise(locale, chemin)}${requete ? `?${requete}` : ""}`;
 }
 
-// hreflang : une entrée par langue, x-default vers la langue par défaut (/fr).
-export function alternatives(chemin = "", requete = ""): Record<string, string> {
-  const langues = Object.fromEntries(routing.locales.map((l) => [l, urlLocalisee(l, chemin, requete)]));
-  return { ...langues, "x-default": urlLocalisee(routing.defaultLocale, chemin, requete) };
+// hreflang : une entrée par langue disponible, x-default vers la langue par défaut quand elle fait partie des versions servies.
+export function alternatives(chemin = "", requete = "", langues: readonly Locale[] = routing.locales): Record<string, string> {
+  const servies = routing.locales.filter((l) => langues.includes(l));
+  const entrees = Object.fromEntries(servies.map((l) => [l, urlLocalisee(l, chemin, requete)]));
+  if (!servies.includes(routing.defaultLocale)) return entrees;
+  return { ...entrees, "x-default": urlLocalisee(routing.defaultLocale, chemin, requete) };
 }

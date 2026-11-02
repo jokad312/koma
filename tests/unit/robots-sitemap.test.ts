@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const faux = vi.hoisted(() => ({ lire: vi.fn() }));
+const faux = vi.hoisted(() => ({ lire: vi.fn(), articles: vi.fn() }));
 vi.mock("@/modules/catalogue/queries", () => ({ lireSlugsPublies: () => faux.lire() }));
+vi.mock("@/modules/blog/queries", () => ({ lireSlugsArticlesPublies: () => faux.articles() }));
 
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
@@ -9,6 +10,8 @@ import sitemap from "@/app/sitemap";
 beforeEach(() => {
   faux.lire.mockReset();
   faux.lire.mockResolvedValue([]);
+  faux.articles.mockReset();
+  faux.articles.mockResolvedValue([]);
   process.env.NEXT_PUBLIC_SITE_URL = "http://localhost:3000";
   process.env.NEXT_PUBLIC_SUPABASE_URL = "http://127.0.0.1:54321";
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "TEST_cle_publique";
@@ -39,6 +42,8 @@ describe("sitemap", () => {
       "http://localhost:3000/en/accessories",
       "http://localhost:3000/fr/kits",
       "http://localhost:3000/en/kits",
+      "http://localhost:3000/fr/blog",
+      "http://localhost:3000/en/blog",
       "http://localhost:3000/fr/a-propos",
       "http://localhost:3000/en/a-propos",
       "http://localhost:3000/fr/faq",
@@ -55,7 +60,7 @@ describe("sitemap", () => {
       "http://localhost:3000/en/confidentialite",
     ]);
     // Catalogues : adresse propre à chaque langue (vérifiée dans adresses-langues.test.ts).
-    for (const chemin of ["", "/cosplays", "/kits", "/a-propos", "/faq", "/contact", "/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite"]) {
+    for (const chemin of ["", "/cosplays", "/kits", "/blog", "/a-propos", "/faq", "/contact", "/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite"]) {
       const e = entrees.find((x) => x.url === `http://localhost:3000/fr${chemin}`);
       expect(e?.alternates?.languages).toEqual({
         fr: `http://localhost:3000/fr${chemin}`,
@@ -93,12 +98,35 @@ describe("sitemap", () => {
 
   it("lecture des fiches impossible : le plan garde les pages statiques et les catalogues, et l'erreur est journalisée", async () => {
     faux.lire.mockRejectedValue(new Error("TEST_panne"));
+    faux.articles.mockRejectedValue(new Error("TEST_panne"));
     const erreur = vi.spyOn(console, "error").mockImplementation(() => {});
     const urls = (await sitemap()).map((e) => e.url);
     expect(urls).toContain("http://localhost:3000/fr/cosplays");
     expect(urls).toContain("http://localhost:3000/en/accessories");
-    expect(urls).toHaveLength(22);
+    expect(urls).toContain("http://localhost:3000/fr/blog");
+    expect(urls).toHaveLength(24);
     expect(erreur).toHaveBeenCalled();
     erreur.mockRestore();
+  });
+
+  it("Articles : le français toujours, l'anglais seulement si la version anglaise existe, hreflang limité", async () => {
+    faux.articles.mockResolvedValue([
+      { slug: "test-article-fr", versionAnglaise: false },
+      { slug: "test-article-deux-langues", versionAnglaise: true },
+    ]);
+    const entrees = await sitemap();
+    const urls = entrees.map((e) => e.url);
+    expect(urls).toContain("http://localhost:3000/fr/blog/test-article-fr");
+    expect(urls).not.toContain("http://localhost:3000/en/blog/test-article-fr");
+    expect(urls).toEqual(expect.arrayContaining(["http://localhost:3000/fr/blog/test-article-deux-langues", "http://localhost:3000/en/blog/test-article-deux-langues"]));
+    expect(entrees.find((e) => e.url === "http://localhost:3000/fr/blog/test-article-fr")?.alternates?.languages).toEqual({
+      fr: "http://localhost:3000/fr/blog/test-article-fr",
+      "x-default": "http://localhost:3000/fr/blog/test-article-fr",
+    });
+    expect(entrees.find((e) => e.url === "http://localhost:3000/en/blog/test-article-deux-langues")?.alternates?.languages).toEqual({
+      fr: "http://localhost:3000/fr/blog/test-article-deux-langues",
+      en: "http://localhost:3000/en/blog/test-article-deux-langues",
+      "x-default": "http://localhost:3000/fr/blog/test-article-deux-langues",
+    });
   });
 });

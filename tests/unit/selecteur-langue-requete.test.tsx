@@ -44,4 +44,29 @@ describe("SelecteurLangue : chemin et requête conservés, adresse propre de l'a
     rendre(<SelecteurLangue />);
     expect(screen.getByRole("link", { name: "English" }).getAttribute("href")).toBe("/en/cosplays");
   });
+
+  it("Article français sans version anglaise : le sélecteur mène à la liste /en/blog, sans requête", () => {
+    faux.chemin = "/fr/blog/test-article";
+    faux.requete = "x=1";
+    rendre(<SelecteurLangue sansTraduction={["test-article"]} />);
+    expect(screen.getByRole("link", { name: "English" }).getAttribute("href")).toBe("/en/blog");
+  });
+
+  it("Article traduit : adresse habituelle conservée, la liste ne s'applique pas", () => {
+    faux.chemin = "/fr/blog/test-article";
+    rendre(<SelecteurLangue sansTraduction={["autre-article"]} />);
+    expect(screen.getByRole("link", { name: "English" }).getAttribute("href")).toBe("/en/blog/test-article");
+  });
+
+  it("liste du Blog : le sélecteur garde /en/blog", () => {
+    faux.chemin = "/fr/blog";
+    rendre(<SelecteurLangue sansTraduction={["test-article"]} />);
+    expect(screen.getByRole("link", { name: "English" }).getAttribute("href")).toBe("/en/blog");
+  });
+
+  it("depuis l'anglais, la liste des Articles sans version anglaise ne change rien", () => {
+    faux.chemin = "/en/blog/test-article";
+    rendre(<SelecteurLangue sansTraduction={["test-article"]} />, "en");
+    expect(screen.getByRole("link", { name: "Français" }).getAttribute("href")).toBe("/fr/blog/test-article");
+  });
 });

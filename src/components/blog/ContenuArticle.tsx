@@ -23,7 +23,15 @@ function adresseAutorisee(url: string): string | null {
   }
 }
 
+// La page ne garde qu'un seul H1, celui du titre de l'Article : les titres saisis dans le texte sont décalés d'un cran
+// (# → h2, ## → h3 … ##### → h6) et h6 reste h6. Même règle dans l'aperçu admin, qui emprunte ce rendu.
 const COMPOSANTS: Components = {
+  h1: ({ children }) => <h2>{children}</h2>,
+  h2: ({ children }) => <h3>{children}</h3>,
+  h3: ({ children }) => <h4>{children}</h4>,
+  h4: ({ children }) => <h5>{children}</h5>,
+  h5: ({ children }) => <h6>{children}</h6>,
+  h6: ({ children }) => <h6>{children}</h6>,
   a({ node, href, children, ...reste }) {
     void node;
     const adresse = href ? adresseAutorisee(href) : null;

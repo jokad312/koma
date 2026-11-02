@@ -40,9 +40,18 @@ describe("ContenuArticle", () => {
 
   it("rend les titres, listes et tableaux GFM", () => {
     const { container } = render(<ContenuArticle texte={"# Titre\n\n- un\n- deux\n\n| a | b |\n| - | - |\n| 1 | 2 |"} />);
-    expect(container.querySelector("h1")?.textContent).toBe("Titre");
+    expect(container.querySelector("h2")?.textContent).toBe("Titre");
     expect(container.querySelectorAll("li")).toHaveLength(2);
     expect(container.querySelector("table")).not.toBeNull();
+  });
+
+  it("décale les titres d'un cran pour ne garder qu'un seul H1 (celui de l'Article), h6 au maximum", () => {
+    const { container } = render(
+      <ContenuArticle texte={"# un\n\n## deux\n\n### trois\n\n#### quatre\n\n##### cinq\n\n###### six"} />,
+    );
+    expect(container.querySelector("h1")).toBeNull();
+    const titres = [...container.querySelectorAll("h2, h3, h4, h5, h6")].map((t) => `${t.tagName.toLowerCase()}:${t.textContent}`);
+    expect(titres).toEqual(["h2:un", "h3:deux", "h4:trois", "h5:quatre", "h6:cinq", "h6:six"]);
   });
 
   it("n'affiche pas une image sans texte alternatif", () => {

@@ -107,3 +107,32 @@ export function videoJsonLd({ nom, description, vignette, dateEnvoi, contenu, la
     inLanguage: langue,
   };
 }
+
+type DonneesArticle = {
+  titre: string;
+  description: string | null;
+  images: readonly string[];
+  url: string;
+  langue: string;
+  publieLe: string;
+  modifieLe: string;
+  nomSite: string;
+};
+
+// Article d'un billet de blog : auteur et éditeur réduits au nom du site (aucune personne inventée), dates lues en base.
+// Aucune note, aucun avis, aucun chiffre. Sans description réelle, le champ est omis plutôt que rempli.
+export function articleJsonLd({ titre, description, images, url, langue, publieLe, modifieLe, nomSite }: DonneesArticle) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: titre,
+    ...(description ? { description } : {}),
+    ...(images.length > 0 ? { image: images } : {}),
+    datePublished: publieLe,
+    dateModified: modifieLe,
+    inLanguage: langue,
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    author: { "@type": "Organization", name: nomSite },
+    publisher: { "@type": "Organization", name: nomSite },
+  };
+}

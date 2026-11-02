@@ -73,6 +73,10 @@
     "bibliotheque": {
       "titre": "Ma bibliothèque",
       "description": "Tes kits et leurs fichiers à télécharger."
+    },
+    "blog": {
+      "titre": "Blog",
+      "description": "Guides de cosplay, tutoriels de fabrication et actualités, fait main à Goma."
     }
   },
   "Accueil": {
@@ -123,6 +127,9 @@
     "faqCourte": {
       "titre": "REPONSES RAPIDES",
       "toutes": "Voir toutes les questions"
+    },
+    "bloc7": {
+      "titre": "GUIDES"
     }
   },
   "NonTrouve": {
@@ -1495,6 +1502,20 @@
       "libelle": "Voir plus",
       "enCours": "Chargement…",
       "erreur": "Impossible de charger la suite pour le moment. Réessaie."
+    }
+  },
+  "Blog": {
+    "titre": "Blog",
+    "fil": {
+      "navigation": "Fil d'Ariane",
+      "accueil": "Accueil"
+    },
+    "vide": "Aucun article pour le moment.",
+    "retourAccueil": "Retour à l'accueil",
+    "erreur": "Un problème est survenu. Réessaie dans un instant.",
+    "voirPlus": {
+      "libelle": "Voir plus",
+      "enCours": "Chargement…"
     }
   },
   "Fiche": {

@@ -14,6 +14,7 @@ import { barlow, barlowCondensed } from "@/lib/fonts";
 import { lireNomSite, lireNumeroWhatsappOuNull } from "@/lib/reglages";
 import { JsonLd } from "@/lib/seo/balise-jsonld";
 import { organisationJsonLd } from "@/lib/seo/jsonld";
+import { lireSlugsSansVersionAnglaise } from "@/modules/blog/queries";
 import "../globals.css";
 
 export function generateStaticParams() {
@@ -29,6 +30,14 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   setRequestLocale(locale);
   const nomSite = await lireNomSite();
   const numeroWhatsapp = await lireNumeroWhatsappOuNull();
+  // Articles français sans version anglaise : le sélecteur de langue mène alors à /en/blog. Une lecture impossible ne casse pas
+  // la page : le sélecteur garde son comportement habituel (la page Article rendra de toute façon une 404 sous /en).
+  let sansTraduction: string[] = [];
+  try {
+    sansTraduction = await lireSlugsSansVersionAnglaise();
+  } catch {
+    console.error("[blog] liste des articles sans version anglaise impossible : sélecteur de langue inchangé");
+  }
   const sakura = lireEnvPublique().NEXT_PUBLIC_TITRES_SAKURA;
 
   return (
@@ -45,7 +54,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
             <Suspense fallback={null}>
               <BandeauNavigateurIntegre />
             </Suspense>
-            <EnTete nomSite={nomSite} />
+            <EnTete nomSite={nomSite} sansTraduction={sansTraduction} />
             <main id={ID_CONTENU} tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-marge py-8">
               <JsonLd donnees={organisationJsonLd(nomSite)} />
               {children}

@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Suspense, type ReactNode } from "react";
 import { BlocCosplaysRecents } from "@/components/accueil/BlocCosplaysRecents";
 import { BlocFaqCourte } from "@/components/accueil/BlocFaqCourte";
+import { BlocGuides } from "@/components/accueil/BlocGuides";
 import { BlocKits } from "@/components/accueil/BlocKits";
 import { BlocPorteOuFabrique } from "@/components/accueil/BlocPorteOuFabrique";
 import { HerosAccueil } from "@/components/accueil/HerosAccueil";
@@ -53,6 +54,13 @@ function rendreBloc(id: string, locale: Locale): ReactNode {
       );
     case "jonathan":
       return <BlocJonathan />;
+    case "bloc7":
+      // Bloc « Guides » : lu à chaque requête ; masqué sans Article publié.
+      return (
+        <Suspense fallback={null}>
+          <BlocGuides locale={locale} />
+        </Suspense>
+      );
     case "faqCourte":
       return <BlocFaqCourte locale={locale} />;
     default:

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/modules/catalogue/queries", () => ({ lireSlugsPublies: async () => [] }));
+vi.mock("@/modules/blog/queries", () => ({ lireSlugsArticlesPublies: async () => [] }));
 
 import sitemap from "@/app/sitemap";
 import { ADRESSES, cheminAutreLangue, cheminPublic, redirectionsAdresses, reecrituresAdresses } from "@/i18n/adresses";

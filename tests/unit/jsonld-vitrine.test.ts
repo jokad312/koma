@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { faqJsonLd, filArianeJsonLd, pageContactJsonLd, pageWebJsonLd, serialiserJsonLd } from "@/lib/seo/jsonld";
+import { articleJsonLd, faqJsonLd, filArianeJsonLd, pageContactJsonLd, pageWebJsonLd, serialiserJsonLd } from "@/lib/seo/jsonld";
 import { MARQUEUR_TEXTE } from "@/lib/vitrine/marqueur";
 import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
 
@@ -48,8 +48,7 @@ describe("lienWhatsapp", () => {
   });
 });
 
-describe("filArianeJsonLd", () => {
-  it("BreadcrumbList : positions 1 et 2, noms et adresses données, sans note ni avis", () => {
+describe("filArianeJsonLd", () => {  it("BreadcrumbList : positions 1 et 2, noms et adresses données, sans note ni avis", () => {
     const donnees = JSON.parse(
       serialiserJsonLd(
         filArianeJsonLd([
@@ -64,5 +63,41 @@ describe("filArianeJsonLd", () => {
       { "@type": "ListItem", position: 2, name: "Accessories", item: "http://localhost:3000/en/accessories" },
     ]);
     expect(JSON.stringify(donnees)).not.toMatch(/rating|review|aggregate/i);
+  });
+});
+
+describe("articleJsonLd", () => {
+  const donnees = {
+    titre: "TEST_Titre de l'article",
+    description: "TEST_Description",
+    images: ["https://exemple.test/a.jpg"],
+    url: "http://localhost:3000/fr/blog/test-article",
+    langue: "fr",
+    publieLe: "2026-10-26T10:00:00+00:00",
+    modifieLe: "2026-10-27T08:30:00+00:00",
+    nomSite: "TEST_Boutique",
+  };
+
+  it("Article : titre, description, image, dates lues en base, auteur et éditeur réduits au nom du site", () => {
+    const json = articleJsonLd(donnees);
+    expect(json).toMatchObject({
+      "@type": "Article",
+      headline: "TEST_Titre de l'article",
+      description: "TEST_Description",
+      image: ["https://exemple.test/a.jpg"],
+      datePublished: "2026-10-26T10:00:00+00:00",
+      dateModified: "2026-10-27T08:30:00+00:00",
+      inLanguage: "fr",
+      mainEntityOfPage: { "@type": "WebPage", "@id": "http://localhost:3000/fr/blog/test-article" },
+      author: { "@type": "Organization", name: "TEST_Boutique" },
+      publisher: { "@type": "Organization", name: "TEST_Boutique" },
+    });
+    expect(JSON.stringify(json)).not.toMatch(/rating|review|aggregate|Person/i);
+  });
+
+  it("sans description ni image : les champs sont omis, jamais remplis", () => {
+    const json = articleJsonLd({ ...donnees, description: null, images: [] });
+    expect(json).not.toHaveProperty("description");
+    expect(json).not.toHaveProperty("image");
   });
 });
