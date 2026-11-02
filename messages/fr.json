@@ -1862,6 +1862,36 @@
     },
     "filigrane": {
       "texte": "Acheté par {email} · Commande {numero} · {site}"
+    },
+    "video": {
+      "titre": "Tutoriel vidéo",
+      "chargement": "Préparation de la vidéo…",
+      "lecteur": "Lecteur du tutoriel {titre}",
+      "lecture": "Lecture",
+      "pause": "Pause",
+      "position": "Position dans la vidéo",
+      "valeur": "{position} sur {duree}",
+      "duree": "{minutes} min {secondes} s",
+      "chapitres": "Chapitres",
+      "chapitreLigne": "{titre} · début à {instant}",
+      "sousTitres": "Sous-titres",
+      "sansSousTitres": "Désactivés",
+      "langues": {
+        "fr": "Français",
+        "en": "Anglais"
+      },
+      "pleinEcran": "Plein écran",
+      "quitterPleinEcran": "Quitter le plein écran",
+      "erreur": "La vidéo ne se charge pas. Vérifie ta connexion, puis réessaie : la lecture reprend là où tu t'étais arrêté.",
+      "reessayer": "Réessayer",
+      "nonPrisEnCharge": "Ton navigateur ne sait pas lire cette vidéo.",
+      "refuse": "Tu n'as pas accès à cette vidéo.",
+      "connexion": "Ta session a pris fin. Connecte-toi à nouveau.",
+      "indisponible": "La vidéo n'est pas disponible pour le moment."
+    },
+    "progression": {
+      "chapitre": "Chapitre {numero} sur {total} · {termines, plural, =0 {aucun chapitre terminé} one {# chapitre terminé} other {# chapitres terminés}}",
+      "reprendre": "Reprendre au chapitre {numero}"
     }
   }
 }

@@ -852,6 +852,41 @@ export type Database = {
           },
         ]
       }
+      progression_video: {
+        Row: {
+          compte_id: string
+          max_position_secondes: number
+          modifie_le: string
+          position_secondes: number
+          produit_id: string
+          terminee_le: string | null
+        }
+        Insert: {
+          compte_id: string
+          max_position_secondes?: number
+          modifie_le?: string
+          position_secondes?: number
+          produit_id: string
+          terminee_le?: string | null
+        }
+        Update: {
+          compte_id?: string
+          max_position_secondes?: number
+          modifie_le?: string
+          position_secondes?: number
+          produit_id?: string
+          terminee_le?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "progression_video_produit_id_fkey"
+            columns: ["produit_id"]
+            isOneToOne: false
+            referencedRelation: "video_kit"
+            referencedColumns: ["produit_id"]
+          },
+        ]
+      }
       reglage: {
         Row: {
           cle: string
@@ -1273,6 +1308,10 @@ export type Database = {
         }
         Returns: string
       }
+      bibliotheque_enregistrer_progression: {
+        Args: { p_compte: string; p_position: number; p_produit: string }
+        Returns: boolean
+      }
       bibliotheque_fichier_a_servir: {
         Args: { p_compte: string; p_fichier: string }
         Returns: Json
@@ -1297,6 +1336,20 @@ export type Database = {
       bibliotheque_ouvrir_acces: {
         Args: { p_commande: string; p_compte: string; p_produit: string }
         Returns: boolean
+      }
+      bibliotheque_progressions: {
+        Args: { p_compte: string }
+        Returns: {
+          debuts: number[]
+          max_position_secondes: number
+          position_secondes: number
+          produit_id: string
+          terminee: boolean
+        }[]
+      }
+      bibliotheque_video_a_lire: {
+        Args: { p_compte: string; p_slug: string }
+        Returns: Json
       }
       capacite_fabrication_atteinte: { Args: never; Returns: boolean }
       choisir_vedette_heros: {

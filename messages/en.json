@@ -1862,6 +1862,36 @@
     },
     "filigrane": {
       "texte": "Purchased by {email} · Order {numero} · {site}"
+    },
+    "video": {
+      "titre": "Video tutorial",
+      "chargement": "Preparing the video…",
+      "lecteur": "Tutorial player {titre}",
+      "lecture": "Play",
+      "pause": "Pause",
+      "position": "Position in the video",
+      "valeur": "{position} of {duree}",
+      "duree": "{minutes} min {secondes} s",
+      "chapitres": "Chapters",
+      "chapitreLigne": "{titre} · starts at {instant}",
+      "sousTitres": "Subtitles",
+      "sansSousTitres": "Off",
+      "langues": {
+        "fr": "French",
+        "en": "English"
+      },
+      "pleinEcran": "Full screen",
+      "quitterPleinEcran": "Exit full screen",
+      "erreur": "The video does not load. Check your connection, then try again: playback resumes where you stopped.",
+      "reessayer": "Try again",
+      "nonPrisEnCharge": "Your browser cannot play this video.",
+      "refuse": "You do not have access to this video.",
+      "connexion": "Your session has ended. Please sign in again.",
+      "indisponible": "The video is not available right now."
+    },
+    "progression": {
+      "chapitre": "Chapter {numero} of {total} · {termines, plural, =0 {no chapter finished} one {# chapter finished} other {# chapters finished}}",
+      "reprendre": "Resume at chapter {numero}"
     }
   }
 }

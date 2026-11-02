@@ -7,6 +7,7 @@ import { lireSessionVerifiee } from "@/lib/auth/compte";
 import { lireKitBibliotheque, type DetailKitBibliotheque } from "@/modules/bibliotheque/queries";
 import { tailleLisible } from "@/modules/catalogue/fichiers-kit";
 import { BoutonTelecharger } from "./BoutonTelecharger";
+import { LecteurVideoKit } from "./LecteurVideoKit";
 import { CHEMIN_BIBLIOTHEQUE, versConnexionBibliotheque } from "./PageBibliotheque";
 
 // Un Kit de la bibliothèque : ses fichiers actuels (un fichier ajouté ou remplacé après l'achat apparaît ici sans rien racheter, FR-30).
@@ -33,6 +34,22 @@ export async function PageKitBibliotheque({ locale, slug }: { locale: Locale; sl
         {t("detail.retour")}
       </Link>
       <h2 className="t-h2">{titre}</h2>
+      {kit.video ? (
+        <section aria-labelledby="video-titre" className="flex flex-col gap-4">
+          <h3 id="video-titre" className="t-h3">
+            {t("video.titre")}
+          </h3>
+          <LecteurVideoKit
+            produitId={kit.produitId}
+            slug={kit.slug}
+            titre={titre}
+            locale={locale}
+            dureeSecondes={kit.video.dureeSecondes}
+            chapitres={kit.video.chapitres.map((c) => ({ id: c.id, titre: locale === "en" ? c.titre.en : c.titre.fr, debutSecondes: c.debutSecondes }))}
+            sousTitres={kit.video.sousTitres}
+          />
+        </section>
+      ) : null}
       <section aria-labelledby="fichiers-titre" className="flex flex-col gap-4">
         <h3 id="fichiers-titre" className="t-h3">
           {t("detail.fichiers")}
