@@ -1,6 +1,6 @@
 -- Story 2.3 : forfaits, retrait, Plafond de fabrication, tranches de prix, stock_disponible, places_fabrication_utilisees.
 begin;
-select plan(56);
+select plan(57);
 
 insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-0000000000f1', 'test-rem1@example.invalid', '{}'),
