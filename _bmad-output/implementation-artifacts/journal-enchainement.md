@@ -153,3 +153,7 @@
 - **Statut `review`, pas `done` : il reste à faire par Jonathan** (critère de clôture de la story) : créer le compte Resend ; mettre `RESEND_API_KEY` et `EMAIL_EXPEDITEUR` dans `.env.local` ; sans domaine, Resend n'envoie qu'à l'adresse du titulaire du compte.
 - Non planifié (aucun domaine, Q-D1) : le déclenchement par pg_cron existe (`envoyer-emails`, chaque minute) mais ne fait rien tant que les secrets Vault `site_url` et `cron_secret` n'existent pas. Pas de déclencheur pour `commande_payee` avant les stories 5.x.
 - À tester à la main : en local, `RESEND_API_KEY` et `EMAIL_EXPEDITEUR` renseignés, obtenir un Kit gratuit avec un Compte dont l'email est celui du titulaire Resend, puis `curl -X POST http://localhost:3000/api/cron/envois -H "Authorization: Bearer $CRON_SECRET"` : l'email « Ton kit est ouvert » arrive ; un second appel n'en renvoie pas. Sans clé : réponse 503. Page `/fr/admin/tâches` : vide.
+
+## Story 3.4 : double option et Kit lié (voie 2, intégrée par la voie 1)
+- Branche `feat/voie-2-kits` rebasée sur main puis fusionnée en avance rapide. Détails de la revue, du bug du Kit lié, du texte du bloc 1 et des textes sans source exacte : `voie-2-notes.md` (section « Intégration sur main »).
+- À tester à la main (375 px) : sur un cosplay avec un Kit lié publié (le lien se règle sur le Kit, pas sur le cosplay), sélecteur « Prêt à porter » / « Le fabriquer moi-même » ; l'accueil (bloc « Porte-le ou fabrique-le », héros à deux options, bloc Kits) ; au Plafond atteint, le Kit est proposé.
