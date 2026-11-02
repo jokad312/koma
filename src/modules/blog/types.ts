@@ -8,6 +8,7 @@ export type CodeErreurBlog =
   | "texte_invalide"
   | "slug_invalide"
   | "slug_pris"
+  | "slug_publie"
   | "produit_inexistant"
   | "article_introuvable"
   | "publication_incomplete"

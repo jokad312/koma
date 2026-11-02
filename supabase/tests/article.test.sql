@@ -1,7 +1,7 @@
 -- Story 8.6 : Article (module blog) — RLS, droits, validations, adresse unique, publication, journal.
 -- Exécuté par la CI (Docker) ; en local, `npm run test:sql` explique l'absence de Docker et sort sans erreur.
 begin;
-select plan(54);
+select plan(62);
 
 insert into auth.users (id, email, raw_user_meta_data) values
   ('00000000-0000-0000-0000-0000000000a1', 'test-art1@example.invalid', '{}'),
@@ -16,9 +16,12 @@ select is((select count(*)::int from public.article), 0, 'aucun article par déf
 -- Table : RLS active, lecture seule pour anon et authenticated.
 select is((select relrowsecurity from pg_class where oid = 'public.article'::regclass), true, 'RLS active sur article');
 select ok(
-  has_table_privilege('anon', 'public.article', 'select') and has_table_privilege('authenticated', 'public.article', 'select'),
-  'anon et authenticated lisent article'
+  has_column_privilege('anon', 'public.article', 'slug', 'select') and has_column_privilege('authenticated', 'public.article', 'slug', 'select')
+  and has_column_privilege('anon', 'public.article', 'texte_fr', 'select') and has_column_privilege('authenticated', 'public.article', 'texte_fr', 'select'),
+  'anon et authenticated lisent les colonnes publiables d''article'
 );
+select ok(not has_column_privilege('anon', 'public.article', 'auteur_id', 'select'), 'anon ne lit pas auteur_id');
+select ok(not has_column_privilege('authenticated', 'public.article', 'auteur_id', 'select'), 'authenticated ne lit pas auteur_id');
 select ok(
   not has_table_privilege('anon', 'public.article', 'insert, update, delete')
   and not has_table_privilege('authenticated', 'public.article', 'insert, update, delete'),
@@ -255,6 +258,38 @@ select lives_ok(
     (select id from public.article where slug = 'incomplet'),
     '{"titre_fr":"Brouillon incomplet","slug":"incomplet-2"}'::jsonb, '[]'::jsonb)$$,
   'un brouillon change d''adresse librement'
+);
+
+-- Un article publié ne peut ni être vidé ni changer d'adresse (correctif 20261126100000).
+select lives_ok(
+  $select public.publier_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
+    (select id from public.article where slug = 'premier'))$,
+  'republier l''article pour tester sa protection'
+);
+select throws_ok(
+  $select public.enregistrer_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
+    (select id from public.article where slug = 'premier'),
+    '{"titre_fr":"Premier","texte_fr":"","slug":"premier"}'::jsonb, '[]'::jsonb)$,
+  'P0001', 'KS_PUBLICATION_INCOMPLETE', 'un article publié ne peut pas être vidé de son texte français'
+);
+select throws_ok(
+  $select public.enregistrer_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
+    (select id from public.article where slug = 'premier'),
+    '{"titre_fr":"Premier","texte_fr":"Texte","slug":"premier-bis"}'::jsonb, '[]'::jsonb)$,
+  'P0001', 'KS_SLUG_PUBLIE', 'l''adresse d''un article publié est figée'
+);
+select lives_ok(
+  $select public.enregistrer_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
+    (select id from public.article where slug = 'premier'),
+    '{"titre_fr":"Premier, corrigé","texte_fr":"Texte corrigé","slug":"premier"}'::jsonb, '[]'::jsonb)$,
+  'un article publié se corrige sans changer d''adresse'
+);
+select is((select titre_fr from public.article where slug = 'premier'), 'Premier, corrigé', 'la correction est enregistrée');
+select throws_ok(
+  $select public.enregistrer_article('{"type":"compte","id":"00000000-0000-0000-0000-0000000000a1","role":"admin"}'::jsonb,
+    (select id from public.article where slug = 'premier'),
+    '{"titre_fr":"Premier","texte_fr":"Texte","slug":"premier"}'::jsonb, '[{"fichier":"articles/x.jpg","alt_fr":"","alt_en":"Alt"}]'::jsonb)$,
+  'P0001', 'KS_PUBLICATION_INCOMPLETE', 'un article publié ne garde pas une image sans texte alternatif'
 );
 
 select * from finish();

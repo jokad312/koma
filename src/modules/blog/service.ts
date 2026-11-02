@@ -18,6 +18,7 @@ const ERREURS_ARTICLE: ReadonlyArray<readonly [string, CodeErreurBlog]> = [
   ["KS_TEXTE_INVALIDE", "texte_invalide"],
   ["KS_SLUG_INVALIDE", "slug_invalide"],
   ["KS_SLUG_PRIS", "slug_pris"],
+  ["KS_SLUG_PUBLIE", "slug_publie"],
   ["KS_PRODUIT_INEXISTANT", "produit_inexistant"],
   ["KS_ARTICLE_INTROUVABLE", "article_introuvable"],
   ["KS_PUBLICATION_INCOMPLETE", "publication_incomplete"],

@@ -402,9 +402,11 @@
           "texte_invalide": "Le texte ne doit pas dépasser 5000 caractères.",
           "slug_invalide": "L'adresse doit être en minuscules, avec des chiffres et des tirets seulement.",
           "slug_pris": "Cette adresse est déjà utilisée par un autre article. Choisis-en une autre.",
+          "slug_publie": "L'adresse d'un article publié ne peut pas changer. Dépublie-le d'abord, ou garde l'adresse actuelle.",
           "produit_inexistant": "Ce produit n'existe plus. Choisis-en un autre ou aucun.",
           "article_introuvable": "Cet article n'existe plus. Retourne à la liste des articles.",
           "non_autorise": "Tu n'as plus le droit de gérer le blog. Recharge la page ou reconnecte-toi.",
+          "publication_incomplete": "Cet article est publié : son titre, son texte français et les textes alternatifs de ses images sont obligatoires. Dépublie-le d'abord pour le vider.",
           "generique": "L'article n'a pas pu être enregistré. Réessaie."
         }
       },

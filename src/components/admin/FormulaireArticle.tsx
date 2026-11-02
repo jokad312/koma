@@ -19,7 +19,7 @@ function champDe(erreur: EtatArticle): Champ | null {
   if (erreur.statut !== "erreur") return null;
   if (erreur.erreur === "titre_invalide") return "titre_fr";
   if (erreur.erreur === "texte_invalide") return "texte_fr";
-  if (erreur.erreur === "slug_invalide" || erreur.erreur === "slug_pris") return "slug";
+  if (erreur.erreur === "slug_invalide" || erreur.erreur === "slug_pris" || erreur.erreur === "slug_publie") return "slug";
   if (erreur.erreur === "produit_inexistant") return "produit";
   return null;
 }

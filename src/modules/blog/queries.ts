@@ -5,6 +5,7 @@ import { creerClientPublic } from "@/lib/supabase/public";
 import { creerClientService } from "@/lib/supabase/service";
 import { urlPhotoPublique } from "@/lib/supabase/stockage";
 import { contientMarqueur, MARQUEUR_TEXTE } from "@/lib/vitrine/marqueur";
+import type { Tables } from "@/lib/supabase/types";
 import { encoderCurseurArticles } from "./adresse";
 import { CUMUL_MAX_ARTICLES, TAILLE_PAGE_ARTICLES } from "./types";
 import type {
@@ -18,37 +19,14 @@ import type {
   ProduitLie,
 } from "./types";
 
-// La table article n'est pas encore dans src/lib/supabase/types.ts (types générés, jamais modifiés à la main) :
-// les seules colonnes lues sont décrites ici, et les lignes sont converties avant de sortir du module.
-type LigneArticle = {
-  id: string;
-  auteur_id: string;
-  titre_fr: string;
-  titre_en: string | null;
-  texte_fr: string | null;
-  texte_en: string | null;
-  slug: string | null;
-  lien_produit_id: string | null;
-  images: unknown;
-  publie_le: string | null;
-  cree_le: string;
-  modifie_le: string;
-};
+// Colonnes lues par l'admin, d'après les types générés (src/lib/supabase/types.ts).
+type LigneArticle = Pick<
+  Tables<"article">,
+  "id" | "auteur_id" | "titre_fr" | "titre_en" | "texte_fr" | "texte_en" | "slug" | "lien_produit_id" | "images" | "publie_le" | "cree_le" | "modifie_le"
+>;
 
-type ReponseListe = { data: LigneArticle[] | null; error: { message: string } | null };
-type ReponseUne = { data: LigneArticle | null; error: { message: string } | null };
-
-type ClientArticle = {
-  from(table: "article"): {
-    select(colonnes: string): {
-      order(colonne: string, options: { ascending: boolean }): PromiseLike<ReponseListe>;
-      eq(colonne: string, valeur: string): { maybeSingle(): PromiseLike<ReponseUne> };
-    };
-  };
-};
-
-function client(): ClientArticle {
-  return creerClientService() as unknown as ClientArticle;
+function client() {
+  return creerClientService();
 }
 
 // Photos d'un article : seules les entrées complètes et au bon chemin sont rendues, jamais une valeur brute de la base.
@@ -104,40 +82,14 @@ export async function lireArticleAdmin(id: string): Promise<Article | null> {
 
 // ---- Lecture publique (story 8.7) ----
 
-// Même contournement local que pour l'admin : la table article n'est pas dans les types générés.
-// Le constructeur est chaînable et se termine par range() (liste) ou maybeSingle() (un article).
-type LignePublique = {
-  id: string;
-  slug: string | null;
-  titre_fr: string;
-  titre_en: string | null;
-  texte_fr: string | null;
-  texte_en: string | null;
-  publie_le: string | null;
-  modifie_le: string;
-  images: unknown;
-  lien_produit_id: string | null;
-};
+// Colonnes lues par les pages publiques, d'après les types générés.
+type LignePublique = Pick<
+  Tables<"article">,
+  "id" | "slug" | "titre_fr" | "titre_en" | "texte_fr" | "texte_en" | "publie_le" | "modifie_le" | "images" | "lien_produit_id"
+>;
 
-type ReponsePubliqueListe = { data: LignePublique[] | null; error: { message: string } | null };
-type ReponsePubliqueUne = { data: LignePublique | null; error: { message: string } | null };
-
-type ConstructeurPublic = {
-  select(colonnes: string): ConstructeurPublic;
-  order(colonne: string, options: { ascending: boolean }): ConstructeurPublic;
-  eq(colonne: string, valeur: string): ConstructeurPublic;
-  neq(colonne: string, valeur: string): ConstructeurPublic;
-  not(colonne: string, operateur: string, valeur: string | null): ConstructeurPublic;
-  or(filtre: string): ConstructeurPublic;
-  limit(nombre: number): PromiseLike<ReponsePubliqueListe>;
-  range(debut: number, fin: number): PromiseLike<ReponsePubliqueListe>;
-  maybeSingle(): PromiseLike<ReponsePubliqueUne>;
-};
-
-type ClientPublicArticle = { from(table: "article"): ConstructeurPublic };
-
-function clientPublic(): ClientPublicArticle {
-  return creerClientPublic() as unknown as ClientPublicArticle;
+function clientPublic() {
+  return creerClientPublic();
 }
 
 // Version anglaise réellement lisible : titre ET texte renseignés, non vides, sans marqueur de texte à fournir.
@@ -147,9 +99,14 @@ function aVersionAnglaise(ligne: { titre_en: string | null; texte_en: string | n
   return titre !== "" && texte !== "" && !contientMarqueur(titre) && !contientMarqueur(texte);
 }
 
+type FiltreVersionAnglaise<R> = {
+  not(colonne: string, operateur: string, valeur: string | null): R;
+  neq(colonne: string, valeur: string): R;
+};
+
 // Filtres de la version anglaise, posés en base pour que la pagination reste exacte. Le marqueur est cherché avec « like » ;
 // les titres et textes sont déjà débarrassés de leurs espaces par la fonction d'enregistrement.
-function filtrerVersionAnglaise(requete: ConstructeurPublic, locale: "fr" | "en"): ConstructeurPublic {
+function filtrerVersionAnglaise<R extends FiltreVersionAnglaise<R>>(requete: R, locale: "fr" | "en"): R {
   if (locale !== "en") return requete;
   const motif = `*${MARQUEUR_TEXTE}*`;
   return requete
@@ -170,7 +127,7 @@ function altDeLaLangue(locale: "fr" | "en", image: ArticleImage): string {
   return locale === "en" ? image.altEn.trim() || image.altFr : image.altFr;
 }
 
-function versCarte(locale: "fr" | "en", ligne: LignePublique): CarteArticle | null {
+function versCarte(locale: "fr" | "en", ligne: Pick<LignePublique, "id" | "slug" | "titre_fr" | "titre_en" | "texte_en" | "publie_le" | "images">): CarteArticle | null {
   if (!ligne.slug || !ligne.publie_le) return null;
   const premiere = lireImages(ligne.images)[0];
   return {

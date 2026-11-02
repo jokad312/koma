@@ -23,20 +23,20 @@ function carte(i: number) {
 
 describe("liste ordonnée des blocs", () => {
   it("suit l'ordre de FR-2 et affiche héros, tuiles, bloc 1 « Porte-le ou fabrique-le », bloc 2, bloc 6, bloc 7 et bloc 8", () => {
-    expect(BLOCS_ACCUEIL.map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrique", "kits", "cosplaysRecents", "galerie", "rendezVousOtaku", "guides", "jonathan", "bloc7", "faqCourte"]);
+    expect(BLOCS_ACCUEIL.map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrique", "kits", "cosplaysRecents", "galerie", "rendezVousOtaku", "jonathan", "bloc7", "faqCourte"]);
     expect(blocsAffiches().map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrique", "kits", "cosplaysRecents", "jonathan", "bloc7", "faqCourte"]);
   });
 
-  it("les emplacements des blocs 3, 4 et 5 sont réservés et documentés", () => {
+  it("les emplacements des blocs 3 et 4 sont réservés et documentés", () => {
     const reserves = BLOCS_ACCUEIL.filter((b) => b.etat === "reserve");
-    expect(reserves.map((b) => b.numero)).toEqual([3, 4, 5]);
+    expect(reserves.map((b) => b.numero)).toEqual([3, 4]);
     for (const b of reserves) expect("arrivePar" in b && b.arrivePar.length > 0).toBe(true);
   });
 
-  it("le bloc 7 « Guides » est affiché par la story 8.7 ; l'emplacement 5 garde sa place", () => {
+  it("le bloc 7 « Guides » est affiché par la story 8.7 ; l'ancien emplacement « guides » n'existe plus", () => {
     const bloc7 = BLOCS_ACCUEIL.find((b) => b.id === "bloc7");
     expect(bloc7).toEqual({ id: "bloc7", numero: 7, etat: "affiche" });
-    expect(BLOCS_ACCUEIL.find((b) => b.id === "guides")).toEqual({ id: "guides", numero: 5, etat: "reserve", arrivePar: "epic 7" });
+    expect(BLOCS_ACCUEIL.find((b) => (b.id as string) === "guides")).toBeUndefined();
   });
 });
 

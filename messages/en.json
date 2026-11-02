@@ -402,9 +402,11 @@
           "texte_invalide": "The text must not exceed 5000 characters.",
           "slug_invalide": "The address must use lowercase letters, digits and hyphens only.",
           "slug_pris": "This address is already used by another article. Choose another one.",
+          "slug_publie": "The address of a published article cannot change. Unpublish it first, or keep the current address.",
           "produit_inexistant": "This product no longer exists. Choose another one or none.",
           "article_introuvable": "This article no longer exists. Go back to the article list.",
           "non_autorise": "You no longer have the right to manage the blog. Reload the page or sign in again.",
+          "publication_incomplete": "This article is published: its title, French text and image alternative texts are required. Unpublish it first to empty it.",
           "generique": "The article could not be saved. Try again."
         }
       },

@@ -16,19 +16,7 @@ export function analyserAdresseArticle(chemin: string): AdresseArticle | null {
   return { locale, segment };
 }
 
-type LigneArticle = { id: string; titre_en: string | null; texte_en: string | null };
-type ReponseArticle = { data: LigneArticle[] | null; error: { message: string } | null };
-type ClientArticle = {
-  from(table: "article"): {
-    select(colonnes: string): {
-      eq(colonne: string, valeur: string): {
-        limit(nombre: number): PromiseLike<ReponseArticle>;
-      };
-    };
-  };
-};
-
-function aVersionAnglaise(ligne: LigneArticle): boolean {
+function aVersionAnglaise(ligne: { titre_en: string | null; texte_en: string | null }): boolean {
   const titre = ligne.titre_en?.trim() ?? "";
   const texte = ligne.texte_en?.trim() ?? "";
   return titre !== "" && texte !== "" && !contientMarqueur(titre) && !contientMarqueur(texte);
@@ -49,7 +37,7 @@ export async function articleExiste(locale: "fr" | "en", segment: string, delaiM
     const client = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
       auth: { persistSession: false, autoRefreshToken: false },
       global: { fetch: (entree, init) => fetch(entree, { ...init, signal: AbortSignal.timeout(delaiMs) }) },
-    }) as unknown as ClientArticle;
+    });
     const { data, error } = await client.from("article").select("id, titre_en, texte_en").eq("slug", slug).limit(1);
     if (error || !data) {
       console.error("[proxy] existence de l'article : lecture en erreur");

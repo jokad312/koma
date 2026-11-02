@@ -114,6 +114,59 @@ export type Database = {
         }
         Relationships: []
       }
+      article: {
+        Row: {
+          auteur_id: string
+          cree_le: string
+          id: string
+          images: Json
+          lien_produit_id: string | null
+          modifie_le: string
+          publie_le: string | null
+          slug: string | null
+          texte_en: string | null
+          texte_fr: string | null
+          titre_en: string | null
+          titre_fr: string
+        }
+        Insert: {
+          auteur_id: string
+          cree_le?: string
+          id?: string
+          images?: Json
+          lien_produit_id?: string | null
+          modifie_le?: string
+          publie_le?: string | null
+          slug?: string | null
+          texte_en?: string | null
+          texte_fr?: string | null
+          titre_en?: string | null
+          titre_fr: string
+        }
+        Update: {
+          auteur_id?: string
+          cree_le?: string
+          id?: string
+          images?: Json
+          lien_produit_id?: string | null
+          modifie_le?: string
+          publie_le?: string | null
+          slug?: string | null
+          texte_en?: string | null
+          texte_fr?: string | null
+          titre_en?: string | null
+          titre_fr?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "article_lien_produit_id_fkey"
+            columns: ["lien_produit_id"]
+            isOneToOne: false
+            referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chapitre_kit: {
         Row: {
           cree_le: string
@@ -1316,6 +1369,10 @@ export type Database = {
         Args: { p_auteur: Json; p_photo_id: string; p_sens: string }
         Returns: undefined
       }
+      depublier_article: {
+        Args: { p_auteur: Json; p_id: string }
+        Returns: undefined
+      }
       depublier_produit: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
@@ -1329,6 +1386,10 @@ export type Database = {
         }[]
       }
       donnees_envoi_valides: { Args: { p_donnees: Json }; Returns: boolean }
+      enregistrer_article: {
+        Args: { p_article: Json; p_auteur: Json; p_id: string; p_images: Json }
+        Returns: string
+      }
       enregistrer_extrait_kit: {
         Args: { p_auteur: Json; p_extrait: string; p_produit_id: string }
         Returns: string
@@ -1556,6 +1617,10 @@ export type Database = {
       possede_kit: {
         Args: { p_compte: string; p_produit: string }
         Returns: boolean
+      }
+      publier_article: {
+        Args: { p_auteur: Json; p_id: string }
+        Returns: undefined
       }
       publier_produit: {
         Args: { p_auteur: Json; p_id: string }

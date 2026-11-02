@@ -14,6 +14,23 @@ describe("ContenuArticle", () => {
     expect(container.innerHTML).not.toContain("alert(1)");
   });
 
+  it("neutralise iframe, style, javascript: en casse mixte ou avec tabulation, et lien de référence", () => {
+    const texte = [
+      '<iframe src="https://example.org"></iframe>',
+      '<p style="color:red" onclick="alert(1)">x</p>',
+      "[a](JaVaScRiPt:alert(1))",
+      "[b](java" + String.fromCharCode(9) + "script:alert(1))",
+      "[c][ref]",
+      "[ref]: javascript:alert(1)",
+    ].join(String.fromCharCode(10, 10));
+    const { container } = render(<ContenuArticle texte={texte} />);
+    expect(container.querySelector("iframe")).toBeNull();
+    expect(container.querySelector("[style]")).toBeNull();
+    expect(container.querySelector("[onclick]")).toBeNull();
+    expect(container.querySelector("a")).toBeNull();
+    expect(container.innerHTML.toLowerCase()).not.toContain("javascript:");
+  });
+
   it("neutralise javascript: et data: sans laisser de lien actif", () => {
     const { container } = render(<ContenuArticle texte={"[piege](javascript:alert(1))\n\n![piege](data:image/png;base64,AAAA)"} />);
     expect(container.querySelector("a")).toBeNull();
