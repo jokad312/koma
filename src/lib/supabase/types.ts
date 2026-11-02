@@ -78,6 +78,42 @@ export type Database = {
           },
         ]
       }
+      anomalie: {
+        Row: {
+          cible_id: string
+          cible_type: string
+          cree_le: string
+          details: Json
+          gravite: string
+          id: string
+          resolue_le: string | null
+          resolue_par: string | null
+          type: Database["public"]["Enums"]["anomalie_type"]
+        }
+        Insert: {
+          cible_id: string
+          cible_type: string
+          cree_le?: string
+          details?: Json
+          gravite?: string
+          id?: string
+          resolue_le?: string | null
+          resolue_par?: string | null
+          type: Database["public"]["Enums"]["anomalie_type"]
+        }
+        Update: {
+          cible_id?: string
+          cible_type?: string
+          cree_le?: string
+          details?: Json
+          gravite?: string
+          id?: string
+          resolue_le?: string | null
+          resolue_par?: string | null
+          type?: Database["public"]["Enums"]["anomalie_type"]
+        }
+        Relationships: []
+      }
       chapitre_kit: {
         Row: {
           cree_le: string
@@ -191,6 +227,54 @@ export type Database = {
           total_cents?: number
           type?: string
           zone?: string | null
+        }
+        Relationships: []
+      }
+      envoi: {
+        Row: {
+          cle: string
+          compte_id: string
+          cree_le: string
+          derniere_erreur: string | null
+          donnees: Json
+          envoye_le: string | null
+          id: string
+          id_prestataire: string | null
+          langue: string
+          modele: Database["public"]["Enums"]["envoi_modele"]
+          prochain_essai: string
+          statut: Database["public"]["Enums"]["envoi_statut"]
+          tentatives: number
+        }
+        Insert: {
+          cle: string
+          compte_id: string
+          cree_le?: string
+          derniere_erreur?: string | null
+          donnees?: Json
+          envoye_le?: string | null
+          id?: string
+          id_prestataire?: string | null
+          langue: string
+          modele: Database["public"]["Enums"]["envoi_modele"]
+          prochain_essai?: string
+          statut?: Database["public"]["Enums"]["envoi_statut"]
+          tentatives?: number
+        }
+        Update: {
+          cle?: string
+          compte_id?: string
+          cree_le?: string
+          derniere_erreur?: string | null
+          donnees?: Json
+          envoye_le?: string | null
+          id?: string
+          id_prestataire?: string | null
+          langue?: string
+          modele?: Database["public"]["Enums"]["envoi_modele"]
+          prochain_essai?: string
+          statut?: Database["public"]["Enums"]["envoi_statut"]
+          tentatives?: number
         }
         Relationships: []
       }
@@ -996,7 +1080,36 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      taches_admin: {
+        Row: {
+          cible_id: string | null
+          cible_type: string | null
+          cree_le: string | null
+          details: Json | null
+          gravite: string | null
+          id: string | null
+          type: string | null
+        }
+        Insert: {
+          cible_id?: string | null
+          cible_type?: string | null
+          cree_le?: string | null
+          details?: Json | null
+          gravite?: string | null
+          id?: string | null
+          type?: never
+        }
+        Update: {
+          cible_id?: string | null
+          cible_type?: string | null
+          cree_le?: string | null
+          details?: Json | null
+          gravite?: string | null
+          id?: string | null
+          type?: never
+        }
+        Relationships: []
+      }
     }
     Functions: {
       a_le_role: {
@@ -1150,6 +1263,7 @@ export type Database = {
           taille: string
         }[]
       }
+      donnees_envoi_valides: { Args: { p_donnees: Json }; Returns: boolean }
       enregistrer_extrait_kit: {
         Args: { p_auteur: Json; p_extrait: string; p_produit_id: string }
         Returns: string
@@ -1230,6 +1344,39 @@ export type Database = {
           p_produit_id: string
         }
         Returns: string
+      }
+      envois_declencher: { Args: never; Returns: boolean }
+      envois_ignorer: {
+        Args: { p_id: string; p_raison: string }
+        Returns: boolean
+      }
+      envois_marquer_echec: {
+        Args: { p_erreur: string; p_id: string }
+        Returns: string
+      }
+      envois_marquer_envoye: {
+        Args: { p_id: string; p_id_prestataire: string }
+        Returns: boolean
+      }
+      envois_planifier: {
+        Args: {
+          p_cle: string
+          p_compte: string
+          p_donnees: Json
+          p_modele: Database["public"]["Enums"]["envoi_modele"]
+        }
+        Returns: string
+      }
+      envois_reserver_lot: {
+        Args: { p_limite: number }
+        Returns: {
+          compte_id: string
+          donnees: Json
+          id: string
+          langue: string
+          modele: string
+          tentatives: number
+        }[]
       }
       est_mineur: { Args: { p_compte: string }; Returns: boolean }
       etat_disponibilite: {
@@ -1415,7 +1562,9 @@ export type Database = {
       verrouiller_kit: { Args: { p_produit_id: string }; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      anomalie_type: "envoi_echec_definitif"
+      envoi_modele: "commande_payee" | "kit_ouvert"
+      envoi_statut: "a_envoyer" | "envoye" | "echec" | "abandonne" | "ignore"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1545,6 +1694,10 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      anomalie_type: ["envoi_echec_definitif"],
+      envoi_modele: ["commande_payee", "kit_ouvert"],
+      envoi_statut: ["a_envoyer", "envoye", "echec", "abandonne", "ignore"],
+    },
   },
 } as const

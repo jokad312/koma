@@ -1,22 +1,11 @@
-import { createHash, timingSafeEqual } from "node:crypto";
 import { connection, NextResponse } from "next/server";
+import { secretCronValide } from "@/lib/auth/secret-cron";
 import { creerClientService } from "@/lib/supabase/service";
 import { BUCKET_ATTENTE } from "@/lib/supabase/stockage";
 import { purgerGalerieAttente, type StockageAttente } from "@/modules/catalogue/purge";
 
 // Purge des originaux abandonnés de galerie-attente (plus de 24 h). POST seulement (action destructrice). Protégée par CRON_SECRET (en-tête Authorization: Bearer).
 // Pas encore planifiée : aucun domaine (Q-D1) ; la route est prête et testée (voir journal-enchainement.md).
-
-// Comparaison à temps constant : les deux valeurs sont réduites à une empreinte de même longueur.
-function secretValide(recu: string | null): boolean {
-  const attendu = process.env.CRON_SECRET;
-  if (!attendu || !recu) return false;
-  const m = /^\s*bearer\s+(\S+)\s*$/i.exec(recu);
-  if (!m) return false;
-  const a = createHash("sha256").update(m[1]).digest();
-  const b = createHash("sha256").update(attendu).digest();
-  return timingSafeEqual(a, b);
-}
 
 function stockageReel(): StockageAttente {
   const bucket = creerClientService().storage.from(BUCKET_ATTENTE);
@@ -40,7 +29,7 @@ function stockageReel(): StockageAttente {
 
 async function purger(requete: Request) {
   await connection();
-  if (!secretValide(requete.headers.get("authorization"))) {
+  if (!secretCronValide(requete.headers.get("authorization"))) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
   try {

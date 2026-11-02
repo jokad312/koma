@@ -296,7 +296,8 @@
       "messages": "Messages",
       "messagesNouveaux": " ({nombre, plural, one {# new message} other {# new messages}})",
       "produits": "Products",
-      "univers": "Universes"
+      "univers": "Universes",
+      "taches": "Tasks"
     },
     "reglages": {
       "titre": "Settings",
@@ -1174,6 +1175,26 @@
           "publication_incomplete": "A published kit whose preview has speech keeps its French subtitles. Unpublish it first."
         }
       }
+    },
+    "taches": {
+      "titre": "Tasks",
+      "intro": "What needs your attention. Emails given up on after several attempts appear here.",
+      "vide": "No pending task.",
+      "erreurLecture": "The tasks could not be read. Reload the page.",
+      "creeLe": "Reported on {date}",
+      "gravite": {
+        "info": "Information",
+        "attention": "To handle",
+        "critique": "Urgent"
+      },
+      "types": {
+        "envoi_echec_definitif": "Email not sent after several attempts"
+      },
+      "detailEnvoi": "“{modele}” email: {tentatives} attempts.",
+      "modeles": {
+        "commande_payee": "order paid",
+        "kit_ouvert": "kit open"
+      }
     }
   },
   "Whatsapp": {
@@ -1594,6 +1615,31 @@
       "expiree": "This order has expired: the items were released. Your cart is intact.",
       "reprendre": "Resume my cart",
       "introuvable": "This order could not be found."
+    }
+  },
+  "Emails": {
+    "commun": {
+      "bonjour": "Hello,",
+      "pied": "This email was sent automatically by {nomSite}. Please do not reply: write to us from the Contact page of the site.",
+      "lienTexte": "Link: {url}"
+    },
+    "commande_payee": {
+      "sujet": "Payment received for order {numero}",
+      "titre": "Payment received",
+      "intro": "We have received your payment for order {numero}.",
+      "articles": "Items ordered",
+      "ligne": "{nombre} × {titre}: {montant}",
+      "livraison": "Delivery: {montant}",
+      "total": "Total paid: {total}",
+      "lien": "Your order page:",
+      "bouton": "View my order"
+    },
+    "kit_ouvert": {
+      "sujet": "Your kit is open: {titre}",
+      "titre": "Your kit is open",
+      "intro": "The kit “{titre}” has been added to your Account (order {numero}).",
+      "lien": "Kit page:",
+      "bouton": "View my kit"
     }
   }
 }

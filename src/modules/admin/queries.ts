@@ -1,6 +1,6 @@
 import "server-only";
 import { creerClientService } from "@/lib/supabase/service";
-import type { MessageContactAdmin, ReglagesAdmin } from "./types";
+import type { MessageContactAdmin, ReglagesAdmin, TacheAdmin } from "./types";
 
 // Lecture admin des réglages par le client service : jamais le cache public, jamais de valeur de repli (règle 15).
 // Une valeur absente reste null : l'écran affiche « Valeur à fixer ».
@@ -52,4 +52,28 @@ export async function compterMessagesNouveaux(): Promise<number | null> {
   } catch {
     return null;
   }
+}
+
+// Tâches ouvertes de l'Admin (vue taches_admin), les plus récentes d'abord. Une erreur de lecture est relancée : jamais une liste vide inventée.
+export async function lireTachesAdmin(): Promise<TacheAdmin[]> {
+  const { data, error } = await creerClientService()
+    .from("taches_admin")
+    .select("id, type, gravite, cible_type, cible_id, details, cree_le")
+    .order("cree_le", { ascending: false });
+  if (error) throw new Error("Lecture des tâches impossible.");
+  // Les colonnes d'une vue sont nullables dans les types : une ligne incomplète est écartée.
+  const taches: TacheAdmin[] = [];
+  for (const t of data ?? []) {
+    if (!t.id || !t.type || !t.cible_type || !t.cible_id || !t.cree_le) continue;
+    taches.push({
+      id: t.id,
+      type: t.type,
+      gravite: t.gravite === "info" || t.gravite === "critique" ? t.gravite : "attention",
+      cibleType: t.cible_type,
+      cibleId: t.cible_id,
+      details: typeof t.details === "object" && t.details !== null && !Array.isArray(t.details) ? (t.details as TacheAdmin["details"]) : {},
+      creeLe: t.cree_le,
+    });
+  }
+  return taches;
 }

@@ -296,7 +296,8 @@
       "messages": "Messages",
       "messagesNouveaux": " ({nombre, plural, one {# nouveau message} other {# nouveaux messages}})",
       "produits": "Produits",
-      "univers": "Univers"
+      "univers": "Univers",
+      "taches": "Tâches"
     },
     "reglages": {
       "titre": "Réglages",
@@ -1174,6 +1175,26 @@
           "publication_incomplete": "Un Kit publié dont l'extrait est parlé garde ses sous-titres en français. Dépublie-le d'abord."
         }
       }
+    },
+    "taches": {
+      "titre": "Tâches",
+      "intro": "Ce qui demande ton attention. Les envois d'email abandonnés après plusieurs essais apparaissent ici.",
+      "vide": "Aucune tâche en attente.",
+      "erreurLecture": "Les tâches n'ont pas pu être lues. Recharge la page.",
+      "creeLe": "Signalée le {date}",
+      "gravite": {
+        "info": "Information",
+        "attention": "À traiter",
+        "critique": "Urgent"
+      },
+      "types": {
+        "envoi_echec_definitif": "Email non envoyé après plusieurs essais"
+      },
+      "detailEnvoi": "Email « {modele} » : {tentatives} essais.",
+      "modeles": {
+        "commande_payee": "commande payée",
+        "kit_ouvert": "kit ouvert"
+      }
     }
   },
   "Whatsapp": {
@@ -1594,6 +1615,31 @@
       "expiree": "Cette commande a expiré : les articles ont été libérés. Ton panier est intact.",
       "reprendre": "Reprendre mon panier",
       "introuvable": "Cette commande est introuvable."
+    }
+  },
+  "Emails": {
+    "commun": {
+      "bonjour": "Bonjour,",
+      "pied": "Cet email est envoyé automatiquement par {nomSite}. Ne réponds pas à ce message : écris-nous depuis la page Contact du site.",
+      "lienTexte": "Lien : {url}"
+    },
+    "commande_payee": {
+      "sujet": "Paiement reçu pour la commande {numero}",
+      "titre": "Paiement reçu",
+      "intro": "Nous avons bien reçu ton paiement pour la commande {numero}.",
+      "articles": "Articles commandés",
+      "ligne": "{nombre} × {titre} : {montant}",
+      "livraison": "Livraison : {montant}",
+      "total": "Total payé : {total}",
+      "lien": "Page de ta commande :",
+      "bouton": "Voir ma commande"
+    },
+    "kit_ouvert": {
+      "sujet": "Ton kit est ouvert : {titre}",
+      "titre": "Ton kit est ouvert",
+      "intro": "Le kit « {titre} » est ajouté à ton Compte (commande {numero}).",
+      "lien": "Page du kit :",
+      "bouton": "Voir mon kit"
     }
   }
 }

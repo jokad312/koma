@@ -57,3 +57,14 @@ export type ReglagesAdmin = {
   plafondFabrication: string | null;
   delaiPaiement: string | null;
 };
+
+// Tâche de l'Admin (vue taches_admin) : une anomalie ouverte.
+export type TacheAdmin = {
+  id: string;
+  type: string;
+  gravite: "info" | "attention" | "critique";
+  cibleType: string;
+  cibleId: string;
+  details: { modele?: string; tentatives?: number };
+  creeLe: string;
+};

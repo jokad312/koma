@@ -14,6 +14,8 @@ test.describe("accès admin", () => {
     ["/en/admin/reglages", "%2Fen%2Fadmin%2Freglages"],
     ["/fr/admin/messages", "%2Ffr%2Fadmin%2Fmessages"],
     ["/en/admin/messages", "%2Fen%2Fadmin%2Fmessages"],
+    ["/fr/admin/taches", "%2Ffr%2Fadmin%2Ftaches"],
+    ["/en/admin/taches", "%2Fen%2Fadmin%2Ftaches"],
     ["/fr/admin/produits", "%2Ffr%2Fadmin%2Fproduits"],
     ["/en/admin/produits", "%2Fen%2Fadmin%2Fproduits"],
     ["/fr/admin/produits/nouveau", "%2Ffr%2Fadmin%2Fproduits%2Fnouveau"],
