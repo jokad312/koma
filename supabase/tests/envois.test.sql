@@ -45,7 +45,7 @@ select is(
 select is(
   (select array_agg(e.enumlabel::text order by e.enumsortorder) from pg_enum e where e.enumtypid = 'public.anomalie_type'::regtype),
   -- Les quatre anomalies du paiement sont ajoutées par la story 4.5 (montants, notifications, transitions, Kit déjà possédé).
-  array['envoi_echec_definitif', 'montant_insuffisant', 'notification_invalide', 'transition_refusee', 'kit_deja_possede'],
+  array['envoi_echec_definitif', 'montant_insuffisant', 'notification_invalide', 'transition_refusee', 'kit_deja_possede', 'montant_indetermine', 'stock_insuffisant'],
   'anomalie.type : envoi_echec_definitif puis les quatre anomalies du paiement'
 );
 

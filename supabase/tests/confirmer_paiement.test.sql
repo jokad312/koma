@@ -93,7 +93,7 @@ select is(
 select ok(not has_function_privilege('service_role', 'public.reconcilier_declencher()', 'execute'), 'reconcilier_declencher : aucun rôle');
 
 -- Refus avant tout effet.
-select throws_ok($$select public.confirmer_paiement(pg_temp.sys(), '00000000-0000-4000-8000-0000000000e1', 'peut-etre', 990, 'USD')$$, 'P0001', 'KS_COMPARAISON_INVALIDE', 'comparaison inconnue : refusée');
+select throws_ok($$select public.confirmer_paiement(pg_temp.sys(), '00000000-0000-4000-8000-0000000000e1', 'peut-etre', 990, 'USD', null)$$, 'P0001', 'KS_COMPARAISON_INVALIDE', 'comparaison inconnue : refusée');
 select throws_ok($$select public.confirmer_paiement(pg_temp.sys(), '00000000-0000-4000-8000-0000000000e1', 'egal', -1, 'USD', null)$$, 'P0001', 'KS_MONTANT_INVALIDE', 'montant négatif : refusé');
 select throws_ok($$select public.confirmer_paiement(pg_temp.sys(), '00000000-0000-4000-8000-0000000000e1', 'egal', 990, 'usd', null)$$, 'P0001', 'KS_MONTANT_INVALIDE', 'devise mal formée : refusée');
 select throws_ok($$select public.confirmer_paiement('{"type":"visiteur"}'::jsonb, '00000000-0000-4000-8000-0000000000e1', 'egal', 990, 'USD', null)$$, 'P0001', 'KS_AUTEUR_INVALIDE', 'un visiteur ne confirme rien');
