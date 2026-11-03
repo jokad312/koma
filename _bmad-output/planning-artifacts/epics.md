@@ -51,10 +51,10 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 - **FR-13 Étape de commande** : téléphone, Zone de remise (Goma ou Bukavu), Mode de remise à Goma seulement (retrait gratuit ou livraison), adresse en champ libre si livraison ; aucun de ces champs pour un Panier 100 % numérique. Cases : CGV ; Kit (accès immédiat, renonciation au droit de rétractation, Licence de kit ; non remboursable) ; Sur-mesure (engagement à envoyer les mesures sur WhatsApp, délai compté depuis leur réception, pas d'annulation après le début de la fabrication). Le serveur recalcule depuis la base sous-total, Forfait, réduction et total, vérifie stock et Plafond, crée la Commande `en attente` qui réserve stock et place pendant le Délai de paiement ; à l'échéance sans paiement vérifié → `expirée`, réservation libérée ; le client qui revient retrouve son Panier et ses champs, puis repart sur une nouvelle Commande.
 - **FR-14 Récapitulatif avant paiement** : prix de chaque article en USD, Forfait de livraison, réduction, total USD, délai total de chaque Produit physique.
 
-**§4.4 Paiement** (décision du 2026-10-16, GeniusPay abandonné le 2026-10-31 : mobile money via PawaPay, K-Pay, MaishaPay ; carte via K-Pay pour tout panier avec Produit physique et pour les Pass ; Polar seulement pour un Panier 100 % numérique ; prix USD, conversion faite par le Prestataire)
+**§4.4 Paiement** (décision du 2026-10-16, GeniusPay abandonné le 2026-10-31, K-Pay abandonné le 2026-11-03 : mobile money via PawaPay et MaishaPay ; carte via MaishaPay pour tout panier avec Produit physique et pour les Pass ; Polar seulement pour un Panier 100 % numérique ; prix USD, conversion faite par le Prestataire)
 
-- **FR-15 Couche de paiement à Adaptateurs** : une couche commune et un Adaptateur par Prestataire ; ajouter ou retirer un Agrégateur ne touche pas au reste du site. Au lancement : PawaPay (API v2), K-Pay (mobile money et carte), MaishaPay (mobile money), Polar (carte, Kits). K-Pay et MaishaPay sont construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation (Q-S1) ; GeniusPay est abandonné (2026-10-31).
-- **FR-16 Choix du moyen de paiement** : le client choisit son pays d'abord ; mobile money proposé en premier si un Agrégateur actif couvre ce pays, sinon carte seule. Seuls les Prestataires autorisés sont proposés : Panier mixte ou avec Produit physique + carte → K-Pay, jamais Polar ; Panier 100 % numérique + carte → Polar, sinon « Carte indisponible » (aucun remplaçant) ; Pass + carte → K-Pay ; mobile money → Agrégateur actif prioritaire couvrant le couple pays-opérateur ; couple non couvert → message et invitation à choisir un autre opérateur ou la carte. Avant validation : « Paiement traité par {Prestataire} », en texte, sans logo.
+- **FR-15 Couche de paiement à Adaptateurs** : une couche commune et un Adaptateur par Prestataire ; ajouter ou retirer un Agrégateur ne touche pas au reste du site. Au lancement : PawaPay (API v2), MaishaPay (mobile money et carte), Polar (carte, Kits). MaishaPay est construit à partir de la documentation de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation (Q-S1) ; GeniusPay est abandonné (2026-10-31).
+- **FR-16 Choix du moyen de paiement** : le client choisit son pays d'abord ; mobile money proposé en premier si un Agrégateur actif couvre ce pays, sinon carte seule. Seuls les Prestataires autorisés sont proposés : Panier mixte ou avec Produit physique + carte → MaishaPay, jamais Polar ; Panier 100 % numérique + carte → Polar, sinon « Carte indisponible » (aucun remplaçant) ; Pass + carte → MaishaPay ; mobile money → Agrégateur actif prioritaire couvrant le couple pays-opérateur ; couple non couvert → message et invitation à choisir un autre opérateur ou la carte. Avant validation : « Paiement traité par {Prestataire} », en texte, sans logo.
 - **FR-17 Repli entre Agrégateurs** : chaque essai = une Tentative de paiement distincte ; repli proposé au client vers l'Agrégateur suivant couvrant le même couple seulement si l'Agrégateur est désactivé ou si la Tentative est confirmée en échec par l'Agrégateur ; sans réponse ou réponse ambiguë → jamais traité comme un échec, « paiement en cours de vérification », aucun repli ; échec dû au client → pas de bascule, réessai possible ; une seule Tentative en cours par Commande ; test automatique : un délai dépassé ne déclenche pas de repli.
 - **FR-18 Vérification serveur du Prestataire** : la route qui choisit le Prestataire vérifie en base la Famille de chaque article, la présence d'un Pass, le moyen, le pays et l'opérateur. Tests automatiques : Panier mixte jamais chez Polar ; Pass jamais chez Polar ; repli vers l'Agrégateur suivant du couple ; Référence de transaction déjà utilisée refusée.
 - **FR-19 Notifications de paiement** : une route serveur de notification par Prestataire ; chaque notification est vérifiée (signature ou contre-vérification, montant compris) avant `payée`, jamais le navigateur. Une Référence de transaction ne valide jamais deux fois ; la Commande enregistre Prestataire, référence, montant et devise encaissés. Le passage en `payée` déclenche décompte du stock, ouverture des Kits, émission des Pass, email de confirmation. Paiement réussi sur une Commande déjà `payée`, `expirée` ou impossible à honorer → Trop-perçu signalé à l'Admin, statut inchangé ; l'Admin peut honorer à la main une Commande expirée si stock ou Capacité le permettent. Tentative en échec sans autre Tentative en cours → `échouée`, le client peut repayer. Tests : notification tardive après expiration, deux Tentatives réussies sur deux Agrégateurs, notification rejouée.
@@ -81,7 +81,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 
 - **FR-31 Pages Événements** : liste des Événements à venir et page de chaque Événement (date, lieu, programme, photos, Types de pass avec prix et avantages) ; Capacité atteinte → « Complet » et vente arrêtée ; sans Capacité, pas de limite ; Événement passé consultable avec le lien de sa Galerie d'événement.
 - **FR-32 Alerte événement** : inscription « Me prévenir » par email, par Compte ou par numéro WhatsApp ; email et Compte → annonce automatique par email ; WhatsApp → l'Admin exporte la liste et envoie lui-même (aucune API WhatsApp) ; consentement explicite et désinscription.
-- **FR-33 Achat de Pass** : client connecté ; un ou plusieurs Pass d'un ou plusieurs Types ; pour lui-même, le Pass reprend son Compte ; nom saisi pour chaque autre personne ; un Pass Stand produit deux Pass nominatifs (titulaire et aide) ; pas de quota par Type, seulement la Capacité facultative vérifiée côté serveur au paiement ; achat séparé du Panier ; acceptation de la mention sur la publication des photos et vidéos ; paiement mobile money ou K-Pay, jamais Polar.
+- **FR-33 Achat de Pass** : client connecté ; un ou plusieurs Pass d'un ou plusieurs Types ; pour lui-même, le Pass reprend son Compte ; nom saisi pour chaque autre personne ; un Pass Stand produit deux Pass nominatifs (titulaire et aide) ; pas de quota par Type, seulement la Capacité facultative vérifiée côté serveur au paiement ; achat séparé du Panier ; acceptation de la mention sur la publication des photos et vidéos ; paiement mobile money ou MaishaPay, jamais Polar.
 - **FR-34 Émission des Pass** : dès le paiement vérifié, tous les Pass par email, chacun avec un Code QR unique, et dans le profil ; Code QR et code court impossibles à deviner ou à déduire d'un autre.
 - **FR-35 Scan à l'entrée** : le Scan affiche nom, Événement et Type de pass ; refuse, avec la raison, un Pass déjà scanné, annulé ou d'un autre Événement ; saisie manuelle du code court avec les mêmes contrôles.
 - **FR-36 Scan hors ligne** : un appareil connecté prend le Verrou hors ligne et charge la liste des Pass `valide` ; tant qu'il le tient, il est le seul à scanner (les autres affichent « scan réservé à l'appareil hors ligne ») ; synchronisation au retour de la connexion puis libération ; sans Verrou, pas de Scan hors ligne ; l'Admin peut forcer la libération (scans non synchronisés signalés).
@@ -162,7 +162,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 **Commande, paiement et argent**
 
 - AD-4 : `confirmer_paiement` est la seule porte vers `payee` (rejeu sans effet ; montant égal → payée + effets ; inférieur → `anomalie montant_insuffisant` ; supérieur ou Commande non honorable → `trop_percu`) ; `honorer_trop_percu` pour l'Admin ; Commande `offerte` jamais `payee`.
-- AD-5 : port `PrestatairePaiement` (`initier`, `verifierNotification`, `consulterStatut`, `comparerMontant`), résultat normalisé `succes | echec_client | echec_prestataire | inconnu`, aucun accès à Supabase ; PawaPay par signature RFC 9421, Polar par Standard Webhooks, K-Pay uniquement par contre-vérification ; route `POST /api/paiement/notification/[prestataire]` (401 si vérification échoue, enregistrement dans `notification_recue`, réponse 200 même si transition refusée) ; repli seulement sur `echec_prestataire` ou Agrégateur désactivé, toujours proposé au client.
+- AD-5 : port `PrestatairePaiement` (`initier`, `verifierNotification`, `consulterStatut`, `comparerMontant`), résultat normalisé `succes | echec_client | echec_prestataire | inconnu`, aucun accès à Supabase ; PawaPay par signature RFC 9421, Polar par Standard Webhooks, MaishaPay uniquement par contre-vérification ; route `POST /api/paiement/notification/[prestataire]` (401 si vérification échoue, enregistrement dans `notification_recue`, réponse 200 même si transition refusée) ; repli seulement sur `echec_prestataire` ou Agrégateur désactivé, toujours proposé au client.
 - AD-6 : aiguilleur unique `choisirPrestataire(...)` dans `src/modules/paiement/aiguillage.ts`, fonction pure, Familles lues en base ; tests obligatoires : Panier mixte jamais Polar, Pass jamais Polar, repli vers le suivant, référence déjà utilisée refusée, délai dépassé sans repli, notification tardive après expiration, deux Tentatives réussies, notification rejouée, montant insuffisant non validé, Kit déjà possédé sans annulation du paiement.
 - AD-7 : un achat de Pass est une Commande de type `pass`, même couche de paiement, mêmes statuts, même Code promo ; `ligne_commande` porte soit une variante soit un Type de pass ; Stand = 2 Pass par unité ; noms figés dans `ligne_commande.titulaires`.
 - AD-8 : `creer_commande` fige prix, réductions par ligne, sous-total, Forfait, total, taux de commission, frais d'annulation des Pass, délai annoncé, `expire_le` ; `tentative_paiement` enregistre montant attendu (centimes USD), montant et devise reçus ; aucune tolérance inventée ; clé d'idempotence pour `creer_commande` et `demarrer_tentative`.
@@ -204,10 +204,10 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 
 **Questions ouvertes qui bloquent des stories (architecture)**
 
-- **Q-S1 (redéfinie le 2026-10-20)** : aucune intégration existante n'est reprise. Jonathan fournit la documentation officielle de K-Pay et de MaishaPay, tirée de ses espaces marchands, dans `docs/references/paiements/` (dossier exclu du dépôt par `.gitignore`, lu en local seulement). Les clés API et identifiants marchands vont uniquement dans `.env.local` et dans les variables d'environnement de Hostinger, remplis par Jonathan. → bloque les adaptateurs K-Pay et MaishaPay ; leur Couverture (Q-1) et leur règle de comparaison du montant (Q-3) seront tirées de cette documentation, sans rien deviner.
+- **Q-S1 (redéfinie le 2026-10-20)** : aucune intégration existante n'est reprise. Jonathan fournit la documentation officielle de MaishaPay, tirée de son espace marchand, dans `docs/references/paiements/` (dossier exclu du dépôt par `.gitignore`, lu en local seulement). Les clés API et identifiants marchands vont uniquement dans `.env.local` et dans les variables d'environnement de Hostinger, remplis par Jonathan. → bloque les adaptateurs MaishaPay ; leur Couverture (Q-1) et leur règle de comparaison du montant (Q-3) seront tirées de cette documentation, sans rien deviner.
 - **Q-1** : Couverture pays-opérateur, surtout PawaPay → bloque FR-16 en production.
 - **Q-2** : abandonnée le 2026-10-31 (GeniusPay n'est plus utilisé).
-- **Q-3** : devise débitée et règle de comparaison du montant → bloque `comparerMontant` de PawaPay, K-Pay et MaishaPay (construits à partir de leur documentation officielle).
+- **Q-3** : devise débitée et règle de comparaison du montant → bloque `comparerMontant` de PawaPay et MaishaPay (construits à partir de leur documentation officielle).
 - **Q-4** : remboursement par API → ne bloque aucune story (remboursement manuel avec preuve, AD-31) ; PawaPay ne dépend que de Q-1 et Q-3 (décision du 2026-10-20).
 - **Q-5** : textes légaux, durée de conservation, suppression de Compte → bloque l'ouverture des ventes.
 - **Q-N1** : nom affiché définitif du site (KOMA SHOP ou KOMA FEST). Valeur de départ provisoire « KOMA SHOP » dans le réglage `nom_site`, seule source du nom (titres SEO, JSON-LD Organization, emails, pied de page, filigrane), modifiable dans l'admin. Bloque seulement la mise en ligne.
@@ -348,7 +348,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 | FR-12 | 1 | Compte, code email, Google, âge, questions d'accueil |
 | FR-13 | 4 | Étape de commande, acceptations, Commande `en attente`, expiration |
 | FR-14 | 4 | Récapitulatif avant paiement |
-| FR-15 | 4, 5 | Port commun + Polar (epic 4) ; adaptateurs mobile money et K-Pay (epic 5) |
+| FR-15 | 4, 5 | Port commun + Polar (epic 4) ; adaptateurs mobile money et MaishaPay (epic 5) |
 | FR-16 | 4, 5 | Aiguilleur et choix du moyen (epic 4) ; pays, opérateur, Couverture (epic 5) |
 | FR-17 | 5 | Repli entre Agrégateurs, Tentatives, vérification |
 | FR-18 | 4 | Vérification serveur du Prestataire et tests de la règle 11 |
@@ -418,10 +418,36 @@ Le visiteur remplit son Panier sans Compte, se connecte, passe commande, paie un
 **FRs couvertes :** FR-10 (vérification), FR-11, FR-13, FR-14, FR-15 (port + Polar), FR-16 (aiguilleur), FR-18, FR-19, FR-20, FR-21 (activation, ordre), FR-44 (payée, Kit ouvert), FR-51 (Délai de paiement)
 **Notes :** tous les tests de la règle 11. L'étape de commande gère déjà les Produits physiques ; tant qu'aucun Prestataire ne les couvre, l'écran affiche honnêtement « Carte indisponible ».
 
-### Epic 5 : Le mobile money et la carte K-Pay
-Le client paie par mobile money (pays, opérateur, Agrégateur prioritaire, repli proposé) et paie ses Produits physiques et ses Pass par carte via K-Pay.
+#### Story 4.8 : Socle de confirmation du paiement (confirmer_paiement, notifications, réconciliation)
+
+En tant que boutique,
+je veux qu'une Commande ne passe « payée » que par une seule porte, après une confirmation fiable,
+afin que ni un navigateur ni une fausse notification ne puisse valider un paiement.
+
+**Origine :** critères communs tirés de la story 4.7, pour que MaishaPay (5.6, 5.9) et PawaPay (5.7) n'attendent pas Polar. La story 4.7 ne garde que l'adaptateur Polar. Décision du 2026-11-03.
+
+**Critères d'acceptation :**
+
+**Étant donné** `confirmer_paiement`
+**Quand** les tests SQL la vérifient
+**Alors** ils couvrent les cas de la story 4.7 : rejeu sans effet ; montant égal → Commande `payee` (puis `livree` si 100 % numérique), `paye_le`, `acces_kit`, Panier vidé, stock décompté, email planifié ; montant inférieur → Commande inchangée et `anomalie` `montant_insuffisant` ; montant supérieur, Commande déjà payée ou expirée → `trop_percu` ; Kit déjà possédé → paiement validé et `anomalie` `kit_deja_possede` ; Référence de transaction déjà utilisée refusée ; deux Tentatives réussies sur deux Prestataires → la seconde devient un Trop-perçu
+
+**Étant donné** une notification quelconque
+**Quand** elle arrive sur `POST /api/paiement/notification/[prestataire]`
+**Alors** la route lit l'adaptateur branché (aucun adaptateur : 404), enregistre la notification (`notification_recue`, unique par Prestataire et identifiant), ne valide jamais sur la foi du corps, et répond 200 même si la transition est refusée (refus = `anomalie` `transition_refusee`) ; une vérification qui échoue répond 401 et ne change rien
+
+**Étant donné** une Tentative sans réponse
+**Quand** la tâche `/api/cron/reconcilier-tentatives` tourne (`CRON_SECRET`)
+**Alors** elle interroge chaque Prestataire branché par `consulterStatut` et applique le résultat par les mêmes fonctions ; une Tentative `abandonnee` reste réconciliée 72 h, un succès tardif devient un Trop-perçu
+
+**Étant donné** les tests
+**Quand** ils exercent le socle
+**Alors** ils utilisent des doubles `TEST_` (jamais de faux paiement dans le code du site, règle 13)
+
+## Epic 5 : Le mobile money et la carte MaishaPay
+Le client paie par mobile money (pays, opérateur, Agrégateur prioritaire, repli proposé) et paie ses Produits physiques et ses Pass par carte via MaishaPay.
 **FRs couvertes :** FR-15 (adaptateurs), FR-16 (Couverture), FR-17, FR-21 (Couverture), NFR-6
-**Notes :** stories K-Pay (mobile money et carte) et MaishaPay bloquées par Q-S1 (documentation officielle dans `docs/references/paiements/`, hors dépôt), avec Q-1 et Q-3 tirées de cette documentation ; PawaPay bloquée par Q-1 et Q-3. Stories communes (attente, repli, réconciliation, Trop-perçu, saisie de la Couverture) non bloquées. Condition d'ouverture §6.1 : au moins un Agrégateur RDC et K-Pay carte.
+**Notes :** stories MaishaPay (5.6 et 5.9) construites sur la documentation provisoire de `docs/references/paiements/maishapay.md` (hors dépôt), l'activation restant bloquée tant que Q-1 et Q-3 ne sont pas tranchées ; elles dépendent du socle de confirmation (story 4.8) ; PawaPay bloquée par Q-1 et Q-3. Stories communes (attente, repli, réconciliation, Trop-perçu, saisie de la Couverture) non bloquées. Condition d'ouverture §6.1 : au moins un Agrégateur RDC et MaishaPay carte.
 
 ### Epic 6 : Le suivi et l'après-vente des Produits physiques
 Une cliente commande un cosplay sur mesure ; Jonathan confirme la réception des mesures, fait avancer la Commande et elle reçoit un email à chaque étape ; le client peut annuler avant fabrication ou réclamer sous 48 h ; Jonathan confirme les remboursements avec preuve.
@@ -431,7 +457,7 @@ Une cliente commande un cosplay sur mesure ; Jonathan confirme la réception des
 ### Epic 7 : Le Festival, les Pass et le Scan
 Une visiteuse trouve l'Événement, achète ses Pass nominatifs et les reçoit avec leur Code QR ; le jour J, un bénévole scanne, même hors ligne ; Jonathan crée l'Événement, l'Accès bénévole et traite les annulations.
 **FRs couvertes :** FR-2 (bloc 5), FR-31 à FR-39, FR-44 (Pass), FR-51 (frais d'annulation), FR-52, FR-57 (Événements)
-**Notes :** l'achat payé d'un Pass passe par le mobile money ou K-Pay (epic 5) ; pages, alerte, émission, Scan, Verrou et Accès bénévole n'en dépendent pas. **Nommage (décision du 2026-10-21)** : rubrique « Festival » dans les deux langues, liste à `/fr/festival` et `/en/festival`, une page par Événement sous cette adresse ; le mot reste `evenement` dans le code et la base (AD-14).
+**Notes :** l'achat payé d'un Pass passe par le mobile money ou MaishaPay (epic 5) ; pages, alerte, émission, Scan, Verrou et Accès bénévole n'en dépendent pas. **Nommage (décision du 2026-10-21)** : rubrique « Festival » dans les deux langues, liste à `/fr/festival` et `/en/festival`, une page par Événement sous cette adresse ; le mot reste `evenement` dans le code et la base (AD-14).
 
 ### Epic 8 : La communauté (Galerie « Ils le portent », Réalisations, Blog)
 Le client envoie sa photo avec son accord, Jonathan la valide et elle apparaît sur le mur ; les 10 premières Réalisations gagnent un Pass ; Jonathan publie des guides.
@@ -1467,7 +1493,7 @@ afin de ne jamais tomber sur un choix qui échoue.
 
 **Étant donné** `choisirPrestataire` dans `src/modules/paiement/aiguillage.ts`, fonction pure, et les Familles lues en base par le service (AD-6, règles 10 et 11)
 **Quand** les tests Vitest tournent
-**Alors** ils prouvent : Panier mixte + carte → K-Pay, jamais Polar ; Panier avec Produit physique + carte → K-Pay ; Panier 100 % numérique + carte → Polar, ou « Carte indisponible » si Polar est inactif, sans aucun remplaçant ; Pass + carte → K-Pay, jamais Polar ; mobile money → premier Agrégateur actif, non exclu, qui couvre le couple pays-opérateur, dans l'Ordre de priorité ; repli vers l'Agrégateur suivant du même couple ; aucun Prestataire inventé quand rien ne couvre
+**Alors** ils prouvent : Panier mixte + carte → MaishaPay, jamais Polar ; Panier avec Produit physique + carte → MaishaPay ; Panier 100 % numérique + carte → Polar, ou « Carte indisponible » si Polar est inactif, sans aucun remplaçant ; Pass + carte → MaishaPay, jamais Polar ; mobile money → premier Agrégateur actif, non exclu, qui couvre le couple pays-opérateur, dans l'Ordre de priorité ; repli vers l'Agrégateur suivant du même couple ; aucun Prestataire inventé quand rien ne couvre
 **Et** le service relit en base la Famille de chaque ligne de la Commande ; un test prouve qu'une Famille envoyée par le navigateur est ignorée
 
 **Étant donné** le Récapitulatif d'une Commande `en_attente`
@@ -1479,7 +1505,7 @@ afin de ne jamais tomber sur un choix qui échoue.
 
 **Étant donné** la page admin Prestataires (FR-21, UX-DR43)
 **Quand** Jonathan active ou désactive un Prestataire, ou change l'Ordre de priorité des Agrégateurs avec Monter / Descendre
-**Alors** l'interrupteur affiche « Actif » ou « Désactivé » après l'enregistrement réel, l'action est journalisée, et la règle carte est affichée verrouillée (K-Pay : physique et Pass ; Polar : 100 % kits)
+**Alors** l'interrupteur affiche « Actif » ou « Désactivé » après l'enregistrement réel, l'action est journalisée, et la règle carte est affichée verrouillée (MaishaPay : physique et Pass ; Polar : 100 % kits)
 
 **Étant donné** le pied de page
 **Quand** il s'affiche
@@ -1558,14 +1584,14 @@ afin d'ouvrir mon Kit même sans mobile money.
 **Alors** il a créé l'organisation Polar sandbox et mis ses clés dans `.env.local` (`POLAR_SERVER` sur sandbox), et il ouvre un tunnel Cloudflare (`cloudflared`) seulement pendant ses essais, dont il saisit l'adresse dans le tableau de bord Polar sandbox (exception à la règle 14 limitée au développement, jamais en production)
 **Et** sur son téléphone, il paie un Kit avec une carte de test Polar, voit « Payée », ouvre le Kit dans sa bibliothèque et reçoit l'email « Kit ouvert »
 
-## Epic 5 : Le mobile money et la carte K-Pay
+## Epic 5 : Le mobile money et la carte MaishaPay
 
-Le client paie par mobile money (pays, opérateur, Agrégateur prioritaire, repli proposé) et paie ses Produits physiques par carte via K-Pay. Les stories 5.1 à 5.3 ne dépendent d'aucune question ouverte ; chaque adaptateur (5.4 à 5.7) démarre quand sa documentation est disponible, dans l'ordre K-Pay mobile money, K-Pay carte, MaishaPay, PawaPay, modifiable selon l'arrivée des documentations.
+Le client paie par mobile money (pays, opérateur, Agrégateur prioritaire, repli proposé) et paie ses Produits physiques et ses Pass par carte via MaishaPay. Les stories 5.1 à 5.3 ne dépendent d'aucune question ouverte ; chaque adaptateur (5.6, 5.7, 5.9) démarre quand sa documentation est disponible, dans l'ordre MaishaPay mobile money, MaishaPay carte, PawaPay, modifiable selon l'arrivée des documentations. Les stories 5.4 et 5.5 (K-Pay) sont retirées (2026-11-03).
 
 **Règles propres aux stories d'adaptateur (décision de Jonathan du 2026-10-21) :**
 
 - **Essais** : environnement de test du Prestataire s'il existe ; sinon, petits paiements réels faits par Jonathan sur `koma-dev`, au plus petit montant accepté, remboursés à la main et notés dans le journal de décisions (date, Prestataire, montant, remboursement fait), sans clé, numéro de marchand ni donnée personnelle (règle 4).
-- **Applications dédiées à KOMA SHOP (décision du 2026-10-21)** : K-Pay et MaishaPay permettent plusieurs applications par compte marchand. Jonathan crée chez chacun une application dédiée à KOMA SHOP, séparée de celle de son autre produit, avec ses propres clés et ses propres adresses de notification ; KOMA SHOP n'utilise jamais les clés ni les réglages de l'autre application. Les adresses de notification et de retour de KOMA SHOP sont aussi envoyées avec chaque paiement quand l'API le permet (K-Pay : paramètre `returl`). Pour PawaPay, si un réglage s'applique à tout le compte, la story vérifie d'abord que ce compte ne sert qu'à KOMA SHOP, sinon elle s'arrête et le signale (règle 15).
+- **Applications dédiées à KOMA SHOP (décision du 2026-10-21)** : MaishaPay permet plusieurs applications par compte marchand. Jonathan crée chez chaque Prestataire une application dédiée à KOMA SHOP, séparée de celle de son autre produit, avec ses propres clés et ses propres adresses de notification ; KOMA SHOP n'utilise jamais les clés ni les réglages de l'autre application. Les adresses de notification et de retour de KOMA SHOP sont aussi envoyées avec chaque paiement quand l'API le permet (MaishaPay : paramètre `returl`). Pour PawaPay, si un réglage s'applique à tout le compte, la story vérifie d'abord que ce compte ne sert qu'à KOMA SHOP, sinon elle s'arrête et le signale (règle 15).
 - **Clés** : les clés de l'application KOMA SHOP restent uniquement dans `.env.local`, puis dans les variables d'environnement de Hostinger à la mise en ligne ; jamais dans le dépôt, dans `koma-dev` en ligne, ni dans les journaux (règle 4).
 - **Tunnel** : le tunnel Cloudflare (`cloudflared`) reçoit les notifications de tous les Prestataires, ouvert seulement pendant les essais de Jonathan, jamais en production.
 - **Rien n'est deviné** : appels, devises, codes d'erreur, classement des échecs (client, Prestataire, inconnu), vérification des notifications et `comparerMontant` viennent de la documentation officielle du Prestataire ; un code inconnu est classé `inconnu` (règle 15, AD-5, AD-8).
@@ -1658,49 +1684,55 @@ afin de payer même quand un Agrégateur ne répond pas.
 **Quand** ils tournent avec des doubles `TEST_` d'Agrégateurs
 **Alors** ils prouvent : un délai dépassé ne déclenche pas de repli ; le repli passe à l'Agrégateur suivant du même couple ; un échec client ne bascule pas ; une seule Tentative `en_cours` par Commande ; une Tentative en échec sans autre Tentative en cours fait passer la Commande `echouee`, repayable (FR-17, FR-18, FR-19)
 
-### Story 5.4 : Paiement mobile money via K-Pay
+### Story 5.4 : retirée
 
-En tant que client en RDC,
-je veux payer par mobile money via K-Pay,
-afin d'utiliser le premier Agrégateur ouvert au lancement.
+Story retirée le 2026-11-03 : K-Pay est abandonné (comme GeniusPay). Le mobile money passe par PawaPay et MaishaPay. Le numéro 5.4 n'est pas réutilisé.
 
-**Bloquée par :** Q-S1 (documentation officielle K-Pay dans `docs/references/paiements/`) ; Couverture (Q-1) et contrôle du montant (Q-3) tirés de cette documentation.
+### Story 5.5 : retirée
 
-**Critères d'acceptation :**
+Story retirée le 2026-11-03 : K-Pay est abandonné. La carte d'un Panier avec Produit physique ou d'un Pass passe par MaishaPay (story 5.9). Le numéro 5.5 n'est pas réutilisé.
 
-**Étant donné** la documentation officielle de K-Pay
-**Quand** l'adaptateur `kpay` est écrit
-**Alors** `initier`, `consulterStatut`, `comparerMontant` et la table des codes d'échec suivent cette documentation, et chaque choix y renvoie (référence de section dans le code)
-**Et** chaque paiement envoie l'adresse de notification et de retour de KOMA SHOP par le paramètre `returl` ; seules les clés et les réglages de l'application KOMA SHOP sont utilisés
-
-**Étant donné** une notification de K-Pay
-**Quand** elle arrive sur `POST /api/paiement/notification/kpay`
-**Alors** elle ne sert que de signal : le serveur contre-vérifie le statut et le montant par `consulterStatut` avant tout appel à `confirmer_paiement` ; une notification qui ne correspond à aucune transaction réelle ne valide rien (règle 2, AD-5)
-
-**Étant donné** la fin de la story
-**Quand** Jonathan teste sur son téléphone
-**Alors** il paie une Commande par mobile money via K-Pay (environnement de test, ou petit paiement réel remboursé et noté), voit « Payée » et reçoit l'email
-**Et** une même notification reçue deux fois ne valide qu'une fois
-**Et** l'application KOMA SHOP est créée chez le Prestataire et ses clés sont dans `.env.local` (réglage manuel de Jonathan, definition of done)
-
-### Story 5.5 : Paiement par carte via K-Pay (Produits physiques et Paniers mixtes)
+### Story 5.6 : Paiement mobile money via MaishaPay
 
 En tant que client,
-je veux payer par carte un Panier qui contient un cosplay ou un accessoire,
-afin de commander une pièce physique sans mobile money.
+je veux payer par mobile money via MaishaPay quand il couvre mon opérateur,
+afin d'utiliser un Agrégateur ouvert au lancement.
 
-**Bloquée par :** Q-S1.
+**Documentation :** résumé fidèle dans `docs/references/paiements/maishapay.md` (hors dépôt) ; version complète et structurée à venir de Jonathan. **Dépend de** la story 4.8 (socle de confirmation).
 
 **Critères d'acceptation :**
 
-**Étant donné** une Commande avec au moins un Produit physique
-**Quand** le client choisit « Carte »
-**Alors** seul K-Pay est proposé (« Paiement traité par K-Pay ») ; Polar n'apparaît jamais, même si K-Pay carte est désactivé, auquel cas la carte est indisponible (règle 10, UX-DR36)
+**Étant donné** la documentation de MaishaPay (API REST v2 mobile money, consultation par référence marchand)
+**Quand** l'adaptateur `maishapay` est écrit
+**Alors** `initier` envoie `transactionReference` (notre référence interne), `order`, `paymentChannel` (opérateur, numéro `walletID`, `callbackUrl` = adresse de notification de KOMA SHOP) avec les clés de l'application KOMA SHOP, et `consulterStatut` interroge `…/transaction/rest/v2/check?useRef=1` ; chaque choix renvoie à la section de la documentation (référence dans le code)
+**Et** sa notification (POST non signé) ne sert que de signal : le serveur contre-vérifie par `consulterStatut` avant tout appel à `confirmer_paiement` ; une notification qui ne correspond à aucune Tentative ne valide rien (règle 2)
 
-**Étant donné** l'adaptateur `kpay` en mode carte
+**Étant donné** les points que la documentation ne tranche pas (signature, devise réellement débitée, règle de comparaison du montant, Couverture réelle)
+**Quand** l'administrateur veut activer MaishaPay
+**Alors** l'activation est refusée tant que ces points sont ouverts (`questionsOuvertes` de l'adaptateur) ; `comparerMontant` répond « indéterminé » et ne valide jamais une Commande ; rien n'est deviné (règle 15)
+
+**Étant donné** la fin de la story
+**Quand** Jonathan a répondu aux questions ouvertes et créé l'application « KOMA SHOP » chez MaishaPay (clés de test dans `.env.local`)
+**Alors** il teste un paiement en SANDBOX sur son téléphone, puis un petit paiement réel remboursé et noté ; l'adaptateur devient activable
+
+### Story 5.9 : Paiement par carte via MaishaPay (Produits physiques, Paniers mixtes et Pass)
+
+En tant que client,
+je veux payer par carte un Panier qui contient un cosplay ou un accessoire, ou un Pass,
+afin de commander sans mobile money.
+
+**Documentation :** `docs/references/paiements/maishapay.md` (carte V2 CyberSource, USD et EURO, redirection par `paymentPage`). **Dépend de** la story 4.8. Remplace l'ancienne story 5.5 (K-Pay).
+
+**Critères d'acceptation :**
+
+**Étant donné** une Commande avec au moins un Produit physique, ou un Pass
+**Quand** le client choisit « Carte »
+**Alors** seul MaishaPay est proposé (« Paiement traité par MaishaPay ») ; Polar n'apparaît jamais, même si MaishaPay carte est désactivé, auquel cas la carte est indisponible (règle 10, UX-DR36)
+
+**Étant donné** l'adaptateur `maishapay` en mode carte
 **Quand** la Tentative est lancée
-**Alors** le client passe par la page de paiement de K-Pay, revient par la route de retour (story 4.6), et seul `consulterStatut` fait foi pour le résultat
-**Et** les montants, devises et codes suivent la documentation officielle de K-Pay
+**Alors** l'adaptateur appelle `POST /api/collect/v2/store/card` avec les données du payeur lues côté serveur, puis redirige le client vers `paymentPage` ; le client revient par la route de retour (story 4.6), et seul `consulterStatut` fait foi pour le résultat (le rappel GET n'est jamais cru)
+**Et** le montant de la Commande est converti en USD ou EURO selon la documentation ; tout point que la documentation ne tranche pas (nom du payeur exigé par la V2, contradiction de la V3 sur les champs de facturation) est une question ouverte qui garde la carte désactivée
 
 **Étant donné** une Commande payée qui contient des Produits physiques
 **Quand** `confirmer_paiement` s'applique
@@ -1708,32 +1740,7 @@ afin de commander une pièce physique sans mobile money.
 
 **Étant donné** la fin de la story
 **Quand** Jonathan teste sur son téléphone
-**Alors** il paie un Panier mixte par carte (cartes de test de K-Pay si elles existent, sinon petit paiement réel remboursé et noté) : le Kit s'ouvre et l'Accessoire apparaît dans ses commandes
-**Et** l'application KOMA SHOP est créée chez le Prestataire et ses clés sont dans `.env.local` (réglage manuel de Jonathan, definition of done)
-
-### Story 5.6 : Paiement mobile money via MaishaPay
-
-En tant que client,
-je veux payer par mobile money via MaishaPay quand il couvre mon opérateur,
-afin d'avoir une solution si K-Pay est en panne.
-
-**Bloquée par :** Q-S1 (documentation officielle MaishaPay) ; Q-1 et Q-3 tirées de cette documentation.
-
-**Critères d'acceptation :**
-
-**Étant donné** la documentation officielle de MaishaPay
-**Quand** l'adaptateur `maishapay` est écrit
-**Alors** ses appels, sa vérification des notifications (signature ou contre-vérification, selon la documentation), `comparerMontant` et sa table des codes suivent cette documentation
-**Et** l'adaptateur n'utilise que les clés et les adresses de notification de l'application KOMA SHOP, et envoie les adresses de KOMA SHOP avec chaque paiement si l'API le permet
-
-**Étant donné** K-Pay et MaishaPay actifs sur le même couple
-**Quand** K-Pay est confirmé en échec
-**Alors** le repli vers MaishaPay est proposé au client (story 5.3), et la carte reste réservée à K-Pay (MaishaPay carte n'est pas branchée, règle 10)
-
-**Étant donné** la fin de la story
-**Quand** Jonathan teste sur son téléphone
-**Alors** un paiement via MaishaPay aboutit (environnement de test ou petit paiement réel remboursé et noté)
-**Et** l'application KOMA SHOP est créée chez le Prestataire et ses clés sont dans `.env.local` (réglage manuel de Jonathan, definition of done)
+**Alors** il paie un Panier mixte par carte (SANDBOX MaishaPay, puis petit paiement réel remboursé et noté) : le Kit s'ouvre et l'Accessoire apparaît dans ses commandes
 
 ### Story 5.7 : Paiement mobile money via PawaPay
 
@@ -1760,13 +1767,13 @@ afin d'élargir les pays et opérateurs acceptés.
 
 ### Story 5.8 : (abandonnée) Paiement mobile money via GeniusPay
 
-Story retirée le 2026-10-31 : GeniusPay est abandonné. Le mobile money passe par PawaPay, K-Pay et MaishaPay. Le numéro 5.8 n'est pas réutilisé.
+Story retirée le 2026-10-31 : GeniusPay est abandonné. Le mobile money passe par PawaPay et MaishaPay. Le numéro 5.8 n'est pas réutilisé.
 
 ## Epic 6 : Le suivi et l'après-vente des Produits physiques
 
 Une cliente commande un cosplay sur mesure ; Jonathan confirme la réception des mesures, fait avancer la Commande et elle reçoit un email à chaque étape ; le client peut annuler avant la fabrication ou réclamer sous 48 h ; Jonathan confirme les remboursements avec preuve.
 
-**Tests (décision de Jonathan du 2026-10-21) :** les tests automatiques couvrent tout l'epic avec des données `TEST_` ; aucun script ne crée de Commande `TEST_` hors des tests automatiques (règle 13). Le test de Jonathan sur téléphone attend la story 5.5 (K-Pay carte) ; si elle est encore bloquée à la fin de l'epic 6, l'agent le signale à Jonathan.
+**Tests (décision de Jonathan du 2026-10-21) :** les tests automatiques couvrent tout l'epic avec des données `TEST_` ; aucun script ne crée de Commande `TEST_` hors des tests automatiques (règle 13). Le test de Jonathan sur téléphone attend la story 5.5 (MaishaPay carte) ; si elle est encore bloquée à la fin de l'epic 6, l'agent le signale à Jonathan.
 
 ### Story 6.1 : Mes commandes et suivi client
 
@@ -2074,7 +2081,7 @@ afin d'entrer à l'Événement avec mon aide et ma sœur.
 
 **Étant donné** le choix du moyen de paiement
 **Quand** il s'affiche
-**Alors** l'aiguilleur propose le mobile money ou la carte via K-Pay, jamais Polar (règle 10, test)
+**Alors** l'aiguilleur propose le mobile money ou la carte via MaishaPay, jamais Polar (règle 10, test)
 
 ### Story 7.5 : Émission des Pass et « Mes Pass »
 
@@ -2599,7 +2606,7 @@ afin d'ouvrir les ventes.
 
 **Étant donné** l'ouverture des ventes
 **Quand** Jonathan coche la liste de vérification
-**Alors** sont faits : au moins un Agrégateur couvrant la RDC testé avec de vrais petits paiements, K-Pay carte opérationnel, textes légaux validés et en ligne (aucun marqueur « [Texte à fournir] » : le build de production le garantit), au moins un Kit filmé et des Produits publiés (PRD §6.1)
+**Alors** sont faits : au moins un Agrégateur couvrant la RDC testé avec de vrais petits paiements, MaishaPay carte opérationnel, textes légaux validés et en ligne (aucun marqueur « [Texte à fournir] » : le build de production le garantit), au moins un Kit filmé et des Produits publiés (PRD §6.1)
 **Et** les tests manuels TalkBack sur les parcours clés et le test dans le navigateur intégré d'Instagram (accueil et parcours d'achat) sont faits ; le test VoiceOver est fait par un testeur avant l'ouverture des ventes (UX-DR48)
 **Et** Lighthouse mobile sur l'accueil du domaine donne ≥ 90 en performance, accessibilité et SEO (NFR-2)
 **Et** le plan du site et `robots.txt` donnent les adresses du domaine ; le site est déclaré à Google Search Console

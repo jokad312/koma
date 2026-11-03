@@ -88,28 +88,28 @@ describe("ajouterCouple, confirmerCouple, retirerCouple", () => {
 describe("Couverture et aiguilleur : seul un couple confirmé d'un Agrégateur actif sert au paiement", () => {
   const couples: CoupleCouverture[] = [
     { id: "1", prestataire: "pawapay", pays: "TZ", operateur: "TEST_a", source: "TEST", etat: "a_verifier" },
-    { id: "2", prestataire: "kpay", pays: "TZ", operateur: "TEST_a", source: "TEST", etat: "confirme" },
+    { id: "2", prestataire: "maishapay", pays: "TZ", operateur: "TEST_a", source: "TEST", etat: "confirme" },
   ];
-  const entree = (couverture: ReturnType<typeof couplesConfirmes>, actifs: Array<"pawapay" | "kpay">) => ({
+  const entree = (couverture: ReturnType<typeof couplesConfirmes>, actifs: Array<"pawapay" | "maishapay">) => ({
     achat: { familles: ["cosplay" as const], estPass: false },
     moyen: "mobile_money" as const,
     pays: "TZ",
     operateur: "TEST_a",
     prestatairesActifs: actifs,
     couverture,
-    ordre: ["pawapay", "kpay"] as Array<"pawapay" | "kpay">,
+    ordre: ["pawapay", "maishapay"] as Array<"pawapay" | "maishapay">,
     exclus: [],
   });
   it("un couple « à vérifier » n'est jamais retenu", () => {
-    expect(couplesConfirmes(couples)).toEqual([{ prestataire: "kpay", pays: "TZ", operateur: "TEST_a" }]);
+    expect(couplesConfirmes(couples)).toEqual([{ prestataire: "maishapay", pays: "TZ", operateur: "TEST_a" }]);
   });
-  it("PawaPay (à vérifier) est ignoré même en tête de l'ordre : K-Pay, confirmé et actif, est choisi", () => {
-    expect(choisirPrestataire(entree(couplesConfirmes(couples), ["pawapay", "kpay"]))).toEqual({ statut: "ok", prestataire: "kpay" });
+  it("PawaPay (à vérifier) est ignoré même en tête de l'ordre : MaishaPay, confirmé et actif, est choisi", () => {
+    expect(choisirPrestataire(entree(couplesConfirmes(couples), ["pawapay", "maishapay"]))).toEqual({ statut: "ok", prestataire: "maishapay" });
   });
   it("Agrégateur désactivé : son couple confirmé ne sert pas", () => {
     expect(choisirPrestataire(entree(couplesConfirmes(couples), ["pawapay"]))).toEqual({ statut: "indisponible", raison: "mobile_money_indisponible" });
   });
   it("aucune ligne saisie : aucun mobile money", () => {
-    expect(choisirPrestataire(entree([], ["pawapay", "kpay"])).statut).toBe("indisponible");
+    expect(choisirPrestataire(entree([], ["pawapay", "maishapay"])).statut).toBe("indisponible");
   });
 });

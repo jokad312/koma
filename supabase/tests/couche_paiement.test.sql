@@ -38,15 +38,15 @@ select is(
 );
 select is((select count(*)::int from pg_policies where schemaname = 'public' and tablename in ('prestataire', 'tentative_paiement', 'notification_recue', 'trop_percu')), 0, 'aucune politique : tout passe par le serveur');
 
--- Prestataires : quatre, tous désactivés au départ, ordre des Agrégateurs, Polar sans ordre.
+-- Prestataires : trois, tous désactivés au départ, ordre des Agrégateurs, Polar sans ordre.
 select is((select count(*)::int from public.prestataire), 4, 'quatre Prestataires');
 select is((select count(*)::int from public.prestataire where actif), 0, 'tous désactivés au départ');
-select is((select array_agg(code order by ordre) from public.prestataire where type = 'agregateur'), array['pawapay', 'kpay', 'maishapay'], 'Ordre de priorité initial des Agrégateurs');
+select is((select array_agg(code order by ordre) from public.prestataire where type = 'agregateur'), array['pawapay', 'maishapay'], 'Ordre de priorité initial des Agrégateurs');
 select is((select ordre from public.prestataire where code = 'polar'), null, 'Polar n''a pas d''Ordre de priorité');
-select is((select array_agg(code order by code) from public.prestataire where carte), array['kpay', 'polar'], 'seuls K-Pay et Polar proposent la carte');
-select is((select array_agg(code order by code) from public.prestataire where mobile_money), array['kpay', 'maishapay', 'pawapay'], 'seuls les Agrégateurs proposent le mobile money');
+select is((select array_agg(code order by code) from public.prestataire where carte), array['maishapay', 'polar'], 'seuls MaishaPay et Polar proposent la carte');
+select is((select array_agg(code order by code) from public.prestataire where mobile_money), array['maishapay', 'pawapay'], 'seuls les Agrégateurs proposent le mobile money');
 select throws_ok($$insert into public.prestataire (code, nom, type, mobile_money, carte, ordre) values ('geniuspay', 'X', 'agregateur', true, false, 9)$$, '23514', null, 'GeniusPay est abandonné : code refusé');
-select throws_ok($$update public.prestataire set ordre = 1 where code = 'kpay'$$, '23505', null, 'deux Agrégateurs ne partagent pas un rang');
+select throws_ok($$update public.prestataire set ordre = 1 where code = 'maishapay'$$, '23505', null, 'deux Agrégateurs ne partagent pas un rang');
 
 -- Anomalies.
 select is(
@@ -57,7 +57,7 @@ select is(
 
 -- Tentatives : unicités et cohérence.
 insert into public.tentative_paiement (commande_id, prestataire, moyen, reference_interne, montant_attendu_cents)
-  values ((select commande from cp), 'kpay', 'carte', 'TEST-REF-INTERNE-0001', 1500);
+  values ((select commande from cp), 'maishapay', 'carte', 'TEST-REF-INTERNE-0001', 1500);
 select is((select statut from public.tentative_paiement where reference_interne = 'TEST-REF-INTERNE-0001'), 'en_cours', 'une Tentative démarre en cours');
 select throws_ok(
   $$insert into public.tentative_paiement (commande_id, prestataire, moyen, reference_interne, montant_attendu_cents) values ((select commande from cp), 'polar', 'carte', 'TEST-REF-INTERNE-0002', 1500)$$,
@@ -68,15 +68,15 @@ select throws_ok(
   '23505', null, 'une référence interne ne sert qu''une fois'
 );
 select throws_ok(
-  $$insert into public.tentative_paiement (commande_id, prestataire, moyen, reference_interne, montant_attendu_cents) values ((select commande from cp), 'kpay', 'carte', 'TEST-REF-INTERNE-0003', 0)$$,
+  $$insert into public.tentative_paiement (commande_id, prestataire, moyen, reference_interne, montant_attendu_cents) values ((select commande from cp), 'maishapay', 'carte', 'TEST-REF-INTERNE-0003', 0)$$,
   '23514', null, 'montant attendu nul : refusé'
 );
 select throws_ok(
-  $$insert into public.tentative_paiement (commande_id, prestataire, moyen, reference_interne, montant_attendu_cents, statut) values ((select commande from cp), 'kpay', 'carte', 'TEST-REF-INTERNE-0004', 1500, 'echouee')$$,
+  $$insert into public.tentative_paiement (commande_id, prestataire, moyen, reference_interne, montant_attendu_cents, statut) values ((select commande from cp), 'maishapay', 'carte', 'TEST-REF-INTERNE-0004', 1500, 'echouee')$$,
   '23514', null, 'une Tentative échouée porte sa cause'
 );
 select throws_ok(
-  $$insert into public.tentative_paiement (commande_id, prestataire, moyen, reference_interne, montant_attendu_cents, cause) values ((select commande from cp), 'kpay', 'carte', 'TEST-REF-INTERNE-0005', 1500, 'client')$$,
+  $$insert into public.tentative_paiement (commande_id, prestataire, moyen, reference_interne, montant_attendu_cents, cause) values ((select commande from cp), 'maishapay', 'carte', 'TEST-REF-INTERNE-0005', 1500, 'client')$$,
   '23514', null, 'une cause sans échec : refusée'
 );
 update public.tentative_paiement set statut = 'echouee', cause = 'prestataire', reference_transaction = 'TEST-TX-0001' where reference_interne = 'TEST-REF-INTERNE-0001';
@@ -85,7 +85,7 @@ select lives_ok(
   'après l''échec, une nouvelle Tentative en cours est permise'
 );
 select throws_ok(
-  $$insert into public.tentative_paiement (commande_id, prestataire, moyen, reference_interne, montant_attendu_cents, reference_transaction, statut, cause) values ((select commande from cp), 'kpay', 'carte', 'TEST-REF-INTERNE-0007', 1500, 'TEST-TX-0001', 'echouee', 'client')$$,
+  $$insert into public.tentative_paiement (commande_id, prestataire, moyen, reference_interne, montant_attendu_cents, reference_transaction, statut, cause) values ((select commande from cp), 'maishapay', 'carte', 'TEST-REF-INTERNE-0007', 1500, 'TEST-TX-0001', 'echouee', 'client')$$,
   '23505', null, 'une référence de transaction ne sert qu''une fois par Prestataire'
 );
 select lives_ok(
@@ -94,8 +94,8 @@ select lives_ok(
 );
 
 -- Notifications : une seule fois par Prestataire.
-insert into public.notification_recue (prestataire, id_notification, signature_valide) values ('kpay', 'TEST-NOTIF-1', true);
-select throws_ok($$insert into public.notification_recue (prestataire, id_notification, signature_valide) values ('kpay', 'TEST-NOTIF-1', true)$$, '23505', null, 'une notification rejouée est refusée');
+insert into public.notification_recue (prestataire, id_notification, signature_valide) values ('maishapay', 'TEST-NOTIF-1', true);
+select throws_ok($$insert into public.notification_recue (prestataire, id_notification, signature_valide) values ('maishapay', 'TEST-NOTIF-1', true)$$, '23505', null, 'une notification rejouée est refusée');
 select lives_ok($$insert into public.notification_recue (prestataire, id_notification, signature_valide) values ('polar', 'TEST-NOTIF-1', true)$$, 'le même identifiant chez un autre Prestataire est permis');
 
 -- Trop-perçus.
@@ -122,22 +122,22 @@ select ok(
 );
 
 -- Activer, désactiver : Admin seulement, journalisé.
-select throws_ok($$select public.definir_prestataire_actif(pg_temp.ass(), 'kpay', true)$$, 'P0001', 'KS_DROIT_REFUSE', 'un Assistant n''active pas un Prestataire');
+select throws_ok($$select public.definir_prestataire_actif(pg_temp.ass(), 'maishapay', true)$$, 'P0001', 'KS_DROIT_REFUSE', 'un Assistant n''active pas un Prestataire');
 select throws_ok($$select public.definir_prestataire_actif(pg_temp.adm(), 'geniuspay', true)$$, 'P0001', 'KS_PRESTATAIRE_INTROUVABLE', 'Prestataire inconnu : refusé');
-select lives_ok($$select public.definir_prestataire_actif(pg_temp.adm(), 'kpay', true)$$, 'l''Admin active un Prestataire');
-select is((select actif from public.prestataire where code = 'kpay'), true, 'K-Pay est actif');
+select lives_ok($$select public.definir_prestataire_actif(pg_temp.adm(), 'maishapay', true)$$, 'l''Admin active un Prestataire');
+select is((select actif from public.prestataire where code = 'maishapay'), true, 'MaishaPay est actif');
 select is(
-  (select auteur ->> 'id' from public.journal_audit where cible_table = 'prestataire' and action = 'update' and cible_id = 'kpay' order by id desc limit 1),
+  (select auteur ->> 'id' from public.journal_audit where cible_table = 'prestataire' and action = 'update' and cible_id = 'maishapay' order by id desc limit 1),
   '00000000-0000-0000-0000-0000000000a1',
   'le journal porte l''auteur de l''activation'
 );
 
 -- Ordre de priorité.
-select throws_ok($$select public.deplacer_prestataire(pg_temp.ass(), 'kpay', 'monter')$$, 'P0001', 'KS_DROIT_REFUSE', 'un Assistant ne déplace pas un Prestataire');
+select throws_ok($$select public.deplacer_prestataire(pg_temp.ass(), 'maishapay', 'monter')$$, 'P0001', 'KS_DROIT_REFUSE', 'un Assistant ne déplace pas un Prestataire');
 select lives_ok($$select public.deplacer_prestataire(pg_temp.adm(), 'maishapay', 'monter')$$, 'l''Admin monte MaishaPay');
-select is((select array_agg(code order by ordre) from public.prestataire where type = 'agregateur'), array['pawapay', 'maishapay', 'kpay'], 'MaishaPay et K-Pay ont échangé leur rang');
-select public.deplacer_prestataire(pg_temp.adm(), 'pawapay', 'monter');
-select is((select array_agg(code order by ordre) from public.prestataire where type = 'agregateur'), array['pawapay', 'maishapay', 'kpay'], 'monter le premier : sans effet');
+select is((select array_agg(code order by ordre) from public.prestataire where type = 'agregateur'), array['maishapay', 'pawapay'], 'MaishaPay et PawaPay ont échangé leur rang');
+select public.deplacer_prestataire(pg_temp.adm(), 'maishapay', 'monter');
+select is((select array_agg(code order by ordre) from public.prestataire where type = 'agregateur'), array['maishapay', 'pawapay'], 'monter le premier : sans effet');
 select throws_ok($$select public.deplacer_prestataire(pg_temp.adm(), 'polar', 'monter')$$, 'P0001', 'KS_PRESTATAIRE_SANS_ORDRE', 'Polar n''a pas d''Ordre de priorité');
 
 -- Familles d'une Commande, lues pour son Compte.

@@ -8,20 +8,19 @@ import { creerPrestataireTest } from "../doubles/TEST_prestataire";
 const NUMERO = "KS-2026-000042";
 const COUVERTURE: Couverture = [
   { prestataire: "pawapay", pays: "TZ", operateur: "TEST_op" },
-  { prestataire: "kpay", pays: "TZ", operateur: "TEST_op" },
+  { prestataire: "maishapay", pays: "TZ", operateur: "TEST_op" },
   { prestataire: "maishapay", pays: "TZ", operateur: "TEST_op" },
 ];
 
 function p(code: CodePrestataire, s: Partial<Prestataire> = {}): Prestataire {
   const base: Record<CodePrestataire, Prestataire> = {
     pawapay: { code: "pawapay", nom: "TEST_PawaPay", type: "agregateur", mobileMoney: true, carte: false, actif: true, ordre: 1 },
-    kpay: { code: "kpay", nom: "TEST_K-Pay", type: "agregateur", mobileMoney: true, carte: true, actif: true, ordre: 2 },
-    maishapay: { code: "maishapay", nom: "TEST_MaishaPay", type: "agregateur", mobileMoney: true, carte: false, actif: true, ordre: 3 },
+    maishapay: { code: "maishapay", nom: "TEST_MaishaPay", type: "agregateur", mobileMoney: true, carte: true, actif: true, ordre: 2 },
     polar: { code: "polar", nom: "TEST_Polar", type: "carte", mobileMoney: false, carte: true, actif: true, ordre: null },
   };
   return { ...base[code], ...s };
 }
-const TOUS = (["pawapay", "kpay", "maishapay", "polar"] as const).map((c) => p(c));
+const TOUS = (["pawapay", "maishapay", "polar"] as const).map((c) => p(c));
 
 function deps(s: Partial<DependancesTentative> = {}, adaptateurs: Partial<Record<CodePrestataire, ReturnType<typeof creerPrestataireTest>>> = {}): DependancesTentative {
   const physique: Achat = { familles: ["cosplay"], estPass: false };
@@ -32,7 +31,7 @@ function deps(s: Partial<DependancesTentative> = {}, adaptateurs: Partial<Record
     prestataires: vi.fn(async () => TOUS),
     couverture: vi.fn(async () => COUVERTURE),
     exclus: vi.fn(async () => []),
-    adaptateursBranches: new Set<CodePrestataire>(["pawapay", "kpay", "maishapay", "polar"]),
+    adaptateursBranches: new Set<CodePrestataire>(["pawapay", "maishapay", "polar"]),
     adaptateur: vi.fn((code: CodePrestataire) => adaptateurs[code] ?? null),
     demarrer: vi.fn(async () => ({ tentativeId: "TEST_tentative", montantAttenduCents: 1500 })),
     enregistrerInitiation: vi.fn(async () => ({ erreur: null })),
@@ -57,8 +56,8 @@ describe("masquerTelephone", () => {
 describe("demarrerTentative : mobile money", () => {
   it("le serveur choisit le premier Agrégateur de l'ordre qui couvre le couple, démarre la Tentative et appelle SON adaptateur", async () => {
     const pawapay = creerPrestataireTest({ code: "pawapay" });
-    const kpay = creerPrestataireTest({ code: "kpay" });
-    const d = deps({}, { pawapay, kpay });
+    const maishapay = creerPrestataireTest({ code: "maishapay" });
+    const d = deps({}, { pawapay, maishapay });
     await expect(demarrerTentative(d, MM)).resolves.toEqual({ ok: true, redirection: null });
     expect(d.demarrer).toHaveBeenCalledWith({
       compteId: "TEST_compte",
@@ -71,7 +70,7 @@ describe("demarrerTentative : mobile money", () => {
       telephoneMasque: "+255••••••678",
     });
     expect(pawapay.appels).toHaveLength(1);
-    expect(kpay.appels).toHaveLength(0);
+    expect(maishapay.appels).toHaveLength(0);
     expect(pawapay.appels[0]).toMatchObject({ montantAttenduCents: 1500, pays: "TZ", contact: { telephone: "+255712345678" } });
   });
   it("le numéro en clair n'est jamais transmis à la base : seulement sa forme masquée", async () => {
@@ -80,11 +79,11 @@ describe("demarrerTentative : mobile money", () => {
     expect(JSON.stringify((d.demarrer as ReturnType<typeof vi.fn>).mock.calls)).not.toContain("712345678");
   });
   it("repli : un Agrégateur exclu (échec confirmé côté Prestataire) n'est pas rappelé, le suivant du même couple l'est", async () => {
-    const kpay = creerPrestataireTest({ code: "kpay" });
-    const d = deps({ exclus: vi.fn(async () => ["pawapay" as const]) }, { pawapay: creerPrestataireTest({ code: "pawapay" }), kpay });
+    const maishapay = creerPrestataireTest({ code: "maishapay" });
+    const d = deps({ exclus: vi.fn(async () => ["pawapay" as const]) }, { pawapay: creerPrestataireTest({ code: "pawapay" }), maishapay });
     await demarrerTentative(d, MM);
-    expect(kpay.appels).toHaveLength(1);
-    expect((d.demarrer as ReturnType<typeof vi.fn>).mock.calls[0][0].prestataire).toBe("kpay");
+    expect(maishapay.appels).toHaveLength(1);
+    expect((d.demarrer as ReturnType<typeof vi.fn>).mock.calls[0][0].prestataire).toBe("maishapay");
   });
   it("une Famille ou un Prestataire envoyé par le navigateur est ignoré : seul le choix (moyen, pays, opérateur, numéro) compte", async () => {
     const d = deps({}, { pawapay: creerPrestataireTest({ code: "pawapay" }), polar: creerPrestataireTest({ code: "polar" }) });
@@ -117,12 +116,12 @@ describe("demarrerTentative : mobile money", () => {
 
 describe("demarrerTentative : carte (règle 10)", () => {
   const carte = { numero: NUMERO, moyen: "carte" };
-  it("panier avec un Produit physique : K-Pay, la redirection du Prestataire est renvoyée", async () => {
-    const kpay = creerPrestataireTest({ code: "kpay", initiation: { statut: "initie", referenceTransaction: "TEST-TX-9", redirection: "https://TEST.invalid/payer" } });
-    const d = deps({}, { kpay, polar: creerPrestataireTest({ code: "polar" }) });
+  it("panier avec un Produit physique : MaishaPay, la redirection du Prestataire est renvoyée", async () => {
+    const maishapay = creerPrestataireTest({ code: "maishapay", initiation: { statut: "initie", referenceTransaction: "TEST-TX-9", redirection: "https://TEST.invalid/payer" } });
+    const d = deps({}, { maishapay, polar: creerPrestataireTest({ code: "polar" }) });
     await expect(demarrerTentative(d, carte)).resolves.toEqual({ ok: true, redirection: "https://TEST.invalid/payer" });
     expect(d.enregistrerInitiation).toHaveBeenCalledWith("TEST_tentative", "TEST-TX-9");
-    expect((d.demarrer as ReturnType<typeof vi.fn>).mock.calls[0][0]).toMatchObject({ prestataire: "kpay", moyen: "carte", pays: null, operateur: null, telephoneMasque: null });
+    expect((d.demarrer as ReturnType<typeof vi.fn>).mock.calls[0][0]).toMatchObject({ prestataire: "maishapay", moyen: "carte", pays: null, operateur: null, telephoneMasque: null });
   });
   it("panier mixte ou Pass : jamais Polar", async () => {
     const polar = creerPrestataireTest({ code: "polar" });
@@ -134,7 +133,7 @@ describe("demarrerTentative : carte (règle 10)", () => {
   });
   it("panier 100 % Kits : Polar", async () => {
     const polar = creerPrestataireTest({ code: "polar" });
-    const d = deps({ commande: vi.fn(async () => ({ id: "c", achat: { familles: ["kit" as const], estPass: false }, contact: { email: null } })) }, { polar, kpay: creerPrestataireTest({ code: "kpay" }) });
+    const d = deps({ commande: vi.fn(async () => ({ id: "c", achat: { familles: ["kit" as const], estPass: false }, contact: { email: null } })) }, { polar, maishapay: creerPrestataireTest({ code: "maishapay" }) });
     await demarrerTentative(d, carte);
     expect(polar.appels).toHaveLength(1);
   });
@@ -214,14 +213,14 @@ function etat(s: Partial<EtatPaiement> = {}): EtatPaiement {
     ...s,
   };
 }
-const BRANCHES = new Set<CodePrestataire>(["pawapay", "kpay", "maishapay", "polar"]);
+const BRANCHES = new Set<CodePrestataire>(["pawapay", "maishapay", "polar"]);
 
 describe("proposerRepli (story 5.3)", () => {
   it("échec confirmé côté Prestataire : l'Agrégateur suivant du même couple est proposé", () => {
-    expect(proposerRepli(etat(), TOUS, COUVERTURE, BRANCHES)).toEqual({ type: "suivant", code: "kpay", nom: "TEST_K-Pay" });
+    expect(proposerRepli(etat(), TOUS, COUVERTURE, BRANCHES)).toEqual({ type: "suivant", code: "maishapay", nom: "TEST_MaishaPay" });
   });
   it("tous les Agrégateurs du couple en échec ou désactivés : « aucun »", () => {
-    expect(proposerRepli(etat({ exclus: ["pawapay", "kpay", "maishapay"] }), TOUS, COUVERTURE, BRANCHES)).toEqual({ type: "aucun" });
+    expect(proposerRepli(etat({ exclus: ["pawapay", "maishapay"] }), TOUS, COUVERTURE, BRANCHES)).toEqual({ type: "aucun" });
     expect(proposerRepli(etat(), TOUS.map((x) => ({ ...x, actif: x.code === "pawapay" })), COUVERTURE, BRANCHES)).toEqual({ type: "aucun" });
   });
   it("un échec côté client ne bascule jamais (E-27)", () => {
@@ -229,7 +228,7 @@ describe("proposerRepli (story 5.3)", () => {
   });
   it("pas de repli sans échec, ni pour une carte", () => {
     expect(proposerRepli(etat({ phase: "attente" }), TOUS, COUVERTURE, BRANCHES)).toBeNull();
-    expect(proposerRepli(etat({ echec: { moyen: "carte", prestataire: "kpay", pays: null, operateur: null } }), TOUS, COUVERTURE, BRANCHES)).toBeNull();
+    expect(proposerRepli(etat({ echec: { moyen: "carte", prestataire: "maishapay", pays: null, operateur: null } }), TOUS, COUVERTURE, BRANCHES)).toBeNull();
   });
   it("un opérateur couvert seulement par l'Agrégateur en échec : « aucun »", () => {
     const seul: Couverture = [{ prestataire: "pawapay", pays: "TZ", operateur: "TEST_op" }];

@@ -61,7 +61,7 @@ const requete = (methode: string, url: string, corps?: BodyInit, cookie?: string
 
 describe("/api/paiement/retour/[prestataire]", () => {
   it("GET : redirige vers la page de la Commande, en ignorant tout paramètre de statut (FR-20)", async () => {
-    const r = await retourGet(requete("GET", `http://localhost/api/paiement/retour/kpay?numero=${NUMERO}&status=success&paid=true`), contexteRetour("kpay"));
+    const r = await retourGet(requete("GET", `http://localhost/api/paiement/retour/maishapay?numero=${NUMERO}&status=success&paid=true`), contexteRetour("maishapay"));
     expect(r.status).toBe(303);
     const cible = new URL(r.headers.get("location") ?? "");
     expect(cible.pathname).toBe(`/fr/commande/${NUMERO}`);
@@ -74,21 +74,21 @@ describe("/api/paiement/retour/[prestataire]", () => {
     expect(new URL(r.headers.get("location") ?? "").pathname).toBe(`/fr/commande/${NUMERO}`);
   });
   it("l'adresse de redirection vient de NEXT_PUBLIC_SITE_URL, jamais de l'hôte de la requête", async () => {
-    const r = await retourGet(requete("GET", `http://interne.example/api/paiement/retour/kpay?numero=${NUMERO}`), contexteRetour("kpay"));
+    const r = await retourGet(requete("GET", `http://interne.example/api/paiement/retour/maishapay?numero=${NUMERO}`), contexteRetour("maishapay"));
     expect(new URL(r.headers.get("location") ?? "").origin).toBe("https://test.invalid");
   });
   it("la langue vient du cookie : /en/checkout", async () => {
-    const r = await retourGet(requete("GET", `http://localhost/api/paiement/retour/kpay?numero=${NUMERO}`, undefined, "NEXT_LOCALE=en"), contexteRetour("kpay"));
+    const r = await retourGet(requete("GET", `http://localhost/api/paiement/retour/maishapay?numero=${NUMERO}`, undefined, "NEXT_LOCALE=en"), contexteRetour("maishapay"));
     expect(new URL(r.headers.get("location") ?? "").pathname).toBe(`/en/checkout/${NUMERO}`);
   });
   it("numéro absent ou mal formé : retour à l'étape de commande, jamais une adresse forgée", async () => {
     for (const numero of ["", "../../admin", "KS-2026-1", "https://autre.example"]) {
-      const r = await retourGet(requete("GET", `http://localhost/api/paiement/retour/kpay?numero=${encodeURIComponent(numero)}`), contexteRetour("kpay"));
+      const r = await retourGet(requete("GET", `http://localhost/api/paiement/retour/maishapay?numero=${encodeURIComponent(numero)}`), contexteRetour("maishapay"));
       expect(new URL(r.headers.get("location") ?? "").pathname).toBe("/fr/commande");
     }
   });
   it("Prestataire inconnu (dont GeniusPay, abandonné) : 404", async () => {
-    for (const code of ["geniuspay", "x", "../kpay"]) {
+    for (const code of ["geniuspay", "x", "../maishapay"]) {
       const r = await retourGet(requete("GET", `http://localhost/api/paiement/retour/${code}?numero=${NUMERO}`), contexteRetour(code));
       expect(r.status).toBe(404);
     }

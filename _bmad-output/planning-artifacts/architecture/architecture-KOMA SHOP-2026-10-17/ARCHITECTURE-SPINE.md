@@ -43,7 +43,7 @@ flowchart TD
   API["src/app/api (notifications, cron, kits, mesure)"] --> SVC["modules/*/service.ts"]
   ACT --> SVC
   SVC --> PORT["paiement : port PrestatairePaiement"]
-  PORT --> ADP["adaptateurs : pawapay, kpay, polar, maishapay"]
+  PORT --> ADP["adaptateurs : pawapay, maishapay, polar"]
   SVC --> RPC["fonctions Postgres de transition (service role)"]
   RPC --> INT["fonctions internes des modules propriétaires"]
   QRY --> DB[("Postgres + RLS")]
@@ -117,13 +117,13 @@ Une Commande `produits` 100 % numérique passe `payee` puis `livree` dans la tra
 
 - **Binds:** FR-15..FR-17, FR-19, FR-21 ; CLAUDE.md règles 2, 9, 13
 - **Prevents:** un adaptateur qui écrit en base ; un délai dépassé traité comme un échec ; une tempête de rejeux ; un repli décidé dans le dos du client.
-- **Rule:** chaque adaptateur implémente `PrestatairePaiement` : `initier(tentative)`, `verifierNotification(requete)`, `consulterStatut(reference)`, `comparerMontant(attendu, recu, devise)`. Il renvoie un résultat normalisé `succes | echec_client | echec_prestataire | inconnu` avec montant et devise reçus et n'a aucun accès à Supabase. Vérification : PawaPay par signature RFC 9421 (rappels signés activés dans son tableau de bord), Polar par Standard Webhooks, K-Pay **uniquement** par contre-vérification `consulterStatut` : sa notification n'est qu'un signal, l'interrogation de son API fait foi. Les adaptateurs K-Pay et MaishaPay sont construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation (appels, devises, vérification des notifications), sans rien deviner. Une route par prestataire, `POST /api/paiement/notification/[prestataire]` : vérifie (401 si la vérification échoue), enregistre la notification dans `notification_recue` (`UNIQUE (prestataire, id_notification)`), appelle le service, puis répond **200** même si la transition est refusée (le refus devient une `anomalie` `transition_refusee`). Repli : seulement sur `echec_prestataire` confirmé ou Agrégateur désactivé, jamais sur `echec_client` ni `inconnu`, et toujours proposé au client (« Réessayer avec … »), qui déclenche lui-même la nouvelle Tentative. Adaptateurs au lancement : PawaPay (API v2), K-Pay (mobile money et carte), MaishaPay (mobile money), Polar (GeniusPay abandonné le 2026-10-31). MaishaPay carte reste un secours non branché tant que Jonathan ne l'a pas confirmé.
+- **Rule:** chaque adaptateur implémente `PrestatairePaiement` : `initier(tentative)`, `verifierNotification(requete)`, `consulterStatut(reference)`, `comparerMontant(attendu, recu, devise)`. Il renvoie un résultat normalisé `succes | echec_client | echec_prestataire | inconnu` avec montant et devise reçus et n'a aucun accès à Supabase. Vérification : PawaPay par signature RFC 9421 (rappels signés activés dans son tableau de bord), Polar par Standard Webhooks, MaishaPay **uniquement** par contre-vérification `consulterStatut` (consultation par référence marchand) : sa documentation ne décrit aucune signature, sa notification n'est qu'un signal et l'interrogation de son API fait foi. L'adaptateur MaishaPay est construit à partir de la documentation officielle de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation (appels, devises, vérification des notifications), sans rien deviner. Une route par prestataire, `POST /api/paiement/notification/[prestataire]` : vérifie (401 si la vérification échoue), enregistre la notification dans `notification_recue` (`UNIQUE (prestataire, id_notification)`), appelle le service, puis répond **200** même si la transition est refusée (le refus devient une `anomalie` `transition_refusee`). Repli : seulement sur `echec_prestataire` confirmé ou Agrégateur désactivé, jamais sur `echec_client` ni `inconnu`, et toujours proposé au client (« Réessayer avec … »), qui déclenche lui-même la nouvelle Tentative. Adaptateurs au lancement : PawaPay (API v2), MaishaPay (mobile money et carte), Polar (GeniusPay abandonné le 2026-10-31, K-Pay abandonné le 2026-11-03). Un adaptateur reste non activable (`questionsOuvertes`) tant que sa Couverture, sa devise débitée et sa règle de comparaison du montant ne sont pas tranchées par Jonathan (règle 15).
 
 ### AD-6 — Un seul aiguilleur de prestataire [ADOPTED]
 
 - **Binds:** FR-16, FR-18 ; CLAUDE.md règles 10, 11
 - **Prevents:** un Panier mixte ou un Pass qui part chez Polar ; une règle de choix recopiée dans plusieurs écrans ; un repli vers un Agrégateur déjà en échec.
-- **Rule:** `choisirPrestataire(achat, moyen, pays, operateur, prestatairesActifs, couverture, ordre, exclus)` dans `src/modules/paiement/aiguillage.ts` est une fonction pure, seule source du choix ; `exclus` = Agrégateurs dont une Tentative de cette Commande a fini en `echec_prestataire`. Le service lui passe les Familles **lues en base**. Matrice : carte + Pass → K-Pay ; carte + au moins un Produit physique → K-Pay ; carte + Panier 100 % numérique → Polar, sinon « Carte indisponible » ; mobile money → premier Agrégateur actif non exclu de l'Ordre de priorité qui couvre le couple pays-opérateur, sinon aucun. Tests obligatoires (Vitest pour l'aiguillage, tests SQL pour les fonctions) : Panier mixte jamais Polar ; Pass jamais Polar ; repli vers l'Agrégateur suivant du même couple ; référence déjà utilisée refusée ; délai dépassé sans repli ; notification tardive après expiration ; deux Tentatives réussies sur deux Agrégateurs ; notification rejouée sans effet ; montant insuffisant non validé ; Kit déjà possédé sans annulation du paiement.
+- **Rule:** `choisirPrestataire(achat, moyen, pays, operateur, prestatairesActifs, couverture, ordre, exclus)` dans `src/modules/paiement/aiguillage.ts` est une fonction pure, seule source du choix ; `exclus` = Agrégateurs dont une Tentative de cette Commande a fini en `echec_prestataire`. Le service lui passe les Familles **lues en base**. Matrice : carte + Pass → MaishaPay ; carte + au moins un Produit physique → MaishaPay ; carte + Panier 100 % numérique → Polar, sinon « Carte indisponible » ; mobile money → premier Agrégateur actif non exclu de l'Ordre de priorité qui couvre le couple pays-opérateur, sinon aucun. Tests obligatoires (Vitest pour l'aiguillage, tests SQL pour les fonctions) : Panier mixte jamais Polar ; Pass jamais Polar ; repli vers l'Agrégateur suivant du même couple ; référence déjà utilisée refusée ; délai dépassé sans repli ; notification tardive après expiration ; deux Tentatives réussies sur deux Agrégateurs ; notification rejouée sans effet ; montant insuffisant non validé ; Kit déjà possédé sans annulation du paiement.
 
 ### AD-7 — Un achat de Pass est une Commande de type `pass` [ADOPTED]
 
@@ -363,11 +363,10 @@ flowchart LR
   A -- "TUS" --> BU
   A -- "TUS" --> S
   H --> PP["PawaPay"]
-  H --> KP["K-Pay"]
+  H --> MG["MaishaPay"]
   H --> PO["Polar"]
-  H -.-> MG["MaishaPay"]
   PP -- "notification signée" --> H
-  KP -- "notification, contre-vérifiée" --> H
+  MG -- "notification, contre-vérifiée" --> H
   PO -- "notification signée" --> H
   S -- "pg_net : /api/cron/*" --> H
   H --> R["Resend (domaine du site, Q-D1)"]
@@ -509,9 +508,9 @@ koma/
 | --- | --- | --- |
 | Q-1 | Couverture pays-opérateur de chaque Agrégateur, surtout PawaPay | FR-16 en production |
 | Q-2 | Abandonnée le 2026-10-31 (GeniusPay n'est plus utilisé) | Aucune |
-| Q-3 | Devise débitée et règle de comparaison du montant pour chaque Agrégateur (K-Pay et MaishaPay : tirées de leur documentation officielle, voir Q-S1) | `comparerMontant` de ces Prestataires |
+| Q-3 | Devise débitée et règle de comparaison du montant pour chaque Agrégateur (MaishaPay : tirées de leur documentation officielle, voir Q-S1) | `comparerMontant` de ces Prestataires |
 | Q-4 | Remboursement par API | Rien au lancement (remboursement manuel) |
-| Q-S1 | Documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; adaptateurs construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation | Adaptateurs K-Pay et MaishaPay |
+| Q-S1 | Documentation officielle de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; adaptateur construit à partir de cette documentation ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation | Adaptateurs MaishaPay |
 | Q-A1 | Tarifs Bunny Stream, à confirmer sur bunny.net | Budget |
 | Q-A2 | Hostinger : commande de démarrage (`next start`) configurable, et `sharp` fonctionnel sur l'offre | Première mise en ligne |
 | Q-D1 | Nom de domaine : pas encore acheté, acheté par Jonathan chez Hostinger à la fin ; adresse du site lue dans `NEXT_PUBLIC_SITE_URL`, jamais en dur ; développement et tests en local | Mise en ligne seulement (domaine, Resend, SMTP de Supabase Auth) |

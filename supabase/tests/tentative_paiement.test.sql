@@ -37,15 +37,15 @@ select throws_ok($$select public.demarrer_tentative('00000000-0000-0000-0000-000
 select throws_ok($$select public.demarrer_tentative('00000000-0000-0000-0000-0000000000a1', 'KS-2026-800005', 'pawapay', 'carte', null, null, 'TEST-TP-REF-0001', null)$$, 'P0001', 'KS_COMMANDE_INTROUVABLE', 'Commande d''un autre Compte : introuvable');
 select throws_ok($$select public.demarrer_tentative('00000000-0000-0000-0000-0000000000a1', 'KS-2026-800001', 'pawapay', 'mobile_money', 'TZ', 'TEST_op', 'TEST-TP-REF-0002', '+255••••••678')$$, 'P0001', 'KS_PRESTATAIRE_INACTIF', 'Prestataire désactivé : refusé');
 
--- Activation de PawaPay et K-Pay (test), puis une Couverture confirmée de PawaPay et un couple à vérifier de K-Pay.
-update public.prestataire set actif = true where code in ('pawapay', 'kpay');
+-- Activation de PawaPay et MaishaPay (test), puis une Couverture confirmée de PawaPay et un couple à vérifier de MaishaPay.
+update public.prestataire set actif = true where code in ('pawapay', 'maishapay');
 insert into public.couverture (prestataire, pays, operateur, source, etat) values
   ('pawapay', 'TZ', 'TEST_op', 'TEST source', 'confirme'),
-  ('kpay', 'TZ', 'TEST_autre', 'TEST source', 'a_verifier');
+  ('maishapay', 'TZ', 'TEST_autre', 'TEST source', 'a_verifier');
 
 select throws_ok($$select public.demarrer_tentative('00000000-0000-0000-0000-0000000000a1', 'KS-2026-800001', 'pawapay', 'carte', null, null, 'TEST-TP-REF-0003', null)$$, 'P0001', 'KS_MOYEN_INVALIDE', 'PawaPay ne propose pas la carte');
 select throws_ok($$select public.demarrer_tentative('00000000-0000-0000-0000-0000000000a1', 'KS-2026-800001', 'pawapay', 'mobile_money', 'TZ', 'TEST_inconnu', 'TEST-TP-REF-0004', '+255••••••678')$$, 'P0001', 'KS_COUVERTURE_ABSENTE', 'couple non couvert : refusé');
-select throws_ok($$select public.demarrer_tentative('00000000-0000-0000-0000-0000000000a1', 'KS-2026-800001', 'kpay', 'mobile_money', 'TZ', 'TEST_autre', 'TEST-TP-REF-0005', '+255••••••678')$$, 'P0001', 'KS_COUVERTURE_ABSENTE', 'couple seulement « à vérifier » : refusé');
+select throws_ok($$select public.demarrer_tentative('00000000-0000-0000-0000-0000000000a1', 'KS-2026-800001', 'maishapay', 'mobile_money', 'TZ', 'TEST_autre', 'TEST-TP-REF-0005', '+255••••••678')$$, 'P0001', 'KS_COUVERTURE_ABSENTE', 'couple seulement « à vérifier » : refusé');
 select throws_ok($$select public.demarrer_tentative('00000000-0000-0000-0000-0000000000a1', 'KS-2026-800003', 'pawapay', 'mobile_money', 'TZ', 'TEST_op', 'TEST-TP-REF-0006', '+255••••••678')$$, 'P0001', 'KS_COMMANDE_NON_PAYABLE', 'Commande expirée : non payable');
 select throws_ok($$select public.demarrer_tentative('00000000-0000-0000-0000-0000000000a1', 'KS-2026-800004', 'pawapay', 'mobile_money', 'TZ', 'TEST_op', 'TEST-TP-REF-0007', '+255••••••678')$$, 'P0001', 'KS_COMMANDE_NON_PAYABLE', 'Commande déjà payée : non payable');
 select is((select count(*)::int from public.tentative_paiement), 0, 'les refus ne créent aucune Tentative');

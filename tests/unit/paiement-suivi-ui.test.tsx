@@ -33,7 +33,7 @@ const base: EtatPaiement = {
   tropPercu: null,
   montantCents: 1500,
   expireLe: "2026-11-02T13:00:00Z",
-  attente: { moyen: "carte", prestataire: "TEST_K-Pay", telephoneMasque: null },
+  attente: { moyen: "carte", prestataire: "TEST_MaishaPay", telephoneMasque: null },
   echec: null,
   exclus: [],
   repli: null,
@@ -211,7 +211,7 @@ describe("SuiviPaiement : attente mobile money (story 5.3)", () => {
 
 describe("SuiviPaiement : repli entre Agrégateurs (story 5.3)", () => {
   const repliEtat = (s: Partial<EtatPaiement> = {}) =>
-    etat({ phase: "echec", statut: "echouee", causeEchec: "prestataire", echec: echecMm, exclus: ["pawapay"], repli: { type: "suivant", code: "kpay", nom: "TEST_K-Pay" }, ...s });
+    etat({ phase: "echec", statut: "echouee", causeEchec: "prestataire", echec: echecMm, exclus: ["pawapay"], repli: { type: "suivant", code: "maishapay", nom: "TEST_MaishaPay" }, ...s });
 
   beforeEach(() => {
     faux.demarrer.mockReset();
@@ -222,14 +222,14 @@ describe("SuiviPaiement : repli entre Agrégateurs (story 5.3)", () => {
 
   it("échec confirmé côté Prestataire : alerte « Réessayer avec {Agrégateur suivant} ? » et bouton WhatsApp ; rien ne part tout seul", () => {
     rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat()} numeroWhatsapp="+243000000000" />);
-    expect(screen.getByRole("alert").textContent).toBe("Ce service de paiement n'a pas abouti. Réessayer avec TEST_K-Pay ?");
+    expect(screen.getByRole("alert").textContent).toBe("Ce service de paiement n'a pas abouti. Réessayer avec TEST_MaishaPay ?");
     expect(screen.getByRole("link", { name: /WhatsApp/ })).toBeTruthy();
     expect(faux.demarrer).not.toHaveBeenCalled();
   });
   it("la nouvelle Tentative ne part que si le client touche le bouton, avec le même couple et son numéro, puis « Une nouvelle demande… »", async () => {
     vi.useRealTimers();
     rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat()} numeroWhatsapp={null} />);
-    await userEvent.click(screen.getByRole("button", { name: "Réessayer avec TEST_K-Pay" }));
+    await userEvent.click(screen.getByRole("button", { name: "Réessayer avec TEST_MaishaPay" }));
     expect(faux.demarrer).toHaveBeenCalledWith({ numero: NUMERO, moyen: "mobile_money", pays: "TZ", operateur: "TEST_op", telephone: "+255712345678" });
     expect(await screen.findByText("Une nouvelle demande de paiement va arriver sur ton téléphone.")).toBeTruthy();
     expect(faux.refresh).toHaveBeenCalled();
@@ -237,7 +237,7 @@ describe("SuiviPaiement : repli entre Agrégateurs (story 5.3)", () => {
   it("le navigateur n'envoie aucun Prestataire : le serveur choisit le suivant", async () => {
     vi.useRealTimers();
     rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat()} numeroWhatsapp={null} />);
-    await userEvent.click(screen.getByRole("button", { name: "Réessayer avec TEST_K-Pay" }));
+    await userEvent.click(screen.getByRole("button", { name: "Réessayer avec TEST_MaishaPay" }));
     expect(Object.keys(faux.demarrer.mock.calls[0][0]).sort()).toEqual(["moyen", "numero", "operateur", "pays", "telephone"]);
   });
   it("tous les Agrégateurs du couple en échec ou désactivés : « Choisis un autre opérateur ou la carte. » remplace le repli", () => {
@@ -258,7 +258,7 @@ describe("SuiviPaiement : repli entre Agrégateurs (story 5.3)", () => {
     vi.useRealTimers();
     faux.demarrer.mockResolvedValue({ ok: false, erreur: "indisponible" });
     rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat()} numeroWhatsapp={null} />);
-    await userEvent.click(screen.getByRole("button", { name: "Réessayer avec TEST_K-Pay" }));
+    await userEvent.click(screen.getByRole("button", { name: "Réessayer avec TEST_MaishaPay" }));
     expect(await screen.findByText(/La nouvelle demande n'a pas pu partir/)).toBeTruthy();
     expect(screen.queryByText("Une nouvelle demande de paiement va arriver sur ton téléphone.")).toBeNull();
   });
@@ -266,7 +266,7 @@ describe("SuiviPaiement : repli entre Agrégateurs (story 5.3)", () => {
     vi.useRealTimers();
     sessionStorage.clear();
     rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat()} numeroWhatsapp={null} />);
-    await userEvent.click(screen.getByRole("button", { name: "Réessayer avec TEST_K-Pay" }));
+    await userEvent.click(screen.getByRole("button", { name: "Réessayer avec TEST_MaishaPay" }));
     expect(faux.demarrer).not.toHaveBeenCalled();
     expect(await screen.findByRole("link", { name: "Ressaisir mon numéro dans les moyens de paiement" })).toBeTruthy();
   });
@@ -276,7 +276,7 @@ describe("SuiviPaiement : repli entre Agrégateurs (story 5.3)", () => {
     expect(sessionStorage.getItem("koma-paiement-" + NUMERO)).toBeNull();
   });
   it("échec d'une carte : « Réessayer » mène aux moyens de paiement, sans appel automatique", () => {
-    rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat({ causeEchec: "client", repli: null, echec: { moyen: "carte", prestataire: "kpay", pays: null, operateur: null } })} numeroWhatsapp={null} />);
+    rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat({ causeEchec: "client", repli: null, echec: { moyen: "carte", prestataire: "maishapay", pays: null, operateur: null } })} numeroWhatsapp={null} />);
     expect(screen.getByRole("link", { name: "Réessayer" }).getAttribute("href")).toBe("#commande-moyens");
     expect(faux.demarrer).not.toHaveBeenCalled();
   });

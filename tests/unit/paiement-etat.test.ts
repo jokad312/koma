@@ -14,7 +14,7 @@ describe("deriverEtat : phases", () => {
     expect(deriverEtat(brut(), MAINTENANT)).toMatchObject({ phase: "a_payer", attenteDepuisSecondes: null });
   });
   it("Tentative en cours : attente, avec son ancienneté, jamais un choix (retour arrière, rechargement, autre onglet)", () => {
-    const e = deriverEtat(brut({ tentative_en_cours: { moyen: "carte", age_secondes: 42, prestataire: "TEST_K-Pay", telephone_masque: null } }), MAINTENANT);
+    const e = deriverEtat(brut({ tentative_en_cours: { moyen: "carte", age_secondes: 42, prestataire: "TEST_MaishaPay", telephone_masque: null } }), MAINTENANT);
     expect(e).toMatchObject({ phase: "attente", attenteDepuisSecondes: 42 });
   });
   it("Commande échouée mais nouvelle Tentative en cours : attente", () => {
@@ -55,7 +55,7 @@ describe("deriverEtat : Trop-perçu et lecture invalide", () => {
     expect(deriverEtat(brut({ trop_percu: "autre_chose" }), MAINTENANT)).toBeNull();
   });
   it("n'expose ni référence de transaction ni montant reçu ni identifiant", () => {
-    const e = deriverEtat(brut({ tentative_en_cours: { moyen: "carte", age_secondes: 1, prestataire: "TEST_K-Pay", telephone_masque: null } }), MAINTENANT) as Record<string, unknown>;
+    const e = deriverEtat(brut({ tentative_en_cours: { moyen: "carte", age_secondes: 1, prestataire: "TEST_MaishaPay", telephone_masque: null } }), MAINTENANT) as Record<string, unknown>;
     expect(Object.keys(e).sort()).toEqual(["attente", "attenteDepuisSecondes", "causeEchec", "echec", "exclus", "expireLe", "kit", "montantCents", "phase", "repli", "statut", "tropPercu"]);
     // Le numéro de téléphone n'est jamais en clair : seulement sa forme masquée.
     expect(JSON.stringify(e)).not.toMatch(/\+243[0-9]{6}/);
@@ -68,6 +68,6 @@ describe("constantes de la page d'attente et adresse de retour", () => {
     expect(DELAI_VERIFICATION_SECONDES).toBe(120);
   });
   it("l'adresse de retour ne contient que le numéro de Commande", () => {
-    expect(adresseRetourPrestataire("https://TEST.invalid/", "kpay", "KS-2026-000042")).toBe("https://TEST.invalid/api/paiement/retour/kpay?numero=KS-2026-000042");
+    expect(adresseRetourPrestataire("https://TEST.invalid/", "maishapay", "KS-2026-000042")).toBe("https://TEST.invalid/api/paiement/retour/maishapay?numero=KS-2026-000042");
   });
 });

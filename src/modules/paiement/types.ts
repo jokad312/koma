@@ -1,6 +1,6 @@
 // Couche de paiement (story 4.5, AD-5, AD-6). Types communs : aucun import de Supabase ni d'un autre module (le port est pur).
 
-export const CODES_PRESTATAIRE = ["pawapay", "kpay", "maishapay", "polar"] as const;
+export const CODES_PRESTATAIRE = ["pawapay", "maishapay", "polar"] as const;
 export type CodePrestataire = (typeof CODES_PRESTATAIRE)[number];
 
 export type MoyenPaiement = "mobile_money" | "carte";

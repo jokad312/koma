@@ -95,7 +95,7 @@ export function ListePrestataires({ prestataires }: { prestataires: PrestataireA
         <h2 id="regle-carte" className="t-label text-text-primary">
           {t("regleCarte.titre")}
         </h2>
-        <p className="t-small text-text-secondary">{t("regleCarte.kpay")}</p>
+        <p className="t-small text-text-secondary">{t("regleCarte.maishapay")}</p>
         <p className="t-small text-text-secondary">{t("regleCarte.polar")}</p>
       </section>
     </div>

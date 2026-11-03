@@ -57,3 +57,6 @@ gofullpage-*
 
 # Relais entre agents (contenu des sessions) : jamais dans le dépôt public
 .relais/
+
+# Documentation des prestataires de paiement (résumés locaux, hors dépôt)
+docs/references/

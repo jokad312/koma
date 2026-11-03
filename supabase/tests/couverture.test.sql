@@ -58,7 +58,7 @@ select is(
 );
 select throws_ok($$select public.ajouter_couverture(pg_temp.adm(), 'pawapay', 'TZ', 'TEST_op', 'autre source')$$, 'P0001', 'KS_COUPLE_EXISTANT', 'même couple pour le même Agrégateur : refusé');
 select throws_ok($$select public.ajouter_couverture(pg_temp.adm(), 'pawapay', 'TZ', 'test_OP', 'autre source')$$, 'P0001', 'KS_COUPLE_EXISTANT', 'même opérateur en casse différente : refusé');
-select lives_ok($$select public.ajouter_couverture(pg_temp.adm(), 'kpay', 'TZ', 'TEST_op', 'TEST source K-Pay')$$, 'le même couple chez un autre Agrégateur est permis');
+select lives_ok($$select public.ajouter_couverture(pg_temp.adm(), 'maishapay', 'TZ', 'TEST_op', 'TEST source MaishaPay')$$, 'le même couple chez un autre Agrégateur est permis');
 select throws_ok($$insert into public.couverture (prestataire, pays, operateur, source) values ('pawapay', 'tz', 'TEST_x', 'TEST source')$$, '23514', null, 'pays en minuscules refusé par la table');
 
 -- Confirmation et retrait.

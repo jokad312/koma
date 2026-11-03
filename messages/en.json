@@ -1401,7 +1401,7 @@
       "adaptateurAbsent": "Adapter not connected yet: this provider cannot be turned on.",
       "regleCarte": {
         "titre": "Card rule (locked)",
-        "kpay": "K-Pay: carts with a physical product and event passes.",
+        "maishapay": "MaishaPay: carts with a physical product and event passes.",
         "polar": "Polar: carts with kits only."
       },
       "erreurs": {

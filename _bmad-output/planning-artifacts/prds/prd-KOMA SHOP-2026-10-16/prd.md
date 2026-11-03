@@ -58,7 +58,7 @@ S'il y a consenti, il reçoit une Relance tous les 2 à 3 jours pendant 90 jours
 Amina vit hors d'Afrique et n'a pas de mobile money. Elle repère un Accessoire, mais la fiche la prévient avant l'ajout au Panier que les Produits physiques ne sont remis qu'à Goma et Bukavu, et lui propose le Kit correspondant. Elle achète le Kit et le paie par carte via Polar, puisque son Panier est un Panier 100 % numérique.
 
 **UJ-3b. Un client de Goma paie un panier mixte par carte.**
-Un client de Goma met un Kit et un Accessoire dans le même Panier et choisit la carte. Comme ce Panier mixte contient un Produit physique, Polar n'apparaît pas parmi les choix : la carte passe par K-Pay.
+Un client de Goma met un Kit et un Accessoire dans le même Panier et choisit la carte. Comme ce Panier mixte contient un Produit physique, Polar n'apparaît pas parmi les choix : la carte passe par MaishaPay.
 
 **UJ-4. Kevin, 19 ans, à Goma, découvre KOMA SHOP par la page d'accueil.**
 Kevin regarde des animes de samouraïs et de chasseurs de démons depuis le lycée. Un soir, sur Instagram, il voit une pub de 6 secondes : un plastron en mousse découpé, peint, puis porté. Il clique. Le site ne nomme jamais la franchise et n'affiche aucune image officielle : Kevin reconnaît de lui-même l'ambiance qu'il aime dans les créations de Jonathan.
@@ -69,7 +69,7 @@ Kevin regarde des animes de samouraïs et de chasseurs de démons depuis le lyc�
 *Le jour du lancement*, le bloc Kit gratuit et la Galerie restent masqués tant qu'ils n'ont pas de vrai contenu. À partir de la 5ᵉ semaine, Kevin aurait pu commencer par le Kit gratuit.
 
 **UJ-5. Divine, 23 ans, à Goma, achète des pass pour l'événement.**
-Divine apprend qu'un Événement se prépare, par l'Alerte événement « Me prévenir », le blog, Instagram ou une affiche. La page de l'Événement lui donne la date, le lieu, le programme et des photos. Elle compare les trois Types de pass : Standard (entrée simple, peu d'avantages), VIP (entrée avec des avantages en plus) et Stand (exposants, vendeurs, artistes ; valable pour deux personnes). Elle veut présenter ses dessins : elle prend un Pass Stand pour elle et son aide, et un Pass Standard pour sa sœur. Son Pass reprend les informations de son Compte ; elle saisit le nom de son aide et celui de sa sœur. Elle accepte la mention sur la publication des photos et vidéos de l'Événement. Elle paie à part, par mobile money ou par carte via K-Pay. Elle reçoit aussitôt par email ses trois Pass nominatifs, chacun avec son Code QR, et les retrouve dans son profil. C'est elle qui les transmet.
+Divine apprend qu'un Événement se prépare, par l'Alerte événement « Me prévenir », le blog, Instagram ou une affiche. La page de l'Événement lui donne la date, le lieu, le programme et des photos. Elle compare les trois Types de pass : Standard (entrée simple, peu d'avantages), VIP (entrée avec des avantages en plus) et Stand (exposants, vendeurs, artistes ; valable pour deux personnes). Elle veut présenter ses dessins : elle prend un Pass Stand pour elle et son aide, et un Pass Standard pour sa sœur. Son Pass reprend les informations de son Compte ; elle saisit le nom de son aide et celui de sa sœur. Elle accepte la mention sur la publication des photos et vidéos de l'Événement. Elle paie à part, par mobile money ou par carte via MaishaPay. Elle reçoit aussitôt par email ses trois Pass nominatifs, chacun avec son Code QR, et les retrouve dans son profil. C'est elle qui les transmet.
 Le jour J, un bénévole scanne chaque Code QR à l'entrée. L'écran affiche le Type de pass. Divine reçoit le bracelet des stands et on l'oriente vers l'espace exposants ; les Pass Standard et VIP ont leur propre bracelet. Un Pass déjà scanné est refusé. Après l'Événement, Divine reçoit un email avec le lien de la Galerie d'événement (Google Drive ou Google Photos) et peut demander le retrait d'une photo.
 **Cas limite :** jusqu'à 48 h avant l'Événement, elle aurait pu annuler un Pass et demander son remboursement. Jonathan valide chaque demande, et un pourcentage de frais est retenu.
 
@@ -109,7 +109,7 @@ Plus tard, deux Assistants l'aideront avec un rôle restreint (FR-53).
 - **Délai de paiement** — durée, réglée dans l'admin, pendant laquelle une Commande `en attente` réserve son stock et sa place dans le Plafond de fabrication.
 - **Trop-perçu** — paiement réussi reçu pour une Commande déjà payée, expirée ou impossible à honorer. Toujours signalé à l'Admin pour remboursement.
 - **Prestataire** — service de paiement : un Agrégateur mobile money ou Polar.
-- **Agrégateur** — PawaPay, K-Pay ou MaishaPay.
+- **Agrégateur** — PawaPay ou MaishaPay.
 - **Adaptateur** — module qui branche un Prestataire sur la couche de paiement commune.
 - **Couverture** — couples pays-opérateur qu'un Agrégateur sait encaisser.
 - **Ordre de priorité** — ordre des Agrégateurs réglé dans l'admin, utilisé pour choisir et pour basculer.
@@ -221,26 +221,26 @@ Avant de payer, le client voit le prix de chaque article en USD, le Forfait de l
 
 **Description :** décision de Jonathan du 2026-10-16, intégrée telle quelle. Elle remplace les règles 9 à 11 d'origine de `CLAUDE.md` et la section « Paiement et livraison » du guide.
 
-1. **Mobile money : plusieurs Agrégateurs en parallèle.** KOMA SHOP utilise trois Agrégateurs de mobile money : PawaPay, K-Pay et MaishaPay (GeniusPay abandonné le 2026-10-31). Objectif : couvrir plus de pays et d'opérateurs, et disposer d'une solution de secours si un Agrégateur est en panne. Le client choisit son pays et son opérateur ; le serveur choisit l'Agrégateur qui couvre ce couple pays-opérateur, selon un Ordre de priorité réglable dans l'admin. Si l'Agrégateur prioritaire échoue ou est désactivé, le serveur propose le suivant qui couvre le même couple. La Couverture de chaque Agrégateur n'est pas inventée : elle reste une question ouverte, à remplir depuis leur documentation officielle et les contrats marchands de Jonathan.
-2. **Carte bancaire pour les Produits physiques** (Cosplays, Accessoires) : paiement par carte via K-Pay. Jamais Polar. MaishaPay accepte aussi les cartes : solution de secours possible, à activer plus tard, non branchée au lancement.
-3. **Carte bancaire pour les Kits** : Polar, uniquement pour un Panier 100 % numérique. Dès qu'un Cosplay ou un Accessoire est dans le Panier, Polar disparaît des choix ; la carte passe par K-Pay.
-4. **Pass** : mobile money via les trois Agrégateurs, carte via K-Pay. Jamais Polar sans accord écrit de Polar (la vente de billets est une activité restreinte dans sa politique d'usage).
+1. **Mobile money : plusieurs Agrégateurs en parallèle.** KOMA SHOP utilise deux Agrégateurs de mobile money : PawaPay et MaishaPay (GeniusPay abandonné le 2026-10-31, K-Pay abandonné le 2026-11-03). Objectif : couvrir plus de pays et d'opérateurs, et disposer d'une solution de secours si un Agrégateur est en panne. Le client choisit son pays et son opérateur ; le serveur choisit l'Agrégateur qui couvre ce couple pays-opérateur, selon un Ordre de priorité réglable dans l'admin. Si l'Agrégateur prioritaire échoue ou est désactivé, le serveur propose le suivant qui couvre le même couple. La Couverture de chaque Agrégateur n'est pas inventée : elle reste une question ouverte, à remplir depuis leur documentation officielle et les contrats marchands de Jonathan.
+2. **Carte bancaire pour les Produits physiques** (Cosplays, Accessoires) : paiement par carte via MaishaPay. Jamais Polar. MaishaPay accepte la carte (CyberSource, USD et EURO) : c'est lui qui l'encaisse (décision du 2026-11-03, K-Pay abandonné).
+3. **Carte bancaire pour les Kits** : Polar, uniquement pour un Panier 100 % numérique. Dès qu'un Cosplay ou un Accessoire est dans le Panier, Polar disparaît des choix ; la carte passe par MaishaPay.
+4. **Pass** : mobile money via les deux Agrégateurs, carte via MaishaPay. Jamais Polar sans accord écrit de Polar (la vente de billets est une activité restreinte dans sa politique d'usage).
 5. Prix affichés en USD, identiques partout ; la conversion en devise locale est faite par le Prestataire.
 
 Réalise UJ-1, UJ-2, UJ-3, UJ-3b, UJ-5.
 
 #### FR-15 : Couche de paiement à Adaptateurs
 Le système encaisse via une couche de paiement commune, avec un Adaptateur par Prestataire. Ajouter ou retirer un Agrégateur ne touche pas au reste du site.
-- Adaptateurs au lancement : PawaPay (API v2, mobile money), K-Pay (mobile money et carte), MaishaPay (mobile money), Polar (carte, Kits). Ceux de K-Pay et MaishaPay sont construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation. Ils utilisent les comptes marchands de NATHANGROUP SARL, dont les clés restent dans les variables d'environnement.
+- Adaptateurs au lancement : PawaPay (API v2, mobile money), MaishaPay (mobile money et carte), Polar (carte, Kits). Celui de MaishaPay est construit à partir de la documentation officielle de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation. Ils utilisent les comptes marchands de NATHANGROUP SARL, dont les clés restent dans les variables d'environnement.
 
 #### FR-16 : Choix du moyen de paiement
 Le client choisit mobile money (pays + opérateur + numéro) ou carte. Le système ne propose que les Prestataires autorisés pour ce Panier ou cet achat de Pass, selon les points 1 à 4 du §4.4.
 - Le client choisit d'abord son pays. Si un Agrégateur actif couvre ce pays, le mobile money est proposé en premier ; sinon, seule la carte est proposée (Q-11 tranchée).
 - Avant de valider, le client lit « Paiement traité par {Prestataire} », en texte, sans logo de Prestataire.
-- Panier 100 % numérique alors que Polar est désactivé : la carte s'affiche « Carte indisponible » ; aucun autre Prestataire ne la remplace (K-Pay seulement sur accord écrit de Jonathan et mise à jour de la règle 10 de `CLAUDE.md`).
-- Panier mixte ou Panier avec Produit physique + carte → K-Pay ; Polar n'est jamais proposé.
+- Panier 100 % numérique alors que Polar est désactivé : la carte s'affiche « Carte indisponible » ; aucun autre Prestataire ne la remplace (MaishaPay seulement sur accord écrit de Jonathan et mise à jour de la règle 10 de `CLAUDE.md`).
+- Panier mixte ou Panier avec Produit physique + carte → MaishaPay ; Polar n'est jamais proposé.
 - Panier 100 % numérique + carte → Polar.
-- Pass + carte → K-Pay.
+- Pass + carte → MaishaPay.
 - Mobile money → l'Agrégateur actif prioritaire qui couvre le couple pays-opérateur.
 - Aucun Agrégateur actif ne couvre le couple → le client en est informé et invité à choisir un autre opérateur ou la carte. Aucun Prestataire n'est inventé.
 
@@ -350,7 +350,7 @@ Le visiteur s'inscrit à « Me prévenir » par email, par son Compte ou par num
 Le client connecté choisit un ou plusieurs Pass, d'un ou plusieurs Types de pass. Pour lui-même, le Pass reprend les informations de son Compte ; pour chaque autre personne, il saisit son nom. Un Pass Stand produit deux Pass nominatifs, pour le titulaire et pour son aide. Il n'y a pas de quota par Type de pass, seulement la Capacité facultative de l'Événement, vérifiée côté serveur au paiement. Réalise UJ-5.
 - L'achat de Pass est séparé du Panier de produits.
 - Le client accepte une mention : des photos et vidéos de l'Événement seront publiées.
-- Le paiement suit §4.4 (mobile money ou K-Pay, jamais Polar).
+- Le paiement suit §4.4 (mobile money ou MaishaPay, jamais Polar).
 
 #### FR-34 : Émission des Pass
 Dès le paiement vérifié, l'acheteur reçoit par email tous les Pass, chacun avec un Code QR unique, et les retrouve dans son profil. C'est lui qui les transmet.
@@ -492,7 +492,7 @@ Une fiche partagée sur WhatsApp ou un réseau social affiche la grande photo du
 
 ### 6.1 Lancement
 - Page d'accueil et pages vitrines (§4.1), catalogue et fiches (§4.2), Panier, Compte et commande (§4.3).
-- Paiement : mobile money via PawaPay, K-Pay et MaishaPay (K-Pay et MaishaPay construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation), carte via K-Pay (Produits physiques et Pass) et via Polar (Paniers 100 % numériques) (§4.4).
+- Paiement : mobile money via PawaPay et MaishaPay (MaishaPay construit à partir de la documentation officielle de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation), carte via MaishaPay (Produits physiques et Pass) et via Polar (Paniers 100 % numériques) (§4.4).
 - Remise à Goma et Bukavu, retrait à Goma, suivi manuel, annulation, réclamation et remplacement (§4.5).
 - Bibliothèque de kits (§4.6).
 - Événements, Pass, Scan avec mode hors ligne, Accès bénévole (§4.7).
@@ -502,7 +502,7 @@ Une fiche partagée sur WhatsApp ou un réseau social affiche la grande photo du
 
 **Conditions d'ouverture** (toutes requises) :
 - au moins un Agrégateur couvrant la RDC (M-Pesa, Airtel Money, Orange Money, Africell), documenté et testé avec de vrais petits paiements ;
-- K-Pay carte opérationnel ;
+- MaishaPay carte opérationnel ;
 - textes légaux validés et en ligne (Q-5) ;
 - au moins un Kit filmé et des Produits publiés.
 
@@ -550,8 +550,8 @@ Les autres Agrégateurs et Polar s'ajoutent dès qu'ils sont prêts, sans bloque
 |---|---|---|---|
 | R-1 | Un seul créateur face à un périmètre large (boutique, Événements, Blog, Relances, Codes promo) | Délais non tenus, site incomplet au lancement | Plafond de fabrication ; blocs masqués sans contenu ; Assistants plus tard ; suivi de SM-C1 |
 | R-2 | Contenu de lancement insuffisant | Rien à vendre au cœur du projet | Selon Jonathan, des Kits sont déjà filmés et des Produits prêts ; un Kit filmé reste une condition d'ouverture (§6.1) |
-| R-3 | Documentation et Couverture des Agrégateurs pas encore transmises | Adaptateurs impossibles à développer | Selon Jonathan, les trois couvrent la RDC et sont testés ; documents à transmettre (Q-1) ; un seul Agrégateur suffit pour ouvrir (§6.1) |
-| R-4 | K-Pay refuse les pièces « inspirées de » ou les Pass | Plus de paiement par carte pour le physique ou les Pass | K-Pay déjà en production avec un compte marchand de NATHANGROUP SARL (Q-14 réglée) ; avis juridique (Q-7) |
+| R-3 | Documentation et Couverture des Agrégateurs pas encore transmises | Adaptateurs impossibles à développer | Selon Jonathan, PawaPay et MaishaPay couvrent la RDC et sont testés ; documents à transmettre (Q-1) ; un seul Agrégateur suffit pour ouvrir (§6.1) |
+| R-4 | MaishaPay refuse les pièces « inspirées de » ou les Pass | Plus de paiement par carte pour le physique ou les Pass | compte marchand MaishaPay de NATHANGROUP SARL à créer pour KOMA SHOP, carte à confirmer (Q-14 rouverte le 2026-11-03) ; avis juridique (Q-7) |
 | R-5 | Polar ne verse pas les fonds à une société en RDC | Ventes de Kits par carte bloquées | Compte Polar déjà vérifié au nom de NATHANGROUP SARL (Q-13 réglée) |
 | R-6 | Double débit ou paiement perdu lors d'un repli | Perte de confiance, remboursements manuels | Tentatives de paiement, aucun repli sur délai dépassé, Trop-perçus signalés (FR-17, FR-19) |
 | R-7 | Partage des Fichiers de kit | Ventes perdues | Liens signés et Licence de kit ; risque accepté : la confiance et la proximité protègent mieux qu'une barrière technique |
@@ -576,13 +576,13 @@ Les autres Agrégateurs et Polar s'ajoutent dès qu'ils sont prêts, sans bloque
 
 ## 11. Questions ouvertes
 
-1. **Q-1 Couverture des Agrégateurs** : tableau des pays et opérateurs couverts par PawaPay, K-Pay et MaishaPay, tiré de leur documentation et des contrats marchands de Jonathan. Pour la RDC, Jonathan indique M-Pesa, Airtel Money, Orange Money et Africell chez les trois. *Bloque FR-16 en production.*
-2. **Q-2 (abandonnée le 2026-10-31)** : GeniusPay n'est plus utilisé. K-Pay et MaishaPay : leurs Adaptateurs sont construits à partir de la documentation officielle de K-Pay et de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation.
+1. **Q-1 Couverture des Agrégateurs** : tableau des pays et opérateurs couverts par PawaPay et MaishaPay, tiré de leur documentation et des contrats marchands de Jonathan. Pour la RDC, Jonathan indique M-Pesa, Airtel Money, Orange Money et Africell chez les deux. *Bloque FR-16 en production.*
+2. **Q-2 (abandonnée le 2026-10-31)** : GeniusPay n'est plus utilisé. MaishaPay : son Adaptateur est construit à partir de la documentation officielle de MaishaPay, fournie par Jonathan dans `docs/references/paiements/` (hors dépôt) ; couverture pays-opérateur (Q-1) et contrôle du montant reçu (Q-3) tirés de cette documentation.
 3. **Q-3 Devise débitée** : chaque Prestataire débite-t-il en USD ou convertit-il ? Quel montant afficher au client au moment de valider ?
 4. **Q-4 Remboursements par API** : chaque Prestataire permet-il de rembourser par son API (annulation de Cosplay, Pass) ? Sinon, comment Jonathan rembourse-t-il à la main ?
 5. **Q-5 Textes légaux** : mentions légales, CGV, livraison et retours, confidentialité et cookies, mention sur le droit à l'image des Événements, conditions de l'opération « 10 pass gratuits », identifiants RCCM, Id. Nat. et NIF. À valider par un juriste : âge minimum de 13 ans et Emails commerciaux envoyés aux mineurs, publication des photos d'événement sur la seule mention acceptée par l'acheteur. Un brouillon des CGV et de la politique de confidentialité sera préparé dans une session séparée, puis validé par un juriste avant la première vente.
 6. **Q-6 Remplacement impossible** : si un Produit physique défectueux ne peut être ni remplacé ni refabriqué, l'absence de remboursement doit être validée par un juriste dans les CGV.
-7. **Q-7 Avis juridique sur la propriété intellectuelle** : vendre des pièces « inspirées de » sans nommer la franchise, et acceptation de ces pièces par K-Pay.
+7. **Q-7 Avis juridique sur la propriété intellectuelle** : vendre des pièces « inspirées de » sans nommer la franchise, et acceptation de ces pièces par MaishaPay.
 9. **Q-9 Numéro de suivi** : que représente-t-il pour une remise à Bukavu (bateau, agence) ?
 10. **Q-10 Ressources à fournir** : photos et vidéo du héros, email admin, numéro WhatsApp, liens des réseaux sociaux, premiers Kits filmés. Le domaine relève de Q-D1.
 11. **Q-11 Ordre d'affichage des moyens de paiement** : *tranchée le 2026-10-17 (UX)* — pays d'abord ; mobile money en premier si un Agrégateur actif couvre ce pays, sinon carte seule (FR-16).
@@ -593,7 +593,7 @@ Les autres Agrégateurs et Polar s'ajoutent dès qu'ils sont prêts, sans bloque
 **Tranchées depuis (retirées de la liste ci-dessus) :**
 - **Q-8 Hébergement des Vidéos de kit** : bibliothèque Bunny Stream privée, lecture par jeton signé de courte durée (décision d'architecture du 2026-10-20 ; `CLAUDE.md` règle 1 ; spine d'architecture AD-11).
 - **Q-13 Polar et la RDC** : réglée le 2026-10-20 ; le compte Polar de Jonathan est déjà vérifié au nom de NATHANGROUP SARL.
-- **Q-14 K-Pay et le catalogue** : réglée le 2026-10-20 ; K-Pay est déjà en production avec un compte marchand de NATHANGROUP SARL, carte activée.
+- **Q-14 MaishaPay et le catalogue** : rouverte le 2026-11-03 (K-Pay abandonné). Jonathan crée une application dédiée « KOMA SHOP » chez MaishaPay ; à confirmer : carte activée, acceptation des pièces « inspirées de » et des Pass.
 - **Q-15 Sous-titres anglais des Vidéos de kit** : tranchée le 2026-10-20 ; facultatifs au lancement, la fiche `/en` d'un Kit sans sous-titres anglais l'indique (FR-29, FR-50).
 
 ## 12. Hypothèses confirmées

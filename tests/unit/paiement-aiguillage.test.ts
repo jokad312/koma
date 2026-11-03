@@ -2,13 +2,12 @@ import { describe, expect, it } from "vitest";
 import { choisirPrestataire, type EntreeAiguillage } from "@/modules/paiement/aiguillage";
 import type { Achat, CodePrestataire, Couverture } from "@/modules/paiement/types";
 
-const TOUS: CodePrestataire[] = ["pawapay", "kpay", "maishapay", "polar"];
-const ORDRE: CodePrestataire[] = ["pawapay", "kpay", "maishapay"];
+const TOUS: CodePrestataire[] = ["pawapay", "maishapay", "polar"];
+const ORDRE: CodePrestataire[] = ["pawapay", "maishapay"];
 const COUVERTURE: Couverture = [
   { prestataire: "pawapay", pays: "CD", operateur: "TEST_op_a" },
-  { prestataire: "kpay", pays: "CD", operateur: "TEST_op_a" },
   { prestataire: "maishapay", pays: "CD", operateur: "TEST_op_a" },
-  { prestataire: "kpay", pays: "CD", operateur: "TEST_op_b" },
+  { prestataire: "maishapay", pays: "CD", operateur: "TEST_op_b" },
 ];
 
 function entree(s: Partial<EntreeAiguillage> & { achat: Achat }): EntreeAiguillage {
@@ -22,15 +21,15 @@ const mixte: Achat = { familles: ["cosplay", "kit"], estPass: false };
 const pass: Achat = { familles: [], estPass: true };
 
 describe("choisirPrestataire : carte (règle 10)", () => {
-  it("Panier avec un Produit physique + carte : K-Pay", () => {
-    expect(choisirPrestataire(entree({ achat: physique }))).toEqual({ statut: "ok", prestataire: "kpay" });
-    expect(choisirPrestataire(entree({ achat: accessoire }))).toEqual({ statut: "ok", prestataire: "kpay" });
+  it("Panier avec un Produit physique + carte : MaishaPay", () => {
+    expect(choisirPrestataire(entree({ achat: physique }))).toEqual({ statut: "ok", prestataire: "maishapay" });
+    expect(choisirPrestataire(entree({ achat: accessoire }))).toEqual({ statut: "ok", prestataire: "maishapay" });
   });
-  it("Panier mixte (physique + Kit) + carte : K-Pay, jamais Polar", () => {
-    expect(choisirPrestataire(entree({ achat: mixte }))).toEqual({ statut: "ok", prestataire: "kpay" });
+  it("Panier mixte (physique + Kit) + carte : MaishaPay, jamais Polar", () => {
+    expect(choisirPrestataire(entree({ achat: mixte }))).toEqual({ statut: "ok", prestataire: "maishapay" });
   });
-  it("Pass + carte : K-Pay, jamais Polar", () => {
-    expect(choisirPrestataire(entree({ achat: pass }))).toEqual({ statut: "ok", prestataire: "kpay" });
+  it("Pass + carte : MaishaPay, jamais Polar", () => {
+    expect(choisirPrestataire(entree({ achat: pass }))).toEqual({ statut: "ok", prestataire: "maishapay" });
   });
   it("Panier 100 % numérique + carte : Polar", () => {
     expect(choisirPrestataire(entree({ achat: kits }))).toEqual({ statut: "ok", prestataire: "polar" });
@@ -39,10 +38,10 @@ describe("choisirPrestataire : carte (règle 10)", () => {
     const sansPolar = TOUS.filter((c) => c !== "polar");
     expect(choisirPrestataire(entree({ achat: kits, prestatairesActifs: sansPolar }))).toEqual({ statut: "indisponible", raison: "carte_indisponible" });
   });
-  it("Produit physique + carte, K-Pay inactif : indisponible, Polar ne remplace jamais K-Pay", () => {
-    const sansKpay = TOUS.filter((c) => c !== "kpay");
+  it("Produit physique + carte, MaishaPay inactif : indisponible, Polar ne remplace jamais MaishaPay", () => {
+    const sansMaisha = TOUS.filter((c) => c !== "maishapay");
     for (const achat of [physique, mixte, pass]) {
-      expect(choisirPrestataire(entree({ achat, prestatairesActifs: sansKpay }))).toEqual({ statut: "indisponible", raison: "carte_indisponible" });
+      expect(choisirPrestataire(entree({ achat, prestatairesActifs: sansMaisha }))).toEqual({ statut: "indisponible", raison: "carte_indisponible" });
     }
   });
   it("seul Polar actif : un Panier mixte ou un Pass n'a aucune carte", () => {
@@ -65,21 +64,20 @@ describe("choisirPrestataire : mobile money (règle 9)", () => {
     expect(choisirPrestataire(mm())).toEqual({ statut: "ok", prestataire: "pawapay" });
   });
   it("l'Ordre de priorité décide, pas l'ordre alphabétique ni celui des Prestataires actifs", () => {
-    expect(choisirPrestataire(mm({ ordre: ["maishapay", "kpay", "pawapay"] }))).toEqual({ statut: "ok", prestataire: "maishapay" });
-    expect(choisirPrestataire(mm({ ordre: ["kpay", "pawapay", "maishapay"], prestatairesActifs: ["maishapay", "pawapay", "kpay"] }))).toEqual({ statut: "ok", prestataire: "kpay" });
+    expect(choisirPrestataire(mm({ ordre: ["maishapay", "pawapay"] }))).toEqual({ statut: "ok", prestataire: "maishapay" });
+    expect(choisirPrestataire(mm({ ordre: ["pawapay", "maishapay"], prestatairesActifs: ["maishapay", "pawapay"] }))).toEqual({ statut: "ok", prestataire: "pawapay" });
   });
   it("un Agrégateur désactivé est ignoré : le suivant du même couple est proposé", () => {
-    expect(choisirPrestataire(mm({ prestatairesActifs: ["kpay", "maishapay", "polar"] }))).toEqual({ statut: "ok", prestataire: "kpay" });
+    expect(choisirPrestataire(mm({ prestatairesActifs: ["maishapay", "polar"] }))).toEqual({ statut: "ok", prestataire: "maishapay" });
   });
   it("repli : l'Agrégateur dont une Tentative a échoué côté Prestataire est exclu, le suivant du même couple passe", () => {
-    expect(choisirPrestataire(mm({ exclus: ["pawapay"] }))).toEqual({ statut: "ok", prestataire: "kpay" });
-    expect(choisirPrestataire(mm({ exclus: ["pawapay", "kpay"] }))).toEqual({ statut: "ok", prestataire: "maishapay" });
+    expect(choisirPrestataire(mm({ exclus: ["pawapay"] }))).toEqual({ statut: "ok", prestataire: "maishapay" });
   });
   it("tous les Agrégateurs du couple exclus : indisponible, aucun Prestataire inventé", () => {
-    expect(choisirPrestataire(mm({ exclus: ["pawapay", "kpay", "maishapay"] }))).toEqual({ statut: "indisponible", raison: "mobile_money_indisponible" });
+    expect(choisirPrestataire(mm({ exclus: ["pawapay", "maishapay"] }))).toEqual({ statut: "indisponible", raison: "mobile_money_indisponible" });
   });
   it("un Agrégateur qui ne couvre pas le couple est sauté", () => {
-    expect(choisirPrestataire(mm({ operateur: "TEST_op_b" }))).toEqual({ statut: "ok", prestataire: "kpay" });
+    expect(choisirPrestataire(mm({ operateur: "TEST_op_b" }))).toEqual({ statut: "ok", prestataire: "maishapay" });
   });
   it("couple couvert par personne : indisponible", () => {
     expect(choisirPrestataire(mm({ operateur: "TEST_op_inconnu" })).statut).toBe("indisponible");

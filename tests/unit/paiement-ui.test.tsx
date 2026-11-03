@@ -28,8 +28,7 @@ import { ListePrestataires, type PrestataireAdmin } from "@/components/admin/Lis
 
 const base: PrestataireAdmin[] = [
   { code: "pawapay", nom: "TEST_PawaPay", type: "agregateur", mobileMoney: true, carte: false, actif: false, ordre: 1, adaptateurBranche: true, couples: [] },
-  { code: "kpay", nom: "TEST_K-Pay", type: "agregateur", mobileMoney: true, carte: true, actif: true, ordre: 2, adaptateurBranche: true, couples: [] },
-  { code: "maishapay", nom: "TEST_MaishaPay", type: "agregateur", mobileMoney: true, carte: false, actif: false, ordre: 3, adaptateurBranche: false, couples: [] },
+  { code: "maishapay", nom: "TEST_MaishaPay", type: "agregateur", mobileMoney: true, carte: true, actif: true, ordre: 2, adaptateurBranche: true, couples: [] },
   { code: "polar", nom: "TEST_Polar", type: "carte", mobileMoney: false, carte: true, actif: false, ordre: null, adaptateurBranche: false, couples: [] },
 ];
 
@@ -42,12 +41,12 @@ beforeEach(() => {
 describe("ListePrestataires (admin)", () => {
   it("affiche « Actif » ou « Désactivé » d'après la base, l'ordre de priorité et la règle de la carte verrouillée", () => {
     rendre(<ListePrestataires prestataires={base} />);
-    const kpay = screen.getByRole("heading", { name: "TEST_K-Pay" }).closest("li") as HTMLElement;
-    expect(within(kpay).getByText("Actif")).toBeTruthy();
-    expect(within(kpay).getByText("Ordre de priorité : 2")).toBeTruthy();
+    const maishapay = screen.getByRole("heading", { name: "TEST_MaishaPay" }).closest("li") as HTMLElement;
+    expect(within(maishapay).getByText("Actif")).toBeTruthy();
+    expect(within(maishapay).getByText("Ordre de priorité : 2")).toBeTruthy();
     expect(within(screen.getByRole("heading", { name: "TEST_PawaPay" }).closest("li") as HTMLElement).getByText("Désactivé")).toBeTruthy();
     expect(screen.getByText("Règle de la carte (verrouillée)")).toBeTruthy();
-    expect(screen.getByText("K-Pay : paniers avec un produit physique et pass d'événement.")).toBeTruthy();
+    expect(screen.getByText("MaishaPay : paniers avec un produit physique et pass d'événement.")).toBeTruthy();
     expect(screen.getByText("Polar : paniers 100 % kits.")).toBeTruthy();
   });
   it("activer un Prestataire : appelle le serveur puis relit la liste", async () => {
@@ -58,8 +57,8 @@ describe("ListePrestataires (admin)", () => {
   });
   it("désactiver un Prestataire actif", async () => {
     rendre(<ListePrestataires prestataires={base} />);
-    await userEvent.click(screen.getByRole("button", { name: "Désactiver TEST_K-Pay" }));
-    expect(faux.changer).toHaveBeenCalledWith({ code: "kpay", actif: false });
+    await userEvent.click(screen.getByRole("button", { name: "Désactiver TEST_MaishaPay" }));
+    expect(faux.changer).toHaveBeenCalledWith({ code: "maishapay", actif: false });
   });
   it("un Prestataire sans adaptateur ne peut pas être activé : bouton bloqué avec sa raison, aucun appel", async () => {
     rendre(<ListePrestataires prestataires={base} />);
@@ -80,7 +79,7 @@ describe("ListePrestataires (admin)", () => {
   it("erreur du serveur : message en alerte, la liste est quand même relue", async () => {
     faux.changer.mockResolvedValue({ ok: false, erreur: "non_autorise" });
     rendre(<ListePrestataires prestataires={base} />);
-    await userEvent.click(screen.getByRole("button", { name: "Désactiver TEST_K-Pay" }));
+    await userEvent.click(screen.getByRole("button", { name: "Désactiver TEST_MaishaPay" }));
     expect((await screen.findByRole("alert")).textContent).toContain("Tu n'as plus le droit de gérer les prestataires");
     expect(faux.refresh).toHaveBeenCalled();
   });

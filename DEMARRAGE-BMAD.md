@@ -58,7 +58,7 @@ Règle d'or : **une nouvelle session Claude Code pour chaque commande** (tape `/
 
 **Phrase à donner au premier agent** (et à réutiliser si un agent te demande le contexte) :
 
-> Le projet est KOMA SHOP. Toute la vision, les règles métier, la technique, le paiement, le design, le SEO et les phases sont dans `docs/guide-koma-shop.md`. Lis-le en entier avant de commencer. Les règles de `CLAUDE.md` sont non négociables, en particulier : K-Pay pour tout panier avec un produit physique, Polar uniquement pour les kits numériques, livraison faite à la main par le créateur, et interdiction de simuler un paiement ou une fonctionnalité.
+> Le projet est KOMA SHOP. Toute la vision, les règles métier, la technique, le paiement, le design, le SEO et les phases sont dans `docs/guide-koma-shop.md`. Lis-le en entier avant de commencer. Les règles de `CLAUDE.md` sont non négociables, en particulier : MaishaPay (carte) pour tout panier avec un produit physique, Polar uniquement pour les kits numériques, livraison faite à la main par le créateur, et interdiction de simuler un paiement ou une fonctionnalité.
 
 Ce que tu dois apporter pendant ces étapes : le nom de domaine, les langues du site, les zones de livraison, le lien du dépôt de référence design, et tes photos (à mettre dans un dossier `assets/photos/` le moment venu).
 
@@ -86,4 +86,4 @@ Après chaque story validée : teste toi-même sur ton téléphone, puis `git ad
 
 - Ne modifie pas `_bmad/config.toml` à la main : l'installateur le réécrit. Pour changer un réglage, relance l'installation ou utilise `/bmad-customize`.
 - Mettre à jour BMad plus tard : `npx bmad-method@latest install` dans ce dossier, puis choisis « update ».
-- Les clés secrètes (K-Pay, Supabase, Resend) vont dans `.env.local`, jamais dans le chat ni sur GitHub.
+- Les clés secrètes (MaishaPay, PawaPay, Supabase, Resend) vont dans `.env.local`, jamais dans le chat ni sur GitHub.

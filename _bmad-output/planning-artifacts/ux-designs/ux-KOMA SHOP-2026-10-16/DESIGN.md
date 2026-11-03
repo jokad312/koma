@@ -787,7 +787,7 @@ Spécifications visuelles ; le comportement est dans `EXPERIENCE.md` § Componen
 | Structure 1win (héros + tuiles, rangées, accordéons) | Esthétique casino : néons clignotants, jetons, comptes à rebours, badges « bonus » |
 | Filet décoratif `border` comme séparateur | `border` comme contour d'un contrôle interactif (1,24:1) |
 | `border-field` (≥ 3:1) sur champs, boutons secondaires, segments, filtres, cartes de paiement | Sélection portée par la couleur seule ou par une ombre seule |
-| Noms d'opérateurs, de Prestataires et de moyens de paiement **en texte** | Logos d'opérateurs mobile money, de Prestataires (K-Pay, Polar, PawaPay…) ou de réseaux de carte (Visa, Mastercard) sans autorisation écrite |
+| Noms d'opérateurs, de Prestataires et de moyens de paiement **en texte** | Logos d'opérateurs mobile money, de Prestataires (MaishaPay, Polar, PawaPay…) ou de réseaux de carte (Visa, Mastercard) sans autorisation écrite |
 | Logo principal horizontal dans le coin gauche ; couleur sur crème, inverse sur sombre | Logo recoloré, déformé, ombré |
 | Écran de Scan : couleur + mot + icône + Type de pass écrit | Résultat de Scan signalé par la couleur seule |
 | Graphique admin : valeur écrite sur chaque barre + tableau de données | Graphique sans valeur, couleur par série, rouge comme seul repère |

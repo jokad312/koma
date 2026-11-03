@@ -20,7 +20,7 @@ export type EntreeAiguillage = {
 };
 
 // Seule source du choix de Prestataire (AD-6, règles 9 à 11). Fonction pure : les Familles viennent de la base, lues par le service.
-//  - carte + Pass, ou carte + au moins un Produit physique (cosplay, accessoire) : K-Pay, jamais Polar ;
+//  - carte + Pass, ou carte + au moins un Produit physique (cosplay, accessoire) : MaishaPay, jamais Polar ;
 //  - carte + Panier 100 % numérique (Kits) : Polar, sinon « carte indisponible » ;
 //  - mobile money : premier Agrégateur actif, non exclu, qui couvre le couple pays-opérateur, dans l'ordre de priorité.
 export function choisirPrestataire(entree: EntreeAiguillage): ChoixPrestataire {
@@ -31,7 +31,7 @@ export function choisirPrestataire(entree: EntreeAiguillage): ChoixPrestataire {
     if (!achat.estPass && achat.familles.length === 0) return { statut: "indisponible", raison: "carte_indisponible" };
     const physique = achat.familles.some((f) => f === "cosplay" || f === "accessoire");
     if (achat.estPass || physique) {
-      return actifs.has("kpay") ? { statut: "ok", prestataire: "kpay" } : { statut: "indisponible", raison: "carte_indisponible" };
+      return actifs.has("maishapay") ? { statut: "ok", prestataire: "maishapay" } : { statut: "indisponible", raison: "carte_indisponible" };
     }
     return actifs.has("polar") ? { statut: "ok", prestataire: "polar" } : { statut: "indisponible", raison: "carte_indisponible" };
   }

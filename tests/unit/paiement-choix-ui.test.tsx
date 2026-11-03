@@ -25,11 +25,11 @@ import type { OptionsPaiement } from "@/modules/paiement/service";
 const NUMERO = "KS-2026-000042";
 const AUCUN: OptionsPaiement = { carte: { disponible: false }, mobileMoney: { disponible: false, pays: [] } };
 const COMPLET: OptionsPaiement = {
-  carte: { disponible: true, prestataire: { code: "kpay", nom: "TEST_K-Pay" } },
+  carte: { disponible: true, prestataire: { code: "maishapay", nom: "TEST_MaishaPay" } },
   mobileMoney: {
     disponible: true,
     pays: [
-      { code: "TZ", operateurs: [{ nom: "TEST_a", agregateur: "TEST_PawaPay" }, { nom: "TEST_b", agregateur: "TEST_K-Pay" }] },
+      { code: "TZ", operateurs: [{ nom: "TEST_a", agregateur: "TEST_PawaPay" }, { nom: "TEST_b", agregateur: "TEST_MaishaPay" }] },
       { code: "KE", operateurs: [{ nom: "TEST_c", agregateur: "TEST_MaishaPay" }] },
     ],
   },
@@ -51,7 +51,7 @@ describe("ChoixPaiement : disponibilité (UX-DR34, UX-DR36)", () => {
   });
   it("carte autorisée : « Paiement traité par {Prestataire} » en texte, sans logo, avant le bouton", () => {
     const { container } = rendre(<ChoixPaiement numero={NUMERO} options={{ ...AUCUN, carte: COMPLET.carte }} />);
-    expect(screen.getByText("Paiement traité par TEST_K-Pay")).toBeTruthy();
+    expect(screen.getByText("Paiement traité par TEST_MaishaPay")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Payer par carte" })).toBeTruthy();
     expect(container.querySelector("img, svg")).toBeNull();
   });
@@ -94,7 +94,7 @@ describe("ChoixPaiement : pays, opérateur, numéro (UX-DR33)", () => {
     await userEvent.selectOptions(screen.getByLabelText("Opérateur"), "TEST_a");
     expect(screen.getByText("Paiement traité par TEST_PawaPay")).toBeTruthy();
     await userEvent.selectOptions(screen.getByLabelText("Opérateur"), "TEST_b");
-    expect(screen.getAllByText("Paiement traité par TEST_K-Pay").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Paiement traité par TEST_MaishaPay").length).toBeGreaterThan(0);
   });
   it("« Autre pays » : le mobile money n'est pas proposé, la carte reste", async () => {
     rendre(<ChoixPaiement numero={NUMERO} options={COMPLET} />);

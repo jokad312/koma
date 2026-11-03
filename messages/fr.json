@@ -1401,7 +1401,7 @@
       "adaptateurAbsent": "Adaptateur pas encore branché : ce prestataire ne peut pas être activé.",
       "regleCarte": {
         "titre": "Règle de la carte (verrouillée)",
-        "kpay": "K-Pay : paniers avec un produit physique et pass d'événement.",
+        "maishapay": "MaishaPay : paniers avec un produit physique et pass d'événement.",
         "polar": "Polar : paniers 100 % kits."
       },
       "erreurs": {

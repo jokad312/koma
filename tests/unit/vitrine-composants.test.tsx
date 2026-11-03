@@ -202,9 +202,9 @@ describe("PiedDePage : carte Aide", () => {
         </NextIntlClientProvider>,
       );
     expect(await html()).not.toContain("pied-paiement");
-    moyensActifs.mockResolvedValue([{ code: "kpay", nom: "TEST_K-Pay", moyens: ["mobile_money", "carte"] }]);
+    moyensActifs.mockResolvedValue([{ code: "maishapay", nom: "TEST_MaishaPay", moyens: ["mobile_money", "carte"] }]);
     const avec = await html();
-    expect(avec).toContain("TEST_K-Pay : mobile money, carte");
+    expect(avec).toContain("TEST_MaishaPay : mobile money, carte");
     expect(avec).not.toContain("Polar");
   });
 

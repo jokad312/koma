@@ -36,7 +36,8 @@ tracking_system: file-system
 story_location: _bmad-output/implementation-artifacts
 # NOTES KOMA SHOP (2026-10-21)
 # - Epic 7 : ne démarre qu'après le bmad-correct-course de la candidature Stand (Q-C1, FR-33 et AD-7), puis ajout de la story 7.11.
-# - Stories bloquées (restent en backlog) : Q-S1 (documentation K-Pay et MaishaPay : 5.4, 5.5, 5.6), Q-1 / Q-3 (5.4 à 5.7) ; GeniusPay abandonné le 2026-10-31 (5.8 retirée),
+# - K-Pay abandonné le 2026-11-03 : stories 5.4 et 5.5 retirées (numéros non réutilisés) ; carte physique/Pass via MaishaPay (nouvelle story 5.9) ; socle de confirmation extrait de la 4.7 (nouvelle story 4.8).
+# - Stories bloquées (restent en backlog) : Q-1 / Q-3 (activation de MaishaPay 5.6 et 5.9, et 5.7) ; GeniusPay abandonné le 2026-10-31 (5.8 retirée),
 #   Q-D1 (9.9 mise en ligne). Story 5.8 (GeniusPay) retirée le 2026-10-31 ; 6.4 et 6.5 redéfinies (E-10 abandonné), plus bloquées.
 # - Story 1.1 : la protection de la branche production sur GitHub est faite par Jonathan ; le réglage hPanel est dans la story 9.9.
 development_status:
@@ -80,15 +81,15 @@ development_status:
   4-5-couche-de-paiement-aiguilleur-et-admin-des-prestataires: done
   4-6-page-de-retour-attente-et-état-réel-de-la-commande: done
   4-7-paiement-d-un-kit-par-carte-via-polar: backlog
+  4-8-socle-de-confirmation-du-paiement: backlog
   epic-4-retrospective: optional
 
   epic-5: backlog
   5-1-saisie-de-la-couverture-des-agrégateurs: done
   5-2-choix-du-mobile-money-par-le-client: done
   5-3-écran-d-attente-mobile-money-et-repli-entre-agrégateurs: done
-  5-4-paiement-mobile-money-via-k-pay: backlog
-  5-5-paiement-par-carte-via-k-pay-produits-physiques-et-paniers-m: backlog
   5-6-paiement-mobile-money-via-maishapay: backlog
+  5-9-paiement-par-carte-via-maishapay-produits-physiques-paniers-mixtes-et-pass: backlog
   5-7-paiement-mobile-money-via-pawapay: backlog
   epic-5-retrospective: optional
 
