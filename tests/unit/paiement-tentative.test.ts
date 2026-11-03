@@ -120,9 +120,41 @@ describe("demarrerTentative : carte (règle 10)", () => {
   it("panier avec un Produit physique : MaishaPay, la redirection du Prestataire est renvoyée", async () => {
     const maishapay = creerPrestataireTest({ code: "maishapay", initiation: { statut: "initie", referenceTransaction: "TEST-TX-9", redirection: "https://TEST.invalid/payer" } });
     const d = deps({}, { maishapay, polar: creerPrestataireTest({ code: "polar" }) });
-    await expect(demarrerTentative(d, carte)).resolves.toEqual({ ok: true, redirection: "https://TEST.invalid/payer" });
+    await expect(demarrerTentative(d, { ...carte, reseauCarte: "VISA", nomPayeur: "Test Payeur", telephone: "+243990000000" })).resolves.toEqual({ ok: true, redirection: "https://TEST.invalid/payer" });
     expect(d.enregistrerInitiation).toHaveBeenCalledWith("TEST_tentative", "TEST-TX-9");
-    expect((d.demarrer as ReturnType<typeof vi.fn>).mock.calls[0][0]).toMatchObject({ prestataire: "maishapay", moyen: "carte", pays: null, operateur: null, telephoneMasque: null });
+    expect((d.demarrer as ReturnType<typeof vi.fn>).mock.calls[0][0]).toMatchObject({ prestataire: "maishapay", moyen: "carte", pays: null, operateur: null, telephoneMasque: "+243••••••000" });
+  });
+  it("carte MaishaPay : réseau, nom et téléphone du payeur validés côté serveur puis transmis ; le téléphone n'est gardé que masqué", async () => {
+    const maishapay = creerPrestataireTest({ code: "maishapay", initiation: { statut: "initie", referenceTransaction: "TEST-TX-9", redirection: "https://TEST.invalid/payer" } });
+    const d = deps({}, { maishapay });
+    const saisie = { ...carte, reseauCarte: "mastercard", nomPayeur: "  Test   Payeur ", telephone: "+243 990 000 000" };
+    await expect(demarrerTentative(d, saisie)).resolves.toEqual({ ok: true, redirection: "https://TEST.invalid/payer" });
+    expect(maishapay.appels[0]).toMatchObject({ reseauCarte: "MASTERCARD", contact: { nom: "Test Payeur", telephone: "+243990000000" } });
+    expect((d.demarrer as ReturnType<typeof vi.fn>).mock.calls[0][0]).toMatchObject({ telephoneMasque: "+243••••••000" });
+  });
+  it("carte MaishaPay : réseau, nom ou téléphone invalides refusés avant toute Tentative", async () => {
+    const ok = { ...carte, reseauCarte: "VISA", nomPayeur: "Test Payeur", telephone: "+243990000000" };
+    const cas: Array<[Record<string, unknown>, string]> = [
+      [{ reseauCarte: "AMEX" }, "reseau_carte_invalide"],
+      [{ reseauCarte: null }, "reseau_carte_invalide"],
+      [{ nomPayeur: "A" }, "nom_payeur_invalide"],
+      [{ nomPayeur: "<script>" }, "nom_payeur_invalide"],
+      [{ nomPayeur: "x".repeat(101) }, "nom_payeur_invalide"],
+      [{ telephone: "0990000000" }, "telephone_invalide"],
+    ];
+    for (const [modif, erreur] of cas) {
+      const maishapay = creerPrestataireTest({ code: "maishapay" });
+      const d = deps({}, { maishapay });
+      await expect(demarrerTentative(d, { ...ok, ...modif })).resolves.toEqual({ ok: false, erreur });
+      expect(d.demarrer).not.toHaveBeenCalled();
+      expect(maishapay.appels).toHaveLength(0);
+    }
+  });
+  it("carte Polar (panier 100 % Kits) : aucune donnée d'identité n'est demandée ni transmise", async () => {
+    const polar = creerPrestataireTest({ code: "polar" });
+    const d = deps({ commande: vi.fn(async () => ({ id: "c", achat: { familles: ["kit" as const], estPass: false }, contact: { email: null, nom: null } })) }, { polar, maishapay: creerPrestataireTest({ code: "maishapay" }) });
+    await demarrerTentative(d, { ...carte, reseauCarte: "VISA", nomPayeur: "Test Payeur", telephone: "+243990000000" });
+    expect(polar.appels[0]).toMatchObject({ reseauCarte: null, contact: { telephone: null } });
   });
   it("panier mixte ou Pass : jamais Polar", async () => {
     const polar = creerPrestataireTest({ code: "polar" });

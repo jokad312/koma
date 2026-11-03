@@ -26,6 +26,6 @@ export async function retirerCoupleAction(id: string): Promise<ResultatCouvertur
 }
 
 // Lancement d'une Tentative (story 5.2) : le navigateur n'envoie que moyen, pays, opérateur et numéro ; le serveur choisit le Prestataire.
-export async function demarrerTentativeAction(entree: { numero: string; moyen: string; pays: string | null; operateur: string | null; telephone: string | null }): Promise<ResultatTentative> {
+export async function demarrerTentativeAction(entree: { numero: string; moyen: string; pays: string | null; operateur: string | null; telephone: string | null; reseauCarte?: string | null; nomPayeur?: string | null }): Promise<ResultatTentative> {
   return demarrerTentative(dependancesTentative(), entree);
 }

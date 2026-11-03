@@ -15,6 +15,8 @@ export type ErreurTentative =
   | "limite"
   | "entree_invalide"
   | "telephone_invalide"
+  | "nom_payeur_invalide"
+  | "reseau_carte_invalide"
   | "pays_operateur_requis"
   | "commande_introuvable"
   | "non_payable"
@@ -61,7 +63,15 @@ const entreeSchema = z.object({
   pays: z.string().trim().toUpperCase().regex(/^[A-Z]{2}$/).nullable().optional(),
   operateur: z.string().trim().min(1).max(40).nullable().optional(),
   telephone: z.string().nullable().optional(),
+  // Paiement par carte chez MaishaPay seulement : réseau choisi et nom du payeur (le téléphone est le champ commun ci-dessus).
+  reseauCarte: z.string().nullable().optional(),
+  nomPayeur: z.string().nullable().optional(),
 });
+
+const RESEAUX_CARTE = ["VISA", "MASTERCARD"] as const;
+// Prestataires qui exigent le nom et le téléphone du payeur pour la carte (documentation de leur API carte) : les données ne sont demandées et
+// transmises que pour eux, jamais pour un autre Prestataire ni pour le mobile money (nom).
+const CARTE_AVEC_IDENTITE: readonly CodePrestataire[] = ["maishapay"];
 
 const TELEPHONE = /^\+[0-9]{8,15}$/;
 
@@ -131,6 +141,19 @@ export async function demarrerTentative(deps: DependancesTentative, brut: unknow
     const adaptateur = deps.adaptateur(choix.prestataire);
     if (!adaptateur) return { ok: false, erreur: "indisponible" };
 
+    // Carte chez un Prestataire qui exige l'identité du payeur : validation côté serveur du réseau, du nom et du téléphone (jamais le navigateur).
+    let reseauCarte: (typeof RESEAUX_CARTE)[number] | null = null;
+    let nomPayeur: string | null = null;
+    if (entree.moyen === "carte" && CARTE_AVEC_IDENTITE.includes(choix.prestataire)) {
+      reseauCarte = RESEAUX_CARTE.find((r) => r === (entree.reseauCarte ?? "").toUpperCase()) ?? null;
+      if (!reseauCarte) return { ok: false, erreur: "reseau_carte_invalide" };
+      nomPayeur = (entree.nomPayeur ?? "").replace(/\s+/g, " ").trim();
+      if (nomPayeur.length < 2 || nomPayeur.length > 100 || /[<>\p{Cc}]/u.test(nomPayeur)) return { ok: false, erreur: "nom_payeur_invalide" };
+      telephone = (entree.telephone ?? "").replace(/[\s-]/g, "");
+      if (!TELEPHONE.test(telephone)) return { ok: false, erreur: "telephone_invalide" };
+      telephoneMasque = masquerTelephone(telephone);
+    }
+
     const referenceInterne = deps.referenceInterne(entree.numero);
     const demarre = await deps.demarrer({
       compteId,
@@ -154,7 +177,8 @@ export async function demarrerTentative(deps: DependancesTentative, brut: unknow
         moyen: entree.moyen,
         pays: entree.pays ?? null,
         operateur: entree.operateur ?? null,
-        contact: { telephone, email: commande.contact.email, nom: commande.contact.nom },
+        contact: { telephone, email: commande.contact.email, nom: nomPayeur ?? commande.contact.nom },
+        reseauCarte,
         adresseRetour: deps.adresseRetour(choix.prestataire, entree.numero),
         adresseNotification: deps.adresseNotification(choix.prestataire),
       });

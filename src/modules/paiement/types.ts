@@ -35,6 +35,8 @@ export type DonneesTentative = {
   // Le téléphone ou l'email du payeur ne sont jamais conservés par nous : ils passent par l'appel seulement.
   // Le nom du payeur n'est connu que si le Compte l'a donné (Google) : jamais inventé (règle 15).
   contact: { telephone: string | null; email: string | null; nom: string | null };
+  // Réseau de la carte choisi par le client (Visa ou Mastercard) ; null hors paiement par carte.
+  reseauCarte: "VISA" | "MASTERCARD" | null;
   // Adresse où le client revient après le paiement (page de retour) et adresse que le Prestataire appelle pour signaler le résultat.
   adresseRetour: string;
   adresseNotification: string;

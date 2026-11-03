@@ -27,10 +27,11 @@ const MM: DonneesTentative = {
   pays: "CD",
   operateur: "Airtel Money",
   contact: { telephone: "+243990000000", email: "TEST@example.invalid", nom: null },
+  reseauCarte: null,
   adresseRetour: "https://TEST.invalid/retour",
   adresseNotification: "https://TEST.invalid/api/paiement/notification/maishapay",
 };
-const CARTE: DonneesTentative = { ...MM, moyen: "carte", pays: null, operateur: null, contact: { telephone: "+243990000000", email: "TEST@example.invalid", nom: "Test Payeur" } };
+const CARTE: DonneesTentative = { ...MM, moyen: "carte", pays: null, operateur: null, contact: { telephone: "+243990000000", email: "TEST@example.invalid", nom: "Test Payeur" }, reseauCarte: "MASTERCARD" };
 const ATTENTE = { status_code: 202, transactionStatus: "PENDING", transactionId: 12345, originatingTransactionId: REF };
 const verifie = (statut: string, extra: Record<string, unknown> = {}) => ({
   transaction_type: "C2B | Collect",
@@ -52,10 +53,15 @@ describe("MaishaPay : questions ouvertes (règle 15)", () => {
     const a = creerAdaptateurMaishaPay(() => null, faux());
     expect(a.questionsOuvertes[0]).toMatch(/Clés/);
   });
-  it("la comparaison du montant est toujours indéterminée : rien n'est validé sur une hypothèse", () => {
+  it("comparaison : « amount » en USD contre le montant attendu (frais absorbés par le site) ; toute autre devise ou forme reste indéterminée", () => {
     const a = creerAdaptateurMaishaPay(() => CONFIG, faux());
-    expect(a.comparerMontant(1500, "15", "USD")).toBe("indetermine");
-    expect(a.comparerMontant(1500, "15.45", "USD")).toBe("indetermine");
+    expect(a.comparerMontant(1500, "15", "USD")).toBe("egal");
+    expect(a.comparerMontant(1500, "15.00", "usd")).toBe("egal");
+    expect(a.comparerMontant(1500, "14.99", "USD")).toBe("inferieur");
+    expect(a.comparerMontant(1500, "15.45", "USD")).toBe("superieur");
+    expect(a.comparerMontant(1500, "15", "CDF")).toBe("indetermine");
+    expect(a.comparerMontant(1500, "quinze", "USD")).toBe("indetermine");
+    expect(a.comparerMontant(1500, "-15", "USD")).toBe("indetermine");
   });
 });
 
@@ -117,6 +123,18 @@ describe("MaishaPay : initier", () => {
     expect(f.mock.calls[0][0]).toBe("https://marchand.maishapay.online/api/collect/v2/store/card");
     expect(corps(f).paymentChannel.channel).toBe("CARD");
     expect(corps(f).order).toMatchObject({ amount: "15.00", currency: "USD", customerFullName: "Test Payeur", customerPhoneNumber: "+243990000000" });
+  });
+  it("carte : le réseau choisi par le client (Visa ou Mastercard) est celui qui part", async () => {
+    for (const reseau of ["VISA", "MASTERCARD"] as const) {
+      const f = faux(reponse({ ...ATTENTE, paymentPage: "https://pay.example.invalid/x" }, 202));
+      await creerAdaptateurMaishaPay(() => CONFIG, f).initier({ ...CARTE, reseauCarte: reseau });
+      expect(corps(f).paymentChannel.provider).toBe(reseau);
+    }
+  });
+  it("carte sans réseau : aucun appel", async () => {
+    const f = faux();
+    expect(await creerAdaptateurMaishaPay(() => CONFIG, f).initier({ ...CARTE, reseauCarte: null })).toEqual({ statut: "refuse", cause: "client" });
+    expect(f).not.toHaveBeenCalled();
   });
   it("carte sans nom, téléphone ou email du payeur : rien n'est inventé, aucun appel", async () => {
     for (const contact of [{ ...CARTE.contact, nom: null }, { ...CARTE.contact, telephone: null }, { ...CARTE.contact, email: null }]) {

@@ -2045,8 +2045,19 @@
         "compte_incomplet": "Complète ton compte avant de payer.",
         "indisponible": "Aucun moyen de paiement disponible pour ce choix.",
         "refuse": "Le service de paiement a refusé la demande. Réessaie.",
-        "generique": "Le paiement n'a pas pu être lancé. Réessaie."
-      }
+        "generique": "Le paiement n'a pas pu être lancé. Réessaie.",
+        "nom_payeur_invalide": "Saisis le nom complet du titulaire de la carte (2 à 100 caractères).",
+        "reseau_carte_invalide": "Choisis Visa ou Mastercard."
+      },
+      "reseauCarte": "Réseau de ta carte",
+      "reseaux": {
+        "VISA": "Visa",
+        "MASTERCARD": "Mastercard"
+      },
+      "nomPayeur": "Nom complet du titulaire de la carte",
+      "telephonePayeur": "Numéro de téléphone du titulaire",
+      "aidePayeurCarte": "Demandés par le service de paiement par carte, utilisés pour ce paiement seulement. Commence par le signe + et l'indicatif de ton pays.",
+      "completerCarte": "Choisis le réseau de ta carte, saisis ton nom et ton numéro pour payer."
     }
   }
 }

@@ -21,14 +21,14 @@ const DELAI_APPEL_MS = 10_000;
 export type ConfigMaishaPay = { clePublique: string; cleSecrete: string; mode: 0 | 1 };
 
 // Documentation « Introduction » et « Collection » : tout point que la documentation ne tranche pas reste écrit ici.
+// Décisions de Jonathan (2026-11-03) : KOMA SHOP absorbe les frais éventuels, la comparaison porte sur « amount » (hors frais) ; tout FAILED est un échec
+// du client sans repli ; carte : le client choisit Visa ou Mastercard, nom et téléphone du payeur sont collectés au paiement par carte seulement.
 export const QUESTIONS_OUVERTES: readonly string[] = [
-  "Devise réellement débitée : la documentation ne dit pas si le montant envoyé en USD est débité en USD ou converti (CDF, XAF…).",
-  "Règle de comparaison du montant : la consultation renvoie amount, frais et total, sans dire lequel doit égaler le montant attendu ni qui supporte les frais.",
-  "Couverture réelle pays-opérateur de l'application du site chez MaishaPay (la documentation décrit la plateforme, pas notre contrat).",
-  "Noms du paramètre provider : seuls AIRTEL, ORANGE, MTN sont documentés pour la version 2 ; M-Pesa RDC n'est documenté qu'en version 1 (réponse synchrone, sans rappel) ; Moov, Wave, Free, T-money, Africell : non documentés.",
-  "Échec (FAILED) : la documentation ne distingue pas un refus du client, un solde insuffisant et une panne de l'opérateur ; tout FAILED est traité comme un échec du client (pas de repli automatique).",
-  "Carte : réseau à envoyer (VISA ou MASTERCARD) alors que le client choisit sa carte sur la page de paiement, nom complet et téléphone du payeur exigés par la version 2 (non collectés), contradiction de la version 3 sur les champs de facturation.",
-  "Durée de vie d'un paiement en attente (PENDING) et valeurs possibles de transactionStatus à la consultation.",
+  "Devise réellement débitée : la documentation ne dit pas si le montant envoyé en USD est débité en USD ou converti (CDF, XAF…) ; question posée à MaishaPay. Tant que la consultation ne renvoie pas USD, la comparaison reste indéterminée.",
+  "Couverture réelle pays-opérateur de l'application du site chez MaishaPay (la documentation décrit la plateforme, pas notre contrat). Question posée à MaishaPay.",
+  "Noms du paramètre provider : seuls AIRTEL, ORANGE, MTN sont documentés pour la version 2 ; M-Pesa RDC n'est documenté qu'en version 1 (réponse synchrone, sans rappel) ; Moov, Wave, Free, T-money, Africell : non documentés. Question posée à MaishaPay.",
+  "Carte : la version 3 de la documentation se contredit sur les champs de facturation. Question posée à MaishaPay.",
+  "Durée de vie d'un paiement en attente (PENDING) et valeurs possibles de transactionStatus à la consultation. Question posée à MaishaPay.",
 ];
 
 // Opérateurs documentés pour la version 2 du mobile money (valeur du paramètre provider). Le reste n'est pas deviné.
@@ -100,14 +100,14 @@ export function creerAdaptateurMaishaPay(lireConfig: () => ConfigMaishaPay | nul
         );
         return lireInitiation(http, json, false);
       }
-      // Carte : la version 2 exige le nom complet, le téléphone et l'email du payeur. Jamais inventés : sans eux, la carte n'est pas tentée.
-      if (!t.contact.nom || !t.contact.telephone || !t.contact.email) return { statut: "refuse", cause: "client" };
+      // Carte : la version 2 exige le nom complet, le téléphone et l'email du payeur, et le réseau. Jamais inventés : sans eux, la carte n'est pas tentée.
+      if (!t.contact.nom || !t.contact.telephone || !t.contact.email || !t.reseauCarte) return { statut: "refuse", cause: "client" };
       const { http, json } = await poster(
         "/collect/v2/store/card",
         {
           transactionReference: t.referenceInterne,
           order: { amount: montant, currency: "USD", customerFullName: t.contact.nom.slice(0, 100), customerPhoneNumber: t.contact.telephone, customerEmailAdress: t.contact.email },
-          paymentChannel: { channel: "CARD", provider: "VISA", callbackUrl: t.adresseNotification },
+          paymentChannel: { channel: "CARD", provider: t.reseauCarte, callbackUrl: t.adresseNotification },
         },
         config,
       );
@@ -168,9 +168,13 @@ export function creerAdaptateurMaishaPay(lireConfig: () => ConfigMaishaPay | nul
       return { statut: "inconnu", ...base };
     },
 
-    // Règle de comparaison non tranchée par la documentation : jamais devinée, jamais de validation sur une hypothèse (règle 15).
-    comparerMontant(): ComparaisonMontant {
-      return "indetermine";
+    // Décision de Jonathan : le champ comparé est « amount » (hors frais, absorbés par KOMA SHOP). La devise doit être USD, celle que nous envoyons :
+    // toute autre devise (conversion non documentée) reste indéterminée, jamais devinée (règle 15). Comparaison exacte, en centimes.
+    comparerMontant(attenduCents: number, montantRecu: string, deviseRecue: string): ComparaisonMontant {
+      if (deviseRecue.toUpperCase() !== "USD") return "indetermine";
+      if (!/^\d+(\.\d{1,8})?$/.test(montantRecu.trim())) return "indetermine";
+      const recu = Math.round(Number(montantRecu) * 100);
+      return recu === attenduCents ? "egal" : recu < attenduCents ? "inferieur" : "superieur";
     },
   };
   return adaptateur;

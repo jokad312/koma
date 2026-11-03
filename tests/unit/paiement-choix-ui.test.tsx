@@ -23,6 +23,11 @@ import { ChoixPaiement } from "@/components/commande/ChoixPaiement";
 import type { OptionsPaiement } from "@/modules/paiement/service";
 
 const NUMERO = "KS-2026-000042";
+async function remplirCarte() {
+  await userEvent.click(screen.getByLabelText("Mastercard"));
+  await userEvent.type(screen.getByLabelText("Nom complet du titulaire de la carte"), "Test Payeur");
+  await userEvent.type(screen.getByLabelText("Numéro de téléphone du titulaire"), "+243990000000");
+}
 const AUCUN: OptionsPaiement = { carte: { disponible: false }, mobileMoney: { disponible: false, pays: [] } };
 const COMPLET: OptionsPaiement = {
   carte: { disponible: true, prestataire: { code: "maishapay", nom: "TEST_MaishaPay" } },
@@ -136,10 +141,27 @@ describe("ChoixPaiement : lancer le paiement", () => {
     expect(faux.demarrer).toHaveBeenCalledTimes(1);
     finir({ ok: true, redirection: null });
   });
-  it("carte : un seul appel, avec le moyen seul ; sans pays, opérateur ni numéro", async () => {
-    rendre(<ChoixPaiement numero={NUMERO} options={COMPLET} />);
+  it("carte Polar (panier 100 % Kits) : un seul appel, avec le moyen seul ; aucune identité demandée", async () => {
+    rendre(<ChoixPaiement numero={NUMERO} options={{ ...COMPLET, carte: { disponible: true, prestataire: { code: "polar", nom: "TEST_Polar" } } }} />);
+    expect(screen.queryByLabelText("Nom complet du titulaire de la carte")).toBeNull();
     await userEvent.click(screen.getByRole("button", { name: "Payer par carte" }));
     expect(faux.demarrer).toHaveBeenCalledWith({ numero: NUMERO, moyen: "carte", pays: null, operateur: null, telephone: null });
+  });
+  it("carte MaishaPay : le bouton reste inactif tant que le réseau, le nom et le téléphone manquent, puis un seul appel les porte", async () => {
+    rendre(<ChoixPaiement numero={NUMERO} options={COMPLET} />);
+    expect(screen.getByRole("button", { name: "Payer par carte" }).getAttribute("aria-disabled") ?? screen.getByRole("button", { name: "Payer par carte" }).hasAttribute("disabled")).toBeTruthy();
+    await remplirCarte();
+    await userEvent.click(screen.getByRole("button", { name: "Payer par carte" }));
+    expect(faux.demarrer).toHaveBeenCalledTimes(1);
+    expect(faux.demarrer).toHaveBeenCalledWith({ numero: NUMERO, moyen: "carte", pays: null, operateur: null, telephone: "+243990000000", reseauCarte: "MASTERCARD", nomPayeur: "Test Payeur" });
+  });
+  it("carte MaishaPay : l'erreur du nom est reliée au champ", async () => {
+    faux.demarrer.mockResolvedValue({ ok: false, erreur: "nom_payeur_invalide" });
+    rendre(<ChoixPaiement numero={NUMERO} options={COMPLET} />);
+    await remplirCarte();
+    await userEvent.click(screen.getByRole("button", { name: "Payer par carte" }));
+    const champ = await screen.findByLabelText("Nom complet du titulaire de la carte");
+    await waitFor(() => expect(champ.getAttribute("aria-invalid")).toBe("true"));
   });
   it("pays, opérateur et numéro restent remplis après un échec (UX-DR27) et au rechargement de l'onglet", async () => {
     faux.demarrer.mockResolvedValue({ ok: false, erreur: "refuse" });
@@ -171,6 +193,7 @@ describe("ChoixPaiement : lancer le paiement", () => {
   it("un paiement déjà en cours (deuxième onglet, double toucher) : la page est relue au lieu d'afficher une erreur", async () => {
     faux.demarrer.mockResolvedValue({ ok: false, erreur: "tentative_en_cours" });
     rendre(<ChoixPaiement numero={NUMERO} options={COMPLET} />);
+    await remplirCarte();
     await userEvent.click(screen.getByRole("button", { name: "Payer par carte" }));
     await waitFor(() => expect(faux.refresh).toHaveBeenCalled());
     expect(screen.queryByText("Un paiement est déjà en cours pour cette commande.")).toBeNull();
@@ -180,6 +203,7 @@ describe("ChoixPaiement : lancer le paiement", () => {
     Object.defineProperty(window, "location", { configurable: true, value: { ...window.location, assign: assigner } });
     faux.demarrer.mockResolvedValue({ ok: true, redirection: "https://TEST.invalid/payer" });
     rendre(<ChoixPaiement numero={NUMERO} options={COMPLET} />);
+    await remplirCarte();
     await userEvent.click(screen.getByRole("button", { name: "Payer par carte" }));
     await waitFor(() => expect(assigner).toHaveBeenCalledWith("https://TEST.invalid/payer"));
   });

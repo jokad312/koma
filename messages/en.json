@@ -2045,8 +2045,19 @@
         "compte_incomplet": "Complete your account before paying.",
         "indisponible": "No payment method is available for this choice.",
         "refuse": "The payment service refused the request. Try again.",
-        "generique": "The payment could not be started. Try again."
-      }
+        "generique": "The payment could not be started. Try again.",
+        "nom_payeur_invalide": "Enter the cardholder's full name (2 to 100 characters).",
+        "reseau_carte_invalide": "Choose Visa or Mastercard."
+      },
+      "reseauCarte": "Your card network",
+      "reseaux": {
+        "VISA": "Visa",
+        "MASTERCARD": "Mastercard"
+      },
+      "nomPayeur": "Cardholder's full name",
+      "telephonePayeur": "Cardholder's phone number",
+      "aidePayeurCarte": "Requested by the card payment service and used for this payment only. Start with the + sign and your country code.",
+      "completerCarte": "Choose your card network and enter your name and phone number to pay."
     }
   }
 }
