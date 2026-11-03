@@ -1,3 +1,4 @@
+import { creerAdaptateurPawaPay, type ConfigPawaPay } from "./adaptateurs/pawapay";
 import { creerAdaptateurMaishaPay, type ConfigMaishaPay } from "./adaptateurs/maishapay";
 import type { CodePrestataire, PrestatairePaiement } from "./types";
 
@@ -10,12 +11,21 @@ function lireConfigMaishaPay(source: Record<string, string | undefined> = proces
   return { clePublique, cleSecrete, mode: mode === "1" ? 1 : 0 };
 }
 
+// Jeton d'API de PawaPay et mode (bac à sable ou production, deux comptes et deux jetons distincts), lus dans l'environnement à chaque appel.
+function lireConfigPawaPay(source: Record<string, string | undefined> = process.env): ConfigPawaPay | null {
+  const jeton = source.PAWAPAY_API_TOKEN?.trim();
+  const mode = source.PAWAPAY_MODE?.trim();
+  if (!jeton || (mode !== "sandbox" && mode !== "production")) return null;
+  return { jeton, production: mode === "production" };
+}
+
 // Adaptateurs réellement écrits. Un Prestataire dont l'adaptateur n'existe pas, ou dont la documentation laisse des questions ouvertes, ne peut
 // pas être activé : sans cela, le site annoncerait « Paiement traité par MaishaPay » sans aucun moyen sûr de payer (règles 13, 14 et 15).
 // Chaque story d'adaptateur ajoute le sien ici : Polar (4.7), MaishaPay mobile money et carte (5.6 et 5.9), PawaPay (5.7). K-Pay et GeniusPay sont
 // abandonnés. Aucun adaptateur de test n'entre jamais dans cette liste.
 const ADAPTATEURS: Partial<Record<CodePrestataire, PrestatairePaiement>> = {
   maishapay: creerAdaptateurMaishaPay(lireConfigMaishaPay),
+  pawapay: creerAdaptateurPawaPay(lireConfigPawaPay),
 };
 
 // Adaptateurs activables : écrits ET sans question ouverte. Seuls ceux-là sont proposés au client et peuvent être activés dans l'admin.
