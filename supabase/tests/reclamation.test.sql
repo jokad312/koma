@@ -22,7 +22,7 @@ insert into public.produit (famille, slug, titre_fr, titre_en, prix_cents, nivea
 insert into public.variante (produit_id, taille, stock, fabrication_sur_commande) values
   ((select id from public.produit where slug = 're-cos'), 'M', 3, false),
   ((select id from public.produit where slug = 're-cos'), 'sur_mesure', 0, true),
-  ((select id from public.produit where slug = 're-acc'), 'U', 5, false);
+  ((select id from public.produit where slug = 're-acc'), 'S', 5, false);
 
 -- g1 : livree il y a 1 h (accessoire, cosplay M, cosplay sur mesure, Kit) ; g2 : livree il y a 3 jours ; g3 : en attente ; g4 : livree d un autre Compte.
 insert into public.commande (id, numero, compte_id, type, statut, sous_total_cents, total_cents, paye_le, livree_le) values
@@ -30,11 +30,11 @@ insert into public.commande (id, numero, compte_id, type, statut, sous_total_cen
   ('00000000-0000-4000-8000-0000000000f2', 'KS-2026-860002', '00000000-0000-0000-0000-0000000000a3', 'produits', 'livree', 1000, 1000, now() - interval '5 days', now() - interval '3 days'),
   ('00000000-0000-4000-8000-0000000000f3', 'KS-2026-860003', '00000000-0000-0000-0000-0000000000a3', 'produits', 'en_attente', 1000, 1000, null, null);
 insert into public.ligne_commande (id, commande_id, produit_id, variante_id, origine, nombre, prix_cents) values
-  ('00000000-0000-4000-8000-0000000000e1', '00000000-0000-4000-8000-0000000000f1', (select id from public.produit where slug = 're-acc'), (select id from public.variante where taille = 'U' and produit_id = (select id from public.produit where slug = 're-acc')), 'stock', 1, 1000),
+  ('00000000-0000-4000-8000-0000000000e1', '00000000-0000-4000-8000-0000000000f1', (select id from public.produit where slug = 're-acc'), (select id from public.variante where taille = 'S' and produit_id = (select id from public.produit where slug = 're-acc')), 'stock', 1, 1000),
   ('00000000-0000-4000-8000-0000000000e2', '00000000-0000-4000-8000-0000000000f1', (select id from public.produit where slug = 're-cos'), (select id from public.variante where taille = 'M' and produit_id = (select id from public.produit where slug = 're-cos')), 'stock', 1, 5000),
   ('00000000-0000-4000-8000-0000000000e3', '00000000-0000-4000-8000-0000000000f1', (select id from public.produit where slug = 're-cos'), (select id from public.variante where taille = 'sur_mesure' and produit_id = (select id from public.produit where slug = 're-cos')), 'fabrication', 1, 5000),
-  ('00000000-0000-4000-8000-0000000000e4', '00000000-0000-4000-8000-0000000000f2', (select id from public.produit where slug = 're-acc'), (select id from public.variante where taille = 'U' and produit_id = (select id from public.produit where slug = 're-acc')), 'stock', 1, 1000),
-  ('00000000-0000-4000-8000-0000000000e5', '00000000-0000-4000-8000-0000000000f3', (select id from public.produit where slug = 're-acc'), (select id from public.variante where taille = 'U' and produit_id = (select id from public.produit where slug = 're-acc')), 'stock', 1, 1000);
+  ('00000000-0000-4000-8000-0000000000e4', '00000000-0000-4000-8000-0000000000f2', (select id from public.produit where slug = 're-acc'), (select id from public.variante where taille = 'S' and produit_id = (select id from public.produit where slug = 're-acc')), 'stock', 1, 1000),
+  ('00000000-0000-4000-8000-0000000000e5', '00000000-0000-4000-8000-0000000000f3', (select id from public.produit where slug = 're-acc'), (select id from public.variante where taille = 'S' and produit_id = (select id from public.produit where slug = 're-acc')), 'stock', 1, 1000);
 insert into public.ligne_commande (id, commande_id, produit_id, nombre, prix_cents) values
   ('00000000-0000-4000-8000-0000000000e6', '00000000-0000-4000-8000-0000000000f1', (select id from public.produit where slug = 're-kit'), 1, 500);
 
@@ -61,9 +61,9 @@ select throws_ok($$ select public.traiter_reclamation(pg_temp.ass(), (select id 
 select throws_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where type = 'reclamation' limit 1), 'article_rendu') $$, 'KS_DEMANDE_DEJA_TRAITEE', 'pas d etape sautee');
 select lives_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where type = 'reclamation' limit 1), 'accepter') $$, 'acceptation');
 select lives_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where type = 'reclamation' limit 1), 'article_rendu') $$, 'article rendu');
-select is((select stock from public.variante where taille = 'U' and produit_id = (select id from public.produit where slug = 're-acc')), 5, 'le stock n a pas bouge avant le remplacement');
+select is((select stock from public.variante where taille = 'S' and produit_id = (select id from public.produit where slug = 're-acc')), 5, 'le stock n a pas bouge avant le remplacement');
 select lives_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where type = 'reclamation' limit 1), 'remplacement_remis', true) $$, 'remplacement remis, pris en stock');
-select is((select stock from public.variante where taille = 'U' and produit_id = (select id from public.produit where slug = 're-acc')), 4, 'remplacement pris en stock : stock decompte');
+select is((select stock from public.variante where taille = 'S' and produit_id = (select id from public.produit where slug = 're-acc')), 4, 'remplacement pris en stock : stock decompte');
 select is((select statut from public.demande_client where type = 'reclamation' limit 1), 'remplacement_remis', 'etat final');
 select throws_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where type = 'reclamation' limit 1), 'refuser') $$, 'KS_DEMANDE_DEJA_TRAITEE', 'aucune etape apres le remplacement remis');
 select is((select count(*)::int from public.remboursement), 0, 'aucun remboursement n est cree par une reclamation');

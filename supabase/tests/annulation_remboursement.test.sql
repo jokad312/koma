@@ -20,7 +20,7 @@ insert into public.produit (famille, slug, titre_fr, titre_en, prix_cents, nivea
   ('kit', 'an-kit', 'K', 'K', 500, 'debutant', now() - interval '1 minute');
 insert into public.variante (produit_id, taille, stock, fabrication_sur_commande) values
   ((select id from public.produit where slug = 'an-cos'), 'M', 4, false),
-  ((select id from public.produit where slug = 'an-acc'), 'U', 7, false);
+  ((select id from public.produit where slug = 'an-acc'), 'S', 7, false);
 
 -- k1 : cosplay stock (2 x 5000 - 300) + accessoire (1 x 1000) + Kit + forfait 200, payee, compte a3 ; k2 : en fabrication ; k3 : Kit seul ;
 -- k4 : meme profil que k1, pour le refus ; k5 : annulee, remboursement a confirmer.
