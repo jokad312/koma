@@ -49,6 +49,7 @@ export async function ListeCommandes({ locale, nombre }: { locale: Locale; nombr
             </Link>
             <p className="t-small text-text-secondary">{formaterDateBoutique(c.creeLe, locale)}</p>
             <p className="t-body text-text-primary">{t("detail.statut", { statut: t(`detail.statuts.${c.statut}`) })}</p>
+            {c.reclamation ? <p className="t-small text-text-secondary">{t("reclamation.etatListe", { etat: t(`reclamation.statuts.${["ouverte", "acceptee", "refusee", "article_rendu", "remplacement_remis"].includes(c.reclamation) ? c.reclamation : "ouverte"}`) })}</p> : null}
             <p className="t-body text-text-primary">{c.offerte ? t("liste.offert") : formaterUsd(c.totalCents, locale)}</p>
           </li>
         ))}

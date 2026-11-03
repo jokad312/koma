@@ -1385,13 +1385,24 @@
         "kit_ouvert": "kit open",
         "commande_en_fabrication": "Order being made",
         "commande_expediee": "Order shipped",
-        "commande_livree": "Order delivered"
+        "commande_livree": "Order delivered",
+        "commande_annulee": "Order cancelled",
+        "commande_remboursee": "Order refunded"
       },
       "mesures": {
         "titre": "Measurements to receive",
         "compteur": "{nombre, plural, =0 {No line waiting for measurements} one {# line waiting for measurements} other {# lines waiting for measurements}}",
         "commande": "Order {numero} ({nombre, plural, one {# line} other {# lines}})",
         "erreurLecture": "The measurements to receive could not be read."
+      },
+      "argent": {
+        "titre": "Money to handle",
+        "demande": "Cancellation request: order {numero}",
+        "remboursement": "Refund to confirm: order {numero}",
+        "trop_percu": "Overpayment to refund: order {numero}",
+        "vide": "No request or refund is waiting.",
+        "erreurLecture": "The requests and refunds could not be read.",
+        "reclamation": "Claim to handle: order {numero}"
       }
     },
     "prestataires": {
@@ -1566,6 +1577,65 @@
           "non_autorise": "You are not allowed to confirm measurements.",
           "mesures_deja_recues": "The measurements are already confirmed. Reload the page.",
           "generique": "The confirmation could not be saved. Try again."
+        }
+      },
+      "annulation": {
+        "titre": "Cancellation and refund",
+        "accepter": "Accept the cancellation",
+        "refuser": "Refuse the request",
+        "resumeErreur": "The request could not be saved:",
+        "statuts": {
+          "ouverte": "The customer asks to cancel the order.",
+          "acceptee": "Cancellation request accepted.",
+          "refusee": "Cancellation request refused.",
+          "close": "Cancellation request closed (refund confirmed)."
+        },
+        "erreurs": {
+          "non_autorise": "Only the administrator can do this.",
+          "annulation_impossible": "This order can no longer be cancelled.",
+          "demande_introuvable": "This request cannot be found.",
+          "demande_deja_traitee": "This request is already handled. Reload the page.",
+          "preuve_requise": "Enter the refund reference (3 to 200 characters): without it, nothing is saved.",
+          "remboursement_impossible": "This refund cannot be confirmed.",
+          "generique": "The action could not be saved. Try again."
+        }
+      },
+      "remboursement": {
+        "montant": "Amount to return: {montant}",
+        "confirme": "Refund confirmed.",
+        "tropPercu": "Overpayment to refund: {montant} ({motif})",
+        "preuve": "Refund proof (provider or bank transfer reference)",
+        "aide": "Required. Refunds are made by hand: no money is returned automatically.",
+        "confirmer": "I returned the money",
+        "motifs": {
+          "montant_superieur": "higher amount",
+          "deja_payee": "order already paid",
+          "expiree": "order expired",
+          "annulee": "order cancelled",
+          "reservations_liberees": "reservations released",
+          "autre": "other reason"
+        }
+      },
+      "reclamation": {
+        "titre": "Claims",
+        "accepter": "Accept",
+        "refuser": "Refuse",
+        "articleRendu": "Piece returned",
+        "remplacementRemis": "Replacement handed over",
+        "depuisStock": "The replacement comes from stock (stock is decreased)",
+        "statuts": {
+          "ouverte": "Open",
+          "acceptee": "Accepted",
+          "refusee": "Refused",
+          "article_rendu": "Piece returned",
+          "remplacement_remis": "Replacement handed over"
+        },
+        "erreurs": {
+          "non_autorise": "Only the administrator can do this.",
+          "demande_deja_traitee": "This step is no longer possible. Reload the page.",
+          "stock_insuffisant": "There is not enough stock for this replacement.",
+          "demande_introuvable": "This claim cannot be found.",
+          "generique": "The step could not be saved. Try again."
         }
       }
     }
@@ -2044,6 +2114,50 @@
       "message": "Hello, here are my measurements for order {numero}.",
       "absent": "The shop's WhatsApp number is not available right now. Write to us from the Contact page to send your measurements.",
       "recues": "Your measurements were received on {date}. The making time starts from that date."
+    },
+    "annulation": {
+      "bouton": "Request cancellation",
+      "titreDialogue": "Cancel my order?",
+      "texteDialogue": "Your request is sent to Jonathan, who accepts or refuses it. If it is accepted, the physical items are cancelled; kits stay in your library. Money is returned by hand, with no automatic refund.",
+      "confirmer": "Send the request",
+      "renoncer": "Keep my order",
+      "ouverte": "Your cancellation request has been sent. You will be told the decision.",
+      "refusee": "Your cancellation request was refused: the order goes on.",
+      "erreurs": {
+        "non_connecte": "Your session has ended. Sign in again.",
+        "entree_invalide": "This request is not valid. Reload the page.",
+        "commande_introuvable": "This order cannot be found.",
+        "annulation_impossible": "This order can no longer be cancelled.",
+        "demande_en_cours": "A cancellation request is already in progress.",
+        "generique": "The request could not be sent. Try again."
+      }
+    },
+    "reclamation": {
+      "titre": "Report a problem",
+      "intro": "A damaged piece, or one that differs from your order? Tell us within 48 hours of delivery: we offer a replacement piece.",
+      "ligne": "Which piece?",
+      "description": "Describe the problem",
+      "envoyer": "Send the report",
+      "photos": "Send photos on WhatsApp",
+      "nouvelOnglet": " (opens in a new tab)",
+      "suivi": "Your reports",
+      "ligneEtat": "{titre}: {etat}",
+      "etatListe": "Report: {etat}",
+      "statuts": {
+        "ouverte": "received, waiting for an answer",
+        "acceptee": "accepted: return the piece to receive its replacement",
+        "refusee": "refused",
+        "article_rendu": "piece returned, replacement being prepared",
+        "remplacement_remis": "replacement handed over"
+      },
+      "erreurs": {
+        "non_connecte": "Your session has ended. Sign in again.",
+        "entree_invalide": "This request is not valid. Reload the page.",
+        "description_requise": "Describe the problem to send the report.",
+        "commande_introuvable": "This order cannot be found.",
+        "reclamation_impossible": "This piece can no longer be reported (48 hours passed or a report is already in progress).",
+        "generique": "The report could not be sent. Try again."
+      }
     }
   },
   "Emails": {
@@ -2096,6 +2210,22 @@
       "titre": "Your order has been delivered",
       "intro": "Your order {numero} has been delivered. Thank you for your trust.",
       "photo": "Wearing your cosplay? Send us your photo on WhatsApp: {lien}",
+      "lien": "Your order page:",
+      "bouton": "View my order"
+    },
+    "commande_annulee": {
+      "sujet": "Your order {numero} is cancelled",
+      "titre": "Your order is cancelled",
+      "intro": "Your order {numero} is cancelled. Any kits stay in your library.",
+      "montant": "Amount to be returned to you: {montant}. It will be returned by hand; you will get an email when it is done.",
+      "lien": "Your order page:",
+      "bouton": "View my order"
+    },
+    "commande_remboursee": {
+      "sujet": "Your order {numero} is refunded",
+      "titre": "Your order is refunded",
+      "intro": "The refund for your order {numero} has been made.",
+      "montant": "Amount returned: {montant}.",
       "lien": "Your order page:",
       "bouton": "View my order"
     }

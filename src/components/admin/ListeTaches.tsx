@@ -5,7 +5,7 @@ import type { TacheAdmin } from "@/modules/admin/types";
 const FUSEAU_BOUTIQUE = "Africa/Lubumbashi";
 const GRAVITES = ["info", "attention", "critique"] as const;
 const TYPES_CONNUS = ["envoi_echec_definitif"] as const;
-const MODELES_CONNUS = ["commande_payee", "kit_ouvert", "commande_en_fabrication", "commande_expediee", "commande_livree"] as const;
+const MODELES_CONNUS = ["commande_payee", "kit_ouvert", "commande_en_fabrication", "commande_expediee", "commande_livree", "commande_annulee", "commande_remboursee"] as const;
 
 // Tâches ouvertes : type, gravité, date, détail. Jamais de donnée personnelle (la tâche ne porte que des identifiants). État vide explicite.
 export async function ListeTaches({ taches }: { taches: readonly TacheAdmin[] }) {

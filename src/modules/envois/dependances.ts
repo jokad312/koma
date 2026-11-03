@@ -5,7 +5,7 @@ import { creerClientService } from "@/lib/supabase/service";
 import { rendreCommandePayee } from "./modeles/commande-payee";
 import { TEXTES } from "./modeles/commun";
 import { rendreKitOuvert } from "./modeles/kit-ouvert";
-import { rendreCommandeEnFabrication, rendreCommandeExpediee, rendreCommandeLivree } from "./modeles/statut-commande";
+import { rendreCommandeAnnulee, rendreCommandeEnFabrication, rendreCommandeExpediee, rendreCommandeLivree, rendreCommandeRemboursee } from "./modeles/statut-commande";
 import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
 import type { DependancesEnvois, EnvoiReserve, LangueEmail, ResultatRendu } from "./types";
 
@@ -84,6 +84,18 @@ async function rendre(client: ClientService, envoi: EnvoiReserve): Promise<Resul
     const { data: numero, error: erreurNumero } = await client.from("reglage").select("valeur").eq("cle", "numero_whatsapp").maybeSingle();
     if (erreurNumero) return { statut: "reessayer", raison: "numéro WhatsApp illisible" };
     return { statut: "pret", destinataire, message: rendreCommandeLivree(envoi.langue, { ...donnees, lienWhatsapp: lienWhatsapp(numero?.valeur) }) };
+  }
+
+  // Annulation et remboursement (story 6.6) : jamais envoyés si la Commande n'est pas dans l'état annoncé ; le montant vient du remboursement figé.
+  if (envoi.modele === "commande_annulee" || envoi.modele === "commande_remboursee") {
+    const atteints: Record<string, string[]> = { commande_annulee: ["annulee", "remboursee"], commande_remboursee: ["remboursee"] };
+    if (!atteints[envoi.modele].includes(commande.statut)) return { statut: "ignorer", raison: "statut de la commande non atteint" };
+    const { data: remboursement, error: erreurRemboursement } = await client.from("remboursement").select("montant_cents, devise").eq("cible_type", "commande").eq("cible_id", commande.id).maybeSingle();
+    if (erreurRemboursement) return { statut: "reessayer", raison: "lecture du remboursement impossible" };
+    if (!remboursement || remboursement.devise !== "USD") return { statut: "ignorer", raison: "remboursement introuvable ou hors USD" };
+    const donneesRemboursement = { nomSite, numero: commande.numero, url: `${site}/${envoi.langue}/commande/${encodeURIComponent(commande.numero)}`, montantCents: remboursement.montant_cents };
+    const message = envoi.modele === "commande_annulee" ? rendreCommandeAnnulee(envoi.langue, donneesRemboursement) : rendreCommandeRemboursee(envoi.langue, donneesRemboursement);
+    return { statut: "pret", destinataire, message };
   }
 
   if (envoi.modele === "kit_ouvert") {

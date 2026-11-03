@@ -14,10 +14,13 @@ import { dependancesOptions } from "@/modules/paiement/dependances";
 import { lireEtatPaiement } from "@/modules/paiement/etat-queries";
 import { lireOptionsPaiement, type OptionsPaiement } from "@/modules/paiement/service";
 import { lireNumeroWhatsappOuNull } from "@/lib/reglages";
+import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
 import { construireFrise } from "@/modules/commande/frise";
+import { DemandeAnnulation } from "./DemandeAnnulation";
 import { EnvoiMesures } from "./EnvoiMesures";
 import { FriseStatuts } from "./FriseStatuts";
 import { MoyensPaiement } from "./MoyensPaiement";
+import { SignalerProbleme } from "./SignalerProbleme";
 import { SuiviPaiement } from "./SuiviPaiement";
 import { retourVersCommande, versConnexion } from "./PageCommande";
 
@@ -90,6 +93,27 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
           </Link>
         </div>
       ) : null}
+
+      {commande.lignesReclamables.length > 0 ? (
+        <SignalerProbleme numero={commande.numero} lignes={commande.lignes.filter((l) => commande.lignesReclamables.includes(l.id)).map((l) => ({ id: l.id, titre: l.titre }))} lienWhatsapp={lienWhatsapp(numeroWhatsapp)} />
+      ) : null}
+      {commande.reclamations.length > 0 ? (
+        <section aria-labelledby="commande-reclamations" className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4">
+          <h2 id="commande-reclamations" className="t-h2">
+            {t("reclamation.suivi")}
+          </h2>
+          <ul className="flex flex-col gap-1">
+            {commande.reclamations.map((r) => (
+              <li key={`${r.ligneId}-${r.statut}`} className="t-body text-text-primary">
+                {t("reclamation.ligneEtat", { titre: commande.lignes.find((l) => l.id === r.ligneId)?.titre ?? "", etat: t(`reclamation.statuts.${["ouverte", "acceptee", "refusee", "article_rendu", "remplacement_remis"].includes(r.statut) ? r.statut : "ouverte"}`) })}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+      {commande.annulable ? <DemandeAnnulation numero={commande.numero} /> : null}
+      {commande.demandeAnnulation === "ouverte" ? <MessageEtat type="information">{t("annulation.ouverte")}</MessageEtat> : null}
+      {commande.demandeAnnulation === "refusee" ? <MessageEtat type="information">{t("annulation.refusee")}</MessageEtat> : null}
 
       {surMesure && ["payee", "en_fabrication"].includes(commande.statut) ? (
         <EnvoiMesures numero={commande.numero} numeroWhatsapp={numeroWhatsapp} mesuresRecuesLe={mesuresRecuesLe} locale={locale} />

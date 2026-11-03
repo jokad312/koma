@@ -5,6 +5,7 @@ import type { ModeRemise, ZoneRemise } from "./schemas";
 export type StatutAffiche = "en_attente" | "expiree" | "echouee" | "payee" | "en_fabrication" | "expediee" | "livree" | "annulee" | "remboursee" | "offerte";
 
 export type LigneCommandeLue = {
+  id: string;
   titre: string;
   slug: string;
   famille: string;
@@ -33,9 +34,15 @@ export type CommandeLue = {
   // Dates de la frise des statuts (story 6.1) et numéro de suivi saisi à la main, affiché tel quel (règle 12).
   dates: { payee: string | null; en_fabrication: string | null; expediee: string | null; livree: string | null };
   numeroSuivi: string | null;
+  // Annulation (story 6.6) : le bouton n'existe que pour une Commande payée avec un Cosplay, sans demande en cours.
+  annulable: boolean;
+  demandeAnnulation: "ouverte" | "acceptee" | "refusee" | "close" | null;
+  // Réclamations (story 6.7) : lignes réclamables (48 h, calcul en base) et état réel de chaque réclamation.
+  lignesReclamables: string[];
+  reclamations: { ligneId: string; statut: string }[];
 };
 
-export type CommandeResume = { numero: string; statut: StatutAffiche; creeLe: string; totalCents: number; offerte: boolean };
+export type CommandeResume = { numero: string; statut: StatutAffiche; creeLe: string; totalCents: number; offerte: boolean; reclamation: string | null };
 
 const STATUTS: readonly StatutAffiche[] = ["en_attente", "expiree", "echouee", "payee", "en_fabrication", "expediee", "livree", "annulee", "remboursee", "offerte"];
 
@@ -53,7 +60,7 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
   const { data, error } = await creerClientService()
     .from("commande")
     .select(
-      "id, numero, statut, sous_total_cents, forfait_cents, total_cents, expire_le, zone, mode_remise, offerte, cree_le, paye_le, fabrication_le, expediee_le, livree_le, numero_suivi, ligne_commande(prix_cents, nombre, origine, delai_fabrication_jours, mesures_recues_le, produit(slug, famille, titre_fr, titre_en), variante(taille))",
+      "id, numero, statut, sous_total_cents, forfait_cents, total_cents, expire_le, zone, mode_remise, offerte, cree_le, paye_le, fabrication_le, expediee_le, livree_le, numero_suivi, ligne_commande(id, prix_cents, nombre, origine, delai_fabrication_jours, mesures_recues_le, produit(slug, famille, titre_fr, titre_en), variante(taille))",
     )
     .eq("compte_id", compteId)
     .eq("numero", numero)
@@ -62,10 +69,25 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
   if (!data) return null;
   const statut = statutEffectif(data.statut, data.expire_le, Date.now());
   if (!statut) return null;
+  const { data: demande } = await creerClientService()
+    .from("demande_client")
+    .select("statut")
+    .eq("commande_id", data.id)
+    .eq("type", "annulation_commande")
+    .order("cree_le", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const demandeAnnulation = demande && ["ouverte", "acceptee", "refusee", "close"].includes(demande.statut) ? (demande.statut as "ouverte" | "acceptee" | "refusee" | "close") : null;
+  const [reclamables, reclamations] = await Promise.all([
+    creerClientService().rpc("lignes_reclamables", { p_compte: compteId, p_numero: numero }),
+    creerClientService().from("demande_client").select("ligne_id, statut").eq("commande_id", data.id).eq("type", "reclamation").order("cree_le", { ascending: false }),
+  ]);
+  if (reclamables.error || reclamations.error) throw new Error("lecture des réclamations impossible");
   const lignes = (data.ligne_commande ?? []).map((l) => {
     const produit = Array.isArray(l.produit) ? l.produit[0] : l.produit;
     const variante = Array.isArray(l.variante) ? l.variante[0] : l.variante;
     return {
+      id: l.id,
       titre: langue === "en" && produit?.titre_en ? produit.titre_en : (produit?.titre_fr ?? ""),
       slug: produit?.slug ?? "",
       famille: produit?.famille ?? "",
@@ -92,6 +114,10 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
     creeLe: data.cree_le,
     dates: { payee: data.paye_le, en_fabrication: data.fabrication_le, expediee: data.expediee_le, livree: data.livree_le },
     numeroSuivi: data.numero_suivi,
+    annulable: statut === "payee" && !data.offerte && lignes.some((l) => l.famille === "cosplay") && demandeAnnulation === null,
+    demandeAnnulation,
+    lignesReclamables: (reclamables.data ?? []).map((r) => r.ligne_id),
+    reclamations: (reclamations.data ?? []).flatMap((r) => (r.ligne_id ? [{ ligneId: r.ligne_id, statut: r.statut }] : [])),
   };
 }
 
@@ -101,15 +127,19 @@ export const TAILLE_PAGE_COMMANDES = 12;
 export async function listerCommandes(compteId: string, nombre: number): Promise<{ commandes: CommandeResume[]; reste: boolean }> {
   const { data, error } = await creerClientService()
     .from("commande")
-    .select("numero, statut, total_cents, expire_le, cree_le, offerte")
+    .select("id, numero, statut, total_cents, expire_le, cree_le, offerte")
     .eq("compte_id", compteId)
     .order("cree_le", { ascending: false })
     .limit(nombre + 1);
   if (error) throw new Error("lecture des commandes impossible");
   const maintenant = Date.now();
-  const commandes = (data ?? []).slice(0, nombre).flatMap((c) => {
+  // État réel de la dernière réclamation de chaque Commande listée (story 6.7).
+  const visibles = (data ?? []).slice(0, nombre);
+  const { data: demandes, error: erreurDemandes } = await creerClientService().from("demande_client").select("commande_id, statut, cree_le").eq("type", "reclamation").in("commande_id", visibles.map((c) => c.id)).order("cree_le", { ascending: false });
+  if (erreurDemandes) throw new Error("lecture des réclamations impossible");
+  const commandes = visibles.flatMap((c) => {
     const statut = statutEffectif(c.statut, c.expire_le, maintenant);
-    return statut ? [{ numero: c.numero, statut, creeLe: c.cree_le, totalCents: c.total_cents, offerte: c.offerte }] : [];
+    return statut ? [{ numero: c.numero, statut, creeLe: c.cree_le, totalCents: c.total_cents, offerte: c.offerte, reclamation: (demandes ?? []).find((d) => d.commande_id === c.id)?.statut ?? null }] : [];
   });
   return { commandes, reste: (data ?? []).length > nombre };
 }

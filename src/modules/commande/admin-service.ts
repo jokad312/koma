@@ -12,16 +12,25 @@ export type ErreurAdminCommande =
   | "numero_suivi_invalide"
   | "mesures_deja_recues"
   | "pas_sur_mesure"
+  | "annulation_impossible"
+  | "demande_introuvable"
+  | "demande_deja_traitee"
+  | "preuve_requise"
+  | "remboursement_impossible"
+  | "stock_insuffisant"
   | "generique";
 
 export type ResultatAdminCommande = { ok: true } | { ok: false; erreur: ErreurAdminCommande };
 
 export type DependancesAdminCommande = {
   // Lève une erreur si le droit n'est pas accordé ; renvoie l'auteur (objet journalisé).
-  exigerDroit: (droit: "commandes.voir" | "commandes.changer_statut" | "mesures.verifier") => Promise<{ auteur: unknown }>;
+  exigerDroit: (droit: "commandes.voir" | "commandes.changer_statut" | "mesures.verifier" | "remboursement.valider") => Promise<{ auteur: unknown }>;
   corrigerAdresse: (auteur: unknown, numero: string, adresse: string) => Promise<{ erreur: string | null }>;
   avancerStatut: (auteur: unknown, numero: string, vers: string, numeroSuivi: string | null) => Promise<{ erreur: string | null }>;
   confirmerMesures: (auteur: unknown, ligneId: string) => Promise<{ erreur: string | null }>;
+  traiterDemande: (auteur: unknown, demandeId: string, decision: "accepter" | "refuser") => Promise<{ erreur: string | null }>;
+  traiterReclamation: (auteur: unknown, demandeId: string, etape: string, depuisStock: boolean) => Promise<{ erreur: string | null }>;
+  confirmerRemboursement: (auteur: unknown, cibleType: "commande" | "trop_percu", cibleId: string, preuve: string) => Promise<{ erreur: string | null }>;
   invalider: () => void | Promise<void>;
 };
 
@@ -40,6 +49,13 @@ export function erreurBaseCommande(erreur: string): ErreurAdminCommande {
     ["KS_PAS_SUR_MESURE", "pas_sur_mesure"],
     ["KS_ADRESSE_INVALIDE", "entree_invalide"],
     ["KS_LIGNE_INTROUVABLE", "commande_introuvable"],
+    ["KS_ANNULATION_IMPOSSIBLE", "annulation_impossible"],
+    ["KS_DEMANDE_INTROUVABLE", "demande_introuvable"],
+    ["KS_DEMANDE_DEJA_TRAITEE", "demande_deja_traitee"],
+    ["KS_PREUVE_REQUISE", "preuve_requise"],
+    ["KS_STOCK_INSUFFISANT", "stock_insuffisant"],
+    ["KS_REMBOURSEMENT_IMPOSSIBLE", "remboursement_impossible"],
+    ["KS_TROP_PERCU_INTROUVABLE", "remboursement_impossible"],
   ];
   return table.find(([code]) => erreur.includes(code))?.[1] ?? "generique";
 }
@@ -114,6 +130,67 @@ export async function confirmerMesuresRecues(deps: DependancesAdminCommande, ent
     return { ok: true };
   } catch {
     console.error("[commande] confirmation des mesures impossible");
+    return { ok: false, erreur: "generique" };
+  }
+}
+
+// Demande d'annulation d'un client : l'admin accepte (la Commande est annulée et le montant à rendre figé) ou refuse (la Commande ne change pas).
+export async function traiterDemandeClient(deps: DependancesAdminCommande, entree: { demandeId: string; decision: string }): Promise<ResultatAdminCommande> {
+  const id = z.string().uuid().safeParse(entree.demandeId);
+  const decision = entree.decision === "accepter" || entree.decision === "refuser" ? entree.decision : null;
+  if (!id.success || !decision) return { ok: false, erreur: "entree_invalide" };
+  const droit = await autoriser(deps, "remboursement.valider");
+  if (!droit) return { ok: false, erreur: "non_autorise" };
+  try {
+    const { erreur } = await deps.traiterDemande(droit.auteur, id.data, decision);
+    if (erreur) return { ok: false, erreur: erreurBaseCommande(erreur) };
+    await deps.invalider();
+    return { ok: true };
+  } catch {
+    console.error("[commande] traitement d'une demande impossible");
+    return { ok: false, erreur: "generique" };
+  }
+}
+
+const preuveSchema = z.string().trim().min(3).max(200);
+
+// Confirmation d'un remboursement : la preuve (référence du Prestataire ou du virement manuel) est exigée ; sans elle, rien n'est enregistré (UX-DR44).
+export async function confirmerRemboursementAdmin(deps: DependancesAdminCommande, entree: { cibleType: string; cibleId: string; preuve: string }): Promise<ResultatAdminCommande> {
+  const id = z.string().uuid().safeParse(entree.cibleId);
+  const type = entree.cibleType === "commande" || entree.cibleType === "trop_percu" ? entree.cibleType : null;
+  if (!id.success || !type) return { ok: false, erreur: "entree_invalide" };
+  const preuve = preuveSchema.safeParse(entree.preuve);
+  if (!preuve.success) return { ok: false, erreur: "preuve_requise" };
+  const droit = await autoriser(deps, "remboursement.valider");
+  if (!droit) return { ok: false, erreur: "non_autorise" };
+  try {
+    const { erreur } = await deps.confirmerRemboursement(droit.auteur, type, id.data, preuve.data);
+    if (erreur) return { ok: false, erreur: erreurBaseCommande(erreur) };
+    await deps.invalider();
+    return { ok: true };
+  } catch {
+    console.error("[commande] confirmation de remboursement impossible");
+    return { ok: false, erreur: "generique" };
+  }
+}
+
+export const ETAPES_RECLAMATION = ["accepter", "refuser", "article_rendu", "remplacement_remis"] as const;
+
+// Réclamation (story 6.7) : accepter ou refuser, puis article rendu, puis remplacement remis (un remplacement pris en stock décompte le stock).
+// La Commande reste « livree » et aucun remboursement n'est proposé.
+export async function avancerReclamation(deps: DependancesAdminCommande, entree: { demandeId: string; etape: string; depuisStock?: boolean }): Promise<ResultatAdminCommande> {
+  const id = z.string().uuid().safeParse(entree.demandeId);
+  const etape = (ETAPES_RECLAMATION as readonly string[]).includes(entree.etape) ? entree.etape : null;
+  if (!id.success || !etape) return { ok: false, erreur: "entree_invalide" };
+  const droit = await autoriser(deps, "remboursement.valider");
+  if (!droit) return { ok: false, erreur: "non_autorise" };
+  try {
+    const { erreur } = await deps.traiterReclamation(droit.auteur, id.data, etape, etape === "remplacement_remis" && entree.depuisStock === true);
+    if (erreur) return { ok: false, erreur: erreurBaseCommande(erreur) };
+    await deps.invalider();
+    return { ok: true };
+  } catch {
+    console.error("[commande] avancement d'une réclamation impossible");
     return { ok: false, erreur: "generique" };
   }
 }

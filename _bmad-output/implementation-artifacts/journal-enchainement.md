@@ -258,3 +258,10 @@
 - 6.5 : migration `20261213100000_confirmer_mesures_recues.sql` appliquée sur koma-dev ; `confirmer_mesures_recues`, tâche « Mesures à recevoir » (compteur réel), bouton « Mesures reçues », date affichée au client. pgTAP `confirmer_mesures.test.sql` (11) : CI seulement.
 - 6.3, 6.4 et 6.5 ont été poussées dans un seul commit (fichiers de messages et page de détail communs) ; une seule CI les couvre. Auto-revue (pas de sous-agent possible dans ce fork).
 - À tester à la main : commander un cosplay sur mesure (carte ou mobile money quand un prestataire sera activable), vérifier le bouton WhatsApp sur la commande et dans l'email, confirmer « Mesures reçues » côté admin, puis « Passer en fabrication ».
+
+
+## Stories 6.6 et 6.7 : annulation, remboursement, réclamation (fork epic 6)
+- Migrations `20261214100000_annulation_et_remboursement.sql` et `20261215100000_reclamation.sql` appliquées sur koma-dev, types régénérés. Annulation demandée par le client, acceptée ou refusée par l'admin, montant à rendre figé, remboursement confirmé avec preuve (Commande et Trop-perçu), emails `commande_annulee` et `commande_remboursee`. Réclamation sous 48 h (calcul en base), étapes acceptée → article rendu → remplacement remis, stock décompté, aucun email, aucun remboursement.
+- pgTAP `annulation_remboursement.test.sql` (30), `reclamation.test.sql` (23) et `envois.test.sql` : CI seulement. Auto-revue (pas de sous-agent possible dans ce fork).
+- Hypothèse à confirmer par Jonathan : `reduction_cents` = réduction totale de la ligne. Écart : `catalogue_decrementer_stock` créée (absente jusque-là).
+- À tester à la main : annuler une commande payée contenant un cosplay (côté client puis côté admin), confirmer le remboursement avec et sans preuve, vérifier les deux emails ; livrer une commande puis signaler un problème dans les 48 h, parcourir les étapes côté admin.

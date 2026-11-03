@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { avancerStatutCommande, confirmerMesuresRecues, corrigerAdresseCommande, erreurBaseCommande, type DependancesAdminCommande } from "@/modules/commande/admin-service";
+import { avancerStatutCommande, confirmerMesuresRecues, confirmerRemboursementAdmin, corrigerAdresseCommande, erreurBaseCommande, traiterDemandeClient, type DependancesAdminCommande } from "@/modules/commande/admin-service";
 
 const NUMERO = "KS-2026-000042";
 const AUTEUR = { type: "compte", id: "TEST_admin", role: "admin" };
@@ -10,6 +10,9 @@ function deps(s: Partial<DependancesAdminCommande> = {}): DependancesAdminComman
     corrigerAdresse: vi.fn(async () => ({ erreur: null })),
     avancerStatut: vi.fn(async () => ({ erreur: null })),
     confirmerMesures: vi.fn(async () => ({ erreur: null })),
+    traiterDemande: vi.fn(async () => ({ erreur: null })),
+    traiterReclamation: vi.fn(async () => ({ erreur: null })),
+    confirmerRemboursement: vi.fn(async () => ({ erreur: null })),
     invalider: vi.fn(),
     ...s,
   };
@@ -89,5 +92,38 @@ describe("confirmerMesuresRecues (story 6.5)", () => {
 describe("erreurBaseCommande", () => {
   it("code inconnu : générique", () => {
     expect(erreurBaseCommande("autre chose")).toBe("generique");
+  });
+});
+
+describe("traiterDemandeClient et confirmerRemboursementAdmin (story 6.6)", () => {
+  const ID = "22222222-2222-4222-8222-222222222222";
+  it("droit « remboursement.valider » exigé ; décision transmise", async () => {
+    const d = deps();
+    await expect(traiterDemandeClient(d, { demandeId: ID, decision: "accepter" })).resolves.toEqual({ ok: true });
+    expect(d.exigerDroit).toHaveBeenCalledWith("remboursement.valider");
+    expect(d.traiterDemande).toHaveBeenCalledWith(AUTEUR, ID, "accepter");
+  });
+  it("décision ou identifiant invalides : refusés avant tout appel ; sans droit : refusé", async () => {
+    const d = deps();
+    await expect(traiterDemandeClient(d, { demandeId: ID, decision: "peut-etre" })).resolves.toEqual({ ok: false, erreur: "entree_invalide" });
+    await expect(traiterDemandeClient(d, { demandeId: "x", decision: "refuser" })).resolves.toEqual({ ok: false, erreur: "entree_invalide" });
+    expect(d.traiterDemande).not.toHaveBeenCalled();
+    const sans = deps({ exigerDroit: vi.fn(async () => { throw new Error("KS_DROIT_REFUSE"); }) });
+    await expect(traiterDemandeClient(sans, { demandeId: ID, decision: "refuser" })).resolves.toEqual({ ok: false, erreur: "non_autorise" });
+  });
+  it("remboursement : sans preuve (vide ou trop courte), rien n'est enregistré", async () => {
+    const d = deps();
+    for (const preuve of ["", "   ", "ab"]) await expect(confirmerRemboursementAdmin(d, { cibleType: "commande", cibleId: ID, preuve })).resolves.toEqual({ ok: false, erreur: "preuve_requise" });
+    expect(d.confirmerRemboursement).not.toHaveBeenCalled();
+  });
+  it("remboursement avec preuve : transmis (commande ou trop-perçu) ; cible inconnue refusée", async () => {
+    const d = deps();
+    await expect(confirmerRemboursementAdmin(d, { cibleType: "trop_percu", cibleId: ID, preuve: "  VIR-TEST-1  " })).resolves.toEqual({ ok: true });
+    expect(d.confirmerRemboursement).toHaveBeenCalledWith(AUTEUR, "trop_percu", ID, "VIR-TEST-1");
+    await expect(confirmerRemboursementAdmin(d, { cibleType: "pass", cibleId: ID, preuve: "VIR-TEST-1" })).resolves.toEqual({ ok: false, erreur: "entree_invalide" });
+  });
+  it("erreur de la base : rendue, jamais un succès", async () => {
+    const d = deps({ confirmerRemboursement: vi.fn(async () => ({ erreur: "KS_REMBOURSEMENT_IMPOSSIBLE" })) });
+    await expect(confirmerRemboursementAdmin(d, { cibleType: "commande", cibleId: ID, preuve: "VIR-TEST-1" })).resolves.toEqual({ ok: false, erreur: "remboursement_impossible" });
   });
 });

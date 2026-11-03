@@ -336,6 +336,54 @@ export type Database = {
           },
         ]
       }
+      demande_client: {
+        Row: {
+          commande_id: string
+          cree_le: string
+          description: string | null
+          id: string
+          ligne_id: string | null
+          statut: string
+          traitee_le: string | null
+          type: string
+        }
+        Insert: {
+          commande_id: string
+          cree_le?: string
+          description?: string | null
+          id?: string
+          ligne_id?: string | null
+          statut?: string
+          traitee_le?: string | null
+          type: string
+        }
+        Update: {
+          commande_id?: string
+          cree_le?: string
+          description?: string | null
+          id?: string
+          ligne_id?: string | null
+          statut?: string
+          traitee_le?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demande_client_commande_id_fkey"
+            columns: ["commande_id"]
+            isOneToOne: false
+            referencedRelation: "commande"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demande_client_ligne_id_fkey"
+            columns: ["ligne_id"]
+            isOneToOne: false
+            referencedRelation: "ligne_commande"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       envoi: {
         Row: {
           cle: string
@@ -562,6 +610,7 @@ export type Database = {
       }
       ligne_commande: {
         Row: {
+          annulee: boolean
           commande_id: string
           cree_le: string
           delai_fabrication_jours: number | null
@@ -575,6 +624,7 @@ export type Database = {
           variante_id: string | null
         }
         Insert: {
+          annulee?: boolean
           commande_id: string
           cree_le?: string
           delai_fabrication_jours?: number | null
@@ -588,6 +638,7 @@ export type Database = {
           variante_id?: string | null
         }
         Update: {
+          annulee?: boolean
           commande_id?: string
           cree_le?: string
           delai_fabrication_jours?: number | null
@@ -1033,6 +1084,42 @@ export type Database = {
           cle?: string
           mis_a_jour_le?: string
           valeur?: string | null
+        }
+        Relationships: []
+      }
+      remboursement: {
+        Row: {
+          cible_id: string
+          cible_type: string
+          cree_le: string
+          devise: string
+          id: string
+          montant_cents: number
+          preuve_reference: string | null
+          valide_le: string | null
+          valide_par: Json | null
+        }
+        Insert: {
+          cible_id: string
+          cible_type: string
+          cree_le?: string
+          devise: string
+          id?: string
+          montant_cents: number
+          preuve_reference?: string | null
+          valide_le?: string | null
+          valide_par?: Json | null
+        }
+        Update: {
+          cible_id?: string
+          cible_type?: string
+          cree_le?: string
+          devise?: string
+          id?: string
+          montant_cents?: number
+          preuve_reference?: string | null
+          valide_le?: string | null
+          valide_par?: Json | null
         }
         Relationships: []
       }
@@ -1551,6 +1638,10 @@ export type Database = {
         }
         Returns: string
       }
+      annuler_commande: {
+        Args: { p_auteur: Json; p_commande: string }
+        Returns: number
+      }
       assurer_profil: {
         Args: { p_auteur: Json; p_compte: string; p_langue: string }
         Returns: undefined
@@ -1629,6 +1720,10 @@ export type Database = {
         Returns: Json
       }
       capacite_fabrication_atteinte: { Args: never; Returns: boolean }
+      catalogue_decrementer_stock: {
+        Args: { p_nombre: number; p_variante: string }
+        Returns: undefined
+      }
       choisir_vedette_heros: {
         Args: { p_auteur: Json; p_produit_id: string }
         Returns: undefined
@@ -1663,6 +1758,15 @@ export type Database = {
           p_tentative: string
         }
         Returns: Json
+      }
+      confirmer_remboursement: {
+        Args: {
+          p_auteur: Json
+          p_cible_id: string
+          p_cible_type: string
+          p_preuve: string
+        }
+        Returns: undefined
       }
       consommer_essai: {
         Args: { p_cle: string; p_fenetre_secondes: number; p_maximum: number }
@@ -1717,6 +1821,10 @@ export type Database = {
       definir_prestataire_actif: {
         Args: { p_actif: boolean; p_auteur: Json; p_code: string }
         Returns: undefined
+      }
+      demander_annulation: {
+        Args: { p_compte: string; p_numero: string }
+        Returns: string
       }
       demarrer_tentative: {
         Args: {
@@ -1921,6 +2029,12 @@ export type Database = {
         Args: { p_auteur: Json; p_compte: string; p_panier: string }
         Returns: Json
       }
+      lignes_reclamables: {
+        Args: { p_compte: string; p_numero: string }
+        Returns: {
+          ligne_id: string
+        }[]
+      }
       lire_panier: {
         Args: { p_panier: string }
         Returns: {
@@ -2064,6 +2178,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      signaler_probleme: {
+        Args: {
+          p_compte: string
+          p_description: string
+          p_ligne: string
+          p_numero: string
+        }
+        Returns: string
+      }
       stock_disponible: { Args: { p_variante: string }; Returns: number }
       supprimer_chapitre_kit: {
         Args: { p_auteur: Json; p_chapitre_id: string }
@@ -2105,6 +2228,19 @@ export type Database = {
         }[]
       }
       toucher_tentative: { Args: { p_tentative: string }; Returns: undefined }
+      traiter_demande: {
+        Args: { p_auteur: Json; p_decision: string; p_demande: string }
+        Returns: undefined
+      }
+      traiter_reclamation: {
+        Args: {
+          p_auteur: Json
+          p_demande: string
+          p_depuis_stock?: boolean
+          p_etape: string
+        }
+        Returns: undefined
+      }
       valider_video_heros: {
         Args: { p_auteur: Json; p_fichier: string; p_video_id: string }
         Returns: undefined
@@ -2135,6 +2271,8 @@ export type Database = {
         | "commande_en_fabrication"
         | "commande_expediee"
         | "commande_livree"
+        | "commande_annulee"
+        | "commande_remboursee"
       envoi_statut: "a_envoyer" | "envoye" | "echec" | "abandonne" | "ignore"
     }
     CompositeTypes: {
@@ -2281,6 +2419,8 @@ export const Constants = {
         "commande_en_fabrication",
         "commande_expediee",
         "commande_livree",
+        "commande_annulee",
+        "commande_remboursee",
       ],
       envoi_statut: ["a_envoyer", "envoye", "echec", "abandonne", "ignore"],
     },

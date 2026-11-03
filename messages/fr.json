@@ -1385,13 +1385,24 @@
         "kit_ouvert": "kit ouvert",
         "commande_en_fabrication": "Commande en fabrication",
         "commande_expediee": "Commande expédiée",
-        "commande_livree": "Commande livrée"
+        "commande_livree": "Commande livrée",
+        "commande_annulee": "Commande annulée",
+        "commande_remboursee": "Commande remboursée"
       },
       "mesures": {
         "titre": "Mesures à recevoir",
         "compteur": "{nombre, plural, =0 {Aucune ligne en attente de mesures} one {# ligne en attente de mesures} other {# lignes en attente de mesures}}",
         "commande": "Commande {numero} ({nombre, plural, one {# ligne} other {# lignes}})",
         "erreurLecture": "Les mesures à recevoir n'ont pas pu être lues."
+      },
+      "argent": {
+        "titre": "Argent à traiter",
+        "demande": "Demande d'annulation : commande {numero}",
+        "remboursement": "Remboursement à confirmer : commande {numero}",
+        "trop_percu": "Trop-perçu à rembourser : commande {numero}",
+        "vide": "Aucune demande ni remboursement en attente.",
+        "erreurLecture": "Les demandes et remboursements n'ont pas pu être lus.",
+        "reclamation": "Réclamation à traiter : commande {numero}"
       }
     },
     "prestataires": {
@@ -1566,6 +1577,65 @@
           "non_autorise": "Tu n'as pas le droit de confirmer les mesures.",
           "mesures_deja_recues": "Les mesures sont déjà confirmées. Recharge la page.",
           "generique": "La confirmation n'a pas pu être enregistrée. Réessaie."
+        }
+      },
+      "annulation": {
+        "titre": "Annulation et remboursement",
+        "accepter": "Accepter l'annulation",
+        "refuser": "Refuser la demande",
+        "resumeErreur": "La demande n'a pas pu être enregistrée :",
+        "statuts": {
+          "ouverte": "Le client demande l'annulation de sa commande.",
+          "acceptee": "Demande d'annulation acceptée.",
+          "refusee": "Demande d'annulation refusée.",
+          "close": "Demande d'annulation close (remboursement confirmé)."
+        },
+        "erreurs": {
+          "non_autorise": "Seul l'administrateur peut faire cela.",
+          "annulation_impossible": "Cette commande ne peut plus être annulée.",
+          "demande_introuvable": "Cette demande est introuvable.",
+          "demande_deja_traitee": "Cette demande est déjà traitée. Recharge la page.",
+          "preuve_requise": "Saisis la référence du remboursement (3 à 200 caractères) : sans elle, rien n'est enregistré.",
+          "remboursement_impossible": "Ce remboursement ne peut pas être confirmé.",
+          "generique": "L'action n'a pas pu être enregistrée. Réessaie."
+        }
+      },
+      "remboursement": {
+        "montant": "Montant à rendre : {montant}",
+        "confirme": "Remboursement confirmé.",
+        "tropPercu": "Trop-perçu à rembourser : {montant} ({motif})",
+        "preuve": "Preuve du remboursement (référence du prestataire ou du virement)",
+        "aide": "Obligatoire. Le remboursement se fait à la main : aucun argent n'est rendu automatiquement.",
+        "confirmer": "J'ai rendu l'argent",
+        "motifs": {
+          "montant_superieur": "montant supérieur",
+          "deja_payee": "commande déjà payée",
+          "expiree": "commande expirée",
+          "annulee": "commande annulée",
+          "reservations_liberees": "réservations libérées",
+          "autre": "autre motif"
+        }
+      },
+      "reclamation": {
+        "titre": "Réclamations",
+        "accepter": "Accepter",
+        "refuser": "Refuser",
+        "articleRendu": "Pièce rendue",
+        "remplacementRemis": "Remplacement remis",
+        "depuisStock": "Le remplacement est pris en stock (le stock est décompté)",
+        "statuts": {
+          "ouverte": "Ouverte",
+          "acceptee": "Acceptée",
+          "refusee": "Refusée",
+          "article_rendu": "Pièce rendue",
+          "remplacement_remis": "Remplacement remis"
+        },
+        "erreurs": {
+          "non_autorise": "Seul l'administrateur peut faire cela.",
+          "demande_deja_traitee": "Cette étape n'est plus possible. Recharge la page.",
+          "stock_insuffisant": "Le stock est insuffisant pour ce remplacement.",
+          "demande_introuvable": "Cette réclamation est introuvable.",
+          "generique": "L'étape n'a pas pu être enregistrée. Réessaie."
         }
       }
     }
@@ -2044,6 +2114,50 @@
       "message": "Bonjour, voici mes mesures pour la commande {numero}.",
       "absent": "Le numéro WhatsApp de la boutique n'est pas disponible pour le moment. Écris-nous depuis la page Contact pour envoyer tes mesures.",
       "recues": "Tes mesures ont été reçues le {date}. Le délai de fabrication court à partir de cette date."
+    },
+    "annulation": {
+      "bouton": "Demander l'annulation",
+      "titreDialogue": "Annuler ma commande ?",
+      "texteDialogue": "Ta demande est envoyée à Jonathan, qui l'accepte ou la refuse. Si elle est acceptée, les articles physiques sont annulés ; les kits restent dans ta bibliothèque. L'argent est rendu à la main, sans remboursement automatique.",
+      "confirmer": "Envoyer la demande",
+      "renoncer": "Garder ma commande",
+      "ouverte": "Ta demande d'annulation est envoyée. Tu seras informé de la décision.",
+      "refusee": "Ta demande d'annulation a été refusée : la commande suit son cours.",
+      "erreurs": {
+        "non_connecte": "Ta session a pris fin. Connecte-toi à nouveau.",
+        "entree_invalide": "Cette demande n'est pas valide. Recharge la page.",
+        "commande_introuvable": "Cette commande est introuvable.",
+        "annulation_impossible": "Cette commande ne peut plus être annulée.",
+        "demande_en_cours": "Une demande d'annulation est déjà en cours.",
+        "generique": "La demande n'a pas pu être envoyée. Réessaie."
+      }
+    },
+    "reclamation": {
+      "titre": "Signaler un problème",
+      "intro": "Une pièce abîmée ou différente de ta commande ? Dis-le-nous dans les 48 heures suivant la livraison : nous te proposons une pièce de remplacement.",
+      "ligne": "Quelle pièce ?",
+      "description": "Décris le problème",
+      "envoyer": "Envoyer le signalement",
+      "photos": "Envoyer des photos sur WhatsApp",
+      "nouvelOnglet": " (s'ouvre dans un nouvel onglet)",
+      "suivi": "Tes signalements",
+      "ligneEtat": "{titre} : {etat}",
+      "etatListe": "Signalement : {etat}",
+      "statuts": {
+        "ouverte": "reçu, en attente de réponse",
+        "acceptee": "accepté : rends la pièce pour recevoir son remplacement",
+        "refusee": "refusé",
+        "article_rendu": "pièce rendue, remplacement en préparation",
+        "remplacement_remis": "remplacement remis"
+      },
+      "erreurs": {
+        "non_connecte": "Ta session a pris fin. Connecte-toi à nouveau.",
+        "entree_invalide": "Cette demande n'est pas valide. Recharge la page.",
+        "description_requise": "Décris le problème pour envoyer le signalement.",
+        "commande_introuvable": "Cette commande est introuvable.",
+        "reclamation_impossible": "Cette pièce ne peut plus faire l'objet d'un signalement (48 heures dépassées ou signalement déjà en cours).",
+        "generique": "Le signalement n'a pas pu être envoyé. Réessaie."
+      }
     }
   },
   "Emails": {
@@ -2096,6 +2210,22 @@
       "titre": "Ta commande est livrée",
       "intro": "Ta commande {numero} est livrée. Merci de ta confiance.",
       "photo": "Tu portes ton cosplay ? Envoie-nous ta photo sur WhatsApp : {lien}",
+      "lien": "Page de ta commande :",
+      "bouton": "Voir ma commande"
+    },
+    "commande_annulee": {
+      "sujet": "Ta commande {numero} est annulée",
+      "titre": "Ta commande est annulée",
+      "intro": "Ta commande {numero} est annulée. Les kits éventuels restent dans ta bibliothèque.",
+      "montant": "Montant à te rendre : {montant}. Il te sera rendu à la main ; tu recevras un email quand ce sera fait.",
+      "lien": "Page de ta commande :",
+      "bouton": "Voir ma commande"
+    },
+    "commande_remboursee": {
+      "sujet": "Ta commande {numero} est remboursée",
+      "titre": "Ta commande est remboursée",
+      "intro": "Le remboursement de ta commande {numero} a été effectué.",
+      "montant": "Montant rendu : {montant}.",
       "lien": "Page de ta commande :",
       "bouton": "Voir ma commande"
     }

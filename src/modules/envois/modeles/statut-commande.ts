@@ -1,3 +1,4 @@
+import { formaterUsd } from "@/lib/argent";
 import type { LangueEmail, MessageEmail } from "../types";
 import { envelopper, remplir, TEXTES } from "./commun";
 
@@ -32,6 +33,21 @@ export function rendreCommandeLivree(langue: LangueEmail, d: DonneesStatutComman
   const t = TEXTES[langue].commande_livree;
   const paragraphes = [remplir(t.intro, { numero: d.numero })];
   if (d.lienWhatsapp) paragraphes.push(remplir(t.photo, { lien: d.lienWhatsapp }));
+  const { html, texte } = envelopper({ langue, nomSite: d.nomSite, titre: t.titre, paragraphes, texteLien: t.lien, libelleBouton: t.bouton, url: d.url });
+  return { sujet: remplir(t.sujet, { numero: d.numero }), html, texte };
+}
+
+// Montant à rendre, figé dans le remboursement par annuler_commande ; relu en base au moment du rendu (USD seulement).
+export function rendreCommandeAnnulee(langue: LangueEmail, d: DonneesStatutCommande & { montantCents: number }): MessageEmail {
+  const t = TEXTES[langue].commande_annulee;
+  const paragraphes = [remplir(t.intro, { numero: d.numero }), remplir(t.montant, { montant: formaterUsd(d.montantCents, langue) })];
+  const { html, texte } = envelopper({ langue, nomSite: d.nomSite, titre: t.titre, paragraphes, texteLien: t.lien, libelleBouton: t.bouton, url: d.url });
+  return { sujet: remplir(t.sujet, { numero: d.numero }), html, texte };
+}
+
+export function rendreCommandeRemboursee(langue: LangueEmail, d: DonneesStatutCommande & { montantCents: number }): MessageEmail {
+  const t = TEXTES[langue].commande_remboursee;
+  const paragraphes = [remplir(t.intro, { numero: d.numero }), remplir(t.montant, { montant: formaterUsd(d.montantCents, langue) })];
   const { html, texte } = envelopper({ langue, nomSite: d.nomSite, titre: t.titre, paragraphes, texteLien: t.lien, libelleBouton: t.bouton, url: d.url });
   return { sujet: remplir(t.sujet, { numero: d.numero }), html, texte };
 }

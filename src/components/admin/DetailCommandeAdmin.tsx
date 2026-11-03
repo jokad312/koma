@@ -7,6 +7,8 @@ import type { CommandeAdminDetail } from "@/modules/commande/admin-queries";
 import { transitionsPossibles } from "@/modules/commande/transitions";
 import { AvancementCommande } from "./AvancementCommande";
 import { BoutonMesuresRecues } from "./BoutonMesuresRecues";
+import { DecisionDemande, FormulaireRemboursement } from "./DemandeEtRemboursement";
+import { EtapesReclamation } from "./EtapesReclamation";
 import { FormulaireAdresseCommande } from "./FormulaireAdresseCommande";
 
 // Détail d'une Commande pour l'admin (story 6.2). Le bloc Paiement est en lecture seule : aucun champ, aucun bouton ne permet de poser « payée » (règle 2).
@@ -34,6 +36,50 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
         {commande.numeroSuivi ? <p className="t-body">{t("avancement.suiviEnregistre", { suivi: commande.numeroSuivi })}</p> : null}
         <AvancementCommande numero={commande.numero} transitions={transitions} mesuresManquantes={mesuresManquantes} retrait={commande.modeRemise === "retrait"} />
       </section>
+
+      {commande.demandeAnnulation || commande.remboursement || commande.tropPercus.length > 0 ? (
+        <section aria-labelledby="adm-argent" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
+          <h2 id="adm-argent" className="t-h2">
+            {t("annulation.titre")}
+          </h2>
+          {commande.demandeAnnulation ? (
+            <div className="flex flex-col gap-2">
+              <p className="t-body">{t(`annulation.statuts.${commande.demandeAnnulation.statut === "ouverte" ? "ouverte" : commande.demandeAnnulation.statut === "refusee" ? "refusee" : commande.demandeAnnulation.statut === "acceptee" ? "acceptee" : "close"}`)}</p>
+              {commande.demandeAnnulation.statut === "ouverte" ? <DecisionDemande demandeId={commande.demandeAnnulation.id} /> : null}
+            </div>
+          ) : null}
+          {commande.remboursement ? (
+            <div className="flex flex-col gap-2">
+              <p className="t-body">{t("remboursement.montant", { montant: formaterUsd(commande.remboursement.montantCents, locale) })}</p>
+              {commande.remboursement.valide ? <p className="t-label">{t("remboursement.confirme")}</p> : commande.statut === "annulee" ? <FormulaireRemboursement cibleType="commande" cibleId={commande.id} /> : null}
+            </div>
+          ) : null}
+          {commande.tropPercus.map((p) => (
+            <div key={p.id} className="flex flex-col gap-2 border-t border-border pt-3">
+              <p className="t-body">{t("remboursement.tropPercu", { montant: `${p.montantRecu} ${p.devise}`, motif: t(`remboursement.motifs.${["montant_superieur", "deja_payee", "expiree", "annulee", "reservations_liberees"].includes(p.motif) ? p.motif : "autre"}`) })}</p>
+              <FormulaireRemboursement cibleType="trop_percu" cibleId={p.id} />
+            </div>
+          ))}
+        </section>
+      ) : null}
+
+      {commande.reclamations.length > 0 ? (
+        <section aria-labelledby="adm-reclamations" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
+          <h2 id="adm-reclamations" className="t-h2">
+            {t("reclamation.titre")}
+          </h2>
+          <ul className="flex flex-col gap-4">
+            {commande.reclamations.map((r) => (
+              <li key={r.id} className="flex flex-col gap-2">
+                <p className="t-label text-text-primary">{r.ligneTitre}</p>
+                <p className="t-small text-text-secondary">{t(`reclamation.statuts.${["ouverte", "acceptee", "refusee", "article_rendu", "remplacement_remis"].includes(r.statut) ? r.statut : "ouverte"}`)}</p>
+                <p className="t-body whitespace-pre-line">{r.description}</p>
+                <EtapesReclamation demandeId={r.id} statut={r.statut} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section aria-labelledby="adm-lignes" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
         <h2 id="adm-lignes" className="t-h2">
