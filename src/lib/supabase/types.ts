@@ -1566,6 +1566,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      avancer_statut: {
+        Args: {
+          p_auteur: Json
+          p_numero: string
+          p_numero_suivi?: string
+          p_vers: string
+        }
+        Returns: undefined
+      }
       avis_kit_possede: { Args: { p_panier: string }; Returns: boolean }
       bibliotheque_enregistrer_filigrane: {
         Args: {
@@ -1638,6 +1647,10 @@ export type Database = {
       compter_panier: { Args: { p_panier: string }; Returns: number }
       confirmer_couverture: {
         Args: { p_auteur: Json; p_id: string }
+        Returns: undefined
+      }
+      confirmer_mesures_recues: {
+        Args: { p_auteur: Json; p_ligne: string }
         Returns: undefined
       }
       confirmer_paiement: {
@@ -2116,7 +2129,12 @@ export type Database = {
         | "kit_deja_possede"
         | "montant_indetermine"
         | "stock_insuffisant"
-      envoi_modele: "commande_payee" | "kit_ouvert"
+      envoi_modele:
+        | "commande_payee"
+        | "kit_ouvert"
+        | "commande_en_fabrication"
+        | "commande_expediee"
+        | "commande_livree"
       envoi_statut: "a_envoyer" | "envoye" | "echec" | "abandonne" | "ignore"
     }
     CompositeTypes: {
@@ -2257,7 +2275,13 @@ export const Constants = {
         "montant_indetermine",
         "stock_insuffisant",
       ],
-      envoi_modele: ["commande_payee", "kit_ouvert"],
+      envoi_modele: [
+        "commande_payee",
+        "kit_ouvert",
+        "commande_en_fabrication",
+        "commande_expediee",
+        "commande_livree",
+      ],
       envoi_statut: ["a_envoyer", "envoye", "echec", "abandonne", "ignore"],
     },
   },

@@ -9,6 +9,8 @@ export type DonneesCommandePayee = {
   livraisonCents: number;
   totalCents: number;
   url: string;
+  // Présent seulement si la Commande contient une ligne Sur-mesure (story 6.4) : lien WhatsApp du numéro réglé, ou null s'il n'est pas réglé.
+  mesures?: { lien: string | null };
 };
 
 // Montants en USD seulement (règle « Prix et livraison »), calculés depuis la base au moment du rendu.
@@ -19,6 +21,7 @@ export function rendreCommandePayee(langue: LangueEmail, d: DonneesCommandePayee
     nomSite: d.nomSite,
     titre: t.titre,
     paragraphes: [remplir(t.intro, { numero: d.numero }), t.articles],
+    paragrapheFinal: d.mesures ? (d.mesures.lien ? remplir(t.mesures, { lien: d.mesures.lien }) : t.mesuresSansNumero) : undefined,
     lignes: [
       ...d.lignes.map((l) => remplir(t.ligne, { nombre: l.nombre, titre: l.titre, montant: formaterUsd(l.prixCents * l.nombre, langue) })),
       ...(d.livraisonCents > 0 ? [remplir(t.livraison, { montant: formaterUsd(d.livraisonCents, langue) })] : []),

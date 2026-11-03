@@ -9,7 +9,7 @@ import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
 import { routing, type Locale } from "@/i18n/routing";
 import { exigerAdminPage } from "@/lib/auth/droits";
-import { lireNomSite } from "@/lib/reglages";
+import { lireNomSite, lireNumeroWhatsappOuNull } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
 import { lireCommandeAdmin, type CommandeAdminDetail } from "@/modules/commande/admin-queries";
 
@@ -40,7 +40,7 @@ async function DetailSelonDroit({ locale, numero }: { locale: Locale; numero: st
   if (!commande) notFound();
   return (
     <CoqueAdmin>
-      <DetailCommandeAdmin commande={commande} locale={locale} />
+      <DetailCommandeAdmin commande={commande} locale={locale} numeroWhatsappAbsent={(await lireNumeroWhatsappOuNull()) === null} />
     </CoqueAdmin>
   );
 }

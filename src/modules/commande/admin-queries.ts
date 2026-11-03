@@ -72,7 +72,7 @@ export type CommandeAdminDetail = {
   referenceTransaction: string | null;
   payeLe: string | null;
   moyen: string | null;
-  lignes: { titre: string; famille: string; taille: string | null; nombre: number; prixCents: number; origine: string | null; mesuresRecuesLe: string | null }[];
+  lignes: { id: string; titre: string; famille: string; taille: string | null; nombre: number; prixCents: number; origine: string | null; mesuresRecuesLe: string | null }[];
 };
 
 export async function lireCommandeAdmin(numero: string): Promise<CommandeAdminDetail | null> {
@@ -81,7 +81,7 @@ export async function lireCommandeAdmin(numero: string): Promise<CommandeAdminDe
   const { data, error } = await client
     .from("commande")
     .select(
-      "id, numero, statut, expire_le, cree_le, sous_total_cents, forfait_cents, total_cents, devise, offerte, zone, mode_remise, telephone, adresse, numero_suivi, prestataire, reference_transaction, paye_le, ligne_commande(prix_cents, nombre, origine, mesures_recues_le, produit(famille, titre_fr), variante(taille))",
+      "id, numero, statut, expire_le, cree_le, sous_total_cents, forfait_cents, total_cents, devise, offerte, zone, mode_remise, telephone, adresse, numero_suivi, prestataire, reference_transaction, paye_le, ligne_commande(id, prix_cents, nombre, origine, mesures_recues_le, produit(famille, titre_fr), variante(taille))",
     )
     .eq("numero", numero)
     .maybeSingle();
@@ -113,7 +113,27 @@ export async function lireCommandeAdmin(numero: string): Promise<CommandeAdminDe
     lignes: (data.ligne_commande ?? []).map((l) => {
       const produit = Array.isArray(l.produit) ? l.produit[0] : l.produit;
       const variante = Array.isArray(l.variante) ? l.variante[0] : l.variante;
-      return { titre: produit?.titre_fr ?? "", famille: produit?.famille ?? "", taille: variante?.taille ?? null, nombre: l.nombre, prixCents: l.prix_cents, origine: l.origine, mesuresRecuesLe: l.mesures_recues_le };
+      return { id: l.id, titre: produit?.titre_fr ?? "", famille: produit?.famille ?? "", taille: variante?.taille ?? null, nombre: l.nombre, prixCents: l.prix_cents, origine: l.origine, mesuresRecuesLe: l.mesures_recues_le };
     }),
   };
+}
+
+export type MesuresARecevoir = { numero: string; lignes: number };
+
+// Tâche « Mesures à recevoir » (story 6.5) : lignes Sur-mesure de Commandes payées dont la réception des mesures n'est pas confirmée.
+// Compteur réel, lu en base ; une lecture impossible lève une erreur (jamais un faux zéro).
+export async function lireMesuresARecevoir(): Promise<{ total: number; commandes: MesuresARecevoir[] }> {
+  const { data, error } = await creerClientService()
+    .from("ligne_commande")
+    .select("id, commande:commande_id!inner(numero, statut), variante:variante_id!inner(taille)")
+    .eq("variante.taille", "sur_mesure")
+    .is("mesures_recues_le", null)
+    .eq("commande.statut", "payee");
+  if (error) throw new Error("lecture des mesures à recevoir impossible");
+  const parNumero = new Map<string, number>();
+  for (const l of data ?? []) {
+    const c = Array.isArray(l.commande) ? l.commande[0] : l.commande;
+    if (c) parNumero.set(c.numero, (parNumero.get(c.numero) ?? 0) + 1);
+  }
+  return { total: data?.length ?? 0, commandes: [...parNumero.entries()].map(([numero, lignes]) => ({ numero, lignes })).sort((a, b) => a.numero.localeCompare(b.numero)) };
 }

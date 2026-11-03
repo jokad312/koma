@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
+import { TacheMesuresARecevoir } from "@/components/admin/TacheMesuresARecevoir";
 import { ListeTaches } from "@/components/admin/ListeTaches";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
@@ -46,6 +47,7 @@ async function TachesSelonDroit({ locale }: { locale: Locale }) {
       <div className="flex flex-col gap-6">
         <h1 className="t-h1">{t("titre")}</h1>
         <p className="t-body text-text-secondary">{t("intro")}</p>
+        <TacheMesuresARecevoir />
         {taches ? <ListeTaches taches={taches} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
       </div>
     </CoqueAdmin>

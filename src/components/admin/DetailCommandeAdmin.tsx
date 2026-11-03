@@ -1,15 +1,22 @@
 import { useTranslations } from "next-intl";
+import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Link } from "@/i18n/navigation";
 import { formaterUsd } from "@/lib/argent";
 import { formaterDateHeureBoutique } from "@/lib/dates";
 import type { CommandeAdminDetail } from "@/modules/commande/admin-queries";
+import { transitionsPossibles } from "@/modules/commande/transitions";
+import { AvancementCommande } from "./AvancementCommande";
+import { BoutonMesuresRecues } from "./BoutonMesuresRecues";
 import { FormulaireAdresseCommande } from "./FormulaireAdresseCommande";
 
 // Détail d'une Commande pour l'admin (story 6.2). Le bloc Paiement est en lecture seule : aucun champ, aucun bouton ne permet de poser « payée » (règle 2).
-export function DetailCommandeAdmin({ commande, locale }: { commande: CommandeAdminDetail; locale: "fr" | "en" }) {
+export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: { commande: CommandeAdminDetail; locale: "fr" | "en"; numeroWhatsappAbsent: boolean }) {
   const t = useTranslations("Admin.commandes");
   const ts = useTranslations("Commande.detail.statuts");
   const tr = useTranslations("Commande.recap");
+  const physiques = commande.lignes.filter((l) => l.origine !== null);
+  const transitions = transitionsPossibles({ statut: commande.statut, offerte: commande.offerte, lignesPhysiques: physiques.length, lignesFabriquees: physiques.filter((l) => l.origine === "fabrication").length });
+  const mesuresManquantes = physiques.some((l) => l.taille === "sur_mesure" && l.mesuresRecuesLe === null);
   return (
     <div className="flex flex-col gap-6">
       <Link href="/admin/commandes" className="t-body inline-flex min-h-touch items-center text-text-primary underline">
@@ -17,6 +24,16 @@ export function DetailCommandeAdmin({ commande, locale }: { commande: CommandeAd
       </Link>
       <h1 className="t-h1">{t("detail.titre", { numero: commande.numero })}</h1>
       <p className="t-small inline-flex w-fit items-center rounded-full border border-border-field px-3 py-1 text-text-primary">{commande.offerte ? t("offerte") : ts(commande.statut)}</p>
+
+      {commande.lignes.some((l) => l.taille === "sur_mesure") && numeroWhatsappAbsent ? <MessageEtat type="attention">{t("mesures.numeroAbsent")}</MessageEtat> : null}
+
+      <section aria-labelledby="adm-avancement" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
+        <h2 id="adm-avancement" className="t-h2">
+          {t("avancement.titre")}
+        </h2>
+        {commande.numeroSuivi ? <p className="t-body">{t("avancement.suiviEnregistre", { suivi: commande.numeroSuivi })}</p> : null}
+        <AvancementCommande numero={commande.numero} transitions={transitions} mesuresManquantes={mesuresManquantes} retrait={commande.modeRemise === "retrait"} />
+      </section>
 
       <section aria-labelledby="adm-lignes" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
         <h2 id="adm-lignes" className="t-h2">
@@ -29,6 +46,13 @@ export function DetailCommandeAdmin({ commande, locale }: { commande: CommandeAd
               {l.famille !== "kit" ? <p className="t-small text-text-secondary">{l.taille === "sur_mesure" ? tr("tailleSurMesure") : tr("taille", { taille: l.taille ?? "" })}</p> : null}
               <p className="t-body text-text-primary">{tr("quantitePrix", { nombre: l.nombre, prix: formaterUsd(l.prixCents, locale) })}</p>
               {l.origine ? <p className="t-small text-text-secondary">{t(`origines.${l.origine === "fabrication" ? "fabrication" : "stock"}`)}</p> : null}
+              {l.taille === "sur_mesure" ? (
+                l.mesuresRecuesLe ? (
+                  <p className="t-small text-text-primary">{t("mesures.recuesLe", { date: formaterDateHeureBoutique(l.mesuresRecuesLe, locale) ?? "" })}</p>
+                ) : ["payee", "en_fabrication"].includes(commande.statut) ? (
+                  <BoutonMesuresRecues ligneId={l.id} />
+                ) : null
+              ) : null}
             </li>
           ))}
         </ul>

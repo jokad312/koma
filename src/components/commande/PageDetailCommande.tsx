@@ -15,6 +15,7 @@ import { lireEtatPaiement } from "@/modules/paiement/etat-queries";
 import { lireOptionsPaiement, type OptionsPaiement } from "@/modules/paiement/service";
 import { lireNumeroWhatsappOuNull } from "@/lib/reglages";
 import { construireFrise } from "@/modules/commande/frise";
+import { EnvoiMesures } from "./EnvoiMesures";
 import { FriseStatuts } from "./FriseStatuts";
 import { MoyensPaiement } from "./MoyensPaiement";
 import { SuiviPaiement } from "./SuiviPaiement";
@@ -65,6 +66,10 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
   const physique = commande.lignes.some((l) => l.famille !== "kit");
   const etapes = construireFrise({ statut: commande.statut, physique, fabrication: commande.lignes.some((l) => l.origine === "fabrication"), dates: commande.dates });
   const retraitGoma = commande.mode === "retrait";
+  // Lignes Sur-mesure : la date de réception n'existe que quand toutes ont été confirmées par l'admin.
+  const lignesSurMesure = commande.lignes.filter((l) => l.taille === "sur_mesure");
+  const surMesure = lignesSurMesure.length > 0;
+  const mesuresRecuesLe = surMesure && lignesSurMesure.every((l) => l.mesuresRecuesLe !== null) ? (lignesSurMesure.map((l) => l.mesuresRecuesLe as string).sort().at(-1) ?? null) : null;
   const libelleStatut = commande.offerte ? t("detail.offert") : commande.statut === "expediee" && retraitGoma ? t("frise.etapes.pretARetirer") : t(`detail.statuts.${commande.statut}`);
 
   return (
@@ -84,6 +89,10 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
             {t("detail.reprendre")}
           </Link>
         </div>
+      ) : null}
+
+      {surMesure && ["payee", "en_fabrication"].includes(commande.statut) ? (
+        <EnvoiMesures numero={commande.numero} numeroWhatsapp={numeroWhatsapp} mesuresRecuesLe={mesuresRecuesLe} locale={locale} />
       ) : null}
 
       <section aria-labelledby="commande-lignes" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">

@@ -3,7 +3,10 @@ import { Resend } from "resend";
 import { lireEnvPublique } from "@/lib/env";
 import { creerClientService } from "@/lib/supabase/service";
 import { rendreCommandePayee } from "./modeles/commande-payee";
+import { TEXTES } from "./modeles/commun";
 import { rendreKitOuvert } from "./modeles/kit-ouvert";
+import { rendreCommandeEnFabrication, rendreCommandeExpediee, rendreCommandeLivree } from "./modeles/statut-commande";
+import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
 import type { DependancesEnvois, EnvoiReserve, LangueEmail, ResultatRendu } from "./types";
 
 type ClientService = ReturnType<typeof creerClientService>;
@@ -31,7 +34,7 @@ async function rendre(client: ClientService, envoi: EnvoiReserve): Promise<Resul
   if (!commandeId) return { statut: "ignorer", raison: "commande non indiquée" };
   const { data: commande, error: erreurCommande } = await client
     .from("commande")
-    .select("id, numero, compte_id, statut, total_cents, forfait_cents")
+    .select("id, numero, compte_id, statut, total_cents, forfait_cents, mode_remise, numero_suivi")
     .eq("id", commandeId)
     .maybeSingle();
   if (erreurCommande) return { statut: "reessayer", raison: "lecture de la Commande impossible" };
@@ -42,11 +45,18 @@ async function rendre(client: ClientService, envoi: EnvoiReserve): Promise<Resul
     if (!STATUTS_PAYES.includes(commande.statut)) return { statut: "ignorer", raison: "commande non payée" };
     const { data: lignes, error } = await client
       .from("ligne_commande")
-      .select("nombre, prix_cents, produit:produit_id(titre_fr, titre_en)")
+      .select("nombre, prix_cents, produit:produit_id(titre_fr, titre_en), variante:variante_id(taille)")
       .eq("commande_id", commande.id)
       .order("cree_le", { ascending: true });
     if (error) return { statut: "reessayer", raison: "lecture des lignes impossible" };
     if (!lignes || lignes.length === 0) return { statut: "ignorer", raison: "commande sans ligne" };
+    // Ligne Sur-mesure : l'email porte le lien WhatsApp du numéro réglé (jamais en dur), ou invite à contacter si le numéro est absent (règle 15).
+    let mesures: { lien: string | null } | undefined;
+    if (lignes.some((l) => (Array.isArray(l.variante) ? l.variante[0] : l.variante)?.taille === "sur_mesure")) {
+      const { data: reglageWhatsapp, error: erreurWhatsapp } = await client.from("reglage").select("valeur").eq("cle", "numero_whatsapp").maybeSingle();
+      if (erreurWhatsapp) return { statut: "reessayer", raison: "numéro WhatsApp illisible" };
+      mesures = { lien: lienWhatsapp(reglageWhatsapp?.valeur, TEXTES[envoi.langue].commande_payee.messageMesures.replace("{numero}", commande.numero)) };
+    }
     const message = rendreCommandePayee(envoi.langue, {
       nomSite,
       numero: commande.numero,
@@ -54,8 +64,26 @@ async function rendre(client: ClientService, envoi: EnvoiReserve): Promise<Resul
       livraisonCents: commande.forfait_cents,
       totalCents: commande.total_cents,
       url: `${site}/${envoi.langue}/commande/${encodeURIComponent(commande.numero)}`,
+      mesures,
     });
     return { statut: "pret", destinataire, message };
+  }
+
+  // Emails d'avancement (story 6.3) : jamais envoyés si la Commande n'a pas atteint (ou a dépassé normalement) ce statut.
+  if (envoi.modele === "commande_en_fabrication" || envoi.modele === "commande_expediee" || envoi.modele === "commande_livree") {
+    const atteints: Record<string, string[]> = {
+      commande_en_fabrication: ["en_fabrication", "expediee", "livree"],
+      commande_expediee: ["expediee", "livree"],
+      commande_livree: ["livree"],
+    };
+    if (!atteints[envoi.modele].includes(commande.statut)) return { statut: "ignorer", raison: "statut de la commande non atteint" };
+    const donnees = { nomSite, numero: commande.numero, url: `${site}/${envoi.langue}/commande/${encodeURIComponent(commande.numero)}`, numeroSuivi: commande.numero_suivi, retrait: commande.mode_remise === "retrait" };
+    if (envoi.modele === "commande_en_fabrication") return { statut: "pret", destinataire, message: rendreCommandeEnFabrication(envoi.langue, donnees) };
+    if (envoi.modele === "commande_expediee") return { statut: "pret", destinataire, message: rendreCommandeExpediee(envoi.langue, donnees) };
+    // Numéro WhatsApp lu dans les réglages au moment du rendu ; absent ou mal formé : aucune invitation, aucun numéro de repli.
+    const { data: numero, error: erreurNumero } = await client.from("reglage").select("valeur").eq("cle", "numero_whatsapp").maybeSingle();
+    if (erreurNumero) return { statut: "reessayer", raison: "numéro WhatsApp illisible" };
+    return { statut: "pret", destinataire, message: rendreCommandeLivree(envoi.langue, { ...donnees, lienWhatsapp: lienWhatsapp(numero?.valeur) }) };
   }
 
   if (envoi.modele === "kit_ouvert") {

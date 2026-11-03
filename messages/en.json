@@ -1382,7 +1382,16 @@
       "detailEnvoi": "“{modele}” email: {tentatives} attempts.",
       "modeles": {
         "commande_payee": "order paid",
-        "kit_ouvert": "kit open"
+        "kit_ouvert": "kit open",
+        "commande_en_fabrication": "Order being made",
+        "commande_expediee": "Order shipped",
+        "commande_livree": "Order delivered"
+      },
+      "mesures": {
+        "titre": "Measurements to receive",
+        "compteur": "{nombre, plural, =0 {No line waiting for measurements} one {# line waiting for measurements} other {# lines waiting for measurements}}",
+        "commande": "Order {numero} ({nombre, plural, one {# line} other {# lines}})",
+        "erreurLecture": "The measurements to receive could not be read."
       }
     },
     "prestataires": {
@@ -1528,6 +1537,36 @@
         "montant": "Amount",
         "confirmeLe": "Confirmed on",
         "regle": "The \"paid\" status is never set by hand."
+      },
+      "avancement": {
+        "titre": "Progress",
+        "aucune": "No status change is possible for this order.",
+        "suivi": "Tracking number (optional)",
+        "suiviAide": "Free text, shown to the customer as is. It is not turned into a link.",
+        "suiviEnregistre": "Tracking number saved: {suivi}",
+        "versEnFabrication": "Start making",
+        "versExpediee": "Mark as shipped",
+        "versPrete": "Mark as ready for pickup",
+        "versLivree": "Mark as delivered",
+        "mesuresDabord": "First confirm that the measurements were received.",
+        "erreurs": {
+          "non_autorise": "You are not allowed to change this status.",
+          "transition_interdite": "This status change is not allowed. Reload the page.",
+          "mesures_non_recues": "First confirm that the measurements were received.",
+          "numero_suivi_invalide": "The tracking number must be 100 characters or fewer.",
+          "commande_introuvable": "This order cannot be found.",
+          "generique": "The status could not be changed. Try again."
+        }
+      },
+      "mesures": {
+        "bouton": "Measurements received",
+        "recuesLe": "Measurements received on {date}",
+        "numeroAbsent": "The WhatsApp number is not set: the customer cannot send her measurements from her order. Set it in Settings.",
+        "erreurs": {
+          "non_autorise": "You are not allowed to confirm measurements.",
+          "mesures_deja_recues": "The measurements are already confirmed. Reload the page.",
+          "generique": "The confirmation could not be saved. Try again."
+        }
       }
     }
   },
@@ -1996,6 +2035,15 @@
         "en_cours": "In progress",
         "a_venir": "Upcoming"
       }
+    },
+    "mesures": {
+      "titre": "Your measurements",
+      "bouton": "Send my measurements on WhatsApp",
+      "nouvelOnglet": " (opens in a new tab)",
+      "delai": "The making time starts when we receive your measurements.",
+      "message": "Hello, here are my measurements for order {numero}.",
+      "absent": "The shop's WhatsApp number is not available right now. Write to us from the Contact page to send your measurements.",
+      "recues": "Your measurements were received on {date}. The making time starts from that date."
     }
   },
   "Emails": {
@@ -2013,7 +2061,10 @@
       "livraison": "Delivery: {montant}",
       "total": "Total paid: {total}",
       "lien": "Your order page:",
-      "bouton": "View my order"
+      "bouton": "View my order",
+      "mesures": "Your order contains a made-to-measure cosplay: send your measurements on WhatsApp with this link: {lien} The making time starts when we receive them.",
+      "mesuresSansNumero": "Your order contains a made-to-measure cosplay: write to us from the Contact page to send your measurements. The making time starts when we receive them.",
+      "messageMesures": "Hello, here are my measurements for order {numero}."
     },
     "kit_ouvert": {
       "sujet": "Your kit is open: {titre}",
@@ -2021,6 +2072,32 @@
       "intro": "The kit “{titre}” has been added to your Account (order {numero}).",
       "lien": "Kit page:",
       "bouton": "View my kit"
+    },
+    "commande_en_fabrication": {
+      "sujet": "Your order {numero} is being made",
+      "titre": "Your order is being made",
+      "intro": "Your order {numero} is now being made.",
+      "lien": "Your order page:",
+      "bouton": "View my order"
+    },
+    "commande_expediee": {
+      "sujet": "Your order {numero} has shipped",
+      "titre": "Your order has shipped",
+      "sujetRetrait": "Your order {numero} is ready for pickup",
+      "titreRetrait": "Your order is ready for pickup",
+      "intro": "Your order {numero} has shipped.",
+      "introRetrait": "Your order {numero} is ready: you can pick it up in Goma.",
+      "suivi": "Tracking number: {suivi}",
+      "lien": "Your order page:",
+      "bouton": "View my order"
+    },
+    "commande_livree": {
+      "sujet": "Your order {numero} has been delivered",
+      "titre": "Your order has been delivered",
+      "intro": "Your order {numero} has been delivered. Thank you for your trust.",
+      "photo": "Wearing your cosplay? Send us your photo on WhatsApp: {lien}",
+      "lien": "Your order page:",
+      "bouton": "View my order"
     }
   },
   "Bibliotheque": {

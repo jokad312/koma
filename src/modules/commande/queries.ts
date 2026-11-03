@@ -13,6 +13,8 @@ export type LigneCommandeLue = {
   prixCents: number;
   origine: string | null;
   delaiFabricationJours: number | null;
+  // Date de réception des mesures d'une ligne Sur-mesure, confirmée par l'admin (story 6.5) ; aucune mesure n'est stockée.
+  mesuresRecuesLe: string | null;
 };
 
 export type CommandeLue = {
@@ -51,7 +53,7 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
   const { data, error } = await creerClientService()
     .from("commande")
     .select(
-      "id, numero, statut, sous_total_cents, forfait_cents, total_cents, expire_le, zone, mode_remise, offerte, cree_le, paye_le, fabrication_le, expediee_le, livree_le, numero_suivi, ligne_commande(prix_cents, nombre, origine, delai_fabrication_jours, produit(slug, famille, titre_fr, titre_en), variante(taille))",
+      "id, numero, statut, sous_total_cents, forfait_cents, total_cents, expire_le, zone, mode_remise, offerte, cree_le, paye_le, fabrication_le, expediee_le, livree_le, numero_suivi, ligne_commande(prix_cents, nombre, origine, delai_fabrication_jours, mesures_recues_le, produit(slug, famille, titre_fr, titre_en), variante(taille))",
     )
     .eq("compte_id", compteId)
     .eq("numero", numero)
@@ -72,6 +74,7 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
       prixCents: l.prix_cents,
       origine: l.origine,
       delaiFabricationJours: l.delai_fabrication_jours,
+      mesuresRecuesLe: l.mesures_recues_le,
     };
   });
   return {

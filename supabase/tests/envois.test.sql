@@ -39,7 +39,7 @@ select ok(
 );
 select is(
   (select array_agg(e.enumlabel::text order by e.enumsortorder) from pg_enum e where e.enumtypid = 'public.envoi_modele'::regtype),
-  array['commande_payee', 'kit_ouvert'],
+  array['commande_payee', 'kit_ouvert', 'commande_en_fabrication', 'commande_expediee', 'commande_livree'],
   'envoi.modele : énumération fermée à deux modèles'
 );
 select is(

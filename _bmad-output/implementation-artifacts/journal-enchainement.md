@@ -245,3 +245,16 @@
 - Correction d'un défaut de 6.1 : le lien « Mes commandes » du compte lisait une clé de message inexistante (`Bibliotheque.commandes` au lieu de `Bibliotheque.compte.commandes`).
 - Pas de sous-agent possible dans ce fork : auto-revue. pgTAP `commandes_admin.test.sql` (11) : CI seulement. « Tâche liée » non affichée (voir la spec).
 - À tester à la main : `/fr/admin/commandes` avec chaque filtre, détail d'une commande en livraison (corriger l'adresse), d'une commande en retrait (pas de formulaire), d'une commande offerte.
+
+
+## Story 6.3 : avancement manuel et emails de statut (fork epic 6)
+- Migration `20261212100000_avancer_statut.sql` appliquée sur koma-dev. `avancer_statut` (transitions autorisées seulement, suivi, email dans la même transaction), trois modèles d'email via la boîte d'envoi, bloc « Avancement » dans le détail admin.
+- pgTAP `avancer_statut.test.sql` (22) et `envois.test.sql` (énumération à 5 modèles) : CI seulement. Auto-revue (pas de sous-agent possible dans ce fork).
+- À tester à la main : avancer une vraie commande payée de bout en bout (fabrication, expédition avec et sans suivi, livraison) et vérifier chaque email reçu ; la configuration Resend doit être réelle.
+
+
+## Stories 6.4 et 6.5 : mesures sur WhatsApp et réception confirmée (fork epic 6)
+- 6.4 : bloc `EnvoiMesures` (bouton WhatsApp avec le numéro de commande, délai écrit à côté, message si le numéro est absent), paragraphe dans l'email `commande_payee`, alerte admin si le numéro n'est pas réglé. Aucune mesure collectée ni stockée.
+- 6.5 : migration `20261213100000_confirmer_mesures_recues.sql` appliquée sur koma-dev ; `confirmer_mesures_recues`, tâche « Mesures à recevoir » (compteur réel), bouton « Mesures reçues », date affichée au client. pgTAP `confirmer_mesures.test.sql` (11) : CI seulement.
+- 6.3, 6.4 et 6.5 ont été poussées dans un seul commit (fichiers de messages et page de détail communs) ; une seule CI les couvre. Auto-revue (pas de sous-agent possible dans ce fork).
+- À tester à la main : commander un cosplay sur mesure (carte ou mobile money quand un prestataire sera activable), vérifier le bouton WhatsApp sur la commande et dans l'email, confirmer « Mesures reçues » côté admin, puis « Passer en fabrication ».

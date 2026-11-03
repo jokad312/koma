@@ -1382,7 +1382,16 @@
       "detailEnvoi": "Email « {modele} » : {tentatives} essais.",
       "modeles": {
         "commande_payee": "commande payée",
-        "kit_ouvert": "kit ouvert"
+        "kit_ouvert": "kit ouvert",
+        "commande_en_fabrication": "Commande en fabrication",
+        "commande_expediee": "Commande expédiée",
+        "commande_livree": "Commande livrée"
+      },
+      "mesures": {
+        "titre": "Mesures à recevoir",
+        "compteur": "{nombre, plural, =0 {Aucune ligne en attente de mesures} one {# ligne en attente de mesures} other {# lignes en attente de mesures}}",
+        "commande": "Commande {numero} ({nombre, plural, one {# ligne} other {# lignes}})",
+        "erreurLecture": "Les mesures à recevoir n'ont pas pu être lues."
       }
     },
     "prestataires": {
@@ -1528,6 +1537,36 @@
         "montant": "Montant",
         "confirmeLe": "Confirmé le",
         "regle": "Le statut « payée » ne se pose jamais à la main."
+      },
+      "avancement": {
+        "titre": "Avancement",
+        "aucune": "Aucun changement de statut possible pour cette commande.",
+        "suivi": "Numéro de suivi (facultatif)",
+        "suiviAide": "Texte libre, affiché tel quel au client. Il n'est pas transformé en lien.",
+        "suiviEnregistre": "Numéro de suivi enregistré : {suivi}",
+        "versEnFabrication": "Passer en fabrication",
+        "versExpediee": "Marquer comme expédiée",
+        "versPrete": "Marquer comme prête à retirer",
+        "versLivree": "Marquer comme livrée",
+        "mesuresDabord": "Confirme d'abord la réception des mesures.",
+        "erreurs": {
+          "non_autorise": "Tu n'as pas le droit de changer ce statut.",
+          "transition_interdite": "Ce changement de statut n'est pas permis. Recharge la page.",
+          "mesures_non_recues": "Confirme d'abord la réception des mesures.",
+          "numero_suivi_invalide": "Le numéro de suivi doit faire 100 caractères au plus.",
+          "commande_introuvable": "Cette commande est introuvable.",
+          "generique": "Le statut n'a pas pu être changé. Réessaie."
+        }
+      },
+      "mesures": {
+        "bouton": "Mesures reçues",
+        "recuesLe": "Mesures reçues le {date}",
+        "numeroAbsent": "Le numéro WhatsApp n'est pas réglé : la cliente ne peut pas t'envoyer ses mesures depuis sa commande. Renseigne-le dans Réglages.",
+        "erreurs": {
+          "non_autorise": "Tu n'as pas le droit de confirmer les mesures.",
+          "mesures_deja_recues": "Les mesures sont déjà confirmées. Recharge la page.",
+          "generique": "La confirmation n'a pas pu être enregistrée. Réessaie."
+        }
       }
     }
   },
@@ -1996,6 +2035,15 @@
         "en_cours": "En cours",
         "a_venir": "À venir"
       }
+    },
+    "mesures": {
+      "titre": "Tes mesures",
+      "bouton": "Envoyer mes mesures sur WhatsApp",
+      "nouvelOnglet": " (s'ouvre dans un nouvel onglet)",
+      "delai": "Le délai de fabrication court à partir de la réception de tes mesures.",
+      "message": "Bonjour, voici mes mesures pour la commande {numero}.",
+      "absent": "Le numéro WhatsApp de la boutique n'est pas disponible pour le moment. Écris-nous depuis la page Contact pour envoyer tes mesures.",
+      "recues": "Tes mesures ont été reçues le {date}. Le délai de fabrication court à partir de cette date."
     }
   },
   "Emails": {
@@ -2013,7 +2061,10 @@
       "livraison": "Livraison : {montant}",
       "total": "Total payé : {total}",
       "lien": "Page de ta commande :",
-      "bouton": "Voir ma commande"
+      "bouton": "Voir ma commande",
+      "mesures": "Ta commande contient un cosplay sur mesure : envoie tes mesures sur WhatsApp avec ce lien : {lien} Le délai de fabrication court à partir de leur réception.",
+      "mesuresSansNumero": "Ta commande contient un cosplay sur mesure : écris-nous depuis la page Contact pour envoyer tes mesures. Le délai de fabrication court à partir de leur réception.",
+      "messageMesures": "Bonjour, voici mes mesures pour la commande {numero}."
     },
     "kit_ouvert": {
       "sujet": "Ton kit est ouvert : {titre}",
@@ -2021,6 +2072,32 @@
       "intro": "Le kit « {titre} » est ajouté à ton Compte (commande {numero}).",
       "lien": "Page du kit :",
       "bouton": "Voir mon kit"
+    },
+    "commande_en_fabrication": {
+      "sujet": "Ta commande {numero} est en fabrication",
+      "titre": "Ta commande est en fabrication",
+      "intro": "Ta commande {numero} est en cours de fabrication.",
+      "lien": "Page de ta commande :",
+      "bouton": "Voir ma commande"
+    },
+    "commande_expediee": {
+      "sujet": "Ta commande {numero} est expédiée",
+      "titre": "Ta commande est expédiée",
+      "sujetRetrait": "Ta commande {numero} est prête à retirer",
+      "titreRetrait": "Ta commande est prête à retirer",
+      "intro": "Ta commande {numero} est expédiée.",
+      "introRetrait": "Ta commande {numero} est prête : tu peux venir la retirer à Goma.",
+      "suivi": "Numéro de suivi : {suivi}",
+      "lien": "Page de ta commande :",
+      "bouton": "Voir ma commande"
+    },
+    "commande_livree": {
+      "sujet": "Ta commande {numero} est livrée",
+      "titre": "Ta commande est livrée",
+      "intro": "Ta commande {numero} est livrée. Merci de ta confiance.",
+      "photo": "Tu portes ton cosplay ? Envoie-nous ta photo sur WhatsApp : {lien}",
+      "lien": "Page de ta commande :",
+      "bouton": "Voir ma commande"
     }
   },
   "Bibliotheque": {

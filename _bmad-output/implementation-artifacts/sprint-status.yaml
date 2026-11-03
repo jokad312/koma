@@ -96,9 +96,9 @@ development_status:
   epic-6: backlog
   6-1-mes-commandes-et-suivi-client: review
   6-2-commandes-dans-l-admin: review
-  6-3-avancement-manuel-des-commandes-et-emails-de-statut: backlog
-  6-4-envoi-des-mesures-du-sur-mesure-sur-whatsapp: backlog
-  6-5-réception-des-mesures-confirmée-par-jonathan: backlog
+  6-3-avancement-manuel-des-commandes-et-emails-de-statut: review
+  6-4-envoi-des-mesures-du-sur-mesure-sur-whatsapp: review
+  6-5-réception-des-mesures-confirmée-par-jonathan: review
   6-6-annulation-d-une-commande-de-cosplay-et-remboursement: backlog
   6-7-réclamation-et-remplacement: backlog
   epic-6-retrospective: optional

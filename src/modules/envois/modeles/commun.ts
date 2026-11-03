@@ -23,6 +23,8 @@ export function envelopper(args: {
   paragraphes: string[];
   lignes?: string[];
   total?: string;
+  // Paragraphe écrit après le total et avant le lien (facultatif).
+  paragrapheFinal?: string;
   texteLien: string;
   libelleBouton: string;
   url: string;
@@ -39,6 +41,7 @@ export function envelopper(args: {
     ...args.paragraphes.map(p),
     ...(args.lignes && args.lignes.length > 0 ? [`<ul style="margin:0 0 16px;padding-left:20px;font-size:16px;line-height:1.5;">${args.lignes.map((l) => `<li>${echapperHtml(l)}</li>`).join("")}</ul>`] : []),
     ...(args.total ? [`<p style="margin:0 0 16px;font-size:16px;font-weight:bold;">${echapperHtml(args.total)}</p>`] : []),
+    ...(args.paragrapheFinal ? [p(args.paragrapheFinal)] : []),
     p(args.texteLien),
     `<p style="margin:0 0 16px;"><a href="${echapperHtml(args.url)}" style="display:inline-block;background:#E3261C;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 20px;font-size:16px;">${echapperHtml(args.libelleBouton)}</a></p>`,
     `<p style="margin:0 0 16px;font-size:14px;line-height:1.5;word-break:break-all;">${echapperHtml(remplir(t.commun.lienTexte, { url: args.url }))}</p>`,
@@ -53,6 +56,7 @@ export function envelopper(args: {
     ...args.paragraphes.flatMap((x) => [x, ""]),
     ...(args.lignes && args.lignes.length > 0 ? [...args.lignes.map((l) => `- ${l}`), ""] : []),
     ...(args.total ? [args.total, ""] : []),
+    ...(args.paragrapheFinal ? [args.paragrapheFinal, ""] : []),
     args.texteLien,
     args.url,
     "",
