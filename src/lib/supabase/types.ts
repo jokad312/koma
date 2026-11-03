@@ -1655,6 +1655,10 @@ export type Database = {
         Args: { p_cle: string; p_fenetre_secondes: number; p_maximum: number }
         Returns: boolean
       }
+      corriger_adresse_commande: {
+        Args: { p_adresse: string; p_auteur: Json; p_numero: string }
+        Returns: undefined
+      }
       corriger_age: {
         Args: {
           p_age: number
@@ -1893,6 +1897,7 @@ export type Database = {
       }
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
       exiger_client: { Args: { p_auteur: Json }; Returns: string }
+      exiger_personnel: { Args: { p_auteur: Json }; Returns: undefined }
       expirer_commandes_echues: { Args: never; Returns: number }
       extension_fichier_kit: { Args: { p_format: string }; Returns: string }
       familles_commande: {

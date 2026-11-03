@@ -336,7 +336,8 @@
       "univers": "Univers",
       "blog": "Blog",
       "taches": "Tâches",
-      "prestataires": "Prestataires"
+      "prestataires": "Prestataires",
+      "commandes": "Commandes"
     },
     "blog": {
       "titre": "Blog",
@@ -1446,6 +1447,87 @@
           "introuvable": "Ce couple n'existe plus. La liste a été actualisée.",
           "generique": "Le changement n'a pas pu être enregistré. Réessaie."
         }
+      }
+    },
+    "commandes": {
+      "titre": "Commandes",
+      "filtres": "Filtres des commandes",
+      "statut": "Statut",
+      "famille": "Famille",
+      "prestataire": "Prestataire",
+      "zone": "Zone de remise",
+      "tous": "Tous",
+      "toutes": "Toutes",
+      "appliquer": "Filtrer",
+      "effacer": "Effacer les filtres",
+      "resultats": "{nombre, plural, =0 {Aucune commande} one {# commande} other {# commandes}}",
+      "vide": "Aucune commande ne correspond à ces filtres.",
+      "voirPlus": "Voir plus",
+      "retour": "Retour aux commandes",
+      "offerte": "Offerte",
+      "aucun": "Aucun",
+      "sansRemise": "Pas de remise (numérique)",
+      "erreurLecture": "Les commandes n'ont pas pu être lues. Recharge la page.",
+      "zones": {
+        "goma": "Goma",
+        "bukavu": "Bukavu"
+      },
+      "modes": {
+        "retrait": "Retrait",
+        "livraison": "Livraison"
+      },
+      "familles": {
+        "cosplay": "Cosplay",
+        "accessoire": "Accessoire",
+        "kit": "Kit"
+      },
+      "origines": {
+        "stock": "Pièce en stock",
+        "fabrication": "Fabriquée à la demande"
+      },
+      "colonnes": {
+        "numero": "Numéro",
+        "date": "Date",
+        "statut": "Statut",
+        "remise": "Remise",
+        "prestataire": "Prestataire",
+        "total": "Total"
+      },
+      "detail": {
+        "titre": "Commande {numero}",
+        "lignes": "Lignes",
+        "remise": "Remise",
+        "zoneMode": "Zone et mode",
+        "telephone": "Téléphone",
+        "adresse": "Adresse",
+        "absent": "Non renseigné"
+      },
+      "adresse": {
+        "libelle": "Corriger l'adresse de livraison",
+        "enregistrer": "Enregistrer l'adresse",
+        "enregistree": "Adresse enregistrée et journalisée.",
+        "vide": "Saisis une adresse pour l'enregistrer.",
+        "erreurs": {
+          "entree_invalide": "L'adresse doit faire entre 1 et 500 caractères.",
+          "non_autorise": "Tu n'as pas le droit de modifier cette commande.",
+          "commande_introuvable": "Cette commande est introuvable.",
+          "pas_de_livraison": "Cette commande est en retrait : elle n'a pas d'adresse.",
+          "generique": "L'adresse n'a pas pu être enregistrée. Réessaie."
+        }
+      },
+      "paiement": {
+        "titre": "Paiement",
+        "offerte": "Commande offerte : aucun paiement, aucun prestataire.",
+        "prestataire": "Prestataire",
+        "moyen": "Moyen",
+        "moyens": {
+          "carte": "Carte",
+          "mobile_money": "Mobile money"
+        },
+        "reference": "Référence de transaction",
+        "montant": "Montant",
+        "confirmeLe": "Confirmé le",
+        "regle": "Le statut « payée » ne se pose jamais à la main."
       }
     }
   },

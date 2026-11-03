@@ -5,6 +5,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 
 // Seules les entrées dont la page existe sont listées : chaque story qui crée une page admin ajoute sa ligne ici.
 const ENTREES = [
+  { cle: "commandes", href: "/admin/commandes" },
   { cle: "produits", href: "/admin/produits" },
   { cle: "univers", href: "/admin/univers" },
   { cle: "blog", href: "/admin/blog" },

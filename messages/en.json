@@ -336,7 +336,8 @@
       "univers": "Universes",
       "blog": "Blog",
       "taches": "Tasks",
-      "prestataires": "Providers"
+      "prestataires": "Providers",
+      "commandes": "Orders"
     },
     "blog": {
       "titre": "Blog",
@@ -1446,6 +1447,87 @@
           "introuvable": "This pair no longer exists. The list has been refreshed.",
           "generique": "The change could not be saved. Try again."
         }
+      }
+    },
+    "commandes": {
+      "titre": "Orders",
+      "filtres": "Order filters",
+      "statut": "Status",
+      "famille": "Family",
+      "prestataire": "Provider",
+      "zone": "Delivery zone",
+      "tous": "All",
+      "toutes": "All",
+      "appliquer": "Filter",
+      "effacer": "Clear filters",
+      "resultats": "{nombre, plural, =0 {No orders} one {# order} other {# orders}}",
+      "vide": "No order matches these filters.",
+      "voirPlus": "Show more",
+      "retour": "Back to orders",
+      "offerte": "Free",
+      "aucun": "None",
+      "sansRemise": "No delivery (digital)",
+      "erreurLecture": "The orders could not be read. Reload the page.",
+      "zones": {
+        "goma": "Goma",
+        "bukavu": "Bukavu"
+      },
+      "modes": {
+        "retrait": "Pickup",
+        "livraison": "Delivery"
+      },
+      "familles": {
+        "cosplay": "Cosplay",
+        "accessoire": "Accessory",
+        "kit": "Kit"
+      },
+      "origines": {
+        "stock": "In-stock piece",
+        "fabrication": "Made to order"
+      },
+      "colonnes": {
+        "numero": "Number",
+        "date": "Date",
+        "statut": "Status",
+        "remise": "Delivery",
+        "prestataire": "Provider",
+        "total": "Total"
+      },
+      "detail": {
+        "titre": "Order {numero}",
+        "lignes": "Lines",
+        "remise": "Delivery",
+        "zoneMode": "Zone and mode",
+        "telephone": "Phone",
+        "adresse": "Address",
+        "absent": "Not provided"
+      },
+      "adresse": {
+        "libelle": "Correct the delivery address",
+        "enregistrer": "Save the address",
+        "enregistree": "Address saved and logged.",
+        "vide": "Enter an address to save it.",
+        "erreurs": {
+          "entree_invalide": "The address must be 1 to 500 characters long.",
+          "non_autorise": "You are not allowed to change this order.",
+          "commande_introuvable": "This order cannot be found.",
+          "pas_de_livraison": "This order is a pickup: it has no address.",
+          "generique": "The address could not be saved. Try again."
+        }
+      },
+      "paiement": {
+        "titre": "Payment",
+        "offerte": "Free order: no payment, no provider.",
+        "prestataire": "Provider",
+        "moyen": "Method",
+        "moyens": {
+          "carte": "Card",
+          "mobile_money": "Mobile money"
+        },
+        "reference": "Transaction reference",
+        "montant": "Amount",
+        "confirmeLe": "Confirmed on",
+        "regle": "The \"paid\" status is never set by hand."
       }
     }
   },

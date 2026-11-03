@@ -1,0 +1,119 @@
+import "server-only";
+import { creerClientService } from "@/lib/supabase/service";
+import { statutEffectif, type StatutAffiche } from "./queries";
+
+// Lectures de l'admin pour les Commandes (story 6.2). Le droit est vérifié par la page avant tout appel ; la lecture passe par le client service.
+export const TAILLE_PAGE_ADMIN = 12;
+
+export const STATUTS_FILTRE = ["en_attente", "echouee", "expiree", "payee", "en_fabrication", "expediee", "livree", "annulee", "remboursee", "offerte"] as const;
+export const FAMILLES_FILTRE = ["cosplay", "accessoire", "kit"] as const;
+export const PRESTATAIRES_FILTRE = ["pawapay", "maishapay", "polar"] as const;
+export const ZONES_FILTRE = ["goma", "bukavu"] as const;
+
+export type FiltresCommandes = { statut?: string; famille?: string; prestataire?: string; zone?: string };
+
+export function filtreValide<T extends string>(valeur: unknown, permises: readonly T[]): T | undefined {
+  const v = Array.isArray(valeur) ? valeur[0] : valeur;
+  return typeof v === "string" ? permises.find((p) => p === v) : undefined;
+}
+
+export type CommandeAdminResume = {
+  numero: string;
+  creeLe: string;
+  statut: StatutAffiche;
+  totalCents: number;
+  offerte: boolean;
+  prestataire: string | null;
+  zone: string | null;
+  modeRemise: string | null;
+};
+
+// Commandes filtrées, plus récentes d'abord. Le nombre total correspond aux filtres ; « reste » dit s'il y a une page de plus.
+export async function listerCommandesAdmin(filtres: FiltresCommandes, nombre: number): Promise<{ commandes: CommandeAdminResume[]; total: number }> {
+  const famille = filtres.famille ? "ligne_commande!inner(produit!inner(famille))" : "id";
+  let q = creerClientService()
+    .from("commande")
+    .select(`numero, cree_le, statut, expire_le, total_cents, offerte, prestataire, zone, mode_remise, ${famille}`, { count: "exact" })
+    .order("cree_le", { ascending: false })
+    .limit(nombre);
+  if (filtres.statut === "expiree") q = q.or(`statut.eq.expiree,and(statut.in.(en_attente,echouee),expire_le.lte.${new Date().toISOString()})`);
+  else if (filtres.statut === "en_attente" || filtres.statut === "echouee") q = q.eq("statut", filtres.statut).gt("expire_le", new Date().toISOString());
+  else if (filtres.statut) q = q.eq("statut", filtres.statut);
+  if (filtres.prestataire) q = q.eq("prestataire", filtres.prestataire);
+  if (filtres.zone) q = q.eq("zone", filtres.zone);
+  if (filtres.famille) q = q.eq("ligne_commande.produit.famille", filtres.famille);
+  const { data, error, count } = await q;
+  if (error) throw new Error("lecture des commandes impossible");
+  const maintenant = Date.now();
+  const commandes = (data ?? []).flatMap((c) => {
+    const ligne = c as unknown as { numero: string; cree_le: string; statut: string; expire_le: string | null; total_cents: number; offerte: boolean; prestataire: string | null; zone: string | null; mode_remise: string | null };
+    const statut = statutEffectif(ligne.statut, ligne.expire_le, maintenant);
+    return statut ? [{ numero: ligne.numero, creeLe: ligne.cree_le, statut, totalCents: ligne.total_cents, offerte: ligne.offerte, prestataire: ligne.prestataire, zone: ligne.zone, modeRemise: ligne.mode_remise }] : [];
+  });
+  return { commandes, total: count ?? commandes.length };
+}
+
+export type CommandeAdminDetail = {
+  id: string;
+  numero: string;
+  statut: StatutAffiche;
+  creeLe: string;
+  sousTotalCents: number;
+  forfaitCents: number;
+  totalCents: number;
+  devise: string;
+  offerte: boolean;
+  zone: string | null;
+  modeRemise: string | null;
+  telephone: string | null;
+  adresse: string | null;
+  numeroSuivi: string | null;
+  prestataire: string | null;
+  referenceTransaction: string | null;
+  payeLe: string | null;
+  moyen: string | null;
+  lignes: { titre: string; famille: string; taille: string | null; nombre: number; prixCents: number; origine: string | null; mesuresRecuesLe: string | null }[];
+};
+
+export async function lireCommandeAdmin(numero: string): Promise<CommandeAdminDetail | null> {
+  if (!/^KS-[0-9]{4}-[0-9]{6,}$/.test(numero)) return null;
+  const client = creerClientService();
+  const { data, error } = await client
+    .from("commande")
+    .select(
+      "id, numero, statut, expire_le, cree_le, sous_total_cents, forfait_cents, total_cents, devise, offerte, zone, mode_remise, telephone, adresse, numero_suivi, prestataire, reference_transaction, paye_le, ligne_commande(prix_cents, nombre, origine, mesures_recues_le, produit(famille, titre_fr), variante(taille))",
+    )
+    .eq("numero", numero)
+    .maybeSingle();
+  if (error) throw new Error("lecture de la commande impossible");
+  if (!data) return null;
+  const statut = statutEffectif(data.statut, data.expire_le, Date.now());
+  if (!statut) return null;
+  // Moyen de la Tentative réussie (lecture seule du bloc Paiement).
+  const { data: tentative } = await client.from("tentative_paiement").select("moyen").eq("commande_id", data.id).eq("statut", "reussie").order("cree_le", { ascending: false }).limit(1).maybeSingle();
+  return {
+    id: data.id,
+    numero: data.numero,
+    statut,
+    creeLe: data.cree_le,
+    sousTotalCents: data.sous_total_cents,
+    forfaitCents: data.forfait_cents,
+    totalCents: data.total_cents,
+    devise: data.devise,
+    offerte: data.offerte,
+    zone: data.zone,
+    modeRemise: data.mode_remise,
+    telephone: data.telephone,
+    adresse: data.adresse,
+    numeroSuivi: data.numero_suivi,
+    prestataire: data.prestataire,
+    referenceTransaction: data.reference_transaction,
+    payeLe: data.paye_le,
+    moyen: tentative?.moyen ?? null,
+    lignes: (data.ligne_commande ?? []).map((l) => {
+      const produit = Array.isArray(l.produit) ? l.produit[0] : l.produit;
+      const variante = Array.isArray(l.variante) ? l.variante[0] : l.variante;
+      return { titre: produit?.titre_fr ?? "", famille: produit?.famille ?? "", taille: variante?.taille ?? null, nombre: l.nombre, prixCents: l.prix_cents, origine: l.origine, mesuresRecuesLe: l.mesures_recues_le };
+    }),
+  };
+}

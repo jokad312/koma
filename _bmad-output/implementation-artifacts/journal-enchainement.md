@@ -238,3 +238,10 @@
 - Migration `20261210100000_commande_suivi_colonnes.sql` (colonnes de dates, numero_suivi, mesures_recues_le), appliquée sur koma-dev, types régénérés. Page `/compte/commandes` (12 par page), frise des statuts accessible, « Offert », « Prête à retirer » (retrait Goma), numéro de suivi en texte, bouton WhatsApp.
 - Revue par un autre sous-agent impossible dans ce fork (interdiction de lancer des sous-agents) : auto-revue. Aucun test pgTAP (colonnes seulement).
 - À tester à la main : `/fr/compte/commandes` (liste vide, avec commandes, « Voir plus »), détail d'une commande payée physique (frise), commande en retrait à Goma expédiée.
+
+
+## Story 6.2 : commandes dans l'admin (fork epic 6)
+- Migration `20261211100000_commandes_admin.sql` appliquée sur koma-dev, types régénérés. Pages `/admin/commandes` (filtres, 12 par page, tableau/cartes) et `/admin/commandes/[numero]` (détail, correction d'adresse journalisée, bloc Paiement en lecture seule). Entrée « Commandes » dans la navigation admin.
+- Correction d'un défaut de 6.1 : le lien « Mes commandes » du compte lisait une clé de message inexistante (`Bibliotheque.commandes` au lieu de `Bibliotheque.compte.commandes`).
+- Pas de sous-agent possible dans ce fork : auto-revue. pgTAP `commandes_admin.test.sql` (11) : CI seulement. « Tâche liée » non affichée (voir la spec).
+- À tester à la main : `/fr/admin/commandes` avec chaque filtre, détail d'une commande en livraison (corriger l'adresse), d'une commande en retrait (pas de formulaire), d'une commande offerte.
