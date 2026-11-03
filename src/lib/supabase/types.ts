@@ -1184,6 +1184,7 @@ export type Database = {
           reference_interne: string
           reference_transaction: string | null
           statut: string
+          telephone_masque: string | null
         }
         Insert: {
           cause?: string | null
@@ -1201,6 +1202,7 @@ export type Database = {
           reference_interne: string
           reference_transaction?: string | null
           statut?: string
+          telephone_masque?: string | null
         }
         Update: {
           cause?: string | null
@@ -1218,6 +1220,7 @@ export type Database = {
           reference_interne?: string
           reference_transaction?: string | null
           statut?: string
+          telephone_masque?: string | null
         }
         Relationships: [
           {
@@ -1671,6 +1674,19 @@ export type Database = {
         Args: { p_actif: boolean; p_auteur: Json; p_code: string }
         Returns: undefined
       }
+      demarrer_tentative: {
+        Args: {
+          p_compte: string
+          p_moyen: string
+          p_numero: string
+          p_operateur: string
+          p_pays: string
+          p_prestataire: string
+          p_reference_interne: string
+          p_telephone_masque: string
+        }
+        Returns: Json
+      }
       deplacer_chapitre_kit: {
         Args: { p_auteur: Json; p_chapitre_id: string; p_sens: string }
         Returns: undefined
@@ -1700,6 +1716,10 @@ export type Database = {
         }[]
       }
       donnees_envoi_valides: { Args: { p_donnees: Json }; Returns: boolean }
+      echouer_tentative: {
+        Args: { p_cause: string; p_tentative: string }
+        Returns: boolean
+      }
       enregistrer_article: {
         Args: { p_article: Json; p_auteur: Json; p_id: string; p_images: Json }
         Returns: string
@@ -1707,6 +1727,10 @@ export type Database = {
       enregistrer_extrait_kit: {
         Args: { p_auteur: Json; p_extrait: string; p_produit_id: string }
         Returns: string
+      }
+      enregistrer_initiation: {
+        Args: { p_reference_transaction: string; p_tentative: string }
+        Returns: undefined
       }
       enregistrer_kit: {
         Args: { p_auteur: Json; p_id: string; p_kit: Json }

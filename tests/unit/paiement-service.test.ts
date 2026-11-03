@@ -29,6 +29,7 @@ function depsOptions(s: Partial<DependancesOptions> = {}): DependancesOptions {
     prestataires: vi.fn(async () => TOUS()),
     achat: vi.fn(async (): Promise<Achat | null> => ({ familles: ["cosplay"], estPass: false })),
     couverture: vi.fn(async () => []),
+    exclus: vi.fn(async () => []),
     adaptateursBranches: BRANCHES,
     ...s,
   };
@@ -62,13 +63,13 @@ describe("lireOptionsPaiement", () => {
   });
   it("sans Couverture saisie, le mobile money n'est jamais proposé", async () => {
     const r = await lireOptionsPaiement(depsOptions(), { commandeId: COMMANDE, compteId: "c" });
-    expect(r?.mobileMoney).toEqual({ disponible: false });
+    expect(r?.mobileMoney).toEqual({ disponible: false, pays: [] });
   });
   it("avec une Couverture d'un Agrégateur actif, le mobile money est proposé ; désactivé, il ne l'est plus", async () => {
-    const couverture = vi.fn(async () => [{ prestataire: "pawapay" as const, pays: "CD", operateur: "TEST_op" }]);
-    expect((await lireOptionsPaiement(depsOptions({ couverture }), { commandeId: COMMANDE, compteId: "c" }))?.mobileMoney).toEqual({ disponible: true });
+    const couverture = vi.fn(async () => [{ prestataire: "pawapay" as const, pays: "TZ", operateur: "TEST_op" }]);
+    expect((await lireOptionsPaiement(depsOptions({ couverture }), { commandeId: COMMANDE, compteId: "c" }))?.mobileMoney).toEqual({ disponible: true, pays: [{ code: "TZ", operateurs: [{ nom: "TEST_op", agregateur: "TEST_PawaPay" }] }] });
     const inactif = depsOptions({ couverture, prestataires: vi.fn(async () => TOUS().map((x) => ({ ...x, actif: x.code !== "pawapay" }))) });
-    expect((await lireOptionsPaiement(inactif, { commandeId: COMMANDE, compteId: "c" }))?.mobileMoney).toEqual({ disponible: false });
+    expect((await lireOptionsPaiement(inactif, { commandeId: COMMANDE, compteId: "c" }))?.mobileMoney).toEqual({ disponible: false, pays: [] });
   });
   it("un Prestataire actif en base dont l'adaptateur n'est pas branché n'est jamais proposé", async () => {
     const deps = depsOptions({ adaptateursBranches: new Set<CodePrestataire>() });
@@ -80,6 +81,33 @@ describe("lireOptionsPaiement", () => {
     const deps = depsOptions();
     expect(await lireOptionsPaiement(deps, { commandeId: "pas-un-uuid", compteId: "c" })).toBeNull();
     expect(deps.achat).not.toHaveBeenCalled();
+  });
+});
+
+describe("lireOptionsPaiement : pays et opérateurs du mobile money", () => {
+  const couverture = vi.fn(async () => [
+    { prestataire: "pawapay" as const, pays: "TZ", operateur: "TEST_b" },
+    { prestataire: "kpay" as const, pays: "TZ", operateur: "TEST_b" },
+    { prestataire: "kpay" as const, pays: "TZ", operateur: "test_B" },
+    { prestataire: "kpay" as const, pays: "KE", operateur: "TEST_a" },
+    { prestataire: "maishapay" as const, pays: "UG", operateur: "TEST_c" },
+  ]);
+  it("l'union des couples des Agrégateurs actifs, un opérateur une seule fois (sans distinction de casse), triés, avec l'Agrégateur que le serveur retiendra", async () => {
+    const r = await lireOptionsPaiement(depsOptions({ couverture }), { commandeId: COMMANDE, compteId: "c" });
+    expect(r?.mobileMoney.pays).toEqual([
+      { code: "KE", operateurs: [{ nom: "TEST_a", agregateur: "TEST_K-Pay" }] },
+      { code: "TZ", operateurs: [{ nom: "TEST_b", agregateur: "TEST_PawaPay" }] },
+      { code: "UG", operateurs: [{ nom: "TEST_c", agregateur: "TEST_MaishaPay" }] },
+    ]);
+  });
+  it("un Agrégateur désactivé disparaît : son pays n'est plus proposé", async () => {
+    const d = depsOptions({ couverture, prestataires: vi.fn(async () => TOUS().map((x) => ({ ...x, actif: x.code !== "maishapay" }))) });
+    expect((await lireOptionsPaiement(d, { commandeId: COMMANDE, compteId: "c" }))?.mobileMoney.pays.map((x) => x.code)).toEqual(["KE", "TZ"]);
+  });
+  it("après un échec de PawaPay, le Prestataire affiché est le suivant du même couple", async () => {
+    const d = depsOptions({ couverture, exclus: vi.fn(async () => ["pawapay" as const]) });
+    const tz = (await lireOptionsPaiement(d, { commandeId: COMMANDE, compteId: "c" }))?.mobileMoney.pays.find((x) => x.code === "TZ");
+    expect(tz?.operateurs[0].agregateur).toBe("TEST_K-Pay");
   });
 });
 

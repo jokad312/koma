@@ -1987,7 +1987,11 @@
       },
       "attente": {
         "titre": "Payment pending",
-        "texte": "We are waiting for confirmation of your payment. You can stay on this page."
+        "texte": "We are waiting for confirmation of your payment. You can stay on this page.",
+        "mobileMoney": "Confirm the payment on your phone.",
+        "montant": "Amount to pay",
+        "numero": "Number",
+        "aPayerAvant": "Pay before {heure}"
       },
       "verification": "Payment being verified.",
       "payee": {
@@ -1997,7 +2001,13 @@
       "echec": {
         "titre": "Payment failed",
         "texte": "The payment did not go through. You can try again.",
-        "reessayer": "Try again"
+        "reessayer": "Try again",
+        "repli": "This payment service did not go through. Try again with {agregateur}?",
+        "reessayerAvec": "Try again with {agregateur}",
+        "nouvelleDemande": "A new payment request will arrive on your phone.",
+        "aucunService": "Choose another operator or the card.",
+        "relanceImpossible": "The new request could not be sent. Try again from the payment methods below.",
+        "versMoyens": "Enter my number again in the payment methods"
       },
       "tropPercu": {
         "titre": "Payment received in excess",
@@ -2006,6 +2016,35 @@
           "deja_payee": "We received a payment for this order while it was already paid. Jonathan will contact you about the refund.",
           "impossible": "We received a payment for this order while it could not be fulfilled. Jonathan will contact you about the refund."
         }
+      }
+    },
+    "choix": {
+      "pays": "Country",
+      "choisirPays": "Choose your country",
+      "autrePays": "Other country",
+      "operateur": "Operator",
+      "choisirOperateur": "Choose your operator",
+      "operateursDisponibles": "{n, plural, one {# operator available} other {# operators available}}",
+      "telephone": "Phone number",
+      "aideTelephone": "Start with the + sign and your country code.",
+      "payerMobile": "Pay with mobile money",
+      "payerCarte": "Pay by card",
+      "enCours": "Starting the payment…",
+      "completer": "Choose your operator and enter your number to pay.",
+      "aucunMoyenOperateur": "No payment method is available for this operator. Choose another operator or the card.",
+      "erreurs": {
+        "non_connecte": "Your session has ended. Please sign in again.",
+        "limite": "Too many payment attempts. Wait a few minutes before trying again.",
+        "entree_invalide": "This request is not valid. Reload the page.",
+        "telephone_invalide": "The number must start with + followed by 8 to 15 digits.",
+        "pays_operateur_requis": "Choose your country and your operator.",
+        "commande_introuvable": "This order cannot be found.",
+        "non_payable": "This order can no longer be paid.",
+        "tentative_en_cours": "A payment is already in progress for this order.",
+        "compte_incomplet": "Complete your account before paying.",
+        "indisponible": "No payment method is available for this choice.",
+        "refuse": "The payment service refused the request. Try again.",
+        "generique": "The payment could not be started. Try again."
       }
     }
   }

@@ -101,7 +101,7 @@ select lives_ok($$insert into public.notification_recue (prestataire, id_notific
 -- Trop-perçus.
 insert into public.trop_percu (commande_id, tentative_id, motif, montant_attendu_cents, montant_recu, devise_recue)
   values ((select commande from cp), (select id from public.tentative_paiement where reference_interne = 'TEST-REF-INTERNE-0001'), 'montant_superieur', 1500, 1700, 'USD');
-select is((select statut from public.trop_percu), 'ouvert', 'un Trop-perçu naît ouvert');
+select is((select statut from public.trop_percu), 'a_rembourser', 'un Trop-perçu naît à rembourser');
 select throws_ok(
   $$insert into public.trop_percu (commande_id, tentative_id, motif, montant_attendu_cents, montant_recu, devise_recue) values ((select commande from cp), (select id from public.tentative_paiement where reference_interne = 'TEST-REF-INTERNE-0001'), 'deja_payee', 1500, 1500, 'USD')$$,
   '23505', null, 'un seul Trop-perçu par Tentative'

@@ -1987,7 +1987,11 @@
       },
       "attente": {
         "titre": "Paiement en attente",
-        "texte": "Nous attendons la confirmation de ton paiement. Tu peux rester sur cette page."
+        "texte": "Nous attendons la confirmation de ton paiement. Tu peux rester sur cette page.",
+        "mobileMoney": "Valide le paiement sur ton téléphone.",
+        "montant": "Montant à payer",
+        "numero": "Numéro",
+        "aPayerAvant": "À payer avant {heure}"
       },
       "verification": "Paiement en cours de vérification.",
       "payee": {
@@ -1997,7 +2001,13 @@
       "echec": {
         "titre": "Paiement non abouti",
         "texte": "Le paiement n'a pas abouti. Tu peux réessayer.",
-        "reessayer": "Réessayer"
+        "reessayer": "Réessayer",
+        "repli": "Ce service de paiement n'a pas abouti. Réessayer avec {agregateur} ?",
+        "reessayerAvec": "Réessayer avec {agregateur}",
+        "nouvelleDemande": "Une nouvelle demande de paiement va arriver sur ton téléphone.",
+        "aucunService": "Choisis un autre opérateur ou la carte.",
+        "relanceImpossible": "La nouvelle demande n'a pas pu partir. Réessaie depuis les moyens de paiement ci-dessous.",
+        "versMoyens": "Ressaisir mon numéro dans les moyens de paiement"
       },
       "tropPercu": {
         "titre": "Paiement reçu en trop",
@@ -2006,6 +2016,35 @@
           "deja_payee": "Nous avons reçu un paiement pour cette commande alors qu'elle était déjà payée. Jonathan va te contacter pour le remboursement.",
           "impossible": "Nous avons reçu un paiement pour cette commande alors qu'elle était impossible à honorer. Jonathan va te contacter pour le remboursement."
         }
+      }
+    },
+    "choix": {
+      "pays": "Pays",
+      "choisirPays": "Choisis ton pays",
+      "autrePays": "Autre pays",
+      "operateur": "Opérateur",
+      "choisirOperateur": "Choisis ton opérateur",
+      "operateursDisponibles": "{n, plural, one {# opérateur disponible} other {# opérateurs disponibles}}",
+      "telephone": "Numéro de téléphone",
+      "aideTelephone": "Commence par le signe + et l'indicatif de ton pays.",
+      "payerMobile": "Payer par mobile money",
+      "payerCarte": "Payer par carte",
+      "enCours": "Lancement du paiement…",
+      "completer": "Choisis ton opérateur et saisis ton numéro pour payer.",
+      "aucunMoyenOperateur": "Aucun moyen de paiement disponible pour cet opérateur. Choisis un autre opérateur ou la carte.",
+      "erreurs": {
+        "non_connecte": "Ta session a pris fin. Connecte-toi à nouveau.",
+        "limite": "Trop d'essais de paiement. Attends quelques minutes avant de réessayer.",
+        "entree_invalide": "Cette demande n'est pas valide. Recharge la page.",
+        "telephone_invalide": "Le numéro doit commencer par + suivi de 8 à 15 chiffres.",
+        "pays_operateur_requis": "Choisis ton pays et ton opérateur.",
+        "commande_introuvable": "Cette commande est introuvable.",
+        "non_payable": "Cette commande ne peut plus être payée.",
+        "tentative_en_cours": "Un paiement est déjà en cours pour cette commande.",
+        "compte_incomplet": "Complète ton compte avant de payer.",
+        "indisponible": "Aucun moyen de paiement disponible pour ce choix.",
+        "refuse": "Le service de paiement a refusé la demande. Réessaie.",
+        "generique": "Le paiement n'a pas pu être lancé. Réessaie."
       }
     }
   }

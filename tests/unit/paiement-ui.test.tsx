@@ -23,14 +23,8 @@ vi.mock("@/modules/paiement/actions", () => ({
   changerEtatPrestataireAction: (...a: unknown[]) => faux.changer(...a),
   deplacerPrestataireAction: (...a: unknown[]) => faux.deplacer(...a),
 }));
-vi.mock("next-intl/server", async () => {
-  const fr = (await import("../../messages/fr.json")).default as Record<string, unknown>;
-  const { createTranslator } = await import("next-intl");
-  return { getTranslations: async ({ namespace }: { namespace: string }) => createTranslator({ locale: "fr", messages: fr as never, namespace: namespace as never }) };
-});
 
 import { ListePrestataires, type PrestataireAdmin } from "@/components/admin/ListePrestataires";
-import { MoyensPaiement } from "@/components/commande/MoyensPaiement";
 
 const base: PrestataireAdmin[] = [
   { code: "pawapay", nom: "TEST_PawaPay", type: "agregateur", mobileMoney: true, carte: false, actif: false, ordre: 1, adaptateurBranche: true, couples: [] },
@@ -43,28 +37,6 @@ beforeEach(() => {
   vi.clearAllMocks();
   faux.changer.mockResolvedValue({ ok: true });
   faux.deplacer.mockResolvedValue({ ok: true });
-});
-
-describe("MoyensPaiement (Récapitulatif)", () => {
-  it("sans Couverture ni carte autorisée : les deux messages d'indisponibilité, sans substitution", async () => {
-    rendre(await MoyensPaiement({ locale: "fr", options: { carte: { disponible: false }, mobileMoney: { disponible: false } } }));
-    expect(screen.getByText("Le mobile money n'est pas encore disponible dans ton pays.")).toBeTruthy();
-    expect(screen.getByText("Le paiement par carte n'est pas disponible pour le moment.")).toBeTruthy();
-  });
-  it("carte autorisée : « Paiement traité par {Prestataire} » en texte, sans logo ni image", async () => {
-    const { container } = rendre(await MoyensPaiement({ locale: "fr", options: { carte: { disponible: true, prestataire: { code: "kpay", nom: "TEST_K-Pay" } }, mobileMoney: { disponible: false } } }));
-    expect(screen.getByText("Paiement traité par TEST_K-Pay")).toBeTruthy();
-    expect(screen.queryByText("Le paiement par carte n'est pas disponible pour le moment.")).toBeNull();
-    expect(container.querySelector("img, svg")).toBeNull();
-  });
-  it("mobile money autorisé : le message d'indisponibilité disparaît", async () => {
-    rendre(await MoyensPaiement({ locale: "fr", options: { carte: { disponible: false }, mobileMoney: { disponible: true } } }));
-    expect(screen.queryByText("Le mobile money n'est pas encore disponible dans ton pays.")).toBeNull();
-  });
-  it("aucun bouton de paiement tant qu'aucun adaptateur n'existe", async () => {
-    rendre(await MoyensPaiement({ locale: "fr", options: { carte: { disponible: true, prestataire: { code: "kpay", nom: "TEST_K-Pay" } }, mobileMoney: { disponible: true } } }));
-    expect(screen.queryByRole("button")).toBeNull();
-  });
 });
 
 describe("ListePrestataires (admin)", () => {

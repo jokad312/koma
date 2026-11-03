@@ -6,7 +6,7 @@ const FUTUR = "2026-11-02T13:00:00Z";
 const PASSE = "2026-11-02T11:00:00Z";
 
 function brut(s: Record<string, unknown> = {}) {
-  return { statut: "en_attente", expire_le: FUTUR, kit: false, tentative_en_cours: null, derniere_cause_echec: null, trop_percu: null, ...s };
+  return { statut: "en_attente", expire_le: FUTUR, total_cents: 1500, kit: false, tentative_en_cours: null, derniere_echec: null, exclus: [], trop_percu: null, ...s };
 }
 
 describe("deriverEtat : phases", () => {
@@ -14,11 +14,11 @@ describe("deriverEtat : phases", () => {
     expect(deriverEtat(brut(), MAINTENANT)).toMatchObject({ phase: "a_payer", attenteDepuisSecondes: null });
   });
   it("Tentative en cours : attente, avec son ancienneté, jamais un choix (retour arrière, rechargement, autre onglet)", () => {
-    const e = deriverEtat(brut({ tentative_en_cours: { moyen: "carte", age_secondes: 42 } }), MAINTENANT);
+    const e = deriverEtat(brut({ tentative_en_cours: { moyen: "carte", age_secondes: 42, prestataire: "TEST_K-Pay", telephone_masque: null } }), MAINTENANT);
     expect(e).toMatchObject({ phase: "attente", attenteDepuisSecondes: 42 });
   });
   it("Commande échouée mais nouvelle Tentative en cours : attente", () => {
-    expect(deriverEtat(brut({ statut: "echouee", tentative_en_cours: { moyen: "mobile_money", age_secondes: 3 } }), MAINTENANT)?.phase).toBe("attente");
+    expect(deriverEtat(brut({ statut: "echouee", tentative_en_cours: { moyen: "mobile_money", age_secondes: 3, prestataire: "TEST_PawaPay", telephone_masque: "+243•••••678" } }), MAINTENANT)?.phase).toBe("attente");
   });
   it("« payee » seulement avec un statut payé en base (payee, en_fabrication, expediee, livree)", () => {
     for (const statut of ["payee", "en_fabrication", "expediee", "livree"]) expect(deriverEtat(brut({ statut }), MAINTENANT)?.phase).toBe("payee");
@@ -27,8 +27,8 @@ describe("deriverEtat : phases", () => {
     for (const statut of ["offerte", "annulee", "remboursee"]) expect(deriverEtat(brut({ statut }), MAINTENANT)?.phase).toBe("autre");
   });
   it("échec confirmé : phase d'échec avec sa cause", () => {
-    expect(deriverEtat(brut({ statut: "echouee", derniere_cause_echec: "client" }), MAINTENANT)).toMatchObject({ phase: "echec", causeEchec: "client" });
-    expect(deriverEtat(brut({ statut: "echouee", derniere_cause_echec: "prestataire" }), MAINTENANT)).toMatchObject({ phase: "echec", causeEchec: "prestataire" });
+    expect(deriverEtat(brut({ statut: "echouee", derniere_echec: { cause: "client", prestataire: "pawapay", moyen: "mobile_money", pays: "TZ", operateur: "TEST_op" } }), MAINTENANT)).toMatchObject({ phase: "echec", causeEchec: "client" });
+    expect(deriverEtat(brut({ statut: "echouee", derniere_echec: { cause: "prestataire", prestataire: "pawapay", moyen: "mobile_money", pays: "TZ", operateur: "TEST_op" } }), MAINTENANT)).toMatchObject({ phase: "echec", causeEchec: "prestataire" });
   });
   it("échéance passée : expirée même si la tâche planifiée n'est pas passée", () => {
     expect(deriverEtat(brut({ expire_le: PASSE }), MAINTENANT)?.phase).toBe("expiree");
@@ -55,8 +55,10 @@ describe("deriverEtat : Trop-perçu et lecture invalide", () => {
     expect(deriverEtat(brut({ trop_percu: "autre_chose" }), MAINTENANT)).toBeNull();
   });
   it("n'expose ni référence de transaction ni montant reçu ni identifiant", () => {
-    const e = deriverEtat(brut({ tentative_en_cours: { moyen: "carte", age_secondes: 1 } }), MAINTENANT) as Record<string, unknown>;
-    expect(Object.keys(e).sort()).toEqual(["attenteDepuisSecondes", "causeEchec", "kit", "phase", "statut", "tropPercu"]);
+    const e = deriverEtat(brut({ tentative_en_cours: { moyen: "carte", age_secondes: 1, prestataire: "TEST_K-Pay", telephone_masque: null } }), MAINTENANT) as Record<string, unknown>;
+    expect(Object.keys(e).sort()).toEqual(["attente", "attenteDepuisSecondes", "causeEchec", "echec", "exclus", "expireLe", "kit", "montantCents", "phase", "repli", "statut", "tropPercu"]);
+    // Le numéro de téléphone n'est jamais en clair : seulement sa forme masquée.
+    expect(JSON.stringify(e)).not.toMatch(/\+243[0-9]{6}/);
   });
 });
 

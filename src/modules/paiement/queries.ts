@@ -74,3 +74,10 @@ export async function lireCouvertureAdmin(): Promise<CoupleCouverture[]> {
 export async function lireCouverture(): Promise<Couverture> {
   return couplesConfirmes(await lireCouvertureAdmin());
 }
+
+// Agrégateurs dont une Tentative de la Commande a fini en échec confirmé côté Prestataire : exclus du choix pour cette Commande (AD-6).
+export async function lireExclus(commandeId: string): Promise<CodePrestataire[]> {
+  const { data, error } = await creerClientService().from("tentative_paiement").select("prestataire").eq("commande_id", commandeId).eq("statut", "echouee").eq("cause", "prestataire");
+  if (error) throw new Error("Lecture des exclus impossible.");
+  return [...new Set((data ?? []).map((l) => l.prestataire))].filter((c): c is CodePrestataire => (CODES_PRESTATAIRE as readonly string[]).includes(c));
+}

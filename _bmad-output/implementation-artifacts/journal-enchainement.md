@@ -205,3 +205,16 @@
 - Le test pgTAP `couverture.test.sql` n'a pas été exécuté sur koma-dev ; il tourne en CI.
 - **À faire par Jonathan quand il aura la documentation des Agrégateurs** (Q-1) : saisir les couples réels, avec leur source, puis les confirmer. Aucun n'est inventé.
 - À tester à la main : `/fr/admin/prestataires` : ajouter un couple sans source (erreur sous le champ), puis avec ; le confirmer, le retirer ; ajouter deux fois le même couple en casse différente (refusé).
+
+## Stories 5.2 et 5.3 : choix du mobile money, attente et repli (voie 1, Claude Code)
+- Migrations `20261203100000_trop_percu_statuts.sql` (alignement AD-27 : `a_rembourser` / `rembourse` / `honore`), `20261204100000_tentative_fonctions.sql` et `20261205100000_tentative_correctifs.sql` appliquées sur koma-dev, types régénérés. Spec : `spec-5-2-5-3-choix-du-mobile-money-attente-et-repli.md`.
+- Inclus : `demarrer_tentative`, `enregistrer_initiation`, `echouer_tentative` ; service `demarrerTentative` où **le serveur choisit le Prestataire** (le navigateur n'envoie que moyen, pays, opérateur, numéro), limité par `consommer_essai` (10 par 10 min et par Compte) ; formulaire `ChoixPaiement` (pays d'abord, « Autre pays », opérateur réinitialisé et annoncé, numéro avec indicatif en aide, « Paiement traité par {Agrégateur} », bouton verrouillé au premier toucher, saisie gardée dans l'onglet) ; écran d'attente mobile money (« Valide le paiement sur ton téléphone. », montant USD, numéro masqué, « À payer avant ») ; repli proposé par le serveur après un échec confirmé côté Prestataire, jamais sans toucher du client, jamais sur un échec client.
+- **Aucun adaptateur n'existe** : le registre est vide, donc aucun Prestataire n'est activable et aucun bouton de paiement n'apparaît en production. Le cycle complet (démarrage, refus, délai sans repli, référence déjà utilisée, repli, Panier mixte et Pass jamais chez Polar) est prouvé avec des doubles `TEST_` (`tests/doubles/TEST_prestataire.ts`).
+- Le numéro de téléphone n'est jamais conservé en clair (masque imposé par une contrainte de la table) ; il reste dans le stockage de l'onglet pour « Réessayer », purgé à la fin.
+- Revue (1 relecteur) : aucun bloquant. Corrigé : masque imposé en base et test qui le prouve, impasse de « Réessayer » sans numéro dans l'onglet, purge du stockage, `enregistrer_initiation` silencieux, paiement déjà en cours qui relit la page.
+- Reste ouvert : délai maximal de l'appel au Prestataire (`AbortSignal`) à imposer dans les stories d'adaptateurs ; `confirmer_paiement`, routes de notification et tâche de réconciliation (stories 4.7 et 5.4 à 5.7).
+- Le test pgTAP `tentative_paiement.test.sql` (24) n'a pas été exécuté sur koma-dev ; il tourne en CI.
+- À tester à la main : rien de visible tant qu'aucun adaptateur n'existe (les moyens de paiement d'une Commande à payer affichent les messages d'indisponibilité) ; saisir un couple confirmé dans `/admin/prestataires` ne suffit pas à faire apparaître le mobile money tant qu'un Agrégateur n'est pas activable.
+
+## Fin de la série demandée (3.6 → 3.7 → 4.5 → 4.6 → 5.1 → 5.2 → 5.3)
+- Stories terminées dans l'ordre : 3.6, 3.7, 4.5, 4.6, 5.1, 5.2, 5.3, plus l'intégration des stories 8.6 et 8.7 de la voie 3 avant la 3.7.

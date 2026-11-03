@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { adaptateurBranche } from "./registre";
 import { choisirPrestataire } from "./aiguillage";
+import type { EtatPaiement, Repli } from "./etat";
 import { CODES_PRESTATAIRE, type Achat, type CodePrestataire, type Couverture, type MoyenPaiement, type Prestataire } from "./types";
 
 // ---- Moyens proposés pour une Commande (Récapitulatif, story 4.5) ----
@@ -11,12 +12,18 @@ export type DependancesOptions = {
   achat: (commandeId: string, compteId: string) => Promise<Achat | null>;
   // Couverture pays-opérateur saisie par Jonathan (story 5.1) ; vide tant qu'elle n'existe pas.
   couverture: () => Promise<Couverture>;
+  // Agrégateurs dont une Tentative de cette Commande a fini en échec côté Prestataire (exclus du choix, AD-6).
+  exclus: (commandeId: string) => Promise<CodePrestataire[]>;
   adaptateursBranches: ReadonlySet<CodePrestataire>;
 };
 
+// Pays proposés au client : l'union des couples CONFIRMÉS des Agrégateurs actifs ; pour chaque opérateur, le nom de l'Agrégateur que le
+// serveur choisira (« Paiement traité par {Agrégateur} »). Aucune liste supposée : tout vient de la Couverture saisie par Jonathan.
+export type PaysMobileMoney = { code: string; operateurs: Array<{ nom: string; agregateur: string }> };
+
 export type OptionsPaiement = {
   carte: { disponible: true; prestataire: { code: CodePrestataire; nom: string } } | { disponible: false };
-  mobileMoney: { disponible: boolean };
+  mobileMoney: { disponible: boolean; pays: PaysMobileMoney[] };
 };
 
 const idSchema = z.uuid();
@@ -27,7 +34,7 @@ export async function lireOptionsPaiement(deps: DependancesOptions, entree: { co
   if (!idSchema.safeParse(entree.commandeId).success) return null;
   const achat = await deps.achat(entree.commandeId, entree.compteId);
   if (!achat) return null;
-  const [prestataires, couverture] = await Promise.all([deps.prestataires(), deps.couverture()]);
+  const [prestataires, couverture, exclus] = await Promise.all([deps.prestataires(), deps.couverture(), deps.exclus(entree.commandeId)]);
   // Un Prestataire dont l'adaptateur n'est pas branché n'est jamais proposé, même s'il est marqué actif en base.
   const actifs = prestataires.filter((p) => p.actif && adaptateurBranche(p.code, deps.adaptateursBranches));
   const codes = actifs.map((p) => p.code);
@@ -42,8 +49,22 @@ export async function lireOptionsPaiement(deps: DependancesOptions, entree: { co
       ? { disponible: true, prestataire: { code: choixCarte.prestataire, nom: prestataires.find((p) => p.code === choixCarte.prestataire)?.nom ?? choixCarte.prestataire } }
       : { disponible: false };
 
-  const mobileMoney = actifs.some((p) => p.mobileMoney && p.type === "agregateur" && couverture.some((c) => c.prestataire === p.code));
-  return { carte, mobileMoney: { disponible: mobileMoney } };
+  // Mobile money : pays et opérateurs issus des couples confirmés des Agrégateurs actifs, avec l'Agrégateur que l'aiguilleur retiendrait.
+  const pays = new Map<string, Map<string, { nom: string; agregateur: string }>>();
+  for (const c of couverture) {
+    if (!codes.includes(c.prestataire)) continue;
+    const cle = c.operateur.toLowerCase();
+    if (pays.get(c.pays)?.has(cle)) continue;
+    const choix = choisirPrestataire({ achat, moyen: "mobile_money", pays: c.pays, operateur: c.operateur, prestatairesActifs: codes, couverture, ordre, exclus });
+    if (choix.statut !== "ok") continue;
+    const nomAgregateur = prestataires.find((p) => p.code === choix.prestataire)?.nom ?? choix.prestataire;
+    if (!pays.has(c.pays)) pays.set(c.pays, new Map());
+    pays.get(c.pays)?.set(cle, { nom: c.operateur, agregateur: nomAgregateur });
+  }
+  const listePays: PaysMobileMoney[] = [...pays.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([code, ops]) => ({ code, operateurs: [...ops.values()].sort((a, b) => a.nom.localeCompare(b.nom)) }));
+  return { carte, mobileMoney: { disponible: listePays.length > 0, pays: listePays } };
 }
 
 // ---- Moyens des Prestataires actifs (pied de page) ----
@@ -123,4 +144,30 @@ export async function deplacerPrestataire(deps: DependancesAdminPaiement, entree
     console.error("[paiement] déplacement d'un Prestataire impossible");
     return { ok: false, erreur: "generique" };
   }
+}
+
+// ---- Repli entre Agrégateurs (story 5.3, FR-17, AD-6) ----
+
+// Après un échec CONFIRMÉ côté Prestataire d'un paiement mobile money, le serveur propose l'Agrégateur suivant qui couvre le même couple
+// pays-opérateur (les Agrégateurs déjà en échec pour cette Commande sont exclus), ou « aucun ». Jamais de repli sur un échec client ni sur un
+// état inconnu ; la nouvelle Tentative ne part que si le client touche le bouton. Null : pas de repli à proposer.
+export function proposerRepli(etat: EtatPaiement, prestataires: readonly Prestataire[], couverture: Couverture, branches: ReadonlySet<CodePrestataire>): Repli | null {
+  if (etat.phase !== "echec" || etat.causeEchec !== "prestataire" || etat.echec?.moyen !== "mobile_money") return null;
+  const actifs = prestataires.filter((p) => p.actif && adaptateurBranche(p.code, branches));
+  const ordre = prestataires
+    .filter((p) => p.type === "agregateur" && p.ordre !== null)
+    .sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
+    .map((p) => p.code);
+  const choix = choisirPrestataire({
+    achat: { familles: [], estPass: false },
+    moyen: "mobile_money",
+    pays: etat.echec.pays,
+    operateur: etat.echec.operateur,
+    prestatairesActifs: actifs.map((p) => p.code),
+    couverture,
+    ordre,
+    exclus: etat.exclus,
+  });
+  if (choix.statut !== "ok") return { type: "aucun" };
+  return { type: "suivant", code: choix.prestataire, nom: prestataires.find((p) => p.code === choix.prestataire)?.nom ?? choix.prestataire };
 }

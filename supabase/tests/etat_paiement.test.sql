@@ -44,7 +44,7 @@ select is((public.etat_paiement_commande('KS-2026-900002', '00000000-0000-0000-0
 -- Échec confirmé : la cause de la dernière Tentative échouée.
 insert into public.tentative_paiement (commande_id, prestataire, moyen, reference_interne, montant_attendu_cents, statut, cause, montant_recu, devise_recue)
   values ('00000000-0000-4000-8000-000000000e03', 'kpay', 'carte', 'TEST-EP-REF-0003', 5000, 'echouee', 'client', 4321, 'CDF');
-select is((public.etat_paiement_commande('KS-2026-900003', '00000000-0000-0000-0000-0000000000f1') ->> 'derniere_cause_echec'), 'client', 'cause de l''échec lue');
+select is((public.etat_paiement_commande('KS-2026-900003', '00000000-0000-0000-0000-0000000000f1') -> 'derniere_echec' ->> 'cause'), 'client', 'cause de l''échec lue');
 select ok(public.etat_paiement_commande('KS-2026-900003', '00000000-0000-0000-0000-0000000000f1')::text !~ '4321|CDF', 'le montant reçu ne sort pas');
 select is((public.etat_paiement_commande('KS-2026-900003', '00000000-0000-0000-0000-0000000000f1') -> 'trop_percu'), 'null'::jsonb, 'sans Trop-perçu : null');
 

@@ -1,14 +1,16 @@
 // @vitest-environment jsdom
 import { act, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { rendre } from "./aides-dom";
 
 // Le routeur de Next est stable d'un rendu à l'autre : le faux aussi (sinon le sondage redémarrerait à chaque rendu).
 const faux = vi.hoisted(() => {
   const refresh = vi.fn();
-  return { refresh, routeur: { refresh } };
+  return { refresh, routeur: { refresh }, demarrer: vi.fn() };
 });
 vi.mock("server-only", () => ({}));
+vi.mock("@/modules/paiement/actions", () => ({ demarrerTentativeAction: (...a: unknown[]) => faux.demarrer(...a) }));
 vi.mock("next/navigation", () => ({ useRouter: () => faux.routeur }));
 vi.mock("@/i18n/navigation", () => ({
   Link: ({ href, children, ...reste }: { href: string; children: React.ReactNode }) => (
@@ -22,7 +24,20 @@ import { SuiviPaiement } from "@/components/commande/SuiviPaiement";
 import type { EtatPaiement } from "@/modules/paiement/etat";
 
 const NUMERO = "KS-2026-000042";
-const base: EtatPaiement = { phase: "attente", statut: "en_attente", kit: false, attenteDepuisSecondes: 0, causeEchec: null, tropPercu: null };
+const base: EtatPaiement = {
+  phase: "attente",
+  statut: "en_attente",
+  kit: false,
+  attenteDepuisSecondes: 0,
+  causeEchec: null,
+  tropPercu: null,
+  montantCents: 1500,
+  expireLe: "2026-11-02T13:00:00Z",
+  attente: { moyen: "carte", prestataire: "TEST_K-Pay", telephoneMasque: null },
+  echec: null,
+  exclus: [],
+  repli: null,
+};
 const fetchFaux = vi.fn();
 
 function etat(s: Partial<EtatPaiement> = {}): EtatPaiement {
@@ -65,7 +80,7 @@ describe("SuiviPaiement : attente", () => {
     fetchFaux.mockImplementation(async () => reponse(etat()));
     rendre(<SuiviPaiement numero={NUMERO} etatInitial={etat()} numeroWhatsapp={null} />);
     expect(screen.queryByRole("button")).toBeNull();
-    expect(screen.queryByText(/payer/i)).toBeNull();
+    expect(screen.queryByRole("button", { name: /payer/i })).toBeNull();
   });
   it("après 2 minutes sans état final : « Paiement en cours de vérification. » sans proposer de repayer", async () => {
     // Le serveur donne l'âge réel de la Tentative à chaque lecture (100 s au départ, puis le temps qui passe).
@@ -168,5 +183,101 @@ describe("SuiviPaiement : Trop-perçu", () => {
   it("sans Trop-perçu : aucun texte de remboursement", () => {
     rendre(<SuiviPaiement numero={NUMERO} etatInitial={etat({ phase: "expiree", statut: "expiree" })} numeroWhatsapp={null} />);
     expect(screen.queryByText(/remboursement/)).toBeNull();
+  });
+});
+
+const echecMm = { moyen: "mobile_money" as const, prestataire: "pawapay" as const, pays: "TZ", operateur: "TEST_op" };
+
+describe("SuiviPaiement : attente mobile money (story 5.3)", () => {
+  it("« Valide le paiement sur ton téléphone. » avec le montant USD, le numéro masqué et « À payer avant », sans compte à rebours", () => {
+    rendre(
+      <SuiviPaiement
+        numero={NUMERO}
+        etatInitial={etat({ attente: { moyen: "mobile_money", prestataire: "TEST_PawaPay", telephoneMasque: "+255••••••678" }, montantCents: 1500, expireLe: "2026-11-02T13:30:00Z" })}
+        numeroWhatsapp={null}
+      />,
+    );
+    expect(screen.getByText("Valide le paiement sur ton téléphone.")).toBeTruthy();
+    expect(screen.getByText(/15[,.]00/)).toBeTruthy();
+    expect(screen.getByText("+255••••••678")).toBeTruthy();
+    expect(screen.getByText(/^À payer avant /)).toBeTruthy();
+    expect(screen.queryByRole("timer")).toBeNull();
+  });
+  it("le numéro n'apparaît jamais en clair", () => {
+    const { container } = rendre(<SuiviPaiement numero={NUMERO} etatInitial={etat({ attente: { moyen: "mobile_money", prestataire: "TEST", telephoneMasque: "+255••••••678" } })} numeroWhatsapp={null} />);
+    expect(container.textContent).not.toMatch(/\+255[0-9]{6}/);
+  });
+});
+
+describe("SuiviPaiement : repli entre Agrégateurs (story 5.3)", () => {
+  const repliEtat = (s: Partial<EtatPaiement> = {}) =>
+    etat({ phase: "echec", statut: "echouee", causeEchec: "prestataire", echec: echecMm, exclus: ["pawapay"], repli: { type: "suivant", code: "kpay", nom: "TEST_K-Pay" }, ...s });
+
+  beforeEach(() => {
+    faux.demarrer.mockReset();
+    faux.demarrer.mockResolvedValue({ ok: true, redirection: null });
+    sessionStorage.clear();
+    sessionStorage.setItem("koma-paiement-" + NUMERO, JSON.stringify({ pays: "TZ", operateur: "TEST_op", telephone: "+255712345678" }));
+  });
+
+  it("échec confirmé côté Prestataire : alerte « Réessayer avec {Agrégateur suivant} ? » et bouton WhatsApp ; rien ne part tout seul", () => {
+    rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat()} numeroWhatsapp="+243000000000" />);
+    expect(screen.getByRole("alert").textContent).toBe("Ce service de paiement n'a pas abouti. Réessayer avec TEST_K-Pay ?");
+    expect(screen.getByRole("link", { name: /WhatsApp/ })).toBeTruthy();
+    expect(faux.demarrer).not.toHaveBeenCalled();
+  });
+  it("la nouvelle Tentative ne part que si le client touche le bouton, avec le même couple et son numéro, puis « Une nouvelle demande… »", async () => {
+    vi.useRealTimers();
+    rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat()} numeroWhatsapp={null} />);
+    await userEvent.click(screen.getByRole("button", { name: "Réessayer avec TEST_K-Pay" }));
+    expect(faux.demarrer).toHaveBeenCalledWith({ numero: NUMERO, moyen: "mobile_money", pays: "TZ", operateur: "TEST_op", telephone: "+255712345678" });
+    expect(await screen.findByText("Une nouvelle demande de paiement va arriver sur ton téléphone.")).toBeTruthy();
+    expect(faux.refresh).toHaveBeenCalled();
+  });
+  it("le navigateur n'envoie aucun Prestataire : le serveur choisit le suivant", async () => {
+    vi.useRealTimers();
+    rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat()} numeroWhatsapp={null} />);
+    await userEvent.click(screen.getByRole("button", { name: "Réessayer avec TEST_K-Pay" }));
+    expect(Object.keys(faux.demarrer.mock.calls[0][0]).sort()).toEqual(["moyen", "numero", "operateur", "pays", "telephone"]);
+  });
+  it("tous les Agrégateurs du couple en échec ou désactivés : « Choisis un autre opérateur ou la carte. » remplace le repli", () => {
+    rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat({ repli: { type: "aucun" } })} numeroWhatsapp="+243000000000" />);
+    expect(screen.getByRole("alert").textContent).toBe("Choisis un autre opérateur ou la carte.");
+    expect(screen.queryByRole("button", { name: /Réessayer/ })).toBeNull();
+    expect(screen.getByRole("link", { name: /WhatsApp/ })).toBeTruthy();
+  });
+  it("échec dû au client : « Le paiement n'a pas abouti. Tu peux réessayer. » avec le même Agrégateur, sans bascule ni ressaisie (E-27)", async () => {
+    vi.useRealTimers();
+    rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat({ causeEchec: "client", repli: null })} numeroWhatsapp={null} />);
+    expect(screen.getByRole("alert").textContent).toBe("Le paiement n'a pas abouti. Tu peux réessayer.");
+    expect(screen.queryByText(/Réessayer avec/)).toBeNull();
+    await userEvent.click(screen.getByRole("button", { name: "Réessayer" }));
+    expect(faux.demarrer).toHaveBeenCalledWith(expect.objectContaining({ pays: "TZ", operateur: "TEST_op", telephone: "+255712345678" }));
+  });
+  it("nouvelle Tentative impossible (refusée par le serveur) : message d'état, aucune fausse confirmation", async () => {
+    vi.useRealTimers();
+    faux.demarrer.mockResolvedValue({ ok: false, erreur: "indisponible" });
+    rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat()} numeroWhatsapp={null} />);
+    await userEvent.click(screen.getByRole("button", { name: "Réessayer avec TEST_K-Pay" }));
+    expect(await screen.findByText(/La nouvelle demande n'a pas pu partir/)).toBeTruthy();
+    expect(screen.queryByText("Une nouvelle demande de paiement va arriver sur ton téléphone.")).toBeNull();
+  });
+  it("numéro absent de l'onglet : rien ne part, le client est renvoyé au formulaire pour le ressaisir", async () => {
+    vi.useRealTimers();
+    sessionStorage.clear();
+    rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat()} numeroWhatsapp={null} />);
+    await userEvent.click(screen.getByRole("button", { name: "Réessayer avec TEST_K-Pay" }));
+    expect(faux.demarrer).not.toHaveBeenCalled();
+    expect(await screen.findByRole("link", { name: "Ressaisir mon numéro dans les moyens de paiement" })).toBeTruthy();
+  });
+  it("le numéro gardé dans l'onglet est purgé quand la Commande est payée ou expirée", () => {
+    sessionStorage.setItem("koma-paiement-" + NUMERO, JSON.stringify({ telephone: "+255712345678" }));
+    rendre(<SuiviPaiement numero={NUMERO} etatInitial={etat({ phase: "payee", statut: "payee" })} numeroWhatsapp={null} />);
+    expect(sessionStorage.getItem("koma-paiement-" + NUMERO)).toBeNull();
+  });
+  it("échec d'une carte : « Réessayer » mène aux moyens de paiement, sans appel automatique", () => {
+    rendre(<SuiviPaiement numero={NUMERO} etatInitial={repliEtat({ causeEchec: "client", repli: null, echec: { moyen: "carte", prestataire: "kpay", pays: null, operateur: null } })} numeroWhatsapp={null} />);
+    expect(screen.getByRole("link", { name: "Réessayer" }).getAttribute("href")).toBe("#commande-moyens");
+    expect(faux.demarrer).not.toHaveBeenCalled();
   });
 });

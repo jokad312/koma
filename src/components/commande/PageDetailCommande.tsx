@@ -113,7 +113,7 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
 
       {etatPaiement ? <SuiviPaiement numero={commande.numero} etatInitial={etatPaiement} numeroWhatsapp={numeroWhatsapp} /> : <MessageEtat type="erreur">{t("erreurs.erreur")}</MessageEtat>}
 
-      {choixPossible ? (options ? <MoyensPaiement locale={locale} options={options} /> : <MessageEtat type="erreur">{t("erreurs.erreur")}</MessageEtat>) : null}
+      {choixPossible ? (options ? <MoyensPaiement numero={commande.numero} options={options} /> : <MessageEtat type="erreur">{t("erreurs.erreur")}</MessageEtat>) : null}
     </div>
   );
 }

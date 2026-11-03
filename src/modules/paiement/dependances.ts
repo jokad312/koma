@@ -1,16 +1,22 @@
 import "server-only";
+import { randomBytes } from "node:crypto";
 import { updateTag } from "next/cache";
+import { lireSessionVerifiee } from "@/lib/auth/compte";
 import { exigerDroit } from "@/lib/auth/droits";
 import { ETIQUETTES } from "@/lib/cache/etiquettes";
+import { lireEnvPublique } from "@/lib/env";
 import { creerClientService } from "@/lib/supabase/service";
 import type { Json } from "@/lib/supabase/types";
-import { ADAPTATEURS_BRANCHES } from "./registre";
-import { lireAchat, lireCouverture, lirePrestataires } from "./queries";
+import { adresseRetourPrestataire } from "./etat";
+import { ADAPTATEURS_BRANCHES, lireAdaptateur } from "./registre";
+import { lireAchat, lireCouverture, lireExclus, lirePrestataires } from "./queries";
 import type { DependancesCouverture } from "./couverture";
 import type { DependancesAdminPaiement, DependancesOptions } from "./service";
+import type { DependancesTentative } from "./tentative";
+import type { CodePrestataire } from "./types";
 
 export function dependancesOptions(): DependancesOptions {
-  return { prestataires: lirePrestataires, achat: lireAchat, couverture: lireCouverture, adaptateursBranches: ADAPTATEURS_BRANCHES };
+  return { prestataires: lirePrestataires, achat: lireAchat, couverture: lireCouverture, exclus: lireExclus, adaptateursBranches: ADAPTATEURS_BRANCHES };
 }
 
 export function dependancesAdminPaiement(): DependancesAdminPaiement {
@@ -46,5 +52,59 @@ export function dependancesCouverture(): DependancesCouverture {
       const { error } = await client.rpc("retirer_couverture", { p_auteur: auteur as Json, p_id: id });
       return { erreur: error ? error.message : null };
     },
+  };
+}
+
+// Lancement d'une Tentative (story 5.2) : tout passe par le client service, après la session vérifiée ; le navigateur ne fournit que son choix.
+export function dependancesTentative(): DependancesTentative {
+  const client = creerClientService();
+  return {
+    compteId: async () => (await lireSessionVerifiee())?.compteId ?? null,
+    limiter: async (cle, fenetre, maximum) => {
+      const { data, error } = await client.rpc("consommer_essai", { p_cle: cle, p_fenetre_secondes: fenetre, p_maximum: maximum });
+      if (error) throw new Error("consommer_essai");
+      return data === true;
+    },
+    commande: async (compteId, numero) => {
+      const { data, error } = await client.from("commande").select("id").eq("numero", numero).eq("compte_id", compteId).maybeSingle();
+      if (error) throw new Error("lecture de la commande");
+      if (!data) return null;
+      const [achat, utilisateur] = await Promise.all([lireAchat(data.id, compteId), client.auth.admin.getUserById(compteId)]);
+      if (!achat) return null;
+      return { id: data.id, achat, contact: { email: utilisateur.data.user?.email ?? null } };
+    },
+    prestataires: lirePrestataires,
+    couverture: lireCouverture,
+    exclus: async (commandeId) => {
+      const { data, error } = await client.from("tentative_paiement").select("prestataire").eq("commande_id", commandeId).eq("statut", "echouee").eq("cause", "prestataire");
+      if (error) throw new Error("lecture des exclus");
+      return [...new Set((data ?? []).map((l) => l.prestataire))] as CodePrestataire[];
+    },
+    adaptateursBranches: ADAPTATEURS_BRANCHES,
+    adaptateur: lireAdaptateur,
+    demarrer: async (a) => {
+      const { data, error } = await client.rpc("demarrer_tentative", {
+        p_compte: a.compteId,
+        p_numero: a.numero,
+        p_prestataire: a.prestataire,
+        p_moyen: a.moyen,
+        p_pays: a.pays as string,
+        p_operateur: a.operateur as string,
+        p_reference_interne: a.referenceInterne,
+        p_telephone_masque: a.telephoneMasque as string,
+      });
+      if (error) return { erreur: error.message };
+      const lu = data as { tentative_id: string; montant_attendu_cents: number };
+      return { tentativeId: lu.tentative_id, montantAttenduCents: lu.montant_attendu_cents };
+    },
+    enregistrerInitiation: async (tentativeId, referenceTransaction) => {
+      const { error } = await client.rpc("enregistrer_initiation", { p_tentative: tentativeId, p_reference_transaction: referenceTransaction });
+      return { erreur: error ? error.message : null };
+    },
+    echouer: async (tentativeId, cause) => {
+      await client.rpc("echouer_tentative", { p_tentative: tentativeId, p_cause: cause });
+    },
+    referenceInterne: (numero) => `${numero}-${randomBytes(6).toString("hex")}`,
+    adresseRetour: (prestataire, numero) => adresseRetourPrestataire(lireEnvPublique().NEXT_PUBLIC_SITE_URL, prestataire, numero),
   };
 }
