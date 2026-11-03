@@ -21,7 +21,7 @@ const DELAI_APPEL_MS = 10_000;
 export type ConfigMaishaPay = { clePublique: string; cleSecrete: string; mode: 0 | 1 };
 
 // Documentation « Introduction » et « Collection » : tout point que la documentation ne tranche pas reste écrit ici.
-// Décisions de Jonathan (2026-11-03) : KOMA SHOP absorbe les frais éventuels, la comparaison porte sur « amount » (hors frais) ; tout FAILED est un échec
+// Décisions de Jonathan (2026-11-03) : le site absorbe les frais éventuels, la comparaison porte sur « amount » (hors frais) ; tout FAILED est un échec
 // du client sans repli ; carte : le client choisit Visa ou Mastercard, nom et téléphone du payeur sont collectés au paiement par carte seulement.
 export const QUESTIONS_OUVERTES: readonly string[] = [
   "Devise réellement débitée : la documentation ne dit pas si le montant envoyé en USD est débité en USD ou converti (CDF, XAF…) ; question posée à MaishaPay. Tant que la consultation ne renvoie pas USD, la comparaison reste indéterminée.",
@@ -168,7 +168,7 @@ export function creerAdaptateurMaishaPay(lireConfig: () => ConfigMaishaPay | nul
       return { statut: "inconnu", ...base };
     },
 
-    // Décision de Jonathan : le champ comparé est « amount » (hors frais, absorbés par KOMA SHOP). La devise doit être USD, celle que nous envoyons :
+    // Décision de Jonathan : le champ comparé est « amount » (hors frais, absorbés par le site). La devise doit être USD, celle que nous envoyons :
     // toute autre devise (conversion non documentée) reste indéterminée, jamais devinée (règle 15). Comparaison exacte, en centimes.
     comparerMontant(attenduCents: number, montantRecu: string, deviseRecue: string): ComparaisonMontant {
       if (deviseRecue.toUpperCase() !== "USD") return "indetermine";

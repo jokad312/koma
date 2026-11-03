@@ -23,7 +23,7 @@ export type ConfigPawaPay = { jeton: string; production: boolean };
 
 // Points que la documentation de PawaPay ne tranche pas, ou qui dépendent du compte de Jonathan. Tant qu'il en reste, PawaPay n'est pas activable.
 export const QUESTIONS_OUVERTES: readonly string[] = [
-  "Devises activées sur le compte : la documentation donne le dollar américain (USD) pour la RDC (Vodacom M-Pesa, Airtel, Orange) et le Zimbabwe (EcoCash), mais seule la configuration active du compte (active-conf) dit ce qui est réellement ouvert chez KOMA SHOP.",
+  "Devises activées sur le compte : la documentation donne le dollar américain (USD) pour la RDC (Vodacom M-Pesa, Airtel, Orange) et le Zimbabwe (EcoCash), mais seule la configuration active du compte (active-conf) dit ce qui est réellement ouvert sur le compte du site.",
   "Pays hors RDC et Zimbabwe : PawaPay encaisse dans la devise locale du pays (TZS, KES, UGX, RWF, XOF…) et ne convertit pas depuis le dollar. Les prix du site sont en USD : aucune conversion n'est inventée, ces pays ne sont donc pas tentés. Décision de Jonathan à confirmer (conversion par le site, ou pays non couverts).",
   "Adresse de rappel : elle se règle dans le tableau de bord de PawaPay (une adresse pour tout le compte), pas à chaque paiement. À déclarer par Jonathan.",
   "Échec sans cause précise (UNSPECIFIED_FAILURE, UNKNOWN_ERROR) : la documentation ne dit pas s'il vient du client ou de l'opérateur ; traité comme un échec du prestataire (l'agrégateur suivant peut être proposé). À confirmer.",
@@ -59,7 +59,7 @@ function texte(valeur: unknown): string | null {
 // PawaPay exige un identifiant de dépôt au format UUID, alors que notre référence interne n'en est pas un. L'identifiant est dérivé de la référence
 // (SHA-256, mise en forme UUID v4) : le même à l'initiation et à chaque consultation, sans rien stocker. Notre référence part aussi en clientReferenceId.
 export async function identifiantDepot(referenceInterne: string): Promise<string> {
-  const empreinte = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`koma-pawapay:${referenceInterne}`)));
+  const empreinte = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(`depot-pawapay:${referenceInterne}`)));
   const o = empreinte.slice(0, 16);
   o[6] = (o[6] & 0x0f) | 0x40;
   o[8] = (o[8] & 0x3f) | 0x80;
