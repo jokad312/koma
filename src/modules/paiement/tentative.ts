@@ -31,7 +31,7 @@ export type DependancesTentative = {
   // Vrai si l'essai est permis (consommer_essai).
   limiter: (cle: string, fenetreSecondes: number, maximum: number) => Promise<boolean>;
   // Commande du Compte par son numéro, avec ses Familles lues en base (règle 11) ; null si elle n'est pas à ce Compte.
-  commande: (compteId: string, numero: string) => Promise<{ id: string; achat: Achat; contact: { email: string | null } } | null>;
+  commande: (compteId: string, numero: string) => Promise<{ id: string; achat: Achat; contact: { email: string | null; nom: string | null } } | null>;
   prestataires: () => Promise<Prestataire[]>;
   couverture: () => Promise<Couverture>;
   // Agrégateurs dont une Tentative de cette Commande a fini en échec côté Prestataire.
@@ -52,6 +52,7 @@ export type DependancesTentative = {
   echouer: (tentativeId: string, cause: "client" | "prestataire") => Promise<void>;
   referenceInterne: (numero: string) => string;
   adresseRetour: (prestataire: CodePrestataire, numero: string) => string;
+  adresseNotification: (prestataire: CodePrestataire) => string;
 };
 
 const entreeSchema = z.object({
@@ -153,8 +154,9 @@ export async function demarrerTentative(deps: DependancesTentative, brut: unknow
         moyen: entree.moyen,
         pays: entree.pays ?? null,
         operateur: entree.operateur ?? null,
-        contact: { telephone, email: commande.contact.email },
+        contact: { telephone, email: commande.contact.email, nom: commande.contact.nom },
         adresseRetour: deps.adresseRetour(choix.prestataire, entree.numero),
+        adresseNotification: deps.adresseNotification(choix.prestataire),
       });
     } catch {
       console.error("[paiement] initiation sans réponse : la Tentative reste en cours");

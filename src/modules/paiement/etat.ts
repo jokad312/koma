@@ -96,3 +96,9 @@ export function adresseRetourPrestataire(siteUrl: string, prestataire: string, n
   const racine = siteUrl.replace(/\/+$/, "");
   return `${racine}/api/paiement/retour/${encodeURIComponent(prestataire)}?numero=${encodeURIComponent(numero)}`;
 }
+
+// Adresse que le Prestataire appelle pour signaler le résultat d'un paiement (une route par Prestataire). Elle ne porte aucun identifiant :
+// la notification se rattache à la Tentative par la référence que nous avons envoyée, et le serveur contre-vérifie auprès de l'API.
+export function adresseNotificationPrestataire(siteUrl: string, prestataire: string): string {
+  return `${siteUrl.replace(/\/+$/, "")}/api/paiement/notification/${encodeURIComponent(prestataire)}`;
+}

@@ -39,7 +39,7 @@ select is(
 select is((select count(*)::int from pg_policies where schemaname = 'public' and tablename in ('prestataire', 'tentative_paiement', 'notification_recue', 'trop_percu')), 0, 'aucune politique : tout passe par le serveur');
 
 -- Prestataires : trois, tous désactivés au départ, ordre des Agrégateurs, Polar sans ordre.
-select is((select count(*)::int from public.prestataire), 4, 'quatre Prestataires');
+select is((select count(*)::int from public.prestataire), 3, 'trois Prestataires');
 select is((select count(*)::int from public.prestataire where actif), 0, 'tous désactivés au départ');
 select is((select array_agg(code order by ordre) from public.prestataire where type = 'agregateur'), array['pawapay', 'maishapay'], 'Ordre de priorité initial des Agrégateurs');
 select is((select ordre from public.prestataire where code = 'polar'), null, 'Polar n''a pas d''Ordre de priorité');

@@ -11,7 +11,8 @@ import type { CoupleCouverture } from "@/modules/paiement/couverture";
 import type { Prestataire } from "@/modules/paiement/types";
 import { CouvertureAgregateur } from "./CouvertureAgregateur";
 
-export type PrestataireAdmin = Prestataire & { adaptateurBranche: boolean; couples: CoupleCouverture[] };
+// questionsOuvertes : nombre de points de la documentation du Prestataire encore à trancher (adaptateur écrit mais non activable).
+export type PrestataireAdmin = Prestataire & { adaptateurBranche: boolean; couples: CoupleCouverture[]; questionsOuvertes?: number };
 
 // Liste des Prestataires (FR-21). L'état « Actif » ou « Désactivé » affiché est celui de la base : la liste est relue après chaque
 // réponse réelle du serveur (règle 13). La règle de la carte est affichée verrouillée : elle ne se règle pas ici (règle 10).
@@ -55,7 +56,7 @@ export function ListePrestataires({ prestataires }: { prestataires: PrestataireA
               {p.ordre !== null ? <p className="t-small text-text-secondary">{t("rang", { rang: rang + 1 })}</p> : null}
               <div className="flex flex-wrap gap-3">
                 {activationImpossible ? (
-                  <Bouton variante="secondaire" desactive raison={t("adaptateurAbsent")}>
+                  <Bouton variante="secondaire" desactive raison={(p.questionsOuvertes ?? 0) > 0 ? t("questionsOuvertes", { n: p.questionsOuvertes ?? 0 }) : t("adaptateurAbsent")}>
                     {t("activer", { prestataire: p.nom })}
                   </Bouton>
                 ) : (

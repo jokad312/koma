@@ -1399,6 +1399,7 @@
         "carte": "card"
       },
       "adaptateurAbsent": "Adapter not connected yet: this provider cannot be turned on.",
+      "questionsOuvertes": "Adapter written, but {n, plural, one {# point} other {# points}} of the documentation still need a decision: the provider cannot be activated.",
       "regleCarte": {
         "titre": "Card rule (locked)",
         "maishapay": "MaishaPay: carts with a physical product and event passes.",

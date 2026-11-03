@@ -1399,6 +1399,7 @@
         "carte": "carte"
       },
       "adaptateurAbsent": "Adaptateur pas encore branché : ce prestataire ne peut pas être activé.",
+      "questionsOuvertes": "Adaptateur écrit, mais {n, plural, one {# point} other {# points}} de la documentation reste à trancher : le prestataire ne peut pas être activé.",
       "regleCarte": {
         "titre": "Règle de la carte (verrouillée)",
         "maishapay": "MaishaPay : paniers avec un produit physique et pass d'événement.",

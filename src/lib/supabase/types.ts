@@ -1481,6 +1481,7 @@ export type Database = {
         Args: { p_compte: string; p_evenement?: string; p_role: string }
         Returns: boolean
       }
+      abandonner_tentatives_perimees: { Args: never; Returns: number }
       admin_sante: { Args: never; Returns: number }
       ajouter_au_panier: {
         Args: {
@@ -1624,6 +1625,17 @@ export type Database = {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
       }
+      confirmer_paiement: {
+        Args: {
+          p_auteur: Json
+          p_comparaison: string
+          p_devise_recue: string
+          p_montant_recu: number
+          p_reference_transaction: string
+          p_tentative: string
+        }
+        Returns: Json
+      }
       consommer_essai: {
         Args: { p_cle: string; p_fenetre_secondes: number; p_maximum: number }
         Returns: boolean
@@ -1745,6 +1757,15 @@ export type Database = {
           p_nom: string
         }
         Returns: undefined
+      }
+      enregistrer_notification: {
+        Args: {
+          p_id_notification: string
+          p_prestataire: string
+          p_signature_valide: boolean
+          p_tentative: string
+        }
+        Returns: boolean
       }
       enregistrer_produit: {
         Args: {
@@ -1983,6 +2004,7 @@ export type Database = {
         }
         Returns: Json
       }
+      reconcilier_declencher: { Args: never; Returns: boolean }
       remplacer_fichier_kit: {
         Args: {
           p_auteur: Json
@@ -2001,6 +2023,14 @@ export type Database = {
         Returns: undefined
       }
       seuil_dernieres_pieces: { Args: never; Returns: number }
+      signaler_montant_indetermine: {
+        Args: {
+          p_devise_recue: string
+          p_montant_recu: number
+          p_tentative: string
+        }
+        Returns: undefined
+      }
       stock_disponible: { Args: { p_variante: string }; Returns: number }
       supprimer_chapitre_kit: {
         Args: { p_auteur: Json; p_chapitre_id: string }
@@ -2026,6 +2056,22 @@ export type Database = {
         Args: { p_auteur: Json; p_produit_id: string }
         Returns: Json
       }
+      tentative_par_reference_interne: {
+        Args: { p_reference: string }
+        Returns: Json
+      }
+      tentatives_a_reconcilier: {
+        Args: { p_delai_secondes: number; p_limite: number }
+        Returns: {
+          id: string
+          montant_attendu_cents: number
+          prestataire: string
+          reference_interne: string
+          reference_transaction: string
+          statut: string
+        }[]
+      }
+      toucher_tentative: { Args: { p_tentative: string }; Returns: undefined }
       valider_video_heros: {
         Args: { p_auteur: Json; p_fichier: string; p_video_id: string }
         Returns: undefined
@@ -2048,6 +2094,8 @@ export type Database = {
         | "notification_invalide"
         | "transition_refusee"
         | "kit_deja_possede"
+        | "montant_indetermine"
+        | "stock_insuffisant"
       envoi_modele: "commande_payee" | "kit_ouvert"
       envoi_statut: "a_envoyer" | "envoye" | "echec" | "abandonne" | "ignore"
     }
@@ -2186,6 +2234,8 @@ export const Constants = {
         "notification_invalide",
         "transition_refusee",
         "kit_deja_possede",
+        "montant_indetermine",
+        "stock_insuffisant",
       ],
       envoi_modele: ["commande_payee", "kit_ouvert"],
       envoi_statut: ["a_envoyer", "envoye", "echec", "abandonne", "ignore"],

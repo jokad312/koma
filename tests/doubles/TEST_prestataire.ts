@@ -7,12 +7,16 @@ export type ScenarioPrestataireTest = {
   code: CodePrestataire;
   initiation?: ResultatInitiation | Error;
   statut?: ResultatAdaptateur;
+  notification?: NotificationVerifiee | null;
+  comparaison?: ComparaisonMontant;
+  questionsOuvertes?: readonly string[];
 };
 
 export function creerPrestataireTest(scenario: ScenarioPrestataireTest): PrestatairePaiement & { appels: DonneesTentative[] } {
   const appels: DonneesTentative[] = [];
   return {
     code: scenario.code,
+    questionsOuvertes: scenario.questionsOuvertes ?? [],
     appels,
     async initier(tentative: DonneesTentative): Promise<ResultatInitiation> {
       appels.push(tentative);
@@ -21,13 +25,13 @@ export function creerPrestataireTest(scenario: ScenarioPrestataireTest): Prestat
       return r;
     },
     async verifierNotification(): Promise<NotificationVerifiee | null> {
-      return null;
+      return scenario.notification ?? null;
     },
     async consulterStatut(): Promise<ResultatAdaptateur> {
       return scenario.statut ?? { statut: "inconnu", referenceTransaction: null, montantRecu: null, deviseRecue: null };
     },
     comparerMontant(): ComparaisonMontant {
-      return "indetermine";
+      return scenario.comparaison ?? "indetermine";
     },
   };
 }

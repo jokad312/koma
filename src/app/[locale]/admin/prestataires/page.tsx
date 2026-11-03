@@ -11,7 +11,7 @@ import { routing, type Locale } from "@/i18n/routing";
 import { exigerAdminPage } from "@/lib/auth/droits";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
-import { adaptateurBranche } from "@/modules/paiement/registre";
+import { adaptateurBranche, questionsOuvertes } from "@/modules/paiement/registre";
 import { lireCouvertureAdmin, lirePrestataires } from "@/modules/paiement/queries";
 
 const CHEMIN = "/admin/prestataires";
@@ -31,7 +31,7 @@ async function PrestatairesSelonDroit({ locale }: { locale: Locale }) {
   let prestataires: PrestataireAdmin[] | null = null;
   try {
     const [liste, couverture] = await Promise.all([lirePrestataires(), lireCouvertureAdmin()]);
-    prestataires = liste.map((p) => ({ ...p, adaptateurBranche: adaptateurBranche(p.code), couples: couverture.filter((c) => c.prestataire === p.code) }));
+    prestataires = liste.map((p) => ({ ...p, adaptateurBranche: adaptateurBranche(p.code), questionsOuvertes: questionsOuvertes(p.code).length, couples: couverture.filter((c) => c.prestataire === p.code) }));
   } catch {
     console.error("[paiement] lecture des Prestataires impossible");
   }

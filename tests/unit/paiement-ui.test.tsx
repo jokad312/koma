@@ -68,6 +68,15 @@ describe("ListePrestataires (admin)", () => {
     expect(faux.changer).not.toHaveBeenCalled();
     expect(screen.getAllByText(/Adaptateur pas encore branché/).length).toBeGreaterThan(0);
   });
+  it("un adaptateur écrit mais aux questions ouvertes ne peut pas être activé : la raison compte les points à trancher", async () => {
+    const liste = base.map((p) => (p.code === "pawapay" ? { ...p, adaptateurBranche: false, questionsOuvertes: 7 } : p));
+    rendre(<ListePrestataires prestataires={liste} />);
+    const bouton = screen.getByRole("button", { name: "Activer TEST_PawaPay" });
+    expect(bouton.getAttribute("aria-disabled")).toBe("true");
+    await userEvent.click(bouton);
+    expect(faux.changer).not.toHaveBeenCalled();
+    expect(screen.getAllByText(/7 points de la documentation reste à trancher/).length).toBeGreaterThan(0);
+  });
   it("Monter / Descendre n'existent que pour les Agrégateurs", async () => {
     rendre(<ListePrestataires prestataires={base} />);
     expect(screen.queryByRole("button", { name: "Monter TEST_Polar" })).toBeNull();

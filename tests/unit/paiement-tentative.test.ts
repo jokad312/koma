@@ -27,7 +27,7 @@ function deps(s: Partial<DependancesTentative> = {}, adaptateurs: Partial<Record
   return {
     compteId: vi.fn(async () => "TEST_compte"),
     limiter: vi.fn(async () => true),
-    commande: vi.fn(async () => ({ id: "TEST_commande", achat: physique, contact: { email: "TEST@example.invalid" } })),
+    commande: vi.fn(async () => ({ id: "TEST_commande", achat: physique, contact: { email: "TEST@example.invalid", nom: null } })),
     prestataires: vi.fn(async () => TOUS),
     couverture: vi.fn(async () => COUVERTURE),
     exclus: vi.fn(async () => []),
@@ -38,6 +38,7 @@ function deps(s: Partial<DependancesTentative> = {}, adaptateurs: Partial<Record
     echouer: vi.fn(async () => undefined),
     referenceInterne: vi.fn(() => "TEST-REF-INTERNE-0001"),
     adresseRetour: vi.fn((code, numero) => `https://TEST.invalid/retour/${code}?numero=${numero}`),
+    adresseNotification: vi.fn((code) => `https://TEST.invalid/notification/${code}`),
     ...s,
   };
 }
@@ -126,14 +127,14 @@ describe("demarrerTentative : carte (règle 10)", () => {
   it("panier mixte ou Pass : jamais Polar", async () => {
     const polar = creerPrestataireTest({ code: "polar" });
     for (const achat of [{ familles: ["cosplay", "kit"] as const, estPass: false }, { familles: [] as const, estPass: true }]) {
-      const d = deps({ commande: vi.fn(async () => ({ id: "c", achat, contact: { email: null } })) }, { polar });
+      const d = deps({ commande: vi.fn(async () => ({ id: "c", achat, contact: { email: null, nom: null } })) }, { polar });
       await expect(demarrerTentative(d, carte)).resolves.toEqual({ ok: false, erreur: "indisponible" });
     }
     expect(polar.appels).toHaveLength(0);
   });
   it("panier 100 % Kits : Polar", async () => {
     const polar = creerPrestataireTest({ code: "polar" });
-    const d = deps({ commande: vi.fn(async () => ({ id: "c", achat: { familles: ["kit" as const], estPass: false }, contact: { email: null } })) }, { polar, maishapay: creerPrestataireTest({ code: "maishapay" }) });
+    const d = deps({ commande: vi.fn(async () => ({ id: "c", achat: { familles: ["kit" as const], estPass: false }, contact: { email: null, nom: null } })) }, { polar, maishapay: creerPrestataireTest({ code: "maishapay" }) });
     await demarrerTentative(d, carte);
     expect(polar.appels).toHaveLength(1);
   });

@@ -33,9 +33,15 @@ export type DonneesTentative = {
   pays: string | null;
   operateur: string | null;
   // Le téléphone ou l'email du payeur ne sont jamais conservés par nous : ils passent par l'appel seulement.
-  contact: { telephone: string | null; email: string | null };
+  // Le nom du payeur n'est connu que si le Compte l'a donné (Google) : jamais inventé (règle 15).
+  contact: { telephone: string | null; email: string | null; nom: string | null };
+  // Adresse où le client revient après le paiement (page de retour) et adresse que le Prestataire appelle pour signaler le résultat.
   adresseRetour: string;
+  adresseNotification: string;
 };
+
+// Les deux références d'une Tentative : la nôtre (toujours connue) et celle du Prestataire (connue après l'initiation, parfois jamais).
+export type ReferencesTentative = { referenceInterne: string; referenceTransaction: string | null };
 
 export type ResultatInitiation =
   | { statut: "initie"; referenceTransaction: string | null; redirection: string | null }
@@ -50,7 +56,8 @@ export type ResultatAdaptateur = {
   deviseRecue: string | null;
 };
 
-export type RequeteNotification = { en_tetes: Readonly<Record<string, string>>; corps: string };
+// Notification telle que reçue : méthode, en-têtes, corps brut et chaîne de requête (certains Prestataires rappellent en GET).
+export type RequeteNotification = { methode: "GET" | "POST"; en_tetes: Readonly<Record<string, string>>; corps: string; requete: string };
 
 // Notification dont la signature est vérifiée ; null si la vérification échoue (la route répond 401).
 export type NotificationVerifiee = { idNotification: string; referenceInterne: string | null; resultat: ResultatAdaptateur };
@@ -59,9 +66,12 @@ export type ComparaisonMontant = "egal" | "inferieur" | "superieur" | "indetermi
 
 export interface PrestatairePaiement {
   readonly code: CodePrestataire;
+  // Points que la documentation du Prestataire ne tranche pas (signature, devise débitée, règle de comparaison, Couverture…). Tant que la liste
+  // n'est pas vide, l'adaptateur n'est pas activable (règle 15) : rien n'est deviné, rien n'est validé sur une hypothèse.
+  readonly questionsOuvertes: readonly string[];
   initier(tentative: DonneesTentative): Promise<ResultatInitiation>;
   verifierNotification(requete: RequeteNotification): Promise<NotificationVerifiee | null>;
-  consulterStatut(referenceTransaction: string): Promise<ResultatAdaptateur>;
+  consulterStatut(references: ReferencesTentative): Promise<ResultatAdaptateur>;
   // Règle de comparaison propre au Prestataire (conversion faite par l'agrégateur, selon sa documentation) : jamais devinée.
   comparerMontant(attenduCents: number, montantRecu: string, deviseRecue: string): ComparaisonMontant;
 }

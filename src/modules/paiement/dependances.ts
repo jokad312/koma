@@ -7,7 +7,7 @@ import { ETIQUETTES } from "@/lib/cache/etiquettes";
 import { lireEnvPublique } from "@/lib/env";
 import { creerClientService } from "@/lib/supabase/service";
 import type { Json } from "@/lib/supabase/types";
-import { adresseRetourPrestataire } from "./etat";
+import { adresseNotificationPrestataire, adresseRetourPrestataire } from "./etat";
 import { ADAPTATEURS_BRANCHES, lireAdaptateur } from "./registre";
 import { lireAchat, lireCouverture, lireExclus, lirePrestataires } from "./queries";
 import type { DependancesCouverture } from "./couverture";
@@ -71,7 +71,9 @@ export function dependancesTentative(): DependancesTentative {
       if (!data) return null;
       const [achat, utilisateur] = await Promise.all([lireAchat(data.id, compteId), client.auth.admin.getUserById(compteId)]);
       if (!achat) return null;
-      return { id: data.id, achat, contact: { email: utilisateur.data.user?.email ?? null } };
+      const meta = utilisateur.data.user?.user_metadata as { full_name?: unknown; name?: unknown } | undefined;
+      const nom = [meta?.full_name, meta?.name].find((n): n is string => typeof n === "string" && n.trim().length > 0)?.trim() ?? null;
+      return { id: data.id, achat, contact: { email: utilisateur.data.user?.email ?? null, nom } };
     },
     prestataires: lirePrestataires,
     couverture: lireCouverture,
@@ -106,5 +108,6 @@ export function dependancesTentative(): DependancesTentative {
     },
     referenceInterne: (numero) => `${numero}-${randomBytes(6).toString("hex")}`,
     adresseRetour: (prestataire, numero) => adresseRetourPrestataire(lireEnvPublique().NEXT_PUBLIC_SITE_URL, prestataire, numero),
+    adresseNotification: (prestataire) => adresseNotificationPrestataire(lireEnvPublique().NEXT_PUBLIC_SITE_URL, prestataire),
   };
 }
