@@ -77,6 +77,10 @@
     "blog": {
       "titre": "Blog",
       "description": "Cosplay guides, crafting tutorials and news, handmade in Goma."
+    },
+    "compteCommandes": {
+      "titre": "My orders",
+      "description": "The list of your orders."
     }
   },
   "Accueil": {
@@ -1884,7 +1888,32 @@
       "aPayerAvant": "Pay before {heure}",
       "expiree": "This order has expired: the items were released. Your cart is intact.",
       "reprendre": "Resume my cart",
-      "introuvable": "This order could not be found."
+      "introuvable": "This order could not be found.",
+      "offert": "Free",
+      "numeroSuivi": "Tracking number:"
+    },
+    "liste": {
+      "titre": "My orders",
+      "vide": "No orders yet.",
+      "versCatalogues": "Browse the cosplays",
+      "commande": "Order {numero}",
+      "offert": "Free",
+      "voirPlus": "Show more"
+    },
+    "frise": {
+      "titre": "Order progress",
+      "etapes": {
+        "payee": "Paid",
+        "en_fabrication": "Being made",
+        "expediee": "Shipped",
+        "livree": "Delivered",
+        "pretARetirer": "Ready for pickup"
+      },
+      "etats": {
+        "fait": "Done",
+        "en_cours": "In progress",
+        "a_venir": "Upcoming"
+      }
     }
   },
   "Emails": {
@@ -1916,7 +1945,8 @@
     "titre": "My library",
     "compte": {
       "titre": "My account",
-      "navigation": "Account navigation"
+      "navigation": "Account navigation",
+      "commandes": "My orders"
     },
     "vide": "No kits in your library yet.",
     "versCatalogue": "Browse kits",

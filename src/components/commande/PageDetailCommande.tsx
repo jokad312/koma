@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
+import { BoutonWhatsApp } from "@/components/vitrine/BoutonWhatsApp";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { cheminPublic } from "@/i18n/adresses";
 import { Link } from "@/i18n/navigation";
@@ -13,6 +14,8 @@ import { dependancesOptions } from "@/modules/paiement/dependances";
 import { lireEtatPaiement } from "@/modules/paiement/etat-queries";
 import { lireOptionsPaiement, type OptionsPaiement } from "@/modules/paiement/service";
 import { lireNumeroWhatsappOuNull } from "@/lib/reglages";
+import { construireFrise } from "@/modules/commande/frise";
+import { FriseStatuts } from "./FriseStatuts";
 import { MoyensPaiement } from "./MoyensPaiement";
 import { SuiviPaiement } from "./SuiviPaiement";
 import { retourVersCommande, versConnexion } from "./PageCommande";
@@ -59,9 +62,20 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
     }
   }
 
+  const physique = commande.lignes.some((l) => l.famille !== "kit");
+  const etapes = construireFrise({ statut: commande.statut, physique, fabrication: commande.lignes.some((l) => l.origine === "fabrication"), dates: commande.dates });
+  const retraitGoma = commande.mode === "retrait";
+  const libelleStatut = commande.offerte ? t("detail.offert") : commande.statut === "expediee" && retraitGoma ? t("frise.etapes.pretARetirer") : t(`detail.statuts.${commande.statut}`);
+
   return (
     <div className="flex flex-col gap-6">
-      <p className="t-label text-text-primary">{t("detail.statut", { statut: t(`detail.statuts.${commande.statut}`) })}</p>
+      <p className="t-label text-text-primary">{t("detail.statut", { statut: libelleStatut })}</p>
+      <FriseStatuts etapes={etapes} retraitGoma={retraitGoma} locale={locale} />
+      {commande.numeroSuivi ? (
+        <p className="t-body text-text-primary">
+          {t("detail.numeroSuivi")} <span>{commande.numeroSuivi}</span>
+        </p>
+      ) : null}
       {commande.statut === "en_attente" && heure ? <p className="t-body text-text-primary">{t("detail.aPayerAvant", { heure })}</p> : null}
       {commande.statut === "expiree" ? (
         <div className="flex flex-col items-start gap-3">
@@ -111,7 +125,11 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
         </dl>
       </section>
 
-      {etatPaiement ? <SuiviPaiement numero={commande.numero} etatInitial={etatPaiement} numeroWhatsapp={numeroWhatsapp} /> : <MessageEtat type="erreur">{t("erreurs.erreur")}</MessageEtat>}
+      <div>
+        <BoutonWhatsApp numero={numeroWhatsapp} />
+      </div>
+
+      {etatPaiement && !commande.offerte ? <SuiviPaiement numero={commande.numero} etatInitial={etatPaiement} numeroWhatsapp={numeroWhatsapp} /> : commande.offerte ? null : <MessageEtat type="erreur">{t("erreurs.erreur")}</MessageEtat>}
 
       {choixPossible ? (options ? <MoyensPaiement numero={commande.numero} options={options} /> : <MessageEtat type="erreur">{t("erreurs.erreur")}</MessageEtat>) : null}
     </div>

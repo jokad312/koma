@@ -21,6 +21,11 @@ export default async function CompteLayout({ children, params }: { children: Rea
               {t("titre")}
             </Link>
           </li>
+          <li>
+            <Link href="/compte/commandes" className="t-small underline underline-offset-4">
+              {t("commandes")}
+            </Link>
+          </li>
         </ul>
       </nav>
       {children}

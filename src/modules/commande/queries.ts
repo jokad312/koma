@@ -26,7 +26,14 @@ export type CommandeLue = {
   zone: ZoneRemise | null;
   mode: ModeRemise | null;
   lignes: LigneCommandeLue[];
+  offerte: boolean;
+  creeLe: string;
+  // Dates de la frise des statuts (story 6.1) et numéro de suivi saisi à la main, affiché tel quel (règle 12).
+  dates: { payee: string | null; en_fabrication: string | null; expediee: string | null; livree: string | null };
+  numeroSuivi: string | null;
 };
+
+export type CommandeResume = { numero: string; statut: StatutAffiche; creeLe: string; totalCents: number; offerte: boolean };
 
 const STATUTS: readonly StatutAffiche[] = ["en_attente", "expiree", "echouee", "payee", "en_fabrication", "expediee", "livree", "annulee", "remboursee", "offerte"];
 
@@ -44,7 +51,7 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
   const { data, error } = await creerClientService()
     .from("commande")
     .select(
-      "id, numero, statut, sous_total_cents, forfait_cents, total_cents, expire_le, zone, mode_remise, ligne_commande(prix_cents, nombre, origine, delai_fabrication_jours, produit(slug, famille, titre_fr, titre_en), variante(taille))",
+      "id, numero, statut, sous_total_cents, forfait_cents, total_cents, expire_le, zone, mode_remise, offerte, cree_le, paye_le, fabrication_le, expediee_le, livree_le, numero_suivi, ligne_commande(prix_cents, nombre, origine, delai_fabrication_jours, produit(slug, famille, titre_fr, titre_en), variante(taille))",
     )
     .eq("compte_id", compteId)
     .eq("numero", numero)
@@ -78,7 +85,30 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
     zone: data.zone === "goma" || data.zone === "bukavu" ? data.zone : null,
     mode: data.mode_remise === "retrait" || data.mode_remise === "livraison" ? data.mode_remise : null,
     lignes,
+    offerte: data.offerte,
+    creeLe: data.cree_le,
+    dates: { payee: data.paye_le, en_fabrication: data.fabrication_le, expediee: data.expediee_le, livree: data.livree_le },
+    numeroSuivi: data.numero_suivi,
   };
+}
+
+export const TAILLE_PAGE_COMMANDES = 12;
+
+// Commandes du Compte, les plus récentes d'abord, par pages de 12 (« Voir plus »). On lit une ligne de plus pour savoir s'il en reste.
+export async function listerCommandes(compteId: string, nombre: number): Promise<{ commandes: CommandeResume[]; reste: boolean }> {
+  const { data, error } = await creerClientService()
+    .from("commande")
+    .select("numero, statut, total_cents, expire_le, cree_le, offerte")
+    .eq("compte_id", compteId)
+    .order("cree_le", { ascending: false })
+    .limit(nombre + 1);
+  if (error) throw new Error("lecture des commandes impossible");
+  const maintenant = Date.now();
+  const commandes = (data ?? []).slice(0, nombre).flatMap((c) => {
+    const statut = statutEffectif(c.statut, c.expire_le, maintenant);
+    return statut ? [{ numero: c.numero, statut, creeLe: c.cree_le, totalCents: c.total_cents, offerte: c.offerte }] : [];
+  });
+  return { commandes, reste: (data ?? []).length > nombre };
 }
 
 // Numéro de la Commande à payer (en attente ou échouée, échéance non passée) du Compte, ou null. Une seule est possible à la fois.

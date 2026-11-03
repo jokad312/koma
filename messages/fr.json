@@ -77,6 +77,10 @@
     "blog": {
       "titre": "Blog",
       "description": "Guides de cosplay, tutoriels de fabrication et actualités, fait main à Goma."
+    },
+    "compteCommandes": {
+      "titre": "Mes commandes",
+      "description": "La liste de tes commandes."
     }
   },
   "Accueil": {
@@ -1884,7 +1888,32 @@
       "aPayerAvant": "À payer avant {heure}",
       "expiree": "Cette commande a expiré : les articles ont été libérés. Ton panier est intact.",
       "reprendre": "Reprendre mon panier",
-      "introuvable": "Cette commande est introuvable."
+      "introuvable": "Cette commande est introuvable.",
+      "offert": "Offert",
+      "numeroSuivi": "Numéro de suivi :"
+    },
+    "liste": {
+      "titre": "Mes commandes",
+      "vide": "Aucune commande pour le moment.",
+      "versCatalogues": "Voir les cosplays",
+      "commande": "Commande {numero}",
+      "offert": "Offert",
+      "voirPlus": "Voir plus"
+    },
+    "frise": {
+      "titre": "Avancement de la commande",
+      "etapes": {
+        "payee": "Payée",
+        "en_fabrication": "En fabrication",
+        "expediee": "Expédiée",
+        "livree": "Livrée",
+        "pretARetirer": "Prête à retirer"
+      },
+      "etats": {
+        "fait": "Fait",
+        "en_cours": "En cours",
+        "a_venir": "À venir"
+      }
     }
   },
   "Emails": {
@@ -1916,7 +1945,8 @@
     "titre": "Ma bibliothèque",
     "compte": {
       "titre": "Mon compte",
-      "navigation": "Navigation du compte"
+      "navigation": "Navigation du compte",
+      "commandes": "Mes commandes"
     },
     "vide": "Aucun kit dans ta bibliothèque.",
     "versCatalogue": "Voir les kits",

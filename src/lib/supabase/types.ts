@@ -213,12 +213,16 @@ export type Database = {
           compte_id: string
           cree_le: string
           devise: string
+          expediee_le: string | null
           expire_le: string | null
+          fabrication_le: string | null
           forfait_cents: number
           id: string
+          livree_le: string | null
           mis_a_jour_le: string
           mode_remise: string | null
           numero: string
+          numero_suivi: string | null
           offerte: boolean
           origine: string | null
           paye_le: string | null
@@ -238,12 +242,16 @@ export type Database = {
           compte_id: string
           cree_le?: string
           devise?: string
+          expediee_le?: string | null
           expire_le?: string | null
+          fabrication_le?: string | null
           forfait_cents?: number
           id?: string
+          livree_le?: string | null
           mis_a_jour_le?: string
           mode_remise?: string | null
           numero?: string
+          numero_suivi?: string | null
           offerte?: boolean
           origine?: string | null
           paye_le?: string | null
@@ -263,12 +271,16 @@ export type Database = {
           compte_id?: string
           cree_le?: string
           devise?: string
+          expediee_le?: string | null
           expire_le?: string | null
+          fabrication_le?: string | null
           forfait_cents?: number
           id?: string
+          livree_le?: string | null
           mis_a_jour_le?: string
           mode_remise?: string | null
           numero?: string
+          numero_suivi?: string | null
           offerte?: boolean
           origine?: string | null
           paye_le?: string | null
@@ -554,6 +566,7 @@ export type Database = {
           cree_le: string
           delai_fabrication_jours: number | null
           id: string
+          mesures_recues_le: string | null
           nombre: number
           origine: string | null
           prix_cents: number
@@ -566,6 +579,7 @@ export type Database = {
           cree_le?: string
           delai_fabrication_jours?: number | null
           id?: string
+          mesures_recues_le?: string | null
           nombre?: number
           origine?: string | null
           prix_cents: number
@@ -578,6 +592,7 @@ export type Database = {
           cree_le?: string
           delai_fabrication_jours?: number | null
           id?: string
+          mesures_recues_le?: string | null
           nombre?: number
           origine?: string | null
           prix_cents?: number

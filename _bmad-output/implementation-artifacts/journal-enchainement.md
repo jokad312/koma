@@ -232,3 +232,9 @@
 ## 2026-11-03 (suite) : décisions MaishaPay, story 5.7 PawaPay (review)
 - MaishaPay : comparaison sur `amount` en USD (frais absorbés par KOMA SHOP) ; carte : réseau Visa/Mastercard choisi par le client, nom et téléphone du payeur collectés pour la carte MaishaPay seulement, validés côté serveur, téléphone gardé masqué. Reste non activable : Q1 devise, couverture, M-Pesa v2, durée de PENDING, contradiction v3 (questions posées à MaishaPay par Jonathan). Politique de confidentialité : texte toujours « [Texte à fournir] » ; elle devra citer nom et téléphone du payeur transmis à MaishaPay pour la carte.
 - 5.7 PawaPay : `adaptateurs/pawapay.ts` (dépôts v2, identifiant de dépôt dérivé de notre référence, consultation de statut qui fait foi, USD pour RDC et Zimbabwe seulement). Résumé de doc : `docs/references/paiements/pawapay.md`. Variables `PAWAPAY_API_TOKEN`, `PAWAPAY_MODE`. Non activable tant que 5 questions restent ouvertes (voir le résumé).
+
+
+## Story 6.1 : mes commandes et suivi client (voie 1, fork epic 6)
+- Migration `20261210100000_commande_suivi_colonnes.sql` (colonnes de dates, numero_suivi, mesures_recues_le), appliquée sur koma-dev, types régénérés. Page `/compte/commandes` (12 par page), frise des statuts accessible, « Offert », « Prête à retirer » (retrait Goma), numéro de suivi en texte, bouton WhatsApp.
+- Revue par un autre sous-agent impossible dans ce fork (interdiction de lancer des sous-agents) : auto-revue. Aucun test pgTAP (colonnes seulement).
+- À tester à la main : `/fr/compte/commandes` (liste vide, avec commandes, « Voir plus »), détail d'une commande payée physique (frise), commande en retrait à Goma expédiée.
