@@ -112,6 +112,8 @@ describe("erreurBaseCommande : chaque code SQL a sa traduction", () => {
     ["KS_DECISION_INVALIDE", "decision_invalide"],
     ["KS_TYPE_NON_PRIS_EN_CHARGE", "type_non_pris_en_charge"],
     ["KS_REMBOURSEMENT_NUL", "remboursement_nul"],
+    ["KS_QUANTITE_INVALIDE", "quantite_invalide"],
+    ["KS_STOCK_DEJA_VERIFIE", "stock_deja_verifie"],
     ["KS_REMBOURSEMENT_IMPOSSIBLE", "remboursement_impossible"],
     ["KS_TROP_PERCU_INTROUVABLE", "remboursement_impossible"],
   ];

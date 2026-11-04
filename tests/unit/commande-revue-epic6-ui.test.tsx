@@ -4,17 +4,21 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { rendre } from "./aides-dom";
 
-const faux = vi.hoisted(() => ({ refresh: vi.fn(), avancer: vi.fn(), rembourser: vi.fn() }));
+const faux = vi.hoisted(() => ({ refresh: vi.fn(), avancer: vi.fn(), rembourser: vi.fn(), reclamation: vi.fn(), stock: vi.fn() }));
 vi.mock("server-only", () => ({}));
 vi.mock("next/navigation", async (importOriginal) => ({ ...(await importOriginal<typeof import("next/navigation")>()), useRouter: () => ({ refresh: faux.refresh }) }));
 vi.mock("@/modules/commande/admin-actions", () => ({
   avancerStatutCommandeAction: (...a: unknown[]) => faux.avancer(...a),
   confirmerRemboursementAction: (...a: unknown[]) => faux.rembourser(...a),
   traiterDemandeAction: vi.fn(),
+  avancerReclamationAction: (...a: unknown[]) => faux.reclamation(...a),
+  marquerStockVerifieAction: (...a: unknown[]) => faux.stock(...a),
 }));
 
 import { AvancementCommande } from "@/components/admin/AvancementCommande";
+import { BoutonStockVerifie } from "@/components/admin/BoutonStockVerifie";
 import { FormulaireRemboursement } from "@/components/admin/DemandeEtRemboursement";
+import { EtapesReclamation } from "@/components/admin/EtapesReclamation";
 import { FriseStatuts } from "@/components/commande/FriseStatuts";
 import { construireFrise } from "@/modules/commande/frise";
 import { transitionsPossibles } from "@/modules/commande/transitions";
@@ -71,5 +75,56 @@ describe("FriseStatuts (story 6.1)", () => {
   it("retrait à Goma : « Prête à retirer » remplace « Expédiée »", () => {
     rendre(<FriseStatuts etapes={construireFrise({ statut: "expediee", physique: true, fabrication: false, dates })} retraitGoma locale="fr" />);
     expect(screen.getByText("Prête à retirer")).toBeTruthy();
+  });
+});
+
+describe("EtapesReclamation : quantité du remplacement", () => {
+  const D = "11111111-1111-4111-8111-111111111111";
+  it("ligne entière par défaut, bornes de 1 à la quantité de la ligne", () => {
+    rendre(<EtapesReclamation demandeId={D} statut="article_rendu" nombre={3} />);
+    const champ = screen.getByLabelText("Quantité à remplacer (de 1 à 3)") as HTMLInputElement;
+    expect(champ.value).toBe("3");
+    expect(champ.min).toBe("1");
+    expect(champ.max).toBe("3");
+  });
+  it("la quantité choisie part avec le remplacement remis, avec la prise en stock", async () => {
+    faux.reclamation.mockResolvedValue({ ok: true });
+    rendre(<EtapesReclamation demandeId={D} statut="article_rendu" nombre={3} />);
+    const champ = screen.getByLabelText("Quantité à remplacer (de 1 à 3)");
+    await userEvent.clear(champ);
+    await userEvent.type(champ, "2");
+    await userEvent.click(screen.getByRole("checkbox"));
+    await userEvent.click(screen.getByRole("button", { name: "Remplacement remis" }));
+    expect(faux.reclamation).toHaveBeenCalledWith({ demandeId: D, etape: "remplacement_remis", depuisStock: true, quantite: 2 });
+  });
+  it("quantité hors bornes ou non entière : message d'erreur, aucun appel", async () => {
+    rendre(<EtapesReclamation demandeId={D} statut="article_rendu" nombre={3} />);
+    const champ = screen.getByLabelText("Quantité à remplacer (de 1 à 3)");
+    await userEvent.clear(champ);
+    await userEvent.type(champ, "4");
+    await userEvent.click(screen.getByRole("button", { name: "Remplacement remis" }));
+    expect(faux.reclamation).not.toHaveBeenCalled();
+    expect(await screen.findByText(/nombre entier de 1 à la quantité de la ligne/)).toBeTruthy();
+  });
+  it("aucun champ de quantité avant l'étape « pièce rendue »", () => {
+    rendre(<EtapesReclamation demandeId={D} statut="acceptee" nombre={3} />);
+    expect(screen.queryByLabelText(/Quantité à remplacer/)).toBeNull();
+  });
+});
+
+describe("BoutonStockVerifie (tâche « Vérifier le stock »)", () => {
+  it("succès : la page est rafraîchie après la réponse réelle", async () => {
+    faux.stock.mockResolvedValue({ ok: true });
+    rendre(<BoutonStockVerifie commandeId="TEST_id" />);
+    await userEvent.click(screen.getByRole("button", { name: "Stock vérifié" }));
+    expect(faux.stock).toHaveBeenCalledWith({ commandeId: "TEST_id" });
+    expect(faux.refresh).toHaveBeenCalled();
+  });
+  it("refus de la base : erreur affichée, pas de rafraîchissement", async () => {
+    faux.stock.mockResolvedValue({ ok: false, erreur: "stock_deja_verifie" });
+    rendre(<BoutonStockVerifie commandeId="TEST_id" />);
+    await userEvent.click(screen.getByRole("button", { name: "Stock vérifié" }));
+    expect(await screen.findByText(/déjà marqué comme vérifié/)).toBeTruthy();
+    expect(faux.refresh).not.toHaveBeenCalled();
   });
 });

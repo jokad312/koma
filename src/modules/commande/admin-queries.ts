@@ -75,7 +75,7 @@ export type CommandeAdminDetail = {
   moyen: string | null;
   demandeAnnulation: { id: string; statut: string } | null;
   remboursement: { montantCents: number; devise: string; valide: boolean } | null;
-  reclamations: { id: string; statut: string; description: string; ligneTitre: string }[];
+  reclamations: { id: string; statut: string; description: string; ligneTitre: string; ligneNombre: number }[];
   tropPercus: { id: string; montantRecu: number; devise: string; motif: string }[];
   lignes: { id: string; titre: string; famille: string; taille: string | null; nombre: number; prixCents: number; origine: string | null; mesuresRecuesLe: string | null }[];
 };
@@ -115,6 +115,7 @@ export async function lireCommandeAdmin(numero: string): Promise<CommandeAdminDe
       statut: r.statut,
       description: r.description ?? "",
       ligneTitre: (data.ligne_commande ?? []).flatMap((l) => (l.id === r.ligne_id ? [(Array.isArray(l.produit) ? l.produit[0] : l.produit)?.titre_fr ?? ""] : []))[0] ?? "",
+      ligneNombre: (data.ligne_commande ?? []).find((l) => l.id === r.ligne_id)?.nombre ?? 1,
     })),
     tropPercus: (tropPercus.data ?? []).map((t) => ({ id: t.id, montantRecu: Number(t.montant_recu), devise: t.devise_recue, motif: t.motif })),
     sousTotalCents: data.sous_total_cents,
@@ -159,18 +160,19 @@ export async function lireMesuresARecevoir(): Promise<{ total: number; commandes
   return { total: data?.length ?? 0, commandes: [...parNumero.entries()].map(([numero, lignes]) => ({ numero, lignes })).sort((a, b) => a.numero.localeCompare(b.numero)) };
 }
 
-export type TacheRemboursement = { type: "demande" | "remboursement" | "trop_percu" | "reclamation"; numero: string; cibleId: string };
+export type TacheRemboursement = { type: "demande" | "remboursement" | "trop_percu" | "reclamation" | "stock"; numero: string; cibleId: string };
 
 // Tâches d'argent (story 6.6) : demandes d'annulation ouvertes, remboursements d'annulation non confirmés, Trop-perçus à rembourser. Lecture impossible : erreur.
 export async function lireTachesRemboursement(): Promise<TacheRemboursement[]> {
   const client = creerClientService();
-  const [demandes, rembs, trops, reclamations] = await Promise.all([
+  const [demandes, rembs, trops, reclamations, stocks] = await Promise.all([
     client.from("demande_client").select("id, commande:commande_id(numero)").eq("type", "annulation_commande").eq("statut", "ouverte"),
     client.from("remboursement").select("cible_id").eq("cible_type", "commande").is("valide_le", null),
     client.from("trop_percu").select("id, commande:commande_id(numero)").eq("statut", "a_rembourser"),
     client.from("demande_client").select("id, commande:commande_id(numero)").eq("type", "reclamation").in("statut", ["ouverte", "acceptee", "article_rendu"]),
+    client.from("commande").select("id, numero").eq("stock_a_verifier", true),
   ]);
-  if (demandes.error || rembs.error || trops.error || reclamations.error) throw new Error("lecture des tâches de remboursement impossible");
+  if (demandes.error || rembs.error || trops.error || reclamations.error || stocks.error) throw new Error("lecture des tâches de remboursement impossible");
   const numero = (c: unknown) => {
     const x = Array.isArray(c) ? c[0] : c;
     return (x as { numero?: string } | null)?.numero ?? null;
@@ -194,5 +196,6 @@ export async function lireTachesRemboursement(): Promise<TacheRemboursement[]> {
     const n = numero(r.commande);
     if (n) taches.push({ type: "reclamation", numero: n, cibleId: r.id });
   }
+  for (const c of stocks.data ?? []) taches.push({ type: "stock", numero: c.numero, cibleId: c.id });
   return taches;
 }

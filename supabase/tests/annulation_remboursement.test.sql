@@ -34,6 +34,7 @@ insert into public.ligne_commande (id, commande_id, produit_id, variante_id, ori
   ('00000000-0000-4000-8000-0000000000e2', '00000000-0000-4000-8000-0000000000f1', (select id from public.produit where slug = 'an-acc'), (select id from public.variante where produit_id = (select id from public.produit where slug = 'an-acc')), 'stock', 1, 1000, 0),
   ('00000000-0000-4000-8000-0000000000e3', '00000000-0000-4000-8000-0000000000f2', (select id from public.produit where slug = 'an-cos'), (select id from public.variante where produit_id = (select id from public.produit where slug = 'an-cos')), 'stock', 1, 5000, 0),
   ('00000000-0000-4000-8000-0000000000e5', '00000000-0000-4000-8000-0000000000f4', (select id from public.produit where slug = 'an-cos'), (select id from public.variante where produit_id = (select id from public.produit where slug = 'an-cos')), 'stock', 1, 5000, 0);
+update public.ligne_commande set stock_retire = nombre where id in ('00000000-0000-4000-8000-0000000000e1', '00000000-0000-4000-8000-0000000000e2');
 insert into public.ligne_commande (commande_id, produit_id, nombre, prix_cents) values
   ('00000000-0000-4000-8000-0000000000f1', (select id from public.produit where slug = 'an-kit'), 1, 500),
   ('00000000-0000-4000-8000-0000000000f3', (select id from public.produit where slug = 'an-kit'), 1, 500);

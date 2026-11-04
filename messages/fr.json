@@ -1402,7 +1402,8 @@
         "trop_percu": "Trop-perçu à rembourser : commande {numero}",
         "vide": "Aucune demande ni remboursement en attente.",
         "erreurLecture": "Les demandes et remboursements n'ont pas pu être lus.",
-        "reclamation": "Réclamation à traiter : commande {numero}"
+        "reclamation": "Réclamation à traiter : commande {numero}",
+        "stock": "Vérifier le stock : commande {numero}"
       }
     },
     "prestataires": {
@@ -1624,6 +1625,14 @@
           "autre": "autre motif"
         }
       },
+      "stock": {
+        "bouton": "Stock vérifié",
+        "erreurs": {
+          "non_autorise": "Seul l'administrateur peut faire cela.",
+          "stock_deja_verifie": "Ce stock est déjà marqué comme vérifié. Recharge la page.",
+          "generique": "L'action n'a pas pu être enregistrée. Réessaie."
+        }
+      },
       "reclamation": {
         "titre": "Réclamations",
         "accepter": "Accepter",
@@ -1631,6 +1640,7 @@
         "articleRendu": "Pièce rendue",
         "remplacementRemis": "Remplacement remis",
         "depuisStock": "Le remplacement est pris en stock (le stock est décompté)",
+        "quantite": "Quantité à remplacer (de 1 à {max})",
         "statuts": {
           "ouverte": "Ouverte",
           "acceptee": "Acceptée",
@@ -1643,6 +1653,7 @@
           "demande_deja_traitee": "Cette étape n'est plus possible. Recharge la page.",
           "stock_insuffisant": "Le stock est insuffisant pour ce remplacement.",
           "stock_invalide": "La quantité à retirer du stock n'est pas valide.",
+          "quantite_invalide": "La quantité à remplacer doit être un nombre entier de 1 à la quantité de la ligne.",
           "etape_invalide": "Cette étape n'est pas reconnue. Recharge la page.",
           "type_non_pris_en_charge": "Cette demande n'est pas une réclamation.",
           "demande_introuvable": "Cette réclamation est introuvable.",

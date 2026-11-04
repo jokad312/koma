@@ -74,7 +74,7 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
                 <p className="t-label text-text-primary">{r.ligneTitre}</p>
                 <p className="t-small text-text-secondary">{t(`reclamation.statuts.${["ouverte", "acceptee", "refusee", "article_rendu", "remplacement_remis"].includes(r.statut) ? r.statut : "ouverte"}`)}</p>
                 <p className="t-body whitespace-pre-line">{r.description}</p>
-                <EtapesReclamation demandeId={r.id} statut={r.statut} />
+                <EtapesReclamation demandeId={r.id} statut={r.statut} nombre={r.ligneNombre} />
               </li>
             ))}
           </ul>

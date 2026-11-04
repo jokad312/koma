@@ -3,7 +3,7 @@
 import { exigerDroit } from "@/lib/auth/droits";
 import { creerClientService } from "@/lib/supabase/service";
 import type { Json } from "@/lib/supabase/types";
-import { avancerReclamation, avancerStatutCommande, confirmerMesuresRecues, confirmerRemboursementAdmin, corrigerAdresseCommande, traiterDemandeClient, type DependancesAdminCommande, type ResultatAdminCommande } from "./admin-service";
+import { avancerReclamation, avancerStatutCommande, confirmerMesuresRecues, confirmerRemboursementAdmin, corrigerAdresseCommande, marquerStockVerifieAdmin, traiterDemandeClient, type DependancesAdminCommande, type ResultatAdminCommande } from "./admin-service";
 
 // Les vrais clients donnés au service ; le droit est revérifié dans le service et la fonction SQL relit le rôle en base.
 function dependancesAdminCommande(): DependancesAdminCommande {
@@ -26,12 +26,16 @@ function dependancesAdminCommande(): DependancesAdminCommande {
       const { error } = await client.rpc("traiter_demande", { p_auteur: auteur as Json, p_demande: demandeId, p_decision: decision });
       return { erreur: error ? error.message : null };
     },
-    traiterReclamation: async (auteur, demandeId, etape, depuisStock) => {
-      const { error } = await client.rpc("traiter_reclamation", { p_auteur: auteur as Json, p_demande: demandeId, p_etape: etape, p_depuis_stock: depuisStock });
+    traiterReclamation: async (auteur, demandeId, etape, depuisStock, quantite) => {
+      const { error } = await client.rpc("traiter_reclamation", { p_auteur: auteur as Json, p_demande: demandeId, p_etape: etape, p_depuis_stock: depuisStock, ...(quantite !== null ? { p_quantite: quantite } : {}) });
       return { erreur: error ? error.message : null };
     },
     confirmerRemboursement: async (auteur, cibleType, cibleId, preuve) => {
       const { error } = await client.rpc("confirmer_remboursement", { p_auteur: auteur as Json, p_cible_type: cibleType, p_cible_id: cibleId, p_preuve: preuve });
+      return { erreur: error ? error.message : null };
+    },
+    marquerStockVerifie: async (auteur, commandeId) => {
+      const { error } = await client.rpc("marquer_stock_verifie", { p_auteur: auteur as Json, p_commande: commandeId });
       return { erreur: error ? error.message : null };
     },
     // Les pages admin des Commandes sont rendues à la demande : rien à invalider, le client rafraîchit la page.
@@ -59,6 +63,10 @@ export async function confirmerRemboursementAction(entree: { cibleType: string; 
   return confirmerRemboursementAdmin(dependancesAdminCommande(), entree);
 }
 
-export async function avancerReclamationAction(entree: { demandeId: string; etape: string; depuisStock?: boolean }): Promise<ResultatAdminCommande> {
+export async function avancerReclamationAction(entree: { demandeId: string; etape: string; depuisStock?: boolean; quantite?: number }): Promise<ResultatAdminCommande> {
   return avancerReclamation(dependancesAdminCommande(), entree);
+}
+
+export async function marquerStockVerifieAction(entree: { commandeId: string }): Promise<ResultatAdminCommande> {
+  return marquerStockVerifieAdmin(dependancesAdminCommande(), entree);
 }

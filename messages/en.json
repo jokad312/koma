@@ -1402,7 +1402,8 @@
         "trop_percu": "Overpayment to refund: order {numero}",
         "vide": "No request or refund is waiting.",
         "erreurLecture": "The requests and refunds could not be read.",
-        "reclamation": "Claim to handle: order {numero}"
+        "reclamation": "Claim to handle: order {numero}",
+        "stock": "Check the stock: order {numero}"
       }
     },
     "prestataires": {
@@ -1624,6 +1625,14 @@
           "autre": "other reason"
         }
       },
+      "stock": {
+        "bouton": "Stock checked",
+        "erreurs": {
+          "non_autorise": "Only the administrator can do this.",
+          "stock_deja_verifie": "This stock is already marked as checked. Reload the page.",
+          "generique": "The action could not be saved. Try again."
+        }
+      },
       "reclamation": {
         "titre": "Claims",
         "accepter": "Accept",
@@ -1631,6 +1640,7 @@
         "articleRendu": "Piece returned",
         "remplacementRemis": "Replacement handed over",
         "depuisStock": "The replacement comes from stock (stock is decreased)",
+        "quantite": "Quantity to replace (from 1 to {max})",
         "statuts": {
           "ouverte": "Open",
           "acceptee": "Accepted",
@@ -1643,6 +1653,7 @@
           "demande_deja_traitee": "This step is no longer possible. Reload the page.",
           "stock_insuffisant": "There is not enough stock for this replacement.",
           "stock_invalide": "The quantity to remove from stock is not valid.",
+          "quantite_invalide": "The quantity to replace must be a whole number from 1 to the quantity of the line.",
           "etape_invalide": "This step is not recognised. Reload the page.",
           "type_non_pris_en_charge": "This request is not a claim.",
           "demande_introuvable": "This claim cannot be found.",

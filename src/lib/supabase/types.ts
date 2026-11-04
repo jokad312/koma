@@ -230,6 +230,7 @@ export type Database = {
           reference_transaction: string | null
           sous_total_cents: number
           statut: string
+          stock_a_verifier: boolean
           telephone: string | null
           total_cents: number
           type: string
@@ -259,6 +260,7 @@ export type Database = {
           reference_transaction?: string | null
           sous_total_cents: number
           statut: string
+          stock_a_verifier?: boolean
           telephone?: string | null
           total_cents: number
           type: string
@@ -288,6 +290,7 @@ export type Database = {
           reference_transaction?: string | null
           sous_total_cents?: number
           statut?: string
+          stock_a_verifier?: boolean
           telephone?: string | null
           total_cents?: number
           type?: string
@@ -343,6 +346,7 @@ export type Database = {
           description: string | null
           id: string
           ligne_id: string | null
+          quantite_remplacee: number | null
           statut: string
           traitee_le: string | null
           type: string
@@ -353,6 +357,7 @@ export type Database = {
           description?: string | null
           id?: string
           ligne_id?: string | null
+          quantite_remplacee?: number | null
           statut?: string
           traitee_le?: string | null
           type: string
@@ -363,6 +368,7 @@ export type Database = {
           description?: string | null
           id?: string
           ligne_id?: string | null
+          quantite_remplacee?: number | null
           statut?: string
           traitee_le?: string | null
           type?: string
@@ -621,6 +627,7 @@ export type Database = {
           prix_cents: number
           produit_id: string
           reduction_cents: number
+          stock_retire: number | null
           variante_id: string | null
         }
         Insert: {
@@ -635,6 +642,7 @@ export type Database = {
           prix_cents: number
           produit_id: string
           reduction_cents?: number
+          stock_retire?: number | null
           variante_id?: string | null
         }
         Update: {
@@ -649,6 +657,7 @@ export type Database = {
           prix_cents?: number
           produit_id?: string
           reduction_cents?: number
+          stock_retire?: number | null
           variante_id?: string | null
         }
         Relationships: [
@@ -2085,6 +2094,10 @@ export type Database = {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
       }
+      marquer_stock_verifie: {
+        Args: { p_auteur: Json; p_commande: string }
+        Returns: undefined
+      }
       masquer_donnee_personnelle: { Args: { p_valeur: Json }; Returns: Json }
       modifier_alt_photo: {
         Args: {
@@ -2238,6 +2251,7 @@ export type Database = {
           p_demande: string
           p_depuis_stock?: boolean
           p_etape: string
+          p_quantite?: number
         }
         Returns: undefined
       }

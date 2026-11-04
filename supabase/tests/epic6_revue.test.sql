@@ -3,7 +3,7 @@
 -- confirmer_remboursement d'un Trop-percu, catalogue_decrementer_stock (reservations), reclamation (une seule par ligne, 48 h, description).
 -- Donnees TEST_ annulees a la fin.
 begin;
-select plan(56);
+select plan(85);
 
 select set_config('ks.auteur', '{"type":"systeme","nom":"test"}', true);
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -67,16 +67,38 @@ insert into public.trop_percu (id, commande_id, tentative_id, motif, montant_att
   ('00000000-0000-4000-8000-0000000000c2', '00000000-0000-4000-8000-0000000000f7', '00000000-0000-4000-8000-0000000000d2', 'montant_superieur', 1000, 12.5, 'USD'),
   ('00000000-0000-4000-8000-0000000000c3', '00000000-0000-4000-8000-0000000000f7', '00000000-0000-4000-8000-0000000000d3', 'montant_superieur', 1000, 0, 'USD');
 
+-- Quantite retiree connue pour g5 (1 piece sur 2 : le stock avait ete plafonne a zero au paiement).
+update public.ligne_commande set stock_retire = 1 where id = '00000000-0000-4000-8000-0000000000e5';
+
+-- g13 : cosplay en stock dont la quantite retiree est inconnue (ancienne donnee) ; g14 : paiement reel d'une ligne de 2 pieces pour un stock de 1 (compte b2) ;
+-- g15 et g16 : livrees, lignes de 3 pieces (quantite du remplacement).
+insert into public.produit (famille, slug, titre_fr, titre_en, prix_cents, delai_fabrication_jours, publie_le) values
+  ('cosplay', 'ep-cos3', 'C3', 'C3', 5000, 14, now() - interval '1 minute');
+insert into public.variante (produit_id, taille, stock, fabrication_sur_commande) values
+  ((select id from public.produit where slug = 'ep-cos3'), 'M', 1, false);
+insert into public.commande (id, numero, compte_id, type, statut, sous_total_cents, total_cents, forfait_cents, paye_le, livree_le, expire_le) values
+  ('00000000-0000-4000-8000-0000000000fd', 'KS-2026-870013', '00000000-0000-0000-0000-0000000000b3', 'produits', 'payee', 5000, 5000, 0, now(), null, null),
+  ('00000000-0000-4000-8000-0000000000fe', 'KS-2026-870014', '00000000-0000-0000-0000-0000000000b2', 'produits', 'en_attente', 10000, 10000, 0, null, null, now() + interval '1 hour'),
+  ('00000000-0000-4000-8000-0000000000a5', 'KS-2026-870015', '00000000-0000-0000-0000-0000000000b3', 'produits', 'livree', 3000, 3000, 0, now() - interval '2 days', now() - interval '1 hour', null),
+  ('00000000-0000-4000-8000-0000000000a6', 'KS-2026-870016', '00000000-0000-0000-0000-0000000000b3', 'produits', 'livree', 3000, 3000, 0, now() - interval '2 days', now() - interval '1 hour', null);
+insert into public.ligne_commande (id, commande_id, produit_id, variante_id, origine, nombre, prix_cents) values
+  ('00000000-0000-4000-8000-0000000000ee', '00000000-0000-4000-8000-0000000000fd', (select id from public.produit where slug = 'ep-cos'), (select id from public.variante where produit_id = (select id from public.produit where slug = 'ep-cos')), 'stock', 1, 5000),
+  ('00000000-0000-4000-8000-0000000000ef', '00000000-0000-4000-8000-0000000000fe', (select id from public.produit where slug = 'ep-cos3'), (select id from public.variante where produit_id = (select id from public.produit where slug = 'ep-cos3')), 'stock', 2, 5000),
+  ('00000000-0000-4000-8000-0000000000f6', '00000000-0000-4000-8000-0000000000a5', (select id from public.produit where slug = 'ep-acc2'), (select id from public.variante where produit_id = (select id from public.produit where slug = 'ep-acc2')), 'stock', 3, 1000),
+  ('00000000-0000-4000-8000-0000000000f0', '00000000-0000-4000-8000-0000000000a6', (select id from public.produit where slug = 'ep-acc2'), (select id from public.variante where produit_id = (select id from public.produit where slug = 'ep-acc2')), 'stock', 3, 1000);
+insert into public.tentative_paiement (id, commande_id, prestataire, moyen, reference_interne, reference_transaction, montant_attendu_cents) values
+  ('00000000-0000-4000-8000-0000000000d4', '00000000-0000-4000-8000-0000000000fe', 'pawapay', 'carte', 'TEST-EP-REF-0004', 'TEST-EP-TX-0004', 10000);
+
 -- Droits : aucune des fonctions 6.x n'est appelable par anon ou authenticated ; service_role seulement.
 select is(
   (select array_agg(f order by f) from unnest(array[
     'public.avancer_statut(jsonb, text, text, text)', 'public.confirmer_mesures_recues(jsonb, uuid)', 'public.demander_annulation(uuid, text)',
     'public.annuler_commande(jsonb, uuid)', 'public.traiter_demande(jsonb, uuid, text)', 'public.confirmer_remboursement(jsonb, text, uuid, text)',
     'public.catalogue_decrementer_stock(uuid, integer)', 'public.lignes_reclamables(uuid, text)', 'public.signaler_probleme(uuid, text, uuid, text)',
-    'public.traiter_reclamation(jsonb, uuid, text, boolean)'
+    'public.traiter_reclamation(jsonb, uuid, text, boolean, integer)', 'public.marquer_stock_verifie(jsonb, uuid)'
   ]) f where has_function_privilege('anon', f, 'execute') or has_function_privilege('authenticated', f, 'execute') or not has_function_privilege('service_role', f, 'execute')),
   null,
-  'les dix fonctions 6.x : service seulement'
+  'les onze fonctions 6.x : service seulement'
 );
 
 -- RLS : un client authentifie ne lit ni demande_client ni remboursement (aucun droit, donc refus).
@@ -156,6 +178,41 @@ select throws_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id 
 select throws_ok($$ select public.traiter_demande(pg_temp.adm(), (select id from public.demande_client where ligne_id = '00000000-0000-4000-8000-0000000000ea'), 'accepter') $$, 'KS_TYPE_NON_PRIS_EN_CHARGE', 'traiter_demande ne traite pas une reclamation');
 select throws_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where commande_id = '00000000-0000-4000-8000-0000000000f1'), 'accepter') $$, 'KS_TYPE_NON_PRIS_EN_CHARGE', 'traiter_reclamation ne traite pas une annulation');
 select is((select count(*)::int from public.envoi where donnees ->> 'commande_id' = '00000000-0000-4000-8000-0000000000f9'), 0, 'aucun email de reclamation planifie');
+
+-- Stock a l'annulation : quantite retiree inconnue = rien de rendu et tache « Verifier le stock » ; marquer_stock_verifie : admin seulement, une fois.
+select lives_ok($$ select public.annuler_commande(pg_temp.adm(), '00000000-0000-4000-8000-0000000000fd') $$, 'annulation d une Commande dont la quantite retiree est inconnue');
+select is((select stock from public.variante where produit_id = (select id from public.produit where slug = 'ep-cos')), 4, 'quantite inconnue : aucun stock rendu automatiquement');
+select ok((select stock_a_verifier from public.commande where numero = 'KS-2026-870013'), 'la Commande est marquee « stock a verifier »');
+select is((select stock_a_verifier from public.commande where numero = 'KS-2026-870002'), false, 'une quantite connue (ou aucune ligne en stock) : pas de tache');
+select throws_ok($$ select public.marquer_stock_verifie(pg_temp.ass(), '00000000-0000-4000-8000-0000000000fd') $$, 'KS_DROIT_REFUSE', 'un assistant ne ferme pas la tache');
+select lives_ok($$ select public.marquer_stock_verifie(pg_temp.adm(), '00000000-0000-4000-8000-0000000000fd') $$, 'l admin ferme la tache');
+select is((select stock_a_verifier from public.commande where numero = 'KS-2026-870013'), false, 'la tache est fermee');
+select throws_ok($$ select public.marquer_stock_verifie(pg_temp.adm(), '00000000-0000-4000-8000-0000000000fd') $$, 'KS_STOCK_DEJA_VERIFIE', 'une seule fermeture');
+
+-- Paiement reel : la quantite reellement retiree est enregistree (1 piece sur 2), puis l'annulation rend exactement 1 piece, jamais 2.
+select is((public.confirmer_paiement('{"type":"systeme","nom":"test"}'::jsonb, '00000000-0000-4000-8000-0000000000d4', 'egal', 100.00, 'USD', 'TEST-EP-TX-0004') ->> 'resultat'), 'payee', 'paiement confirme');
+select is((select stock_retire from public.ligne_commande where id = '00000000-0000-4000-8000-0000000000ef'), 1, 'quantite reellement retiree enregistree (1 sur 2)');
+select is((select stock from public.variante where produit_id = (select id from public.produit where slug = 'ep-cos3')), 0, 'stock plafonne a zero');
+select lives_ok($$ select public.annuler_commande(pg_temp.adm(), '00000000-0000-4000-8000-0000000000fe') $$, 'annulation apres ce paiement');
+select is((select stock from public.variante where produit_id = (select id from public.produit where slug = 'ep-cos3')), 1, 'stock rendu : exactement la quantite retiree (0 + 1)');
+
+-- Remplacement : quantite de 1 a la quantite de la ligne, seule cette quantite est decomptee.
+select lives_ok($$ select public.signaler_probleme('00000000-0000-0000-0000-0000000000b3', 'KS-2026-870015', '00000000-0000-4000-8000-0000000000f6', 'Trois pieces abimees') $$, 'reclamation sur une ligne de 3 pieces');
+select throws_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where ligne_id = '00000000-0000-4000-8000-0000000000f6'), 'accepter', false, 1) $$, 'KS_QUANTITE_INVALIDE', 'quantite refusee hors du remplacement remis');
+select lives_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where ligne_id = '00000000-0000-4000-8000-0000000000f6'), 'accepter') $$, 'acceptee');
+select lives_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where ligne_id = '00000000-0000-4000-8000-0000000000f6'), 'article_rendu') $$, 'article rendu');
+select throws_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where ligne_id = '00000000-0000-4000-8000-0000000000f6'), 'remplacement_remis', true, 0) $$, 'KS_QUANTITE_INVALIDE', 'quantite nulle refusee');
+select throws_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where ligne_id = '00000000-0000-4000-8000-0000000000f6'), 'remplacement_remis', true, 4) $$, 'KS_QUANTITE_INVALIDE', 'plus que la quantite de la ligne : refuse');
+select is((select stock from public.variante where produit_id = (select id from public.produit where slug = 'ep-acc2')), 5, 'les refus ne decomptent rien');
+select lives_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where ligne_id = '00000000-0000-4000-8000-0000000000f6'), 'remplacement_remis', true, 2) $$, 'remplacement de 2 pieces sur 3, pris en stock');
+select is((select stock from public.variante where produit_id = (select id from public.produit where slug = 'ep-acc2')), 3, 'seules les 2 pieces remplacees sont decomptees');
+select is((select quantite_remplacee from public.demande_client where ligne_id = '00000000-0000-4000-8000-0000000000f6'), 2, 'quantite remplacee enregistree');
+select lives_ok($$ select public.signaler_probleme('00000000-0000-0000-0000-0000000000b3', 'KS-2026-870016', '00000000-0000-4000-8000-0000000000f0', 'Tout est a refaire') $$, 'seconde reclamation sur une ligne de 3 pieces');
+select lives_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where ligne_id = '00000000-0000-4000-8000-0000000000f0'), 'accepter') $$, 'acceptee');
+select lives_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where ligne_id = '00000000-0000-4000-8000-0000000000f0'), 'article_rendu') $$, 'article rendu');
+select lives_ok($$ select public.traiter_reclamation(pg_temp.adm(), (select id from public.demande_client where ligne_id = '00000000-0000-4000-8000-0000000000f0'), 'remplacement_remis') $$, 'remplacement sans quantite : ligne entiere');
+select is((select quantite_remplacee from public.demande_client where ligne_id = '00000000-0000-4000-8000-0000000000f0'), 3, 'ligne entiere par defaut (3)');
+select is((select stock from public.variante where produit_id = (select id from public.produit where slug = 'ep-acc2')), 3, 'sans prise en stock : le stock ne bouge pas');
 
 select * from finish();
 rollback;

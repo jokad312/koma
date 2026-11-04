@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Link } from "@/i18n/navigation";
+import { BoutonStockVerifie } from "./BoutonStockVerifie";
 import { lireTachesRemboursement, type TacheRemboursement } from "@/modules/commande/admin-queries";
 
 // Tâches d'argent (story 6.6) : demandes d'annulation ouvertes, remboursements à confirmer, Trop-perçus à rembourser. Chaque ligne mène à la Commande.
@@ -24,10 +25,11 @@ export async function TachesArgent() {
       ) : (
         <ul className="flex flex-col gap-1">
           {taches.map((x) => (
-            <li key={`${x.type}-${x.cibleId}`}>
+            <li key={`${x.type}-${x.cibleId}`} className="flex flex-wrap items-center gap-3">
               <Link href={`/admin/commandes/${x.numero}`} className="t-body inline-flex min-h-touch items-center text-text-primary underline">
                 {t(x.type, { numero: x.numero })}
               </Link>
+              {x.type === "stock" ? <BoutonStockVerifie commandeId={x.cibleId} /> : null}
             </li>
           ))}
         </ul>

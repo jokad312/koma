@@ -23,6 +23,8 @@ export type ErreurAdminCommande =
   | "decision_invalide"
   | "type_non_pris_en_charge"
   | "remboursement_nul"
+  | "quantite_invalide"
+  | "stock_deja_verifie"
   | "generique";
 
 export type ResultatAdminCommande = { ok: true } | { ok: false; erreur: ErreurAdminCommande };
@@ -34,8 +36,9 @@ export type DependancesAdminCommande = {
   avancerStatut: (auteur: unknown, numero: string, vers: string, numeroSuivi: string | null) => Promise<{ erreur: string | null }>;
   confirmerMesures: (auteur: unknown, ligneId: string) => Promise<{ erreur: string | null }>;
   traiterDemande: (auteur: unknown, demandeId: string, decision: "accepter" | "refuser") => Promise<{ erreur: string | null }>;
-  traiterReclamation: (auteur: unknown, demandeId: string, etape: string, depuisStock: boolean) => Promise<{ erreur: string | null }>;
+  traiterReclamation: (auteur: unknown, demandeId: string, etape: string, depuisStock: boolean, quantite: number | null) => Promise<{ erreur: string | null }>;
   confirmerRemboursement: (auteur: unknown, cibleType: "commande" | "trop_percu", cibleId: string, preuve: string) => Promise<{ erreur: string | null }>;
+  marquerStockVerifie: (auteur: unknown, commandeId: string) => Promise<{ erreur: string | null }>;
   invalider: () => void | Promise<void>;
 };
 
@@ -65,6 +68,8 @@ export function erreurBaseCommande(erreur: string): ErreurAdminCommande {
     ["KS_DECISION_INVALIDE", "decision_invalide"],
     ["KS_TYPE_NON_PRIS_EN_CHARGE", "type_non_pris_en_charge"],
     ["KS_REMBOURSEMENT_NUL", "remboursement_nul"],
+    ["KS_QUANTITE_INVALIDE", "quantite_invalide"],
+    ["KS_STOCK_DEJA_VERIFIE", "stock_deja_verifie"],
     ["KS_REMBOURSEMENT_IMPOSSIBLE", "remboursement_impossible"],
     ["KS_TROP_PERCU_INTROUVABLE", "remboursement_impossible"],
   ];
@@ -189,19 +194,38 @@ export const ETAPES_RECLAMATION = ["accepter", "refuser", "article_rendu", "remp
 
 // Réclamation (story 6.7) : accepter ou refuser, puis article rendu, puis remplacement remis (un remplacement pris en stock décompte le stock).
 // La Commande reste « livree » et aucun remboursement n'est proposé.
-export async function avancerReclamation(deps: DependancesAdminCommande, entree: { demandeId: string; etape: string; depuisStock?: boolean }): Promise<ResultatAdminCommande> {
+export async function avancerReclamation(deps: DependancesAdminCommande, entree: { demandeId: string; etape: string; depuisStock?: boolean; quantite?: number }): Promise<ResultatAdminCommande> {
   const id = z.string().uuid().safeParse(entree.demandeId);
   const etape = (ETAPES_RECLAMATION as readonly string[]).includes(entree.etape) ? entree.etape : null;
   if (!id.success || !etape) return { ok: false, erreur: "entree_invalide" };
+  // Quantité remplacée : entier d'au moins 1, seulement pour le remplacement remis ; la borne haute (quantité de la ligne) est vérifiée en base.
+  if (entree.quantite !== undefined && (!Number.isInteger(entree.quantite) || entree.quantite < 1 || entree.quantite > 10000 || etape !== "remplacement_remis")) return { ok: false, erreur: "quantite_invalide" };
   const droit = await autoriser(deps, "remboursement.valider");
   if (!droit) return { ok: false, erreur: "non_autorise" };
   try {
-    const { erreur } = await deps.traiterReclamation(droit.auteur, id.data, etape, etape === "remplacement_remis" && entree.depuisStock === true);
+    const { erreur } = await deps.traiterReclamation(droit.auteur, id.data, etape, etape === "remplacement_remis" && entree.depuisStock === true, entree.quantite ?? null);
     if (erreur) return { ok: false, erreur: erreurBaseCommande(erreur) };
     await deps.invalider();
     return { ok: true };
   } catch {
     console.error("[commande] avancement d'une réclamation impossible");
+    return { ok: false, erreur: "generique" };
+  }
+}
+
+// Tâche « Vérifier le stock » (annulation d'une Commande dont la quantité retirée du stock était inconnue) : l'admin la ferme après avoir vérifié le stock à la main.
+export async function marquerStockVerifieAdmin(deps: DependancesAdminCommande, entree: { commandeId: string }): Promise<ResultatAdminCommande> {
+  const id = z.string().uuid().safeParse(entree.commandeId);
+  if (!id.success) return { ok: false, erreur: "entree_invalide" };
+  const droit = await autoriser(deps, "remboursement.valider");
+  if (!droit) return { ok: false, erreur: "non_autorise" };
+  try {
+    const { erreur } = await deps.marquerStockVerifie(droit.auteur, id.data);
+    if (erreur) return { ok: false, erreur: erreurBaseCommande(erreur) };
+    await deps.invalider();
+    return { ok: true };
+  } catch {
+    console.error("[commande] confirmation de la vérification du stock impossible");
     return { ok: false, erreur: "generique" };
   }
 }

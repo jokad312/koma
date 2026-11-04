@@ -12,6 +12,7 @@ function deps(s: Partial<DependancesAdminCommande> = {}): DependancesAdminComman
     confirmerMesures: vi.fn(async () => ({ erreur: null })),
     traiterDemande: vi.fn(async () => ({ erreur: null })),
     traiterReclamation: vi.fn(async () => ({ erreur: null })),
+    marquerStockVerifie: vi.fn(async () => ({ erreur: null })),
     confirmerRemboursement: vi.fn(async () => ({ erreur: null })),
     invalider: vi.fn(),
     ...s,
