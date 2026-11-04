@@ -1474,6 +1474,11 @@
       "filtres": "Order filters",
       "statut": "Status",
       "famille": "Family",
+      "prestataires": {
+        "pawapay": "PawaPay",
+        "maishapay": "MaishaPay",
+        "polar": "Polar"
+      },
       "prestataire": "Provider",
       "zone": "Delivery zone",
       "tous": "All",
@@ -1597,6 +1602,9 @@
           "demande_deja_traitee": "This request is already handled. Reload the page.",
           "preuve_requise": "Enter the refund reference (3 to 200 characters): without it, nothing is saved.",
           "remboursement_impossible": "This refund cannot be confirmed.",
+          "remboursement_nul": "The amount to refund is zero: nothing to refund.",
+          "decision_invalide": "This decision is not recognised. Reload the page.",
+          "type_non_pris_en_charge": "This type of request is not handled here.",
           "generique": "The action could not be saved. Try again."
         }
       },
@@ -1634,6 +1642,9 @@
           "non_autorise": "Only the administrator can do this.",
           "demande_deja_traitee": "This step is no longer possible. Reload the page.",
           "stock_insuffisant": "There is not enough stock for this replacement.",
+          "stock_invalide": "The quantity to remove from stock is not valid.",
+          "etape_invalide": "This step is not recognised. Reload the page.",
+          "type_non_pris_en_charge": "This request is not a claim.",
           "demande_introuvable": "This claim cannot be found.",
           "generique": "The step could not be saved. Try again."
         }

@@ -8,7 +8,7 @@ import { MessageEtat } from "@/components/ui/MessageEtat";
 import { confirmerRemboursementAction, traiterDemandeAction } from "@/modules/commande/admin-actions";
 import type { ErreurAdminCommande } from "@/modules/commande/admin-service";
 
-const ERREURS_CONNUES = ["non_autorise", "annulation_impossible", "demande_introuvable", "demande_deja_traitee", "preuve_requise", "remboursement_impossible"] as const;
+const ERREURS_CONNUES = ["non_autorise", "annulation_impossible", "demande_introuvable", "demande_deja_traitee", "preuve_requise", "remboursement_impossible", "remboursement_nul", "decision_invalide", "type_non_pris_en_charge"] as const;
 const erreurAffichee = (e: ErreurAdminCommande) => ((ERREURS_CONNUES as readonly string[]).includes(e) ? e : "generique");
 
 // Demande d'annulation ouverte : accepter (la Commande est annulée, le montant à rendre est figé) ou refuser (la Commande ne change pas).

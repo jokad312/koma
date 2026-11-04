@@ -5,10 +5,10 @@ import { transitionsPossibles } from "@/modules/commande/transitions";
 const base = { offerte: false, lignesPhysiques: 1, lignesFabriquees: 0 };
 
 describe("transitionsPossibles (story 6.3)", () => {
-  it("payée avec toutes les lignes en stock : fabrication ou expédition directe", () => {
-    expect(transitionsPossibles({ ...base, statut: "payee" })).toEqual(["en_fabrication", "expediee"]);
+  it("payée avec toutes les lignes en stock : expédition directe, fabrication ABSENTE", () => {
+    expect(transitionsPossibles({ ...base, statut: "payee" })).toEqual(["expediee"]);
   });
-  it("payée avec une ligne fabriquée : expédition directe ABSENTE", () => {
+  it("payée avec une ligne fabriquée : fabrication seulement, expédition directe ABSENTE", () => {
     expect(transitionsPossibles({ ...base, lignesFabriquees: 1, statut: "payee" })).toEqual(["en_fabrication"]);
   });
   it("en fabrication : expédiée seulement ; expédiée : livrée seulement ; livrée : rien", () => {

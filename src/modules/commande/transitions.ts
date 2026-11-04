@@ -8,7 +8,8 @@ export function transitionsPossibles(entree: { statut: StatutAffiche; offerte: b
   if (entree.offerte || entree.lignesPhysiques === 0) return [];
   switch (entree.statut) {
     case "payee":
-      return entree.lignesFabriquees === 0 ? ["en_fabrication", "expediee"] : ["en_fabrication"];
+      // Une pièce à fabriquer passe par la fabrication ; une Commande entièrement prise en stock part directement en expédition.
+      return entree.lignesFabriquees === 0 ? ["expediee"] : ["en_fabrication"];
     case "en_fabrication":
       return ["expediee"];
     case "expediee":

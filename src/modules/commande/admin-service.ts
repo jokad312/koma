@@ -18,6 +18,11 @@ export type ErreurAdminCommande =
   | "preuve_requise"
   | "remboursement_impossible"
   | "stock_insuffisant"
+  | "stock_invalide"
+  | "etape_invalide"
+  | "decision_invalide"
+  | "type_non_pris_en_charge"
+  | "remboursement_nul"
   | "generique";
 
 export type ResultatAdminCommande = { ok: true } | { ok: false; erreur: ErreurAdminCommande };
@@ -54,6 +59,12 @@ export function erreurBaseCommande(erreur: string): ErreurAdminCommande {
     ["KS_DEMANDE_DEJA_TRAITEE", "demande_deja_traitee"],
     ["KS_PREUVE_REQUISE", "preuve_requise"],
     ["KS_STOCK_INSUFFISANT", "stock_insuffisant"],
+    ["KS_STOCK_INVALIDE", "stock_invalide"],
+    ["KS_ETAPE_INVALIDE", "etape_invalide"],
+    ["KS_DEPUIS_STOCK_INVALIDE", "etape_invalide"],
+    ["KS_DECISION_INVALIDE", "decision_invalide"],
+    ["KS_TYPE_NON_PRIS_EN_CHARGE", "type_non_pris_en_charge"],
+    ["KS_REMBOURSEMENT_NUL", "remboursement_nul"],
     ["KS_REMBOURSEMENT_IMPOSSIBLE", "remboursement_impossible"],
     ["KS_TROP_PERCU_INTROUVABLE", "remboursement_impossible"],
   ];

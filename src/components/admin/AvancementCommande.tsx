@@ -25,7 +25,7 @@ export function AvancementCommande({ numero, transitions, mesuresManquantes, ret
     setErreur(null);
     lancer(async () => {
       try {
-        const r = await avancerStatutCommandeAction({ numero, vers, numeroSuivi: vers === "expediee" ? suivi : null });
+        const r = await avancerStatutCommandeAction({ numero, vers, numeroSuivi: vers === "expediee" && !retrait ? suivi : null });
         if (r.ok) {
           setSuivi("");
           router.refresh();
@@ -38,7 +38,7 @@ export function AvancementCommande({ numero, transitions, mesuresManquantes, ret
 
   return (
     <div className="flex flex-col gap-3">
-      {transitions.includes("expediee") ? (
+      {transitions.includes("expediee") && !retrait ? (
         <div className="flex flex-col gap-1">
           <label htmlFor={`${id}-suivi`} className="t-small text-text-primary">
             {t("suivi")}

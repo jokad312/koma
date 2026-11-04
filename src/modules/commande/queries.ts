@@ -114,7 +114,7 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
     creeLe: data.cree_le,
     dates: { payee: data.paye_le, en_fabrication: data.fabrication_le, expediee: data.expediee_le, livree: data.livree_le },
     numeroSuivi: data.numero_suivi,
-    annulable: statut === "payee" && !data.offerte && lignes.some((l) => l.famille === "cosplay") && demandeAnnulation === null,
+    annulable: statut === "payee" && !data.offerte && lignes.some((l) => l.famille === "cosplay") && (demandeAnnulation === null || demandeAnnulation === "refusee"),
     demandeAnnulation,
     lignesReclamables: (reclamables.data ?? []).map((r) => r.ligne_id),
     reclamations: (reclamations.data ?? []).flatMap((r) => (r.ligne_id ? [{ ligneId: r.ligne_id, statut: r.statut }] : [])),

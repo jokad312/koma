@@ -34,7 +34,8 @@ describe("emails d'annulation et de remboursement (story 6.6)", () => {
   it("annulation : numéro, montant à rendre en USD, lien", () => {
     const m = rendreCommandeAnnulee("fr", donnees);
     expect(m.sujet).toContain(NUMERO);
-    expect(m.texte).toMatch(/109/);
+    expect(m.texte).toContain("109,00");
+    expect(m.texte).not.toMatch(/1090|109,000/);
     expect(m.texte).toContain(donnees.url);
   });
   it("remboursement : montant rendu, en français et en anglais", () => {

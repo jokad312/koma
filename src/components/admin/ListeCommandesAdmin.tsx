@@ -38,7 +38,7 @@ export function ListeCommandesAdmin({ commandes, total, filtres, nombre, locale 
       <form method="get" className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4" aria-label={t("filtres")}>
         <Choix nom="statut" libelle={t("statut")} valeur={filtres.statut} tout={t("tous")} options={STATUTS_FILTRE.map((s) => ({ cle: s, texte: ts(s) }))} />
         <Choix nom="famille" libelle={t("famille")} valeur={filtres.famille} tout={t("toutes")} options={FAMILLES_FILTRE.map((f) => ({ cle: f, texte: t(`familles.${f}`) }))} />
-        <Choix nom="prestataire" libelle={t("prestataire")} valeur={filtres.prestataire} tout={t("tous")} options={PRESTATAIRES_FILTRE.map((p) => ({ cle: p, texte: p === "pawapay" ? "PawaPay" : p === "maishapay" ? "MaishaPay" : "Polar" }))} />
+        <Choix nom="prestataire" libelle={t("prestataire")} valeur={filtres.prestataire} tout={t("tous")} options={PRESTATAIRES_FILTRE.map((p) => ({ cle: p, texte: t(`prestataires.${p}`) }))} />
         <Choix nom="zone" libelle={t("zone")} valeur={filtres.zone} tout={t("toutes")} options={ZONES_FILTRE.map((z) => ({ cle: z, texte: t(`zones.${z}`) }))} />
         <div className="flex items-center gap-4 sm:col-span-2 lg:col-span-4">
           <button type="submit" className="min-h-touch rounded-md border border-border-field px-4 t-label text-text-primary">

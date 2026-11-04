@@ -59,7 +59,7 @@ export function EtapesReclamation({ demandeId, statut }: { demandeId: string; st
           </Bouton>
         ) : null}
       </div>
-      {erreur ? <MessageEtat type="erreur">{t(`erreurs.${["non_autorise", "demande_deja_traitee", "stock_insuffisant", "demande_introuvable"].includes(erreur) ? erreur : "generique"}`)}</MessageEtat> : null}
+      {erreur ? <MessageEtat type="erreur">{t(`erreurs.${["non_autorise", "demande_deja_traitee", "stock_insuffisant", "stock_invalide", "etape_invalide", "type_non_pris_en_charge", "demande_introuvable"].includes(erreur) ? erreur : "generique"}`)}</MessageEtat> : null}
     </div>
   );
 }

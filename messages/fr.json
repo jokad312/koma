@@ -1474,6 +1474,11 @@
       "filtres": "Filtres des commandes",
       "statut": "Statut",
       "famille": "Famille",
+      "prestataires": {
+        "pawapay": "PawaPay",
+        "maishapay": "MaishaPay",
+        "polar": "Polar"
+      },
       "prestataire": "Prestataire",
       "zone": "Zone de remise",
       "tous": "Tous",
@@ -1597,6 +1602,9 @@
           "demande_deja_traitee": "Cette demande est déjà traitée. Recharge la page.",
           "preuve_requise": "Saisis la référence du remboursement (3 à 200 caractères) : sans elle, rien n'est enregistré.",
           "remboursement_impossible": "Ce remboursement ne peut pas être confirmé.",
+          "remboursement_nul": "Le montant à rendre est nul : rien à rembourser.",
+          "decision_invalide": "Cette décision n'est pas reconnue. Recharge la page.",
+          "type_non_pris_en_charge": "Ce type de demande n'est pas traité ici.",
           "generique": "L'action n'a pas pu être enregistrée. Réessaie."
         }
       },
@@ -1634,6 +1642,9 @@
           "non_autorise": "Seul l'administrateur peut faire cela.",
           "demande_deja_traitee": "Cette étape n'est plus possible. Recharge la page.",
           "stock_insuffisant": "Le stock est insuffisant pour ce remplacement.",
+          "stock_invalide": "La quantité à retirer du stock n'est pas valide.",
+          "etape_invalide": "Cette étape n'est pas reconnue. Recharge la page.",
+          "type_non_pris_en_charge": "Cette demande n'est pas une réclamation.",
           "demande_introuvable": "Cette réclamation est introuvable.",
           "generique": "L'étape n'a pas pu être enregistrée. Réessaie."
         }

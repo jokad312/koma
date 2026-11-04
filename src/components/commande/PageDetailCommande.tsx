@@ -95,7 +95,7 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
       ) : null}
 
       {commande.lignesReclamables.length > 0 ? (
-        <SignalerProbleme numero={commande.numero} lignes={commande.lignes.filter((l) => commande.lignesReclamables.includes(l.id)).map((l) => ({ id: l.id, titre: l.titre }))} lienWhatsapp={lienWhatsapp(numeroWhatsapp)} />
+        <SignalerProbleme key={commande.lignesReclamables.join(",")} numero={commande.numero} lignes={commande.lignes.filter((l) => commande.lignesReclamables.includes(l.id)).map((l) => ({ id: l.id, titre: l.titre }))} lienWhatsapp={lienWhatsapp(numeroWhatsapp)} />
       ) : null}
       {commande.reclamations.length > 0 ? (
         <section aria-labelledby="commande-reclamations" className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4">
@@ -104,7 +104,7 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
           </h2>
           <ul className="flex flex-col gap-1">
             {commande.reclamations.map((r) => (
-              <li key={`${r.ligneId}-${r.statut}`} className="t-body text-text-primary">
+              <li key={r.ligneId} className="t-body text-text-primary">
                 {t("reclamation.ligneEtat", { titre: commande.lignes.find((l) => l.id === r.ligneId)?.titre ?? "", etat: t(`reclamation.statuts.${["ouverte", "acceptee", "refusee", "article_rendu", "remplacement_remis"].includes(r.statut) ? r.statut : "ouverte"}`) })}
               </li>
             ))}

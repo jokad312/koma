@@ -38,6 +38,7 @@ export async function listerCommandesAdmin(filtres: FiltresCommandes, nombre: nu
     .limit(nombre);
   if (filtres.statut === "expiree") q = q.or(`statut.eq.expiree,and(statut.in.(en_attente,echouee),expire_le.lte.${new Date().toISOString()})`);
   else if (filtres.statut === "en_attente" || filtres.statut === "echouee") q = q.eq("statut", filtres.statut).gt("expire_le", new Date().toISOString());
+  else if (filtres.statut === "offerte") q = q.eq("offerte", true);
   else if (filtres.statut) q = q.eq("statut", filtres.statut);
   if (filtres.prestataire) q = q.eq("prestataire", filtres.prestataire);
   if (filtres.zone) q = q.eq("zone", filtres.zone);
