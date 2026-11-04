@@ -127,7 +127,7 @@ development_status:
   epic-8-retrospective: optional
 
   epic-9: backlog
-  9-1-créer-un-code-promo: backlog
+  9-1-créer-un-code-promo: done
   9-2-appliquer-un-code-promo: backlog
   9-3-ventes-et-commissions-par-code-promo: backlog
   9-4-consentements-préférences-et-désinscription: backlog

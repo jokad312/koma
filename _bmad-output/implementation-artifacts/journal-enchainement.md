@@ -280,3 +280,10 @@
 - Validé : `reduction_cents` = réduction totale de la ligne ; « Mesures reçues » ouvert à l'admin et à l'assistant (AD-32 corrigé) ; annulation et remboursement réservés à l'admin.
 - Ajouts après la revue croisée : quantité réellement retirée du stock enregistrée au paiement et rendue exactement à l'annulation (tâche admin « Vérifier le stock » si elle est introuvable) ; quantité à remplacer choisie pour un remplacement ; colonnes de stock internes retirées de la lecture des clients connectés (commits `ee58e17`, `3d82125`).
 - Stories 6.1 à 6.7 : `done` après CI verte sur `3d82125`.
+
+
+## Story 9.1 : Code promo (voie 3, intégrée)
+- Revue croisée par trois sous-agents (Blind Hunter, Edge Case Hunter, Verification Gap) ; correctifs dans `20261230110000_code_promo_correctifs_revue.sql` (caractères de contrôle refusés, code immuable en base, modification sans changement non journalisée) et dans le module `promo` (types vérifiés à l'exécution, droit avant validation, code testé avant mise en majuscules, accessibilité). Les 16 textes FR/EN de l'admin sont appliqués après corrections ; plus aucun « [Texte à fournir] » dans `Admin.codesPromo`.
+- Migrations `20261230100000` et `20261230110000` appliquées sur koma-dev, types régénérés (commit `6b83b85`), CI verte avec pgTAP. Build vérifié avec les vraies variables : l'échec de la voie venait de sa fausse clé de service.
+- Pour la 9.2 : la Commande doit copier le code, le taux de réduction et le taux de commission au paiement (une modification de taux ne doit pas recalculer les commissions passées) ; prévoir le cas « utilisations > plafond ».
+- Limites connues : entrée de menu « Codes promo » non filtrée par droit (l'assistant voit le lien, la page le refuse) ; liste sans pagination.
