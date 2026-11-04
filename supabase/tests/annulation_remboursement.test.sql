@@ -68,7 +68,7 @@ select is((select statut from public.demande_client where commande_id = '0000000
 -- Acceptation : annulation, stock rendu, montant fige, Kit conserve.
 select lives_ok($$ select public.traiter_demande(pg_temp.adm(), (select id from public.demande_client where commande_id = '00000000-0000-4000-8000-0000000000f1'), 'accepter') $$, 'acceptation');
 select is((select statut from public.commande where numero = 'KS-2026-850001'), 'annulee', 'Commande annulee');
-select is((select montant_cents from public.remboursement where cible_type = 'commande' and cible_id = '00000000-0000-4000-8000-0000000000f1'), 10900, 'montant a rendre : (2 x 5000 - 300) + 1000 + forfait 200');
+select is((select montant_cents from public.remboursement where cible_type = 'commande' and cible_id = '00000000-0000-4000-8000-0000000000f1'), 10900::bigint, 'montant a rendre : (2 x 5000 - 300) + 1000 + forfait 200');
 select is((select stock from public.variante where produit_id = (select id from public.produit where slug = 'an-cos')), 6, 'stock du cosplay rendu (4 + 2)');
 select is((select count(*)::int from public.ligne_commande where commande_id = '00000000-0000-4000-8000-0000000000f1' and annulee), 2, 'les deux lignes physiques sont annulees');
 select is((select count(*)::int from public.ligne_commande where commande_id = '00000000-0000-4000-8000-0000000000f1' and not annulee), 1, 'la ligne Kit n est pas annulee');
