@@ -205,6 +205,42 @@ export type Database = {
           },
         ]
       }
+      code_promo: {
+        Row: {
+          actif: boolean
+          affilie: string
+          code: string
+          commission_pct: number
+          cree_le: string
+          id: string
+          modifie_le: string
+          plafond: number
+          reduction_pct: number
+        }
+        Insert: {
+          actif?: boolean
+          affilie: string
+          code: string
+          commission_pct: number
+          cree_le?: string
+          id?: string
+          modifie_le?: string
+          plafond?: number
+          reduction_pct: number
+        }
+        Update: {
+          actif?: boolean
+          affilie?: string
+          code?: string
+          commission_pct?: number
+          cree_le?: string
+          id?: string
+          modifie_le?: string
+          plafond?: number
+          reduction_pct?: number
+        }
+        Relationships: []
+      }
       commande: {
         Row: {
           acceptations: Json
@@ -1794,6 +1830,18 @@ export type Database = {
         }
         Returns: boolean
       }
+      creer_code_promo: {
+        Args: {
+          p_actif: boolean
+          p_affilie: string
+          p_auteur: Json
+          p_code: string
+          p_commission_pct: number
+          p_plafond: number
+          p_reduction_pct: number
+        }
+        Returns: string
+      }
       creer_commande: {
         Args: {
           p_acceptations: Json
@@ -2115,6 +2163,18 @@ export type Database = {
           p_debut: number
           p_titre_en: string
           p_titre_fr: string
+        }
+        Returns: undefined
+      }
+      modifier_code_promo: {
+        Args: {
+          p_actif: boolean
+          p_affilie: string
+          p_auteur: Json
+          p_commission_pct: number
+          p_id: string
+          p_plafond: number
+          p_reduction_pct: number
         }
         Returns: undefined
       }
