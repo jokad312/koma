@@ -93,14 +93,14 @@ development_status:
   5-7-paiement-mobile-money-via-pawapay: review
   epic-5-retrospective: optional
 
-  epic-6: backlog
-  6-1-mes-commandes-et-suivi-client: review
-  6-2-commandes-dans-l-admin: review
-  6-3-avancement-manuel-des-commandes-et-emails-de-statut: review
-  6-4-envoi-des-mesures-du-sur-mesure-sur-whatsapp: review
-  6-5-réception-des-mesures-confirmée-par-jonathan: review
-  6-6-annulation-d-une-commande-de-cosplay-et-remboursement: review
-  6-7-réclamation-et-remplacement: review
+  epic-6: done
+  6-1-mes-commandes-et-suivi-client: done
+  6-2-commandes-dans-l-admin: done
+  6-3-avancement-manuel-des-commandes-et-emails-de-statut: done
+  6-4-envoi-des-mesures-du-sur-mesure-sur-whatsapp: done
+  6-5-réception-des-mesures-confirmée-par-jonathan: done
+  6-6-annulation-d-une-commande-de-cosplay-et-remboursement: done
+  6-7-réclamation-et-remplacement: done
   epic-6-retrospective: optional
 
   epic-7: backlog

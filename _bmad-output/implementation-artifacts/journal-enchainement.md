@@ -274,3 +274,9 @@
 - Tests : pgTAP `epic6_revue.test.sql` (56, CI seulement), Vitest `commande-revue-epic6.test.ts` et `commande-revue-epic6-ui.test.tsx`, test des transitions et des emails mis à jour.
 - Limite connue (stock rendu à l'annulation) : l'anomalie `stock_insuffisant` ne donne que le total des pièces manquantes de la Commande. Avec une seule variante en stock concernée, la quantité rendue est exacte (total moins manquantes) ; avec plusieurs variantes, aucun stock n'est rendu automatiquement (à corriger à la main) plutôt que d'en inventer la répartition.
 - Écarts connus non traités (hors périmètre de la revue) : « tâche liée » du détail admin (6.2), signal global quand le numéro WhatsApp n'est pas réglé (6.4), e2e Playwright, plafonds de volume des listes, rattrapage de `livree_le` des anciennes commandes, quantité partielle d'un remplacement, tests RTL de la page de détail client (bouton d'annulation absent après fabrication, « Signaler » absent après 48 h) et de la liste « Mes commandes » (état vide, « Offert »).
+
+
+## Epic 6 : clôture (décisions de Jonathan du 2026-11-04)
+- Validé : `reduction_cents` = réduction totale de la ligne ; « Mesures reçues » ouvert à l'admin et à l'assistant (AD-32 corrigé) ; annulation et remboursement réservés à l'admin.
+- Ajouts après la revue croisée : quantité réellement retirée du stock enregistrée au paiement et rendue exactement à l'annulation (tâche admin « Vérifier le stock » si elle est introuvable) ; quantité à remplacer choisie pour un remplacement ; colonnes de stock internes retirées de la lecture des clients connectés (commits `ee58e17`, `3d82125`).
+- Stories 6.1 à 6.7 : `done` après CI verte sur `3d82125`.
