@@ -2,7 +2,10 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import fr from "../../messages/fr.json";
 import { rendre } from "./aides-dom";
+
+const M = fr.Admin.codesPromo;
 
 const faux = vi.hoisted(() => {
   const refresh = vi.fn();
@@ -96,7 +99,9 @@ describe("FormulaireCodePromo : création", () => {
     expect(champ.getAttribute("aria-invalid")).toBe("true");
     const idErreur = (champ.getAttribute("aria-describedby") ?? "").split(" ").find((id) => id.endsWith("-erreur"));
     expect(idErreur).toBeTruthy();
-    expect(document.getElementById(idErreur as string)?.textContent).toBe("[Texte à fournir]");
+    expect(document.getElementById(idErreur as string)?.textContent).toBe(M.erreurs.code_existant);
+    // Le focus est déplacé sur le champ en erreur : le lecteur d'écran annonce son libellé et le message relié.
+    expect(document.activeElement).toBe(champ);
     expect((screen.getByLabelText("Affilié") as HTMLInputElement).value).toBe("TEST_Affilié");
   });
 
@@ -105,7 +110,7 @@ describe("FormulaireCodePromo : création", () => {
     rendre(<FormulaireCodePromo />);
     await remplirCreation();
     await userEvent.click(screen.getByRole("button", { name: "Créer le Code promo" }));
-    expect((await screen.findByRole("alert")).textContent).toContain("[Texte à fournir]");
+    expect((await screen.findByRole("alert")).textContent).toContain(M.erreurs.non_autorise);
     expect((screen.getByLabelText("Code") as HTMLInputElement).getAttribute("aria-invalid")).toBeNull();
   });
 
@@ -114,31 +119,112 @@ describe("FormulaireCodePromo : création", () => {
     expect(screen.queryByRole("status")).toBeNull();
     await remplirCreation();
     await userEvent.click(screen.getByRole("button", { name: "Créer le Code promo" }));
-    await waitFor(() => expect(screen.getByRole("status").textContent).toContain("[Texte à fournir]"));
+    await waitFor(() => expect(screen.getByRole("status").textContent).toContain(M.succes.creation));
+  });
+});
+
+describe("FormulaireCodePromo : cas de la revue", () => {
+  it("décocher « Actif » envoie actif: false", async () => {
+    rendre(<FormulaireCodePromo />);
+    await remplirCreation();
+    await userEvent.click(screen.getByLabelText("Actif"));
+    await userEvent.click(screen.getByRole("button", { name: "Créer le Code promo" }));
+    expect(faux.creer).toHaveBeenCalledWith(expect.objectContaining({ actif: false }));
+  });
+
+  it("garde anti double envoi : un second clic pendant l'envoi n'appelle pas le serveur", async () => {
+    let terminer: (v: { ok: true }) => void = () => undefined;
+    faux.creer.mockReturnValue(new Promise((r) => (terminer = r)));
+    rendre(<FormulaireCodePromo />);
+    await remplirCreation();
+    const bouton = screen.getByRole("button", { name: "Créer le Code promo" });
+    await userEvent.click(bouton);
+    await userEvent.click(bouton);
+    expect(faux.creer).toHaveBeenCalledTimes(1);
+    terminer({ ok: true });
+    await waitFor(() => expect(faux.refresh).toHaveBeenCalled());
+  });
+
+  it("chaque erreur de champ est reliée à son champ et le focus y va", async () => {
+    const cas: Array<[string, string, string]> = [
+      ["reduction_invalide", "Pourcentage de réduction", M.erreurs.reduction_invalide],
+      ["commission_invalide", "Taux de commission", M.erreurs.commission_invalide],
+      ["plafond_invalide", "Plafond d'utilisations", M.erreurs.plafond_invalide],
+      ["affilie_invalide", "Affilié", M.erreurs.affilie_invalide],
+    ];
+    for (const [erreur, libelle, texte] of cas) {
+      faux.creer.mockResolvedValue({ ok: false, erreur });
+      const { unmount } = rendre(<FormulaireCodePromo />);
+      await remplirCreation();
+      await userEvent.click(screen.getByRole("button", { name: "Créer le Code promo" }));
+      const champ = await screen.findByLabelText(libelle);
+      await waitFor(() => expect(champ.getAttribute("aria-invalid")).toBe("true"));
+      const idErreur = (champ.getAttribute("aria-describedby") ?? "").split(" ").find((id) => id.endsWith("-erreur"));
+      expect(document.getElementById(idErreur as string)?.textContent).toBe(texte);
+      expect(document.activeElement).toBe(champ);
+      unmount();
+    }
+  });
+
+  it("code introuvable : message général et la liste est relue", async () => {
+    faux.modifier.mockResolvedValue({ ok: false, erreur: "introuvable" });
+    rendre(<ListeCodesPromo codes={[CODE]} />);
+    await userEvent.click(screen.getByRole("button", { name: "Modifier le code SOLDES10" }));
+    await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    expect((await screen.findByRole("alert")).textContent).toContain(M.erreurs.introuvable);
+    expect(faux.refresh).toHaveBeenCalled();
+  });
+
+  it("création : l'aide du plafond annonce la valeur par défaut", () => {
+    rendre(<FormulaireCodePromo />);
+    expect(screen.getByText(M.aides.plafond)).toBeTruthy();
+    expect(screen.queryByText(M.aides.plafondModif)).toBeNull();
+  });
+
+  it("modification : l'aide du plafond ne promet pas 50, et le succès disparaît dès qu'on retape", async () => {
+    rendre(<ListeCodesPromo codes={[CODE]} />);
+    await userEvent.click(screen.getByRole("button", { name: "Modifier le code SOLDES10" }));
+    expect(screen.getByText(M.aides.plafondModif)).toBeTruthy();
+    expect(screen.queryByText(M.aides.plafond)).toBeNull();
+    await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
+    await waitFor(() => expect(screen.getByRole("status").textContent).toContain(M.succes.modification));
+    await userEvent.type(screen.getByLabelText("Affilié"), "x");
+    expect(screen.queryByRole("status")).toBeNull();
   });
 });
 
 describe("ListeCodesPromo", () => {
+  it("le bouton Modifier porte le nom du code et son état déplié", async () => {
+    rendre(<ListeCodesPromo codes={[CODE, { ...CODE, id: "00000000-0000-4000-8000-0000000000d2", code: "AUTRE" }]} />);
+    const un = screen.getByRole("button", { name: "Modifier le code SOLDES10" });
+    expect(screen.getByRole("button", { name: "Modifier le code AUTRE" })).toBeTruthy();
+    expect(un.getAttribute("aria-expanded")).toBe("false");
+    await userEvent.click(un);
+    expect(un.getAttribute("aria-expanded")).toBe("true");
+  });
+
   it("liste le code, ses valeurs et son état avec les libellés validés", () => {
-    rendre(<ListeCodesPromo codes={[CODE]} />);
+    const { container } = rendre(<ListeCodesPromo codes={[CODE]} />);
     expect(screen.getByRole("heading", { name: "SOLDES10" })).toBeTruthy();
     expect(screen.getByText("TEST_Affilié")).toBeTruthy();
     expect(screen.getByText("20 %")).toBeTruthy();
     expect(screen.getByText("5 %")).toBeTruthy();
     expect(screen.getByText("50")).toBeTruthy();
-    expect(screen.getByRole("status").textContent).toBe("Actif");
+    expect(container.querySelector("[data-etat]")?.textContent).toBe("Actif");
+    // L'état est un texte statique : aucune zone live par carte.
+    expect(screen.queryByRole("status")).toBeNull();
   });
 
   it("état inactif : le texte le dit, jamais la couleur seule", () => {
-    rendre(<ListeCodesPromo codes={[{ ...CODE, actif: false }]} />);
-    expect(screen.getByRole("status").textContent).toBe("Inactif");
+    const { container } = rendre(<ListeCodesPromo codes={[{ ...CODE, actif: false }]} />);
+    expect(container.querySelector("[data-etat]")?.textContent).toBe("Inactif");
   });
 
   it("modifier : le code est affiché en lecture seule et les valeurs sont préremplies", async () => {
     rendre(<ListeCodesPromo codes={[CODE]} />);
-    await userEvent.click(screen.getByRole("button", { name: "Modifier" }));
+    await userEvent.click(screen.getByRole("button", { name: "Modifier le code SOLDES10" }));
     const formulaire = screen.getByRole("heading", { name: "Modifier le Code promo" }).closest("section") as HTMLElement;
-    expect(within(formulaire).getByText("SOLDES10")).toBeTruthy();
+    expect(within(formulaire).getByText("Code : SOLDES10")).toBeTruthy();
     expect(within(formulaire).queryByLabelText("Code")).toBeNull();
     expect((within(formulaire).getByLabelText("Affilié") as HTMLInputElement).value).toBe("TEST_Affilié");
     expect((within(formulaire).getByLabelText("Pourcentage de réduction") as HTMLInputElement).value).toBe("20");
@@ -148,7 +234,7 @@ describe("ListeCodesPromo", () => {
 
   it("enregistrer une modification envoie l'identifiant, affiche le succès puis « Annuler » referme", async () => {
     rendre(<ListeCodesPromo codes={[CODE]} />);
-    await userEvent.click(screen.getByRole("button", { name: "Modifier" }));
+    await userEvent.click(screen.getByRole("button", { name: "Modifier le code SOLDES10" }));
     const plafond = screen.getByLabelText("Plafond d'utilisations");
     await userEvent.clear(plafond);
     await userEvent.type(plafond, "80");
@@ -162,7 +248,7 @@ describe("ListeCodesPromo", () => {
     });
     await waitFor(() => {
       const formulaire = screen.getByRole("heading", { name: "Modifier le Code promo" }).closest("section") as HTMLElement;
-      expect(within(formulaire).getByRole("status").textContent).toContain("[Texte à fournir]");
+      expect(within(formulaire).getByRole("status").textContent).toContain(M.succes.modification);
     });
     expect(screen.getByRole("heading", { name: "Modifier le Code promo" })).toBeTruthy();
     await userEvent.click(screen.getByRole("button", { name: "Annuler" }));
@@ -172,7 +258,7 @@ describe("ListeCodesPromo", () => {
 
   it("liste vide : un texte d'état, aucun élément de liste", () => {
     rendre(<ListeCodesPromo codes={[]} />);
-    expect(screen.getByText("[Texte à fournir]")).toBeTruthy();
+    expect(screen.getByText(M.vide)).toBeTruthy();
     expect(screen.queryAllByRole("listitem")).toHaveLength(0);
   });
 });

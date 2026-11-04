@@ -137,3 +137,9 @@ Tant qu'elles ne sont pas validées, les clés correspondantes de `messages/fr.j
 
 VOIE 3 PRÊTE POUR INTÉGRATION (9.1)
 
+
+## Story 9.1 : intégration (revue croisée)
+
+- Revue Blind Hunter, Edge Case Hunter et Verification Gap faite par Claude Code ; correctifs dans `20261230110000_code_promo_correctifs_revue.sql` (caractères de contrôle refusés pour l'Affilié, code immuable en base par déclencheur, modification sans changement non écrite ni journalisée) et dans le module `promo` (validation de type à l'exécution, droit vérifié avant la validation, panne distinguée d'un refus, code testé avant la mise en majuscules).
+- Les 16 textes FR/EN sont appliqués (`Admin.codesPromo`), corrigés pour la cohérence (« Code promo », impératif, « Laisse vide pour 50 » en création seulement).
+- **À traiter en 9.2** : la modification d'un taux n'est pas figée sur les Commandes ; la Commande devra copier le code, le taux de réduction et le taux de commission au moment du paiement, sinon les commissions passées seraient recalculées au taux actuel. Prévoir aussi le comportement quand les utilisations dépassent un plafond réduit.

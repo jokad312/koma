@@ -1,7 +1,7 @@
 -- Story 9.1 : Code promo. Table code_promo (RLS, droits, aucune ligne par défaut, aucun compteur), création, unicité sans
 -- distinction de casse, validations, modification (code immuable), journal. Données créées dans la transaction, puis annulées.
 begin;
-select plan(36);
+select plan(53);
 
 -- Aucune ligne n'est créée par la migration.
 select is((select count(*)::int from public.code_promo), 0, 'aucun Code promo par défaut');
@@ -160,6 +160,78 @@ select is(
   'le journal de la modification porte l''auteur'
 );
 select is((select count(*)::int from public.code_promo), 1, 'la modification ne crée aucune ligne');
+
+-- Correctifs de la revue (migration 20261230110000).
+select lives_ok(
+  $$select public.creer_code_promo(pg_temp.adm(), 'INACTIF1', 'TEST_Inactif', 10, 2, 10, false)$$,
+  'création avec actif = false explicite'
+);
+select is((select actif from public.code_promo where code = 'INACTIF1'), false, 'le code créé inactif est inactif');
+select lives_ok(
+  $$select public.modifier_code_promo(pg_temp.adm(), (select id from public.code_promo where code = 'SOLDES10'), 'TEST_nouveau', 15, 3, 81, null)$$,
+  'modification avec p_actif absent'
+);
+select is(
+  (select actif::text || '|' || plafond from public.code_promo where code = 'SOLDES10'),
+  'false|81',
+  'p_actif absent conserve l''état actuel, le reste est mis à jour'
+);
+select is(
+  (select avant ->> 'plafond' || '>' || (apres ->> 'plafond') from public.journal_audit where cible_table = 'code_promo' and action = 'update' order by id desc limit 1),
+  '80>81',
+  'le journal garde le plafond avant et après'
+);
+create temp table n_journal as select count(*)::int as n from public.journal_audit where cible_table = 'code_promo' and action = 'update';
+select lives_ok(
+  $$select public.modifier_code_promo(pg_temp.adm(), (select id from public.code_promo where code = 'SOLDES10'), 'TEST_nouveau', 15, 3, 81, null)$$,
+  'modification sans aucun changement'
+);
+select is(
+  (select count(*)::int from public.journal_audit where cible_table = 'code_promo' and action = 'update'),
+  (select n from n_journal),
+  'une modification sans changement n''est pas journalisée'
+);
+select throws_ok(
+  $$update public.code_promo set code = 'AUTRECODE' where code = 'SOLDES10'$$,
+  'P0001', 'KS_CODE_IMMUABLE', 'le code ne peut pas être changé, même par une écriture directe'
+);
+select throws_ok(
+  $$select public.creer_code_promo(pg_temp.adm(), 'TROISDEC', 'TEST_x', 10, 2.345, 10, true)$$,
+  'P0001', 'KS_COMMISSION_INVALIDE', 'commission à trois décimales : refusée à la création'
+);
+select throws_ok(
+  $$select public.modifier_code_promo(pg_temp.adm(), (select id from public.code_promo where code = 'SOLDES10'), 'TEST_nouveau', 15.123, 3, 81, null)$$,
+  'P0001', 'KS_REDUCTION_INVALIDE', 'réduction à trois décimales : refusée à la modification'
+);
+select throws_ok(
+  $$select public.modifier_code_promo(pg_temp.adm(), (select id from public.code_promo where code = 'SOLDES10'), 'TEST_nouveau', 15, 3.456, 81, null)$$,
+  'P0001', 'KS_COMMISSION_INVALIDE', 'commission à trois décimales : refusée à la modification'
+);
+select throws_ok(
+  $$select public.creer_code_promo(null, 'NULAUTEUR', 'TEST_x', 10, 2, 10, true)$$,
+  'P0001', 'KS_AUTEUR_MANQUANT', 'auteur absent : refusé'
+);
+select throws_ok(
+  $$select public.creer_code_promo('{"type":"systeme","nom":"test"}'::jsonb, 'SYSTEME1', 'TEST_x', 10, 2, 10, true)$$,
+  'P0001', 'KS_DROIT_REFUSE', 'auteur système : refusé'
+);
+select lives_ok(
+  $$select public.creer_code_promo(pg_temp.adm(), 'BORNES', repeat('a', 120), 10, 2, 1, true)$$,
+  'bornes basses acceptées : Affilié de 120 caractères, plafond 1'
+);
+select lives_ok(
+  $$select public.creer_code_promo(pg_temp.adm(), 'BORNES2', 'TEST_bornes', 100, 100, 100000, true)$$,
+  'bornes hautes acceptées : plafond 100000, pourcentages 100'
+);
+select throws_ok(
+  $$select public.creer_code_promo(pg_temp.adm(), 'RETOUR', E'TEST_a
+b', 10, 2, 10, true)$$,
+  'P0001', 'KS_AFFILIE_INVALIDE', 'Affilié avec un retour à la ligne : refusé'
+);
+select throws_ok(
+  $$insert into public.code_promo (code, affilie, reduction_pct, commission_pct) values ('DIRECT1', E'TEST_a	b', 10, 2)$$,
+  '23514', null, 'caractère de contrôle refusé par la table'
+);
 
 select * from finish();
 rollback;

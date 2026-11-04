@@ -1,5 +1,5 @@
 import "server-only";
-import { exigerDroit } from "@/lib/auth/droits";
+import { DroitRefuseError, exigerDroit } from "@/lib/auth/droits";
 import { creerClientService } from "@/lib/supabase/service";
 import type { Json } from "@/lib/supabase/types";
 import type { DependancesCodePromo } from "./types";
@@ -13,7 +13,14 @@ type ClientPromo = {
 export function dependancesCodePromo(): DependancesCodePromo {
   const client = creerClientService() as unknown as ClientPromo;
   return {
-    exigerDroit: () => exigerDroit("codes_promo.gerer"),
+    exigerDroit: async () => {
+      try {
+        return await exigerDroit("codes_promo.gerer");
+      } catch (e) {
+        if (e instanceof DroitRefuseError) return null;
+        throw e;
+      }
+    },
     creer: async (auteur, code, valeurs) => {
       const { error } = await client.rpc("creer_code_promo", {
         p_auteur: auteur as Json,

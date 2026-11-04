@@ -96,16 +96,48 @@ describe("validerModificationCodePromo : le code ne fait pas partie de la saisie
 });
 
 describe("creerCodePromo", () => {
-  it("une saisie invalide est refusée avant de vérifier le droit", async () => {
-    const d = deps();
-    await expect(creerCodePromo(d, { ...ENTREE, code: "ab" })).resolves.toEqual({ ok: false, erreur: "code_invalide" });
-    expect(d.exigerDroit).not.toHaveBeenCalled();
+  it("le droit est vérifié avant la validation : sans droit, une saisie invalide ne révèle rien", async () => {
+    const d = deps({ exigerDroit: vi.fn(async () => null) });
+    await expect(creerCodePromo(d, { ...ENTREE, code: "ab" })).resolves.toEqual({ ok: false, erreur: "non_autorise" });
     expect(d.creer).not.toHaveBeenCalled();
   });
 
-  it("droit refusé : non_autorise, aucune écriture", async () => {
-    const d = deps({ exigerDroit: vi.fn(async () => Promise.reject(new Error("TEST_refus"))) });
+  it("une saisie invalide est refusée avec le droit, sans écrire", async () => {
+    const d = deps();
+    await expect(creerCodePromo(d, { ...ENTREE, code: "ab" })).resolves.toEqual({ ok: false, erreur: "code_invalide" });
+    expect(d.exigerDroit).toHaveBeenCalledTimes(1);
+    expect(d.creer).not.toHaveBeenCalled();
+  });
+
+  it("droit refusé (null) : non_autorise, aucune écriture", async () => {
+    const d = deps({ exigerDroit: vi.fn(async () => null) });
     await expect(creerCodePromo(d, ENTREE)).resolves.toEqual({ ok: false, erreur: "non_autorise" });
+    expect(d.creer).not.toHaveBeenCalled();
+  });
+
+  it("panne de la vérification du droit : erreur générique, jamais un refus", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const d = deps({ exigerDroit: vi.fn(async () => Promise.reject(new Error("TEST_panne"))) });
+    await expect(creerCodePromo(d, ENTREE)).resolves.toEqual({ ok: false, erreur: "generique" });
+    expect(d.creer).not.toHaveBeenCalled();
+    spy.mockRestore();
+  });
+
+  it("appel direct avec des valeurs de mauvais type : résultat typé, jamais d'exception", async () => {
+    const d = deps();
+    const cas: Array<[unknown, string]> = [
+      [null, "code_invalide"],
+      [{ ...ENTREE, code: null }, "code_invalide"],
+      [{ ...ENTREE, affilie: 5 }, "affilie_invalide"],
+      [{ ...ENTREE, reductionPct: undefined }, "reduction_invalide"],
+      [{ ...ENTREE, commissionPct: 3 }, "commission_invalide"],
+      [{ ...ENTREE, plafond: null }, "plafond_invalide"],
+      [{ ...ENTREE, actif: "false" }, "generique"],
+      [{ ...ENTREE, actif: undefined }, "generique"],
+    ];
+    for (const [entree, erreur] of cas) {
+      await expect(creerCodePromo(d, entree)).resolves.toEqual({ ok: false, erreur });
+    }
     expect(d.creer).not.toHaveBeenCalled();
   });
 
@@ -152,6 +184,26 @@ describe("creerCodePromo", () => {
   });
 });
 
+describe("validerCodePromo : cas de la revue", () => {
+  it("refuse tout caractère hors A-Z, a-z, 0-9, tiret et souligné avant la mise en majuscules (ß, ſ, ı, ﬁ)", () => {
+    for (const code of ["ßeta", "ſale", "ıdee", "ﬁnal", "aé1"]) {
+      expect(validerCodePromo({ ...ENTREE, code })).toEqual({ ok: false, erreur: "code_invalide" });
+    }
+  });
+
+  it("compte l'Affilié en points de code et refuse les caractères de contrôle", () => {
+    expect(validerCodePromo({ ...ENTREE, affilie: "😀".repeat(120) }).ok).toBe(true);
+    expect(validerCodePromo({ ...ENTREE, affilie: "😀".repeat(121) })).toEqual({ ok: false, erreur: "affilie_invalide" });
+    for (const affilie of ["Jean\u0000", "Jean\nPaul", "Jean\tPaul", "Jean\u007F"]) {
+      expect(validerCodePromo({ ...ENTREE, affilie })).toEqual({ ok: false, erreur: "affilie_invalide" });
+    }
+  });
+
+  it("l'état actif doit être un booléen", () => {
+    expect(validerCodePromo({ ...ENTREE, actif: "true" })).toEqual({ ok: false, erreur: "generique" });
+  });
+});
+
 describe("modifierCodePromo", () => {
   const MODIF = { affilie: "TEST_nouveau", reductionPct: "15", commissionPct: "3", plafond: "80", actif: false };
 
@@ -174,10 +226,18 @@ describe("modifierCodePromo", () => {
   });
 
   it("droit refusé ou code introuvable", async () => {
-    const refuse = deps({ exigerDroit: vi.fn(async () => Promise.reject(new Error("TEST_refus"))) });
+    const refuse = deps({ exigerDroit: vi.fn(async () => null) });
     await expect(modifierCodePromo(refuse, ID, MODIF)).resolves.toEqual({ ok: false, erreur: "non_autorise" });
     const absent = deps({ modifier: vi.fn(async () => ({ erreur: "KS_CODE_PROMO_INTROUVABLE" })) });
     await expect(modifierCodePromo(absent, ID, MODIF)).resolves.toEqual({ ok: false, erreur: "introuvable" });
+  });
+
+  it("valeurs de mauvais type ou identifiant non texte : résultat typé", async () => {
+    const d = deps();
+    await expect(modifierCodePromo(d, 42, MODIF)).resolves.toEqual({ ok: false, erreur: "introuvable" });
+    await expect(modifierCodePromo(d, ID, { ...MODIF, plafond: 80 })).resolves.toEqual({ ok: false, erreur: "plafond_invalide" });
+    await expect(modifierCodePromo(d, ID, undefined)).resolves.toEqual({ ok: false, erreur: "affilie_invalide" });
+    expect(d.modifier).not.toHaveBeenCalled();
   });
 
   it("exception inattendue : erreur générique", async () => {

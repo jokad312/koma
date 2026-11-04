@@ -22,7 +22,7 @@ export function ListeCodesPromo({ codes }: { codes: CodePromo[] }) {
         <li key={c.id} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="t-h2">{c.code}</h2>
-            <p role="status" className="t-label text-text-primary" data-etat={c.actif ? "actif" : "inactif"}>
+            <p className="t-label text-text-primary" data-etat={c.actif ? "actif" : "inactif"}>
               {c.actif ? t("etat.actif") : t("etat.inactif")}
             </p>
           </div>
@@ -33,11 +33,11 @@ export function ListeCodesPromo({ codes }: { codes: CodePromo[] }) {
             </div>
             <div className="flex flex-col">
               <dt className="t-small text-text-secondary">{t("champs.reductionPct")}</dt>
-              <dd className="t-body text-text-primary">{nombre.format(c.reductionPct)}{" %"}</dd>
+              <dd className="t-body text-text-primary">{t("pourcentage", { valeur: nombre.format(c.reductionPct) })}</dd>
             </div>
             <div className="flex flex-col">
               <dt className="t-small text-text-secondary">{t("champs.commissionPct")}</dt>
-              <dd className="t-body text-text-primary">{nombre.format(c.commissionPct)}{" %"}</dd>
+              <dd className="t-body text-text-primary">{t("pourcentage", { valeur: nombre.format(c.commissionPct) })}</dd>
             </div>
             <div className="flex flex-col">
               <dt className="t-small text-text-secondary">{t("champs.plafond")}</dt>
@@ -45,7 +45,12 @@ export function ListeCodesPromo({ codes }: { codes: CodePromo[] }) {
             </div>
           </dl>
           <div>
-            <Bouton variante="secondaire" onClick={() => setEnEdition(enEdition === c.id ? null : c.id)}>
+            <Bouton
+              variante="secondaire"
+              onClick={() => setEnEdition(enEdition === c.id ? null : c.id)}
+              aria-label={t("boutons.modifierCode", { code: c.code })}
+              aria-expanded={enEdition === c.id}
+            >
               {t("boutons.modifier")}
             </Bouton>
           </div>

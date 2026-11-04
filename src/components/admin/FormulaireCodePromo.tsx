@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
-import { useId, useRef, useState, useTransition, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, useTransition, type FormEvent } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { creerCodePromoAction, modifierCodePromoAction } from "@/modules/promo/actions";
@@ -19,6 +19,14 @@ const CHAMP_DE_L_ERREUR: Partial<Record<ErreurCodePromo, Champ>> = {
   reduction_invalide: "reductionPct",
   commission_invalide: "commissionPct",
   plafond_invalide: "plafond",
+};
+
+const SUFFIXE_DU_CHAMP: Record<Champ, string> = {
+  code: "code",
+  affilie: "affilie",
+  reductionPct: "reduction",
+  commissionPct: "commission",
+  plafond: "plafond",
 };
 
 type Props = {
@@ -45,6 +53,18 @@ export function FormulaireCodePromo({ code, onTermine }: Props) {
   const enVol = useRef(false);
 
   const champ = erreur ? CHAMP_DE_L_ERREUR[erreur] : undefined;
+
+  // Une erreur de champ déplace le focus sur ce champ : le lecteur d'écran annonce son libellé et le message relié (aria-describedby).
+  useEffect(() => {
+    if (!champ) return;
+    document.getElementById(`${id}-${SUFFIXE_DU_CHAMP[champ]}`)?.focus();
+  }, [champ, erreur, id]);
+
+  // Retaper après un succès efface le message de succès : il ne décrit plus l'état du formulaire.
+  const saisir = (setter: (valeur: string) => void) => (valeur: string) => {
+    setSucces(false);
+    setter(valeur);
+  };
   const erreurGenerale = erreur && !champ ? erreur : null;
 
   function lancer(operation: () => Promise<ResultatCodePromo>) {
@@ -69,6 +89,8 @@ export function FormulaireCodePromo({ code, onTermine }: Props) {
           router.refresh();
         } else {
           setErreur(resultat.erreur);
+          // Code supprimé entre-temps : la liste affichée est périmée, elle est relue.
+          if (resultat.erreur === "introuvable") router.refresh();
         }
       } catch {
         setErreur("generique");
@@ -97,8 +119,7 @@ export function FormulaireCodePromo({ code, onTermine }: Props) {
 
       {code ? (
         <p className="t-body text-text-primary">
-          <span className="t-label">{t("champs.code")}{" : "}</span>
-          {code.code}
+          <span className="t-label">{t("champs.codeLigne", { code: code.code })}</span>
         </p>
       ) : null}
 
@@ -111,7 +132,7 @@ export function FormulaireCodePromo({ code, onTermine }: Props) {
             aide={t("aides.code")}
             erreur={erreurDe("code")}
             valeur={codeSaisi}
-            onChange={setCodeSaisi}
+            onChange={saisir(setCodeSaisi)}
           />
         )}
         <ChampTexte
@@ -120,7 +141,7 @@ export function FormulaireCodePromo({ code, onTermine }: Props) {
           libelle={t("champs.affilie")}
           erreur={erreurDe("affilie")}
           valeur={affilie}
-          onChange={setAffilie}
+          onChange={saisir(setAffilie)}
         />
         <ChampTexte
           id={`${id}-reduction`}
@@ -128,7 +149,7 @@ export function FormulaireCodePromo({ code, onTermine }: Props) {
           libelle={t("champs.reductionPct")}
           erreur={erreurDe("reductionPct")}
           valeur={reductionPct}
-          onChange={setReductionPct}
+          onChange={saisir(setReductionPct)}
           inputMode="decimal"
         />
         <ChampTexte
@@ -137,17 +158,17 @@ export function FormulaireCodePromo({ code, onTermine }: Props) {
           libelle={t("champs.commissionPct")}
           erreur={erreurDe("commissionPct")}
           valeur={commissionPct}
-          onChange={setCommissionPct}
+          onChange={saisir(setCommissionPct)}
           inputMode="decimal"
         />
         <ChampTexte
           id={`${id}-plafond`}
           name="plafond"
           libelle={t("champs.plafond")}
-          aide={t("aides.plafond")}
+          aide={code ? t("aides.plafondModif") : t("aides.plafond")}
           erreur={erreurDe("plafond")}
           valeur={plafond}
-          onChange={setPlafond}
+          onChange={saisir(setPlafond)}
           inputMode="numeric"
         />
 
@@ -157,7 +178,10 @@ export function FormulaireCodePromo({ code, onTermine }: Props) {
             name="actif"
             type="checkbox"
             checked={actif}
-            onChange={(e) => setActif(e.target.checked)}
+            onChange={(e) => {
+              setSucces(false);
+              setActif(e.target.checked);
+            }}
             className="size-5 rounded border border-border-field"
           />
           <label htmlFor={`${id}-actif`} className="t-label text-text-primary">

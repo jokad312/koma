@@ -1473,9 +1473,10 @@
     },
     "codesPromo": {
       "titre": "Codes promo",
-      "intro": "[Texte à fournir]",
-      "erreurLecture": "[Texte à fournir]",
-      "vide": "[Texte à fournir]",
+      "intro": "Crée un Code promo pour chaque influenceur, avec son pourcentage de réduction, son taux de commission et son plafond d'utilisations. Le code ne peut plus être changé après la création.",
+      "erreurLecture": "Les Codes promo n'ont pas pu être chargés. Réessaie dans un instant.",
+      "vide": "Aucun Code promo pour le moment.",
+      "pourcentage": "{valeur} %",
       "creation": {
         "titre": "Créer un Code promo"
       },
@@ -1488,36 +1489,39 @@
         "reductionPct": "Pourcentage de réduction",
         "commissionPct": "Taux de commission",
         "plafond": "Plafond d'utilisations",
-        "actif": "Actif"
+        "actif": "Actif",
+        "codeLigne": "Code : {code}"
       },
       "aides": {
-        "code": "[Texte à fournir]",
-        "plafond": "[Texte à fournir]"
+        "code": "De 3 à 24 caractères : lettres sans accent, chiffres, tiret ou souligné. Majuscules et minuscules sont équivalentes. Il n'est pas modifiable ensuite.",
+        "plafond": "Nombre maximal d'utilisations. Laisse vide pour 50.",
+        "plafondModif": "Nombre maximal d'utilisations."
       },
       "boutons": {
         "creer": "Créer le Code promo",
         "enregistrer": "Enregistrer",
         "modifier": "Modifier",
-        "fermer": "Annuler"
+        "fermer": "Annuler",
+        "modifierCode": "Modifier le code {code}"
       },
       "etat": {
         "actif": "Actif",
         "inactif": "Inactif"
       },
       "succes": {
-        "creation": "[Texte à fournir]",
-        "modification": "[Texte à fournir]"
+        "creation": "Code promo créé.",
+        "modification": "Code promo modifié."
       },
       "erreurs": {
-        "non_autorise": "[Texte à fournir]",
-        "code_invalide": "[Texte à fournir]",
-        "code_existant": "[Texte à fournir]",
-        "affilie_invalide": "[Texte à fournir]",
-        "reduction_invalide": "[Texte à fournir]",
-        "commission_invalide": "[Texte à fournir]",
-        "plafond_invalide": "[Texte à fournir]",
-        "introuvable": "[Texte à fournir]",
-        "generique": "[Texte à fournir]"
+        "non_autorise": "Tu n'as plus le droit de gérer les Codes promo. Recharge la page ou reconnecte-toi.",
+        "code_invalide": "Le code doit avoir de 3 à 24 caractères : lettres sans accent, chiffres, tiret ou souligné.",
+        "code_existant": "Ce code existe déjà, même écrit en minuscules. Choisis-en un autre.",
+        "affilie_invalide": "Le nom de l'Affilié doit avoir de 1 à 120 caractères, sans caractère de contrôle.",
+        "reduction_invalide": "La réduction doit être un pourcentage supérieur à 0 et inférieur ou égal à 100, avec deux décimales au plus.",
+        "commission_invalide": "Le taux de commission doit être un pourcentage entre 0 et 100, avec deux décimales au plus.",
+        "plafond_invalide": "Le plafond doit être un nombre entier entre 1 et 100 000.",
+        "introuvable": "Ce Code promo n'existe plus. Recharge la page.",
+        "generique": "Le Code promo n'a pas pu être enregistré. Réessaie."
       }
     },
     "commandes": {

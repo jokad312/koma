@@ -1473,9 +1473,10 @@
     },
     "codesPromo": {
       "titre": "Promo codes",
-      "intro": "[Texte à fournir]",
-      "erreurLecture": "[Texte à fournir]",
-      "vide": "[Texte à fournir]",
+      "intro": "Create one code per influencer, with its discount, commission rate and usage limit. The code cannot be changed after creation.",
+      "erreurLecture": "Promo codes could not be loaded. Try again in a moment.",
+      "vide": "No promo codes yet.",
+      "pourcentage": "{valeur}%",
       "creation": {
         "titre": "Create a promo code"
       },
@@ -1488,36 +1489,39 @@
         "reductionPct": "Discount percentage",
         "commissionPct": "Commission rate",
         "plafond": "Usage limit",
-        "actif": "Active"
+        "actif": "Active",
+        "codeLigne": "Code: {code}"
       },
       "aides": {
-        "code": "[Texte à fournir]",
-        "plafond": "[Texte à fournir]"
+        "code": "3 to 24 characters: unaccented letters, digits, hyphen or underscore. Upper and lower case are the same. It cannot be changed later.",
+        "plafond": "Maximum number of uses. Leave empty for 50.",
+        "plafondModif": "Maximum number of uses."
       },
       "boutons": {
         "creer": "Create promo code",
         "enregistrer": "Save",
         "modifier": "Edit",
-        "fermer": "Cancel"
+        "fermer": "Cancel",
+        "modifierCode": "Edit code {code}"
       },
       "etat": {
         "actif": "Active",
         "inactif": "Inactive"
       },
       "succes": {
-        "creation": "[Texte à fournir]",
-        "modification": "[Texte à fournir]"
+        "creation": "Promo code created.",
+        "modification": "Promo code updated."
       },
       "erreurs": {
-        "non_autorise": "[Texte à fournir]",
-        "code_invalide": "[Texte à fournir]",
-        "code_existant": "[Texte à fournir]",
-        "affilie_invalide": "[Texte à fournir]",
-        "reduction_invalide": "[Texte à fournir]",
-        "commission_invalide": "[Texte à fournir]",
-        "plafond_invalide": "[Texte à fournir]",
-        "introuvable": "[Texte à fournir]",
-        "generique": "[Texte à fournir]"
+        "non_autorise": "You can no longer manage promo codes. Reload the page or sign in again.",
+        "code_invalide": "The code must be 3 to 24 characters: unaccented letters, digits, hyphen or underscore.",
+        "code_existant": "This code already exists, even if written in lowercase. Choose another one.",
+        "affilie_invalide": "The affiliate name must be 1 to 120 characters long, without control characters.",
+        "reduction_invalide": "The discount must be a percentage above 0 and at most 100, with two decimals at most.",
+        "commission_invalide": "The commission rate must be a percentage between 0 and 100, with two decimals at most.",
+        "plafond_invalide": "The usage limit must be a whole number between 1 and 100,000.",
+        "introuvable": "This promo code no longer exists. Reload the page.",
+        "generique": "The promo code could not be saved. Try again."
       }
     },
     "commandes": {

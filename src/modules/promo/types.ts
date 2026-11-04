@@ -46,7 +46,8 @@ export type ValeursCodePromo = {
 };
 
 export type DependancesCodePromo = {
-  exigerDroit: () => Promise<{ auteur: unknown }>;
+  // null : droit refusé (ou non connecté). Une exception : vérification impossible (panne), jamais prise pour un refus.
+  exigerDroit: () => Promise<{ auteur: unknown } | null>;
   creer: (auteur: unknown, code: string, valeurs: ValeursCodePromo) => Promise<{ erreur: string | null }>;
   modifier: (auteur: unknown, id: string, valeurs: ValeursCodePromo) => Promise<{ erreur: string | null }>;
 };
