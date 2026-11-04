@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { createHmac } from "node:crypto";
+import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { adressesVideoPrivee, DUREE_JETON_VIDEO_SECONDES, lireConfigLecturePrivee } from "@/lib/bunny/jeton";
 
@@ -7,13 +7,13 @@ const VIDEO = "11111111-2222-4333-8444-555555555555";
 const CONFIG = { hoteCdn: "test-prive.b-cdn.net", cleJeton: "TEST_cle_de_jeton_0001" };
 
 describe("adressesVideoPrivee", () => {
-  it("jeton de répertoire HMAC-SHA256, style chemin : la playlist et les sous-titres partagent le même jeton", () => {
+  it("jeton de répertoire SHA-256 simple (clé + répertoire + expiration + token_path brut), style chemin : la playlist et les sous-titres partagent le même jeton", () => {
     const expire = 1_800_000_000;
     const a = adressesVideoPrivee(CONFIG, VIDEO, expire);
     const repertoire = `/${VIDEO}/`;
     const tokenPath = encodeURIComponent(repertoire);
-    const attendu = createHmac("sha256", CONFIG.cleJeton).update(`${repertoire}${expire}token_path=${tokenPath}`).digest("base64url");
-    const base = `https://${CONFIG.hoteCdn}/bcdn_token=HS256-${attendu}&expires=${expire}&token_path=${tokenPath}${repertoire}`;
+    const attendu = createHash("sha256").update(`${CONFIG.cleJeton}${repertoire}${expire}token_path=${repertoire}`).digest("base64url");
+    const base = `https://${CONFIG.hoteCdn}/bcdn_token=${attendu}&expires=${expire}&token_path=${tokenPath}${repertoire}`;
     expect(a.playlist).toBe(`${base}playlist.m3u8`);
     expect(a.sousTitres("fr")).toBe(`${base}captions/fr.vtt`);
     expect(a.sousTitres("en")).toBe(`${base}captions/en.vtt`);
@@ -21,7 +21,8 @@ describe("adressesVideoPrivee", () => {
 
   it("le jeton est en Base64URL sans remplissage et ne contient pas la clé", () => {
     const a = adressesVideoPrivee(CONFIG, VIDEO, 1_800_000_000);
-    const jeton = /bcdn_token=HS256-([^&]+)&/.exec(a.playlist)?.[1] ?? "";
+    const jeton = /bcdn_token=([^&]+)&/.exec(a.playlist)?.[1] ?? "";
+    expect(a.playlist).not.toContain("HS256");
     expect(jeton).toMatch(/^[A-Za-z0-9_-]{43}$/);
     expect(a.playlist).not.toContain(CONFIG.cleJeton);
   });
