@@ -76,3 +76,64 @@
 - Aucun `git push`, `git merge`, `git rebase` ni `npm run db:push`.
 
 VOIE 3 PRÊTE POUR INTÉGRATION (8.6 + 8.7)
+
+## Story 9.1 : Créer un Code promo
+
+### Implémentation réalisée
+- **Migration** : `supabase/migrations/20261230100000_code_promo.sql`. L'horodatage `20261210100000` proposé au plan était déjà pris par l'epic 6 ; la dernière migration de `origin/main` est `20261215100000_reclamation.sql`, d'où `20261230100000`. Aucune migration existante n'a été modifiée.
+- **Table `code_promo`** : `code` (unique, normalisé en majuscules, 3 à 24 caractères `A-Z 0-9 - _`), `affilie` (1 à 120), `reduction_pct` et `commission_pct` (`numeric(5,2)`, bornes 0/100), `plafond` (entier, défaut 50, 1 à 100 000), `actif`, `cree_le`, `modifie_le`. **Aucune colonne compteur** (AD-29). RLS active, aucun droit direct pour `public`, `anon`, `authenticated` ; déclencheur `journaliser('id')`.
+- **Fonctions** (`security definer`, `search_path` vide, auteur en premier, `exiger_admin` puis `set_config('ks.auteur', …)`, `service_role` seul) :
+  - `creer_code_promo(p_auteur, p_code, p_affilie, p_reduction_pct, p_commission_pct, p_plafond, p_actif)` : normalise le code et l'Affilié, applique le plafond 50 si absent, refuse plus de deux décimales plutôt que d'arrondir.
+  - `modifier_code_promo(p_auteur, p_id, p_affilie, p_reduction_pct, p_commission_pct, p_plafond, p_actif)` : **le code n'est jamais modifiable** ; plafond absent refusé.
+  - Codes d'erreur : `KS_CODE_INVALIDE`, `KS_CODE_EXISTANT`, `KS_AFFILIE_INVALIDE`, `KS_REDUCTION_INVALIDE`, `KS_COMMISSION_INVALIDE`, `KS_PLAFOND_INVALIDE`, `KS_CODE_PROMO_INTROUVABLE`.
+- **Module** : `src/modules/promo/{types,codes,queries,dependances,actions}.ts`. Validation pure dans `codes.ts`, normalisation de la casse, virgule décimale acceptée, refus du droit avant toute écriture, erreurs de base traduites en codes du module.
+- **Admin** : page `/fr|en/admin/codes-promo` (`exigerAdminPage(…, "codes_promo.gerer")`, lecture par le client service), formulaire de création, liste triée par code croissant avec modification en ligne (code affiché en lecture seule), entrée « Codes promo » dans la navigation admin (ordre d'EXPERIENCE.md, après Blog).
+- **Types** : `code_promo` et les deux fonctions sont absentes de `src/lib/supabase/types.ts` (fichier interdit). Un client structurel local est utilisé dans `queries.ts` et `dependances.ts`, comme pour les tables récentes ; aucun type généré n'a été modifié.
+- **Messages** : `Admin.codesPromo.*` et `Admin.nav.codesPromo` ajoutés en parité FR/EN. Les libellés validés par Jonathan sont en place ; **les phrases d'aide, d'erreur, d'introduction, d'état vide et de succès restent `[Texte à fournir]`** jusqu'à validation (propositions ci-dessous).
+- **Fichiers interdits** : `sprint-status.yaml`, `journal-enchainement.md`, `src/lib/supabase/types.ts`, `CLAUDE.md` et `.env*` inchangés. Aucun `git push`, `merge`, `rebase` ni `npm run db:push`.
+
+### Points de décision et écarts assumés
+- **Création + modification** : la modification existe dès 9.1, le code restant immuable (FR-46, « chaque création ou modification est journalisée »).
+- **Pourcentages** : `numeric(5,2)`, réduction strictement positive et ≤ 100, commission de 0 à 100, deux décimales au plus.
+- **Plafond** : 1 à 100 000 ; vide vaut 50 à la création seulement, refusé à la modification.
+- **Tri** : par code croissant.
+- **Portée** : aucune modification de `creer_commande`, du Panier, de la Commande ou du calcul de réduction (story 9.2).
+
+### Phrases d'aide et d'erreur proposées (à valider)
+Tant qu'elles ne sont pas validées, les clés correspondantes de `messages/fr.json` et `messages/en.json` valent `[Texte à fournir]`.
+
+| Clé | Proposition FR | Proposition EN |
+|---|---|---|
+| `intro` | Crée un code pour chaque influenceur, avec sa réduction, sa commission et son plafond d'utilisations. Le code ne peut plus être changé après la création. | Create one code per influencer, with its discount, commission rate and usage limit. The code cannot be changed after creation. |
+| `vide` | Aucun Code promo pour le moment. | No promo code yet. |
+| `erreurLecture` | Les codes promo n'ont pas pu être chargés. Réessaie dans un instant. | Promo codes could not be loaded. Try again in a moment. |
+| `aides.code` | De 3 à 24 caractères : lettres sans accent, chiffres, tiret ou souligné. Il n'est pas modifiable ensuite. | 3 to 24 characters: unaccented letters, digits, hyphen or underscore. It cannot be changed later. |
+| `aides.plafond` | Nombre maximal d'utilisations. Vide, il vaut 50. | Maximum number of uses. Empty means 50. |
+| `succes.creation` | Le Code promo est créé. | The promo code is created. |
+| `succes.modification` | Le Code promo est modifié. | The promo code is updated. |
+| `erreurs.non_autorise` | Tu n'as plus le droit de gérer les codes promo. Recharge la page ou reconnecte-toi. | You can no longer manage promo codes. Reload the page or sign in again. |
+| `erreurs.code_invalide` | Le code doit avoir de 3 à 24 caractères : lettres sans accent, chiffres, tiret ou souligné. | The code must be 3 to 24 characters: unaccented letters, digits, hyphen or underscore. |
+| `erreurs.code_existant` | Ce code existe déjà, même écrit en minuscules. Choisis-en un autre. | This code already exists, even in lowercase. Choose another one. |
+| `erreurs.affilie_invalide` | Le nom de l'Affilié doit avoir de 1 à 120 caractères. | The affiliate name must be 1 to 120 characters long. |
+| `erreurs.reduction_invalide` | La réduction doit être un pourcentage supérieur à 0 et inférieur ou égal à 100, avec deux décimales au plus. | The discount must be a percentage above 0 and at most 100, with two decimals at most. |
+| `erreurs.commission_invalide` | Le taux de commission doit être un pourcentage entre 0 et 100, avec deux décimales au plus. | The commission rate must be a percentage between 0 and 100, with two decimals at most. |
+| `erreurs.plafond_invalide` | Le plafond doit être un nombre entier entre 1 et 100 000. | The usage limit must be a whole number between 1 and 100,000. |
+| `erreurs.introuvable` | Ce Code promo n'existe plus. La liste a été actualisée. | This promo code no longer exists. The list has been refreshed. |
+| `erreurs.generique` | Le changement n'a pas pu être enregistré. Réessaie. | The change could not be saved. Try again. |
+
+### Tests
+- `tests/unit/promo-codes.test.ts` (20 tests) : normalisation et format du code, virgule décimale, bornes et décimales des pourcentages, plafond, Affilié, droit refusé, mapping des erreurs de base, identifiant invalide, exception générique sans donnée dans le journal.
+- `tests/unit/promo-admin-ui.test.tsx` (10 tests) : champs et libellés, envoi de la saisie brute puis vidage, erreur reliée au champ `Code` (`aria-invalid`, `aria-describedby`), message général, succès après réponse serveur, liste et états Actif/Inactif, modification préremplie avec code en lecture seule, fermeture par « Annuler », état vide.
+- `tests/unit/coque-admin.test.tsx` : navigation mise à jour avec « Codes promo » et `/admin/codes-promo`.
+- `supabase/tests/code_promo.test.sql` (36 assertions pgTAP) : RLS, privilèges, aucune colonne compteur, droits admin, validations, unicité insensible à la casse, plafond par défaut, création et modification journalisées, code inchangé, code inconnu. Écrit ici, exécuté en CI.
+
+### État des vérifications
+- `npm run lint` : vert (0 erreur, 0 avertissement).
+- `npm run typecheck` : vert.
+- `npm test` (suite complète) : **2 095 tests verts, 160 fichiers**.
+- `npm run build` : **bloqué par l'environnement**, pas par la 9.1. La compilation TypeScript passe ; le prérendu de `/fr/a-propos` échoue sur `Lecture des Prestataires impossible` parce que la clé de service de `.env.local` est refusée. Vérifié directement : `GET /rest/v1/prestataire` répond **401 « Invalid API key »**. `.env*` est interdit et n'a pas été modifié. Aucune page de la 9.1 n'est prérendue (admin dynamique).
+- `npm run test:sql` : sort proprement en local (Docker absent) ; pgTAP en CI.
+- Aucun `git push`, `git merge`, `git rebase` ni `npm run db:push`.
+
+VOIE 3 PRÊTE POUR INTÉGRATION (9.1)
+

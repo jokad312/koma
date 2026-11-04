@@ -337,7 +337,8 @@
       "blog": "Blog",
       "taches": "Tâches",
       "prestataires": "Prestataires",
-      "commandes": "Commandes"
+      "commandes": "Commandes",
+      "codesPromo": "Codes promo"
     },
     "blog": {
       "titre": "Blog",
@@ -1468,6 +1469,55 @@
           "introuvable": "Ce couple n'existe plus. La liste a été actualisée.",
           "generique": "Le changement n'a pas pu être enregistré. Réessaie."
         }
+      }
+    },
+    "codesPromo": {
+      "titre": "Codes promo",
+      "intro": "[Texte à fournir]",
+      "erreurLecture": "[Texte à fournir]",
+      "vide": "[Texte à fournir]",
+      "creation": {
+        "titre": "Créer un Code promo"
+      },
+      "modification": {
+        "titre": "Modifier le Code promo"
+      },
+      "champs": {
+        "code": "Code",
+        "affilie": "Affilié",
+        "reductionPct": "Pourcentage de réduction",
+        "commissionPct": "Taux de commission",
+        "plafond": "Plafond d'utilisations",
+        "actif": "Actif"
+      },
+      "aides": {
+        "code": "[Texte à fournir]",
+        "plafond": "[Texte à fournir]"
+      },
+      "boutons": {
+        "creer": "Créer le Code promo",
+        "enregistrer": "Enregistrer",
+        "modifier": "Modifier",
+        "fermer": "Annuler"
+      },
+      "etat": {
+        "actif": "Actif",
+        "inactif": "Inactif"
+      },
+      "succes": {
+        "creation": "[Texte à fournir]",
+        "modification": "[Texte à fournir]"
+      },
+      "erreurs": {
+        "non_autorise": "[Texte à fournir]",
+        "code_invalide": "[Texte à fournir]",
+        "code_existant": "[Texte à fournir]",
+        "affilie_invalide": "[Texte à fournir]",
+        "reduction_invalide": "[Texte à fournir]",
+        "commission_invalide": "[Texte à fournir]",
+        "plafond_invalide": "[Texte à fournir]",
+        "introuvable": "[Texte à fournir]",
+        "generique": "[Texte à fournir]"
       }
     },
     "commandes": {
