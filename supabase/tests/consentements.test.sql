@@ -43,14 +43,19 @@ select is(public.regler_preference(pg_temp.c('e1'), 'nouveautes', false, 'TEST_v
 select ok((select retire_le is not null from public.consentement where compte_id = '00000000-0000-0000-0000-0000000000e1' and objet = 'nouveautes'), 'le retrait garde la preuve (retire_le), sans suppression');
 
 -- Boîte d'envoi : un email lié à un achat n'est jamais soumis à la règle.
-select is(public.email_commercial_autorise(pg_temp.envoi('e1', 'commande_payee', 'TEST-cs-achat')), '{"autorise": true, "commercial": false}'::jsonb, 'email lié à un achat : toujours autorisé');
-select is(public.email_commercial_autorise(pg_temp.envoi('e1', 'relance', 'TEST-cs-r1')) ->> 'autorise', 'true', 'relance avec consentement : autorisée');
-select is(public.email_commercial_autorise(pg_temp.envoi('e1', 'nouveau_produit', 'TEST-cs-n1')) ->> 'motif', 'sans_consentement', 'nouveauté sans consentement actif : sans_consentement');
-select is(public.email_commercial_autorise(pg_temp.envoi('e1', 'alerte_evenement', 'TEST-cs-a1')) ->> 'autorise', 'true', 'alerte Festival : consentement alertes_festival');
+select pg_temp.envoi('e1', 'commande_payee', 'TEST-cs-achat');
+select is(public.email_commercial_autorise((select id from public.envoi where cle = 'TEST-cs-achat')), '{"autorise": true, "commercial": false}'::jsonb, 'email lié à un achat : toujours autorisé');
+select pg_temp.envoi('e1', 'relance', 'TEST-cs-r1');
+select is(public.email_commercial_autorise((select id from public.envoi where cle = 'TEST-cs-r1')) ->> 'autorise', 'true', 'relance avec consentement : autorisée');
+select pg_temp.envoi('e1', 'nouveau_produit', 'TEST-cs-n1');
+select is(public.email_commercial_autorise((select id from public.envoi where cle = 'TEST-cs-n1')) ->> 'motif', 'sans_consentement', 'nouveauté sans consentement actif : sans_consentement');
+select pg_temp.envoi('e1', 'alerte_evenement', 'TEST-cs-a1');
+select is(public.email_commercial_autorise((select id from public.envoi where cle = 'TEST-cs-a1')) ->> 'autorise', 'true', 'alerte Festival : consentement alertes_festival');
 
 -- Écart de 2 jours, tous types confondus.
 update public.envoi set statut = 'envoye', id_prestataire = 'TEST_id', envoye_le = now() - interval '1 day' where cle = 'TEST-cs-a1';
-select is(public.email_commercial_autorise(pg_temp.envoi('e1', 'rappel_kit', 'TEST-cs-r2')) ->> 'motif', 'ecart_2_jours', 'un autre Email commercial parti il y a 1 jour : écarté');
+select pg_temp.envoi('e1', 'rappel_kit', 'TEST-cs-r2');
+select is(public.email_commercial_autorise((select id from public.envoi where cle = 'TEST-cs-r2')) ->> 'motif', 'ecart_2_jours', 'un autre Email commercial parti il y a 1 jour : écarté');
 update public.envoi set envoye_le = now() - interval '3 days' where cle = 'TEST-cs-a1';
 select is(public.email_commercial_autorise((select id from public.envoi where cle = 'TEST-cs-r2')) ->> 'autorise', 'true', 'parti il y a 3 jours : autorisé');
 update public.envoi set statut = 'envoye', id_prestataire = 'TEST_id2', envoye_le = now() - interval '1 day' where cle = 'TEST-cs-achat';
@@ -59,7 +64,8 @@ select is(public.email_commercial_autorise((select id from public.envoi where cl
 -- Compte mineur : jamais d'Email commercial tant que le réglage est désactivé, même avec la case cochée.
 select is(public.donner_consentements(pg_temp.c('e2'), array['relances'], 'TEST_v1', 'creation_compte'), 1, 'un Compte mineur peut cocher la case');
 select is(public.lire_preferences('00000000-0000-0000-0000-0000000000e2') ->> 'mineur_bloque', 'true', 'Préférences : le mineur voit que ces emails ne lui sont pas envoyés');
-select is(public.email_commercial_autorise(pg_temp.envoi('e2', 'relance', 'TEST-cs-m1')) ->> 'motif', 'compte_mineur', 'Compte mineur : écarté');
+select pg_temp.envoi('e2', 'relance', 'TEST-cs-m1');
+select is(public.email_commercial_autorise((select id from public.envoi where cle = 'TEST-cs-m1')) ->> 'motif', 'compte_mineur', 'Compte mineur : écarté');
 update public.reglage set valeur = 'true' where cle = 'emails_commerciaux_mineurs';
 select is(public.email_commercial_autorise((select id from public.envoi where cle = 'TEST-cs-m1')) ->> 'autorise', 'true', 'réglage ouvert : autorisé');
 update public.reglage set valeur = 'false' where cle = 'emails_commerciaux_mineurs';
