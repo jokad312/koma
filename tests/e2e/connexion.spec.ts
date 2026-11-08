@@ -229,7 +229,8 @@ test.describe("connexion par code email", () => {
 
     await expect(page.getByRole("heading", { name: "Quelques questions" })).toBeVisible();
     // Aucune question « univers » tant qu'aucun univers n'existe.
-    await expect(page.getByText(/univers/i)).toHaveCount(0);
+    // (Le libellé de la case Emails de la story 9.4 contient « univers » : on vise la question elle-même.)
+    await expect(page.getByLabel("Quel univers préfères-tu ?")).toHaveCount(0);
     // Âge déclaré mais questions pas vues : rouvrir /connexion les propose encore (jamais bloquant, jamais perdu).
     await page.goto("/fr/connexion?retour=/fr/page-quittee");
     await expect(page.getByRole("heading", { name: "Quelques questions" })).toBeVisible();
