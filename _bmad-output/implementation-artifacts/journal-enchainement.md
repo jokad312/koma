@@ -324,3 +324,4 @@
 - Revue (3 sous-agents) : 10 correctifs (dont l'envoi lié au Compte et les fichiers orphelins).
 - Question à Jonathan : l'accord dit « avec mon pseudo », mais le client peut choisir de ne pas afficher son pseudo.
 - À tester à la main : sur iPhone (Safari), envoyer une photo HEIC prise par l'appareil : elle doit partir en JPEG ; une photo avec position GPS ; « Annuler l'envoi » ; couper le réseau pendant l'envoi ; retirer une photo en attente ; Compte de 16 ans : message, pas de formulaire.
+- CI verte sur `39f513e` (pgTAP et e2e compris). Story 8.1 : `done`.
