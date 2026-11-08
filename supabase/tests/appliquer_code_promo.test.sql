@@ -124,7 +124,8 @@ select is(
 -- Plafond (1) atteint par la Commande en attente de a1 ; un seul code par achat pour a1.
 select is(public.recapitulatif_commande('00000000-0000-0000-0000-0000000000a4', (select id from pp4), 'goma', 'retrait', 'PROMO10') -> 'code' ->> 'erreur', 'code_plafond', 'plafond atteint : refusé');
 select throws_ok($$select public.creer_commande(pg_temp.c4(), (select id from pp4), 'goma', 'retrait', '+243990000001', null, pg_temp.acc(), null, 10990, (select public.recapitulatif_commande('00000000-0000-0000-0000-0000000000a4', (select id from pp4), 'goma', 'retrait', null) ->> 'empreinte'), 'cle-cp-0004', 'PROMO10')$$, 'P0001', 'KS_CODE_PLAFOND', 'création au-dessus du plafond : refusée');
-select is(public.recapitulatif_commande('00000000-0000-0000-0000-0000000000a1', (select id from pp1), 'goma', 'livraison', 'PETIT') -> 'code' ->> 'erreur', 'code_un_seul', 'un seul code par achat : a1 a déjà une Commande en attente avec un code');
+-- Évalué directement : le Récapitulatif de a1 refuserait d'abord le Kit déjà présent dans sa Commande en attente (KS_KIT_DEJA_POSSEDE).
+select is(public.code_promo_evaluer('00000000-0000-0000-0000-0000000000a1', 'PETIT') ->> 'erreur', 'code_un_seul', 'un seul code par achat : a1 a déjà une Commande en attente avec un code');
 
 -- Expiration : l'utilisation est libérée.
 update public.commande set expire_le = now() - interval '1 minute' where id = (select (r ->> 'commande_id')::uuid from cr);

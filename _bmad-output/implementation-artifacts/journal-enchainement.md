@@ -287,3 +287,13 @@
 - Migrations `20261230100000` et `20261230110000` appliquées sur koma-dev, types régénérés (commit `6b83b85`), CI verte avec pgTAP. Build vérifié avec les vraies variables : l'échec de la voie venait de sa fausse clé de service.
 - Pour la 9.2 : la Commande doit copier le code, le taux de réduction et le taux de commission au paiement (une modification de taux ne doit pas recalculer les commissions passées) ; prévoir le cas « utilisations > plafond ».
 - Limites connues : entrée de menu « Codes promo » non filtrée par droit (l'assistant voit le lien, la page le refuse) ; liste sans pagination.
+
+
+## Story 9.2 : appliquer un Code promo (reprise du 2026-11-08 après coupure)
+- Travail du 2026-11-04 retrouvé non commité ; migration `20261231100000_appliquer_code_promo.sql` déjà appliquée sur koma-dev (non modifiée). Spec remise au format BMad.
+- Figé avec la Commande par `creer_commande` (AD-8) dans `commande_code_promo` (service seulement) : code, taux de réduction, taux de commission, réduction ; réduction par ligne dans `ligne_commande.reduction_cents`. La Commande payée porte ces valeurs ; une modification du code ne les change jamais (test pgTAP). `confirmer_paiement` ne relit pas le code.
+- Plafond sans compteur (`utilisations_code_promo`), ligne du code verrouillée avant le comptage ; prix, réduction et total calculés en base.
+- Revue par trois sous-agents ; correctifs : migration `20261231110000_code_promo_echeance.sql` (utilisation libérée dès l'échéance, sans attendre la tâche d'expiration ; « un seul code » aligné), réduction dans l'email `commande_payee`, pourcentage localisé, tests UI et email. Reports dans `deferred-work.md`.
+- À valider par Jonathan : texte `code_total_nul` (« Ce code rendrait ta commande gratuite : il ne peut pas être appliqué ici. ») et textes EN.
+- À tester à la main : appliquer un code (minuscules, espaces), changer de Zone, retirer le code, code inconnu/inactif ; confirmer et vérifier la page Commande, le détail admin et l'email de paiement (quand un prestataire sera activable).
+- Bunny : clés remises à leur place par Jonathan ; essai réel 13/13 (200 signé ; 403 sans jeton, altéré, expiré), vidéo de test supprimée ; documenté dans `docs/bunny-stream-prive.md` et `.env.example`.
