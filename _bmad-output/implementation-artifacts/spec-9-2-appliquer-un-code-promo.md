@@ -2,7 +2,7 @@
 title: 'Story 9.2 : Appliquer un Code promo'
 type: 'feature'
 created: '2026-11-04'
-status: 'in-review'
+status: 'done'
 baseline_commit: 'ed6dad5fa1a15b8f3dcac055a96c788f876887e4'
 route: 'dispatch'
 review_loop_iteration: 0

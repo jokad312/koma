@@ -297,3 +297,4 @@
 - À valider par Jonathan : texte `code_total_nul` (« Ce code rendrait ta commande gratuite : il ne peut pas être appliqué ici. ») et textes EN.
 - À tester à la main : appliquer un code (minuscules, espaces), changer de Zone, retirer le code, code inconnu/inactif ; confirmer et vérifier la page Commande, le détail admin et l'email de paiement (quand un prestataire sera activable).
 - Bunny : clés remises à leur place par Jonathan ; essai réel 13/13 (200 signé ; 403 sans jeton, altéré, expiré), vidéo de test supprimée ; documenté dans `docs/bunny-stream-prive.md` et `.env.example`.
+- CI verte sur `2f81ece` (pgTAP compris ; le premier passage sur `7ad3d3c` avait échoué sur un test SQL jamais exécuté jusque-là, corrigé). Story 9.2 : `done`.
