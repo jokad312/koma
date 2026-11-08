@@ -305,3 +305,4 @@
 - Page `/fr/admin/codes-promo` : ventes payées, montant, commission due par code. Aucun paiement de commission par le site.
 - Revue (3 sous-agents) : vente à 0 USD comptée, test rouge corrigé, tests pgTAP complétés (19).
 - À tester à la main (après un paiement réel) : payer une Commande avec un code, voir la vente et la commission ; annuler une Commande mixte (le Kit reste compté) ; changer le taux du code : la commission due ne bouge pas.
+- CI verte sur `a51d6d7` (pgTAP compris). Story 9.3 : `done`.
