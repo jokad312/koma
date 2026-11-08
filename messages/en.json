@@ -81,6 +81,14 @@
     "compteCommandes": {
       "titre": "My orders",
       "description": "The list of your orders."
+    },
+    "comptePreferences": {
+      "titre": "Preferences",
+      "description": "Choose the emails you receive."
+    },
+    "desinscription": {
+      "titre": "Unsubscribe",
+      "description": "Unsubscribe from new arrival, reminder and Festival alert emails."
     }
   },
   "Accueil": {
@@ -1477,7 +1485,12 @@
       "erreurLecture": "Promo codes could not be loaded. Try again in a moment.",
       "vide": "No promo codes yet.",
       "pourcentage": "{valeur}%",
-      "ventes": { "titre": "Sales for code {code}", "nombre": "Paid sales", "montant": "Sales amount (excluding delivery)", "commission": "Commission due" },
+      "ventes": {
+        "titre": "Sales for code {code}",
+        "nombre": "Paid sales",
+        "montant": "Sales amount (excluding delivery)",
+        "commission": "Commission due"
+      },
       "creation": {
         "titre": "Create a promo code"
       },
@@ -2331,7 +2344,8 @@
     "compte": {
       "titre": "My account",
       "navigation": "Account navigation",
-      "commandes": "My orders"
+      "commandes": "My orders",
+      "preferences": "Preferences"
     },
     "vide": "No kits in your library yet.",
     "versCatalogue": "Browse kits",
@@ -2474,5 +2488,39 @@
       "aidePayeurCarte": "Requested by the card payment service and used for this payment only. Start with the + sign and your country code.",
       "completerCarte": "Choose your card network and enter your name and phone number to pay."
     }
+  },
+  "Preferences": {
+    "titre": "Preferences",
+    "intro": "Choose the emails you receive. Emails about your orders and your Passes always arrive.",
+    "relances": {
+      "nom": "Follow-ups and reminders",
+      "aide": "Follow-ups after a purchase, forgotten cart, kit reminders."
+    },
+    "nouveautes": {
+      "nom": "New in my universe",
+      "aide": "New products in the universes you love."
+    },
+    "alertes": {
+      "nom": "Festival alerts",
+      "aide": "Announcements of upcoming Festivals."
+    },
+    "actif": "On",
+    "desactive": "Off",
+    "enregistrement": "Saving…",
+    "mineur": "These emails are not sent to you for now.",
+    "erreur": "The setting could not be saved. Try again.",
+    "erreurLecture": "Your preferences could not be loaded. Try again in a moment.",
+    "erreurSession": "Your session has expired. Sign in again to save this setting."
+  },
+  "Desinscription": {
+    "titre": "Unsubscribe",
+    "fait": "Done: you will no longer receive new arrival, reminder or Festival alert emails. Emails about your orders still arrive.",
+    "invalide": "This unsubscribe link is not valid.",
+    "erreur": "The unsubscribe could not be saved. Try again in a moment.",
+    "reactiver": "You can manage your emails at any time in My account › Preferences.",
+    "lienPreferences": "Open my preferences"
+  },
+  "Consentement": {
+    "emails": "Email me new arrivals from my universes and helpful reminders. You can unsubscribe at any time."
   }
 }

@@ -108,7 +108,7 @@ describe("Code promo à l'étape de commande (story 9.2)", () => {
     expect(screen.getByText("Réduction (PROMO10)")).toBeTruthy();
     expect(screen.getByText(formaterUsd(9000, "fr"))).toBeTruthy();
     expect(screen.getByRole("status").textContent).toContain("PROMO10");
-    await userEvent.click(screen.getByRole("checkbox"));
+    await userEvent.click(screen.getAllByRole("checkbox")[0]);
     await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
     await waitFor(() => expect(faux.creerCommande).toHaveBeenCalledTimes(1));
     expect(faux.creerCommande).toHaveBeenCalledWith(expect.objectContaining({ code: "promo10", totalAttenduCents: 9000 }), "fr");
@@ -124,7 +124,7 @@ describe("Code promo à l'étape de commande (story 9.2)", () => {
     expect(alerte.textContent).toBe(TC.erreurs.code_inconnu);
     expect((screen.getByLabelText(TC.label) as HTMLInputElement).getAttribute("aria-invalid")).toBe("true");
     expect(screen.getByLabelText(TC.label).getAttribute("aria-describedby")).toContain(alerte.id);
-    await userEvent.click(screen.getByRole("checkbox"));
+    await userEvent.click(screen.getAllByRole("checkbox")[0]);
     await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
     await waitFor(() => expect(faux.creerCommande).toHaveBeenCalledTimes(1));
     expect(faux.creerCommande).toHaveBeenCalledWith(expect.objectContaining({ code: null, totalAttenduCents: 10000 }), "fr");
@@ -137,7 +137,7 @@ describe("Code promo à l'étape de commande (story 9.2)", () => {
     await userEvent.type(screen.getByLabelText(TC.label), "PROMO10");
     await userEvent.click(screen.getByRole("button", { name: TC.appliquer }));
     await waitFor(() => expect(faux.lireRecapitulatif).toHaveBeenCalled());
-    await userEvent.click(screen.getByRole("checkbox"));
+    await userEvent.click(screen.getAllByRole("checkbox")[0]);
     await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
     const alerte = await screen.findByText(TC.erreurs.code_plafond);
     expect(within(alerte.parentElement as HTMLElement).getByLabelText(TC.label)).toBeTruthy();

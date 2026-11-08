@@ -19,11 +19,18 @@ export type ResultatRendu =
   | { statut: "ignorer"; raison: string }
   | { statut: "reessayer"; raison: string };
 
-export type ResultatEnvoiPrestataire = { erreur: string | null; idPrestataire: string | null };
+// Emails commerciaux (AD-9, story 9.4) : seuls ces modèles passent par email_commercial_autorise ; un email lié à un achat
+// (commande, paiement, statut, Kit ouvert, Pass) n'y passe jamais. Les modèles eux-mêmes arrivent avec les stories 9.5, 9.6 et 7.3.
+export const MODELES_COMMERCIAUX = ["relance", "panier_abandonne", "rappel_kit", "nouveau_produit", "alerte_evenement"] as const;
+
+export type AutorisationCommerciale = { erreur: string } | { autorise: true } | { autorise: false; motif: string };
+
+export type ResultatEnvoiPrestataire ={ erreur: string | null; idPrestataire: string | null };
 
 export type DependancesEnvois = {
   reserverLot: (limite: number) => Promise<{ erreur: string | null; envois: EnvoiReserve[] }>;
   rendre: (envoi: EnvoiReserve) => Promise<ResultatRendu>;
+  autorisationCommerciale: (envoiId: string) => Promise<AutorisationCommerciale>;
   envoyer: (args: { envoiId: string; destinataire: string; message: MessageEmail }) => Promise<ResultatEnvoiPrestataire>;
   marquerEnvoye: (envoiId: string, idPrestataire: string) => Promise<{ erreur: string | null }>;
   marquerEchec: (envoiId: string, erreur: string) => Promise<{ erreur: string | null }>;

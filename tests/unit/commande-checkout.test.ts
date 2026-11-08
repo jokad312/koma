@@ -45,6 +45,7 @@ function faux(s: Partial<DependancesCommande> = {}): DependancesCommande {
     offrirCommande: vi.fn(async () => ({ erreur: null, numero: "KS-2026-000001" })),
     recapitulatif: vi.fn(async () => ({ recap: recapBrut() })),
     creerCommande: vi.fn(async () => ({ numero: "KS-2026-000007", expireLe: "2026-11-01T12:30:00Z" })),
+    donnerConsentementEmails: vi.fn(async () => undefined),
     ...s,
   };
 }
@@ -123,6 +124,23 @@ describe("creerCommande", () => {
       cleIdempotence: CLE,
       code: null,
     });
+  });
+
+  it("story 9.4 : case Emails commerciaux cochée → consentement après la Commande créée ; non cochée ou Commande refusée → aucun", async () => {
+    const a = faux();
+    expect(await creerCommande(a, { ...commande, emails: true }, "fr")).toMatchObject({ ok: true });
+    expect(a.donnerConsentementEmails).toHaveBeenCalledWith({ type: "compte", id: "TEST_compte", role: null });
+    const b = faux();
+    await creerCommande(b, { ...commande }, "fr");
+    expect(b.donnerConsentementEmails).not.toHaveBeenCalled();
+    const c = faux({ creerCommande: vi.fn(async () => ({ erreur: "KS_COMMANDE_EN_ATTENTE" })) });
+    await creerCommande(c, { ...commande, emails: true }, "fr");
+    expect(c.donnerConsentementEmails).not.toHaveBeenCalled();
+  });
+
+  it("story 9.4 : un consentement en échec ne transforme jamais une Commande créée en échec", async () => {
+    const d = faux({ donnerConsentementEmails: vi.fn(async () => { throw new Error("TEST_panne"); }) });
+    expect(await creerCommande(d, { ...commande, emails: true }, "fr")).toEqual({ ok: true, numero: "KS-2026-000007", expireLe: "2026-11-01T12:30:00Z" });
   });
 
   it("une case non cochée n'est pas envoyée (la base refuse alors)", async () => {

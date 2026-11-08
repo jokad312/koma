@@ -211,13 +211,13 @@ describe("FormulaireConnexion", () => {
     enregistrerQuestionsAccueil.mockResolvedValue({ ok: true, retour: "/fr/cosplays" });
     await user.click(screen.getByRole("button", { name: "Passer" }));
     await waitFor(() => expect(remplacer).toHaveBeenCalledWith("/fr/cosplays"));
-    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "", preference: "", univers: "", langue: "fr", retour: "/fr/cosplays" });
+    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "", preference: "", univers: "", langue: "fr", retour: "/fr/cosplays", emails: false });
   });
 
   it("questions : réponses envoyées, sélecteur à deux options sans action au choix, pas de question « univers » sans univers", async () => {
     const user = userEvent.setup();
     await allerAuxQuestions(user);
-    expect(screen.queryByText(/univers/i)).toBeNull();
+    expect(screen.queryByLabelText("Quel univers préfères-tu ?")).toBeNull();
     const radios = screen.getAllByRole("radio");
     expect(radios.map((r) => (r as HTMLInputElement).value)).toEqual(["porter", "fabriquer"]);
     await user.selectOptions(screen.getByLabelText("Comment nous as-tu connus ?"), "ami");
@@ -227,7 +227,7 @@ describe("FormulaireConnexion", () => {
     enregistrerQuestionsAccueil.mockResolvedValue({ ok: true, retour: "/fr/cosplays" });
     await user.click(screen.getByRole("button", { name: "Continuer" }));
     await waitFor(() => expect(remplacer).toHaveBeenCalledWith("/fr/cosplays"));
-    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "ami", preference: "fabriquer", univers: "", langue: "fr", retour: "/fr/cosplays" });
+    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "ami", preference: "fabriquer", univers: "", langue: "fr", retour: "/fr/cosplays", emails: false });
   });
 
   it("question « univers » : listée avec « Je ne réponds pas », noms de la route, réponse envoyée, aucune action au choix", async () => {
@@ -244,7 +244,27 @@ describe("FormulaireConnexion", () => {
     enregistrerQuestionsAccueil.mockResolvedValue({ ok: true, retour: "/fr/cosplays" });
     await user.click(screen.getByRole("button", { name: "Continuer" }));
     await waitFor(() => expect(remplacer).toHaveBeenCalledWith("/fr/cosplays"));
-    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "", preference: "", univers: "TEST_univers-2", langue: "fr", retour: "/fr/cosplays" });
+    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "", preference: "", univers: "TEST_univers-2", langue: "fr", retour: "/fr/cosplays", emails: false });
+  });
+
+  it("story 9.4 : case Emails décochée par défaut ; cochée, elle est envoyée avec « Continuer » comme avec « Passer »", async () => {
+    const user = userEvent.setup();
+    await allerAuxQuestions(user);
+    const caseEmails = screen.getByRole("checkbox", { name: "Recevoir par email les nouveautés de mes univers et les rappels utiles. Tu peux te désabonner à tout moment." }) as HTMLInputElement;
+    expect(caseEmails.checked).toBe(false);
+    await user.click(caseEmails);
+    enregistrerQuestionsAccueil.mockResolvedValue({ ok: true, retour: "/fr/cosplays" });
+    await user.click(screen.getByRole("button", { name: "Passer" }));
+    await waitFor(() => expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "", preference: "", univers: "", langue: "fr", retour: "/fr/cosplays", emails: true }));
+  });
+
+  it("story 9.4 : case Emails cochée puis « Continuer » : emails: true", async () => {
+    const user = userEvent.setup();
+    await allerAuxQuestions(user);
+    await user.click(screen.getByRole("checkbox"));
+    enregistrerQuestionsAccueil.mockResolvedValue({ ok: true, retour: "/fr/cosplays" });
+    await user.click(screen.getByRole("button", { name: "Continuer" }));
+    await waitFor(() => expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith(expect.objectContaining({ emails: true })));
   });
 
   it("question « univers » : « Passer » n'envoie aucun univers même après un choix", async () => {
@@ -254,7 +274,7 @@ describe("FormulaireConnexion", () => {
     enregistrerQuestionsAccueil.mockResolvedValue({ ok: true, retour: "/fr/cosplays" });
     await user.click(screen.getByRole("button", { name: "Passer" }));
     await waitFor(() => expect(remplacer).toHaveBeenCalledWith("/fr/cosplays"));
-    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "", preference: "", univers: "", langue: "fr", retour: "/fr/cosplays" });
+    expect(enregistrerQuestionsAccueil).toHaveBeenCalledWith({ origine: "", preference: "", univers: "", langue: "fr", retour: "/fr/cosplays", emails: false });
   });
 
   it("questions : échec d'enregistrement, message clair et « Passer » reste possible", async () => {

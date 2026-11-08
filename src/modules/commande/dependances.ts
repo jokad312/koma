@@ -2,6 +2,7 @@ import "server-only";
 import { exigerCompteComplet } from "@/lib/auth/compte";
 import { creerClientService } from "@/lib/supabase/service";
 import { panierIdPourCompte } from "@/modules/panier/queries";
+import { donnerConsentementEmails } from "@/modules/preferences/dependances";
 import type { DependancesCommande, RecapBrut } from "./types";
 
 // Les vrais accès donnés au service (en test, des faux nommés TEST_ les remplacent).
@@ -19,6 +20,9 @@ export function dependances(): DependancesCommande {
       if (error) return { erreur: error.message };
       const numero = data && typeof data === "object" && !Array.isArray(data) ? (data as Record<string, unknown>).numero : undefined;
       return { erreur: null, numero: typeof numero === "string" ? numero : undefined };
+    },
+    donnerConsentementEmails: async (auteur) => {
+      await donnerConsentementEmails(auteur, "commande");
     },
     recapitulatif: async ({ compteId, panierId, zone, mode, code }) => {
       const { data, error } = await creerClientService().rpc("recapitulatif_commande", {

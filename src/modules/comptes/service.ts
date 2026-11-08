@@ -237,7 +237,17 @@ export async function enregistrerQuestionsAccueil(deps: DependancesComptes, entr
     if (erreur?.includes("KS_REPONSE_INVALIDE") && lu.data.univers) {
       ({ erreur } = await deps.enregistrerQuestions({ ...reponses, univers: null }));
     }
-    if (!erreur || erreur.includes("KS_QUESTIONS_DEJA_VUES")) return { ok: true, retour: cheminRetourValide(lu.data.retour, lu.data.langue) };
+    if (!erreur || erreur.includes("KS_QUESTIONS_DEJA_VUES")) {
+      // Consentement aux Emails commerciaux (story 9.4) : enregistré seulement si la case est cochée ; un échec ne bloque jamais.
+      if (lu.data.emails === true) {
+        try {
+          await deps.donnerConsentementEmails(reponses.auteur);
+        } catch {
+          console.error("[comptes] consentement aux emails : échec");
+        }
+      }
+      return { ok: true, retour: cheminRetourValide(lu.data.retour, lu.data.langue) };
+    }
     if (erreur.includes("KS_PROFIL_INTROUVABLE") || erreur.includes("KS_AGE_NON_DECLARE")) return { ok: false, erreur: "non_connecte" };
     console.error("[comptes] questions d'accueil refusées");
     return { ok: false, erreur: "generique" };

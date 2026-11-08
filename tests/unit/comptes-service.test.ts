@@ -198,6 +198,20 @@ describe("enregistrerQuestionsAccueil", () => {
       { auteur: { type: "compte", id: TEST_COMPTE_ID, role: null }, compteId: TEST_COMPTE_ID, origine: "tiktok", preference: "fabriquer", univers: null },
     ]);
   });
+  it("story 9.4 : case Emails commerciaux cochée → consentement avec l'auteur de la session ; non cochée → aucun", async () => {
+    const a = creerTestDependances();
+    expect(await enregistrerQuestionsAccueil(a.deps, { ...base, emails: true })).toMatchObject({ ok: true });
+    expect(a.deps.donnerConsentementEmails).toHaveBeenCalledWith({ type: "compte", id: TEST_COMPTE_ID, role: null });
+    const b = creerTestDependances();
+    await enregistrerQuestionsAccueil(b.deps, { ...base, emails: false });
+    await enregistrerQuestionsAccueil(b.deps, { ...base });
+    expect(b.deps.donnerConsentementEmails).not.toHaveBeenCalled();
+  });
+  it("story 9.4 : questions refusées par la base → aucun consentement", async () => {
+    const { deps } = creerTestDependances({ erreurQuestions: "KS_PROFIL_INTROUVABLE" });
+    expect(await enregistrerQuestionsAccueil(deps, { ...base, emails: true })).toEqual({ ok: false, erreur: "non_connecte" });
+    expect(deps.donnerConsentementEmails).not.toHaveBeenCalled();
+  });
   it("« Passer » : réponses vides enregistrées comme absentes, retour validé", async () => {
     const { deps, appels } = creerTestDependances();
     expect(await enregistrerQuestionsAccueil(deps, { ...base, origine: "", preference: "", retour: "https://x.fr" })).toEqual({ ok: true, retour: "/fr" });

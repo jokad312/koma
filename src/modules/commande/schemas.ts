@@ -50,6 +50,8 @@ export const creerCommandeSchema = z
     empreinte: z.string().regex(/^[0-9a-f]{32}$/),
     cleIdempotence: z.string().min(8).max(100),
     code: codePromoSaisiSchema,
+    // Story 9.4 : case facultative, jamais pré-cochée.
+    emails: z.boolean().optional(),
   })
   .refine((v) => (v.zone == null) === (v.mode == null), { message: "remise_incomplete" })
   .refine((v) => !(v.zone === "bukavu" && v.mode === "retrait"), { message: "remise_invalide" });

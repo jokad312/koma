@@ -125,4 +125,6 @@ export type DependancesCommande = {
     cleIdempotence: string;
     code: string | null;
   }) => Promise<{ numero: string; expireLe: string } | { erreur: string }>;
+  // Story 9.4 : consentements « relances » et « nouveautes » ; ne lève jamais (un échec est journalisé).
+  donnerConsentementEmails: (auteur: Auteur) => Promise<void>;
 };

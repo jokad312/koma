@@ -386,6 +386,36 @@ export type Database = {
           },
         ]
       }
+      consentement: {
+        Row: {
+          compte_id: string
+          donne_le: string
+          id: string
+          objet: string
+          retire_le: string | null
+          source: string
+          version: string
+        }
+        Insert: {
+          compte_id: string
+          donne_le?: string
+          id?: string
+          objet: string
+          retire_le?: string | null
+          source: string
+          version: string
+        }
+        Update: {
+          compte_id?: string
+          donne_le?: string
+          id?: string
+          objet?: string
+          retire_le?: string | null
+          source?: string
+          version?: string
+        }
+        Relationships: []
+      }
       couverture: {
         Row: {
           cree_le: string
@@ -477,6 +507,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      desinscription: {
+        Row: {
+          compte_id: string
+          cree_le: string
+          id: string
+        }
+        Insert: {
+          compte_id: string
+          cree_le?: string
+          id?: string
+        }
+        Update: {
+          compte_id?: string
+          cree_le?: string
+          id?: string
+        }
+        Relationships: []
       }
       envoi: {
         Row: {
@@ -1988,6 +2036,7 @@ export type Database = {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
       }
+      desinscrire: { Args: { p_compte: string }; Returns: boolean }
       disponibilite_variantes: {
         Args: { p_produit: string }
         Returns: {
@@ -1997,8 +2046,22 @@ export type Database = {
         }[]
       }
       donnees_envoi_valides: { Args: { p_donnees: Json }; Returns: boolean }
+      donner_consentements: {
+        Args: {
+          p_auteur: Json
+          p_objets: string[]
+          p_source: string
+          p_version: string
+        }
+        Returns: number
+      }
       echouer_tentative: {
         Args: { p_cause: string; p_tentative: string }
+        Returns: boolean
+      }
+      email_commercial_autorise: { Args: { p_envoi: string }; Returns: Json }
+      emails_commerciaux_bloques_mineur: {
+        Args: { p_compte: string }
         Returns: boolean
       }
       enregistrer_article: {
@@ -2180,6 +2243,7 @@ export type Database = {
           titre_fr: string
         }[]
       }
+      lire_preferences: { Args: { p_compte: string }; Returns: Json }
       lister_catalogue: {
         Args: {
           p_curseur_date?: string
@@ -2298,6 +2362,15 @@ export type Database = {
         Returns: Json
       }
       reconcilier_declencher: { Args: never; Returns: boolean }
+      regler_preference: {
+        Args: {
+          p_actif: boolean
+          p_auteur: Json
+          p_objet: string
+          p_version: string
+        }
+        Returns: boolean
+      }
       remplacer_fichier_kit: {
         Args: {
           p_auteur: Json
@@ -2421,6 +2494,11 @@ export type Database = {
         | "commande_livree"
         | "commande_annulee"
         | "commande_remboursee"
+        | "relance"
+        | "panier_abandonne"
+        | "rappel_kit"
+        | "nouveau_produit"
+        | "alerte_evenement"
       envoi_statut: "a_envoyer" | "envoye" | "echec" | "abandonne" | "ignore"
     }
     CompositeTypes: {
@@ -2569,6 +2647,11 @@ export const Constants = {
         "commande_livree",
         "commande_annulee",
         "commande_remboursee",
+        "relance",
+        "panier_abandonne",
+        "rappel_kit",
+        "nouveau_produit",
+        "alerte_evenement",
       ],
       envoi_statut: ["a_envoyer", "envoye", "echec", "abandonne", "ignore"],
     },

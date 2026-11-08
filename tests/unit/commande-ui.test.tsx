@@ -31,6 +31,7 @@ import { formaterUsd as formaterBrut } from "@/lib/argent";
 // Intl met des espaces insécables autour du symbole : on les ramène à des espaces simples, comme le fait le DOM testé.
 const formaterUsd = (c: number, l: "fr" | "en") => formaterBrut(c, l).replace(/[  ]/g, " ");
 import type { Recapitulatif } from "@/modules/commande/types";
+import frMessages from "../../messages/fr.json";
 
 const ligne = (s: Partial<Recapitulatif["lignes"][number]> = {}): Recapitulatif["lignes"][number] => ({
   ligneId: "00000000-0000-4000-8000-0000000000c1",
@@ -94,8 +95,10 @@ describe("FormulaireCommande", () => {
   it("aucune case n'est pré-cochée ; la case du Kit n'existe qu'avec un Kit", () => {
     rendre(<FormulaireCommande {...props} />);
     const cases = screen.getAllByRole("checkbox") as HTMLInputElement[];
-    expect(cases).toHaveLength(1);
+    // CGV + case facultative « Emails commerciaux » (story 9.4), toutes décochées.
+    expect(cases).toHaveLength(2);
     expect(cases.every((c) => !c.checked)).toBe(true);
+    expect(screen.getByLabelText(frMessages.Consentement.emails)).toBe(cases[1]);
   });
 
   it("Goma : choix du Mode, lieu de retrait ; Bukavu : livraison imposée avec l'adresse, Récapitulatif relu par le serveur", async () => {
@@ -127,7 +130,7 @@ describe("FormulaireCommande", () => {
     await userEvent.type(screen.getByLabelText("Numéro de téléphone"), "+243990000000");
     await userEvent.click(screen.getByRole("radio", { name: "Goma" }));
     await userEvent.click(screen.getByRole("radio", { name: "Retrait gratuit à Goma" }));
-    await userEvent.click(screen.getByRole("checkbox"));
+    await userEvent.click(screen.getAllByRole("checkbox")[0]);
   }
 
   it("tout est rempli : la commande est créée avec le total vu, puis on va à son détail ; le succès vient de la réponse du serveur", async () => {
@@ -137,9 +140,18 @@ describe("FormulaireCommande", () => {
     await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
     await waitFor(() => expect(faux.push).toHaveBeenCalledWith("/commande/KS-2026-000042"));
     expect(faux.creerCommande).toHaveBeenCalledWith(
-      expect.objectContaining({ zone: "goma", mode: "retrait", telephone: "+243990000000", adresse: null, totalAttenduCents: 10000, acceptations: { cgv: true, kit: undefined, surMesure: undefined }, empreinte: "0123456789abcdef0123456789abcdef" }),
+      expect.objectContaining({ zone: "goma", mode: "retrait", telephone: "+243990000000", adresse: null, totalAttenduCents: 10000, acceptations: { cgv: true, kit: undefined, surMesure: undefined }, empreinte: "0123456789abcdef0123456789abcdef", emails: false }),
       "fr",
     );
+  });
+
+  it("story 9.4 : case Emails cochée → creerCommande reçoit emails: true", async () => {
+    faux.creerCommande.mockResolvedValue({ ok: true, numero: "KS-2026-000043", expireLe: "2026-11-01T12:30:00Z" });
+    rendre(<FormulaireCommande {...props} />);
+    await remplir();
+    await userEvent.click(screen.getByLabelText(frMessages.Consentement.emails));
+    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await waitFor(() => expect(faux.creerCommande).toHaveBeenCalledWith(expect.objectContaining({ emails: true }), "fr"));
   });
 
   it("total changé : « Le total a changé : ancien → nouveau », nouvelle confirmation exigée avec le nouveau total", async () => {

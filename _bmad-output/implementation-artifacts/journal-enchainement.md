@@ -306,3 +306,11 @@
 - Revue (3 sous-agents) : vente à 0 USD comptée, test rouge corrigé, tests pgTAP complétés (19).
 - À tester à la main (après un paiement réel) : payer une Commande avec un code, voir la vente et la commission ; annuler une Commande mixte (le Kit reste compté) ; changer le taux du code : la commission due ne bouge pas.
 - CI verte sur `a51d6d7` (pgTAP compris). Story 9.3 : `done`.
+
+
+## Story 9.4 : consentements, Préférences et désinscription
+- Décisions de Jonathan (2026-11-08) : la case unique active « Relances et rappels » et « Nouveautés de mon univers » ; texte FR/EN fourni ; `DESINSCRIPTION_SECRET` généré dans `.env.local` (à ajouter dans Hostinger en 9.9).
+- Migrations `20261231140000`, `20261231150000` (valeurs commerciales de l'énumération AD-9, sans gabarit) et `20261231160000` (correctifs de revue), appliquées sur koma-dev, types régénérés.
+- Inclus : tables `consentement` et `desinscription`, case facultative (création de Compte, étape de commande), page « Mon compte › Préférences » (trois interrupteurs), page `/desinscription` (lien signé, sans connexion), règle `email_commercial_autorise` dans la boîte d'envoi (sans consentement, désinscription, Compte mineur, 2 jours), réglage `emails_commerciaux_mineurs` désactivé (pas d'écran admin).
+- Revue (3 sous-agents) : 9 correctifs. À valider : la désinscription a lieu à l'ouverture du lien (effet immédiat exigé) ; un logiciel qui prévisualise les liens d'un email peut donc désinscrire.
+- À tester à la main : créer un Compte en cochant la case, puis « Mon compte › Préférences » (deux interrupteurs actifs, Alertes Festival désactivé) ; basculer au clavier ; passer une Commande avec la case ; Compte de 15 ans : message « Ces emails ne te sont pas envoyés pour le moment. ». Le lien de désinscription ne sera visible qu'avec les emails des stories 9.5 et 9.6.

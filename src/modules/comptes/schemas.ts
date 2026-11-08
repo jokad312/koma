@@ -68,6 +68,8 @@ export const questionsAccueilSchema = z.object({
   univers: z.preprocess((v) => (v === "" || v === undefined ? null : v), z.uuid().nullable()).optional(),
   langue: langueSchema,
   retour: z.string().max(512).optional(),
+  // Case facultative « Emails commerciaux » (story 9.4), jamais pré-cochée : vrai seulement si le visiteur l'a cochée.
+  emails: z.boolean().optional(),
 });
 
 export type QuestionsAccueil = z.input<typeof questionsAccueilSchema>;

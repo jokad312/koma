@@ -394,3 +394,15 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-9-2-appliquer-un-code-promo.md`
   summary: Tests de rendu de la page Commande du client et du détail admin (ligne « Réduction », aucune fuite du taux de commission côté client).
   evidence: aucun test de PageDetailCommande ni de DetailCommandeAdmin n'existe (lacune antérieure à la 9.2).
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-4-consentements-preferences-et-desinscription.md`
+  summary: En-têtes List-Unsubscribe et List-Unsubscribe-Post (RFC 8058) sur chaque Email commercial, avec un POST de désinscription en un clic.
+  evidence: exigés par Gmail et Yahoo pour les envois commerciaux ; aucun Email commercial n'existe avant 9.5/9.6.
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-4-consentements-preferences-et-desinscription.md`
+  summary: Écart de 2 jours sûr en cas de deux traitements simultanés ou d'un envoi accepté par Resend mais non marqué.
+  evidence: email_commercial_autorise ne compte que les envois « envoye » ; aujourd'hui une seule tâche traite le lot en séquence.
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-4-consentements-preferences-et-desinscription.md`
+  summary: Rotation de DESINSCRIPTION_SECRET (clé précédente acceptée en vérification) et test de cohérence entre MODELES_COMMERCIAUX (TS) et la liste SQL.
+  evidence: changer la clé casse les liens déjà envoyés ; les deux listes sont recopiées à la main.
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-4-consentements-preferences-et-desinscription.md`
+  summary: Tests des lectures de src/modules/preferences/dependances.ts et de autorisationCommerciale (faux client rpc).
+  evidence: une faute de clé (alertes_festival, motif) ne ferait échouer aucun test.

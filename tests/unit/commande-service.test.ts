@@ -15,6 +15,7 @@ function faux(surcharge: Partial<DependancesCommande> = {}): DependancesCommande
     recapitulatif: vi.fn(async () => ({ erreur: "x" })),
     creerCommande: vi.fn(async () => ({ erreur: "x" })),
     offrirCommande: vi.fn(async () => ({ erreur: null, numero: "KS-2026-000001" })),
+    donnerConsentementEmails: vi.fn(async () => undefined),
     ...surcharge,
   };
 }

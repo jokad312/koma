@@ -142,6 +142,13 @@ export function creerDependancesEnvois(config: { cleResend: string; expediteur: 
       };
     },
     rendre: (envoi) => rendre(client, envoi),
+    autorisationCommerciale: async (envoiId) => {
+      const { data, error } = await client.rpc("email_commercial_autorise", { p_envoi: envoiId });
+      if (error || !data || typeof data !== "object" || Array.isArray(data)) return { erreur: error?.message ?? "email_commercial_autorise" };
+      const d = data as Record<string, unknown>;
+      if (d.autorise === true) return { autorise: true };
+      return { autorise: false, motif: typeof d.motif === "string" ? d.motif : "refus" };
+    },
     envoyer: async ({ envoiId, destinataire, message }) => {
       const { data, error } = await resend.emails.send(
         { from: config.expediteur, to: destinataire, subject: message.sujet, html: message.html, text: message.texte },

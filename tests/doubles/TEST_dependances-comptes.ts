@@ -83,6 +83,7 @@ export function creerTestDependances(r: Reglages = {}) {
       appels.suppressions.push(id);
       return { erreur: r.suppressionEchoue ?? false };
     }),
+    donnerConsentementEmails: vi.fn(async () => undefined),
     maintenant: () => r.maintenant ?? Date.now(),
   };
   return { deps, appels };

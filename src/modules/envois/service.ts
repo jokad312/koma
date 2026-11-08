@@ -1,3 +1,4 @@
+import { MODELES_COMMERCIAUX } from "./types";
 import type { BilanLot, DependancesEnvois } from "./types";
 
 export const TAILLE_LOT = 10;
@@ -13,6 +14,23 @@ export async function traiterLot(deps: DependancesEnvois, limite: number = TAILL
 
   for (const envoi of lot.envois) {
     try {
+      // Email commercial : consentement, désinscription, Compte mineur et écart de 2 jours vérifiés en base avant tout rendu.
+      // Un refus est final et normal (« ignore » avec son motif) ; une vérification impossible devient un nouvel essai.
+      if ((MODELES_COMMERCIAUX as readonly string[]).includes(envoi.modele)) {
+        const a = await deps.autorisationCommerciale(envoi.id);
+        if ("erreur" in a) {
+          const r = await deps.marquerEchec(envoi.id, "vérification commerciale impossible");
+          if (r.erreur) bilan.erreurBase = true;
+          bilan.reessais += 1;
+          continue;
+        }
+        if (!a.autorise) {
+          const r = await deps.ignorer(envoi.id, a.motif);
+          if (r.erreur) bilan.erreurBase = true;
+          else bilan.ignores += 1;
+          continue;
+        }
+      }
       const rendu = await deps.rendre(envoi);
       if (rendu.statut === "ignorer") {
         const r = await deps.ignorer(envoi.id, rendu.raison);

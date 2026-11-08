@@ -45,6 +45,7 @@ function faux(s: Partial<DependancesCommande> = {}): DependancesCommande {
     offrirCommande: vi.fn(async () => ({ erreur: null, numero: "KS-2026-000001" })),
     recapitulatif: vi.fn(async () => ({ recap: recapBrut({ code: { valide: true, code: "PROMO10", reduction_pct: "10.00", commission_pct: 5 } as never }) })),
     creerCommande: vi.fn(async () => ({ numero: "KS-2026-000007", expireLe: "2026-11-01T12:30:00Z" })),
+    donnerConsentementEmails: vi.fn(async () => undefined),
     ...s,
   };
 }

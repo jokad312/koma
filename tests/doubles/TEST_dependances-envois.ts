@@ -1,11 +1,12 @@
 import { vi } from "vitest";
-import type { DependancesEnvois, EnvoiReserve, ResultatRendu } from "@/modules/envois/types";
+import type { AutorisationCommerciale, DependancesEnvois, EnvoiReserve, ResultatRendu } from "@/modules/envois/types";
 
 // Faux Resend et fausse base de test (règle 13 : tests uniquement, jamais importé par src/).
 type Reglages = {
   envois?: EnvoiReserve[];
   erreurReservation?: string | null;
   rendu?: (envoi: EnvoiReserve) => ResultatRendu;
+  autorisation?: (envoiId: string) => AutorisationCommerciale;
   // Réponse du faux prestataire par envoi (par défaut : succès avec un identifiant TEST_resend_<id>).
   envoyer?: (envoiId: string) => { erreur: string | null; idPrestataire: string | null } | "exception";
   erreurMarquage?: boolean;
@@ -51,6 +52,7 @@ export function creerTestDependancesEnvois(r: Reglages = {}) {
       appels.echecs.push({ id, erreur });
       return { erreur: r.erreurMarquage ? "TEST_panne_base" : null };
     }),
+    autorisationCommerciale: vi.fn(async (envoiId: string) => r.autorisation?.(envoiId) ?? { autorise: true as const }),
     ignorer: vi.fn(async (id, raison) => {
       appels.ignores.push({ id, raison });
       return { erreur: r.erreurMarquage ? "TEST_panne_base" : null };

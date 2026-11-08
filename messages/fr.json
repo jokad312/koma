@@ -81,6 +81,14 @@
     "compteCommandes": {
       "titre": "Mes commandes",
       "description": "La liste de tes commandes."
+    },
+    "comptePreferences": {
+      "titre": "Préférences",
+      "description": "Choisis les emails que tu reçois."
+    },
+    "desinscription": {
+      "titre": "Désinscription",
+      "description": "Désinscription des emails de nouveautés, de rappels et d'alertes Festival."
     }
   },
   "Accueil": {
@@ -1476,7 +1484,12 @@
       "intro": "Crée un Code promo pour chaque influenceur, avec son pourcentage de réduction, son taux de commission et son plafond d'utilisations. Le code ne peut plus être changé après la création.",
       "erreurLecture": "Les Codes promo n'ont pas pu être chargés. Réessaie dans un instant.",
       "vide": "Aucun Code promo pour le moment.",
-      "ventes": { "titre": "Ventes du code {code}", "nombre": "Ventes payées", "montant": "Montant des ventes (hors livraison)", "commission": "Commission due" },
+      "ventes": {
+        "titre": "Ventes du code {code}",
+        "nombre": "Ventes payées",
+        "montant": "Montant des ventes (hors livraison)",
+        "commission": "Commission due"
+      },
       "pourcentage": "{valeur} %",
       "creation": {
         "titre": "Créer un Code promo"
@@ -2331,7 +2344,8 @@
     "compte": {
       "titre": "Mon compte",
       "navigation": "Navigation du compte",
-      "commandes": "Mes commandes"
+      "commandes": "Mes commandes",
+      "preferences": "Préférences"
     },
     "vide": "Aucun kit dans ta bibliothèque.",
     "versCatalogue": "Voir les kits",
@@ -2474,5 +2488,39 @@
       "aidePayeurCarte": "Demandés par le service de paiement par carte, utilisés pour ce paiement seulement. Commence par le signe + et l'indicatif de ton pays.",
       "completerCarte": "Choisis le réseau de ta carte, saisis ton nom et ton numéro pour payer."
     }
+  },
+  "Preferences": {
+    "titre": "Préférences",
+    "intro": "Choisis les emails que tu reçois. Les emails liés à tes commandes et à tes Pass arrivent toujours.",
+    "relances": {
+      "nom": "Relances et rappels",
+      "aide": "Relances après un achat, panier oublié, rappels de kit."
+    },
+    "nouveautes": {
+      "nom": "Nouveautés de mon univers",
+      "aide": "Nouveaux produits dans les univers que tu aimes."
+    },
+    "alertes": {
+      "nom": "Alertes Festival",
+      "aide": "Annonces des prochains Festivals."
+    },
+    "actif": "Actif",
+    "desactive": "Désactivé",
+    "enregistrement": "Enregistrement…",
+    "mineur": "Ces emails ne te sont pas envoyés pour le moment.",
+    "erreur": "Le réglage n'a pas pu être enregistré. Réessaie.",
+    "erreurLecture": "Tes préférences n'ont pas pu être chargées. Réessaie dans un instant.",
+    "erreurSession": "Ta session a expiré. Reconnecte-toi pour enregistrer ce réglage."
+  },
+  "Desinscription": {
+    "titre": "Désinscription",
+    "fait": "C'est fait : tu ne recevras plus d'emails de nouveautés, de rappels ni d'alertes Festival. Les emails liés à tes commandes continuent d'arriver.",
+    "invalide": "Ce lien de désinscription n'est pas valide.",
+    "erreur": "La désinscription n'a pas pu être enregistrée. Réessaie dans un instant.",
+    "reactiver": "Tu peux régler tes emails à tout moment dans Mon compte › Préférences.",
+    "lienPreferences": "Ouvrir mes préférences"
+  },
+  "Consentement": {
+    "emails": "Recevoir par email les nouveautés de mes univers et les rappels utiles. Tu peux te désabonner à tout moment."
   }
 }

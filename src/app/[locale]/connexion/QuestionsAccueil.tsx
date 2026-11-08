@@ -27,10 +27,13 @@ type Props = {
 // et ramènent à la page quittée. La question « univers » n'apparaît que s'il existe au moins un univers.
 export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function QuestionsAccueil({ retour, univers = [], onTermine, onReprendre }, refTitre) {
   const t = useTranslations("Connexion.questions");
+  const tc = useTranslations("Consentement");
   const langue = useLocale() as "fr" | "en";
   const [origine, setOrigine] = useState("");
   const [preference, setPreference] = useState("");
   const [universChoisi, setUniversChoisi] = useState("");
+  // Case facultative « Emails commerciaux » (story 9.4) : jamais pré-cochée.
+  const [emails, setEmails] = useState(false);
   const [erreur, setErreur] = useState<"session" | "echec" | null>(null);
   // Un seul envoi à la fois (Entrée, double clic, « Passer » pendant « Continuer ») : l'état React arrive trop tard pour un double clic.
   const enVol = useRef(false);
@@ -42,7 +45,7 @@ export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function Q
   const idUnivers = useId();
   const idAideUnivers = useId();
 
-  function envoyer(reponses: { origine: string; preference: string; univers: string }, quoi: "passer" | "continuer") {
+  function envoyer(reponses: { origine: string; preference: string; univers: string; emails: boolean }, quoi: "passer" | "continuer") {
     if (enVol.current) return;
     enVol.current = true;
     setErreur(null);
@@ -66,7 +69,7 @@ export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function Q
 
   function surEnvoi(e: FormEvent) {
     e.preventDefault();
-    envoyer({ origine, preference, univers: universChoisi }, "continuer");
+    envoyer({ origine, preference, univers: universChoisi, emails }, "continuer");
   }
 
   return (
@@ -157,11 +160,16 @@ export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function Q
         </div>
       ) : null}
 
+      <label className="flex cursor-pointer items-start gap-3">
+        <input type="checkbox" name="emails" checked={emails} onChange={(e) => setEmails(e.target.checked)} className="mt-0.5 size-6 shrink-0 accent-primary" />
+        <span className="t-body text-text-primary">{tc("emails")}</span>
+      </label>
+
       <div className="flex flex-wrap items-center gap-3">
         <Bouton type="submit" enCours={enCours && action === "continuer"}>
           {enCours && action === "continuer" ? t("enCours") : t("continuer")}
         </Bouton>
-        <Bouton variante="secondaire" enCours={enCours && action === "passer"} onClick={() => envoyer({ origine: "", preference: "", univers: "" }, "passer")}>
+        <Bouton variante="secondaire" enCours={enCours && action === "passer"} onClick={() => envoyer({ origine: "", preference: "", univers: "", emails }, "passer")}>
           {t("passer")}
         </Bouton>
       </div>

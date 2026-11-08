@@ -35,6 +35,8 @@ type ChampErreur = "telephone" | "zone" | "mode" | "adresse" | "cgv" | "kit" | "
 export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, telephoneInitial, adresseInitiale, lieuRetrait, origine }: Props) {
   const t = useTranslations("Commande");
   const tc = useTranslations("Commande.code");
+  const tConsentement = useTranslations("Consentement");
+  const [emails, setEmails] = useState(false);
   const locale = useLocale() as Locale;
   const router = useRouter();
   const id = useId();
@@ -159,6 +161,7 @@ export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, te
             empreinte: recap.empreinte,
             cleIdempotence,
             code: codeApplique,
+            emails,
           },
           locale,
         );
@@ -371,6 +374,11 @@ export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, te
             <span className="t-body text-text-primary">{t("cases.surMesure")}</span>
           </label>
         ) : null}
+        {/* Story 9.4 : case facultative, jamais pré-cochée ; elle ne bloque jamais la Commande. */}
+        <label className="flex min-h-touch cursor-pointer items-start gap-3 py-2">
+          <input type="checkbox" name="emails" checked={emails} onChange={(e) => setEmails(e.target.checked)} className="mt-1 size-6 shrink-0" />
+          <span className="t-body text-text-primary">{tConsentement("emails")}</span>
+        </label>
       </section>
 
       <div className="flex flex-col items-start gap-3">

@@ -210,6 +210,14 @@ export async function creerCommande(
       // La base dit « licence » pour une acceptation manquante : sur l'étape de commande, c'est une case à cocher.
       return { ok: false, erreur: erreur === "licence" ? "acceptation" : erreur };
     }
+    // Case facultative « Emails commerciaux » (story 9.4) : enregistrée après la Commande ; un échec ne la remet jamais en cause.
+    if (lu.data.emails === true) {
+      try {
+        await deps.donnerConsentementEmails(v.compte.auteur);
+      } catch {
+        journaliser("consentement aux emails", "échec");
+      }
+    }
     return { ok: true, numero: r.numero, expireLe: r.expireLe };
   } catch {
     journaliser("creer_commande", "exception");

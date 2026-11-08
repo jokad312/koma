@@ -2,6 +2,7 @@ import "server-only";
 import { creerClientService } from "@/lib/supabase/service";
 import { creerClientSession } from "@/lib/supabase/session";
 import { fusionnerPanierApresConnexion } from "@/modules/panier/fusion";
+import { donnerConsentementEmails } from "@/modules/preferences/dependances";
 import type { DependancesComptes } from "./types";
 
 // Les vrais clients Supabase donnés au service (en test, des faux nommés TEST_ les remplacent).
@@ -44,6 +45,9 @@ export async function dependances(): Promise<DependancesComptes> {
     supprimerCompte: async (compteId) => {
       const { error } = await admin.auth.admin.deleteUser(compteId);
       return { erreur: error !== null };
+    },
+    donnerConsentementEmails: async (auteur) => {
+      await donnerConsentementEmails(auteur, "creation_compte");
     },
     maintenant: () => Date.now(),
     fusionnerPanier: fusionnerPanierApresConnexion,
