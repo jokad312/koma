@@ -1477,6 +1477,7 @@
       "erreurLecture": "Promo codes could not be loaded. Try again in a moment.",
       "vide": "No promo codes yet.",
       "pourcentage": "{valeur}%",
+      "ventes": { "titre": "Sales for code {code}", "nombre": "Paid sales", "montant": "Sales amount (excluding delivery)", "commission": "Commission due" },
       "creation": {
         "titre": "Create a promo code"
       },

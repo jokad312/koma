@@ -28,6 +28,7 @@ vi.mock("@/modules/promo/actions", () => ({
 import { FormulaireCodePromo } from "@/components/admin/FormulaireCodePromo";
 import { ListeCodesPromo } from "@/components/admin/ListeCodesPromo";
 import type { CodePromo } from "@/modules/promo/types";
+import { formaterUsd } from "@/lib/argent";
 
 const CODE: CodePromo = {
   id: "00000000-0000-4000-8000-0000000000d1",
@@ -39,6 +40,9 @@ const CODE: CodePromo = {
   actif: true,
   creeLe: "2026-11-04T10:00:00Z",
   modifieLe: "2026-11-04T10:00:00Z",
+  ventes: 0,
+  montantCents: 0,
+  commissionCents: 0,
 };
 
 beforeEach(() => {
@@ -254,6 +258,22 @@ describe("ListeCodesPromo", () => {
     await userEvent.click(screen.getByRole("button", { name: "Annuler" }));
     await waitFor(() => expect(screen.queryByRole("heading", { name: "Modifier le Code promo" })).toBeNull());
     expect(faux.refresh).toHaveBeenCalled();
+  });
+
+  it("story 9.3 : ventes payées, montant hors livraison et commission due, en USD, pour chaque code", () => {
+    rendre(<ListeCodesPromo codes={[{ ...CODE, ventes: 2, montantCents: 10782, commissionCents: 538 }]} />);
+    const bloc = screen.getByLabelText(M.ventes.titre.replace("{code}", "SOLDES10"));
+    const valeur = (libelle: string) => (within(bloc).getByText(libelle).nextElementSibling?.textContent ?? "").replace(/[  ]/g, " ");
+    expect(valeur(M.ventes.nombre)).toBe("2");
+    expect(valeur(M.ventes.montant)).toBe(formaterUsd(10782, "fr").replace(/[  ]/g, " "));
+    expect(valeur(M.ventes.commission)).toBe(formaterUsd(538, "fr").replace(/[  ]/g, " "));
+  });
+
+  it("story 9.3 : un code sans vente affiche 0, jamais une valeur inventée", () => {
+    rendre(<ListeCodesPromo codes={[CODE]} />);
+    const bloc = screen.getByLabelText(M.ventes.titre.replace("{code}", "SOLDES10"));
+    expect(within(bloc).getByText(M.ventes.nombre).nextElementSibling?.textContent).toBe("0");
+    expect((within(bloc).getByText(M.ventes.commission).nextElementSibling?.textContent ?? "").replace(/[  ]/g, " ")).toBe(formaterUsd(0, "fr").replace(/[  ]/g, " "));
   });
 
   it("liste vide : un texte d'état, aucun élément de liste", () => {

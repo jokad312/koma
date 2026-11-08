@@ -95,15 +95,19 @@ describe("lireCodesPromoAdmin", () => {
   };
   function lecture(resultat: { data: unknown; error: { message: string } | null }) {
     const order = vi.fn(async () => resultat);
-    faux.from.mockReturnValue({ select: () => ({ order }) });
+    // La vue commission_code_promo (story 9.3) répond sans vente : les codes valent 0.
+    faux.from.mockImplementation((table: string) =>
+      table === "commission_code_promo" ? { select: async () => ({ data: [], error: null }) } : { select: () => ({ order }) },
+    );
     return order;
   }
 
   it("lit code_promo trié par code croissant et convertit les pourcentages en nombres", async () => {
     const order = lecture({ data: [ligne], error: null });
     await expect(lireCodesPromoAdmin()).resolves.toEqual([
-      { id: "i1", code: "SOLDES10", affilie: "TEST_A", reductionPct: 20, commissionPct: 5.5, plafond: 50, actif: true, creeLe: ligne.cree_le, modifieLe: ligne.modifie_le },
+      { id: "i1", code: "SOLDES10", affilie: "TEST_A", reductionPct: 20, commissionPct: 5.5, plafond: 50, actif: true, creeLe: ligne.cree_le, modifieLe: ligne.modifie_le, ventes: 0, montantCents: 0, commissionCents: 0 },
     ]);
+    expect(faux.from).toHaveBeenCalledWith("commission_code_promo");
     expect(faux.from).toHaveBeenCalledWith("code_promo");
     expect(order).toHaveBeenCalledWith("code", { ascending: true });
   });

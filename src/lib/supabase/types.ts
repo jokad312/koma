@@ -371,6 +371,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "commande_code_promo_code_promo_id_fkey"
+            columns: ["code_promo_id"]
+            isOneToOne: false
+            referencedRelation: "commission_code_promo"
+            referencedColumns: ["code_promo_id"]
+          },
+          {
             foreignKeyName: "commande_code_promo_commande_id_fkey"
             columns: ["commande_id"]
             isOneToOne: true
@@ -1637,6 +1644,15 @@ export type Database = {
       }
     }
     Views: {
+      commission_code_promo: {
+        Row: {
+          code_promo_id: string | null
+          commission_cents: number | null
+          montant_cents: number | null
+          ventes: number | null
+        }
+        Relationships: []
+      }
       taches_admin: {
         Row: {
           cible_id: string | null

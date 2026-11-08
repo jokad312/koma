@@ -1476,6 +1476,7 @@
       "intro": "Crée un Code promo pour chaque influenceur, avec son pourcentage de réduction, son taux de commission et son plafond d'utilisations. Le code ne peut plus être changé après la création.",
       "erreurLecture": "Les Codes promo n'ont pas pu être chargés. Réessaie dans un instant.",
       "vide": "Aucun Code promo pour le moment.",
+      "ventes": { "titre": "Ventes du code {code}", "nombre": "Ventes payées", "montant": "Montant des ventes (hors livraison)", "commission": "Commission due" },
       "pourcentage": "{valeur} %",
       "creation": {
         "titre": "Créer un Code promo"

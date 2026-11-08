@@ -298,3 +298,10 @@
 - À tester à la main : appliquer un code (minuscules, espaces), changer de Zone, retirer le code, code inconnu/inactif ; confirmer et vérifier la page Commande, le détail admin et l'email de paiement (quand un prestataire sera activable).
 - Bunny : clés remises à leur place par Jonathan ; essai réel 13/13 (200 signé ; 403 sans jeton, altéré, expiré), vidéo de test supprimée ; documenté dans `docs/bunny-stream-prive.md` et `.env.example`.
 - CI verte sur `2f81ece` (pgTAP compris ; le premier passage sur `7ad3d3c` avait échoué sur un test SQL jamais exécuté jusque-là, corrigé). Story 9.2 : `done`.
+
+
+## Story 9.3 : ventes et commissions par Code promo
+- Vue `commission_code_promo` (migrations `20261231120000` et `20261231130000`, appliquées sur koma-dev), seule source du calcul (AD-27) : Commandes avec `paye_le`, montant hors livraison et hors lignes annulées, commission au taux figé de chaque Commande, arrondie au centime inférieur par Commande. Une Commande dont toutes les lignes sont annulées n'est plus une vente. Lecture serveur seulement (anon : 42501, vérifié sur koma-dev).
+- Page `/fr/admin/codes-promo` : ventes payées, montant, commission due par code. Aucun paiement de commission par le site.
+- Revue (3 sous-agents) : vente à 0 USD comptée, test rouge corrigé, tests pgTAP complétés (19).
+- À tester à la main (après un paiement réel) : payer une Commande avec un code, voir la vente et la commission ; annuler une Commande mixte (le Kit reste compté) ; changer le taux du code : la commission due ne bouge pas.

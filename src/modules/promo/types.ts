@@ -9,6 +9,10 @@ export type CodePromo = {
   actif: boolean;
   creeLe: string;
   modifieLe: string;
+  // Story 9.3 (vue commission_code_promo) : ventes payées, montant hors livraison et hors lignes annulées, commission due au taux figé de chaque Commande.
+  ventes: number;
+  montantCents: number;
+  commissionCents: number;
 };
 
 // Codes d'erreur du module : le texte affiché vient de messages/*.json, côté interface.

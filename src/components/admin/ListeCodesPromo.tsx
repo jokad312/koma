@@ -3,6 +3,8 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { Bouton } from "@/components/ui/Bouton";
+import type { Locale } from "@/i18n/routing";
+import { formaterUsd } from "@/lib/argent";
 import type { CodePromo } from "@/modules/promo/types";
 import { FormulaireCodePromo } from "./FormulaireCodePromo";
 
@@ -42,6 +44,21 @@ export function ListeCodesPromo({ codes }: { codes: CodePromo[] }) {
             <div className="flex flex-col">
               <dt className="t-small text-text-secondary">{t("champs.plafond")}</dt>
               <dd className="t-body text-text-primary">{nombre.format(c.plafond)}</dd>
+            </div>
+          </dl>
+          {/* Story 9.3 : calcul de la vue commission_code_promo ; aucun paiement de commission n'est fait par le site. */}
+          <dl className="flex flex-wrap gap-x-6 gap-y-2" role="group" aria-label={t("ventes.titre", { code: c.code })}>
+            <div className="flex flex-col">
+              <dt className="t-small text-text-secondary">{t("ventes.nombre")}</dt>
+              <dd className="t-body text-text-primary">{nombre.format(c.ventes)}</dd>
+            </div>
+            <div className="flex flex-col">
+              <dt className="t-small text-text-secondary">{t("ventes.montant")}</dt>
+              <dd className="t-body text-text-primary">{formaterUsd(c.montantCents, langue as Locale)}</dd>
+            </div>
+            <div className="flex flex-col">
+              <dt className="t-small text-text-secondary">{t("ventes.commission")}</dt>
+              <dd className="t-body text-text-primary">{formaterUsd(c.commissionCents, langue as Locale)}</dd>
             </div>
           </dl>
           <div>
