@@ -2064,6 +2064,8 @@
       "forfait": "Delivery fee",
       "forfaitGratuit": "Free pickup",
       "forfaitAChoisir": "To choose above",
+      "reduction": "Discount ({code})",
+      "reductionMontant": "−{montant}",
       "sousTotal": "Subtotal",
       "total": "Total",
       "accesImmediat": "Digital kit: instant access after payment.",
@@ -2083,6 +2085,22 @@
       "titre": "How to reach you",
       "telephone": "Phone number",
       "telephoneAide": "With the country code, for example +243…"
+    },
+    "code": {
+      "titre": "Promo code",
+      "label": "Your promo code (optional)",
+      "aide": "Valid for a first purchase only. One code per purchase.",
+      "appliquer": "Apply",
+      "retirer": "Remove code",
+      "applique": "Code {code} applied: {pct, number}% off your items, delivery excluded.",
+      "erreurs": {
+        "code_inconnu": "This code does not exist. Check the spelling.",
+        "code_inactif": "This code is no longer active.",
+        "code_plafond": "This code has been used the maximum number of times.",
+        "code_premier_achat": "This code is only valid for a first purchase.",
+        "code_un_seul": "Only one code per purchase.",
+        "code_total_nul": "This code would make your order free, so it cannot be applied here."
+      }
     },
     "remise": {
       "zone": "Where do you receive your order?",
@@ -2248,6 +2266,7 @@
       "intro": "We have received your payment for order {numero}.",
       "articles": "Items ordered",
       "ligne": "{nombre} × {titre}: {montant}",
+      "reduction": "Promo code discount: −{montant}",
       "livraison": "Delivery: {montant}",
       "total": "Total paid: {total}",
       "lien": "Your order page:",

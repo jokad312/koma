@@ -41,12 +41,12 @@ select ok((select relrowsecurity from pg_class where oid = 'public.reservation':
 select is((select count(*)::int from information_schema.role_table_grants where table_schema = 'public' and table_name = 'reservation' and lower(grantee) in ('anon', 'authenticated', 'public')), 0, 'aucun droit client sur reservation');
 select is(
   (select count(*)::int from unnest(array[
-    'public.recapitulatif_commande(uuid, uuid, text, text)', 'public.creer_commande(jsonb, uuid, text, text, text, text, jsonb, text, integer, text, text)', 'public.expirer_commandes_echues()'
+    'public.recapitulatif_commande(uuid, uuid, text, text, text)', 'public.creer_commande(jsonb, uuid, text, text, text, text, jsonb, text, integer, text, text, text)', 'public.expirer_commandes_echues()'
   ]) f where not has_function_privilege('anon', f, 'execute') and not has_function_privilege('authenticated', f, 'execute') and has_function_privilege('service_role', f, 'execute')),
   3,
   'recapitulatif_commande, creer_commande et expirer_commandes_echues : service seulement'
 );
-select ok(not has_function_privilege('service_role', 'public.commande_calculer(uuid, uuid, text, text, boolean)', 'execute'), 'commande_calculer est interne : aucun rôle');
+select ok(not has_function_privilege('service_role', 'public.commande_calculer(uuid, uuid, text, text, boolean, text, uuid)', 'execute'), 'commande_calculer est interne : aucun rôle');
 select ok(
   not has_function_privilege('anon', 'public.stock_disponible(uuid)', 'execute') and not has_function_privilege('authenticated', 'public.stock_disponible(uuid)', 'execute')
   and not has_function_privilege('anon', 'public.places_fabrication_utilisees()', 'execute')

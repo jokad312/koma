@@ -2064,6 +2064,8 @@
       "forfait": "Forfait de livraison",
       "forfaitGratuit": "Retrait gratuit",
       "forfaitAChoisir": "À choisir ci-dessus",
+      "reduction": "Réduction ({code})",
+      "reductionMontant": "−{montant}",
       "sousTotal": "Sous-total",
       "total": "Total",
       "accesImmediat": "Kit numérique : accès immédiat après le paiement.",
@@ -2083,6 +2085,22 @@
       "titre": "Pour te joindre",
       "telephone": "Numéro de téléphone",
       "telephoneAide": "Avec l'indicatif du pays, par exemple +243…"
+    },
+    "code": {
+      "titre": "Code promo",
+      "label": "Ton code promo (facultatif)",
+      "aide": "Réservé à un premier achat. Un seul code par achat.",
+      "appliquer": "Appliquer",
+      "retirer": "Retirer le code",
+      "applique": "Code {code} appliqué : {pct, number} % de réduction sur tes articles, hors livraison.",
+      "erreurs": {
+        "code_inconnu": "Ce code n'existe pas. Vérifie l'orthographe.",
+        "code_inactif": "Ce code n'est plus actif.",
+        "code_plafond": "Ce code a été utilisé le nombre maximal de fois.",
+        "code_premier_achat": "Ce code est réservé à un premier achat.",
+        "code_un_seul": "Un seul code par achat.",
+        "code_total_nul": "Ce code rendrait ta commande gratuite : il ne peut pas être appliqué ici."
+      }
     },
     "remise": {
       "zone": "Où reçois-tu ta commande ?",
@@ -2248,6 +2266,7 @@
       "intro": "Nous avons bien reçu ton paiement pour la commande {numero}.",
       "articles": "Articles commandés",
       "ligne": "{nombre} × {titre} : {montant}",
+      "reduction": "Réduction du code promo : −{montant}",
       "livraison": "Livraison : {montant}",
       "total": "Total payé : {total}",
       "lien": "Page de ta commande :",

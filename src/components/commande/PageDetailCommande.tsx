@@ -145,6 +145,12 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
             <dt className="t-body text-text-primary">{t("recap.sousTotal")}</dt>
             <dd className="t-body text-text-primary">{formaterUsd(commande.sousTotalCents, locale)}</dd>
           </div>
+          {commande.codePromo && commande.codePromo.reductionCents > 0 ? (
+            <div className="flex justify-between gap-4">
+              <dt className="t-body text-text-primary">{t("recap.reduction", { code: commande.codePromo.code })}</dt>
+              <dd className="t-body text-text-primary">{t("recap.reductionMontant", { montant: formaterUsd(commande.codePromo.reductionCents, locale) })}</dd>
+            </div>
+          ) : null}
           {commande.zone ? (
             <div className="flex justify-between gap-4">
               <dt className="t-body text-text-primary">{t("recap.forfait")}</dt>

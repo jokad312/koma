@@ -18,7 +18,12 @@ export type CodeErreurCommande =
   | "commande_en_attente" // le Compte a déjà une Commande à payer
   | "reglage_manquant"
   | "panier_vide"
-  | "panier_introuvable";
+  | "panier_introuvable"
+  | CodeRefuse; // Code promo refusé (story 9.2) : montré sous le champ du code
+
+// Raisons de refus d'un Code promo (UX-DR27). « code_total_nul » : le code rendrait la Commande gratuite, aucun paiement ne porte sur 0 USD.
+export const CODES_REFUSES = ["code_inconnu", "code_inactif", "code_plafond", "code_premier_achat", "code_un_seul", "code_total_nul"] as const;
+export type CodeRefuse = (typeof CODES_REFUSES)[number];
 
 export type ResultatCommande<T extends object = object> = ({ ok: true } & T) | { ok: false; erreur: CodeErreurCommande };
 
@@ -37,7 +42,12 @@ export type LigneRecap = {
   etat: "disponible" | "sur_commande" | "epuise";
   origine: "stock" | "fabrication" | null;
   delaiFabricationJours: number | null;
+  // Part de la réduction du Code promo portée par cette ligne (0 sans code).
+  reductionCents: number;
 };
+
+// Code promo saisi, tel que le serveur l'a évalué : accepté (avec son pourcentage) ou refusé (avec la raison).
+export type CodePromoRecap = { valide: true; code: string; reductionPct: number } | { valide: false; erreur: CodeRefuse };
 
 export type Recapitulatif = {
   lignes: LigneRecap[];
@@ -46,6 +56,9 @@ export type Recapitulatif = {
   surMesure: boolean;
   sousTotalCents: number;
   forfaitCents: number;
+  // Réduction totale du Code promo accepté, en centimes (jamais sur le Forfait) ; 0 sans code ou avec un code refusé.
+  reductionCents: number;
+  code: CodePromoRecap | null;
   totalCents: number;
   // Au moins une ligne n'est plus disponible : la commande est bloquée.
   indisponible: boolean;
@@ -69,12 +82,15 @@ export type RecapBrut = {
     etat: string;
     origine: string | null;
     delai_fabrication_jours: number | null;
+    reduction_cents?: number;
   }[];
   physique: boolean;
   kit: boolean;
   sur_mesure: boolean;
   sous_total_cents: number;
   forfait_cents: number;
+  reduction_cents?: number;
+  code?: { valide: boolean; erreur?: string; code?: string; reduction_pct?: number | string } | null;
   total_cents: number;
   indisponible: boolean;
   remise_manquante: boolean;
@@ -94,7 +110,7 @@ export type DependancesCommande = {
     acceptations: { objet: string; version: string }[];
     cleIdempotence: string;
   }) => Promise<{ erreur: string | null; numero?: string }>;
-  recapitulatif: (e: { compteId: string; panierId: string; zone: ZoneRemise | null; mode: ModeRemise | null }) => Promise<{ recap: RecapBrut } | { erreur: string }>;
+  recapitulatif: (e: { compteId: string; panierId: string; zone: ZoneRemise | null; mode: ModeRemise | null; code: string | null }) => Promise<{ recap: RecapBrut } | { erreur: string }>;
   creerCommande: (e: {
     auteur: Auteur;
     panierId: string;
@@ -107,5 +123,6 @@ export type DependancesCommande = {
     totalAttenduCents: number;
     empreinte: string;
     cleIdempotence: string;
+    code: string | null;
   }) => Promise<{ numero: string; expireLe: string } | { erreur: string }>;
 };

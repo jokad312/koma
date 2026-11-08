@@ -7,6 +7,8 @@ export type DonneesCommandePayee = {
   numero: string;
   lignes: { titre: string; nombre: number; prixCents: number }[];
   livraisonCents: number;
+  // Réduction du Code promo figée avec la Commande (story 9.2), en centimes ; 0 sans code. Jamais sur la livraison.
+  reductionCents?: number;
   totalCents: number;
   url: string;
   // Présent seulement si la Commande contient une ligne Sur-mesure (story 6.4) : lien WhatsApp du numéro réglé, ou null s'il n'est pas réglé.
@@ -24,6 +26,7 @@ export function rendreCommandePayee(langue: LangueEmail, d: DonneesCommandePayee
     paragrapheFinal: d.mesures ? (d.mesures.lien ? remplir(t.mesures, { lien: d.mesures.lien }) : t.mesuresSansNumero) : undefined,
     lignes: [
       ...d.lignes.map((l) => remplir(t.ligne, { nombre: l.nombre, titre: l.titre, montant: formaterUsd(l.prixCents * l.nombre, langue) })),
+      ...((d.reductionCents ?? 0) > 0 ? [remplir(t.reduction, { montant: formaterUsd(d.reductionCents ?? 0, langue) })] : []),
       ...(d.livraisonCents > 0 ? [remplir(t.livraison, { montant: formaterUsd(d.livraisonCents, langue) })] : []),
     ],
     total: remplir(t.total, { total: formaterUsd(d.totalCents, langue) }),

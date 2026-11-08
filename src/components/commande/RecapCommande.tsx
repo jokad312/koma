@@ -59,6 +59,12 @@ export function RecapCommande({ recap, zone, mode, locale }: Props) {
           <dt className="t-body text-text-primary">{t("sousTotal")}</dt>
           <dd className="t-body text-text-primary">{formaterUsd(recap.sousTotalCents, locale)}</dd>
         </div>
+        {recap.code?.valide && recap.reductionCents > 0 ? (
+          <div className="flex justify-between gap-4">
+            <dt className="t-body text-text-primary">{t("reduction", { code: recap.code.code })}</dt>
+            <dd className="t-body text-text-primary">{t("reductionMontant", { montant: formaterUsd(recap.reductionCents, locale) })}</dd>
+          </div>
+        ) : null}
         {recap.physique ? (
           <div className="flex justify-between gap-4">
             <dt className="t-body text-text-primary">{t("forfait")}</dt>

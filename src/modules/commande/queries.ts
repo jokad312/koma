@@ -40,6 +40,8 @@ export type CommandeLue = {
   // Réclamations (story 6.7) : lignes réclamables (48 h, calcul en base) et état réel de chaque réclamation.
   lignesReclamables: string[];
   reclamations: { ligneId: string; statut: string }[];
+  // Code promo figé avec la Commande (story 9.2) : le code et la réduction totale. Le taux de commission n'est jamais lu ici.
+  codePromo: { code: string; reductionCents: number } | null;
 };
 
 export type CommandeResume = { numero: string; statut: StatutAffiche; creeLe: string; totalCents: number; offerte: boolean; reclamation: string | null };
@@ -78,11 +80,13 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
     .limit(1)
     .maybeSingle();
   const demandeAnnulation = demande && ["ouverte", "acceptee", "refusee", "close"].includes(demande.statut) ? (demande.statut as "ouverte" | "acceptee" | "refusee" | "close") : null;
-  const [reclamables, reclamations] = await Promise.all([
+  const [reclamables, reclamations, promo] = await Promise.all([
     creerClientService().rpc("lignes_reclamables", { p_compte: compteId, p_numero: numero }),
     creerClientService().from("demande_client").select("ligne_id, statut").eq("commande_id", data.id).eq("type", "reclamation").order("cree_le", { ascending: false }),
+    creerClientService().from("commande_code_promo").select("code, reduction_cents").eq("commande_id", data.id).maybeSingle(),
   ]);
   if (reclamables.error || reclamations.error) throw new Error("lecture des réclamations impossible");
+  if (promo.error) throw new Error("lecture du code promo impossible");
   const lignes = (data.ligne_commande ?? []).map((l) => {
     const produit = Array.isArray(l.produit) ? l.produit[0] : l.produit;
     const variante = Array.isArray(l.variante) ? l.variante[0] : l.variante;
@@ -118,6 +122,7 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
     demandeAnnulation,
     lignesReclamables: (reclamables.data ?? []).map((r) => r.ligne_id),
     reclamations: (reclamations.data ?? []).flatMap((r) => (r.ligne_id ? [{ ligneId: r.ligne_id, statut: r.statut }] : [])),
+    codePromo: promo.data ? { code: promo.data.code, reductionCents: promo.data.reduction_cents } : null,
   };
 }
 

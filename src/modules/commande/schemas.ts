@@ -23,8 +23,11 @@ export type ZoneRemise = (typeof ZONES)[number];
 export type ModeRemise = (typeof MODES)[number];
 
 // Zone et Mode de remise : les deux ou aucun. Bukavu : livraison obligatoire (retrait gratuit à Goma seulement).
+// Code promo saisi (story 9.2) : texte court, évalué et normalisé par la base (casse, espaces) ; vide = pas de code.
+export const codePromoSaisiSchema = z.string().max(40).nullish();
+
 const remiseSchema = z
-  .object({ zone: z.enum(ZONES).nullish(), mode: z.enum(MODES).nullish() })
+  .object({ zone: z.enum(ZONES).nullish(), mode: z.enum(MODES).nullish(), code: codePromoSaisiSchema })
   .refine((v) => (v.zone == null) === (v.mode == null), { message: "remise_incomplete" })
   .refine((v) => !(v.zone === "bukavu" && v.mode === "retrait"), { message: "remise_invalide" });
 
@@ -46,6 +49,7 @@ export const creerCommandeSchema = z
     totalAttenduCents: z.number().int().min(0).max(100_000_000),
     empreinte: z.string().regex(/^[0-9a-f]{32}$/),
     cleIdempotence: z.string().min(8).max(100),
+    code: codePromoSaisiSchema,
   })
   .refine((v) => (v.zone == null) === (v.mode == null), { message: "remise_incomplete" })
   .refine((v) => !(v.zone === "bukavu" && v.mode === "retrait"), { message: "remise_invalide" });

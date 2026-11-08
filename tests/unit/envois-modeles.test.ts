@@ -36,6 +36,15 @@ describe("modèles d'email", () => {
     expect(m.html).toContain('lang="en"');
   });
 
+  it("Code promo (story 9.2) : la réduction est écrite entre les articles et le total, dans les deux langues ; rien sans réduction", () => {
+    const fr = rendreCommandePayee("fr", { ...commande, reductionCents: 1198, totalCents: 10782 });
+    expect(fr.texte).toMatch(/Réduction du code promo : −11,98/);
+    expect(fr.texte).toMatch(/107,82/);
+    const en = rendreCommandePayee("en", { ...commande, reductionCents: 1198, totalCents: 10782 });
+    expect(en.texte).toContain("Promo code discount: −$11.98");
+    expect(rendreCommandePayee("fr", commande).texte).not.toContain("Réduction");
+  });
+
   it("pas de ligne de livraison quand elle est gratuite", () => {
     const m = rendreCommandePayee("fr", { ...commande, livraisonCents: 0 });
     expect(m.texte).not.toContain("Livraison");

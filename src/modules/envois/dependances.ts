@@ -45,7 +45,7 @@ async function rendre(client: ClientService, envoi: EnvoiReserve): Promise<Resul
     if (!STATUTS_PAYES.includes(commande.statut)) return { statut: "ignorer", raison: "commande non payée" };
     const { data: lignes, error } = await client
       .from("ligne_commande")
-      .select("nombre, prix_cents, produit:produit_id(titre_fr, titre_en), variante:variante_id(taille)")
+      .select("nombre, prix_cents, reduction_cents, produit:produit_id(titre_fr, titre_en), variante:variante_id(taille)")
       .eq("commande_id", commande.id)
       .order("cree_le", { ascending: true });
     if (error) return { statut: "reessayer", raison: "lecture des lignes impossible" };
@@ -61,6 +61,7 @@ async function rendre(client: ClientService, envoi: EnvoiReserve): Promise<Resul
       nomSite,
       numero: commande.numero,
       lignes: lignes.map((l) => ({ titre: l.produit ? titreSelonLangue(l.produit, envoi.langue) : "—", nombre: l.nombre, prixCents: l.prix_cents })),
+      reductionCents: lignes.reduce((s, l) => s + (l.reduction_cents ?? 0), 0),
       livraisonCents: commande.forfait_cents,
       totalCents: commande.total_cents,
       url: `${site}/${envoi.langue}/commande/${encodeURIComponent(commande.numero)}`,

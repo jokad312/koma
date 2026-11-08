@@ -20,17 +20,18 @@ export function dependances(): DependancesCommande {
       const numero = data && typeof data === "object" && !Array.isArray(data) ? (data as Record<string, unknown>).numero : undefined;
       return { erreur: null, numero: typeof numero === "string" ? numero : undefined };
     },
-    recapitulatif: async ({ compteId, panierId, zone, mode }) => {
+    recapitulatif: async ({ compteId, panierId, zone, mode, code }) => {
       const { data, error } = await creerClientService().rpc("recapitulatif_commande", {
         p_compte: compteId,
         p_panier: panierId,
         p_zone: zone as never,
         p_mode: mode as never,
+        p_code: code as never,
       });
       if (error || !data || typeof data !== "object" || Array.isArray(data)) return { erreur: error?.message ?? "recapitulatif_commande" };
       return { recap: data as unknown as RecapBrut };
     },
-    creerCommande: async ({ auteur, panierId, zone, mode, telephone, adresse, acceptations, origine, totalAttenduCents, empreinte, cleIdempotence }) => {
+    creerCommande: async ({ auteur, panierId, zone, mode, telephone, adresse, acceptations, origine, totalAttenduCents, empreinte, cleIdempotence, code }) => {
       const { data, error } = await creerClientService().rpc("creer_commande", {
         p_auteur: auteur as never,
         p_panier: panierId,
@@ -43,6 +44,7 @@ export function dependances(): DependancesCommande {
         p_total_attendu_cents: totalAttenduCents,
         p_empreinte: empreinte,
         p_cle_idempotence: cleIdempotence,
+        p_code: code as never,
       });
       if (error || !data || typeof data !== "object" || Array.isArray(data)) return { erreur: error?.message ?? "creer_commande" };
       const r = data as Record<string, unknown>;

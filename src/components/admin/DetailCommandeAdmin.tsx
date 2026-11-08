@@ -107,6 +107,12 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
             <dt className="t-body">{tr("sousTotal")}</dt>
             <dd className="t-body">{formaterUsd(commande.sousTotalCents, locale)}</dd>
           </div>
+          {commande.codePromo && commande.codePromo.reductionCents > 0 ? (
+            <div className="flex justify-between gap-4">
+              <dt className="t-body">{tr("reduction", { code: commande.codePromo.code })}</dt>
+              <dd className="t-body">{tr("reductionMontant", { montant: formaterUsd(commande.codePromo.reductionCents, locale) })}</dd>
+            </div>
+          ) : null}
           <div className="flex justify-between gap-4">
             <dt className="t-body">{tr("forfait")}</dt>
             <dd className="t-body">{formaterUsd(commande.forfaitCents, locale)}</dd>

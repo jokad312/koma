@@ -10,7 +10,8 @@ import type { Locale } from "@/i18n/routing";
 import { formaterUsd } from "@/lib/argent";
 import { creerCommande, lireRecapitulatif } from "@/modules/commande/actions";
 import type { ModeRemise, ZoneRemise } from "@/modules/commande/schemas";
-import type { CodeErreurCommande, Recapitulatif } from "@/modules/commande/types";
+import { CODES_REFUSES } from "@/modules/commande/types";
+import type { CodeErreurCommande, CodeRefuse, Recapitulatif } from "@/modules/commande/types";
 import { RecapCommande } from "./RecapCommande";
 
 type Props = {
@@ -33,6 +34,7 @@ type ChampErreur = "telephone" | "zone" | "mode" | "adresse" | "cgv" | "kit" | "
 // Récapitulatif calculé par le serveur. Le succès n'est annoncé qu'après la réponse réelle de la base (règle 13).
 export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, telephoneInitial, adresseInitiale, lieuRetrait, origine }: Props) {
   const t = useTranslations("Commande");
+  const tc = useTranslations("Commande.code");
   const locale = useLocale() as Locale;
   const router = useRouter();
   const id = useId();
@@ -52,17 +54,53 @@ export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, te
   const [enCours, demarrer] = useTransition();
   const [recalcul, demarrerRecalcul] = useTransition();
 
-  function relire(z: ZoneRemise | null, m: ModeRemise | null) {
+  // Code promo (story 9.2) : le code saisi est évalué par le serveur à chaque calcul ; le code « appliqué » est celui que le serveur a accepté.
+  const [codeSaisi, setCodeSaisi] = useState("");
+  const [codeApplique, setCodeApplique] = useState<string | null>(null);
+  const [codeErreur, setCodeErreur] = useState<CodeRefuse | null>(null);
+
+  function relire(z: ZoneRemise | null, m: ModeRemise | null, code: string | null = codeApplique) {
     demarrerRecalcul(async () => {
       try {
-        const r = await lireRecapitulatif({ zone: z, mode: m }, locale);
-        if (r.ok) setRecap(r.recap);
-        else if (r.erreur === "panier_vide") router.push("/panier");
+        const r = await lireRecapitulatif({ zone: z, mode: m, code }, locale);
+        if (r.ok) {
+          setRecap(r.recap);
+          if (r.recap.code && !r.recap.code.valide) {
+            // Code refusé : il n'est plus envoyé, le total revient sans réduction et la raison s'affiche sous le champ.
+            setCodeErreur(r.recap.code.erreur);
+            setCodeApplique(null);
+          } else if (code) {
+            setCodeErreur(null);
+          }
+        } else if (r.erreur === "panier_vide") router.push("/panier");
         else setErreurServeur(r.erreur);
       } catch {
         setErreurServeur("erreur");
       }
     });
+  }
+
+  function appliquerCode() {
+    const saisi = codeSaisi.trim();
+    setTotalChange(null);
+    cle.current = null;
+    if (saisi === "") {
+      setCodeApplique(null);
+      setCodeErreur(null);
+      relire(zone, mode, null);
+      return;
+    }
+    setCodeApplique(saisi);
+    relire(zone, mode, saisi);
+  }
+
+  function retirerCode() {
+    setCodeSaisi("");
+    setCodeApplique(null);
+    setCodeErreur(null);
+    setTotalChange(null);
+    cle.current = null;
+    relire(zone, mode, null);
   }
 
   function choisirZone(z: ZoneRemise) {
@@ -120,6 +158,7 @@ export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, te
             totalAttenduCents: vu,
             empreinte: recap.empreinte,
             cleIdempotence,
+            code: codeApplique,
           },
           locale,
         );
@@ -131,6 +170,12 @@ export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, te
           setRecap(r.recap);
           setTotalChange(r.erreur === "total_change" ? { ancien: vu, nouveau: r.recap.totalCents } : null);
           if (r.erreur === "recap_change") setErreurServeur("recap_change");
+        } else if ((CODES_REFUSES as readonly string[]).includes(r.erreur)) {
+          // Code refusé à la création : la raison s'affiche sous le champ, le code n'est plus envoyé et le total est relu sans réduction.
+          setCodeErreur(r.erreur as CodeRefuse);
+          setCodeApplique(null);
+          cle.current = null;
+          relire(zone, mode, null);
         } else {
           setErreurServeur(r.erreur);
         }
@@ -239,6 +284,59 @@ export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, te
           ) : null}
         </>
       ) : null}
+
+      <section aria-labelledby={`${id}-code`} className="flex flex-col gap-2">
+        <h2 id={`${id}-code`} className="t-h2">
+          {tc("titre")}
+        </h2>
+        <label htmlFor={`${id}-code-champ`} className="t-label text-text-primary">
+          {tc("label")}
+        </label>
+        <p id={`${id}-code-aide`} className="t-small text-text-secondary">
+          {tc("aide")}
+        </p>
+        <div className="flex flex-wrap items-start gap-2">
+          <input
+            id={`${id}-code-champ`}
+            name="code"
+            type="text"
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            maxLength={40}
+            value={codeSaisi}
+            onChange={(e) => setCodeSaisi(e.target.value)}
+            onKeyDown={(e) => {
+              // Entrée applique le code (le champ n'est pas dans un formulaire : rien d'autre ne part).
+              if (e.key === "Enter") {
+                e.preventDefault();
+                appliquerCode();
+              }
+            }}
+            aria-describedby={`${id}-code-aide${codeErreur ? ` ${id}-code-erreur` : ""}`}
+            aria-invalid={codeErreur ? true : undefined}
+            className={`${CHAMP} min-w-0 flex-1`}
+          />
+          <Bouton variante="secondaire" onClick={appliquerCode} enCours={recalcul}>
+            {tc("appliquer")}
+          </Bouton>
+          {recap.code?.valide ? (
+            <Bouton variante="secondaire" onClick={retirerCode}>
+              {tc("retirer")}
+            </Bouton>
+          ) : null}
+        </div>
+        {codeErreur ? (
+          <p id={`${id}-code-erreur`} role="alert" className="t-small text-text-primary">
+            {tc(`erreurs.${codeErreur}`)}
+          </p>
+        ) : null}
+        {recap.code?.valide ? (
+          <p role="status" className="t-small text-text-primary">
+            {tc("applique", { code: recap.code.code, pct: recap.code.reductionPct })}
+          </p>
+        ) : null}
+      </section>
 
       <div aria-busy={recalcul || undefined}>
         <RecapCommande recap={recap} zone={zone} mode={mode} locale={locale} />

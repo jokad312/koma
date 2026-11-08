@@ -74,7 +74,7 @@ describe("lireRecapitulatif", () => {
     const r = await lireRecapitulatif(deps, { zone: "goma", mode: "livraison" }, "en");
     expect(r).toMatchObject({ ok: true, recap: { totalCents: 10500, forfaitCents: 500, physique: true } });
     expect(r.ok && r.recap.lignes[0].titre).toBe("TEST_Cosplay en");
-    expect(deps.recapitulatif).toHaveBeenCalledWith({ compteId: "TEST_compte", panierId: PANIER, zone: "goma", mode: "livraison" });
+    expect(deps.recapitulatif).toHaveBeenCalledWith({ compteId: "TEST_compte", panierId: PANIER, zone: "goma", mode: "livraison", code: null });
   });
 
   it("refuse Bukavu avec retrait, ou une Zone sans Mode, sans interroger la base", async () => {
@@ -121,6 +121,7 @@ describe("creerCommande", () => {
       totalAttenduCents: 10500,
       empreinte: "0123456789abcdef0123456789abcdef",
       cleIdempotence: CLE,
+      code: null,
     });
   });
 

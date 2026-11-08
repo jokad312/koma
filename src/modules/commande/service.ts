@@ -8,7 +8,8 @@ import {
   VERSION_SUR_MESURE,
 } from "./schemas";
 import type { EntreeCreerCommande, EntreeObtenirKitGratuit, EntreeRecapitulatif } from "./schemas";
-import type { CodeErreurCommande, DependancesCommande, LigneRecap, RecapBrut, Recapitulatif, ResultatCommande } from "./types";
+import { CODES_REFUSES } from "./types";
+import type { CodeErreurCommande, CodePromoRecap, DependancesCommande, LigneRecap, RecapBrut, Recapitulatif, ResultatCommande } from "./types";
 
 // Seul le code de l'erreur est journalisé : ni identifiant de Compte, ni donnée personnelle.
 function journaliser(contexte: string, code: string) {
@@ -35,6 +36,12 @@ const CODES_BASE: [string, CodeErreurCommande][] = [
   ["KS_PANIER_VIDE", "panier_vide"],
   ["KS_PANIER_INTROUVABLE", "panier_introuvable"],
   ["KS_ORIGINE_INVALIDE", "invalide"],
+  ["KS_CODE_INCONNU", "code_inconnu"],
+  ["KS_CODE_INACTIF", "code_inactif"],
+  ["KS_CODE_PLAFOND", "code_plafond"],
+  ["KS_CODE_PREMIER_ACHAT", "code_premier_achat"],
+  ["KS_CODE_UN_SEUL", "code_un_seul"],
+  ["KS_CODE_TOTAL_NUL", "code_total_nul"],
 ];
 
 function codeDeLaBase(message: string): CodeErreurCommande {
@@ -88,6 +95,14 @@ export async function obtenirKitGratuit(deps: DependancesCommande, entree: Entre
 
 const ETATS_RECAP = ["disponible", "sur_commande", "epuise"] as const;
 
+// Code promo tel que la base l'a évalué : seuls les champs connus sont repris (jamais le taux de commission, qui ne quitte pas le serveur).
+function enCodeRecap(c: RecapBrut["code"]): CodePromoRecap | null {
+  if (!c) return null;
+  if (c.valide && typeof c.code === "string") return { valide: true, code: c.code, reductionPct: Number(c.reduction_pct ?? 0) };
+  const erreur = CODES_REFUSES.find((e) => e === c.erreur) ?? "code_inconnu";
+  return { valide: false, erreur };
+}
+
 function enRecap(b: RecapBrut, langue: "fr" | "en"): Recapitulatif {
   const lignes = b.lignes
     .map((l): LigneRecap | null => {
@@ -106,6 +121,7 @@ function enRecap(b: RecapBrut, langue: "fr" | "en"): Recapitulatif {
         etat,
         origine: l.origine === "stock" || l.origine === "fabrication" ? l.origine : null,
         delaiFabricationJours: l.delai_fabrication_jours,
+        reductionCents: l.reduction_cents ?? 0,
       };
     })
     .filter((l): l is LigneRecap => l !== null);
@@ -116,6 +132,8 @@ function enRecap(b: RecapBrut, langue: "fr" | "en"): Recapitulatif {
     surMesure: b.sur_mesure,
     sousTotalCents: b.sous_total_cents,
     forfaitCents: b.forfait_cents,
+    reductionCents: b.reduction_cents ?? 0,
+    code: enCodeRecap(b.code),
     totalCents: b.total_cents,
     indisponible: b.indisponible || lignes.length < b.lignes.length,
     remiseManquante: b.remise_manquante,
@@ -136,7 +154,7 @@ export async function lireRecapitulatif(
   try {
     const panierId = await deps.panierDuCompte(v.compte.compteId);
     if (!panierId) return { ok: false, erreur: "panier_vide" };
-    const r = await deps.recapitulatif({ compteId: v.compte.compteId, panierId, zone: lu.data.zone ?? null, mode: lu.data.mode ?? null });
+    const r = await deps.recapitulatif({ compteId: v.compte.compteId, panierId, zone: lu.data.zone ?? null, mode: lu.data.mode ?? null, code: lu.data.code?.trim() || null });
     if ("erreur" in r) {
       const erreur = codeDeLaBase(r.erreur);
       if (erreur === "erreur") journaliser("recapitulatif_commande", "échec");
@@ -180,11 +198,12 @@ export async function creerCommande(
       totalAttenduCents: lu.data.totalAttenduCents,
       empreinte: lu.data.empreinte,
       cleIdempotence: lu.data.cleIdempotence,
+      code: lu.data.code?.trim() || null,
     });
     if ("erreur" in r) {
       const erreur = codeDeLaBase(r.erreur);
       if (erreur === "total_change" || erreur === "recap_change") {
-        const nouveau = await lireRecapitulatif(deps, { zone: lu.data.zone, mode: lu.data.mode }, langue);
+        const nouveau = await lireRecapitulatif(deps, { zone: lu.data.zone, mode: lu.data.mode, code: lu.data.code }, langue);
         return { ok: false, erreur, recap: nouveau.ok ? nouveau.recap : null };
       }
       if (erreur === "erreur") journaliser("creer_commande", "échec");

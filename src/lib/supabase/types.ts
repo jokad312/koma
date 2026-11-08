@@ -334,6 +334,51 @@ export type Database = {
         }
         Relationships: []
       }
+      commande_code_promo: {
+        Row: {
+          code: string
+          code_promo_id: string
+          commande_id: string
+          commission_pct: number
+          cree_le: string
+          reduction_cents: number
+          reduction_pct: number
+        }
+        Insert: {
+          code: string
+          code_promo_id: string
+          commande_id: string
+          commission_pct: number
+          cree_le?: string
+          reduction_cents: number
+          reduction_pct: number
+        }
+        Update: {
+          code?: string
+          code_promo_id?: string
+          commande_id?: string
+          commission_pct?: number
+          cree_le?: string
+          reduction_cents?: number
+          reduction_pct?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commande_code_promo_code_promo_id_fkey"
+            columns: ["code_promo_id"]
+            isOneToOne: false
+            referencedRelation: "code_promo"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commande_code_promo_commande_id_fkey"
+            columns: ["commande_id"]
+            isOneToOne: true
+            referencedRelation: "commande"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       couverture: {
         Row: {
           cree_le: string
@@ -1624,6 +1669,10 @@ export type Database = {
       }
     }
     Functions: {
+      a_deja_achete: {
+        Args: { p_compte: string; p_sauf_commande?: string }
+        Returns: boolean
+      }
       a_le_role: {
         Args: { p_compte: string; p_evenement?: string; p_role: string }
         Returns: boolean
@@ -1773,11 +1822,17 @@ export type Database = {
         Args: { p_auteur: Json; p_produit_id: string }
         Returns: undefined
       }
+      code_promo_evaluer: {
+        Args: { p_code: string; p_compte: string; p_sauf_commande?: string }
+        Returns: Json
+      }
       commande_calculer: {
         Args: {
+          p_code?: string
           p_compte: string
           p_mode: string
           p_panier: string
+          p_sauf_commande?: string
           p_strict: boolean
           p_zone: string
         }
@@ -1848,6 +1903,7 @@ export type Database = {
           p_adresse: string
           p_auteur: Json
           p_cle_idempotence: string
+          p_code?: string
           p_empreinte: string
           p_mode: string
           p_origine: string
@@ -2217,6 +2273,7 @@ export type Database = {
       rang_disponibilite: { Args: { p_etat: string }; Returns: number }
       recapitulatif_commande: {
         Args: {
+          p_code?: string
           p_compte: string
           p_mode: string
           p_panier: string
@@ -2315,6 +2372,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      utilisations_code_promo: { Args: { p_code: string }; Returns: number }
       valider_video_heros: {
         Args: { p_auteur: Json; p_fichier: string; p_video_id: string }
         Returns: undefined

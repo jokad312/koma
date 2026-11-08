@@ -381,3 +381,16 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-3-3-catalogue-kits-et-fiche-kit.md`
   summary: Rattrapage `extrait_le = now()` de la migration 20261103100000 non testé sur une ligne antérieure.
   evidence: aucune ligne `video_kit` sur koma-dev au moment de la migration ; pgTAP tourne sur un schéma déjà migré.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-2-appliquer-un-code-promo.md`
+  summary: Un code valide dont la réduction arrondie vaut 0 centime consomme quand même une utilisation et le premier achat.
+  evidence: floor(sous-total × pct / 100) = 0 seulement si le sous-total < 100/pct centimes (moins de 10 centimes à 10 %) ; irréaliste avec les prix actuels.
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-2-appliquer-un-code-promo.md`
+  summary: Le reste de l'arrondi posé sur la dernière ligne peut dépasser le montant de cette ligne si elle ne coûte que quelques centimes.
+  evidence: reste ≤ part exacte + (lignes − 1) centimes ; ne se produit qu'avec une dernière ligne de quelques centimes.
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-2-appliquer-un-code-promo.md`
+  summary: Étape de commande : ignorer les réponses de recalcul arrivées hors ordre et désactiver « Confirmer » pendant un recalcul.
+  evidence: le serveur rattrape par KS_TOTAL_CHANGE, mais le client fait un aller-retour inutile.
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-2-appliquer-un-code-promo.md`
+  summary: Tests de rendu de la page Commande du client et du détail admin (ligne « Réduction », aucune fuite du taux de commission côté client).
+  evidence: aucun test de PageDetailCommande ni de DetailCommandeAdmin n'existe (lacune antérieure à la 9.2).

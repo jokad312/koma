@@ -78,6 +78,8 @@ export type CommandeAdminDetail = {
   reclamations: { id: string; statut: string; description: string; ligneTitre: string; ligneNombre: number }[];
   tropPercus: { id: string; montantRecu: number; devise: string; motif: string }[];
   lignes: { id: string; titre: string; famille: string; taille: string | null; nombre: number; prixCents: number; origine: string | null; mesuresRecuesLe: string | null }[];
+  // Code promo figé avec la Commande (story 9.2) ; les taux sont ceux du jour de la commande.
+  codePromo: { code: string; reductionCents: number; reductionPct: number; commissionPct: number } | null;
 };
 
 export async function lireCommandeAdmin(numero: string): Promise<CommandeAdminDetail | null> {
@@ -96,13 +98,15 @@ export async function lireCommandeAdmin(numero: string): Promise<CommandeAdminDe
   if (!statut) return null;
   // Moyen de la Tentative réussie (lecture seule du bloc Paiement).
   const { data: tentative } = await client.from("tentative_paiement").select("moyen").eq("commande_id", data.id).eq("statut", "reussie").order("cree_le", { ascending: false }).limit(1).maybeSingle();
-  const [demande, remboursement, tropPercus, reclamations] = await Promise.all([
+  const [demande, remboursement, tropPercus, reclamations, promo] = await Promise.all([
     client.from("demande_client").select("id, statut").eq("commande_id", data.id).eq("type", "annulation_commande").order("cree_le", { ascending: false }).limit(1).maybeSingle(),
     client.from("remboursement").select("montant_cents, devise, valide_le").eq("cible_type", "commande").eq("cible_id", data.id).maybeSingle(),
     client.from("trop_percu").select("id, montant_recu, devise_recue, motif").eq("commande_id", data.id).eq("statut", "a_rembourser"),
     client.from("demande_client").select("id, statut, description, ligne_id").eq("commande_id", data.id).eq("type", "reclamation").order("cree_le", { ascending: false }),
+    client.from("commande_code_promo").select("code, reduction_cents, reduction_pct, commission_pct").eq("commande_id", data.id).maybeSingle(),
   ]);
   if (demande.error || remboursement.error || tropPercus.error || reclamations.error) throw new Error("lecture des demandes impossible");
+  if (promo.error) throw new Error("lecture du code promo impossible");
   return {
     id: data.id,
     numero: data.numero,
@@ -118,6 +122,9 @@ export async function lireCommandeAdmin(numero: string): Promise<CommandeAdminDe
       ligneNombre: (data.ligne_commande ?? []).find((l) => l.id === r.ligne_id)?.nombre ?? 1,
     })),
     tropPercus: (tropPercus.data ?? []).map((t) => ({ id: t.id, montantRecu: Number(t.montant_recu), devise: t.devise_recue, motif: t.motif })),
+    codePromo: promo.data
+      ? { code: promo.data.code, reductionCents: promo.data.reduction_cents, reductionPct: Number(promo.data.reduction_pct), commissionPct: Number(promo.data.commission_pct) }
+      : null,
     sousTotalCents: data.sous_total_cents,
     forfaitCents: data.forfait_cents,
     totalCents: data.total_cents,

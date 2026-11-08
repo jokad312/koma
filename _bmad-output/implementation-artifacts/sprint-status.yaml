@@ -1,4 +1,4 @@
-# STATUS DEFINITIONS:
+﻿# STATUS DEFINITIONS:
 # ==================
 # Epic Status:
 #   - backlog: Epic not yet started
@@ -128,7 +128,7 @@ development_status:
 
   epic-9: backlog
   9-1-créer-un-code-promo: done
-  9-2-appliquer-un-code-promo: backlog
+  9-2-appliquer-un-code-promo: in-progress
   9-3-ventes-et-commissions-par-code-promo: backlog
   9-4-consentements-préférences-et-désinscription: backlog
   9-5-relances: backlog

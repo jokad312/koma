@@ -44,6 +44,7 @@ const ligne = (s: Partial<Recapitulatif["lignes"][number]> = {}): Recapitulatif[
   etat: "sur_commande",
   origine: "fabrication",
   delaiFabricationJours: 14,
+  reductionCents: 0,
   ...s,
 });
 const recap = (s: Partial<Recapitulatif> = {}): Recapitulatif => ({
@@ -53,6 +54,8 @@ const recap = (s: Partial<Recapitulatif> = {}): Recapitulatif => ({
   surMesure: false,
   sousTotalCents: 10000,
   forfaitCents: 0,
+  reductionCents: 0,
+  code: null,
   totalCents: 10000,
   indisponible: false,
   remiseManquante: true,
@@ -105,7 +108,7 @@ describe("FormulaireCommande", () => {
     await userEvent.click(screen.getByRole("radio", { name: "Bukavu" }));
     expect(screen.queryByRole("radio", { name: "Retrait gratuit à Goma" })).toBeNull();
     expect(screen.getByLabelText("Adresse de livraison")).toBeTruthy();
-    await waitFor(() => expect(faux.lireRecapitulatif).toHaveBeenLastCalledWith({ zone: "bukavu", mode: "livraison" }, "fr"));
+    await waitFor(() => expect(faux.lireRecapitulatif).toHaveBeenLastCalledWith({ zone: "bukavu", mode: "livraison", code: null }, "fr"));
     await screen.findByText(formaterUsd(11200, "fr"));
   });
 
