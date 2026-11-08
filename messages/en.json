@@ -2096,7 +2096,7 @@
       "erreurs": {
         "code_inconnu": "This code does not exist. Check the spelling.",
         "code_inactif": "This code is no longer active.",
-        "code_plafond": "This code has been used the maximum number of times.",
+        "code_plafond": "This code has reached its maximum number of uses.",
         "code_premier_achat": "This code is only valid for a first purchase.",
         "code_un_seul": "Only one code per purchase.",
         "code_total_nul": "This code would make your order free, so it cannot be applied here."
