@@ -31,5 +31,14 @@ Vidéo de 3 secondes, encodée (statut 4), puis :
 - 403 : sans jeton, jeton altéré, jeton expiré, pour la playlist, un segment et la vignette.
 La vidéo est supprimée à la fin ; la bibliothèque est revenue à 0 vidéo.
 
+## Clés inversées dans `.env.local` (corrigé le 2026-11-08)
+`BUNNY_PRIVE_API_KEY` et `BUNNY_PRIVE_TOKEN_KEY` avaient été inversées. Jonathan les a remises à leur place, comme dans le tableau ci-dessus : `BUNNY_PRIVE_API_KEY` reçoit l'« API Key » complète de l'onglet API de la bibliothèque, `BUNNY_PRIVE_TOKEN_KEY` reçoit l'« Url token authentication Key » de la Pull Zone. Contrôle sans afficher les valeurs : la clé de la Pull Zone a la forme d'un UUID (36 caractères), la clé API de Stream est plus longue.
+
+Essai refait le 2026-11-08 avec les clés corrigées (vidéo de test `TEST_jeton`, signature identique à `src/lib/bunny/jeton.ts`). Résultat : 13 contrôles sur 13 conformes.
+- 200 : playlist principale, sous-playlist `240p/video.m3u8`, segment `240p/video0.ts`, vignette.
+- 403 : sans jeton, jeton altéré et jeton expiré, pour la playlist, le segment et la vignette.
+
+La vidéo de test a été supprimée (réponse 200). La seule vidéo qui reste dans la bibliothèque est `KOMA_motion_16x9.mp4`, envoyée le 2026-11-07, qui ne fait pas partie de l'essai.
+
 ## Lecteur intégré de Bunny (plan B, non retenu)
 Jeton d'intégration : `SHA256_HEX(clé Security de la bibliothèque + identifiant de la vidéo + expiration)`, en paramètres `token` et `expires` sur `https://player.mediadelivery.net/embed/<bibliothèque>/<vidéo>` (documentation Bunny « Embed token authentication »). Il perdrait des fonctions de la story 3.7 (choix des sous-titres, qualité adaptative réglée, accessibilité des commandes) et n'est utile que si le jeton CDN cesse de fonctionner.
