@@ -84,7 +84,11 @@ async function rendre(client: ClientService, envoi: EnvoiReserve): Promise<Resul
     // Numéro WhatsApp lu dans les réglages au moment du rendu ; absent ou mal formé : aucune invitation, aucun numéro de repli.
     const { data: numero, error: erreurNumero } = await client.from("reglage").select("valeur").eq("cle", "numero_whatsapp").maybeSingle();
     if (erreurNumero) return { statut: "reessayer", raison: "numéro WhatsApp illisible" };
-    return { statut: "pret", destinataire, message: rendreCommandeLivree(envoi.langue, { ...donnees, lienWhatsapp: lienWhatsapp(numero?.valeur) }) };
+    // Lien « Envoyer une photo » (story 8.1) : jamais pour un Compte mineur, dont la photo ne serait pas publiée.
+    const { data: mineur, error: erreurMineur } = await client.rpc("est_mineur", { p_compte: envoi.compteId });
+    if (erreurMineur) return { statut: "reessayer", raison: "âge du Compte illisible" };
+    const lienPhotos = mineur === true ? null : `${site}/${envoi.langue}/compte/photos`;
+    return { statut: "pret", destinataire, message: rendreCommandeLivree(envoi.langue, { ...donnees, lienWhatsapp: lienWhatsapp(numero?.valeur), lienPhotos }) };
   }
 
   // Annulation et remboursement (story 6.6) : jamais envoyés si la Commande n'est pas dans l'état annoncé ; le montant vient du remboursement figé.

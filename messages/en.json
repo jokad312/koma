@@ -89,6 +89,10 @@
     "desinscription": {
       "titre": "Unsubscribe",
       "description": "Unsubscribe from new arrival, reminder and Festival alert emails."
+    },
+    "comptePhotos": {
+      "titre": "Send a photo",
+      "description": "Send a photo of you in your costume."
     }
   },
   "Accueil": {
@@ -2320,7 +2324,9 @@
       "intro": "Your order {numero} has been delivered. Thank you for your trust.",
       "photo": "Wearing your cosplay? Send us your photo on WhatsApp: {lien}",
       "lien": "Your order page:",
-      "bouton": "View my order"
+      "bouton": "View my order",
+      "photoCompte": "You can also send it from your account: {lien}",
+      "photoCompteSeul": "Wearing your cosplay? Send us your photo from your account: {lien}"
     },
     "commande_annulee": {
       "sujet": "Your order {numero} is cancelled",
@@ -2345,7 +2351,8 @@
       "titre": "My account",
       "navigation": "Account navigation",
       "commandes": "My orders",
-      "preferences": "Preferences"
+      "preferences": "Preferences",
+      "photos": "Send a photo"
     },
     "vide": "No kits in your library yet.",
     "versCatalogue": "Browse kits",
@@ -2522,5 +2529,67 @@
   },
   "Consentement": {
     "emails": "Email me new arrivals from my universes and helpful reminders. You can unsubscribe at any time."
+  },
+  "Communaute": {
+    "titre": "Send a photo",
+    "intro": "Send a photo of you in your costume. It only appears on the “They wear it” wall after approval.",
+    "fichier": {
+      "libelle": "Your photo",
+      "aide": "JPEG, PNG or WebP, 15 MB at most."
+    },
+    "affichage": {
+      "titre": "What shows with your photo",
+      "afficherNom": "Show my username",
+      "nom": "Your username",
+      "afficherVille": "Show my city",
+      "ville": "Your city"
+    },
+    "accord": "I allow this photo to be published on the website and its social media, with my username. I confirm I am the person in the photo (or have their consent) and have the right to share it. I can ask for it to be removed at any time.",
+    "envoyer": "Send my photo",
+    "annuler": "Cancel upload",
+    "progression": "Uploading: {pourcentage}%",
+    "reprise": "Connection lost: the upload is resuming…",
+    "traitement": "Checking the photo…",
+    "succes": "Photo sent. It is waiting for approval.",
+    "annule": "Upload cancelled.",
+    "mineur": "Photos of people under 18 are not published: sending is not possible for now.",
+    "erreurLecture": "Your photos could not be loaded. Try again in a moment.",
+    "erreurs": {
+      "fichier_manquant": "Choose a photo.",
+      "format_invalide": "Accepted formats: JPEG, PNG or WebP, 15 MB at most.",
+      "fichier_trop_lourd": "The photo is over 15 MB. Accepted formats: JPEG, PNG or WebP.",
+      "accord_manquant": "Tick the publication consent to send your photo.",
+      "affichage_invalide": "If you choose to show them, your username (40 characters at most) and your city (60 at most) cannot be empty.",
+      "trop_d_envois": "Too many uploads in a short time. Try again in an hour.",
+      "mineur": "Photos of people under 18 are not published: sending is not possible for now.",
+      "non_connecte": "Your session has expired. Sign in again to send your photo.",
+      "envoi_echec": "The upload failed. Check your connection and try again.",
+      "introuvable": "This photo no longer exists. Reload the page.",
+      "generique": "The photo could not be sent. Try again."
+    },
+    "mesPhotos": {
+      "titre": "My photos",
+      "vide": "You have not sent a photo yet.",
+      "alt": "Your photo sent on {date}",
+      "envoyeeLe": "Sent on {date}",
+      "statut": {
+        "en_attente": "Waiting for approval",
+        "publiee": "Published",
+        "retiree": "Removed"
+      },
+      "pseudo": "Username shown: {nom}",
+      "sansPseudo": "Username not shown",
+      "ville": "City shown: {ville}",
+      "sansVille": "City not shown",
+      "retraitDemande": "Removal requested: the photo will be taken off the wall.",
+      "retirer": "Remove this photo",
+      "confirmation": "Remove this photo? It will never be published.",
+      "confirmationPubliee": "Ask for this photo to be removed from the wall?",
+      "confirmer": "Yes, remove",
+      "garder": "Keep",
+      "erreur": "The removal could not be saved. Try again.",
+      "erreurIntrouvable": "This photo no longer exists. Reload the page.",
+      "erreurSession": "Your session has expired. Sign in again."
+    }
   }
 }

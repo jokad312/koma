@@ -89,6 +89,10 @@
     "desinscription": {
       "titre": "Désinscription",
       "description": "Désinscription des emails de nouveautés, de rappels et d'alertes Festival."
+    },
+    "comptePhotos": {
+      "titre": "Envoyer une photo",
+      "description": "Envoie la photo de toi dans ton costume."
     }
   },
   "Accueil": {
@@ -2320,7 +2324,9 @@
       "intro": "Ta commande {numero} est livrée. Merci de ta confiance.",
       "photo": "Tu portes ton cosplay ? Envoie-nous ta photo sur WhatsApp : {lien}",
       "lien": "Page de ta commande :",
-      "bouton": "Voir ma commande"
+      "bouton": "Voir ma commande",
+      "photoCompte": "Tu peux aussi l'envoyer depuis ton compte : {lien}",
+      "photoCompteSeul": "Tu portes ton cosplay ? Envoie-nous ta photo depuis ton compte : {lien}"
     },
     "commande_annulee": {
       "sujet": "Ta commande {numero} est annulée",
@@ -2345,7 +2351,8 @@
       "titre": "Mon compte",
       "navigation": "Navigation du compte",
       "commandes": "Mes commandes",
-      "preferences": "Préférences"
+      "preferences": "Préférences",
+      "photos": "Envoyer une photo"
     },
     "vide": "Aucun kit dans ta bibliothèque.",
     "versCatalogue": "Voir les kits",
@@ -2522,5 +2529,67 @@
   },
   "Consentement": {
     "emails": "Recevoir par email les nouveautés de mes univers et les rappels utiles. Tu peux te désabonner à tout moment."
+  },
+  "Communaute": {
+    "titre": "Envoyer une photo",
+    "intro": "Envoie la photo de toi dans ton costume. Elle n'est publiée sur le mur « Ils le portent » qu'après validation.",
+    "fichier": {
+      "libelle": "Ta photo",
+      "aide": "JPEG, PNG ou WebP, 15 Mo au plus."
+    },
+    "affichage": {
+      "titre": "Ce qui s'affiche avec ta photo",
+      "afficherNom": "Afficher mon pseudo",
+      "nom": "Ton pseudo",
+      "afficherVille": "Afficher ma ville",
+      "ville": "Ta ville"
+    },
+    "accord": "J'autorise la publication de cette photo sur le site et ses réseaux sociaux, avec mon pseudo. Je confirme être la personne photographiée (ou avoir son accord) et avoir le droit de partager cette photo. Je peux demander son retrait à tout moment.",
+    "envoyer": "Envoyer ma photo",
+    "annuler": "Annuler l'envoi",
+    "progression": "Envoi : {pourcentage} %",
+    "reprise": "Connexion perdue : l'envoi reprend…",
+    "traitement": "Vérification de la photo…",
+    "succes": "Photo envoyée. Elle est en attente de validation.",
+    "annule": "Envoi annulé.",
+    "mineur": "Les photos des moins de 18 ans ne sont pas publiées : l'envoi n'est pas possible pour le moment.",
+    "erreurLecture": "Tes photos n'ont pas pu être chargées. Réessaie dans un instant.",
+    "erreurs": {
+      "fichier_manquant": "Choisis une photo.",
+      "format_invalide": "Formats acceptés : JPEG, PNG ou WebP, 15 Mo au plus.",
+      "fichier_trop_lourd": "La photo dépasse 15 Mo. Formats acceptés : JPEG, PNG ou WebP.",
+      "accord_manquant": "Coche l'accord de publication pour envoyer ta photo.",
+      "affichage_invalide": "Si tu choisis de les afficher, ton pseudo (40 caractères au plus) et ta ville (60 au plus) ne peuvent pas être vides.",
+      "trop_d_envois": "Trop d'envois en peu de temps. Réessaie dans une heure.",
+      "mineur": "Les photos des moins de 18 ans ne sont pas publiées : l'envoi n'est pas possible pour le moment.",
+      "non_connecte": "Ta session a expiré. Reconnecte-toi pour envoyer ta photo.",
+      "envoi_echec": "L'envoi a échoué. Vérifie ta connexion et réessaie.",
+      "introuvable": "Cette photo n'existe plus. Recharge la page.",
+      "generique": "La photo n'a pas pu être envoyée. Réessaie."
+    },
+    "mesPhotos": {
+      "titre": "Mes photos",
+      "vide": "Tu n'as pas encore envoyé de photo.",
+      "alt": "Ta photo envoyée le {date}",
+      "envoyeeLe": "Envoyée le {date}",
+      "statut": {
+        "en_attente": "En attente de validation",
+        "publiee": "Publiée",
+        "retiree": "Retirée"
+      },
+      "pseudo": "Pseudo affiché : {nom}",
+      "sansPseudo": "Pseudo non affiché",
+      "ville": "Ville affichée : {ville}",
+      "sansVille": "Ville non affichée",
+      "retraitDemande": "Retrait demandé : la photo sera retirée du mur.",
+      "retirer": "Retirer cette photo",
+      "confirmation": "Retirer cette photo ? Elle ne sera jamais publiée.",
+      "confirmationPubliee": "Demander le retrait de cette photo du mur ?",
+      "confirmer": "Oui, retirer",
+      "garder": "Garder",
+      "erreur": "Le retrait n'a pas pu être enregistré. Réessaie.",
+      "erreurIntrouvable": "Cette photo n'existe plus. Recharge la page.",
+      "erreurSession": "Ta session a expiré. Reconnecte-toi."
+    }
   }
 }

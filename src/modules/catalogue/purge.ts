@@ -7,6 +7,11 @@ export const AGE_MAX_ATTENTE_MS = 24 * 60 * 60 * 1000;
 // Taille d'un lot d'effacement.
 const LOT = 100;
 
+// Photos de clients vérifiées et nettoyées (story 8.1) : jamais purgées à l'âge seul. Seuls y sont effacés, après 24 h, les fichiers
+// sans photo vivante en base (enregistrement manqué, photo retirée dont l'effacement a échoué, Compte supprimé). Si la liste des
+// photos enregistrées ne peut pas être lue, rien n'est effacé dans ce dossier. Les envois non finalisés (envois-photos/) suivent la règle commune.
+export const DOSSIERS_CONSERVES: readonly string[] = ["photos-clients"];
+
 // Disposition de galerie-attente : deux niveaux, <produit>/<uuid>.<ext> (dossier du produit, puis fichier). `creeLe` est l'âge de
 // référence : la dernière modification si elle existe, sinon la création (un fichier en cours de finalisation n'est pas supprimé).
 export type EntreeAttente = { name: string; creeLe: string | null; estDossier: boolean };
@@ -16,6 +21,8 @@ export type StockageAttente = {
   lister(dossier: string): Promise<{ erreur: string | null; entrees: EntreeAttente[] }>;
   // Renvoie le nombre d'objets réellement effacés (selon la réponse du stockage).
   supprimer(objets: string[]): Promise<{ erreur: string | null; effaces: number }>;
+  // Chemins des photos de clients encore vivantes en base (non retirées) ; null si la lecture est impossible.
+  photosEnregistrees?(): Promise<Set<string> | null>;
 };
 
 export type ResultatPurge = { ok: true; effaces: number; echecs: number } | { ok: false };
@@ -28,7 +35,7 @@ export async function purgerGalerieAttente(stockage: StockageAttente, maintenant
 
   const anciens: string[] = [];
   let echecs = 0;
-  for (const dossier of racine.entrees.filter((e) => e.estDossier)) {
+  for (const dossier of racine.entrees.filter((e) => e.estDossier && !DOSSIERS_CONSERVES.includes(e.name))) {
     const contenu = await stockage.lister(dossier.name);
     if (contenu.erreur) {
       echecs += 1;
@@ -45,6 +52,28 @@ export async function purgerGalerieAttente(stockage: StockageAttente, maintenant
     if (fichier.estDossier || !fichier.creeLe) continue;
     const date = Date.parse(fichier.creeLe);
     if (Number.isFinite(date) && date < limite) anciens.push(fichier.name);
+  }
+
+  // Photos de clients : seuls les fichiers anciens sans photo vivante en base.
+  if (stockage.photosEnregistrees) {
+    for (const dossier of racine.entrees.filter((e) => e.estDossier && DOSSIERS_CONSERVES.includes(e.name))) {
+      const vivantes = await stockage.photosEnregistrees();
+      if (!vivantes) {
+        echecs += 1;
+        continue;
+      }
+      const contenu = await stockage.lister(dossier.name);
+      if (contenu.erreur) {
+        echecs += 1;
+        continue;
+      }
+      for (const fichier of contenu.entrees) {
+        if (fichier.estDossier || !fichier.creeLe) continue;
+        const chemin = `${dossier.name}/${fichier.name}`;
+        const date = Date.parse(fichier.creeLe);
+        if (Number.isFinite(date) && date < limite && !vivantes.has(chemin)) anciens.push(chemin);
+      }
+    }
   }
 
   let effaces = 0;

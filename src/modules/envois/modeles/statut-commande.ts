@@ -12,6 +12,8 @@ export type DonneesStatutCommande = {
   retrait?: boolean;
   // Lien WhatsApp du numéro réglé (jamais en dur) ; absent : l'invitation n'est pas écrite (règle 15).
   lienWhatsapp?: string | null;
+  // Page « Envoyer une photo » du Compte (story 8.1), adresse lue depuis NEXT_PUBLIC_SITE_URL.
+  lienPhotos?: string | null;
 };
 
 // Emails d'avancement (story 6.3) : textes dans messages/*.json (espace Emails), montants et données relus en base au moment du rendu.
@@ -33,6 +35,8 @@ export function rendreCommandeLivree(langue: LangueEmail, d: DonneesStatutComman
   const t = TEXTES[langue].commande_livree;
   const paragraphes = [remplir(t.intro, { numero: d.numero })];
   if (d.lienWhatsapp) paragraphes.push(remplir(t.photo, { lien: d.lienWhatsapp }));
+  // Sans invitation WhatsApp, le lien du Compte a son propre texte (jamais « aussi » sans rien avant).
+  if (d.lienPhotos) paragraphes.push(remplir(d.lienWhatsapp ? t.photoCompte : t.photoCompteSeul, { lien: d.lienPhotos }));
   const { html, texte } = envelopper({ langue, nomSite: d.nomSite, titre: t.titre, paragraphes, texteLien: t.lien, libelleBouton: t.bouton, url: d.url });
   return { sujet: remplir(t.sujet, { numero: d.numero }), html, texte };
 }

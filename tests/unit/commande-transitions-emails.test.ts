@@ -51,4 +51,18 @@ describe("emails d'avancement (story 6.3)", () => {
     expect(rendreCommandeLivree("fr", { ...donnees, lienWhatsapp: "https://wa.me/243000000000" }).texte).toContain("https://wa.me/243000000000");
     expect(rendreCommandeLivree("fr", { ...donnees, lienWhatsapp: null }).texte).not.toMatch(/whatsapp/i);
   });
+  it("story 8.1 : livrée : lien « Envoyer une photo » du Compte, à côté de l'invitation WhatsApp", () => {
+    const lien = "https://test.example.invalid/fr/compte/photos";
+    const m = rendreCommandeLivree("fr", { ...donnees, lienWhatsapp: "https://wa.me/243000000000", lienPhotos: lien });
+    expect(m.texte).toContain(`Tu peux aussi l'envoyer depuis ton compte : ${lien}`);
+    expect(m.texte.indexOf("wa.me")).toBeLessThan(m.texte.indexOf(lien));
+    expect(rendreCommandeLivree("en", { ...donnees, lienWhatsapp: "https://wa.me/243000000000", lienPhotos: lien.replace("/fr/", "/en/") }).texte).toContain("You can also send it from your account");
+  });
+  it("story 8.1 : sans WhatsApp, le lien du Compte a son propre texte ; sans lien (Compte mineur), aucune invitation", () => {
+    const lien = "https://test.example.invalid/fr/compte/photos";
+    const seul = rendreCommandeLivree("fr", { ...donnees, lienWhatsapp: null, lienPhotos: lien }).texte;
+    expect(seul).toContain(`Tu portes ton cosplay ? Envoie-nous ta photo depuis ton compte : ${lien}`);
+    expect(seul).not.toContain("aussi");
+    expect(rendreCommandeLivree("fr", { ...donnees, lienWhatsapp: null, lienPhotos: null }).texte).not.toContain("photo");
+  });
 });

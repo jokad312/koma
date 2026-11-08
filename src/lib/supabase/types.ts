@@ -388,6 +388,7 @@ export type Database = {
       }
       consentement: {
         Row: {
+          cible_id: string | null
           compte_id: string
           donne_le: string
           id: string
@@ -397,6 +398,7 @@ export type Database = {
           version: string
         }
         Insert: {
+          cible_id?: string | null
           compte_id: string
           donne_le?: string
           id?: string
@@ -406,6 +408,7 @@ export type Database = {
           version: string
         }
         Update: {
+          cible_id?: string | null
           compte_id?: string
           donne_le?: string
           id?: string
@@ -983,6 +986,42 @@ export type Database = {
           id?: string
           kit_possede_retire_le?: string | null
           mis_a_jour_le?: string
+        }
+        Relationships: []
+      }
+      photo_galerie: {
+        Row: {
+          compte_id: string
+          cree_le: string
+          id: string
+          nom_affiche: string | null
+          objet: string
+          retiree_le: string | null
+          retrait_demande_le: string | null
+          statut: string
+          ville: string | null
+        }
+        Insert: {
+          compte_id: string
+          cree_le?: string
+          id?: string
+          nom_affiche?: string | null
+          objet: string
+          retiree_le?: string | null
+          retrait_demande_le?: string | null
+          statut?: string
+          ville?: string | null
+        }
+        Update: {
+          compte_id?: string
+          cree_le?: string
+          id?: string
+          nom_affiche?: string | null
+          objet?: string
+          retiree_le?: string | null
+          retrait_demande_le?: string | null
+          statut?: string
+          ville?: string | null
         }
         Relationships: []
       }
@@ -2028,6 +2067,16 @@ export type Database = {
         Args: { p_auteur: Json; p_code: string; p_sens: string }
         Returns: undefined
       }
+      deposer_photo_galerie: {
+        Args: {
+          p_auteur: Json
+          p_nom: string
+          p_objet: string
+          p_version_accord: string
+          p_ville: string
+        }
+        Returns: string
+      }
       depublier_article: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
@@ -2273,6 +2322,7 @@ export type Database = {
           univers_id: string
         }[]
       }
+      lister_mes_photos: { Args: { p_compte: string }; Returns: Json }
       manques_publication: { Args: { p_produit_id: string }; Returns: string[] }
       marquer_message_traite: {
         Args: { p_auteur: Json; p_id: string }
@@ -2387,6 +2437,10 @@ export type Database = {
       retirer_ligne_panier: {
         Args: { p_auteur: Json; p_ligne: string; p_panier: string }
         Returns: undefined
+      }
+      retirer_photo: {
+        Args: { p_auteur: Json; p_photo: string }
+        Returns: Json
       }
       seuil_dernieres_pieces: { Args: never; Returns: number }
       signaler_montant_indetermine: {

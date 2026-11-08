@@ -24,6 +24,17 @@ function stockageReel(): StockageAttente {
       const { data, error } = await bucket.remove(objets);
       return { erreur: error ? error.message : null, effaces: error ? 0 : (data?.length ?? 0) };
     },
+    // Photos de clients encore vivantes (story 8.1) : lues par pages ; une erreur suspend la purge de photos-clients/.
+    photosEnregistrees: async () => {
+      const vivantes = new Set<string>();
+      const page = 1000;
+      for (let debut = 0; ; debut += page) {
+        const { data, error } = await creerClientService().from("photo_galerie").select("objet").neq("statut", "retiree").order("id").range(debut, debut + page - 1);
+        if (error) return null;
+        for (const l of data ?? []) vivantes.add(l.objet);
+        if ((data ?? []).length < page) return vivantes;
+      }
+    },
   };
 }
 

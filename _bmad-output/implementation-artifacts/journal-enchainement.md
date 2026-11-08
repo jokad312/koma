@@ -315,3 +315,12 @@
 - Revue (3 sous-agents) : 9 correctifs. À valider : la désinscription a lieu à l'ouverture du lien (effet immédiat exigé) ; un logiciel qui prévisualise les liens d'un email peut donc désinscrire.
 - À tester à la main : créer un Compte en cochant la case, puis « Mon compte › Préférences » (deux interrupteurs actifs, Alertes Festival désactivé) ; basculer au clavier ; passer une Commande avec la case ; Compte de 15 ans : message « Ces emails ne te sont pas envoyés pour le moment. ». Le lien de désinscription ne sera visible qu'avec les emails des stories 9.5 et 9.6.
 - CI : deux échecs (test SQL d'une fonction STABLE dans la même instruction, puis test e2e qui cherchait « univers », présent dans le texte de la case), corrigés avec l'accord de Jonathan ; CI verte sur `da6d770`. Story 9.4 : `done`.
+
+
+## Story 8.1 : envoyer sa photo depuis son Compte
+- Texte de l'accord et règles fournis par Jonathan (2026-11-08). Décision d'application : un Compte qui a déclaré moins de 18 ans ne peut pas envoyer de photo (elle ne serait jamais publiée), avec un message.
+- Migration `20261231170000_photo_galerie.sql` (appliquée sur koma-dev, types régénérés) : `photo_galerie`, accord de publication par photo dans `consentement` (`cible_id`), `deposer_photo_galerie`, `lister_mes_photos`, `retirer_photo` ; `desinscrire` ne retire plus que les consentements aux emails.
+- Page « Mon compte › Envoyer une photo » : envoi TUS signé (chemin lié au Compte), contrôle et nettoyage par le serveur (EXIF et GPS retirés dès l'envoi), choix d'afficher pseudo et ville, état réel, retrait (immédiat en attente, demande si publiée). Email `commande_livree` : lien vers la page (jamais pour un mineur). Purge : `photos-clients/` nettoyé seulement de ses fichiers sans photo vivante.
+- Revue (3 sous-agents) : 10 correctifs (dont l'envoi lié au Compte et les fichiers orphelins).
+- Question à Jonathan : l'accord dit « avec mon pseudo », mais le client peut choisir de ne pas afficher son pseudo.
+- À tester à la main : sur iPhone (Safari), envoyer une photo HEIC prise par l'appareil : elle doit partir en JPEG ; une photo avec position GPS ; « Annuler l'envoi » ; couper le réseau pendant l'envoi ; retirer une photo en attente ; Compte de 16 ans : message, pas de formulaire.

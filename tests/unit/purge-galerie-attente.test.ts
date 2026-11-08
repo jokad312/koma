@@ -53,6 +53,31 @@ describe("purgerGalerieAttente", () => {
     expect(effaces.sort()).toEqual(["TEST_p1/ancien.jpg", "TEST_p2/ancien2.png"]);
   });
 
+  it("story 8.1 : les photos de clients en attente de validation (photos-clients/) ne sont jamais purgées ; les envois abandonnés, si", async () => {
+    const { stockage, effaces } = TEST_stockage({
+      "photos-clients": [fichier("00000000-0000-4000-8000-000000000001.jpg", il_y_a(200))],
+      "envois-photos": [fichier("00000000-0000-4000-8000-000000000002.jpg", il_y_a(30))],
+    });
+    expect(await purgerGalerieAttente(stockage, MAINTENANT)).toEqual({ ok: true, effaces: 1, echecs: 0 });
+    expect(effaces).toEqual(["envois-photos/00000000-0000-4000-8000-000000000002.jpg"]);
+  });
+
+  it("story 8.1 : dans photos-clients/, seuls les fichiers anciens sans photo vivante en base sont effacés", async () => {
+    const { stockage, effaces } = TEST_stockage({
+      "photos-clients": [fichier("vivante.jpg", il_y_a(200)), fichier("orpheline.jpg", il_y_a(30)), fichier("recente.jpg", il_y_a(1))],
+    });
+    stockage.photosEnregistrees = async () => new Set(["photos-clients/vivante.jpg"]);
+    expect(await purgerGalerieAttente(stockage, MAINTENANT)).toEqual({ ok: true, effaces: 1, echecs: 0 });
+    expect(effaces).toEqual(["photos-clients/orpheline.jpg"]);
+  });
+
+  it("story 8.1 : base illisible : rien n'est effacé dans photos-clients/, l'échec est compté", async () => {
+    const { stockage, effaces } = TEST_stockage({ "photos-clients": [fichier("orpheline.jpg", il_y_a(30))] });
+    stockage.photosEnregistrees = async () => null;
+    expect(await purgerGalerieAttente(stockage, MAINTENANT)).toEqual({ ok: true, effaces: 0, echecs: 1 });
+    expect(effaces).toEqual([]);
+  });
+
   it("un objet sans date lisible n'est jamais effacé", async () => {
     const { stockage, effaces } = TEST_stockage({ TEST_p1: [fichier("a.jpg", null), fichier("b.jpg", "pas une date")] });
     expect(await purgerGalerieAttente(stockage, MAINTENANT)).toEqual({ ok: true, effaces: 0, echecs: 0 });

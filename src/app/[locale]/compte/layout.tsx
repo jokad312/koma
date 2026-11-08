@@ -27,6 +27,11 @@ export default async function CompteLayout({ children, params }: { children: Rea
             </Link>
           </li>
           <li>
+            <Link href="/compte/photos" className="t-small underline underline-offset-4">
+              {t("compte.photos")}
+            </Link>
+          </li>
+          <li>
             <Link href="/compte/preferences" className="t-small underline underline-offset-4">
               {t("compte.preferences")}
             </Link>

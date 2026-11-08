@@ -406,3 +406,9 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-9-4-consentements-preferences-et-desinscription.md`
   summary: Tests des lectures de src/modules/preferences/dependances.ts et de autorisationCommerciale (faux client rpc).
   evidence: une faute de clé (alertes_festival, motif) ne ferait échouer aucun test.
+- source_spec: `_bmad-output/implementation-artifacts/spec-8-1-envoyer-sa-photo-depuis-son-compte.md`
+  summary: Deux finalisations simultanées du même envoi de photo (verrou sur l'objet) et annonces de progression espacées pour les lecteurs d'écran.
+  evidence: le double clic est bloqué côté client ; la zone role="status" contient la barre et le pourcentage.
+- source_spec: `_bmad-output/implementation-artifacts/spec-8-1-envoyer-sa-photo-depuis-son-compte.md`
+  summary: Banc de test de `rendre` (src/modules/envois/dependances.ts) avec un faux client Supabase, pour les liens WhatsApp et « Envoyer une photo » des emails.
+  evidence: aucun test n'exécute `rendre` ; seuls les gabarits sont testés.
