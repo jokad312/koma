@@ -13,8 +13,9 @@ export function compteDeLEnvoi(objet: string): string | null {
 }
 export const DOSSIER_PHOTOS_CLIENTS = "photos-clients";
 
-// Version du texte de l'accord de publication (fourni par Jonathan le 2026-11-08).
-export const VERSION_ACCORD_PUBLICATION = "2026-11-08";
+// Version du texte de l'accord de publication : texte de Jonathan du 2026-11-08, précisé le même jour (« avec mon pseudo si je choisis
+// de l'afficher »). Un nouveau texte = une nouvelle version ; les accords déjà donnés gardent la leur.
+export const VERSION_ACCORD_PUBLICATION = "2026-11-08-v2";
 
 // Limite d'envois par Compte (AD-22) : 10 demandes d'envoi par heure.
 export const LIMITE_ENVOIS_PHOTO_PAR_HEURE = 10;

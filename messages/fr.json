@@ -2544,7 +2544,7 @@
       "afficherVille": "Afficher ma ville",
       "ville": "Ta ville"
     },
-    "accord": "J'autorise la publication de cette photo sur le site et ses réseaux sociaux, avec mon pseudo. Je confirme être la personne photographiée (ou avoir son accord) et avoir le droit de partager cette photo. Je peux demander son retrait à tout moment.",
+    "accord": "J'autorise la publication de cette photo sur le site et ses réseaux sociaux, avec mon pseudo si je choisis de l'afficher. Je confirme être la personne photographiée (ou avoir son accord) et avoir le droit de partager cette photo. Je peux demander son retrait à tout moment.",
     "envoyer": "Envoyer ma photo",
     "annuler": "Annuler l'envoi",
     "progression": "Envoi : {pourcentage} %",

@@ -2544,7 +2544,7 @@
       "afficherVille": "Show my city",
       "ville": "Your city"
     },
-    "accord": "I allow this photo to be published on the website and its social media, with my username. I confirm I am the person in the photo (or have their consent) and have the right to share it. I can ask for it to be removed at any time.",
+    "accord": "I allow this photo to be published on the website and its social media, with my username if I choose to show it. I confirm I am the person in the photo (or have their consent) and have the right to share it. I can ask for it to be removed at any time.",
     "envoyer": "Send my photo",
     "annuler": "Cancel upload",
     "progression": "Uploading: {pourcentage}%",
