@@ -334,3 +334,10 @@
 - Revue (3 sous-agents) : 16 correctifs, dont la copie publique jamais effacée après publication et le retrait qui efface la copie publique avant la base.
 - À tester à la main : valider une photo envoyée depuis un Compte (vérifier l'adresse publique, puis l'absence de position GPS dans le fichier téléchargé) ; refuser ; demander le retrait depuis le Compte puis retirer depuis l'admin (l'adresse publique doit répondre 404 ou 400) ; déposer une photo WhatsApp sans Compte, avec capture ; essayer sans la case 18+ ; avec l'email d'un Compte de 15 ans ; avec un Compte Assistant.
 - CI : un échec (test SQL de la 8.1 qui publiait une photo sans copie publique, interdit par la nouvelle contrainte), corrigé ; CI verte sur `c66d513`. Story 8.2 : `done`.
+
+
+## Story 8.4 : Réalisations
+- Migration `20261231190000_realisations.sql` (appliquée sur koma-dev, types régénérés) : table `realisation` (Kit déclaré, preuve d'achat, date et rang de validation), `kits_payes`, `deposer_realisation` ; `valider_photo`, `lister_photos_admin`, `lister_mes_photos`, `compter_photos_a_traiter` réécrites.
+- Page « Mon compte › Envoyer une Réalisation » (choix parmi les Kits payés ; un Kit gratuit ne compte pas), section « Réalisations à valider » dans `/admin/galerie` avec le Kit et la preuve d'achat, compteur dans la tâche Photos.
+- Revue (3 sous-agents) : Kit vérifié avant l'envoi, tests complétés ; deux constats écartés (un Kit n'est jamais remboursé ; un Kit possédé ne se rachète pas). Notes pour 8.3 et 8.5 dans `deferred-work.md`.
+- À tester à la main (après un paiement réel de Kit) : envoyer une Réalisation, la voir dans la Galerie admin avec sa commande, la valider (rang 1), en valider une seconde (rang 2) ; un Compte avec seulement le Kit gratuit voit « Une Réalisation se fait avec un kit acheté ».

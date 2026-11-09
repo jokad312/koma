@@ -418,3 +418,9 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-8-2-validation-depot-whatsapp-et-retrait-des-photos.md`
   summary: Double dépôt WhatsApp simultané du même envoi, et test du filtre « en attente » de la purge (adaptateur de la route).
   evidence: aucun verrou sur l'objet d'envoi ; l'adaptateur réel de la purge n'a pas de banc de test.
+- source_spec: `_bmad-output/implementation-artifacts/spec-8-4-realisations.md`
+  summary: Pour la story 8.5 : décider si une Réalisation retirée du mur garde son rang, et ne compter qu'une Réalisation par Compte dans l'opération « 10 pass ».
+  evidence: le rang est fixé à la validation et n'est pas effacé au retrait ; un Compte peut envoyer plusieurs Réalisations.
+- source_spec: `_bmad-output/implementation-artifacts/spec-8-4-realisations.md`
+  summary: Pour la story 8.3 : le mur doit afficher « Fait avec un kit KOMA » pour une photo reliée à une `realisation` validée.
+  evidence: la page « Envoyer une Réalisation » annonce cette mention.

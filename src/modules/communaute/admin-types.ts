@@ -11,6 +11,8 @@ export type PhotoAdmin = {
   creeLe: string;
   accordWhatsappLe: string | null;
   capture: boolean;
+  // Réalisation (story 8.4) : Kit déclaré et preuve d'achat (Commande payée) ; rang fixé à la validation. null pour une photo simple.
+  realisation: { kitFr: string; kitEn: string | null; commande: string; payeLe: string; rang: number | null } | null;
   // Aperçu : adresse signée de courte durée (en attente, bucket privé) ou adresse publique (publiée).
   apercu: string | null;
 };

@@ -25,11 +25,12 @@ async function afficher() {
 beforeEach(() => vi.clearAllMocks());
 
 describe("TachePhotos", () => {
-  it("les deux compteurs viennent de la base, chacun à sa place", async () => {
-    faux.rpc.mockResolvedValue({ data: { a_valider: 3, retraits: 1 }, error: null });
+  it("les trois compteurs viennent de la base, chacun à sa place", async () => {
+    faux.rpc.mockResolvedValue({ data: { a_valider: 3, realisations: 2, retraits: 1 }, error: null });
     await afficher();
     expect(faux.rpc).toHaveBeenCalledWith("compter_photos_a_traiter");
     expect(screen.getByText(P.aValider.replace("{nombre}", "3"))).toBeTruthy();
+    expect(screen.getByText(P.realisations.replace("{nombre}", "2"))).toBeTruthy();
     expect(screen.getByText(P.retraits.replace("{nombre}", "1"))).toBeTruthy();
   });
 

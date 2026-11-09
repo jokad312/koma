@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { nettoyerPhoto } from "@/modules/catalogue/photo";
 import { CHEMIN_ENVOI_PHOTO, compteDeLEnvoi, DOSSIER_PHOTOS_CLIENTS, FORMATS_PHOTO_CLIENT, PHOTO_CLIENT_TAILLE_MAX } from "./types";
-import type { DependancesCommunaute, PhotoClient, ResultatPhoto } from "./types";
+import type { DependancesCommunaute, KitPaye, PhotoClient, ResultatPhoto } from "./types";
 
 // Seul le contexte est journalisé : ni identifiant de Compte, ni nom de fichier, ni donnée personnelle.
 function journaliser(contexte: string) {
@@ -23,7 +23,7 @@ function affichageValide(nom: string, ville: string): boolean {
 
 // Autorise l'envoi direct d'une photo vers le bucket privé : chemin choisi par le serveur, Compte complet, pas de Compte mineur, limite d'envois.
 export async function demanderEnvoiPhoto(deps: DependancesCommunaute, entree: unknown): Promise<ResultatPhoto<{ objet: string; jeton: string }>> {
-  const lu = z.object({ type: z.string(), taille: z.number() }).safeParse(entree);
+  const lu = z.object({ type: z.string(), taille: z.number(), kitId: z.uuid().nullish() }).safeParse(entree);
   if (!lu.success) return { ok: false, erreur: "format_invalide" };
   if (!Object.hasOwn(FORMATS_PHOTO_CLIENT, lu.data.type)) return { ok: false, erreur: "format_invalide" };
   if (!Number.isInteger(lu.data.taille) || lu.data.taille < 1) return { ok: false, erreur: "format_invalide" };
@@ -32,6 +32,15 @@ export async function demanderEnvoiPhoto(deps: DependancesCommunaute, entree: un
     const compte = await deps.compte();
     if (!compte) return { ok: false, erreur: "non_connecte" };
     if (await deps.estMineur(compte.compteId)) return { ok: false, erreur: "mineur" };
+    // Réalisation (story 8.4) : le Kit est vérifié avant tout envoi (pas de photo envoyée pour rien) ; la base le revérifie au dépôt.
+    if (lu.data.kitId) {
+      const kits = await deps.kitsPayes(compte.compteId);
+      if ("erreur" in kits) {
+        journaliser("lecture des kits payés");
+        return { ok: false, erreur: "generique" };
+      }
+      if (!kits.kits.some((k) => k.id === lu.data.kitId)) return { ok: false, erreur: "kit_non_paye" };
+    }
     const essai = await deps.consommerEssai(`photo:${compte.compteId}`);
     if ("erreur" in essai) {
       journaliser("limite d'envois");
@@ -56,7 +65,7 @@ export async function demanderEnvoiPhoto(deps: DependancesCommunaute, entree: un
 // comprise), copie nettoyée rangée dans photos-clients/, original de l'envoi effacé, puis photo et accord enregistrés en base.
 export async function finaliserPhoto(deps: DependancesCommunaute, entree: unknown): Promise<ResultatPhoto<{ id: string }>> {
   const lu = z
-    .object({ objet: z.string(), accord: z.boolean(), afficherNom: z.boolean(), nom: z.string(), afficherVille: z.boolean(), ville: z.string() })
+    .object({ objet: z.string(), accord: z.boolean(), afficherNom: z.boolean(), nom: z.string(), afficherVille: z.boolean(), ville: z.string(), kitId: z.uuid().nullish() })
     .safeParse(entree);
   if (!lu.success || !CHEMIN_ENVOI_PHOTO.test(lu.data.objet)) return { ok: false, erreur: "format_invalide" };
   if (lu.data.accord !== true) return { ok: false, erreur: "accord_manquant" };
@@ -98,13 +107,14 @@ export async function finaliserPhoto(deps: DependancesCommunaute, entree: unknow
       return { ok: false, erreur: "generique" };
     }
     await deps.supprimerObjet(objetEnvoi);
-    const depot = await deps.deposer({ auteur: compte.auteur, objet: objetGarde, nom: affichage.data.nom || null, ville: affichage.data.ville || null });
+    const depot = await deps.deposer({ auteur: compte.auteur, objet: objetGarde, nom: affichage.data.nom || null, ville: affichage.data.ville || null, kitId: lu.data.kitId ?? null });
     if ("erreur" in depot) {
       // Rien n'est enregistré : la copie nettoyée est effacée (sinon la purge des fichiers sans photo la reprendra).
       const efface = await deps.supprimerObjet(objetGarde);
       if (efface.erreur) journaliser("effacement de la copie non enregistrée");
       if (depot.erreur.includes("KS_PHOTO_MINEUR")) return { ok: false, erreur: "mineur" };
       if (depot.erreur.includes("KS_AFFICHAGE_INVALIDE")) return { ok: false, erreur: "affichage_invalide" };
+      if (depot.erreur.includes("KS_KIT_NON_PAYE")) return { ok: false, erreur: "kit_non_paye" };
       journaliser("enregistrement de la photo");
       return { ok: false, erreur: "generique" };
     }
@@ -186,6 +196,23 @@ export async function retirerPhoto(deps: DependancesCommunaute, entree: unknown)
     return { ok: true, resultat: r.resultat === "demande" ? "demande" : "retiree" };
   } catch {
     journaliser("retrait de la photo");
+    return { ok: false, erreur: "generique" };
+  }
+}
+
+// Kits payés du Compte (story 8.4) : ceux qu'il peut déclarer pour une Réalisation.
+export async function lireKitsPayes(deps: DependancesCommunaute): Promise<ResultatPhoto<{ kits: KitPaye[]; mineur: boolean }>> {
+  try {
+    const compte = await deps.compte();
+    if (!compte) return { ok: false, erreur: "non_connecte" };
+    const [r, mineur] = await Promise.all([deps.kitsPayes(compte.compteId), deps.estMineur(compte.compteId)]);
+    if ("erreur" in r) {
+      journaliser("lecture des kits payés");
+      return { ok: false, erreur: "generique" };
+    }
+    return { ok: true, kits: r.kits, mineur };
+  } catch {
+    journaliser("lecture des kits payés");
     return { ok: false, erreur: "generique" };
   }
 }

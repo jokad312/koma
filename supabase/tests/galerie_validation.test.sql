@@ -35,7 +35,7 @@ create temp table ph as select
   public.deposer_photo_galerie(pg_temp.c('a1'), pg_temp.obj(1), 'TEST_Pseudo', null, 'TEST_v1') as p1,
   public.deposer_photo_galerie(pg_temp.c('a1'), pg_temp.obj(2), null, null, 'TEST_v1') as p2;
 grant select on ph to public;
-select is(public.compter_photos_a_traiter(), '{"a_valider": 2, "retraits": 0}'::jsonb, 'tâche : deux photos à valider');
+select is(public.compter_photos_a_traiter(), '{"a_valider": 2, "realisations": 0, "retraits": 0}'::jsonb, 'tâche : deux photos à valider');
 select is(jsonb_array_length(public.lister_photos_admin(pg_temp.c('a3'))), 2, 'la file liste les deux photos');
 
 -- Validation.
@@ -53,7 +53,7 @@ select is(public.retirer_photo(pg_temp.c('a1'), (select p2 from ph)) ->> 'result
 
 -- Retrait demandé par le client puis retrait par le personnel.
 select is(public.retirer_photo(pg_temp.c('a1'), (select p1 from ph)) ->> 'resultat', 'demande', 'le client demande le retrait de sa photo publiée');
-select is(public.compter_photos_a_traiter(), '{"a_valider": 0, "retraits": 1}'::jsonb, 'tâche : un retrait demandé');
+select is(public.compter_photos_a_traiter(), '{"a_valider": 0, "realisations": 0, "retraits": 1}'::jsonb, 'tâche : un retrait demandé');
 select is(public.retirer_photo_admin(pg_temp.c('a3'), (select p1 from ph)) ->> 'fichier_public', pg_temp.pub(1), 'retrait : renvoie la copie publique à effacer');
 select ok((select statut = 'retiree' and fichier_public is null and retiree_le is not null from public.photo_galerie where id = (select p1 from ph)), 'retirée du mur aussitôt');
 select throws_ok($$select public.retirer_photo_admin(pg_temp.c('a3'), (select p1 from ph))$$, 'P0001', 'KS_PHOTO_NON_PUBLIEE', 'une photo retirée ne se retire pas deux fois');

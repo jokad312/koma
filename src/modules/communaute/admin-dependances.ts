@@ -10,6 +10,13 @@ import { VERSION_ACCORD_PUBLICATION } from "./types";
 
 const DUREE_APERCU_SECONDES = 600;
 
+function lireRealisation(r: unknown): PhotoAdmin["realisation"] {
+  if (!r || typeof r !== "object" || Array.isArray(r)) return null;
+  const v = r as Record<string, unknown>;
+  if (typeof v.kit_fr !== "string" || typeof v.commande !== "string" || typeof v.paye_le !== "string") return null;
+  return { kitFr: v.kit_fr, kitEn: typeof v.kit_en === "string" ? v.kit_en : null, commande: v.commande, payeLe: v.paye_le, rang: typeof v.rang === "number" ? v.rang : null };
+}
+
 // Les vrais accès du personnel (en test, des faux nommés TEST_ les remplacent). Toutes les fonctions SQL vérifient aussi le rôle.
 export function dependancesGalerie(): DependancesGalerie {
   const admin = creerClientService();
@@ -33,6 +40,7 @@ export function dependancesGalerie(): DependancesGalerie {
           creeLe: p.cree_le,
           accordWhatsappLe: typeof p.accord_whatsapp_le === "string" ? p.accord_whatsapp_le : null,
           capture: p.capture === true,
+          realisation: lireRealisation(p.realisation),
         });
       }
       return { photos, objets };

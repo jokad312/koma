@@ -109,6 +109,18 @@ describe("EnvoiPhotoClient", () => {
     expect(await screen.findByText(C.erreurs.affichage_invalide)).toBeTruthy();
   });
 
+  it("story 8.4 : Réalisation : le Kit utilisé est obligatoire, puis transmis", async () => {
+    rendre(<EnvoiPhotoClient kits={[{ id: "00000000-0000-4000-8000-0000000000c1", titreFr: "TEST_Kit", titreEn: null }]} />);
+    await userEvent.upload(screen.getByLabelText(C.fichier.libelle), photo());
+    await userEvent.click(screen.getByRole("checkbox", { name: C.accord }));
+    await userEvent.click(screen.getByRole("button", { name: C.envoyer }));
+    expect(await screen.findByText(C.erreurs.kit_manquant)).toBeTruthy();
+    expect(faux.demander).not.toHaveBeenCalled();
+    await userEvent.selectOptions(screen.getByLabelText(C.realisation.kit), "00000000-0000-4000-8000-0000000000c1");
+    await userEvent.click(screen.getByRole("button", { name: C.envoyer }));
+    await waitFor(() => expect(faux.finaliser).toHaveBeenCalledWith(expect.objectContaining({ kitId: "00000000-0000-4000-8000-0000000000c1" })));
+  });
+
   it("textes FR et EN en parité ; l'accord est le texte de Jonathan dans les deux langues", () => {
     const cles = (o: unknown, p = ""): string[] =>
       Object.entries(o as Record<string, unknown>).flatMap(([k, v]) => (typeof v === "object" && v !== null ? cles(v, `${p}${k}.`) : [`${p}${k}`]));

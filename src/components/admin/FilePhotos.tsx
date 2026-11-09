@@ -47,7 +47,8 @@ export function FilePhotos({ photos }: { photos: PhotoAdmin[] }) {
     }
   }
 
-  const aValider = photos.filter((p) => p.statut === "en_attente");
+  const aValider = photos.filter((p) => p.statut === "en_attente" && !p.realisation);
+  const realisations = photos.filter((p) => p.statut === "en_attente" && p.realisation);
   const retraits = photos.filter((p) => p.statut === "publiee" && p.retraitDemande);
   const publiees = photos.filter((p) => p.statut === "publiee" && !p.retraitDemande);
   const occupe = enCours !== null;
@@ -69,6 +70,15 @@ export function FilePhotos({ photos }: { photos: PhotoAdmin[] }) {
           <p className="t-small text-text-secondary">{p.ville ? t("ville", { ville: p.ville }) : t("sansVille")}</p>
           {p.accordWhatsappLe ? <p className="t-small text-text-secondary">{t("accordWhatsapp", { date: formaterDateBoutique(p.accordWhatsappLe, locale) ?? p.accordWhatsappLe })}</p> : null}
           {p.capture ? <p className="t-small text-text-secondary">{t("captureJointe")}</p> : null}
+          {p.realisation ? (
+            <>
+              <p className="t-label text-text-primary">{t("realisation.kit", { kit: locale === "en" && p.realisation.kitEn ? p.realisation.kitEn : p.realisation.kitFr })}</p>
+              <p className="t-small text-text-secondary">
+                {t("realisation.preuve", { commande: p.realisation.commande, date: formaterDateBoutique(p.realisation.payeLe, locale) ?? p.realisation.payeLe })}
+              </p>
+              {p.realisation.rang ? <p className="t-small text-text-secondary">{t("realisation.rang", { rang: p.realisation.rang })}</p> : null}
+            </>
+          ) : null}
           {p.retraitDemande ? <p className="t-label text-text-primary">{t("retraitDemande")}</p> : null}
           {confirmation ? (
             <div className="mt-2 flex flex-col gap-2">
@@ -118,6 +128,7 @@ export function FilePhotos({ photos }: { photos: PhotoAdmin[] }) {
         {retour ? <MessageEtat type={retour.type}>{retour.texte}</MessageEtat> : null}
       </div>
       {section("galerie-a-valider", t("aValider.titre", { nombre: aValider.length }), t("aValider.vide"), aValider, ["valider", "refuser"])}
+      {section("galerie-realisations", t("realisations.titre", { nombre: realisations.length }), t("realisations.vide"), realisations, ["valider", "refuser"])}
       {section("galerie-retraits", t("retraits.titre", { nombre: retraits.length }), t("retraits.vide"), retraits, ["retirer"])}
       {section("galerie-publiees", t("publiees.titre", { nombre: publiees.length }), t("publiees.vide"), publiees, ["retirer"])}
     </div>

@@ -30,6 +30,7 @@ const photo = (s: Partial<PhotoAdmin> = {}): PhotoAdmin => ({
   creeLe: "2026-11-09T10:00:00Z",
   accordWhatsappLe: null,
   capture: false,
+  realisation: null,
   apercu: "https://TEST.invalid/a",
   ...s,
 });
@@ -80,6 +81,14 @@ describe("FilePhotos", () => {
     await userEvent.click(screen.getByRole("button", { name: G.confirmation.non }));
     expect(faux.refuser).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: /Refuser la photo/ })).toBeTruthy();
+  });
+
+  it("story 8.4 : une Réalisation est listée à part, avec son Kit déclaré et sa preuve d'achat", () => {
+    rendre(<FilePhotos photos={[photo({ realisation: { kitFr: "TEST_Kit", kitEn: null, commande: "KS-2026-000042", payeLe: "2026-11-05T10:00:00Z", rang: null } })]} />);
+    expect(screen.getByRole("heading", { name: G.realisations.titre.replace("{nombre}", "1") })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: G.aValider.titre.replace("{nombre}", "0") })).toBeTruthy();
+    expect(screen.getByText(G.realisation.kit.replace("{kit}", "TEST_Kit"))).toBeTruthy();
+    expect(screen.getByText(/KS-2026-000042/)).toBeTruthy();
   });
 
   it("textes FR et EN en parité", () => {

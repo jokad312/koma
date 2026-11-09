@@ -47,16 +47,22 @@ export function dependancesCommunaute(): DependancesCommunaute {
       const { error } = await admin.storage.from(BUCKET_ATTENTE).remove([objet]);
       return { erreur: error ? error.message : null };
     },
-    deposer: async ({ auteur, objet, nom, ville }) => {
-      const { data, error } = await admin.rpc("deposer_photo_galerie", {
-        p_auteur: auteur as never,
-        p_objet: objet,
-        p_nom: nom as never,
-        p_ville: ville as never,
-        p_version_accord: VERSION_ACCORD_PUBLICATION,
-      });
-      if (error || typeof data !== "string") return { erreur: error?.message ?? "deposer_photo_galerie" };
+    deposer: async ({ auteur, objet, nom, ville, kitId }) => {
+      const commun = { p_auteur: auteur as never, p_objet: objet, p_nom: nom as never, p_ville: ville as never, p_version_accord: VERSION_ACCORD_PUBLICATION };
+      const { data, error } = kitId
+        ? await admin.rpc("deposer_realisation", { ...commun, p_kit: kitId })
+        : await admin.rpc("deposer_photo_galerie", commun);
+      if (error || typeof data !== "string") return { erreur: error?.message ?? (kitId ? "deposer_realisation" : "deposer_photo_galerie") };
       return { id: data };
+    },
+    kitsPayes: async (compteId) => {
+      const { data, error } = await admin.rpc("kits_payes", { p_compte: compteId });
+      if (error || !Array.isArray(data)) return { erreur: error?.message ?? "kits_payes" };
+      return {
+        kits: (data as Record<string, unknown>[]).flatMap((k) =>
+          typeof k.id === "string" && typeof k.titre_fr === "string" ? [{ id: k.id, titreFr: k.titre_fr, titreEn: typeof k.titre_en === "string" ? k.titre_en : null }] : [],
+        ),
+      };
     },
     lister: async (compteId) => {
       const { data, error } = await admin.rpc("lister_mes_photos", { p_compte: compteId });
@@ -74,6 +80,8 @@ export function dependancesCommunaute(): DependancesCommunaute {
             ville: typeof p.ville === "string" ? p.ville : null,
             retraitDemande: typeof p.retrait_demande_le === "string",
             creeLe: p.cree_le,
+            kitFr: typeof p.kit_fr === "string" ? p.kit_fr : null,
+            kitEn: typeof p.kit_en === "string" ? p.kit_en : null,
           },
         ];
       });

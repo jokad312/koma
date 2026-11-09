@@ -21,7 +21,21 @@ export const VERSION_ACCORD_PUBLICATION = "2026-11-08-v2";
 export const LIMITE_ENVOIS_PHOTO_PAR_HEURE = 10;
 
 export type StatutPhoto = "en_attente" | "publiee" | "refusee" | "retiree";
-export type PhotoClient = { id: string; statut: StatutPhoto; nomAffiche: string | null; ville: string | null; retraitDemande: boolean; creeLe: string; apercu: string | null };
+// kitFr / kitEn : titre du Kit déclaré si la photo est une Réalisation (story 8.4), sinon null.
+export type PhotoClient = {
+  id: string;
+  statut: StatutPhoto;
+  nomAffiche: string | null;
+  ville: string | null;
+  retraitDemande: boolean;
+  creeLe: string;
+  apercu: string | null;
+  kitFr: string | null;
+  kitEn: string | null;
+};
+
+// Kit payé du Compte, déclarable pour une Réalisation (accès dont la Commande d'origine a un paye_le ; un Kit gratuit ne compte pas).
+export type KitPaye = { id: string; titreFr: string; titreEn: string | null };
 
 export type ErreurPhoto =
   | "non_connecte"
@@ -31,6 +45,7 @@ export type ErreurPhoto =
   | "accord_manquant"
   | "affichage_invalide"
   | "trop_d_envois"
+  | "kit_non_paye"
   | "introuvable"
   | "generique";
 
@@ -45,7 +60,9 @@ export type DependancesCommunaute = {
   lireObjet: (objet: string) => Promise<{ octets: Uint8Array } | { erreur: string }>;
   ecrireObjet: (args: { objet: string; octets: Uint8Array; contentType: string }) => Promise<{ erreur: string | null }>;
   supprimerObjet: (objet: string) => Promise<{ erreur: string | null }>;
-  deposer: (args: { auteur: Auteur; objet: string; nom: string | null; ville: string | null }) => Promise<{ id: string } | { erreur: string }>;
+  // kitId présent : Réalisation (story 8.4) ; le Kit doit être payé, vérifié par la base.
+  deposer: (args: { auteur: Auteur; objet: string; nom: string | null; ville: string | null; kitId?: string | null }) => Promise<{ id: string } | { erreur: string }>;
+  kitsPayes: (compteId: string) => Promise<{ kits: KitPaye[] } | { erreur: string }>;
   lister: (compteId: string) => Promise<{ photos: Omit<PhotoClient, "apercu">[]; objets: Record<string, string> } | { erreur: string }>;
   apercus: (objets: string[]) => Promise<Record<string, string>>;
   retirer: (auteur: Auteur, photoId: string) => Promise<{ resultat: "retiree" | "demande" | "deja_retiree"; objet: string } | { erreur: string }>;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useId, useRef, useState, type FormEvent } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
@@ -8,25 +8,30 @@ import { useRouter } from "@/i18n/navigation";
 import { lireEnvPublique } from "@/lib/env";
 import { demarrerEnvoiTus, type EnvoiTus } from "@/lib/supabase/envoi-tus";
 import { annulerEnvoiPhotoAction, demanderEnvoiPhotoAction, finaliserPhotoAction } from "@/modules/communaute/actions";
-import { FORMATS_PHOTO_CLIENT, PHOTO_CLIENT_TAILLE_MAX } from "@/modules/communaute/types";
+import { FORMATS_PHOTO_CLIENT, PHOTO_CLIENT_TAILLE_MAX, type KitPaye } from "@/modules/communaute/types";
 
 const CHAMP = "t-body min-h-touch w-full rounded-md border border-border-field bg-surface px-4 py-3 text-text-primary";
 type Phase = "repos" | "envoi" | "traitement";
-type Champ = "fichier" | "nom" | "ville" | "accord" | null;
+type Champ = "fichier" | "kit" | "nom" | "ville" | "accord" | null;
 
 const CHAMP_DE: Record<string, Champ> = {
   fichier_manquant: "fichier",
   format_invalide: "fichier",
   fichier_trop_lourd: "fichier",
   accord_manquant: "accord",
+  kit_manquant: "kit",
+  kit_non_paye: "kit",
 };
 
 // « Mon compte › Envoyer une photo » (story 8.1, UX-DR30) : contrôles avant tout envoi, autorisation signée par le serveur, envoi TUS
 // direct (progression en texte, reprise après coupure, « Annuler l'envoi »), puis vérification et nettoyage par le serveur. Le succès
 // n'est affiché qu'après la réponse réelle de la finalisation (règle 13).
 // Formats limités à JPEG, PNG et WebP : Safari sur iPhone convertit alors une photo HEIC en JPEG au moment du choix.
-export function EnvoiPhotoClient() {
+// kits (story 8.4) : formulaire « Envoyer une Réalisation » ; le Kit utilisé, parmi ceux qui ont été payés, est alors obligatoire.
+export function EnvoiPhotoClient({ kits }: { kits?: KitPaye[] } = {}) {
   const t = useTranslations("Communaute");
+  const langue = useLocale();
+  const [kitId, setKitId] = useState("");
   const router = useRouter();
   const base = useId();
   const refFichier = useRef<HTMLInputElement>(null);
@@ -60,6 +65,7 @@ export function EnvoiPhotoClient() {
     if ((afficherNom && (nom.trim() === "" || [...nom.trim()].length > 40)) || (afficherVille && (ville.trim() === "" || [...ville.trim()].length > 60))) {
       return setErreur({ code: "affichage_invalide", champ: afficherNom && (nom.trim() === "" || [...nom.trim()].length > 40) ? "nom" : "ville" });
     }
+    if (kits && kitId === "") return echec("kit_manquant");
     if (!accord) return echec("accord_manquant");
 
     enVol.current = true;
@@ -68,7 +74,7 @@ export function EnvoiPhotoClient() {
     setReprise(false);
     setPhase("envoi");
     try {
-      const autorisation = await demanderEnvoiPhotoAction({ type: fichier.type, taille: fichier.size });
+      const autorisation = await demanderEnvoiPhotoAction({ type: fichier.type, taille: fichier.size, ...(kits ? { kitId } : {}) });
       if (!autorisation.ok) return echec(autorisation.erreur);
       objetEnCours.current = autorisation.objet;
       if (annule.current) {
@@ -105,10 +111,11 @@ export function EnvoiPhotoClient() {
       if (annule.current) return;
 
       setPhase("traitement");
-      const fini = await finaliserPhotoAction({ objet: autorisation.objet, accord, afficherNom, nom, afficherVille, ville });
+      const fini = await finaliserPhotoAction({ objet: autorisation.objet, accord, afficherNom, nom, afficherVille, ville, ...(kits ? { kitId } : {}) });
       if (!fini.ok) return echec(fini.erreur);
       setMessage(t("succes"));
       setAccord(false);
+      setKitId("");
       if (refFichier.current) refFichier.current.value = "";
       router.refresh();
     } catch {
@@ -137,7 +144,7 @@ export function EnvoiPhotoClient() {
   }
 
   const occupe = phase !== "repos";
-  const ids = { fichier: `${base}-fichier`, nom: `${base}-nom`, ville: `${base}-ville`, accord: `${base}-accord` };
+  const ids = { kit: `${base}-kit`, fichier: `${base}-fichier`, nom: `${base}-nom`, ville: `${base}-ville`, accord: `${base}-accord` };
   const erreurDe = (champ: Champ) => (erreur && erreur.champ === champ ? texteErreur(erreur.code) : null);
   const decrit = (id: string, aide: string | null, champ: Champ) => [aide, erreurDe(champ) ? `${id}-erreur` : null].filter(Boolean).join(" ") || undefined;
   const erreurChamp = (id: string, champ: Champ) =>
@@ -150,6 +157,31 @@ export function EnvoiPhotoClient() {
   return (
     <form onSubmit={surEnvoi} noValidate className="flex max-w-2xl flex-col gap-4">
       {erreur && erreur.champ === null ? <MessageEtat type="erreur">{texteErreur(erreur.code)}</MessageEtat> : null}
+
+      {kits ? (
+        <div className="flex flex-col gap-2">
+          <label htmlFor={ids.kit} className="t-label text-text-primary">
+            {t("realisation.kit")}
+          </label>
+          <select
+            id={ids.kit}
+            value={kitId}
+            onChange={(e) => setKitId(e.target.value)}
+            disabled={occupe}
+            aria-invalid={erreurDe("kit") ? true : undefined}
+            aria-describedby={decrit(ids.kit, null, "kit")}
+            className={CHAMP}
+          >
+            <option value="">{t("realisation.choisir")}</option>
+            {kits.map((k) => (
+              <option key={k.id} value={k.id}>
+                {langue === "en" && k.titreEn ? k.titreEn : k.titreFr}
+              </option>
+            ))}
+          </select>
+          {erreurChamp(ids.kit, "kit")}
+        </div>
+      ) : null}
 
       <div className="flex flex-col gap-2">
         <label htmlFor={ids.fichier} className="t-label text-text-primary">

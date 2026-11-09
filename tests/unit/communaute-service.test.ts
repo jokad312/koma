@@ -40,6 +40,7 @@ function faux(s: Partial<DependancesCommunaute> = {}) {
     deposer: vi.fn(async () => ({ id: "00000000-0000-4000-8000-0000000000aa" })),
     lister: vi.fn(async () => ({ photos: [], objets: {} })),
     apercus: vi.fn(async () => ({})),
+    kitsPayes: vi.fn(async () => ({ kits: [{ id: "00000000-0000-4000-8000-0000000000c1", titreFr: "TEST_Kit", titreEn: null }] })),
     retirer: vi.fn(async () => ({ resultat: "retiree" as const, objet: "photos-clients/x.jpg" })),
     ...s,
   };
@@ -112,6 +113,38 @@ describe("finaliserPhoto", () => {
   });
 });
 
+describe("story 8.4 : Réalisations", () => {
+  it("Kit déclaré transmis à la base ; Kit non payé : refus dédié, copie nettoyée effacée", async () => {
+    const kit = "00000000-0000-4000-8000-0000000000c1";
+    const a = faux();
+    expect(await finaliserPhoto(a.deps, { ...finale, kitId: kit })).toMatchObject({ ok: true });
+    expect(a.deps.deposer).toHaveBeenCalledWith(expect.objectContaining({ kitId: kit }));
+    const b = faux({ deposer: vi.fn(async () => ({ erreur: "KS_KIT_NON_PAYE" })) });
+    expect(await finaliserPhoto(b.deps, { ...finale, kitId: kit })).toEqual({ ok: false, erreur: "kit_non_paye" });
+    expect(b.supprimes.some((s) => s.startsWith("photos-clients/"))).toBe(true);
+  });
+
+  it("photo simple : aucun Kit transmis ; Kit qui n'est pas un identifiant : refusé", async () => {
+    const a = faux();
+    await finaliserPhoto(a.deps, finale);
+    expect(a.deps.deposer).toHaveBeenCalledWith(expect.objectContaining({ kitId: null }));
+    expect(await finaliserPhoto(faux().deps, { ...finale, kitId: "TEST" })).toEqual({ ok: false, erreur: "format_invalide" });
+  });
+
+  it("Kit vérifié avant tout envoi : Kit non payé refusé sans autorisation signée", async () => {
+    const { deps } = faux();
+    expect(await demanderEnvoiPhoto(deps, { type: "image/jpeg", taille: 10, kitId: "00000000-0000-4000-8000-0000000000c9" })).toEqual({ ok: false, erreur: "kit_non_paye" });
+    expect(deps.signerEnvoi).not.toHaveBeenCalled();
+    expect(await demanderEnvoiPhoto(faux().deps, { type: "image/jpeg", taille: 10, kitId: "00000000-0000-4000-8000-0000000000c1" })).toMatchObject({ ok: true });
+  });
+
+  it("Kits payés lus pour le Compte connecté ; non connecté : refusé", async () => {
+    const { lireKitsPayes } = await import("@/modules/communaute/service");
+    expect(await lireKitsPayes(faux().deps)).toMatchObject({ ok: true, mineur: false, kits: [{ titreFr: "TEST_Kit" }] });
+    expect(await lireKitsPayes(faux({ compte: vi.fn(async () => null) }).deps)).toEqual({ ok: false, erreur: "non_connecte" });
+  });
+});
+
 describe("revue 8.1", () => {
   it("un envoi autorisé pour un autre Compte n'est ni finalisé ni annulé, ni lu ni effacé", async () => {
     const { deps, supprimes } = faux();
@@ -153,10 +186,10 @@ describe("annulation, liste et retrait", () => {
     const { deps } = faux({
       lister: vi.fn(async () => ({
         photos: [
-          { id: "a", statut: "en_attente" as const, nomAffiche: null, ville: null, retraitDemande: false, creeLe: "2026-11-08T10:00:00Z" },
-          { id: "b", statut: "retiree" as const, nomAffiche: null, ville: null, retraitDemande: false, creeLe: "2026-11-07T10:00:00Z" },
-          { id: "c", statut: "publiee" as const, nomAffiche: null, ville: null, retraitDemande: false, creeLe: "2026-11-06T10:00:00Z" },
-          { id: "d", statut: "refusee" as const, nomAffiche: null, ville: null, retraitDemande: false, creeLe: "2026-11-05T10:00:00Z" },
+          { id: "a", statut: "en_attente" as const, nomAffiche: null, ville: null, retraitDemande: false, kitFr: null, kitEn: null, creeLe: "2026-11-08T10:00:00Z" },
+          { id: "b", statut: "retiree" as const, nomAffiche: null, ville: null, retraitDemande: false, kitFr: null, kitEn: null, creeLe: "2026-11-07T10:00:00Z" },
+          { id: "c", statut: "publiee" as const, nomAffiche: null, ville: null, retraitDemande: false, kitFr: null, kitEn: null, creeLe: "2026-11-06T10:00:00Z" },
+          { id: "d", statut: "refusee" as const, nomAffiche: null, ville: null, retraitDemande: false, kitFr: null, kitEn: null, creeLe: "2026-11-05T10:00:00Z" },
         ],
         objets: { a: "photos-clients/a.jpg", b: "photos-clients/b.jpg", c: "photos-clients/c.jpg", d: "photos-clients/d.jpg" },
       })),

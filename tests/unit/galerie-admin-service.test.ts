@@ -158,8 +158,8 @@ describe("file", () => {
     const { deps } = faux({
       lister: vi.fn(async () => ({
         photos: [
-          { id: "a", statut: "en_attente" as const, source: "compte" as const, nomAffiche: null, ville: null, retraitDemande: false, creeLe: "2026-11-09T10:00:00Z", accordWhatsappLe: null, capture: false },
-          { id: "b", statut: "publiee" as const, source: "whatsapp" as const, nomAffiche: null, ville: null, retraitDemande: true, creeLe: "2026-11-08T10:00:00Z", accordWhatsappLe: "2026-11-08", capture: true },
+          { id: "a", statut: "en_attente" as const, source: "compte" as const, nomAffiche: null, ville: null, retraitDemande: false, creeLe: "2026-11-09T10:00:00Z", accordWhatsappLe: null, capture: false, realisation: null },
+          { id: "b", statut: "publiee" as const, source: "whatsapp" as const, nomAffiche: null, ville: null, retraitDemande: true, creeLe: "2026-11-08T10:00:00Z", accordWhatsappLe: "2026-11-08", capture: true, realisation: null },
         ],
         objets: { a: { objet: "photos-clients/a.jpg", fichierPublic: null }, b: { objet: "photos-clients/b.jpg", fichierPublic: "galerie/b.jpg" } },
       })),

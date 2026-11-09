@@ -1277,6 +1277,61 @@ export type Database = {
           },
         ]
       }
+      realisation: {
+        Row: {
+          commande_preuve: string
+          compte_id: string
+          cree_le: string
+          id: string
+          photo_id: string
+          produit_id: string
+          rang: number | null
+          validee_le: string | null
+        }
+        Insert: {
+          commande_preuve: string
+          compte_id: string
+          cree_le?: string
+          id?: string
+          photo_id: string
+          produit_id: string
+          rang?: number | null
+          validee_le?: string | null
+        }
+        Update: {
+          commande_preuve?: string
+          compte_id?: string
+          cree_le?: string
+          id?: string
+          photo_id?: string
+          produit_id?: string
+          rang?: number | null
+          validee_le?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "realisation_commande_preuve_fkey"
+            columns: ["commande_preuve"]
+            isOneToOne: false
+            referencedRelation: "commande"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "realisation_photo_id_fkey"
+            columns: ["photo_id"]
+            isOneToOne: true
+            referencedRelation: "photo_galerie"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "realisation_produit_id_fkey"
+            columns: ["produit_id"]
+            isOneToOne: false
+            referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reglage: {
         Row: {
           cle: string
@@ -2116,6 +2171,17 @@ export type Database = {
         }
         Returns: string
       }
+      deposer_realisation: {
+        Args: {
+          p_auteur: Json
+          p_kit: string
+          p_nom: string
+          p_objet: string
+          p_version_accord: string
+          p_ville: string
+        }
+        Returns: string
+      }
       depublier_article: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
@@ -2309,6 +2375,7 @@ export type Database = {
         Args: { p_auteur: Json; p_compte: string; p_panier: string }
         Returns: Json
       }
+      kits_payes: { Args: { p_compte: string }; Returns: Json }
       lignes_reclamables: {
         Args: { p_compte: string; p_numero: string }
         Returns: {

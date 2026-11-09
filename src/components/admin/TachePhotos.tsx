@@ -7,13 +7,15 @@ import { creerClientService } from "@/lib/supabase/service";
 // jamais un faux zéro.
 export async function TachePhotos() {
   const t = await getTranslations("Admin.taches.photos");
-  let compte: { aValider: number; retraits: number } | null = null;
+  let compte: { aValider: number; realisations: number; retraits: number } | null = null;
   try {
     const { data, error } = await creerClientService().rpc("compter_photos_a_traiter");
     if (!error && data && typeof data === "object" && !Array.isArray(data)) {
       const d = data as Record<string, unknown>;
       // Deux entiers attendus : sinon, message d'erreur (jamais un zéro inventé).
-      if (Number.isInteger(d.a_valider) && Number.isInteger(d.retraits)) compte = { aValider: d.a_valider as number, retraits: d.retraits as number };
+      if (Number.isInteger(d.a_valider) && Number.isInteger(d.realisations) && Number.isInteger(d.retraits)) {
+        compte = { aValider: d.a_valider as number, realisations: d.realisations as number, retraits: d.retraits as number };
+      }
     }
   } catch {
     compte = null;
@@ -28,6 +30,7 @@ export async function TachePhotos() {
         {t("titre")}
       </h2>
       <p className="t-label text-text-primary">{t("aValider", { nombre: compte.aValider })}</p>
+      <p className="t-label text-text-primary">{t("realisations", { nombre: compte.realisations })}</p>
       <p className="t-label text-text-primary">{t("retraits", { nombre: compte.retraits })}</p>
       <Link href="/admin/galerie" className="t-body inline-flex min-h-touch items-center text-text-primary underline">
         {t("lien")}

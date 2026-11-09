@@ -93,6 +93,10 @@
     "comptePhotos": {
       "titre": "Envoyer une photo",
       "description": "Envoie la photo de toi dans ton costume."
+    },
+    "compteRealisation": {
+      "titre": "Envoyer une Réalisation",
+      "description": "Montre le costume que tu as fabriqué avec un kit KOMA."
     }
   },
   "Accueil": {
@@ -1424,7 +1428,8 @@
         "aValider": "Photos à valider : {nombre}",
         "retraits": "Retraits demandés : {nombre}",
         "lien": "Ouvrir la galerie",
-        "erreurLecture": "Les photos à traiter n'ont pas pu être comptées."
+        "erreurLecture": "Les photos à traiter n'ont pas pu être comptées.",
+        "realisations": "Réalisations à valider : {nombre}"
       }
     },
     "prestataires": {
@@ -1828,6 +1833,15 @@
           "retirer": "Oui, retirer",
           "valider": "Oui, publier"
         }
+      },
+      "realisation": {
+        "kit": "Réalisation : kit {kit}",
+        "preuve": "Preuve d'achat : commande {commande}, payée le {date}",
+        "rang": "Réalisation validée n° {rang}"
+      },
+      "realisations": {
+        "titre": "Réalisations à valider ({nombre})",
+        "vide": "Aucune Réalisation à valider."
       }
     }
   },
@@ -2449,7 +2463,8 @@
       "navigation": "Navigation du compte",
       "commandes": "Mes commandes",
       "preferences": "Préférences",
-      "photos": "Envoyer une photo"
+      "photos": "Envoyer une photo",
+      "realisation": "Envoyer une Réalisation"
     },
     "vide": "Aucun kit dans ta bibliothèque.",
     "versCatalogue": "Voir les kits",
@@ -2662,7 +2677,9 @@
       "non_connecte": "Ta session a expiré. Reconnecte-toi pour envoyer ta photo.",
       "envoi_echec": "L'envoi a échoué. Vérifie ta connexion et réessaie.",
       "introuvable": "Cette photo n'existe plus. Recharge la page.",
-      "generique": "La photo n'a pas pu être envoyée. Réessaie."
+      "generique": "La photo n'a pas pu être envoyée. Réessaie.",
+      "kit_manquant": "Choisis le kit que tu as utilisé.",
+      "kit_non_paye": "Ce kit n'a pas été acheté avec ce Compte : choisis un kit que tu as payé."
     },
     "mesPhotos": {
       "titre": "Mes photos",
@@ -2687,7 +2704,19 @@
       "garder": "Garder",
       "erreur": "Le retrait n'a pas pu être enregistré. Réessaie.",
       "erreurIntrouvable": "Cette photo n'existe plus. Recharge la page.",
-      "erreurSession": "Ta session a expiré. Reconnecte-toi."
+      "erreurSession": "Ta session a expiré. Reconnecte-toi.",
+      "realisation": "Réalisation avec le kit : {kit}"
+    },
+    "realisation": {
+      "titre": "Envoyer une Réalisation",
+      "intro": "Tu as fabriqué ton costume avec un kit KOMA ? Envoie sa photo : une fois validée, elle apparaît sur le mur avec la mention « Fait avec un kit KOMA ».",
+      "kit": "Kit utilisé",
+      "choisir": "Choisis le kit que tu as utilisé",
+      "erreurLecture": "Tes kits n'ont pas pu être chargés. Réessaie dans un instant.",
+      "mineur": "Les photos des moins de 18 ans ne sont pas publiées : l'envoi n'est pas possible pour le moment.",
+      "aucunKit": "Une Réalisation se fait avec un kit acheté. Un kit gratuit ne compte pas.",
+      "voirKits": "Voir les kits",
+      "suivre": "Suivre mes photos et Réalisations"
     }
   }
 }

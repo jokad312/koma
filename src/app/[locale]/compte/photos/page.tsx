@@ -53,6 +53,7 @@ async function Contenu({ locale }: { locale: Locale }) {
                   ) : null}
                   <div className="flex min-w-0 flex-1 flex-col gap-1">
                     <p className="t-label text-text-primary">{t(`mesPhotos.statut.${p.statut}`)}</p>
+                    {p.kitFr ? <p className="t-small text-text-primary">{t("mesPhotos.realisation", { kit: locale === "en" && p.kitEn ? p.kitEn : p.kitFr })}</p> : null}
                     <p className="t-small text-text-secondary">{t("mesPhotos.envoyeeLe", { date })}</p>
                     <p className="t-small text-text-secondary">{p.nomAffiche ? t("mesPhotos.pseudo", { nom: p.nomAffiche }) : t("mesPhotos.sansPseudo")}</p>
                     <p className="t-small text-text-secondary">{p.ville ? t("mesPhotos.ville", { ville: p.ville }) : t("mesPhotos.sansVille")}</p>

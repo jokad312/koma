@@ -93,6 +93,10 @@
     "comptePhotos": {
       "titre": "Send a photo",
       "description": "Send a photo of you in your costume."
+    },
+    "compteRealisation": {
+      "titre": "Send a Creation",
+      "description": "Show the costume you made with a KOMA kit."
     }
   },
   "Accueil": {
@@ -1424,7 +1428,8 @@
         "aValider": "Photos to approve: {nombre}",
         "retraits": "Removals requested: {nombre}",
         "lien": "Open the gallery",
-        "erreurLecture": "The photos to handle could not be counted."
+        "erreurLecture": "The photos to handle could not be counted.",
+        "realisations": "Creations to approve: {nombre}"
       }
     },
     "prestataires": {
@@ -1828,6 +1833,15 @@
           "retirer": "Yes, remove",
           "valider": "Yes, publish"
         }
+      },
+      "realisation": {
+        "kit": "Creation: kit {kit}",
+        "preuve": "Proof of purchase: order {commande}, paid on {date}",
+        "rang": "Approved Creation no. {rang}"
+      },
+      "realisations": {
+        "titre": "Creations to approve ({nombre})",
+        "vide": "No Creation to approve."
       }
     }
   },
@@ -2449,7 +2463,8 @@
       "navigation": "Account navigation",
       "commandes": "My orders",
       "preferences": "Preferences",
-      "photos": "Send a photo"
+      "photos": "Send a photo",
+      "realisation": "Send a Creation"
     },
     "vide": "No kits in your library yet.",
     "versCatalogue": "Browse kits",
@@ -2662,7 +2677,9 @@
       "non_connecte": "Your session has expired. Sign in again to send your photo.",
       "envoi_echec": "The upload failed. Check your connection and try again.",
       "introuvable": "This photo no longer exists. Reload the page.",
-      "generique": "The photo could not be sent. Try again."
+      "generique": "The photo could not be sent. Try again.",
+      "kit_manquant": "Choose the kit you used.",
+      "kit_non_paye": "This kit was not bought with this account: choose a kit you paid for."
     },
     "mesPhotos": {
       "titre": "My photos",
@@ -2687,7 +2704,19 @@
       "garder": "Keep",
       "erreur": "The removal could not be saved. Try again.",
       "erreurIntrouvable": "This photo no longer exists. Reload the page.",
-      "erreurSession": "Your session has expired. Sign in again."
+      "erreurSession": "Your session has expired. Sign in again.",
+      "realisation": "Creation with the kit: {kit}"
+    },
+    "realisation": {
+      "titre": "Send a Creation",
+      "intro": "Did you make your costume with a KOMA kit? Send its photo: once approved, it appears on the wall with the mention “Made with a KOMA kit”.",
+      "kit": "Kit used",
+      "choisir": "Choose the kit you used",
+      "erreurLecture": "Your kits could not be loaded. Try again in a moment.",
+      "mineur": "Photos of people under 18 are not published: sending is not possible for now.",
+      "aucunKit": "A Creation is made with a purchased kit. A free kit does not count.",
+      "voirKits": "See the kits",
+      "suivre": "Follow my photos and Creations"
     }
   }
 }
