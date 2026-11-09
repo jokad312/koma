@@ -54,7 +54,7 @@ select ok((select statut = 'retiree' and retiree_le is not null from public.phot
 select ok((select retire_le is not null from public.consentement where cible_id = (select p1 from ph)), 'accord retiré avec la photo');
 select is(public.retirer_photo(pg_temp.c('f1'), (select p1 from ph)) ->> 'resultat', 'deja_retiree', 'second retrait : déjà retirée');
 -- Photo publiée (la publication arrive avec la story 8.2) : la demande est enregistrée, l'admin la retire.
-update public.photo_galerie set statut = 'publiee' where objet = pg_temp.obj(2);
+update public.photo_galerie set statut = 'publiee', fichier_public = 'galerie/00000000-0000-4000-8000-000000000002.jpg', publiee_le = now() where objet = pg_temp.obj(2);
 select is(public.retirer_photo(pg_temp.c('f1'), (select id from public.photo_galerie where objet = pg_temp.obj(2))) ->> 'resultat', 'demande', 'photo publiée : retrait demandé');
 select ok((select statut = 'publiee' and retrait_demande_le is not null from public.photo_galerie where objet = pg_temp.obj(2)), 'la demande est datée, la photo attend l''admin');
 
