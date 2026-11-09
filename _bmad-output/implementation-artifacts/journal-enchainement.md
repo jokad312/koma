@@ -341,3 +341,4 @@
 - Page « Mon compte › Envoyer une Réalisation » (choix parmi les Kits payés ; un Kit gratuit ne compte pas), section « Réalisations à valider » dans `/admin/galerie` avec le Kit et la preuve d'achat, compteur dans la tâche Photos.
 - Revue (3 sous-agents) : Kit vérifié avant l'envoi, tests complétés ; deux constats écartés (un Kit n'est jamais remboursé ; un Kit possédé ne se rachète pas). Notes pour 8.3 et 8.5 dans `deferred-work.md`.
 - À tester à la main (après un paiement réel de Kit) : envoyer une Réalisation, la voir dans la Galerie admin avec sa commande, la valider (rang 1), en valider une seconde (rang 2) ; un Compte avec seulement le Kit gratuit voit « Une Réalisation se fait avec un kit acheté ».
+- CI verte sur `ff1377c` (pgTAP et e2e compris). Story 8.4 : `done`.
