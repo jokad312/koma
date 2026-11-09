@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { TachesArgent } from "@/components/admin/TachesArgent";
 import { TacheMesuresARecevoir } from "@/components/admin/TacheMesuresARecevoir";
+import { TachePhotos } from "@/components/admin/TachePhotos";
 import { ListeTaches } from "@/components/admin/ListeTaches";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
@@ -49,6 +50,7 @@ async function TachesSelonDroit({ locale }: { locale: Locale }) {
         <h1 className="t-h1">{t("titre")}</h1>
         <p className="t-body text-text-secondary">{t("intro")}</p>
         <TacheMesuresARecevoir />
+        <TachePhotos />
         <TachesArgent />
         {taches ? <ListeTaches taches={taches} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
       </div>

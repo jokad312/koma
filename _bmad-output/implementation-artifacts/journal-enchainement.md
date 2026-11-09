@@ -325,3 +325,11 @@
 - Question à Jonathan : l'accord dit « avec mon pseudo », mais le client peut choisir de ne pas afficher son pseudo.
 - À tester à la main : sur iPhone (Safari), envoyer une photo HEIC prise par l'appareil : elle doit partir en JPEG ; une photo avec position GPS ; « Annuler l'envoi » ; couper le réseau pendant l'envoi ; retirer une photo en attente ; Compte de 16 ans : message, pas de formulaire.
 - CI verte sur `39f513e` (pgTAP et e2e compris). Story 8.1 : `done`.
+
+
+## Story 8.2 : validation, dépôt WhatsApp et retrait des photos
+- Décisions de Jonathan (2026-11-08) : case « La personne m'a confirmé avoir 18 ans ou plus » obligatoire au dépôt WhatsApp ; dépôt refusé pour un Compte mineur ; accord de 8.1 précisé (« avec mon pseudo si je choisis de l'afficher », version 2026-11-08-v2).
+- Migration `20261231180000_galerie_validation.sql` (appliquée sur koma-dev, types régénérés) : statut `refusee`, copie publique `galerie/` dans `produits-public`, bucket privé `accords-whatsapp` sans politique, fonctions de validation, refus, retrait, dépôt, recherche de Compte par email, compteurs ; `retirer_photo` (client) réécrite.
+- Page `/admin/galerie` (droit `galerie.valider`, Admin et Assistant) : à valider, retraits demandés, publiées, dépôt WhatsApp ; tâche « Photos » dans `/admin/taches` ; cache `galerie` invalidé à chaque publication ou retrait.
+- Revue (3 sous-agents) : 16 correctifs, dont la copie publique jamais effacée après publication et le retrait qui efface la copie publique avant la base.
+- À tester à la main : valider une photo envoyée depuis un Compte (vérifier l'adresse publique, puis l'absence de position GPS dans le fichier téléchargé) ; refuser ; demander le retrait depuis le Compte puis retirer depuis l'admin (l'adresse publique doit répondre 404 ou 400) ; déposer une photo WhatsApp sans Compte, avec capture ; essayer sans la case 18+ ; avec l'email d'un Compte de 15 ans ; avec un Compte Assistant.

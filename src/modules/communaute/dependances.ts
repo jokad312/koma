@@ -7,7 +7,7 @@ import type { DependancesCommunaute, StatutPhoto } from "./types";
 
 // Durée de l'aperçu signé d'une photo en attente (bucket privé) : 10 minutes.
 const DUREE_APERCU_SECONDES = 600;
-const STATUTS: readonly StatutPhoto[] = ["en_attente", "publiee", "retiree"];
+const STATUTS: readonly StatutPhoto[] = ["en_attente", "publiee", "refusee", "retiree"];
 
 // Les vrais accès donnés au service (en test, des faux nommés TEST_ les remplacent). Tout passe par le client service, côté serveur.
 export function dependancesCommunaute(): DependancesCommunaute {

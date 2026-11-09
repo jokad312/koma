@@ -350,7 +350,8 @@
       "taches": "Tâches",
       "prestataires": "Prestataires",
       "commandes": "Commandes",
-      "codesPromo": "Codes promo"
+      "codesPromo": "Codes promo",
+      "galerie": "Galerie"
     },
     "blog": {
       "titre": "Blog",
@@ -1417,6 +1418,13 @@
         "erreurLecture": "Les demandes et remboursements n'ont pas pu être lus.",
         "reclamation": "Réclamation à traiter : commande {numero}",
         "stock": "Vérifier le stock : commande {numero}"
+      },
+      "photos": {
+        "titre": "Photos",
+        "aValider": "Photos à valider : {nombre}",
+        "retraits": "Retraits demandés : {nombre}",
+        "lien": "Ouvrir la galerie",
+        "erreurLecture": "Les photos à traiter n'ont pas pu être comptées."
       }
     },
     "prestataires": {
@@ -1730,6 +1738,95 @@
           "type_non_pris_en_charge": "Cette demande n'est pas une réclamation.",
           "demande_introuvable": "Cette réclamation est introuvable.",
           "generique": "L'étape n'a pas pu être enregistrée. Réessaie."
+        }
+      }
+    },
+    "galerie": {
+      "titre": "Galerie",
+      "intro": "Valide chaque photo avant sa publication sur le mur « Ils le portent », dépose celles reçues par WhatsApp et retire celles qu'on te demande d'enlever.",
+      "erreurLecture": "Les photos n'ont pas pu être chargées. Réessaie dans un instant.",
+      "alt": "Photo reçue le {date}",
+      "source": {
+        "compte": "Envoyée depuis un Compte",
+        "whatsapp": "Reçue par WhatsApp"
+      },
+      "recueLe": "Reçue le {date}",
+      "pseudo": "Pseudo affiché : {nom}",
+      "sansPseudo": "Pseudo non affiché",
+      "ville": "Ville affichée : {ville}",
+      "sansVille": "Ville non affichée",
+      "accordWhatsapp": "Accord reçu par WhatsApp le {date}",
+      "captureJointe": "Capture de l'accord jointe (stockage privé)",
+      "retraitDemande": "Retrait demandé par le client",
+      "aValider": {
+        "titre": "À valider ({nombre})",
+        "vide": "Aucune photo à valider."
+      },
+      "publiees": {
+        "titre": "Publiées ({nombre})",
+        "vide": "Aucune photo publiée."
+      },
+      "actions": {
+        "valider": "Valider et publier",
+        "refuser": "Refuser",
+        "retirer": "Retirer du mur",
+        "validerPhoto": "Valider et publier la photo reçue le {date}",
+        "refuserPhoto": "Refuser la photo reçue le {date}",
+        "retirerPhoto": "Retirer du mur la photo reçue le {date}"
+      },
+      "succes": {
+        "valider": "Photo publiée sur le mur.",
+        "refuser": "Photo refusée : elle ne sera jamais publiée.",
+        "retirer": "Photo retirée du mur."
+      },
+      "erreurs": {
+        "non_autorise": "Tu n'as pas le droit de gérer la galerie. Recharge la page ou reconnecte-toi.",
+        "introuvable": "Cette photo n'existe plus ou n'est plus dans cet état. Recharge la page.",
+        "deja_traitee": "Cette photo a déjà été traitée. Recharge la page.",
+        "mineur": "Ce Compte a déclaré moins de 18 ans : la photo ne peut pas être publiée.",
+        "accord_manquant": "Coche « Accord reçu par WhatsApp » et indique sa date : ni dans le futur, ni il y a plus d'un an.",
+        "majorite": "Confirme que la personne t'a dit avoir 18 ans ou plus.",
+        "affichage_invalide": "Sans Compte, le pseudo est obligatoire. Pseudo 40 caractères au plus, ville 60 au plus, sans caractère invisible.",
+        "compte_introuvable": "Aucun Compte n'a cet email. Laisse le champ vide pour une personne sans Compte.",
+        "format_invalide": "Formats acceptés : JPEG, PNG ou WebP, 15 Mo au plus.",
+        "fichier_trop_lourd": "Le fichier dépasse 15 Mo.",
+        "fichier_manquant": "Choisis la photo reçue par WhatsApp.",
+        "envoi_echec": "L'envoi a échoué. Vérifie la connexion et réessaie.",
+        "generique": "L'action n'a pas pu être enregistrée. Réessaie.",
+        "photo_illisible": "Cette photo ne peut pas être lue : refuse-la."
+      },
+      "depot": {
+        "titre": "Déposer une photo reçue par WhatsApp",
+        "intro": "La photo rejoint la liste « À valider ». Ses métadonnées (position GPS comprise) sont retirées.",
+        "photo": "Photo reçue",
+        "formats": "JPEG, PNG ou WebP, 15 Mo au plus.",
+        "email": "Email du Compte du client (facultatif)",
+        "emailAide": "Laisse vide si la personne n'a pas de Compte : le pseudo est alors obligatoire.",
+        "affichage": "Choix d'affichage du client",
+        "afficherNom": "Afficher son prénom ou pseudo",
+        "nom": "Prénom ou pseudo accepté",
+        "afficherVille": "Afficher sa ville",
+        "ville": "Ville acceptée",
+        "accordRecu": "Accord reçu par WhatsApp le",
+        "accordDate": "Date de l'accord reçu par WhatsApp",
+        "majeur": "La personne m'a confirmé avoir 18 ans ou plus",
+        "capture": "Capture de l'accord WhatsApp (facultatif)",
+        "captureAide": "Rangée dans un stockage privé, jamais publiée.",
+        "deposer": "Déposer la photo",
+        "succes": "Photo déposée : elle est dans la liste « À valider »."
+      },
+      "retraits": {
+        "titre": "Retraits demandés ({nombre})",
+        "vide": "Aucun retrait demandé."
+      },
+      "confirmation": {
+        "refuser": "Refuser cette photo ? Elle ne sera jamais publiée et son original sera effacé.",
+        "retirer": "Retirer cette photo du mur ? Sa copie publique sera effacée.",
+        "non": "Annuler",
+        "oui": {
+          "refuser": "Oui, refuser",
+          "retirer": "Oui, retirer",
+          "valider": "Oui, publier"
         }
       }
     }
@@ -2575,7 +2672,8 @@
       "statut": {
         "en_attente": "En attente de validation",
         "publiee": "Publiée",
-        "retiree": "Retirée"
+        "retiree": "Retirée",
+        "refusee": "Non publiée"
       },
       "pseudo": "Pseudo affiché : {nom}",
       "sansPseudo": "Pseudo non affiché",

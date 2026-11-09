@@ -20,7 +20,7 @@ export const VERSION_ACCORD_PUBLICATION = "2026-11-08-v2";
 // Limite d'envois par Compte (AD-22) : 10 demandes d'envoi par heure.
 export const LIMITE_ENVOIS_PHOTO_PAR_HEURE = 10;
 
-export type StatutPhoto = "en_attente" | "publiee" | "retiree";
+export type StatutPhoto = "en_attente" | "publiee" | "refusee" | "retiree";
 export type PhotoClient = { id: string; statut: StatutPhoto; nomAffiche: string | null; ville: string | null; retraitDemande: boolean; creeLe: string; apercu: string | null };
 
 export type ErreurPhoto =

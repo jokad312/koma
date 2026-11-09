@@ -389,7 +389,7 @@ export type Database = {
       consentement: {
         Row: {
           cible_id: string | null
-          compte_id: string
+          compte_id: string | null
           donne_le: string
           id: string
           objet: string
@@ -399,7 +399,7 @@ export type Database = {
         }
         Insert: {
           cible_id?: string | null
-          compte_id: string
+          compte_id?: string | null
           donne_le?: string
           id?: string
           objet: string
@@ -409,7 +409,7 @@ export type Database = {
         }
         Update: {
           cible_id?: string | null
-          compte_id?: string
+          compte_id?: string | null
           donne_le?: string
           id?: string
           objet?: string
@@ -991,35 +991,59 @@ export type Database = {
       }
       photo_galerie: {
         Row: {
-          compte_id: string
+          accord_whatsapp_le: string | null
+          capture_accord: string | null
+          compte_id: string | null
           cree_le: string
+          decide_par: Json | null
+          fichier_public: string | null
           id: string
+          majeur_confirme_le: string | null
           nom_affiche: string | null
           objet: string
+          publiee_le: string | null
+          refusee_le: string | null
           retiree_le: string | null
           retrait_demande_le: string | null
+          source: string
           statut: string
           ville: string | null
         }
         Insert: {
-          compte_id: string
+          accord_whatsapp_le?: string | null
+          capture_accord?: string | null
+          compte_id?: string | null
           cree_le?: string
+          decide_par?: Json | null
+          fichier_public?: string | null
           id?: string
+          majeur_confirme_le?: string | null
           nom_affiche?: string | null
           objet: string
+          publiee_le?: string | null
+          refusee_le?: string | null
           retiree_le?: string | null
           retrait_demande_le?: string | null
+          source?: string
           statut?: string
           ville?: string | null
         }
         Update: {
-          compte_id?: string
+          accord_whatsapp_le?: string | null
+          capture_accord?: string | null
+          compte_id?: string | null
           cree_le?: string
+          decide_par?: Json | null
+          fichier_public?: string | null
           id?: string
+          majeur_confirme_le?: string | null
           nom_affiche?: string | null
           objet?: string
+          publiee_le?: string | null
+          refusee_le?: string | null
           retiree_le?: string | null
           retrait_demande_le?: string | null
+          source?: string
           statut?: string
           ville?: string | null
         }
@@ -1943,6 +1967,7 @@ export type Database = {
       }
       compte_complet: { Args: { p_compte: string }; Returns: boolean }
       compter_panier: { Args: { p_panier: string }; Returns: number }
+      compter_photos_a_traiter: { Args: never; Returns: Json }
       confirmer_couverture: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
@@ -2073,6 +2098,20 @@ export type Database = {
           p_nom: string
           p_objet: string
           p_version_accord: string
+          p_ville: string
+        }
+        Returns: string
+      }
+      deposer_photo_whatsapp: {
+        Args: {
+          p_accord_le: string
+          p_auteur: Json
+          p_capture: string
+          p_compte: string
+          p_majeur: boolean
+          p_nom: string
+          p_objet: string
+          p_version: string
           p_ville: string
         }
         Returns: string
@@ -2323,6 +2362,7 @@ export type Database = {
         }[]
       }
       lister_mes_photos: { Args: { p_compte: string }; Returns: Json }
+      lister_photos_admin: { Args: { p_auteur: Json }; Returns: Json }
       manques_publication: { Args: { p_produit_id: string }; Returns: string[] }
       marquer_message_traite: {
         Args: { p_auteur: Json; p_id: string }
@@ -2412,6 +2452,10 @@ export type Database = {
         Returns: Json
       }
       reconcilier_declencher: { Args: never; Returns: boolean }
+      refuser_photo: {
+        Args: { p_auteur: Json; p_photo: string }
+        Returns: string
+      }
       regler_preference: {
         Args: {
           p_actif: boolean
@@ -2439,6 +2483,10 @@ export type Database = {
         Returns: undefined
       }
       retirer_photo: {
+        Args: { p_auteur: Json; p_photo: string }
+        Returns: Json
+      }
+      retirer_photo_admin: {
         Args: { p_auteur: Json; p_photo: string }
         Returns: Json
       }
@@ -2515,7 +2563,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      trouver_compte_par_email: {
+        Args: { p_auteur: Json; p_email: string }
+        Returns: string
+      }
       utilisations_code_promo: { Args: { p_code: string }; Returns: number }
+      valider_photo: {
+        Args: { p_auteur: Json; p_fichier_public: string; p_photo: string }
+        Returns: undefined
+      }
       valider_video_heros: {
         Args: { p_auteur: Json; p_fichier: string; p_video_id: string }
         Returns: undefined

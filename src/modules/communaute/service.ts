@@ -147,12 +147,13 @@ export async function listerMesPhotos(deps: DependancesCommunaute): Promise<Resu
       journaliser("lecture des photos");
       return { ok: false, erreur: "generique" };
     }
-    const visibles = lu.photos.filter((p) => p.statut !== "retiree").map((p) => lu.objets[p.id]).filter((o): o is string => typeof o === "string");
+    // Aperçu seulement d'une photo en attente (original privé) ; une photo publiée, refusée ou retirée n'a plus d'original.
+    const visibles = lu.photos.filter((p) => p.statut === "en_attente").map((p) => lu.objets[p.id]).filter((o): o is string => typeof o === "string");
     const apercus = visibles.length > 0 ? await deps.apercus(visibles) : {};
     return {
       ok: true,
       mineur,
-      photos: lu.photos.map((p) => ({ ...p, apercu: p.statut === "retiree" ? null : (apercus[lu.objets[p.id] ?? ""] ?? null) })),
+      photos: lu.photos.map((p) => ({ ...p, apercu: p.statut === "en_attente" ? (apercus[lu.objets[p.id] ?? ""] ?? null) : null })),
     };
   } catch {
     journaliser("lecture des photos");

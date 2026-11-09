@@ -9,6 +9,7 @@ const ENTREES = [
   { cle: "produits", href: "/admin/produits" },
   { cle: "univers", href: "/admin/univers" },
   { cle: "blog", href: "/admin/blog" },
+  { cle: "galerie", href: "/admin/galerie" },
   { cle: "codesPromo", href: "/admin/codes-promo" },
   { cle: "messages", href: "/admin/messages" },
   { cle: "taches", href: "/admin/taches" },

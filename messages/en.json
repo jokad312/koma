@@ -350,7 +350,8 @@
       "taches": "Tasks",
       "prestataires": "Providers",
       "commandes": "Orders",
-      "codesPromo": "Promo codes"
+      "codesPromo": "Promo codes",
+      "galerie": "Gallery"
     },
     "blog": {
       "titre": "Blog",
@@ -1417,6 +1418,13 @@
         "erreurLecture": "The requests and refunds could not be read.",
         "reclamation": "Claim to handle: order {numero}",
         "stock": "Check the stock: order {numero}"
+      },
+      "photos": {
+        "titre": "Photos",
+        "aValider": "Photos to approve: {nombre}",
+        "retraits": "Removals requested: {nombre}",
+        "lien": "Open the gallery",
+        "erreurLecture": "The photos to handle could not be counted."
       }
     },
     "prestataires": {
@@ -1730,6 +1738,95 @@
           "type_non_pris_en_charge": "This request is not a claim.",
           "demande_introuvable": "This claim cannot be found.",
           "generique": "The step could not be saved. Try again."
+        }
+      }
+    },
+    "galerie": {
+      "titre": "Gallery",
+      "intro": "Approve each photo before it goes on the “They wear it” wall, add the ones received on WhatsApp and remove the ones you are asked to take down.",
+      "erreurLecture": "The photos could not be loaded. Try again in a moment.",
+      "alt": "Photo received on {date}",
+      "source": {
+        "compte": "Sent from an account",
+        "whatsapp": "Received on WhatsApp"
+      },
+      "recueLe": "Received on {date}",
+      "pseudo": "Username shown: {nom}",
+      "sansPseudo": "Username not shown",
+      "ville": "City shown: {ville}",
+      "sansVille": "City not shown",
+      "accordWhatsapp": "Consent received on WhatsApp on {date}",
+      "captureJointe": "Consent screenshot attached (private storage)",
+      "retraitDemande": "Removal requested by the customer",
+      "aValider": {
+        "titre": "To approve ({nombre})",
+        "vide": "No photo to approve."
+      },
+      "publiees": {
+        "titre": "Published ({nombre})",
+        "vide": "No published photo."
+      },
+      "actions": {
+        "valider": "Approve and publish",
+        "refuser": "Reject",
+        "retirer": "Remove from the wall",
+        "validerPhoto": "Approve and publish the photo received on {date}",
+        "refuserPhoto": "Reject the photo received on {date}",
+        "retirerPhoto": "Remove from the wall the photo received on {date}"
+      },
+      "succes": {
+        "valider": "Photo published on the wall.",
+        "refuser": "Photo rejected: it will never be published.",
+        "retirer": "Photo removed from the wall."
+      },
+      "erreurs": {
+        "non_autorise": "You are not allowed to manage the gallery. Reload the page or sign in again.",
+        "introuvable": "This photo no longer exists or is no longer in this state. Reload the page.",
+        "deja_traitee": "This photo has already been handled. Reload the page.",
+        "mineur": "This account declared being under 18: the photo cannot be published.",
+        "accord_manquant": "Tick “Consent received on WhatsApp” and give its date: not in the future, not more than a year ago.",
+        "majorite": "Confirm the person told you they are 18 or older.",
+        "affichage_invalide": "Without an account, the username is required. Username 40 characters at most, city 60 at most, no invisible characters.",
+        "compte_introuvable": "No account has this email. Leave the field empty for someone without an account.",
+        "format_invalide": "Accepted formats: JPEG, PNG or WebP, 15 MB at most.",
+        "fichier_trop_lourd": "The file is over 15 MB.",
+        "fichier_manquant": "Choose the photo received on WhatsApp.",
+        "envoi_echec": "The upload failed. Check the connection and try again.",
+        "generique": "The action could not be saved. Try again.",
+        "photo_illisible": "This photo cannot be read: reject it."
+      },
+      "depot": {
+        "titre": "Add a photo received on WhatsApp",
+        "intro": "The photo joins the “To approve” list. Its metadata (GPS location included) is removed.",
+        "photo": "Photo received",
+        "formats": "JPEG, PNG or WebP, 15 MB at most.",
+        "email": "Customer account email (optional)",
+        "emailAide": "Leave empty if the person has no account: the username is then required.",
+        "affichage": "Customer's display choices",
+        "afficherNom": "Show their first name or username",
+        "nom": "Accepted first name or username",
+        "afficherVille": "Show their city",
+        "ville": "Accepted city",
+        "accordRecu": "Consent received on WhatsApp on",
+        "accordDate": "Date of the consent received on WhatsApp",
+        "majeur": "The person confirmed to me they are 18 or older",
+        "capture": "WhatsApp consent screenshot (optional)",
+        "captureAide": "Kept in private storage, never published.",
+        "deposer": "Add the photo",
+        "succes": "Photo added: it is in the “To approve” list."
+      },
+      "retraits": {
+        "titre": "Removals requested ({nombre})",
+        "vide": "No removal requested."
+      },
+      "confirmation": {
+        "refuser": "Reject this photo? It will never be published and its original will be deleted.",
+        "retirer": "Remove this photo from the wall? Its public copy will be deleted.",
+        "non": "Cancel",
+        "oui": {
+          "refuser": "Yes, reject",
+          "retirer": "Yes, remove",
+          "valider": "Yes, publish"
         }
       }
     }
@@ -2575,7 +2672,8 @@
       "statut": {
         "en_attente": "Waiting for approval",
         "publiee": "Published",
-        "retiree": "Removed"
+        "retiree": "Removed",
+        "refusee": "Not published"
       },
       "pseudo": "Username shown: {nom}",
       "sansPseudo": "Username not shown",

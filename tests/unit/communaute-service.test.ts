@@ -155,13 +155,16 @@ describe("annulation, liste et retrait", () => {
         photos: [
           { id: "a", statut: "en_attente" as const, nomAffiche: null, ville: null, retraitDemande: false, creeLe: "2026-11-08T10:00:00Z" },
           { id: "b", statut: "retiree" as const, nomAffiche: null, ville: null, retraitDemande: false, creeLe: "2026-11-07T10:00:00Z" },
+          { id: "c", statut: "publiee" as const, nomAffiche: null, ville: null, retraitDemande: false, creeLe: "2026-11-06T10:00:00Z" },
+          { id: "d", statut: "refusee" as const, nomAffiche: null, ville: null, retraitDemande: false, creeLe: "2026-11-05T10:00:00Z" },
         ],
-        objets: { a: "photos-clients/a.jpg", b: "photos-clients/b.jpg" },
+        objets: { a: "photos-clients/a.jpg", b: "photos-clients/b.jpg", c: "photos-clients/c.jpg", d: "photos-clients/d.jpg" },
       })),
       apercus: vi.fn(async () => ({ "photos-clients/a.jpg": "https://TEST.invalid/a" })),
     });
     const r = await listerMesPhotos(deps);
-    expect(r.ok && r.photos.map((p) => p.apercu)).toEqual(["https://TEST.invalid/a", null]);
+    // Seule une photo en attente a encore un original privé : aucun lien signé pour une photo publiée, refusée ou retirée.
+    expect(r.ok && r.photos.map((p) => p.apercu)).toEqual(["https://TEST.invalid/a", null, null, null]);
     expect(deps.apercus).toHaveBeenCalledWith(["photos-clients/a.jpg"]);
   });
 

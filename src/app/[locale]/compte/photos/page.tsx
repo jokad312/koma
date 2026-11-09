@@ -58,7 +58,7 @@ async function Contenu({ locale }: { locale: Locale }) {
                     <p className="t-small text-text-secondary">{p.ville ? t("mesPhotos.ville", { ville: p.ville }) : t("mesPhotos.sansVille")}</p>
                     {p.retraitDemande && p.statut !== "retiree" ? <p className="t-small text-text-primary">{t("mesPhotos.retraitDemande")}</p> : null}
                   </div>
-                  {p.statut !== "retiree" && !p.retraitDemande ? <RetirerPhoto id={p.id} publiee={p.statut === "publiee"} /> : null}
+                  {(p.statut === "en_attente" || p.statut === "publiee") && !p.retraitDemande ? <RetirerPhoto id={p.id} publiee={p.statut === "publiee"} /> : null}
                 </li>
               );
             })}

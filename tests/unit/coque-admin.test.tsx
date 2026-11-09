@@ -24,21 +24,21 @@ async function coque(enfants: React.ReactNode) {
 }
 
 describe("CoqueAdmin", () => {
-  it("une navigation « Administration » avec Commandes, Produits, Univers, Blog, Codes promo, Messages, Tâches, Prestataires et Réglages, la page courante marquée", async () => {
+  it("une navigation « Administration » avec Commandes, Produits, Univers, Blog, Galerie, Codes promo, Messages, Tâches, Prestataires et Réglages, la page courante marquée", async () => {
     chemin.courant = "/admin/reglages";
     compteur.valeur = 0;
     rendre(await coque(<h1>Contenu</h1>));
     const nav = screen.getByRole("navigation", { name: "Administration" });
     const liens = within(nav).getAllByRole("link");
-    expect(liens.map((l) => l.textContent)).toEqual(["Commandes", "Produits", "Univers", "Blog", "Codes promo", "Messages", "Tâches", "Prestataires", "Réglages"]);
-    expect(liens.map((l) => l.getAttribute("href"))).toEqual(["/admin/commandes", "/admin/produits", "/admin/univers", "/admin/blog", "/admin/codes-promo", "/admin/messages", "/admin/taches", "/admin/prestataires", "/admin/reglages"]);
-    expect(liens[8].getAttribute("aria-current")).toBe("page");
+    expect(liens.map((l) => l.textContent)).toEqual(["Commandes", "Produits", "Univers", "Blog", "Galerie", "Codes promo", "Messages", "Tâches", "Prestataires", "Réglages"]);
+    expect(liens.map((l) => l.getAttribute("href"))).toEqual(["/admin/commandes", "/admin/produits", "/admin/univers", "/admin/blog", "/admin/galerie", "/admin/codes-promo", "/admin/messages", "/admin/taches", "/admin/prestataires", "/admin/reglages"]);
+    expect(liens[9].getAttribute("aria-current")).toBe("page");
     expect(liens[0].getAttribute("aria-current")).toBeNull();
     // Barre rouge de 4 px sur l'entrée courante, cible tactile de 44 px.
-    expect(liens[8].className).toContain("border-primary");
-    expect(liens[8].className).toContain("border-t-4");
-    expect(liens[8].className).toContain("md:border-l-4");
-    expect(liens[8].className).toContain("min-h-touch");
+    expect(liens[9].className).toContain("border-primary");
+    expect(liens[9].className).toContain("border-t-4");
+    expect(liens[9].className).toContain("md:border-l-4");
+    expect(liens[9].className).toContain("min-h-touch");
     expect(screen.getByRole("heading", { name: "Contenu" })).toBeTruthy();
   });
 

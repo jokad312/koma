@@ -412,3 +412,9 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-8-1-envoyer-sa-photo-depuis-son-compte.md`
   summary: Banc de test de `rendre` (src/modules/envois/dependances.ts) avec un faux client Supabase, pour les liens WhatsApp et « Envoyer une photo » des emails.
   evidence: aucun test n'exécute `rendre` ; seuls les gabarits sont testés.
+- source_spec: `_bmad-output/implementation-artifacts/spec-8-2-validation-depot-whatsapp-et-retrait-des-photos.md`
+  summary: Pagination de la file Galerie et tri des photos publiées de la plus récente à la plus ancienne (lister_photos_admin).
+  evidence: la fonction renvoie toutes les photos publiées, triées par date d'envoi croissante.
+- source_spec: `_bmad-output/implementation-artifacts/spec-8-2-validation-depot-whatsapp-et-retrait-des-photos.md`
+  summary: Double dépôt WhatsApp simultané du même envoi, et test du filtre « en attente » de la purge (adaptateur de la route).
+  evidence: aucun verrou sur l'objet d'envoi ; l'adaptateur réel de la purge n'a pas de banc de test.
