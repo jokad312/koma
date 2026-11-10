@@ -2,7 +2,8 @@
 -- Liste blanche : a_le_role (lecture pure du rôle, appelée par les politiques RLS et le client) ;
 -- places_fabrication_utilisees (lecture pure, sans stock, story 2.3) ; stock_disponible n'y est plus : le stock exact n'est pas public ;
 -- lister_catalogue et capacite_fabrication_atteinte (lectures publiques du catalogue, story 2.4) ;
--- disponibilite_variantes (disponibilité par taille d'une fiche produit, story 2.5).
+-- disponibilite_variantes (disponibilité par taille d'une fiche produit, story 2.5) ;
+-- lister_mur_public (mur « Ils le portent », story 8.3 : photos publiées seulement, colonnes fermées, rien de personnel).
 begin;
 select plan(4);
 
@@ -11,7 +12,7 @@ create temp view ks_fonctions_ouvertes as
 select p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')' as fonction
 from pg_proc p
 where p.pronamespace = 'public'::regnamespace
-  and p.proname not in ('a_le_role', 'lister_catalogue', 'capacite_fabrication_atteinte', 'disponibilite_variantes')
+  and p.proname not in ('a_le_role', 'lister_catalogue', 'capacite_fabrication_atteinte', 'disponibilite_variantes', 'lister_mur_public')
   and not exists (select 1 from pg_depend d where d.objid = p.oid and d.deptype = 'e')
   and (has_function_privilege('anon', p.oid, 'execute') or has_function_privilege('authenticated', p.oid, 'execute'));
 
