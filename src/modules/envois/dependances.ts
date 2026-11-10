@@ -7,6 +7,10 @@ import { TEXTES } from "./modeles/commun";
 import { rendreKitOuvert } from "./modeles/kit-ouvert";
 import { rendreCommandeAnnulee, rendreCommandeEnFabrication, rendreCommandeExpediee, rendreCommandeLivree, rendreCommandeRemboursee } from "./modeles/statut-commande";
 import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
+import { cheminPublic } from "@/i18n/adresses";
+import { lienDesinscription } from "@/modules/preferences/lien-desinscription";
+import { rendreNouveauProduit, rendrePanierAbandonne, rendreRappelKit } from "./modeles/commerciaux";
+import { MODELES_COMMERCIAUX } from "./types";
 import type { DependancesEnvois, EnvoiReserve, LangueEmail, ResultatRendu } from "./types";
 
 type ClientService = ReturnType<typeof creerClientService>;
@@ -15,6 +19,82 @@ const STATUTS_PAYES = ["payee", "en_fabrication", "expediee", "livree"];
 const STATUTS_KIT = ["offerte", "livree", "payee"];
 
 const titreSelonLangue = (p: { titre_fr: string; titre_en: string | null }, langue: LangueEmail) => (langue === "en" && p.titre_en ? p.titre_en : p.titre_fr);
+
+// Emails commerciaux ciblés (story 9.6) : jamais envoyés si leur sujet n'est plus vrai (Panier vidé ou payé, Kit terminé, Produit dépublié).
+const MODELES_CIBLES = ["panier_abandonne", "rappel_kit", "nouveau_produit"] as const;
+
+async function rendreCommercial(client: ClientService, envoi: EnvoiReserve, destinataire: string, nomSite: string, site: string): Promise<ResultatRendu> {
+  const langue = envoi.langue;
+  // Lien signé de désinscription, obligatoire dans tout Email commercial : sans clé configurée, l'email n'est jamais envoyé sans lui.
+  let lien: string;
+  try {
+    lien = lienDesinscription(envoi.compteId, langue);
+  } catch {
+    return { statut: "reessayer", raison: "lien de désinscription indisponible" };
+  }
+  const commun = { nomSite, lienDesinscription: lien };
+
+  if (envoi.modele === "panier_abandonne") {
+    const panierId = envoi.donnees.panier_id;
+    if (!panierId) return { statut: "ignorer", raison: "panier non indiqué" };
+    const { data: panier, error } = await client.from("panier").select("compte_id, ligne_panier(id)").eq("id", panierId).maybeSingle();
+    if (error) return { statut: "reessayer", raison: "lecture du panier impossible" };
+    if (!panier || panier.compte_id !== envoi.compteId) return { statut: "ignorer", raison: "panier introuvable pour ce Compte" };
+    if ((panier.ligne_panier ?? []).length === 0) return { statut: "ignorer", raison: "panier vide ou payé" };
+    return { statut: "pret", destinataire, message: rendrePanierAbandonne(langue, { ...commun, url: `${site}/${langue}${cheminPublic(langue, "/panier")}` }) };
+  }
+
+  const produitId = envoi.donnees.produit_id;
+  if (!produitId) return { statut: "ignorer", raison: "produit non indiqué" };
+  const { data: produit, error: erreurProduit } = await client
+    .from("produit")
+    .select("id, slug, famille, titre_fr, titre_en, publie_le, univers:univers_id(nom_fr, nom_en)")
+    .eq("id", produitId)
+    .maybeSingle();
+  if (erreurProduit) return { statut: "reessayer", raison: "lecture du produit impossible" };
+  if (!produit) return { statut: "ignorer", raison: "produit introuvable" };
+  const titre = titreSelonLangue(produit, langue);
+
+  if (envoi.modele === "rappel_kit") {
+    if (produit.famille !== "kit") return { statut: "ignorer", raison: "produit qui n'est pas un kit" };
+    const { data: acces, error: erreurAcces } = await client.from("acces_kit").select("id").eq("compte_id", envoi.compteId).eq("produit_id", produitId).maybeSingle();
+    if (erreurAcces) return { statut: "reessayer", raison: "lecture de l'accès impossible" };
+    if (!acces) return { statut: "ignorer", raison: "kit sans accès" };
+    const { data: progression, error } = await client
+      .from("progression_video")
+      .select("position_secondes, max_position_secondes, terminee_le")
+      .eq("compte_id", envoi.compteId)
+      .eq("produit_id", produitId)
+      .maybeSingle();
+    if (error) return { statut: "reessayer", raison: "lecture de la progression impossible" };
+    if (progression?.terminee_le) return { statut: "ignorer", raison: "kit terminé" };
+    let chapitre: number | null = null;
+    if (progression && progression.max_position_secondes > 0) {
+      // Chapitre en cours : nombre de chapitres commencés avant la dernière position connue (au moins le premier).
+      const { count, error: erreurChapitres } = await client
+        .from("chapitre_kit")
+        .select("id", { count: "exact", head: true })
+        .eq("produit_id", produitId)
+        .lte("debut_secondes", progression.position_secondes);
+      if (erreurChapitres) return { statut: "reessayer", raison: "lecture des chapitres impossible" };
+      chapitre = Math.max(1, count ?? 1);
+    }
+    const url = `${site}/${langue}/compte/bibliotheque/${encodeURIComponent(produit.slug)}`;
+    return { statut: "pret", destinataire, message: rendreRappelKit(langue, { ...commun, url, kit: titre, chapitre }) };
+  }
+
+  if (envoi.modele === "nouveau_produit") {
+    if (!produit.publie_le || Date.parse(produit.publie_le) > Date.now()) return { statut: "ignorer", raison: "produit non publié" };
+    const univers = Array.isArray(produit.univers) ? produit.univers[0] : produit.univers;
+    if (!univers) return { statut: "ignorer", raison: "produit sans univers" };
+    const dossier = produit.famille === "kit" ? "/kits" : produit.famille === "accessoire" ? "/accessoires" : "/cosplays";
+    const url = `${site}/${langue}${cheminPublic(langue, dossier)}/${encodeURIComponent(produit.slug)}`;
+    const nomUnivers = langue === "en" ? univers.nom_en : univers.nom_fr;
+    return { statut: "pret", destinataire, message: rendreNouveauProduit(langue, { ...commun, url, produit: titre, univers: nomUnivers }) };
+  }
+
+  return { statut: "ignorer", raison: "modèle sans gabarit" };
+}
 
 // Relit la base au moment du rendu : l'envoi ne porte que des identifiants. Un contenu qui ne correspond plus au Compte
 // ou à l'état de la Commande n'est jamais envoyé (« ignorer »).
@@ -29,6 +109,11 @@ async function rendre(client: ClientService, envoi: EnvoiReserve): Promise<Resul
   const nomSite = reglage?.valeur?.trim();
   if (erreurNom || !nomSite) return { statut: "reessayer", raison: "nom du site illisible" };
   const site = lireEnvPublique().NEXT_PUBLIC_SITE_URL.replace(/\/+$/, "");
+
+  // Emails commerciaux ciblés (story 9.6) : pas de Commande ; le rendu relit le Panier, le Kit ou le Produit au moment de l'envoi.
+  if ((MODELES_CIBLES as readonly string[]).includes(envoi.modele)) return rendreCommercial(client, envoi, destinataire, nomSite, site);
+  // Autre Email commercial (relance 9.5, alerte 7.3) : pas encore de gabarit, jamais rendu par erreur comme une Commande.
+  if ((MODELES_COMMERCIAUX as readonly string[]).includes(envoi.modele)) return { statut: "ignorer", raison: "modèle sans gabarit" };
 
   const commandeId = envoi.donnees.commande_id;
   if (!commandeId) return { statut: "ignorer", raison: "commande non indiquée" };

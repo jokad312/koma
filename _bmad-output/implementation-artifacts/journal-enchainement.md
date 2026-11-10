@@ -342,3 +342,11 @@
 - Revue (3 sous-agents) : Kit vérifié avant l'envoi, tests complétés ; deux constats écartés (un Kit n'est jamais remboursé ; un Kit possédé ne se rachète pas). Notes pour 8.3 et 8.5 dans `deferred-work.md`.
 - À tester à la main (après un paiement réel de Kit) : envoyer une Réalisation, la voir dans la Galerie admin avec sa commande, la valider (rang 1), en valider une seconde (rang 2) ; un Compte avec seulement le Kit gratuit voit « Une Réalisation se fait avec un kit acheté ».
 - CI verte sur `ff1377c` (pgTAP et e2e compris). Story 8.4 : `done`.
+
+
+## Story 9.6 : emails ciblés
+- Textes validés par Jonathan (2026-11-10) ; traductions anglaises faites ici, à relire.
+- Migrations `20261231200000_emails_cibles.sql` (planification + tâche pg_cron `planifier-emails-cibles` toutes les 15 min) et `20261231210000_emails_cibles_correctifs.sql`, appliquées sur koma-dev. Gabarits `panier_abandonne`, `rappel_kit`, `nouveau_produit` avec lien de désinscription en pied ; le rendu relit la base (Panier vidé, Kit terminé ou sans accès, produit dépublié : jamais envoyé).
+- À valider par Jonathan : la limite absolue d'un Email commercial tous les 2 jours (règle de l'epic) fait que le panier oublié part une seule fois par modification (1 h, ou 24 h si le Panier est plus ancien) ; jamais les deux.
+- Revue (3 sous-agents) : 9 correctifs, banc de test du rendu commercial.
+- À tester à la main (Resend configuré) : Compte avec la case cochée, ajouter au panier puis attendre 1 h (ou reculer `mis_a_jour_le` en base de dev), lancer `select public.planifier_emails_cibles()` puis `POST /api/cron/envois` : l'email « Ton panier t'attend » arrive avec le lien « Me désinscrire » ; cliquer le lien ; aucun email suivant.

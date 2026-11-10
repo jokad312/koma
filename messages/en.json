@@ -2454,6 +2454,32 @@
       "montant": "Amount returned: {montant}.",
       "lien": "Your order page:",
       "bouton": "View my order"
+    },
+    "commercial": {
+      "desinscriptionTexte": "Don't want these emails anymore?",
+      "desinscriptionLien": "Unsubscribe"
+    },
+    "panier_abandonne": {
+      "sujet": "Your cart is waiting",
+      "titre": "Your cart is waiting",
+      "intro": "You left items in your cart on {nomSite}. They are waiting for you: prices and availability are checked when you place the order.",
+      "lien": "Your cart:",
+      "bouton": "See my cart"
+    },
+    "rappel_kit": {
+      "sujet": "Your {kit} kit is waiting",
+      "titre": "Your {kit} kit is waiting",
+      "debut": "Start chapter 1 of {kit}.",
+      "reprise": "Pick up at chapter {n} of {kit}.",
+      "lien": "Your kit:",
+      "bouton": "Open my kit"
+    },
+    "nouveau_produit": {
+      "sujet": "New in {univers}: {produit}",
+      "titre": "New in {univers}",
+      "intro": "{produit} has just arrived in the {univers} universe.",
+      "lien": "See the product:",
+      "bouton": "Discover"
     }
   },
   "Bibliotheque": {

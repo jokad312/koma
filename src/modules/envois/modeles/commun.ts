@@ -28,6 +28,8 @@ export function envelopper(args: {
   texteLien: string;
   libelleBouton: string;
   url: string;
+  // Email commercial (stories 9.4 et 9.6) : lien de désinscription en pied, toujours présent dans ces emails.
+  desinscription?: { texte: string; libelle: string; url: string };
 }): { html: string; texte: string } {
   const t = TEXTES[args.langue];
   const p = (s: string) => `<p style="margin:0 0 16px;font-size:16px;line-height:1.5;">${echapperHtml(s)}</p>`;
@@ -46,6 +48,11 @@ export function envelopper(args: {
     `<p style="margin:0 0 16px;"><a href="${echapperHtml(args.url)}" style="display:inline-block;background:#E3261C;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 20px;font-size:16px;">${echapperHtml(args.libelleBouton)}</a></p>`,
     `<p style="margin:0 0 16px;font-size:14px;line-height:1.5;word-break:break-all;">${echapperHtml(remplir(t.commun.lienTexte, { url: args.url }))}</p>`,
     `<p style="margin:24px 0 0;font-size:13px;line-height:1.5;color:#555555;">${echapperHtml(remplir(t.commun.pied, { nomSite: args.nomSite }))}</p>`,
+    ...(args.desinscription
+      ? [
+          `<p style="margin:12px 0 0;font-size:13px;line-height:1.5;color:#555555;">${echapperHtml(args.desinscription.texte)} <a href="${echapperHtml(args.desinscription.url)}" style="color:#1a1a1a;">${echapperHtml(args.desinscription.libelle)}</a></p>`,
+        ]
+      : []),
     `</div></body></html>`,
   ].join("");
   const texte = [
@@ -61,6 +68,7 @@ export function envelopper(args: {
     args.url,
     "",
     remplir(t.commun.pied, { nomSite: args.nomSite }),
+    ...(args.desinscription ? ["", `${args.desinscription.texte} ${args.desinscription.libelle}`, args.desinscription.url] : []),
   ].join("\n");
   return { html, texte };
 }

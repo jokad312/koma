@@ -2494,6 +2494,7 @@ export type Database = {
         Returns: boolean
       }
       places_fabrication_utilisees: { Args: never; Returns: number }
+      planifier_emails_cibles: { Args: never; Returns: number }
       possede_kit: {
         Args: { p_compte: string; p_produit: string }
         Returns: boolean

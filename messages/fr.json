@@ -2454,6 +2454,32 @@
       "montant": "Montant rendu : {montant}.",
       "lien": "Page de ta commande :",
       "bouton": "Voir ma commande"
+    },
+    "commercial": {
+      "desinscriptionTexte": "Tu ne veux plus recevoir ces emails ?",
+      "desinscriptionLien": "Me désinscrire"
+    },
+    "panier_abandonne": {
+      "sujet": "Ton panier t'attend",
+      "titre": "Ton panier t'attend",
+      "intro": "Tu as laissé des articles dans ton panier sur {nomSite}. Ils t'y attendent : les prix et la disponibilité sont vérifiés au moment de commander.",
+      "lien": "Ton panier :",
+      "bouton": "Voir mon panier"
+    },
+    "rappel_kit": {
+      "sujet": "Ton kit {kit} t'attend",
+      "titre": "Ton kit {kit} t'attend",
+      "debut": "Commence le chapitre 1 de {kit}.",
+      "reprise": "Reprends au chapitre {n} de {kit}.",
+      "lien": "Ton kit :",
+      "bouton": "Ouvrir mon kit"
+    },
+    "nouveau_produit": {
+      "sujet": "Nouveau dans {univers} : {produit}",
+      "titre": "Nouveau dans {univers}",
+      "intro": "{produit} vient d'arriver dans l'univers {univers}.",
+      "lien": "Voir le produit :",
+      "bouton": "Découvrir"
     }
   },
   "Bibliotheque": {
