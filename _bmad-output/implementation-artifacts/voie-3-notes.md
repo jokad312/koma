@@ -143,3 +143,60 @@ VOIE 3 PRÊTE POUR INTÉGRATION (9.1)
 - Revue Blind Hunter, Edge Case Hunter et Verification Gap faite par Claude Code ; correctifs dans `20261230110000_code_promo_correctifs_revue.sql` (caractères de contrôle refusés pour l'Affilié, code immuable en base par déclencheur, modification sans changement non écrite ni journalisée) et dans le module `promo` (validation de type à l'exécution, droit vérifié avant la validation, panne distinguée d'un refus, code testé avant la mise en majuscules).
 - Les 16 textes FR/EN sont appliqués (`Admin.codesPromo`), corrigés pour la cohérence (« Code promo », impératif, « Laisse vide pour 50 » en création seulement).
 - **À traiter en 9.2** : la modification d'un taux n'est pas figée sur les Commandes ; la Commande devra copier le code, le taux de réduction et le taux de commission au moment du paiement, sinon les commissions passées seraient recalculées au taux actuel. Prévoir aussi le comportement quand les utilisations dépassent un plafond réduit.
+
+## Story 9.7 : Mesure d'audience maison
+
+### Implémentation réalisée
+
+- **Décision** : Umami est abandonné (essai non commité, spec réécrite). La mesure est **maison**, conforme à `epics.md` 9.7 et AD-19 : aucun script tiers, aucune modification de la CSP, aucun cookie.
+- **Migration** `supabase/migrations/20270101100000_mesure.sql` (dernière de `origin/main` : `20261231210000_emails_cibles_correctifs.sql`). Aucune migration existante modifiée.
+  - Table `evenement_mesure` : `action` (liste fermée de 10 valeurs, `check`), `page` (1 à 200, commence par `/`, sans `?`, `#`, espace, caractère de contrôle ni `//`), `origine` (`^[a-z0-9_-]{1,40}$`, même forme que `commande.origine`), `referent_domaine` (`^[a-z0-9.-]{1,100}$`), `langue`, `appareil`, `session_id uuid`, `duree_ms` (0 à 60 000, uniquement pour `chargement_heros`), `cree_le`. Index `(cree_le)` et `(action, cree_le)`.
+  - RLS active, **aucune politique**, `revoke all` pour `public`, `anon`, `authenticated`. Écriture par la seule fonction `enregistrer_evenement_mesure(p_auteur jsonb, …)` (`security definer`, `search_path` vide, `AUTEUR_VISITEUR`, `service_role` seul).
+  - **Pas de déclencheur de journal** : ce n'est pas une table métier (aucun état, aucun droit admin, aucune donnée personnelle) et journaliser chaque vue de page noierait `journal_audit`. Divergence assumée avec AD-21, actée au plan.
+  - Contrainte `evenement_mesure_compte` : les quatre actions privées exigent `page = '/compte'` ; la page `/compte` n'accepte que ces quatre actions et `kit_gratuit_recupere`.
+  - Huit vues `security_invoker` (`service_role` seule) : `vue_visites_jour`, `vue_origines_jour`, `vue_entonnoir_jour` (comptes agrégés par jour et par étape, **sans jointure** session ↔ Commande), `vue_paiements_jour`, `vue_ventes_code_promo`, `vue_ventes_origine`, `vue_deuxiemes_achats`, `vue_desinscriptions_jour`. `vue_ventes_code_promo` suit la même règle que `commission_code_promo` (9.3) : seules les Commandes avec `paye_le` comptent.
+- **Module** `src/modules/mesure/{actions,types,chemins,schemas,service,dependances,client}.ts`.
+  - Liste fermée d'actions côté TypeScript, identique au `check` SQL.
+  - Règles pures dans `chemins.ts` : chemin sans requête, retrait du préfixe de langue, exclusions par segment entier, dérogation `/compte`, origine normalisée, référent réduit au domaine, appareil déduit de la largeur seulement.
+  - Service : Zod `.strict()` (aucun champ inconnu, **aucun champ `page`** envoyé par le client), chemin recalculé depuis le `Referer` (même origine seulement), limitation `consommer_essai` par session (300/h) puis par HMAC d'IP (1 200/h).
+- **Route** `src/app/api/mesure/route.ts` : POST seulement, `application/json` exigé, corps ≤ 1 024 octets, `connection()`, `Cache-Control: no-store`, codes 204 / 400 / 413 / 415 / 500, aucune réponse détaillée.
+- **Client** : `EnvoiMesure` monté une fois dans le layout des langues (prépare la session et l'origine, délègue les clics `data-mesure`), `MesureVueFiche` sur les fiches Produit et Kit. `sessionStorage` (repli mémoire), `fetch` `keepalive`, aucune requête en cas d'échec affichable.
+- **Actions instrumentées** : `clic_heros` (boutons du héros), `chargement_heros` (durée réelle jusqu'au premier média prêt), `vue_fiche` (une fois par onglet et par page), `ajout_panier` (après succès serveur), `partage_fiche` (partage ou copie réussis), `kit_gratuit_recupere` (après succès serveur), `photo_envoyee` / `realisation_envoyee` (après finalisation réussie), `video_kit_demarree` / `video_kit_terminee`.
+- **Types** : `evenement_mesure` et la fonction sont absentes de `src/lib/supabase/types.ts` (fichier interdit) ; client structurel local dans `dependances.ts`, comme `promo`.
+
+### Points de décision et écarts assumés
+
+- **Durée du héros** : colonne `duree_ms` ajoutée sur accord de Jonathan (2026-11-10), réservée à `chargement_heros`. Mesure du début de navigation au premier média prêt (`performance.now()`, bornée à 60 s) ; aucun héros sans média n'émet d'événement.
+- **Empreinte d'IP** : HMAC dans `limite_essai` seulement (modèle du contact), jamais dans `evenement_mesure`, jamais en clair, jamais journalisée. Si le HMAC est indisponible (pas d'en-tête d'adresse), seule la limite par session s'applique.
+- **Dérogation `/compte`** : liste fermée `photo_envoyee`, `realisation_envoyee`, `kit_gratuit_recupere`, `video_kit_demarree`, `video_kit_terminee`. La page enregistrée est toujours `/compte` (jamais le sous-chemin), aucune donnée de Compte, de Kit ni de Commande. Toute autre action venue de `/compte` est refusée côté client **et** côté serveur. `kit_gratuit_recupere` reste mesurable depuis une fiche publique, avec le chemin de la fiche.
+- **Referer** : le chemin ne vient **jamais** du corps. Referer absent, illisible ou d'une autre origine → 204 sans écriture (décision de Jonathan du 2026-11-10). Conséquence : un navigateur qui supprime le Referer même en interne ne produit aucune mesure ; c'est préféré à un chemin fourni par le client.
+- **Actions non mesurées, hors périmètre** (impossibles sans toucher à l'authentification, aux commandes ou aux paiements, ou sans l'epic 7) : création de Compte à l'étape de paiement et abandon à cette étape (voie 1) ; inscription à une Alerte événement et Pass vendus (aucune table `alerte` ni `pass`) ; livraisons en retard (aucun délai promis n'est stocké : SM-C1 reste à définir). À traiter dans une story ultérieure.
+- **Origine et Code promo** : l'origine d'un achat par Code promo est calculée par `vue_ventes_code_promo` (tables métier), pas par un événement. L'événement retient seulement la valeur d'un paramètre `origine` ou `utm_source`.
+- **Aucun écran** : la story 9.7 ne publie rien ; le tableau de bord qui consomme les vues est la 9.8.
+- **Pas de purge planifiée** de `evenement_mesure` au lancement, comme `limite_essai`. À décider avec la 9.8 ou 9.9 si le volume le demande.
+
+### Phrase de confidentialité proposée (à valider — non appliquée)
+
+Aucun texte visible n'a été ajouté. Proposition, à placer dans la page de confidentialité si Jonathan la valide :
+
+- FR : « La boutique mesure l'audience sans cookie et sans traceur : seuls le nom de l'action, la page, l'origine de la visite, la langue, le type d'appareil et un identifiant de session aléatoire (effacé à la fermeture de l'onglet) sont conservés. Ni votre adresse IP, ni votre adresse email, ni votre Compte, ni vos numéros de commande ne sont enregistrés. »
+- EN : « The shop measures traffic without cookies or trackers: only the action name, the page, the visit source, the language, the device type and a random session identifier (cleared when the tab closes) are kept. Your IP address, email address, account and order numbers are never recorded. »
+
+### Tests
+
+- `tests/unit/mesure-chemins.test.ts` (14 tests) : normalisation du chemin, préfixe de langue, exclusions par segment (`/administration`, `/comptes`, `/commandes` mesurés), dérogation `/compte`, `Referer` (absent, autre origine, requête retirée), origine, référent, appareil, liste fermée.
+- `tests/unit/mesure-service.test.ts` (9 tests) : chemin tiré du `Referer`, aucun `page` accepté du client, refus des champs inconnus (email, durée mal placée), rien sans `Referer`, pages exclues, dérogation `/compte`, limites session puis IP, panne.
+- `tests/unit/mesure-route.test.ts` (11 tests) : 204, `no-store`, aucune chaîne de requête enregistrée, `Referer` absent ou étranger, page exclue, `/compte`, 400 / 413 / 415 / 500, pas de GET.
+- `tests/unit/mesure-client.test.ts` (9 tests, jsdom) : session aléatoire unique, origine sans requête, référent réduit, aucun envoi depuis les pages exclues, actions `/compte` acceptées et les autres refusées, durée bornée, échec silencieux.
+- `supabase/tests/mesure.test.sql` (30 assertions pgTAP) : droits `anon`/`authenticated` (lecture et écriture directes refusées), fonction réservée à `service_role`, écriture valide, contraintes (action, page, `/compte`, durée, auteur, origine, référent, langue, appareil, session), vues fermées et lisibles par le serveur. Exécuté en CI.
+
+### État des vérifications
+
+- `npm run lint` : vert (0 erreur, 0 avertissement).
+- `npm run typecheck` : vert.
+- `npm test` : **2 348 tests verts, 184 fichiers**.
+- `npm run build` : **bloqué par l'environnement**, pas par la 9.7. La compilation passe et la route est bien produite (`.next/routes-manifest.json` contient `^/api/mesure(?:/)?$`) ; le prérendu de `/fr/[...rest]` échoue sur `Lecture des Prestataires impossible`, car la clé de service de `.env.local` est refusée. Vérifié directement : `GET /rest/v1/prestataire` répond **401**. `.env*` interdit et non modifié.
+- `npm run test:sql` : sort proprement en local (Docker absent) ; le pgTAP tourne en CI.
+- Aucun `git push`, `git merge`, `git rebase` ni `npm run db:push`. Aucune écriture dans Supabase.
+
+VOIE 3 PRÊTE POUR INTÉGRATION (9.7)

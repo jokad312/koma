@@ -46,12 +46,12 @@ async function BoutonVedette({ locale }: { locale: Locale }) {
   // n'est rendu que si le Cosplay vedette a un Kit lié publié (sinon la double option n'existe pas). Aucune sélection ne change
   // de page ni ne déclenche d'action : chaque bouton est un lien vers la fiche concernée.
   const boutonPrincipal = (
-    <Link href={cheminPublic(locale, vedette.href)} className={`${CLASSES_PRINCIPAL} self-start lg:hidden`}>
+    <Link href={cheminPublic(locale, vedette.href)} data-mesure="clic_heros" className={`${CLASSES_PRINCIPAL} self-start lg:hidden`}>
       {t("pretAPorter")}
     </Link>
   );
   const boutonSecondaire = vedette.hrefKit ? (
-    <Link href={cheminPublic(locale, vedette.hrefKit)} className={`${CLASSES_SECONDAIRE} self-start lg:hidden`}>
+    <Link href={cheminPublic(locale, vedette.hrefKit)} data-mesure="clic_heros" className={`${CLASSES_SECONDAIRE} self-start lg:hidden`}>
       {t("fabriquer")}
     </Link>
   ) : null;

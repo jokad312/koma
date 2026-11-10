@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { cache } from "react";
 import { MessageEtat } from "@/components/ui/MessageEtat";
+import { MesureVueFiche } from "@/components/mesure/MesureVueFiche";
 import type { Locale } from "@/i18n/routing";
 import { lireHoteCdnPublic } from "@/lib/bunny/config";
 import { lireNomSite } from "@/lib/reglages";
@@ -49,5 +50,10 @@ export async function PageFicheKit({ locale, slug }: Props) {
     return <MessageEtat type="erreur">{t("erreur")}</MessageEtat>;
   }
   if (!fiche) notFound();
-  return <FicheKit fiche={fiche} locale={locale} hoteCdn={lireHoteCdnPublic()} />;
+  return (
+    <>
+      <MesureVueFiche />
+      <FicheKit fiche={fiche} locale={locale} hoteCdn={lireHoteCdnPublic()} />
+    </>
+  );
 }

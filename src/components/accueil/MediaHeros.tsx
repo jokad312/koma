@@ -2,7 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { mesurer } from "@/modules/mesure/client";
 
 type Props = {
   // Adresse du MP4 public validé par le serveur ; null : photo seule.
@@ -60,8 +61,22 @@ export function MediaHeros({ videoUrl, repli }: Props) {
   const [erreur, setErreur] = useState(false);
   const refVideo = useRef<HTMLVideoElement>(null);
   const refMedia = useRef<HTMLDivElement>(null);
+  const refImage = useRef<HTMLImageElement>(null);
+  // Durée de chargement du héros (FR-54) : mesurée du début de la navigation jusqu'au premier média prêt, une seule fois.
+  // Aucun autre renseignement ne part ; l'envoi reste silencieux.
+  const mesureFaite = useRef(false);
+  const signalerCharge = useCallback(() => {
+    if (mesureFaite.current) return;
+    mesureFaite.current = true;
+    mesurer("chargement_heros", { dureeMs: performance.now() });
+  }, []);
 
   const avecVideo = videoUrl !== null && !reduit && !erreur;
+
+  // Image déjà chargée avant l'hydratation : l'événement onLoad ne viendrait jamais, complete le dit.
+  useEffect(() => {
+    if (refImage.current?.complete) signalerCharge();
+  }, [signalerCharge]);
 
   // Lecture ou pause selon le choix mémorisé.
   useEffect(() => {
@@ -106,7 +121,7 @@ export function MediaHeros({ videoUrl, repli }: Props) {
       <div ref={refMedia} className="absolute inset-0 overflow-hidden" data-media-heros={afficheVideo ? "video" : "photo"}>
         <div className="absolute inset-0 origin-center [transform:translate3d(0,var(--decalage,0px),0)_scale(1.1)] motion-reduce:[transform:none]">
           {repli ? (
-            <Image src={repli.url} alt={repli.alt} fill priority sizes="(min-width: 1024px) 66vw, 100vw" className="object-cover" />
+            <Image ref={refImage} src={repli.url} alt={repli.alt} fill priority sizes="(min-width: 1024px) 66vw, 100vw" className="object-cover" onLoad={signalerCharge} />
           ) : null}
           {avecVideo ? (
             <video
@@ -118,7 +133,10 @@ export function MediaHeros({ videoUrl, repli }: Props) {
               preload="auto"
               aria-hidden="true"
               tabIndex={-1}
-              onLoadedData={() => setPret(true)}
+              onLoadedData={() => {
+                setPret(true);
+                signalerCharge();
+              }}
               onError={() => setErreur(true)}
               className={`absolute inset-0 size-full object-cover transition-opacity duration-300 ${pret ? "opacity-100" : "opacity-0"}`}
             />

@@ -7,6 +7,7 @@ import { MessageEtat } from "@/components/ui/MessageEtat";
 import { enregistrerProgression } from "@/modules/bibliotheque/actions";
 import { INTERVALLE_PROGRESSION_SECONDES, indexChapitre } from "@/modules/bibliotheque/video";
 import { formaterInstant } from "@/modules/catalogue/sous-titres";
+import { mesurer } from "@/modules/mesure/client";
 
 export type ChapitreLecteur = { id: string; titre: string; debutSecondes: number };
 
@@ -187,6 +188,8 @@ export function LecteurVideoKit({ produitId, slug, titre, locale, dureeSecondes,
         crossOrigin="anonymous"
         aria-label={titre}
         onPlay={() => {
+          // Première lecture seulement (page /compte/bibliotheque) : la mesure enregistre « /compte », jamais le slug du Kit.
+          if (!aJoue.current) mesurer("video_kit_demarree");
           aJoue.current = true;
           setEnLecture(true);
         }}
@@ -197,6 +200,7 @@ export function LecteurVideoKit({ produitId, slug, titre, locale, dureeSecondes,
         onEnded={() => {
           setEnLecture(false);
           sauver();
+          mesurer("video_kit_terminee");
         }}
         onTimeUpdate={(e) => {
           setTemps(Math.floor(e.currentTarget.currentTime));

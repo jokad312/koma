@@ -12,6 +12,7 @@ import { lireEtatKit } from "@/modules/bibliotheque/actions";
 import type { EtatKit } from "@/modules/bibliotheque/types";
 import { obtenirKitGratuit } from "@/modules/commande/actions";
 import type { CodeErreurCommande } from "@/modules/commande/types";
+import { mesurer } from "@/modules/mesure/client";
 
 // Chemin de la bibliothèque du client (la page arrive à la story 3.6).
 export const CHEMIN_BIBLIOTHEQUE = "/compte/bibliotheque";
@@ -68,6 +69,8 @@ export function ObtentionKit({ produitId, prixCents }: Props) {
         if (r.ok) {
           setNumero(r.numero);
           setEtat("possede");
+          // Kit gratuit réellement obtenu (règle 13) : aucune donnée de Compte ni de Commande n'est transmise.
+          mesurer("kit_gratuit_recupere");
         } else {
           setErreur(r.erreur);
           // Session expirée ou Compte incomplet : le lien de connexion (avec retour) revient ; Kit déjà possédé : « Ouvrir ».

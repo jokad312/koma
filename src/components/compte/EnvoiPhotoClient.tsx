@@ -9,6 +9,7 @@ import { lireEnvPublique } from "@/lib/env";
 import { demarrerEnvoiTus, type EnvoiTus } from "@/lib/supabase/envoi-tus";
 import { annulerEnvoiPhotoAction, demanderEnvoiPhotoAction, finaliserPhotoAction } from "@/modules/communaute/actions";
 import { FORMATS_PHOTO_CLIENT, PHOTO_CLIENT_TAILLE_MAX, type KitPaye } from "@/modules/communaute/types";
+import { mesurer } from "@/modules/mesure/client";
 
 const CHAMP = "t-body min-h-touch w-full rounded-md border border-border-field bg-surface px-4 py-3 text-text-primary";
 type Phase = "repos" | "envoi" | "traitement";
@@ -113,6 +114,8 @@ export function EnvoiPhotoClient({ kits }: { kits?: KitPaye[] } = {}) {
       setPhase("traitement");
       const fini = await finaliserPhotoAction({ objet: autorisation.objet, accord, afficherNom, nom, afficherVille, ville, ...(kits ? { kitId } : {}) });
       if (!fini.ok) return echec(fini.erreur);
+      // Envoi réellement accepté par le serveur (règle 13) ; la page est enregistrée « /compte », jamais le sous-chemin.
+      mesurer(kits ? "realisation_envoyee" : "photo_envoyee");
       setMessage(t("succes"));
       setAccord(false);
       setKitId("");

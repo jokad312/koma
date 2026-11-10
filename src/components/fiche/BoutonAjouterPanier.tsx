@@ -9,6 +9,7 @@ import { cheminPublic } from "@/i18n/adresses";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import type { Taille } from "@/modules/catalogue/types";
+import { mesurer } from "@/modules/mesure/client";
 import { ajouterAuPanier } from "@/modules/panier/actions";
 import type { CodeErreurPanier } from "@/modules/panier/types";
 
@@ -40,6 +41,8 @@ export function BoutonAjouterPanier({ produitId, taille }: Props) {
         const r = await ajouterAuPanier({ produitId, taille: physique ? taille : null, nombre: 1 });
         if (r.ok) {
           setResultat({ pour: taille, erreur: null });
+          // Mesure seulement après le succès réel du serveur (règle 13) : aucune donnée du panier n'est transmise.
+          mesurer("ajout_panier");
           router.refresh();
         } else {
           setResultat({ pour: taille, erreur: r.erreur });

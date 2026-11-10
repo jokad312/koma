@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { CLASSES_SECONDAIRE } from "@/components/ui/classes";
+import { mesurer } from "@/modules/mesure/client";
 
 type Props = { titre: string; url: string };
 
@@ -13,6 +14,8 @@ export function BoutonPartager({ titre, url }: Props) {
 
   async function copier() {
     await navigator.clipboard.writeText(url);
+    // Mesure après la copie réussie seulement ; ni le titre ni l'adresse ne sont transmis.
+    mesurer("partage_fiche");
     // Vider puis remettre le message : une seconde copie est ré-annoncée.
     setMessage("");
     await new Promise((r) => setTimeout(r, 50));
@@ -25,6 +28,7 @@ export function BoutonPartager({ titre, url }: Props) {
       if (typeof navigator.share === "function") {
         try {
           await navigator.share({ title: titre, url });
+          mesurer("partage_fiche");
           return;
         } catch (e) {
           if (e instanceof DOMException && e.name === "AbortError") return;

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { cache } from "react";
 import { MessageEtat } from "@/components/ui/MessageEtat";
+import { MesureVueFiche } from "@/components/mesure/MesureVueFiche";
 import type { Locale } from "@/i18n/routing";
 import { lireForfaitLivraison, lireNomSite, lireRetraitGoma } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
@@ -66,5 +67,10 @@ export async function PageFiche({ famille, locale, slug }: Props) {
     lireOuNull(() => lireForfaitLivraison("bukavu")),
     lireOuNull(() => lireRetraitGoma(locale)),
   ]);
-  return <FicheProduit fiche={fiche} locale={locale} forfaitGoma={forfaitGoma} forfaitBukavu={forfaitBukavu} retraitGoma={retraitGoma} />;
+  return (
+    <>
+      <MesureVueFiche />
+      <FicheProduit fiche={fiche} locale={locale} forfaitGoma={forfaitGoma} forfaitBukavu={forfaitBukavu} retraitGoma={retraitGoma} />
+    </>
+  );
 }
