@@ -2294,7 +2294,7 @@ afin d'avoir envie d'être sur ce mur moi aussi.
 
 **Étant donné** au moins une photo publiée
 **Quand** l'accueil s'affiche
-**Alors** le bloc 4 « Ils le portent » (ancre `#galerie`) montre les photos publiées, avec prénom (ou pseudo) et ville seulement si le client l'a autorisé, jamais la ville d'un Compte mineur (FR-2, FR-40, UX-DR19)
+**Alors** le bloc 4 « Ils le portent » (ancre `#galerie`) montre les photos publiées, avec prénom (ou pseudo) seulement si le client l'a autorisé ; **la ville n'est jamais affichée sur le mur** (décision de Jonathan du 2026-11-10, qui remplace la mention « ville si autorisée » ; cela règle aussi le cas du Compte mineur) (FR-2, FR-40, UX-DR19)
 **Et** une photo s'ouvre en grand dans une boîte de dialogue, au toucher ou au clavier
 **Et** il n'existe pas de page Galerie dédiée
 

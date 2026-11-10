@@ -139,8 +139,8 @@
       "voirTout": "See all cosplays"
     },
     "mur": {
-      "titre": "[Texte à fournir]",
-      "mention": "[Texte à fournir]"
+      "titre": "THEY WEAR IT",
+      "mention": "Made with a kit {nomSite}"
     },
     "jonathan": {
       "titre": "JONATHAN IN THREE SENTENCES",
@@ -183,7 +183,7 @@
     "ouvrir": "Menu",
     "titre": "Menu",
     "fermer": "Close menu",
-    "galerie": "[Texte à fournir]"
+    "galerie": "Gallery"
   },
   "Theme": {
     "sombre": "Dark theme"
@@ -201,7 +201,7 @@
       "titre": "Help",
       "faq": "FAQ",
       "contact": "Contact",
-      "galerie": "[Texte à fournir]"
+      "galerie": "Gallery"
     },
     "legal": {
       "titre": "Legal information",

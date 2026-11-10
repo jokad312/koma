@@ -452,7 +452,7 @@
 - Fins de ligne : RÉSOLU le 2026-11-10 (`.gitattributes` commit `1177fe1`, LF ; .ps1/.cmd/.bat en CRLF ; binaires protégés).
 
 - `tests/unit/commande-ui.test.tsx` : 2 à 4 tests échouent par moments quand toute la suite tourne en parallèle (machine chargée), et passent seuls. À stabiliser (attentes trop courtes ?).
-- 8.3 : la ville (si autorisée, jamais pour un Compte mineur : epics.md 8.3, FR-40) n'est pas affichée sur les tuiles du mur : `lister_mur_public` ne la renvoie pas et la spec 8.3 interdisait une nouvelle migration. À décider : nouvelle migration (colonne `ville` calculée côté base avec la règle « jamais pour un mineur ») ou renoncement.
-- 8.3 : textes anglais sans source dans EXPERIENCE.md/DESIGN.md, laissés `[Texte à fournir]` : `Accueil.mur.titre`, `Accueil.mur.mention`, `Menu.galerie`, `Pied.aide.galerie` (à fournir par Jonathan). Le test d'accueil en tient compte.
+- 8.3 : la ville n'est pas affichée sur le mur : décision de Jonathan du 2026-11-10 (renoncement, pas de migration) ; notée dans la spec 8.3 et epics.md. Réglé.
+- 8.3 : textes anglais du mur fournis par Jonathan le 2026-11-10 (« THEY WEAR IT », « Made with a kit {nomSite} », « Gallery »). Réglé.
 - Admin : aucun lien « Administration » dans la vitrine (ni EXPERIENCE.md ni DESIGN.md n'en prévoient) ; l'admin ouvre /admin à la main. À décider si un lien discret pour le rôle Admin est voulu.
 - Test `tests/unit/zone-compte.test.tsx` : le cas « session illisible → comme un visiteur » n'a pas pu être écrit (une exception levée par le double de test fait échouer le test malgré le try/catch de `ZoneCompte`) ; à comprendre avec la config Vitest.

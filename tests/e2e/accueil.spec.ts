@@ -74,7 +74,7 @@ for (const langue of ["fr", "en"] as const) {
     const avecMur = (await sectionMur.count()) === 1;
     if (avecMur) {
       expect(await sectionMur.locator("li").count()).toBeGreaterThan(0);
-      attentesH2.push(langue === "fr" ? "ILS LE PORTENT" : "[Texte à fournir]");
+      attentesH2.push(langue === "fr" ? "ILS LE PORTENT" : "THEY WEAR IT");
     }
     await expect(page.locator('footer a[href$="#galerie"]')).toHaveCount(avecMur ? 1 : 0);
     attentesH2.push(titres.jonathan, titres.faq);

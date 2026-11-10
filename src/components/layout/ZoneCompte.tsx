@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { lireSessionVerifiee } from "@/lib/auth/compte";
+import { estAdminConnecte } from "@/lib/auth/est-admin";
 import { BoutonDeconnexion } from "./BoutonDeconnexion";
 import { LienConnexion } from "./LienConnexion";
 
@@ -16,8 +17,15 @@ export async function ZoneCompte() {
   if (!connecte) return <LienConnexion />;
   // « Mon compte » (EXPERIENCE.md : icône compte, Panneau ☰) mène à la Navigation du compte : commandes, bibliothèque, photos, préférences.
   const t = await getTranslations("Bibliotheque.compte");
+  const ta = await getTranslations("Admin.nav");
+  const admin = await estAdminConnecte();
   return (
     <>
+      {admin ? (
+        <Link href="/admin" className="t-small inline-flex min-h-touch items-center text-text-secondary underline underline-offset-4">
+          {ta("libelle")}
+        </Link>
+      ) : null}
       <Link href="/compte" className="t-small inline-flex min-h-touch items-center text-text-primary underline underline-offset-4">
         {t("titre")}
       </Link>

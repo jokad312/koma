@@ -113,10 +113,10 @@ describe("BlocMur", () => {
     expect(container.querySelector("section#galerie")).not.toBeNull();
   });
 
-  it("anglais : le titre sans source reste « [Texte à fournir] », jamais un texte inventé", async () => {
+  it("anglais : titre « THEY WEAR IT » et mention « Made with a kit … » fournis par Jonathan", async () => {
     faux.lireMurs.mockResolvedValue({ murs: [mur(1)], suite: null });
     rendre(<>{await BlocMur({ locale: "en" })}</>, "en");
-    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("[Texte à fournir]");
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("THEY WEAR IT");
   });
 
   it("aucune entrée publiée : le bloc n'existe pas, aucun titre ni texte", async () => {
@@ -132,6 +132,11 @@ describe("ListeMurs et « Voir plus »", () => {
     rendre(<ListeMurs cle={`debut|${ID(5)}`} murs={[mur(5, { faitAvecKit: true, type: "realisation", pseudo: "Nami" }), mur(6)]} suite={null} nomSite="TEST_SITE" />);
     expect(screen.getAllByText("Fait avec un kit TEST_SITE")).toHaveLength(1);
     expect(screen.getByText("Nami")).toBeTruthy();
+  });
+
+  it("anglais : « Made with a kit {nomSite} »", () => {
+    rendre(<ListeMurs cle={`debut|${ID(5)}`} murs={[mur(5, { faitAvecKit: true, type: "realisation" })]} suite={null} nomSite="TEST_SITE" />, "en");
+    expect(screen.getAllByText("Made with a kit TEST_SITE")).toHaveLength(1);
   });
 
   it("ouvrir une Réalisation : lien vers le Kit seulement si le Kit est publié", async () => {

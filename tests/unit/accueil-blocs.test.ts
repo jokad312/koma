@@ -85,12 +85,11 @@ describe("textes de l'accueil", () => {
   for (const langue of ["fr", "en"] as const) {
     const accueil = messages[langue].Accueil;
 
-    it(`${langue} : seuls le bloc « Jonathan » (et, en anglais, les deux textes du mur sans source) portent le marqueur`, () => {
+    it(`${langue} : seul le bloc « Jonathan » porte le marqueur`, () => {
       const marqueurs = trouverMarqueurs(messages[langue], ["Accueil"]);
       const jonathan = ["Accueil.jonathan.phrase1", "Accueil.jonathan.phrase2", "Accueil.jonathan.phrase3"];
-      // Le titre et la mention du mur n'ont pas de version anglaise dans EXPERIENCE.md ni DESIGN.md : « [Texte à fournir] ».
-      const attendus = langue === "en" ? ["Accueil.mur.titre", "Accueil.mur.mention", ...jonathan] : jonathan;
-      expect(marqueurs).toEqual(attendus);
+      // Titre et mention du mur : textes anglais fournis par Jonathan (2026-11-10), plus aucun marqueur.
+      expect(marqueurs).toEqual(jonathan);
       expect(contientMarqueur(accueil.heros.accroche)).toBe(false);
     });
 

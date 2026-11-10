@@ -3,9 +3,10 @@ import { screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { rendre } from "./aides-dom";
 
-const faux = vi.hoisted(() => ({ session: vi.fn() }));
+const faux = vi.hoisted(() => ({ session: vi.fn(), admin: vi.fn() }));
 vi.mock("server-only", () => ({}));
 vi.mock("@/lib/auth/compte", () => ({ lireSessionVerifiee: () => faux.session() }));
+vi.mock("@/lib/auth/est-admin", () => ({ estAdminConnecte: () => faux.admin() }));
 vi.mock("@/i18n/navigation", () => ({
   usePathname: () => "/",
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
@@ -25,7 +26,10 @@ vi.mock("next-intl/server", async () => {
 
 import { ZoneCompte } from "@/components/layout/ZoneCompte";
 
-beforeEach(() => faux.session.mockReset());
+beforeEach(() => {
+  faux.session.mockReset();
+  faux.admin.mockReset().mockResolvedValue(false);
+});
 
 describe("ZoneCompte (en-tête et panneau ☰)", () => {
   it("connecté : « Mon compte » (vers la Navigation du compte : commandes, bibliothèque, photos, préférences) puis « Se déconnecter »", async () => {
@@ -40,5 +44,29 @@ describe("ZoneCompte (en-tête et panneau ☰)", () => {
     rendre(await ZoneCompte());
     expect(screen.getByRole("link", { name: "Se connecter" })).toBeTruthy();
     expect(screen.queryByRole("link", { name: "Mon compte" })).toBeNull();
+  });
+
+  it("client (non admin) : aucun lien « Administration »", async () => {
+    faux.session.mockResolvedValue({ compteId: "TEST" });
+    faux.admin.mockResolvedValue(false);
+    rendre(await ZoneCompte());
+    expect(screen.queryByRole("link", { name: "Administration" })).toBeNull();
+  });
+
+  it("admin : lien « Administration » discret vers /admin, avant « Mon compte »", async () => {
+    faux.session.mockResolvedValue({ compteId: "TEST" });
+    faux.admin.mockResolvedValue(true);
+    rendre(await ZoneCompte());
+    const lien = screen.getByRole("link", { name: "Administration" });
+    expect(lien.getAttribute("href")).toBe("/admin");
+    expect(lien.className).toContain("min-h-touch");
+    expect(screen.getByRole("link", { name: "Mon compte" })).toBeTruthy();
+  });
+
+  it("visiteur : jamais de lien « Administration », même si la lecture du rôle répondait oui", async () => {
+    faux.session.mockResolvedValue(null);
+    faux.admin.mockResolvedValue(true);
+    rendre(await ZoneCompte());
+    expect(screen.queryByRole("link", { name: "Administration" })).toBeNull();
   });
 });
