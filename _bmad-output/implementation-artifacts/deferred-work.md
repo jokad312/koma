@@ -440,3 +440,13 @@
 
 ## Formulaire de contact : adresse IP (à faire en 9.9)
 - Aligner le formulaire de contact (src/modules/contact/dependances.ts, empreinteClient) sur la mesure : retenir la DERNIÈRE adresse de X-Forwarded-For (celle ajoutée par le proxy de Hostinger), jamais la première, que le client peut fixer. Décision de Jonathan du 2026-11-10.
+
+## Story 9.8 partie 2 (tableau de bord) : points reportés, issus de la revue (2026-11-10)
+- À vérifier : `tableau_paiements` somme les lignes non annulées, alors que `tableau_commandes_payees` et `vue_ventes_origine` utilisent `commande.total_cents`. Si `total_cents` n'est pas réduit à l'annulation d'une ligne, SM-1 et les graphiques divergent de la liste des Commandes. Ajouter un cas de ligne annulée dans `supabase/tests/tableau_de_bord.test.sql`. Le commentaire « la somme des montants d'un jour égale la somme des total_cents » de la migration appliquée n'est exact que sans ligne annulée (migration non modifiée).
+- SM-C2 : une tentative `echouee` sans `cause` (colonne nullable) n'entre dans aucun compte ni dans le dénominateur ; ajouter une colonne `echouees_sans_cause` dans une nouvelle migration.
+- SM-C3 : la moyenne ne porte que sur les mesures déjà reçues, donc biaisée à la baisse sur les périodes récentes (le nombre en attente est affiché).
+- SM-9 : si `commande.compte_id` peut être nul (commande invité), tous les invités forment un seul client dans `vue_deuxiemes_achats` ; à vérifier.
+- Navigation admin sur mobile : 11 onglets dans une barre de 58 px (environ 34 px chacun, sous les 44 px de la règle 7). Problème déjà présent à 10 entrées, aggravé par « Tableau de bord » ; à reprendre avec le ☰ prévu par UX-DR42.
+- Écart de formulation à valider : les graphiques disent « Aucun paiement vérifié sur cette période. » (fenêtre de 7 ou 30 jours) au lieu de « aujourd'hui » de l'epic.
+- Indicateurs « Pas encore mesuré » (sans source) : SM-4, SM-5, SM-6 (passage à un Kit payant), SM-8, SM-C1, SM-C4, SM-C6, SM-C7.
+- Fins de ligne : pas de `.gitattributes` et `core.autocrlf=true` ; `npm run types` écrit en LF, d'où un `types.ts` « modifié » sans changement de contenu. Proposition (non commitée) : `* text=auto eol=lf`.

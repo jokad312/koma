@@ -5,6 +5,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 
 // Seules les entrées dont la page existe sont listées : chaque story qui crée une page admin ajoute sa ligne ici.
 const ENTREES = [
+  { cle: "tableau", href: "/admin" },
   { cle: "commandes", href: "/admin/commandes" },
   { cle: "produits", href: "/admin/produits" },
   { cle: "univers", href: "/admin/univers" },
@@ -31,7 +32,8 @@ export function NavigationAdmin({ compteurMessages = null }: { compteurMessages?
     >
       <ul className="flex w-full md:flex-col">
         {ENTREES.map(({ cle, href }) => {
-          const courante = chemin === href || chemin.startsWith(`${href}/`);
+          // « /admin » est le tableau de bord : il n'est courant que sur sa propre page, jamais sur les sous-pages.
+          const courante = href === "/admin" ? chemin === href : chemin === href || chemin.startsWith(`${href}/`);
           return (
             <li key={cle} className="flex-1 md:flex-none">
               <Link
