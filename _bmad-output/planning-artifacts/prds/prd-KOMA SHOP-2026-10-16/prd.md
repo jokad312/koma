@@ -103,6 +103,7 @@ Plus tard, deux Assistants l'aideront avec un rôle restreint (FR-53).
 - **Compte** — compte client. Créé sans achat ou juste avant le paiement ; obligatoire pour payer. Réservé aux personnes de 13 ans et plus.
 - **Compte mineur** — Compte dont le titulaire a moins de 18 ans, d'après l'âge déclaré à la création. Soumis à des protections propres (FR-12, FR-40).
 - **Capacité** — nombre maximal de personnes pour un Événement, facultatif, réglé dans l'admin. Un Pass Stand compte pour deux.
+- **Candidature Stand** — demande d'un exposant pour un Stand d'un Événement, validée ou refusée par l'Admin (FR-33b).
 - **Commande** — achat payé ou en attente de paiement. Porte un Statut de commande, le Prestataire utilisé, la Référence de transaction, le montant et la devise.
 - **Statut de commande** — `en attente` → `payée` → `en fabrication` → `expédiée` → `livrée` ; plus `échouée` (aucune Tentative de paiement n'a abouti), `expirée` (Délai de paiement dépassé), `annulée`, `remboursée` (argent effectivement rendu, preuve à l'appui) et `offerte` (Commande à 0 USD créée par le serveur, sans Prestataire). Une Commande issue d'un Panier 100 % numérique passe de `payée` (ou `offerte`) à `livrée`. Un Produit physique en stock passe directement de `payée` à `expédiée`. Pour un retrait à Goma, une Commande `expédiée` s'affiche « Prête à retirer » côté client, sans statut supplémentaire. Dans l'admin, aucun statut ne revient en arrière.
 - **Tentative de paiement** — un essai de paiement d'une Commande auprès d'un Prestataire, avec sa propre Référence de transaction. Une Commande peut avoir plusieurs Tentatives de paiement, mais une seule aboutit.
@@ -347,10 +348,17 @@ Le visiteur s'inscrit à « Me prévenir » par email, par son Compte ou par num
 - Le visiteur consent explicitement et peut se désinscrire.
 
 #### FR-33 : Achat de Pass
-Le client connecté choisit un ou plusieurs Pass, d'un ou plusieurs Types de pass. Pour lui-même, le Pass reprend les informations de son Compte ; pour chaque autre personne, il saisit son nom. Un Pass Stand produit deux Pass nominatifs, pour le titulaire et pour son aide. Il n'y a pas de quota par Type de pass, seulement la Capacité facultative de l'Événement, vérifiée côté serveur au paiement. Réalise UJ-5.
+Le client connecté choisit un ou plusieurs Pass, d'un ou plusieurs Types de pass. Pour lui-même, le Pass reprend les informations de son Compte ; pour chaque autre personne, il saisit son nom. Un Pass Stand produit deux Pass nominatifs, pour le titulaire et pour son aide. Chaque Type de pass peut avoir un quota facultatif et l'Événement une Capacité facultative ; les deux sont vérifiés côté serveur au paiement et se cumulent. Un Pass Stand compte pour deux personnes dans la Capacité. Les Pass Stand ne s'achètent que sur Candidature Stand validée (FR-33b). La vente s'ouvre et se ferme selon les dates réglées dans l'admin. Réalise UJ-5.
 - L'achat de Pass est séparé du Panier de produits.
 - Le client accepte une mention : des photos et vidéos de l'Événement seront publiées.
 - Le paiement suit §4.4 (mobile money ou MaishaPay, jamais Polar).
+
+#### FR-33b : Candidature Stand
+Un exposant connecté candidate pour un Stand d'un Événement : description de ce qu'il vend, trois photos, lien Instagram, et case d'engagement obligatoire « propres créations, aucune contrefaçon » (jamais pré-cochée, enregistrée avec sa version). L'Admin valide ou refuse (motif facultatif transmis par email). Une candidature validée donne un lien de paiement valable 48 h (réglage de l'admin) : sans paiement dans ce délai, la place est libérée. Un Stand payé donne deux Pass nominatifs (titulaire et aide). Le nombre de Stands et leur prix se règlent par Événement.
+- Une candidature en attente ne réserve aucune place ; la validation la réserve jusqu'au paiement ou à l'expiration. Valider au-delà du nombre de Stands est refusé (« Complet »).
+- Les photos et le lien Instagram ne sont jamais publiés ; seul l'Admin les voit ; ils sont supprimés 90 jours après la fin de l'Événement, ou 90 jours après un refus ou une expiration.
+- Le lien de paiement ne contient aucun secret et ne fonctionne que connecté avec le Compte du candidat. Le paiement suit §4.4 (mobile money ou MaishaPay, jamais Polar) ; le Code promo s'applique comme aux autres Pass.
+- Un Compte a au plus une candidature active par Événement.
 
 #### FR-34 : Émission des Pass
 Dès le paiement vérifié, l'acheteur reçoit par email tous les Pass, chacun avec un Code QR unique, et les retrouve dans son profil. C'est lui qui les transmet.
@@ -452,7 +460,7 @@ L'Admin crée et modifie les Produits : Famille, textes FR et EN, photos (ordre,
 L'Admin règle : Délai de paiement, Forfaits de livraison Goma et Bukavu, lieu et modalités du retrait, Plafond de fabrication, numéro WhatsApp, Prestataires (FR-21), pourcentage de frais d'annulation des Pass, vidéo et photo du héros.
 
 #### FR-52 : Gestion des Événements
-L'Admin crée et modifie un Événement : date, lieu, Capacité facultative, programme, photos, Types de pass avec prix et avantages, lien de la Galerie d'événement ; il voit les Pass vendus et scannés.
+L'Admin crée et modifie autant d'Événements qu'il veut, sans rien d'écrit en dur : nom et description FR/EN, dates, lieu, photos, Capacité facultative, dates d'ouverture et de fermeture de la vente (facultatives), Types de pass libres (nom FR/EN, prix USD, quota facultatif, ce qui est inclus FR/EN, case « Stand » : deux Pass par unité, vendu seulement sur candidature), lien de la Galerie d'événement ; il traite les Candidatures Stand ; il voit les Pass vendus et scannés. Le site public affiche automatiquement les Événements publiés.
 
 #### FR-53 : Rôle Assistant
 Plus tard, l'Admin crée jusqu'à deux comptes Assistant. Un Assistant peut : voir les Commandes et changer leur statut (numéro de suivi compris) ; vérifier les Mesures et contacter les clients ; valider les photos de la Galerie ; gérer le Blog ; créer et modifier les Événements ; préparer une demande de remboursement, que seul l'Admin valide ; voir les graphiques de sa propre activité.

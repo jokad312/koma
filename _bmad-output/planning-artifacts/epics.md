@@ -81,7 +81,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 
 - **FR-31 Pages Événements** : liste des Événements à venir et page de chaque Événement (date, lieu, programme, photos, Types de pass avec prix et avantages) ; Capacité atteinte → « Complet » et vente arrêtée ; sans Capacité, pas de limite ; Événement passé consultable avec le lien de sa Galerie d'événement.
 - **FR-32 Alerte événement** : inscription « Me prévenir » par email, par Compte ou par numéro WhatsApp ; email et Compte → annonce automatique par email ; WhatsApp → l'Admin exporte la liste et envoie lui-même (aucune API WhatsApp) ; consentement explicite et désinscription.
-- **FR-33 Achat de Pass** : client connecté ; un ou plusieurs Pass d'un ou plusieurs Types ; pour lui-même, le Pass reprend son Compte ; nom saisi pour chaque autre personne ; un Pass Stand produit deux Pass nominatifs (titulaire et aide) ; pas de quota par Type, seulement la Capacité facultative vérifiée côté serveur au paiement ; achat séparé du Panier ; acceptation de la mention sur la publication des photos et vidéos ; paiement mobile money ou MaishaPay, jamais Polar.
+- **FR-33 Achat de Pass** : client connecté ; un ou plusieurs Pass d'un ou plusieurs Types ; pour lui-même, le Pass reprend son Compte ; nom saisi pour chaque autre personne ; un Pass Stand produit deux Pass nominatifs (titulaire et aide) ; quota facultatif par Type et Capacité facultative, vérifiés côté serveur au paiement ; vente ouverte et fermée selon les dates de l'Événement ; Pass Stand seulement sur Candidature validée (FR-33b) ; achat séparé du Panier ; acceptation de la mention sur la publication des photos et vidéos ; paiement mobile money ou MaishaPay, jamais Polar.
 - **FR-34 Émission des Pass** : dès le paiement vérifié, tous les Pass par email, chacun avec un Code QR unique, et dans le profil ; Code QR et code court impossibles à deviner ou à déduire d'un autre.
 - **FR-35 Scan à l'entrée** : le Scan affiche nom, Événement et Type de pass ; refuse, avec la raison, un Pass déjà scanné, annulé ou d'un autre Événement ; saisie manuelle du code court avec les mêmes contrôles.
 - **FR-36 Scan hors ligne** : un appareil connecté prend le Verrou hors ligne et charge la liste des Pass `valide` ; tant qu'il le tient, il est le seul à scanner (les autres affichent « scan réservé à l'appareil hors ligne ») ; synchronisation au retour de la connexion puis libération ; sans Verrou, pas de Scan hors ligne ; l'Admin peut forcer la libération (scans non synchronisés signalés).
@@ -116,7 +116,8 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 - **FR-49 Tableau de bord** : d'abord les nouvelles Commandes payées, puis les graphiques de paiement (par Prestataire, par Famille, dans le temps), les tâches en attente (Mesures, annulations, remboursements, remplacements, Trop-perçus, photos, Réalisations) et les indicateurs du §7 ; liste des Commandes filtrable par Statut, Famille, Prestataire et Zone de remise.
 - **FR-50 Gestion des Produits** : Famille, textes FR et EN, photos (ordre, texte alternatif obligatoire), prix USD, tailles et Sur-mesure, stock, Délai de fabrication par produit ou variante, Kit lié, Fichiers de kit et Vidéo de kit (chapitres, extrait public) ; publication refusée sans prix, sans photo, sans texte alternatif, ou pour un Kit sans Fichier de kit ou sans sous-titres français ; téléversement avec progression et reprise après coupure.
 - **FR-51 Réglages** : Délai de paiement, Forfaits Goma et Bukavu, lieu et modalités du retrait, Plafond de fabrication, numéro WhatsApp, Prestataires (FR-21), pourcentage de frais d'annulation des Pass, vidéo et photo du héros.
-- **FR-52 Gestion des Événements** : date, lieu, Capacité facultative, programme, photos, Types de pass avec prix et avantages, lien de la Galerie d'événement ; Pass vendus et scannés.
+- **FR-33b Candidature Stand** : l'exposant connecté décrit ce qu'il vend, envoie 3 photos et son Instagram, coche l'engagement « propres créations, aucune contrefaçon » ; l'Admin valide ou refuse ; lien de paiement valable 48 h, place libérée sans paiement ; Stand payé = 2 Pass nominatifs ; photos privées, supprimées 90 jours après l'Événement.
+- **FR-52 Gestion des Événements** : autant d'Événements que voulu, rien en dur : textes FR/EN, dates, lieu, photos, Capacité, dates de vente, Types de pass libres (prix, quota, inclus, case Stand) ; Candidatures Stand ; Pass vendus et scannés.
 - **FR-53 Rôle Assistant (plus tard)** : jusqu'à deux Assistants aux droits listés (Commandes et statuts, Mesures, Galerie, Blog, Événements, préparation d'un remboursement, graphiques de leur activité) et interdits listés (prix et Produits, Codes promo et commissions, Prestataires, chiffre d'affaires et graphiques de paiement, Accès bénévoles, validation d'un remboursement) ; droits contrôlés côté serveur et en base. *Création des comptes hors lancement ; modèle de droits écrit dès le lancement (AD-13).*
 
 **§4.13 Mesure d'audience**
@@ -164,6 +165,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 - AD-4 : `confirmer_paiement` est la seule porte vers `payee` (rejeu sans effet ; montant égal → payée + effets ; inférieur → `anomalie montant_insuffisant` ; supérieur ou Commande non honorable → `trop_percu`) ; `honorer_trop_percu` pour l'Admin ; Commande `offerte` jamais `payee`.
 - AD-5 : port `PrestatairePaiement` (`initier`, `verifierNotification`, `consulterStatut`, `comparerMontant`), résultat normalisé `succes | echec_client | echec_prestataire | inconnu`, aucun accès à Supabase ; PawaPay par signature RFC 9421, Polar par Standard Webhooks, MaishaPay uniquement par contre-vérification ; route `POST /api/paiement/notification/[prestataire]` (401 si vérification échoue, enregistrement dans `notification_recue`, réponse 200 même si transition refusée) ; repli seulement sur `echec_prestataire` ou Agrégateur désactivé, toujours proposé au client.
 - AD-6 : aiguilleur unique `choisirPrestataire(...)` dans `src/modules/paiement/aiguillage.ts`, fonction pure, Familles lues en base ; tests obligatoires : Panier mixte jamais Polar, Pass jamais Polar, repli vers le suivant, référence déjà utilisée refusée, délai dépassé sans repli, notification tardive après expiration, deux Tentatives réussies, notification rejouée, montant insuffisant non validé, Kit déjà possédé sans annulation du paiement.
+- AD-37 : candidature Stand (`candidature_stand`, `type_pass.est_stand`) : Stand seulement sur candidature validée, place occupée de la validation au paiement ou à l'expiration (48 h), photos privées supprimées après 90 jours, quota par Type et Capacité cumulés.
 - AD-7 : un achat de Pass est une Commande de type `pass`, même couche de paiement, mêmes statuts, même Code promo ; `ligne_commande` porte soit une variante soit un Type de pass ; Stand = 2 Pass par unité ; noms figés dans `ligne_commande.titulaires`.
 - AD-8 : `creer_commande` fige prix, réductions par ligne, sous-total, Forfait, total, taux de commission, frais d'annulation des Pass, délai annoncé, `expire_le` ; `tentative_paiement` enregistre montant attendu (centimes USD), montant et devise reçus ; aucune tolérance inventée ; clé d'idempotence pour `creer_commande` et `demarrer_tentative`.
 - AD-10 : pg_cron chaque minute ; tâches en base (`expirer_commandes_echues`, `supprimer_acces_benevoles_echus`) et tâches HTTP via pg_net (`reconcilier-tentatives`, `envois`, `relances`, `galerie-evenement`) protégées par `CRON_SECRET`, lots bornés et rejouables ; Délai de paiement réglable (30 min par défaut d'après l'architecture) ; Tentative `abandonnee` réconciliée 72 h ; écran d'attente : sondage toutes les 3 s, « en cours de vérification » après 2 min.
@@ -385,6 +387,7 @@ Les termes en majuscule (Commande, Pass, Tentative de paiement…) sont ceux du 
 | FR-49 | 6, 9 | Liste et détail des Commandes (6) ; tableau de bord, graphiques, tâches (9) |
 | FR-50 | 2, 3 | Produits physiques et photos (2) ; contenu des Kits (3) |
 | FR-51 | 1, 2, 4, 7 | WhatsApp (1) ; héros, Plafond, forfaits, retrait (2) ; Délai de paiement (4) ; frais d'annulation des Pass (7) |
+| FR-33b | 7 | Candidature Stand (story 7.11) |
 | FR-52 | 7 | Gestion des Événements |
 | FR-53 | 1 | Modèle de droits Assistant écrit (AD-13) ; création des comptes hors lancement |
 | FR-54 | 9 | Mesure d'audience |
@@ -456,10 +459,55 @@ Une cliente commande un cosplay sur mesure ; Jonathan confirme la réception des
 
 ### Epic 7 : Le Festival, les Pass et le Scan
 Une visiteuse trouve l'Événement, achète ses Pass nominatifs et les reçoit avec leur Code QR ; le jour J, un bénévole scanne, même hors ligne ; Jonathan crée l'Événement, l'Accès bénévole et traite les annulations.
-**FRs couvertes :** FR-2 (bloc 5), FR-31 à FR-39, FR-44 (Pass), FR-51 (frais d'annulation), FR-52, FR-57 (Événements)
+**FRs couvertes :** FR-2 (bloc 5), FR-31 à FR-39, FR-33b (Candidature Stand), FR-44 (Pass), FR-51 (frais d'annulation), FR-52, FR-57 (Événements)
 **Notes :** l'achat payé d'un Pass passe par le mobile money ou MaishaPay (epic 5) ; pages, alerte, émission, Scan, Verrou et Accès bénévole n'en dépendent pas. **Nommage (décision du 2026-10-21)** : rubrique « Festival » dans les deux langues, liste à `/fr/festival` et `/en/festival`, une page par Événement sous cette adresse ; le mot reste `evenement` dans le code et la base (AD-14).
 
-### Epic 8 : La communauté (Galerie « Ils le portent », Réalisations, Blog)
+#### Story 7.11 : Candidature Stand
+
+En tant qu'exposant,
+je veux candidater pour un Stand d'un Événement,
+afin que Jonathan étudie ce que je vends et, s'il accepte, que je paie ma place.
+
+**Dépend de** 7.1, 7.4, 7.5 et de la boîte d'envoi (4.4). Décisions de Jonathan du 2026-11-10 (`sprint-change-proposal-2026-11-10.md`).
+
+**Critères d'acceptation :**
+
+**Étant donné** un Événement publié avec un Type « Stand » dont il reste des places
+**Quand** un exposant non connecté touche « Candidater »
+**Alors** il passe par la connexion puis revient au formulaire ; un Compte ne peut avoir qu'une candidature active par Événement
+
+**Étant donné** le formulaire de candidature
+**Quand** l'exposant le remplit
+**Alors** il saisit la description de ce qu'il vend (20 à 1 000 caractères), son lien ou @pseudo Instagram (forme vérifiée), exactement 3 photos (JPEG, PNG ou WebP, mêmes limites que les photos de produit) et coche la case d'engagement, obligatoire, jamais pré-cochée, enregistrée avec sa version (AD-34)
+**Et** la case dit en FR « Je certifie que les articles présentés sur mon stand sont mes propres créations et qu'aucun n'est une contrefaçon. Je comprends que ma candidature ou mon stand peut être refusé ou retiré en cas de non-respect. » et en EN « I certify that the items shown on my stand are my own creations and that none is counterfeit. I understand that my application or stand may be refused or withdrawn if this is not respected. »
+**Et** la mention sous le formulaire dit en FR « Tes photos et ton lien Instagram servent uniquement à étudier ta candidature. Ils ne sont pas publiés et sont supprimés 90 jours après l'événement. » et en EN « Your photos and Instagram link are only used to review your application. They are not published and are deleted 90 days after the event. »
+**Et** les photos vont dans un bucket privé : aucune n'est lisible du public, aucune n'apparaît sur le site
+
+**Étant donné** une candidature envoyée
+**Quand** elle est enregistrée
+**Alors** elle est `en_attente`, elle ne réserve aucune place, l'exposant reçoit l'email `candidature_recue`, et l'admin la voit dans « Candidatures à traiter » des Tâches
+
+**Étant donné** l'admin
+**Quand** Jonathan ouvre une candidature
+**Alors** il voit la description, les photos et le lien Instagram, et choisit « Valider » ou « Refuser » (motif facultatif transmis au candidat par l'email `candidature_refusee`) ; chaque décision est journalisée
+**Et** « Valider » fixe `expire_le` à maintenant + le délai de paiement (réglage, 48 h au départ), occupe une place de Stand et planifie l'email `candidature_validee` avec le lien et l'heure limite ; valider au-delà du nombre de Stands est refusé (`KS_COMPLET`)
+**Et** une candidature expirée peut être revalidée (nouveau délai) s'il reste une place
+
+**Étant donné** une candidature validée
+**Quand** l'exposant ouvre le lien
+**Alors** il doit être connecté avec le Compte du candidat (sinon 404) ; il saisit le nom de son aide, accepte la mention sur la publication des photos et vidéos de l'Événement, puis paie par mobile money ou MaishaPay, jamais Polar (règle 10)
+**Et** `creer_commande` crée une Commande `pass` d'un Stand (2 Pass nominatifs : titulaire et aide) qui reprend `expire_le` de la candidature ; le Code promo s'applique comme aux autres Pass
+**Et** un Type « Stand » ne peut jamais être commandé sans candidature validée et non expirée, par aucun chemin (`KS_STAND_SUR_CANDIDATURE`, test)
+
+**Étant donné** un délai de 48 h dépassé sans paiement
+**Quand** la page est lue
+**Alors** la place est libérée par simple calcul, la page indique « Délai dépassé » ; un paiement tardif devient un Trop-perçu (règle 2)
+
+**Étant donné** la tâche de purge
+**Quand** un Événement est terminé depuis 90 jours, ou une candidature refusée ou expirée depuis 90 jours
+**Alors** ses photos et son lien Instagram sont supprimés
+
+## Epic 8 : La communauté (Galerie « Ils le portent », Réalisations, Blog)
 Le client envoie sa photo avec son accord, Jonathan la valide et elle apparaît sur le mur ; les 10 premières Réalisations gagnent un Pass ; Jonathan publie des guides.
 **FRs couvertes :** FR-2 (blocs 4 et 7), FR-40, FR-41, FR-42, FR-43
 
@@ -1752,6 +1800,8 @@ afin d'élargir les pays et opérateurs acceptés.
 
 **Critères d'acceptation :**
 
+**Décisions de Jonathan (2026-11-10) :** écart accepté, la vérification de signature RFC 9421 n'est pas faite pour l'instant : le rappel n'est jamais cru et la contre-vérification par l'API de PawaPay fait foi (règle 2) ; pays hors RDC et Zimbabwe non couverts (pas de conversion depuis l'USD) ; un échec sans cause précise est un échec du prestataire.
+
 **Étant donné** la documentation de PawaPay (API v2)
 **Quand** l'adaptateur `pawapay` est écrit
 **Alors** les notifications sont vérifiées par signature RFC 9421 (rappels signés activés dans le tableau de bord de PawaPay) ; une signature invalide reçoit 401 (AD-5)
@@ -1963,7 +2013,7 @@ Une visiteuse trouve l'Événement, achète ses Pass nominatifs et les reçoit a
 ### Story 7.1 : Créer un Événement et ses Types de pass
 
 En tant que Jonathan,
-je veux créer un Événement avec ses trois Types de pass,
+je veux créer un Événement avec ses Types de pass et ses Stands,
 afin d'annoncer la prochaine rencontre et d'en vendre l'entrée.
 
 **Critères d'acceptation :**
@@ -1975,7 +2025,8 @@ afin d'annoncer la prochaine rencontre et d'en vendre l'entrée.
 **Étant donné** l'admin
 **Quand** Jonathan crée un Événement
 **Alors** il saisit en FR et en EN le titre, le lieu (salle ou plein air) et le programme, puis la date et l'heure (fuseau `Africa/Lubumbashi`), la Capacité facultative et les photos (même envoi que la story 2.2, texte alternatif obligatoire) (FR-52)
-**Et** il définit les Types de pass Standard, VIP et Stand avec prix USD et avantages en FR et en EN ; un Stand vaut deux Pass nominatifs (AD-7)
+**Et** il définit autant de Types de pass qu'il veut, sans type écrit en dur : nom FR/EN, prix USD, quota facultatif, ce qui est inclus en FR et en EN, et une case « Stand » (deux Pass nominatifs par unité, AD-7) ; pour un Type « Stand », le quota est le nombre de Stands disponibles et le prix est le prix du Stand (AD-37)
+**Et** il règle les dates d'ouverture et de fermeture de la vente (facultatives : sans date d'ouverture, la vente s'ouvre à la publication ; sans date de fermeture, elle se ferme au début de l'Événement)
 **Et** la publication est refusée avec la liste des manques (textes FR ou EN, date, lieu, photo avec texte alternatif, au moins un Type de pass avec prix) ; chaque action est journalisée et invalide le cache `evenements`
 
 **Étant donné** la page Réglages
@@ -2003,7 +2054,7 @@ afin de décider d'y aller et avec quel Pass.
 **Étant donné** la page d'un Événement (`/fr/festival/[slug]`, `/en/festival/[slug]`)
 **Quand** elle s'affiche
 **Alors** elle montre date, lieu, programme, photos et les cartes des Types de pass (nom, prix USD, avantages), sans aucun compteur de places (UX-DR40)
-**Et** un seul bouton « Acheter des pass » sous les cartes
+**Et** un seul bouton « Acheter des pass » sous les cartes ; une carte de Type « Stand » porte « Candidater » à la place (FR-33b) ; hors des dates de vente ou quota atteint, « Complet » ou « Vente fermée » remplace le bouton
 
 **Étant donné** la Capacité réglée
 **Quand** `places_evenement_utilisees(evenement)` (Pass `valide` ou `scanne` + places des Commandes `pass` `en_attente` ou `echouee`, Stand × 2) atteint la Capacité
@@ -2078,6 +2129,7 @@ afin d'entrer à l'Événement avec mon aide et ma sœur.
 **Quand** `creer_commande` crée une Commande de type `pass`
 **Alors** chaque ligne porte un Type de pass, une quantité et les noms figés dans `ligne_commande.titulaires` ; les places sont comptées dans la Capacité tant que la Commande est `en_attente` ou `echouee` (AD-7, AD-12)
 **Et** si la Capacité est atteinte avant le paiement, la vente est refusée avec « Complet » (`KS_COMPLET`)
+**Et** le sélecteur n'offre jamais un Type « Stand » (il s'obtient par candidature, story 7.11) ; le quota de chaque Type est vérifié comme la Capacité (`KS_COMPLET`) ; hors des dates d'ouverture et de fermeture de la vente, la commande est refusée (`KS_VENTE_FERMEE`)
 
 **Étant donné** le choix du moyen de paiement
 **Quand** il s'affiche
