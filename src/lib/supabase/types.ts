@@ -992,6 +992,8 @@ export type Database = {
       photo_galerie: {
         Row: {
           accord_whatsapp_le: string | null
+          alt_en: string | null
+          alt_fr: string | null
           capture_accord: string | null
           compte_id: string | null
           cree_le: string
@@ -1011,6 +1013,8 @@ export type Database = {
         }
         Insert: {
           accord_whatsapp_le?: string | null
+          alt_en?: string | null
+          alt_fr?: string | null
           capture_accord?: string | null
           compte_id?: string | null
           cree_le?: string
@@ -1030,6 +1034,8 @@ export type Database = {
         }
         Update: {
           accord_whatsapp_le?: string | null
+          alt_en?: string | null
+          alt_fr?: string | null
           capture_accord?: string | null
           compte_id?: string | null
           cree_le?: string
@@ -1914,6 +1920,7 @@ export type Database = {
         }
         Returns: string
       }
+      alt_nettoye: { Args: { p: string }; Returns: string }
       annuler_commande: {
         Args: { p_auteur: Json; p_commande: string }
         Returns: number
@@ -2429,6 +2436,27 @@ export type Database = {
         }[]
       }
       lister_mes_photos: { Args: { p_compte: string }; Returns: Json }
+      lister_mur_public: {
+        Args: {
+          p_curseur_date?: string
+          p_curseur_id?: string
+          p_limite?: number
+        }
+        Returns: {
+          alt_en: string
+          alt_fr: string
+          curseur_date: string
+          fait_avec_kit: boolean
+          fichier: string
+          id: string
+          kit_slug: string
+          kit_titre_en: string
+          kit_titre_fr: string
+          pseudo: string
+          type: string
+          valide_le: string
+        }[]
+      }
       lister_photos_admin: { Args: { p_auteur: Json }; Returns: Json }
       manques_publication: { Args: { p_produit_id: string }; Returns: string[] }
       marquer_message_traite: {
@@ -2637,7 +2665,13 @@ export type Database = {
       }
       utilisations_code_promo: { Args: { p_code: string }; Returns: number }
       valider_photo: {
-        Args: { p_auteur: Json; p_fichier_public: string; p_photo: string }
+        Args: {
+          p_alt_en: string
+          p_alt_fr: string
+          p_auteur: Json
+          p_fichier_public: string
+          p_photo: string
+        }
         Returns: undefined
       }
       valider_video_heros: {

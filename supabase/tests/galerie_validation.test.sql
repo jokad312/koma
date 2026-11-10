@@ -20,7 +20,7 @@ create function pg_temp.pub(n int) returns text language sql as $$ select 'galer
 -- Droits.
 select is(
   (select count(*)::int from unnest(array[
-    'public.trouver_compte_par_email(jsonb, text)', 'public.lister_photos_admin(jsonb)', 'public.compter_photos_a_traiter()', 'public.valider_photo(jsonb, uuid, text)',
+    'public.trouver_compte_par_email(jsonb, text)', 'public.lister_photos_admin(jsonb)', 'public.compter_photos_a_traiter()', 'public.valider_photo(jsonb, uuid, text, text, text)',
     'public.refuser_photo(jsonb, uuid)', 'public.retirer_photo_admin(jsonb, uuid)', 'public.deposer_photo_whatsapp(jsonb, text, uuid, text, text, date, boolean, text, text)'
   ]) f where not has_function_privilege('anon', f, 'execute') and not has_function_privilege('authenticated', f, 'execute') and has_function_privilege('service_role', f, 'execute')),
   7, 'fonctions de la galerie : service seulement'
@@ -39,11 +39,11 @@ select is(public.compter_photos_a_traiter(), '{"a_valider": 2, "realisations": 0
 select is(jsonb_array_length(public.lister_photos_admin(pg_temp.c('a3'))), 2, 'la file liste les deux photos');
 
 -- Validation.
-select throws_ok($$select public.valider_photo(pg_temp.c('a1'), (select p1 from ph), pg_temp.pub(1))$$, 'P0001', 'KS_DROIT_REFUSE', 'un client ne valide pas');
-select lives_ok($$select public.valider_photo(pg_temp.c('a4'), (select p1 from ph), pg_temp.pub(1))$$, 'l''Assistant valide');
+select throws_ok($$select public.valider_photo(pg_temp.c('a1'), (select p1 from ph), pg_temp.pub(1), 'TEST_alt fr', 'TEST_alt en')$$, 'P0001', 'KS_DROIT_REFUSE', 'un client ne valide pas');
+select lives_ok($$select public.valider_photo(pg_temp.c('a4'), (select p1 from ph), pg_temp.pub(1), 'TEST_alt fr', 'TEST_alt en')$$, 'l''Assistant valide');
 select ok((select statut = 'publiee' and fichier_public = pg_temp.pub(1) and publiee_le is not null and decide_par ->> 'id' = '00000000-0000-0000-0000-0000000000a4' from public.photo_galerie where id = (select p1 from ph)), 'publiée, avec sa copie publique et son auteur');
 select ok(exists (select 1 from public.journal_audit where cible_table = 'photo_galerie' and cible_id = (select p1 from ph)::text and auteur ->> 'id' = '00000000-0000-0000-0000-0000000000a4'), 'validation journalisée');
-select throws_ok($$select public.valider_photo(pg_temp.c('a3'), (select p1 from ph), pg_temp.pub(9))$$, 'P0001', 'KS_PHOTO_DEJA_TRAITEE', 'une photo déjà publiée ne se valide pas deux fois');
+select throws_ok($$select public.valider_photo(pg_temp.c('a3'), (select p1 from ph), pg_temp.pub(9), 'TEST_alt fr', 'TEST_alt en')$$, 'P0001', 'KS_PHOTO_DEJA_TRAITEE', 'une photo déjà publiée ne se valide pas deux fois');
 
 -- Refus.
 select is(public.refuser_photo(pg_temp.c('a3'), (select p2 from ph)), pg_temp.obj(2), 'refus : renvoie l''original à effacer');
@@ -77,7 +77,7 @@ select public.declarer_age('{"type":"test"}'::jsonb, '00000000-0000-0000-0000-00
 create temp table tard as select public.deposer_photo_galerie(pg_temp.c('a5'), pg_temp.obj(5), null, null, 'TEST_v1') as id;
 grant select on tard to public;
 update public.profil set age_declare = 15 where id = '00000000-0000-0000-0000-0000000000a5';
-select throws_ok($$select public.valider_photo(pg_temp.c('a3'), (select id from tard), pg_temp.pub(5))$$, 'P0001', 'KS_PHOTO_MINEUR', 'Compte devenu mineur : validation refusée');
+select throws_ok($$select public.valider_photo(pg_temp.c('a3'), (select id from tard), pg_temp.pub(5), 'TEST_alt fr', 'TEST_alt en')$$, 'P0001', 'KS_PHOTO_MINEUR', 'Compte devenu mineur : validation refusée');
 select is((select statut from public.photo_galerie where id = (select id from tard)), 'en_attente', 'la photo reste en attente, jamais publiée');
 select throws_ok($$select public.trouver_compte_par_email(pg_temp.c('a1'), 'test-gv-client@example.invalid')$$, 'P0001', 'KS_DROIT_REFUSE', 'un client ne cherche pas de Compte par email');
 select throws_ok($$select public.deposer_photo_whatsapp(pg_temp.c('a3'), pg_temp.obj(6), null, 'TEST_Ami', null, current_date - 400, true, null, 'TEST_v1')$$, 'P0001', 'KS_ACCORD_MANQUANT', 'accord de plus d''un an : refusé');

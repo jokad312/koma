@@ -13,6 +13,15 @@ function journaliser(contexte: string) {
 const idSchema = z.object({ id: z.uuid() });
 const CONTROLE = /[\p{Cc}\p{Cs}\p{Cf}]/u;
 
+// Textes alternatifs saisis à la validation (règle 7) : français et anglais, 1 à 200 caractères, sans caractère invisible.
+function altValide(valeur: unknown): string | null {
+  if (typeof valeur !== "string") return null;
+  const t = valeur.trim();
+  // Longueur en caractères (points de code), comme char_length côté base.
+  const longueur = [...t].length;
+  return longueur >= 1 && longueur <= 200 && !CONTROLE.test(t) ? t : null;
+}
+
 function erreurDeLaBase(message: string): ErreurGalerie {
   if (message.includes("KS_PHOTO_INTROUVABLE") || message.includes("KS_PHOTO_NON_PUBLIEE")) return "introuvable";
   if (message.includes("KS_PHOTO_DEJA_TRAITEE")) return "deja_traitee";
@@ -21,6 +30,7 @@ function erreurDeLaBase(message: string): ErreurGalerie {
   if (message.includes("KS_MAJORITE_NON_CONFIRMEE")) return "majorite";
   if (message.includes("KS_AFFICHAGE_INVALIDE")) return "affichage_invalide";
   if (message.includes("KS_COMPTE_INTROUVABLE")) return "compte_introuvable";
+  if (message.includes("KS_ALT_INVALIDE")) return "alt_invalide";
   if (message.includes("KS_DROIT_REFUSE")) return "non_autorise";
   return "generique";
 }
@@ -65,10 +75,14 @@ export async function lirePhotosAdmin(deps: DependancesGalerie): Promise<Resulta
 export async function validerPhoto(deps: DependancesGalerie, entree: unknown): Promise<ResultatGalerie> {
   const lu = idSchema.safeParse(entree);
   if (!lu.success) return { ok: false, erreur: "introuvable" };
+  const saisie = entree as { altFr?: unknown; altEn?: unknown };
+  const altFr = altValide(saisie.altFr);
+  const altEn = altValide(saisie.altEn);
   let fichier: string | null = null;
   try {
     const d = await droit(deps);
     if (!d) return { ok: false, erreur: "non_autorise" };
+    if (!altFr || !altEn) return { ok: false, erreur: "alt_invalide" };
     const photo = await deps.lirePhoto(lu.data.id);
     if (photo === null) return { ok: false, erreur: "introuvable" };
     if ("erreur" in photo) {
@@ -89,7 +103,7 @@ export async function validerPhoto(deps: DependancesGalerie, entree: unknown): P
       journaliser("écriture de la copie publique");
       return { ok: false, erreur: "generique" };
     }
-    const v = await deps.valider(d.auteur, lu.data.id, fichier);
+    const v = await deps.valider(d.auteur, lu.data.id, fichier, { altFr, altEn });
     if (v.erreur) {
       const erreur = erreurDeLaBase(v.erreur);
       // Réponse perdue (réseau) : la ligne est relue ; si la base a publié, la copie publique est gardée.

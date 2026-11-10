@@ -44,17 +44,45 @@ describe("FilePhotos", () => {
     rendre(<FilePhotos photos={[photo()]} />);
     expect(screen.getByRole("img").getAttribute("alt")).toContain("2026");
     expect(screen.getByText(G.pseudo.replace("{nom}", "TEST_Pseudo"))).toBeTruthy();
+    // Sans texte alternatif : rien n'est envoyé, le champ est signalé et reçoit le focus.
     await userEvent.click(screen.getByRole("button", { name: /Valider et publier la photo/ }));
-    expect(faux.valider).toHaveBeenCalledWith({ id: "00000000-0000-4000-8000-0000000000aa" });
+    expect(faux.valider).not.toHaveBeenCalled();
+    const champFr = screen.getByLabelText(G.altSaisie.fr.libelle);
+    expect(champFr.getAttribute("aria-invalid")).toBe("true");
+    expect(document.activeElement).toBe(champFr);
+    await userEvent.type(champFr, "TEST_Cosplay fr");
+    await userEvent.type(screen.getByLabelText(G.altSaisie.en.libelle), "TEST_Cosplay en");
+    await userEvent.click(screen.getByRole("button", { name: /Valider et publier la photo/ }));
+    expect(faux.valider).toHaveBeenCalledWith({ id: "00000000-0000-4000-8000-0000000000aa", altFr: "TEST_Cosplay fr", altEn: "TEST_Cosplay en" });
     expect(screen.queryByText(G.succes.valider)).toBeNull();
     terminer({ ok: true });
     expect(await screen.findByText(G.succes.valider)).toBeTruthy();
     expect(faux.refresh).toHaveBeenCalled();
   });
 
+  it("alt anglais vide : rien n'est envoyé, le champ anglais est signalé et reçoit le focus ; refus du serveur : champ français signalé", async () => {
+    faux.valider.mockResolvedValue({ ok: false, erreur: "alt_invalide" });
+    rendre(<FilePhotos photos={[photo()]} />);
+    await userEvent.type(screen.getByLabelText(G.altSaisie.fr.libelle), "TEST_fr");
+    await userEvent.click(screen.getByRole("button", { name: /Valider et publier la photo/ }));
+    expect(faux.valider).not.toHaveBeenCalled();
+    const champEn = screen.getByLabelText(G.altSaisie.en.libelle);
+    expect(champEn.getAttribute("aria-invalid")).toBe("true");
+    expect(document.activeElement).toBe(champEn);
+    await userEvent.type(champEn, "TEST_en");
+    await userEvent.click(screen.getByRole("button", { name: /Valider et publier la photo/ }));
+    const champFr = screen.getByLabelText(G.altSaisie.fr.libelle);
+    await waitFor(() => expect(champFr.getAttribute("aria-invalid")).toBe("true"));
+    expect(document.activeElement).toBe(champFr);
+    expect((champFr as HTMLInputElement).value).toBe("TEST_fr");
+    expect(screen.queryByText(G.succes.valider)).toBeNull();
+  });
+
   it("refus du serveur : la raison est affichée, jamais un faux succès", async () => {
     faux.valider.mockResolvedValue({ ok: false, erreur: "mineur" });
     rendre(<FilePhotos photos={[photo()]} />);
+    await userEvent.type(screen.getByLabelText(G.altSaisie.fr.libelle), "TEST_fr");
+    await userEvent.type(screen.getByLabelText(G.altSaisie.en.libelle), "TEST_en");
     await userEvent.click(screen.getByRole("button", { name: /Valider et publier la photo/ }));
     expect(await screen.findByText(G.erreurs.mineur)).toBeTruthy();
     expect(faux.refresh).not.toHaveBeenCalled();

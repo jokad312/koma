@@ -424,3 +424,8 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-8-4-realisations.md`
   summary: Pour la story 8.3 : le mur doit afficher « Fait avec un kit KOMA » pour une photo reliée à une `realisation` validée.
   evidence: la page « Envoyer une Réalisation » annonce cette mention.
+
+## Mur public (préparation 8.3, 2026-11-10)
+- Compte supprimé : `photo_galerie.compte_id ... on delete cascade` efface la ligne, mais la copie publiée reste dans `produits-public/galerie/` (elle quitte le mur, son adresse reste lisible par qui l'a gardée). À traiter avec la suppression de Compte : effacer d'abord les copies publiques.
+- `lister_mur_public` appelle `est_mineur` pour chaque photo publiée avant le tri : sans effet au volume actuel ; à remplacer par une jointure sur `profil` si le mur dépasse quelques milliers de photos.
+- Types générés : `pseudo`, `kit_slug`, `kit_titre_fr`, `kit_titre_en` sont typés `string` mais valent souvent null : la page 8.3 doit les traiter comme nullables.

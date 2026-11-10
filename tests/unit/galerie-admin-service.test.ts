@@ -10,6 +10,7 @@ import { demanderEnvoiDepot, deposerPhotoWhatsapp, lirePhotosAdmin, refuserPhoto
 import { CHEMIN_ENVOI_ADMIN, type DependancesGalerie } from "@/modules/communaute/admin-types";
 
 const ID = "00000000-0000-4000-8000-0000000000aa";
+const ALT = { altFr: "TEST_Cosplay fr", altEn: "TEST_Cosplay en" };
 const AUTEUR = { type: "compte" as const, id: "00000000-0000-4000-8000-0000000000a3", role: "admin" as const };
 let JPEG_GPS: Uint8Array;
 
@@ -67,28 +68,44 @@ describe("validerPhoto", () => {
   it("la photo publiée n'a plus de métadonnées (position GPS comprise) ; original effacé ; cache invalidé", async () => {
     expect((await sharp(Buffer.from(JPEG_GPS)).metadata()).exif).toBeDefined();
     const { deps, publics, effaces } = faux();
-    expect(await validerPhoto(deps, { id: ID })).toEqual({ ok: true });
+    expect(await validerPhoto(deps, { id: ID, ...ALT })).toEqual({ ok: true });
     expect(publics[0].fichier).toMatch(/^galerie\/[0-9a-f-]{36}\.jpg$/);
     expect((await sharp(Buffer.from(publics[0].octets)).metadata()).exif).toBeUndefined();
-    expect(deps.valider).toHaveBeenCalledWith(AUTEUR, ID, publics[0].fichier);
+    expect(deps.valider).toHaveBeenCalledWith(AUTEUR, ID, publics[0].fichier, ALT);
     expect(effaces).toEqual([{ lieu: "attente", chemin: "photos-clients/a.jpg" }]);
     expect(deps.invaliderGalerie).toHaveBeenCalled();
   });
 
+  it("textes alternatifs absents, vides, trop longs ou invisibles : refusé avant toute lecture, rien n'est écrit", async () => {
+    for (const alt of [{}, { altFr: "  ", altEn: "TEST" }, { altFr: "TEST", altEn: "x".repeat(201) }, { altFr: "TEST​", altEn: "TEST" }]) {
+      const { deps, publics } = faux();
+      expect(await validerPhoto(deps, { id: ID, ...alt })).toEqual({ ok: false, erreur: "alt_invalide" });
+      expect(deps.lirePhoto).not.toHaveBeenCalled();
+      expect(deps.exigerDroit).toHaveBeenCalled();
+      expect(publics).toHaveLength(0);
+    }
+    expect(await validerPhoto(faux({ valider: vi.fn(async () => ({ erreur: "KS_ALT_INVALIDE" })) }).deps, { id: ID, ...ALT })).toEqual({ ok: false, erreur: "alt_invalide" });
+    // Droit vérifié d'abord : sans droit, « non_autorise » même si les textes alternatifs manquent.
+    const refus = faux({ exigerDroit: vi.fn(async () => { throw new DroitRefuseError("KS_DROIT_REFUSE"); }) });
+    expect(await validerPhoto(refus.deps, { id: ID })).toEqual({ ok: false, erreur: "non_autorise" });
+    // 200 emojis : 400 unités UTF-16 mais 200 caractères, comme char_length en base : accepté.
+    expect(await validerPhoto(faux().deps, { id: ID, altFr: "🎎".repeat(200), altEn: "TEST" })).toEqual({ ok: true });
+  });
+
   it("refus de la base (Compte mineur) : la copie publique est effacée, rien n'est publié", async () => {
     const { deps, publics, effaces } = faux({ valider: vi.fn(async () => ({ erreur: "KS_PHOTO_MINEUR" })) });
-    expect(await validerPhoto(deps, { id: ID })).toEqual({ ok: false, erreur: "mineur" });
+    expect(await validerPhoto(deps, { id: ID, ...ALT })).toEqual({ ok: false, erreur: "mineur" });
     expect(effaces).toEqual([{ lieu: "public", chemin: publics[0].fichier }]);
     expect(deps.invaliderGalerie).not.toHaveBeenCalled();
   });
 
   it("photo déjà traitée ou absente : refusée sans écriture ; sans droit : refusée", async () => {
     const a = faux({ lirePhoto: vi.fn(async () => ({ objet: "photos-clients/a.jpg", statut: "publiee", fichierPublic: "galerie/x.jpg" })) });
-    expect(await validerPhoto(a.deps, { id: ID })).toEqual({ ok: false, erreur: "deja_traitee" });
+    expect(await validerPhoto(a.deps, { id: ID, ...ALT })).toEqual({ ok: false, erreur: "deja_traitee" });
     expect(a.deps.ecrirePublic).not.toHaveBeenCalled();
-    expect(await validerPhoto(faux({ lirePhoto: vi.fn(async () => null) }).deps, { id: ID })).toEqual({ ok: false, erreur: "introuvable" });
+    expect(await validerPhoto(faux({ lirePhoto: vi.fn(async () => null) }).deps, { id: ID, ...ALT })).toEqual({ ok: false, erreur: "introuvable" });
     const refus = faux({ exigerDroit: vi.fn(async () => { throw new DroitRefuseError("KS_DROIT_REFUSE"); }) });
-    expect(await validerPhoto(refus.deps, { id: ID })).toEqual({ ok: false, erreur: "non_autorise" });
+    expect(await validerPhoto(refus.deps, { id: ID, ...ALT })).toEqual({ ok: false, erreur: "non_autorise" });
   });
 });
 
@@ -99,13 +116,13 @@ describe("revue 8.2", () => {
       valider: vi.fn(async () => ({ erreur: "fetch failed" })),
       lirePhoto: vi.fn(async () => (++lectures === 1 ? { objet: "photos-clients/a.jpg", statut: "en_attente", fichierPublic: null } : { objet: "photos-clients/a.jpg", statut: "publiee", fichierPublic: publics[0].fichier })),
     });
-    expect(await validerPhoto(deps, { id: ID })).toEqual({ ok: true });
+    expect(await validerPhoto(deps, { id: ID, ...ALT })).toEqual({ ok: true });
     expect(effaces.some((e) => e.lieu === "public")).toBe(false);
   });
 
   it("photo illisible à la validation : message dédié, rien n'est écrit", async () => {
     const { deps } = faux({ lireAttente: vi.fn(async () => ({ octets: new TextEncoder().encode("TEST") })) });
-    expect(await validerPhoto(deps, { id: ID })).toEqual({ ok: false, erreur: "photo_illisible" });
+    expect(await validerPhoto(deps, { id: ID, ...ALT })).toEqual({ ok: false, erreur: "photo_illisible" });
     expect(deps.ecrirePublic).not.toHaveBeenCalled();
   });
 

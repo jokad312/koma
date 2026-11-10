@@ -361,3 +361,9 @@
 - Panier oublié : un seul email par modification (1 h ou 24 h) validé. Texte anglais du rappel de Kit : « Continue with chapter {n} of {kit}. »
 - Revue (3 sous-agents) : 10 correctifs. 8.3 : faite par la voie 2 (OpenCode), à intégrer quand elle sera prête.
 - À tester à la main : ouvrir un lien de désinscription (rien ne change dans Préférences), cliquer « Me désinscrire » (Préférences : tout désactivé) ; avec Resend, vérifier dans Gmail le lien « Se désabonner » de l'en-tête.
+
+## 2026-11-10 : préparation de la 8.3 (lecture publique du mur), demandée par Jonathan
+- Migrations `20261231220000_mur_public.sql` et `20261231230000_mur_public_correctifs.sql` (appliquées sur koma-dev) : `lister_mur_public(p_curseur_date timestamptz, p_curseur_id uuid, p_limite integer)` (SECURITY DEFINER, search_path vide, anon et authenticated, 24 au plus, curseur ISO UTC).
+- Décision de Jonathan (2026-11-10) : le texte alternatif des photos de la galerie est saisi par l'admin à la validation (FR et EN obligatoires) ; `valider_photo` prend deux arguments de plus, formulaire de la page Galerie adapté.
+- Revue (3 sous-agents) : test `photo_galerie.test.sql` qui aurait cassé (publication sans alt) corrigé ; curseur ISO UTC ; comparaison de lignes et index ; mêmes règles d'alt en SQL et TS ; droit vérifié avant l'alt ; tests ajoutés (dates distinctes, accord retiré, Kit futur, alt invisible ou trop long, alt EN vide). Notés dans deferred-work : copie publique après suppression de Compte, coût d'est_mineur, nullabilité des types.
+- À tester à la main : page admin Galerie, valider une photo sans alt (champ signalé), puis avec les deux alts (publiée).

@@ -54,7 +54,7 @@ select is(public.compter_photos_a_traiter(), '{"a_valider": 0, "realisations": 1
 select is(public.lister_mes_photos('00000000-0000-0000-0000-0000000000b1') -> 0 ->> 'kit_fr', 'TEST_Kit payé', '« Mes photos » : la Réalisation porte le titre de son Kit');
 
 -- Validation : datée, rang fixé, journalisée.
-select public.valider_photo(pg_temp.c('b3'), (select photo from r), pg_temp.pub(2));
+select public.valider_photo(pg_temp.c('b3'), (select photo from r), pg_temp.pub(2), 'TEST_alt fr', 'TEST_alt en');
 select ok((select validee_le is not null and rang = 1 from public.realisation where photo_id = (select photo from r)), 'validée : date et rang 1');
 select ok(exists (select 1 from public.journal_audit where cible_table = 'realisation' and apres ? 'rang'), 'validation de la Réalisation journalisée');
 
@@ -64,9 +64,9 @@ create temp table r2 as select
   public.deposer_realisation(pg_temp.c('b1'), pg_temp.obj(4), null, null, 'TEST_v1', (select paye from k)) as refusee,
   public.deposer_photo_galerie(pg_temp.c('b1'), pg_temp.obj(5), null, null, 'TEST_v1') as simple;
 grant select on r2 to public;
-select public.valider_photo(pg_temp.c('b3'), (select simple from r2), pg_temp.pub(5));
+select public.valider_photo(pg_temp.c('b3'), (select simple from r2), pg_temp.pub(5), 'TEST_alt fr', 'TEST_alt en');
 select is((select count(*)::int from public.realisation where rang is not null), 1, 'photo simple validée : aucun rang attribué');
-select public.valider_photo(pg_temp.c('b3'), (select deux from r2), pg_temp.pub(3));
+select public.valider_photo(pg_temp.c('b3'), (select deux from r2), pg_temp.pub(3), 'TEST_alt fr', 'TEST_alt en');
 select is((select rang from public.realisation where photo_id = (select deux from r2)), 2, 'deuxième Réalisation validée : rang 2');
 select public.refuser_photo(pg_temp.c('b3'), (select refusee from r2));
 select ok((select validee_le is null and rang is null from public.realisation where photo_id = (select refusee from r2)), 'Réalisation refusée : ni date ni rang');

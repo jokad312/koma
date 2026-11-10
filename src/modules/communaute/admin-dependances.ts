@@ -89,8 +89,8 @@ export function dependancesGalerie(): DependancesGalerie {
       const { data, error } = await admin.storage.from(BUCKET_ATTENTE).createSignedUploadUrl(objet);
       return error || !data?.token ? { erreur: error?.message ?? "jeton absent" } : { jeton: data.token };
     },
-    valider: async (auteur, id, fichierPublic) => {
-      const { error } = await admin.rpc("valider_photo", { p_auteur: auteur as never, p_photo: id, p_fichier_public: fichierPublic });
+    valider: async (auteur, id, fichierPublic, alt) => {
+      const { error } = await admin.rpc("valider_photo", { p_auteur: auteur as never, p_photo: id, p_fichier_public: fichierPublic, p_alt_fr: alt.altFr, p_alt_en: alt.altEn });
       return { erreur: error ? error.message : null };
     },
     refuser: async (auteur, id) => {

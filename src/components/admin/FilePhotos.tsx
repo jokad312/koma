@@ -9,6 +9,7 @@ import type { Locale } from "@/i18n/routing";
 import { formaterDateBoutique } from "@/lib/dates";
 import { refuserPhotoAction, retirerPhotoAdminAction, validerPhotoAction } from "@/modules/communaute/admin-actions";
 import type { PhotoAdmin } from "@/modules/communaute/admin-types";
+import { ChampTexte } from "./ChampTexte";
 
 type Action = "valider" | "refuser" | "retirer";
 
@@ -23,19 +24,45 @@ export function FilePhotos({ photos }: { photos: PhotoAdmin[] }) {
   const [aConfirmer, setAConfirmer] = useState<{ id: string; action: Action } | null>(null);
   const [retour, setRetour] = useState<{ type: "succes" | "erreur"; texte: string } | null>(null);
   const enVol = useRef(false);
+  // Textes alternatifs saisis avant « Valider et publier » (règle 7), propres à chaque photo ; jamais perdus en cas d'erreur.
+  const [alts, setAlts] = useState<Record<string, { fr: string; en: string }>>({});
+  const [altManquant, setAltManquant] = useState<{ id: string; champ: "fr" | "en" } | null>(null);
+  const altDe = (id: string) => alts[id] ?? { fr: "", en: "" };
+  const saisirAlt = (id: string, champ: "fr" | "en", valeur: string) => {
+    setAlts((a) => ({ ...a, [id]: { ...(a[id] ?? { fr: "", en: "" }), [champ]: valeur } }));
+    if (altManquant?.id === id && altManquant.champ === champ) setAltManquant(null);
+  };
 
   async function agir(id: string, action: Action) {
     if (enVol.current) return;
+    const alt = altDe(id);
+    if (action === "valider") {
+      const invalide = (v: string) => v.trim() === "" || [...v.trim()].length > 200;
+      const champ = invalide(alt.fr) ? "fr" : invalide(alt.en) ? "en" : null;
+      if (champ) {
+        setAltManquant({ id, champ });
+        document.getElementById(`galerie-alt-${champ}-${id}`)?.focus();
+        return;
+      }
+    }
     enVol.current = true;
     setEnCours({ id, action });
     setAConfirmer(null);
     setRetour(null);
     try {
-      const appel = action === "valider" ? validerPhotoAction : action === "refuser" ? refuserPhotoAction : retirerPhotoAdminAction;
-      const r = await appel({ id });
+      const r =
+        action === "valider"
+          ? await validerPhotoAction({ id, altFr: alt.fr, altEn: alt.en })
+          : action === "refuser"
+            ? await refuserPhotoAction({ id })
+            : await retirerPhotoAdminAction({ id });
       if (r.ok) {
         setRetour({ type: "succes", texte: t(`succes.${action}`) });
         router.refresh();
+      } else if (r.erreur === "alt_invalide") {
+        // Refus du serveur (caractère invisible, par exemple) : le champ est signalé et reçoit le focus, la saisie est gardée.
+        setAltManquant({ id, champ: "fr" });
+        document.getElementById(`galerie-alt-fr-${id}`)?.focus();
       } else {
         setRetour({ type: "erreur", texte: t.has(`erreurs.${r.erreur}`) ? t(`erreurs.${r.erreur}`) : t("erreurs.generique") });
       }
@@ -80,6 +107,22 @@ export function FilePhotos({ photos }: { photos: PhotoAdmin[] }) {
             </>
           ) : null}
           {p.retraitDemande ? <p className="t-label text-text-primary">{t("retraitDemande")}</p> : null}
+          {actions.includes("valider") ? (
+            <div className="mt-2 flex flex-col gap-3">
+              {(["fr", "en"] as const).map((champ) => (
+                <ChampTexte
+                  key={champ}
+                  id={`galerie-alt-${champ}-${p.id}`}
+                  name={`alt_${champ}`}
+                  libelle={t(`altSaisie.${champ}.libelle`)}
+                  aide={t(`altSaisie.${champ}.aide`)}
+                  valeur={altDe(p.id)[champ]}
+                  onChange={(v) => saisirAlt(p.id, champ, v)}
+                  erreur={altManquant?.id === p.id && altManquant.champ === champ ? t("erreurs.alt_invalide") : null}
+                />
+              ))}
+            </div>
+          ) : null}
           {confirmation ? (
             <div className="mt-2 flex flex-col gap-2">
               <p className="t-small text-text-primary">{t(`confirmation.${confirmation}`)}</p>

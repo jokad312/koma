@@ -1798,7 +1798,8 @@
         "fichier_manquant": "Choisis la photo reçue par WhatsApp.",
         "envoi_echec": "L'envoi a échoué. Vérifie la connexion et réessaie.",
         "generique": "L'action n'a pas pu être enregistrée. Réessaie.",
-        "photo_illisible": "Cette photo ne peut pas être lue : refuse-la."
+        "photo_illisible": "Cette photo ne peut pas être lue : refuse-la.",
+        "alt_invalide": "Écris le texte alternatif en français et en anglais (200 caractères au plus) avant de publier."
       },
       "depot": {
         "titre": "Déposer une photo reçue par WhatsApp",
@@ -1842,6 +1843,16 @@
       "realisations": {
         "titre": "Réalisations à valider ({nombre})",
         "vide": "Aucune Réalisation à valider."
+      },
+      "altSaisie": {
+        "fr": {
+          "libelle": "Texte alternatif en français",
+          "aide": "Décris la photo en une phrase, pour les personnes qui ne la voient pas (200 caractères au plus)."
+        },
+        "en": {
+          "libelle": "Texte alternatif en anglais",
+          "aide": "La même description, en anglais."
+        }
       }
     }
   },

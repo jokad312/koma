@@ -25,6 +25,7 @@ export type ErreurGalerie =
   | "accord_manquant"
   | "majorite"
   | "affichage_invalide"
+  | "alt_invalide"
   | "compte_introuvable"
   | "format_invalide"
   | "fichier_trop_lourd"
@@ -65,7 +66,7 @@ export type DependancesGalerie = {
   supprimerPublic: (fichier: string) => Promise<{ erreur: string | null }>;
   supprimerCapture: (fichier: string) => Promise<{ erreur: string | null }>;
   signerEnvoiAdmin: (objet: string) => Promise<{ jeton: string } | { erreur: string }>;
-  valider: (auteur: AuteurCompte, id: string, fichierPublic: string) => Promise<{ erreur: string | null }>;
+  valider: (auteur: AuteurCompte, id: string, fichierPublic: string, alt: { altFr: string; altEn: string }) => Promise<{ erreur: string | null }>;
   refuser: (auteur: AuteurCompte, id: string) => Promise<{ objet: string } | { erreur: string }>;
   retirer: (auteur: AuteurCompte, id: string) => Promise<{ fichierPublic: string | null; objet: string } | { erreur: string }>;
   trouverCompte: (auteur: AuteurCompte, email: string) => Promise<{ compteId: string | null } | { erreur: string }>;

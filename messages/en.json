@@ -1798,7 +1798,8 @@
         "fichier_manquant": "Choose the photo received on WhatsApp.",
         "envoi_echec": "The upload failed. Check the connection and try again.",
         "generique": "The action could not be saved. Try again.",
-        "photo_illisible": "This photo cannot be read: reject it."
+        "photo_illisible": "This photo cannot be read: reject it.",
+        "alt_invalide": "Write the alt text in French and English (200 characters max) before publishing."
       },
       "depot": {
         "titre": "Add a photo received on WhatsApp",
@@ -1842,6 +1843,16 @@
       "realisations": {
         "titre": "Creations to approve ({nombre})",
         "vide": "No Creation to approve."
+      },
+      "altSaisie": {
+        "fr": {
+          "libelle": "Alt text in French",
+          "aide": "Describe the photo in one sentence, for people who can't see it (200 characters max)."
+        },
+        "en": {
+          "libelle": "Alt text in English",
+          "aide": "The same description, in English."
+        }
       }
     }
   },
