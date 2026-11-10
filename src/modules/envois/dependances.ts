@@ -8,7 +8,7 @@ import { rendreKitOuvert } from "./modeles/kit-ouvert";
 import { rendreCommandeAnnulee, rendreCommandeEnFabrication, rendreCommandeExpediee, rendreCommandeLivree, rendreCommandeRemboursee } from "./modeles/statut-commande";
 import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
 import { cheminPublic } from "@/i18n/adresses";
-import { lienDesinscription } from "@/modules/preferences/lien-desinscription";
+import { lienDesinscription, lienDesinscriptionUnClic } from "@/modules/preferences/lien-desinscription";
 import { rendreNouveauProduit, rendrePanierAbandonne, rendreRappelKit } from "./modeles/commerciaux";
 import { MODELES_COMMERCIAUX } from "./types";
 import type { DependancesEnvois, EnvoiReserve, LangueEmail, ResultatRendu } from "./types";
@@ -27,8 +27,11 @@ async function rendreCommercial(client: ClientService, envoi: EnvoiReserve, dest
   const langue = envoi.langue;
   // Lien signé de désinscription, obligatoire dans tout Email commercial : sans clé configurée, l'email n'est jamais envoyé sans lui.
   let lien: string;
+  let entetes: Record<string, string>;
   try {
     lien = lienDesinscription(envoi.compteId, langue);
+    // Désinscription en un clic des messageries (RFC 8058) : POST signé vers /api/desinscription, jamais un GET.
+    entetes = { "List-Unsubscribe": `<${lienDesinscriptionUnClic(envoi.compteId)}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" };
   } catch {
     return { statut: "reessayer", raison: "lien de désinscription indisponible" };
   }
@@ -41,7 +44,7 @@ async function rendreCommercial(client: ClientService, envoi: EnvoiReserve, dest
     if (error) return { statut: "reessayer", raison: "lecture du panier impossible" };
     if (!panier || panier.compte_id !== envoi.compteId) return { statut: "ignorer", raison: "panier introuvable pour ce Compte" };
     if ((panier.ligne_panier ?? []).length === 0) return { statut: "ignorer", raison: "panier vide ou payé" };
-    return { statut: "pret", destinataire, message: rendrePanierAbandonne(langue, { ...commun, url: `${site}/${langue}${cheminPublic(langue, "/panier")}` }) };
+    return { statut: "pret", destinataire, message: { ...rendrePanierAbandonne(langue, { ...commun, url: `${site}/${langue}${cheminPublic(langue, "/panier")}` }), entetes } };
   }
 
   const produitId = envoi.donnees.produit_id;
@@ -80,7 +83,7 @@ async function rendreCommercial(client: ClientService, envoi: EnvoiReserve, dest
       chapitre = Math.max(1, count ?? 1);
     }
     const url = `${site}/${langue}/compte/bibliotheque/${encodeURIComponent(produit.slug)}`;
-    return { statut: "pret", destinataire, message: rendreRappelKit(langue, { ...commun, url, kit: titre, chapitre }) };
+    return { statut: "pret", destinataire, message: { ...rendreRappelKit(langue, { ...commun, url, kit: titre, chapitre }), entetes } };
   }
 
   if (envoi.modele === "nouveau_produit") {
@@ -90,7 +93,7 @@ async function rendreCommercial(client: ClientService, envoi: EnvoiReserve, dest
     const dossier = produit.famille === "kit" ? "/kits" : produit.famille === "accessoire" ? "/accessoires" : "/cosplays";
     const url = `${site}/${langue}${cheminPublic(langue, dossier)}/${encodeURIComponent(produit.slug)}`;
     const nomUnivers = langue === "en" ? univers.nom_en : univers.nom_fr;
-    return { statut: "pret", destinataire, message: rendreNouveauProduit(langue, { ...commun, url, produit: titre, univers: nomUnivers }) };
+    return { statut: "pret", destinataire, message: { ...rendreNouveauProduit(langue, { ...commun, url, produit: titre, univers: nomUnivers }), entetes } };
   }
 
   return { statut: "ignorer", raison: "modèle sans gabarit" };
@@ -240,7 +243,7 @@ export function creerDependancesEnvois(config: { cleResend: string; expediteur: 
     },
     envoyer: async ({ envoiId, destinataire, message }) => {
       const { data, error } = await resend.emails.send(
-        { from: config.expediteur, to: destinataire, subject: message.sujet, html: message.html, text: message.texte },
+        { from: config.expediteur, to: destinataire, subject: message.sujet, html: message.html, text: message.texte, ...(message.entetes ? { headers: message.entetes } : {}) },
         { idempotencyKey: `koma-envoi-${envoiId}` },
       );
       // Jamais l'adresse ni le contenu dans l'erreur gardée.

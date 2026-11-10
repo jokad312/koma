@@ -3,9 +3,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 type Tables = Record<string, unknown>;
-const etat = vi.hoisted(() => ({ tables: {} as Record<string, unknown>, chapitres: 0 }));
+const etat = vi.hoisted(() => ({ tables: {} as Record<string, unknown>, chapitres: 0, envois: [] as unknown[] }));
 vi.mock("server-only", () => ({}));
-vi.mock("resend", () => ({ Resend: class {} }));
+vi.mock("resend", () => ({
+  Resend: class {
+    emails = { send: async (args: unknown) => (etat.envois.push(args), { data: { id: "TEST_resend" }, error: null }) };
+  },
+}));
 vi.mock("@/lib/supabase/service", () => ({
   creerClientService: () => ({
     auth: { admin: { getUserById: async () => ({ data: { user: { email: "TEST@example.invalid" } }, error: null }) } },
@@ -41,6 +45,28 @@ beforeEach(() => {
 });
 
 describe("rendu des emails ciblés", () => {
+  it("RFC 8058 : List-Unsubscribe vers la route POST signée et List-Unsubscribe-Post, transmis à Resend", async () => {
+    etat.tables.panier = { compte_id: COMPTE, ligne_panier: [{ id: "l1" }] };
+    const r = await rendre(envoi("panier_abandonne", { panier_id: "TEST_panier" }));
+    if (r.statut !== "pret") throw new Error("rendu attendu");
+    expect(r.message.entetes?.["List-Unsubscribe"]).toMatch(/^<https:\/\/test\.example\.invalid\/api\/desinscription\?c=[0-9a-f-]{36}&s=[A-Za-z0-9_-]+>$/);
+    expect(r.message.entetes?.["List-Unsubscribe-Post"]).toBe("List-Unsubscribe=One-Click");
+    await creerDependancesEnvois({ cleResend: "TEST", expediteur: "TEST@example.invalid" }).envoyer({ envoiId: "TEST_e", destinataire: "TEST@example.invalid", message: r.message });
+    expect(etat.envois.at(-1)).toMatchObject({ headers: { "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" } });
+  });
+
+  it("RFC 8058 : le rappel de Kit et le nouveau produit portent aussi les deux en-têtes", async () => {
+    etat.tables.produit = produit();
+    etat.tables.acces_kit = { id: "TEST_a" };
+    etat.tables.progression_video = null;
+    for (const modele of ["rappel_kit", "nouveau_produit"]) {
+      const r = await rendre(envoi(modele, { produit_id: "TEST_p" }));
+      if (r.statut !== "pret") throw new Error(`rendu attendu pour ${modele}`);
+      expect(r.message.entetes?.["List-Unsubscribe"]).toContain("/api/desinscription?c=");
+      expect(r.message.entetes?.["List-Unsubscribe-Post"]).toBe("List-Unsubscribe=One-Click");
+    }
+  });
+
   it("panier : prêt s'il a des lignes (lien vers le panier, désinscription) ; vide ou d'un autre Compte : ignoré", async () => {
     etat.tables.panier = { compte_id: COMPTE, ligne_panier: [{ id: "l1" }] };
     const r = await rendre(envoi("panier_abandonne", { panier_id: "TEST_panier" }));

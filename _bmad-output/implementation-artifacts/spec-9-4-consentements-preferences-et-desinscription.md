@@ -24,6 +24,7 @@ context:
 - Décision de Jonathan (2026-11-08) : la case unique active « Relances et rappels » et « Nouveautés de mon univers » ; « Alertes Festival » se règle dans Préférences (et par « Me prévenir », 7.3).
 - Texte de la case (fourni par Jonathan, 2026-11-08) : FR « Recevoir par email les nouveautés de mes univers et les rappels utiles. Tu peux te désabonner à tout moment. » ; EN « Email me new arrivals from my universes and helpful reminders. You can unsubscribe at any time. »
 - Lien de désinscription signé HMAC avec `DESINSCRIPTION_SECRET` (généré dans `.env.local`, accord de Jonathan, à ajouter dans Hostinger en 9.9).
+- Décision de Jonathan (2026-11-10) : l'ouverture du lien ne désinscrit jamais (antivirus et aperçus ouvrent les liens seuls) ; le lien ouvre une page de confirmation avec le bouton « Me désinscrire » (POST signé). Les Emails commerciaux portent `List-Unsubscribe` et `List-Unsubscribe-Post: List-Unsubscribe=One-Click` (RFC 8058) vers une route POST signée.
 - Case jamais pré-cochée, facultative, jamais bloquante ; consentement enregistré avec version et date ; retrait = `retire_le`, jamais de suppression.
 - « Actif » / « Désactivé » mis à jour après l'enregistrement réel.
 - Email commercial `ignore` avec motif : sans consentement, désinscription, Compte mineur (`emails_commerciaux_mineurs` désactivé), autre Email commercial parti il y a moins de 2 jours. Un email lié à un achat n'y passe jamais.
@@ -36,7 +37,8 @@ context:
 |----------|--------------|---------------------------|----------------|
 | Case cochée | création de Compte ou Commande | relances + nouveautés actifs, version et source | échec journalisé, jamais bloquant |
 | Interrupteur | bascule | état relu en base | échec : état précédent + message |
-| Lien valide | c + s signés | désinscription immédiate, consentements retirés | panne : message d'erreur |
+| Lien valide | c + s signés, ouverture (GET) | page de confirmation, RIEN ne change | N/A |
+| Bouton ou un clic | POST signé (bouton, ou List-Unsubscribe-Post RFC 8058) | désinscription, consentements retirés | jeton altéré : refusé ; panne : message d'erreur |
 | Lien invalide | signature fausse ou absente | « lien non valide », base jamais appelée | N/A |
 | Mineur | âge < 18, réglage désactivé | `compte_mineur`, message dans Préférences | N/A |
 | 2 jours | autre Email commercial envoyé < 2 j | `ecart_2_jours` | N/A |
@@ -68,6 +70,8 @@ context:
 
 ## Spec Change Log
 
+- 2026-11-10, décision de Jonathan : la désinscription à l'ouverture du lien est remplacée par une confirmation (POST signé) et par la désinscription en un clic RFC 8058 (`POST /api/desinscription`). Évite : un client désinscrit par un antivirus ou un aperçu de lien. À garder : signature HMAC vérifiée avant tout appel à la base, désinscription idempotente.
+
 ## Review Triage Log
 
 | Constat (relecteur) | Verdict | Preuve / suite |
@@ -96,3 +100,21 @@ context:
 
 **Commands:**
 - `npm run lint`, `npm run typecheck`, `npm test`, `npm run build` -- sans erreur ; CI (pgTAP) verte
+
+### Revue du changement du 2026-11-10 (désinscription par POST signé)
+
+| Constat (relecteur) | Verdict | Preuve / suite |
+|---|---|---|
+| Rendu de la page non testé : « ouvrir le lien ne change rien » non protégé (BH, VG) | high | contenu extrait dans `ResultatDesinscription`, test de rendu serveur : jamais d'appel à la base |
+| En-têtes vérifiés pour le panier seulement (BH, VG) | medium | tests pour les trois modèles |
+| Réponse 500 de la route non testée (BH, VG) | medium | test ajouté |
+| Corps `List-Unsubscribe=One-Click` non exigé (BH, EC) | medium | exigé (400 sinon) ; test |
+| Exception de configuration hors du contrôle de la route (EC) | low | `try/catch`, 500 sans cache |
+| Résultat hors zone d'état, focus perdu (BH) | low | zone `role="status"` stable |
+| Clé absente affichée comme « non enregistrée », sans journal (BH) | low | message `indisponible` et journal |
+| Construction des deux liens dupliquée (BH) | low | fonction commune |
+| `desinscrireAction` mal typée (BH) | low | entrée `unknown`, contrôlée à l'exécution |
+| Composant rangé dans `compte/` (BH) | low | déplacé dans `components/preferences/` |
+| Appels répétés écrivent à chaque fois (BH) | false | `desinscrire` est idempotent depuis `20261231160000` |
+| Texte anglais du rappel de Kit modifié (BH, VG) | false | demandé par Jonathan (point 3 du 2026-11-10) |
+| Compte disparu : bouton puis « lien non valide » (EC) | low | cas rarissime ; rejeté |

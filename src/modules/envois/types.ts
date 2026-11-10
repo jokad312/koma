@@ -11,7 +11,8 @@ export type EnvoiReserve = {
   tentatives: number;
 };
 
-export type MessageEmail = { sujet: string; html: string; texte: string };
+// entetes : en-têtes supplémentaires (Emails commerciaux : List-Unsubscribe et List-Unsubscribe-Post, RFC 8058).
+export type MessageEmail = { sujet: string; html: string; texte: string; entetes?: Record<string, string> };
 
 // Résultat du rendu, relu en base au moment de l'envoi.
 export type ResultatRendu =

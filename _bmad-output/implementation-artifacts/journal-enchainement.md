@@ -354,3 +354,10 @@
 
 ## Fin de la série (2026-11-10)
 - Stories terminées dans l'ordre : 9.2, 9.3, 9.4, 8.1, 8.2, 8.4, 9.6. Restent hors série : 8.3, 9.7, 9.8 (OpenCode possible), 9.5 (dépend de l'epic 7 pour un sujet), 8.5 et l'epic 7 (correct-course Q-C1), 4.4, 4.7, 5.6, 5.7, 5.9 (prestataires, Resend), 9.9 (domaine).
+
+
+## 2026-11-10 : désinscription par POST signé (décision de Jonathan)
+- Ouvrir le lien de désinscription ne change plus rien : page de confirmation avec le bouton « Me désinscrire » (POST signé, Server Action). Emails commerciaux : `List-Unsubscribe` et `List-Unsubscribe-Post: List-Unsubscribe=One-Click` (RFC 8058) vers `POST /api/desinscription` (signature vérifiée, corps One-Click exigé, aucun GET).
+- Panier oublié : un seul email par modification (1 h ou 24 h) validé. Texte anglais du rappel de Kit : « Continue with chapter {n} of {kit}. »
+- Revue (3 sous-agents) : 10 correctifs. 8.3 : faite par la voie 2 (OpenCode), à intégrer quand elle sera prête.
+- À tester à la main : ouvrir un lien de désinscription (rien ne change dans Préférences), cliquer « Me désinscrire » (Préférences : tout désactivé) ; avec Resend, vérifier dans Gmail le lien « Se désabonner » de l'en-tête.

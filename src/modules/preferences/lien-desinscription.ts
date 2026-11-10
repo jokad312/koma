@@ -25,11 +25,21 @@ export function verifierDesinscription(compteId: unknown, signature: unknown, so
   return attendue.length === recue.length && timingSafeEqual(attendue, recue);
 }
 
-// Adresse complète à mettre dans chaque Email commercial (stories 9.5 et 9.6), lue depuis NEXT_PUBLIC_SITE_URL (jamais en dur).
-export function lienDesinscription(compteId: string, langue: "fr" | "en", source?: Record<string, string | undefined>): string {
-  // Jamais un lien qui afficherait toujours « non valide ».
+// Site et paramètres signés communs aux deux liens : jamais un lien qui afficherait toujours « non valide ».
+function siteEtParametres(compteId: string, source?: Record<string, string | undefined>): { site: string; params: string } {
   if (!UUID.test(compteId.toLowerCase())) throw new Error("Identifiant de Compte invalide pour le lien de désinscription.");
   const site = lireEnvPublique().NEXT_PUBLIC_SITE_URL.replace(/\/+$/, "");
-  const params = new URLSearchParams({ c: compteId.toLowerCase(), s: signerDesinscription(compteId, source) });
-  return `${site}/${langue}/desinscription?${params.toString()}`;
+  return { site, params: new URLSearchParams({ c: compteId.toLowerCase(), s: signerDesinscription(compteId, source) }).toString() };
+}
+
+// Adresse de la désinscription « en un clic » (RFC 8058) : en-tête List-Unsubscribe, appelée en POST par la messagerie.
+export function lienDesinscriptionUnClic(compteId: string, source?: Record<string, string | undefined>): string {
+  const { site, params } = siteEtParametres(compteId, source);
+  return `${site}/api/desinscription?${params}`;
+}
+
+// Adresse de la page de confirmation, dans le corps de chaque Email commercial (stories 9.5 et 9.6), lue depuis NEXT_PUBLIC_SITE_URL.
+export function lienDesinscription(compteId: string, langue: "fr" | "en", source?: Record<string, string | undefined>): string {
+  const { site, params } = siteEtParametres(compteId, source);
+  return `${site}/${langue}/desinscription?${params}`;
 }

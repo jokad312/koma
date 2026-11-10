@@ -2470,7 +2470,7 @@
       "sujet": "Your {kit} kit is waiting",
       "titre": "Your {kit} kit is waiting",
       "debut": "Start chapter 1 of {kit}.",
-      "reprise": "Pick up at chapter {n} of {kit}.",
+      "reprise": "Continue with chapter {n} of {kit}.",
       "lien": "Your kit:",
       "bouton": "Open my kit"
     },
@@ -2663,7 +2663,10 @@
     "invalide": "This unsubscribe link is not valid.",
     "erreur": "The unsubscribe could not be saved. Try again in a moment.",
     "reactiver": "You can manage your emails at any time in My account › Preferences.",
-    "lienPreferences": "Open my preferences"
+    "lienPreferences": "Open my preferences",
+    "question": "Do you want to stop receiving our new arrival, reminder and Festival alert emails?",
+    "confirmer": "Unsubscribe",
+    "indisponible": "The unsubscribe link cannot be checked right now. Try again later or manage your emails in My account › Preferences."
   },
   "Consentement": {
     "emails": "Email me new arrivals from my universes and helpful reminders. You can unsubscribe at any time."

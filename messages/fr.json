@@ -2663,7 +2663,10 @@
     "invalide": "Ce lien de désinscription n'est pas valide.",
     "erreur": "La désinscription n'a pas pu être enregistrée. Réessaie dans un instant.",
     "reactiver": "Tu peux régler tes emails à tout moment dans Mon compte › Préférences.",
-    "lienPreferences": "Ouvrir mes préférences"
+    "lienPreferences": "Ouvrir mes préférences",
+    "question": "Veux-tu ne plus recevoir nos emails de nouveautés, de rappels et d'alertes Festival ?",
+    "confirmer": "Me désinscrire",
+    "indisponible": "Le lien de désinscription ne peut pas être vérifié pour le moment. Réessaie plus tard ou règle tes emails dans Mon compte › Préférences."
   },
   "Consentement": {
     "emails": "Recevoir par email les nouveautés de mes univers et les rappels utiles. Tu peux te désabonner à tout moment."
