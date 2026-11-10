@@ -101,7 +101,8 @@ export function Dialogue({ ouvert, onFermer, titre, children, variante = "centre
             {libelleFermer ?? t("fermer")}
           </button>
         </div>
-        <h2 id={idTitre} className="t-h3 mt-4">
+        {/* Un titre, jamais un lien : en panneau plein (menu), libellé discret et couleur secondaire pour ne pas ressembler aux liens en t-h3. */}
+        <h2 id={idTitre} className={plein ? "t-label mt-4 text-text-secondary" : "t-h3 mt-4"}>
           {titre}
         </h2>
         <div className="mt-4">{children}</div>

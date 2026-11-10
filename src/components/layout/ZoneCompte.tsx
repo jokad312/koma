@@ -14,10 +14,11 @@ export async function ZoneCompte() {
     // Supabase indisponible : l'en-tête reste utilisable comme pour un visiteur.
   }
   if (!connecte) return <LienConnexion />;
-  const t = await getTranslations("Bibliotheque");
+  // « Mon compte » (EXPERIENCE.md : icône compte, Panneau ☰) mène à la Navigation du compte : commandes, bibliothèque, photos, préférences.
+  const t = await getTranslations("Bibliotheque.compte");
   return (
     <>
-      <Link href="/compte/bibliotheque" className="t-small inline-flex min-h-touch items-center text-text-primary underline underline-offset-4">
+      <Link href="/compte" className="t-small inline-flex min-h-touch items-center text-text-primary underline underline-offset-4">
         {t("titre")}
       </Link>
       <BoutonDeconnexion />
