@@ -63,6 +63,13 @@ export function NavigationAdmin({ compteurMessages = null }: { compteurMessages?
   const entreeCourante = ENTREES.find(({ href }) => estCourante(chemin, href));
   const courantDansPlus = entreeCourante !== undefined && !PRINCIPALES.includes(entreeCourante.cle);
 
+  // Texte visible « Plus » ; nom accessible « Plus de pages » (il commence par le texte visible, WCAG 2.5.3), suivi du compteur
+  // de messages et de la page actuelle quand elle se trouve dans le panneau.
+  const parties = [t("plusNom")];
+  if (compteur) parties.push(t("messagesNouveaux", { nombre: compteur }));
+  if (courantDansPlus && entreeCourante) parties.push(t("pageActuelle", { nom: t(entreeCourante.cle) }));
+  const nomBouton = parties.join("");
+
   function etiquette(cle: Cle) {
     return (
       <>
@@ -108,6 +115,7 @@ export function NavigationAdmin({ compteurMessages = null }: { compteurMessages?
           <button
             ref={bouton}
             type="button"
+            aria-label={nomBouton}
             aria-haspopup="dialog"
             aria-expanded={ouvert}
             onClick={() => setOuvert(true)}
@@ -117,8 +125,6 @@ export function NavigationAdmin({ compteurMessages = null }: { compteurMessages?
           >
             <span aria-hidden="true">{GLYPHE_MENU}</span>
             <span>{t("plus")}</span>
-            {compteur ? <span className="sr-only">{t("messagesNouveaux", { nombre: compteur })}</span> : null}
-            {courantDansPlus && entreeCourante ? <span className="sr-only">{t("pageActuelle", { nom: t(entreeCourante.cle) })}</span> : null}
           </button>
         </li>
       </ul>

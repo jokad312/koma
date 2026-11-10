@@ -122,7 +122,8 @@ describe("CoqueAdmin", () => {
       rendre(await coque("x"));
       const bouton = screen.getByRole("button", { name: /Plus/ });
       expect(bouton.className).toContain("border-primary");
-      expect(bouton.textContent).toContain("page actuelle : Réglages");
+      expect(bouton.textContent).toBe("☰Plus");
+      expect(bouton.getAttribute("aria-label")).toBe("Plus de pages, page actuelle : Réglages");
       await user.click(bouton);
       const dialogue = screen.getByRole("dialog");
       expect(within(dialogue).getByRole("link", { name: "Réglages" }).getAttribute("aria-current")).toBe("page");
@@ -134,7 +135,7 @@ describe("CoqueAdmin", () => {
       rendre(await coque("x"));
       const bouton = screen.getByRole("button", { name: /Plus/ });
       expect(bouton.className).toContain("border-transparent");
-      expect(bouton.textContent).not.toContain("page actuelle");
+      expect(bouton.getAttribute("aria-label")).toBe("Plus de pages");
     });
 
     it("choisir une page ferme le panneau", async () => {
@@ -152,7 +153,7 @@ describe("CoqueAdmin", () => {
       const user = userEvent.setup();
       rendre(await coque("x"));
       const bouton = screen.getByRole("button", { name: /Plus/ });
-      expect(bouton.textContent).toContain("2 nouveaux messages");
+      expect(bouton.getAttribute("aria-label")).toBe("Plus de pages (2 nouveaux messages)");
       await user.click(bouton);
       expect(within(screen.getByRole("dialog")).getByRole("link", { name: /Messages/ }).textContent).toContain("2 nouveaux messages");
     });

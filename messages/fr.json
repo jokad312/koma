@@ -457,6 +457,7 @@
       "codesPromo": "Codes promo",
       "galerie": "Galerie",
       "plus": "Plus",
+      "plusNom": "Plus de pages",
       "plusTitre": "Autres pages d'administration",
       "pageActuelle": ", page actuelle : {nom}"
     },

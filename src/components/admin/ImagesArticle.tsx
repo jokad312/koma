@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { useId, useRef, useState, type FormEvent } from "react";
+import { useId, useRef, useState } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { lireEnvPublique } from "@/lib/env";
@@ -47,8 +47,9 @@ export function ImagesArticle({
 
   const complet = images.length >= IMAGES_ARTICLE_MAX;
 
-  async function surEnvoi(e: FormEvent) {
-    e.preventDefault();
+  // Cette zone vit DANS le formulaire de l'article : pas de <form> imbriqué (invalide en HTML, hydratation fragile, risque d'envoyer
+  // le mauvais formulaire). L'ajout est un bouton type="button" ; Entrée dans un champ de l'ajout lance l'ajout, jamais l'enregistrement.
+  async function surEnvoi() {
     if (enVol.current || desactive) return;
     setErreur(null);
     setMessage(null);
@@ -176,7 +177,7 @@ export function ImagesArticle({
                 type="button"
                 className="inline-flex min-h-touch items-center rounded-full border border-border-field bg-surface px-3 text-danger"
                 onClick={() => onChange(images.filter((autre) => autre.fichier !== image.fichier))}
-                disabled={desactive}
+                disabled={desactive || phase !== "repos"}
               >
                 {t("retirer", { numero: i + 1 })}
               </button>
@@ -188,8 +189,21 @@ export function ImagesArticle({
       {complet ? (
         <p className="t-small text-text-secondary">{t("erreurs.images_limite")}</p>
       ) : (
-        <form onSubmit={surEnvoi} noValidate className="flex flex-col gap-4">
-          <h3 className="t-h3">{t("ajout.titre")}</h3>
+        <div
+          role="group"
+          aria-labelledby={`${base}-ajout-titre`}
+          onKeyDown={(e) => {
+            // Seulement Entrée dans un champ texte : pas sur un bouton, ni sur le champ fichier (Entrée y ouvre le sélecteur), ni pendant une composition IME.
+            if (e.key !== "Enter" || e.nativeEvent.isComposing) return;
+            if (!(e.target instanceof HTMLInputElement) || e.target.type !== "text") return;
+            e.preventDefault();
+            void surEnvoi();
+          }}
+          className="flex flex-col gap-4"
+        >
+          <h3 id={`${base}-ajout-titre`} className="t-h3">
+            {t("ajout.titre")}
+          </h3>
           {erreurGenerale ? <MessageEtat type="erreur">{erreurGenerale}</MessageEtat> : null}
           <div className="flex w-full flex-col gap-2">
             <label htmlFor={idFichier} className="t-label text-text-primary">
@@ -220,7 +234,7 @@ export function ImagesArticle({
           <ChampTexte id={`${base}-alt-en`} name="alt_en" libelle={t("ajout.altEn.libelle")} aide={t("ajout.altEn.aide")} valeur={altEn} onChange={setAltEn} erreur={erreurDe("alt_en")} />
 
           <div className="flex flex-wrap items-center gap-3">
-            <Bouton type="submit" enCours={occupe}>
+            <Bouton type="button" onClick={() => void surEnvoi()} enCours={occupe}>
               {t("ajout.ajouter")}
             </Bouton>
             {phase === "envoi" ? (
@@ -241,7 +255,7 @@ export function ImagesArticle({
             {phase === "traitement" ? <p className="t-small text-text-primary">{t("ajout.traitement")}</p> : null}
             {message ? <p className="t-small text-text-primary">{message}</p> : null}
           </div>
-        </form>
+        </div>
       )}
     </div>
   );
