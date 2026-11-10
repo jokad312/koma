@@ -457,6 +457,7 @@
       "produits": "Products",
       "univers": "Universes",
       "blog": "Blog",
+      "evenements": "Events",
       "taches": "Tasks",
       "prestataires": "Providers",
       "commandes": "Orders",
@@ -675,7 +676,8 @@
         "plafond_invalide": "The cap must be a whole number from 1 to 10000.",
         "non_autorise": "You no longer have the right to change this setting. Reload the page or sign in again.",
         "generique": "The setting could not be saved. Your entry is kept: try again.",
-        "delai_paiement_invalide": "The time limit must be a whole number from 1 to 1440 minutes."
+        "delai_paiement_invalide": "The time limit must be a whole number from 1 to 1440 minutes.",
+        "frais_annulation_invalide": "The fee must be a whole number from 0 to 100."
       },
       "tranches": {
         "titre": "Price ranges",
@@ -801,6 +803,218 @@
         "titre": "Payment time limit",
         "libelle": "Payment time limit (minutes)",
         "aide": "Time given to the customer to pay a pending order, from 1 to 1440 minutes. After that, the order expires and the items are released. Leave empty to clear it: no order can then be created."
+      },
+      "fraisAnnulationPass": {
+        "titre": "Pass cancellation fee",
+        "libelle": "Pass cancellation fee (%)",
+        "aide": "Percentage kept when a Pass is cancelled, from 0 to 100. While this setting is empty, no Pass cancellation can be accepted."
+      }
+    },
+    "evenements": {
+      "titre": "Events",
+      "intro": "Create your events, their Pass Types and their Stands. Nothing is shown to the public until you publish.",
+      "nouveau": "New event",
+      "erreurLecture": "The events could not be read. Try again in a moment.",
+      "nombre": "{nombre, plural, one {# event} other {# events}}",
+      "vide": {
+        "texte": "No events yet.",
+        "creer": "Create an event"
+      },
+      "statut": {
+        "brouillon": "Draft",
+        "publie": "Published"
+      },
+      "liste": {
+        "debut": "Starts: {date}",
+        "sansDate": "Date to be set"
+      },
+      "pageNouveau": {
+        "titre": "New event",
+        "retour": "Back to events"
+      },
+      "pageEdition": {
+        "titre": "Edit the event",
+        "retour": "Back to events",
+        "cree": "Event created as a draft. Add its photos, then publish it."
+      },
+      "formulaire": {
+        "resume": "The form has an error. Fix the field shown.",
+        "succes": "Event saved.",
+        "enCours": "Saving…",
+        "enregistrer": "Save the event",
+        "titreFr": {
+          "libelle": "Title in French",
+          "aide": "Required. 120 characters at most."
+        },
+        "titreEn": {
+          "libelle": "Title in English",
+          "aide": "Required to publish."
+        },
+        "slug": {
+          "libelle": "Page address",
+          "aide": "Lowercase letters, digits and hyphens. Suggested from the French title; it no longer changes once chosen."
+        },
+        "descriptionFr": {
+          "libelle": "Programme in French",
+          "aide": "Plain text, 5,000 characters at most. Required to publish."
+        },
+        "descriptionEn": {
+          "libelle": "Programme in English",
+          "aide": "Required to publish."
+        },
+        "lieu": {
+          "titre": "Venue",
+          "typeLibelle": "Venue type",
+          "aucun": "To be chosen",
+          "salle": "Indoor hall",
+          "pleinAir": "Outdoors",
+          "fr": {
+            "libelle": "Venue in French",
+            "aide": "For example the name of the place and the city."
+          },
+          "en": {
+            "libelle": "Venue in English"
+          }
+        },
+        "dates": {
+          "titre": "Dates",
+          "fuseau": "All times are Goma time (Africa/Lubumbashi).",
+          "debut": {
+            "libelle": "Event start",
+            "aide": "Required to publish."
+          },
+          "fin": {
+            "libelle": "Event end",
+            "aide": "Optional."
+          },
+          "venteOuvre": {
+            "libelle": "Sales opening",
+            "aide": "Optional. Without a date, sales open when you publish."
+          },
+          "venteFerme": {
+            "libelle": "Sales closing",
+            "aide": "Optional. Without a date, sales close when the event starts."
+          }
+        },
+        "capacite": {
+          "libelle": "Capacity (people)",
+          "aide": "Optional. A Stand counts for two people. Empty: no limit."
+        },
+        "types": {
+          "titre": "Pass Types",
+          "aide": "Create as many Types as you like. For a Stand, tick the \"Stand\" box: the quota is then the number of Stands available.",
+          "vide": "No Pass Type yet.",
+          "numero": "Pass Type {numero}",
+          "nomFr": "Name in French",
+          "nomEn": "Name in English",
+          "prix": "Price (USD)",
+          "prixAide": "For example 15 or 15.50. Zero for a free Pass.",
+          "quota": "Quota (number of Passes)",
+          "quotaAide": "Optional. Empty: no limit for this Type.",
+          "quotaStand": "Number of Stands available",
+          "quotaStandAide": "Optional. Empty: no limit.",
+          "inclusFr": "What is included, in French",
+          "inclusEn": "What is included, in English",
+          "stand": "Stand",
+          "standAide": "A Stand gives two named Passes (the holder and their helper). It can only be bought after an approved application.",
+          "retirer": "Remove Pass Type {numero}",
+          "ajouter": "Add a Pass Type"
+        },
+        "imagesTitre": "Photos",
+        "imagesAide": "Required to publish, each with an alternative text in French and in English.",
+        "imagesApresCreation": "Photos can be added once the event is created.",
+        "erreurs": {
+          "evenement_invalide": "The event is not valid. Check the fields.",
+          "titre_invalide": "The title must be 1 to 120 characters long.",
+          "texte_invalide": "The text is over 5,000 characters.",
+          "slug_invalide": "The address can only contain lowercase letters, digits and hyphens.",
+          "slug_pris": "This address is already used by another event.",
+          "lieu_invalide": "The venue is not valid (200 characters at most).",
+          "date_invalide": "The dates are not valid: the end cannot be before the start, nor the sales closing before the sales opening.",
+          "capacite_invalide": "The capacity must be a whole number from 1 to 100,000.",
+          "type_pass_invalide": "A Pass Type is not valid: the French name is required (80 characters at most).",
+          "prix_invalide": "A price is not valid. Write an amount in USD, like 15 or 15.50.",
+          "quota_invalide": "A quota must be a whole number from 1 to 100,000.",
+          "evenement_introuvable": "This event no longer exists.",
+          "type_pass_introuvable": "A Pass Type does not belong to this event. Reload the page.",
+          "publication_incomplete": "This event is published: it must stay complete (English texts, a photo with its alternative texts, a paid Pass Type). Complete it or unpublish it first.",
+          "non_autorise": "You no longer have the right to manage events. Reload the page or sign in again.",
+          "format_invalide": "This file is not a valid JPEG, PNG or WebP image.",
+          "fichier_trop_lourd": "The image is over 15 MB.",
+          "alt_invalide": "The alternative text must be 1 to 200 characters long.",
+          "images_limite": "Ten photos at most per event.",
+          "generique": "The event could not be saved. Your entry is kept: try again."
+        }
+      },
+      "publication": {
+        "titre": "Publishing",
+        "statutPublie": "Published",
+        "statutBrouillon": "Draft",
+        "aidePublie": "The event is visible to the public as soon as the Festival pages exist.",
+        "aideBrouillon": "The event is not visible to the public.",
+        "incomplet": "To publish, the following is missing:",
+    "incompletPublie": "This event is published but is no longer complete. Missing:",
+        "manques": {
+          "titre_fr": "the title in French",
+          "titre_en": "the title in English",
+          "description_fr": "the programme in French",
+          "description_en": "the programme in English",
+          "date": "the start date",
+          "lieu": "the venue (type, French and English)",
+          "photo": "at least one photo, each with its alternative texts",
+          "type_pass": "at least one Pass Type with a price",
+          "types_incomplets": "the English name and what is included (French and English) for each Pass Type"
+        },
+        "publieOk": "Event published.",
+        "depublieOk": "Event removed from the public.",
+        "enCours": "Working…",
+        "publier": "Publish",
+        "depublier": "Unpublish",
+        "erreurs": {
+          "publication_incomplete": "Publishing is refused: some items are missing (list above).",
+          "evenement_introuvable": "This event no longer exists.",
+          "non_autorise": "You no longer have the right to manage events. Reload the page or sign in again.",
+          "generique": "The change could not be saved. Try again."
+        }
+      },
+      "images": {
+        "nombre": "{nombre} of {max} photos.",
+        "vide": "No photos yet.",
+        "legende": "Event photos",
+        "image": "Photo {numero}",
+        "texteFr": "Alternative text in French: {texte}",
+        "texteEn": "Alternative text in English: {texte}",
+        "retirer": "Remove photo {numero}",
+        "ajout": {
+          "titre": "Add a photo",
+          "fichier": {
+            "libelle": "File",
+            "aide": "JPEG, PNG or WebP, 15 MB at most."
+          },
+          "altFr": {
+            "libelle": "Alternative text in French",
+            "aide": "Describe the photo in one sentence, for people who cannot see it."
+          },
+          "altEn": {
+            "libelle": "Alternative text in English",
+            "aide": "The same description, in English."
+          },
+          "ajouter": "Add the photo",
+          "annuler": "Cancel the upload",
+          "progression": "Uploading: {pourcentage}%",
+          "reprise": "The upload resumes after an interruption.",
+          "traitement": "Checking the image…",
+          "succes": "Photo added. It will be saved with the event.",
+          "annule": "Upload cancelled."
+        },
+        "erreurs": {
+          "format_invalide": "This file is not a valid JPEG, PNG or WebP image.",
+          "fichier_trop_lourd": "The image is over 15 MB.",
+          "alt_invalide": "The alternative text must be 1 to 200 characters long.",
+          "images_limite": "Ten photos at most per event.",
+          "non_autorise": "You no longer have the right to manage events. Reload the page or sign in again.",
+          "generique": "The photo could not be added. Try again."
+        }
       }
     },
     "messages": {

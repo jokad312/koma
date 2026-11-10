@@ -40,6 +40,7 @@ describe("lireReglagesAdmin", () => {
       retraitGomaEn: null,
       plafondFabrication: null,
       delaiPaiement: null,
+      fraisAnnulationPass: null,
     });
     expect(faux.cles).toEqual([
       "nom_site",
@@ -50,6 +51,7 @@ describe("lireReglagesAdmin", () => {
       "retrait_goma_en",
       "plafond_fabrication",
       "delai_paiement",
+      "frais_annulation_pass",
     ]);
   });
 
@@ -64,6 +66,7 @@ describe("lireReglagesAdmin", () => {
       retraitGomaEn: null,
       plafondFabrication: null,
       delaiPaiement: null,
+      fraisAnnulationPass: null,
     });
   });
 
@@ -76,6 +79,7 @@ describe("lireReglagesAdmin", () => {
         { cle: "retrait_goma_en", valeur: "Texte EN" },
         { cle: "plafond_fabrication", valeur: "40" },
         { cle: "delai_paiement", valeur: "30" },
+        { cle: "frais_annulation_pass", valeur: "20" },
       ],
       error: null,
     };
@@ -86,6 +90,7 @@ describe("lireReglagesAdmin", () => {
       retraitGomaEn: "Texte EN",
       plafondFabrication: "40",
       delaiPaiement: "30",
+      fraisAnnulationPass: "20",
     });
   });
 

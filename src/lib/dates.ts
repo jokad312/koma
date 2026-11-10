@@ -16,3 +16,22 @@ export function formaterDateBoutique(date: string | Date | null | undefined, loc
   if (Number.isNaN(d.getTime())) return null;
   return new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-GB", { timeZone: FUSEAU_BOUTIQUE, dateStyle: "long" }).format(d);
 }
+
+// Instant (ISO) → valeur d'un champ « datetime-local » à l'heure de la boutique, « AAAA-MM-JJTHH:mm » ; vide si la date est absente ou invalide.
+// Sert aux formulaires admin : la base garde un instant absolu, l'admin lit et saisit l'heure de Goma.
+export function versSaisieBoutique(date: string | null | undefined): string {
+  if (!date) return "";
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return "";
+  const parties = new Intl.DateTimeFormat("en-CA", {
+    timeZone: FUSEAU_BOUTIQUE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(d);
+  const v = (type: string) => parties.find((p) => p.type === type)?.value ?? "";
+  return `${v("year")}-${v("month")}-${v("day")}T${v("hour")}:${v("minute")}`;
+}

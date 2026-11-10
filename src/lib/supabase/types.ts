@@ -577,6 +577,72 @@ export type Database = {
         }
         Relationships: []
       }
+      evenement: {
+        Row: {
+          auteur_id: string
+          capacite: number | null
+          cree_le: string
+          debut_le: string | null
+          description_en: string | null
+          description_fr: string | null
+          fin_le: string | null
+          id: string
+          images: Json
+          lieu_en: string | null
+          lieu_fr: string | null
+          lieu_type: string | null
+          modifie_le: string
+          publie_le: string | null
+          slug: string
+          titre_en: string | null
+          titre_fr: string
+          vente_ferme_le: string | null
+          vente_ouvre_le: string | null
+        }
+        Insert: {
+          auteur_id: string
+          capacite?: number | null
+          cree_le?: string
+          debut_le?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          fin_le?: string | null
+          id?: string
+          images?: Json
+          lieu_en?: string | null
+          lieu_fr?: string | null
+          lieu_type?: string | null
+          modifie_le?: string
+          publie_le?: string | null
+          slug: string
+          titre_en?: string | null
+          titre_fr: string
+          vente_ferme_le?: string | null
+          vente_ouvre_le?: string | null
+        }
+        Update: {
+          auteur_id?: string
+          capacite?: number | null
+          cree_le?: string
+          debut_le?: string | null
+          description_en?: string | null
+          description_fr?: string | null
+          fin_le?: string | null
+          id?: string
+          images?: Json
+          lieu_en?: string | null
+          lieu_fr?: string | null
+          lieu_type?: string | null
+          modifie_le?: string
+          publie_le?: string | null
+          slug?: string
+          titre_en?: string | null
+          titre_fr?: string
+          vente_ferme_le?: string | null
+          vente_ouvre_le?: string | null
+        }
+        Relationships: []
+      }
       evenement_mesure: {
         Row: {
           action: string
@@ -1730,6 +1796,59 @@ export type Database = {
           },
         ]
       }
+      type_pass: {
+        Row: {
+          cree_le: string
+          est_stand: boolean
+          evenement_id: string
+          id: string
+          inclus_en: string | null
+          inclus_fr: string | null
+          modifie_le: string
+          nom_en: string | null
+          nom_fr: string
+          ordre: number
+          prix_cents: number
+          quota: number | null
+        }
+        Insert: {
+          cree_le?: string
+          est_stand?: boolean
+          evenement_id: string
+          id?: string
+          inclus_en?: string | null
+          inclus_fr?: string | null
+          modifie_le?: string
+          nom_en?: string | null
+          nom_fr: string
+          ordre?: number
+          prix_cents: number
+          quota?: number | null
+        }
+        Update: {
+          cree_le?: string
+          est_stand?: boolean
+          evenement_id?: string
+          id?: string
+          inclus_en?: string | null
+          inclus_fr?: string | null
+          modifie_le?: string
+          nom_en?: string | null
+          nom_fr?: string
+          ordre?: number
+          prix_cents?: number
+          quota?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "type_pass_evenement_id_fkey"
+            columns: ["evenement_id"]
+            isOneToOne: false
+            referencedRelation: "evenement"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       univers: {
         Row: {
           cree_le: string
@@ -2311,6 +2430,10 @@ export type Database = {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
       }
+      depublier_evenement: {
+        Args: { p_auteur: Json; p_id: string }
+        Returns: undefined
+      }
       depublier_produit: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
@@ -2345,6 +2468,10 @@ export type Database = {
       }
       enregistrer_article: {
         Args: { p_article: Json; p_auteur: Json; p_id: string; p_images: Json }
+        Returns: string
+      }
+      enregistrer_evenement: {
+        Args: { p_auteur: Json; p_evenement: Json; p_id: string; p_types: Json }
         Returns: string
       }
       enregistrer_evenement_mesure: {
@@ -2591,6 +2718,10 @@ export type Database = {
       }
       lister_photos_admin: { Args: { p_auteur: Json }; Returns: Json }
       manques_publication: { Args: { p_produit_id: string }; Returns: string[] }
+      manques_publication_evenement: {
+        Args: { p_id: string }
+        Returns: string[]
+      }
       marquer_message_traite: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
@@ -2661,6 +2792,10 @@ export type Database = {
         Returns: boolean
       }
       publier_article: {
+        Args: { p_auteur: Json; p_id: string }
+        Returns: undefined
+      }
+      publier_evenement: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
       }

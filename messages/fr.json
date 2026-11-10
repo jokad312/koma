@@ -457,6 +457,7 @@
       "produits": "Produits",
       "univers": "Univers",
       "blog": "Blog",
+      "evenements": "Événements",
       "taches": "Tâches",
       "prestataires": "Prestataires",
       "commandes": "Commandes",
@@ -675,7 +676,8 @@
         "plafond_invalide": "Le plafond doit être un nombre entier de 1 à 10000.",
         "non_autorise": "Tu n'as plus le droit de modifier ce réglage. Recharge la page ou reconnecte-toi.",
         "generique": "Le réglage n'a pas pu être enregistré. Ta saisie est conservée : réessaie.",
-        "delai_paiement_invalide": "Le délai doit être un nombre entier de 1 à 1440 minutes."
+        "delai_paiement_invalide": "Le délai doit être un nombre entier de 1 à 1440 minutes.",
+        "frais_annulation_invalide": "Les frais doivent être un nombre entier de 0 à 100."
       },
       "tranches": {
         "titre": "Tranches de prix",
@@ -801,6 +803,218 @@
         "titre": "Délai de paiement",
         "libelle": "Délai de paiement (minutes)",
         "aide": "Temps laissé au client pour payer une commande en attente, de 1 à 1440 minutes. Passé ce délai, la commande expire et les articles sont libérés. Laisse vide pour l'effacer : aucune commande ne pourra alors être créée."
+      },
+      "fraisAnnulationPass": {
+        "titre": "Frais d'annulation des Pass",
+        "libelle": "Frais d'annulation des Pass (%)",
+        "aide": "Pourcentage retenu quand un Pass est annulé, de 0 à 100. Tant que ce réglage est vide, aucune annulation de Pass ne peut être acceptée."
+      }
+    },
+    "evenements": {
+      "titre": "Événements",
+      "intro": "Crée tes événements, leurs Types de pass et leurs Stands. Rien n'est affiché au public avant la publication.",
+      "nouveau": "Nouvel événement",
+      "erreurLecture": "Les événements n'ont pas pu être lus. Réessaie dans un instant.",
+      "nombre": "{nombre, plural, one {# événement} other {# événements}}",
+      "vide": {
+        "texte": "Aucun événement pour le moment.",
+        "creer": "Créer un événement"
+      },
+      "statut": {
+        "brouillon": "Brouillon",
+        "publie": "Publié"
+      },
+      "liste": {
+        "debut": "Début : {date}",
+        "sansDate": "Date à fixer"
+      },
+      "pageNouveau": {
+        "titre": "Nouvel événement",
+        "retour": "Retour aux événements"
+      },
+      "pageEdition": {
+        "titre": "Modifier l'événement",
+        "retour": "Retour aux événements",
+        "cree": "Événement créé en brouillon. Ajoute ses photos, puis publie-le."
+      },
+      "formulaire": {
+        "resume": "Le formulaire contient une erreur. Corrige le champ signalé.",
+        "succes": "Événement enregistré.",
+        "enCours": "Enregistrement…",
+        "enregistrer": "Enregistrer l'événement",
+        "titreFr": {
+          "libelle": "Titre en français",
+          "aide": "Obligatoire. 120 caractères au plus."
+        },
+        "titreEn": {
+          "libelle": "Titre en anglais",
+          "aide": "Obligatoire pour publier."
+        },
+        "slug": {
+          "libelle": "Adresse de la page",
+          "aide": "Lettres minuscules, chiffres et tirets. Proposée à partir du titre français ; elle ne change plus une fois choisie."
+        },
+        "descriptionFr": {
+          "libelle": "Programme en français",
+          "aide": "Texte simple, 5 000 caractères au plus. Obligatoire pour publier."
+        },
+        "descriptionEn": {
+          "libelle": "Programme en anglais",
+          "aide": "Obligatoire pour publier."
+        },
+        "lieu": {
+          "titre": "Lieu",
+          "typeLibelle": "Type de lieu",
+          "aucun": "À choisir",
+          "salle": "Salle",
+          "pleinAir": "Plein air",
+          "fr": {
+            "libelle": "Lieu en français",
+            "aide": "Par exemple le nom de l'endroit et la ville."
+          },
+          "en": {
+            "libelle": "Lieu en anglais"
+          }
+        },
+        "dates": {
+          "titre": "Dates",
+          "fuseau": "Toutes les heures sont celles de Goma (Africa/Lubumbashi).",
+          "debut": {
+            "libelle": "Début de l'événement",
+            "aide": "Obligatoire pour publier."
+          },
+          "fin": {
+            "libelle": "Fin de l'événement",
+            "aide": "Facultative."
+          },
+          "venteOuvre": {
+            "libelle": "Ouverture de la vente",
+            "aide": "Facultative. Sans date, la vente s'ouvre à la publication."
+          },
+          "venteFerme": {
+            "libelle": "Fermeture de la vente",
+            "aide": "Facultative. Sans date, la vente se ferme au début de l'événement."
+          }
+        },
+        "capacite": {
+          "libelle": "Capacité (personnes)",
+          "aide": "Facultative. Un Stand compte pour deux personnes. Vide : pas de limite."
+        },
+        "types": {
+          "titre": "Types de pass",
+          "aide": "Crée autant de Types que tu veux. Pour un Stand, coche la case « Stand » : le quota est alors le nombre de Stands disponibles.",
+          "vide": "Aucun Type de pass pour le moment.",
+          "numero": "Type de pass {numero}",
+          "nomFr": "Nom en français",
+          "nomEn": "Nom en anglais",
+          "prix": "Prix (USD)",
+          "prixAide": "Par exemple 15 ou 15,50. Zéro pour un Pass offert.",
+          "quota": "Quota (nombre de Pass)",
+          "quotaAide": "Facultatif. Vide : pas de limite pour ce Type.",
+          "quotaStand": "Nombre de Stands disponibles",
+          "quotaStandAide": "Facultatif. Vide : pas de limite.",
+          "inclusFr": "Ce qui est inclus, en français",
+          "inclusEn": "Ce qui est inclus, en anglais",
+          "stand": "Stand",
+          "standAide": "Un Stand donne deux Pass nominatifs (le titulaire et son aide). Il ne s'achète que sur candidature validée.",
+          "retirer": "Retirer le Type de pass {numero}",
+          "ajouter": "Ajouter un Type de pass"
+        },
+        "imagesTitre": "Photos",
+        "imagesAide": "Obligatoires pour publier, avec un texte alternatif en français et en anglais.",
+        "imagesApresCreation": "Les photos s'ajoutent une fois l'événement créé.",
+        "erreurs": {
+          "evenement_invalide": "L'événement n'est pas valide. Vérifie les champs.",
+          "titre_invalide": "Le titre doit avoir de 1 à 120 caractères.",
+          "texte_invalide": "Le texte dépasse 5 000 caractères.",
+          "slug_invalide": "L'adresse ne peut contenir que des lettres minuscules, des chiffres et des tirets.",
+          "slug_pris": "Cette adresse est déjà utilisée par un autre événement.",
+          "lieu_invalide": "Le lieu n'est pas valide (200 caractères au plus).",
+          "date_invalide": "Les dates ne sont pas valides : la fin ne peut pas précéder le début, ni la fermeture de la vente son ouverture.",
+          "capacite_invalide": "La capacité doit être un nombre entier de 1 à 100 000.",
+          "type_pass_invalide": "Un Type de pass n'est pas valide : le nom français est obligatoire (80 caractères au plus).",
+          "prix_invalide": "Un prix n'est pas valide. Écris un montant en USD, comme 15 ou 15,50.",
+          "quota_invalide": "Un quota doit être un nombre entier de 1 à 100 000.",
+          "evenement_introuvable": "Cet événement n'existe plus.",
+          "type_pass_introuvable": "Un Type de pass n'appartient pas à cet événement. Recharge la page.",
+          "publication_incomplete": "Cet événement est publié : il doit rester complet (textes anglais, photo avec ses textes alternatifs, Type de pass payant). Complète-le ou dépublie-le d'abord.",
+          "non_autorise": "Tu n'as plus le droit de gérer les événements. Recharge la page ou reconnecte-toi.",
+          "format_invalide": "Ce fichier n'est pas une image JPEG, PNG ou WebP valide.",
+          "fichier_trop_lourd": "L'image dépasse 15 Mo.",
+          "alt_invalide": "Le texte alternatif doit avoir de 1 à 200 caractères.",
+          "images_limite": "Dix photos au maximum par événement.",
+          "generique": "L'événement n'a pas pu être enregistré. Ta saisie est conservée : réessaie."
+        }
+      },
+      "publication": {
+        "titre": "Publication",
+        "statutPublie": "Publié",
+        "statutBrouillon": "Brouillon",
+        "aidePublie": "L'événement est visible du public dès que les pages Festival existent.",
+        "aideBrouillon": "L'événement n'est pas visible du public.",
+        "incomplet": "Pour publier, il manque :",
+    "incompletPublie": "Cet événement est publié mais il n'est plus complet. Il manque :",
+        "manques": {
+          "titre_fr": "le titre en français",
+          "titre_en": "le titre en anglais",
+          "description_fr": "le programme en français",
+          "description_en": "le programme en anglais",
+          "date": "la date de début",
+          "lieu": "le lieu (type, français et anglais)",
+          "photo": "au moins une photo, chacune avec ses textes alternatifs",
+          "type_pass": "au moins un Type de pass avec un prix",
+          "types_incomplets": "le nom anglais et ce qui est inclus (français et anglais) de chaque Type de pass"
+        },
+        "publieOk": "Événement publié.",
+        "depublieOk": "Événement retiré du public.",
+        "enCours": "En cours…",
+        "publier": "Publier",
+        "depublier": "Dépublier",
+        "erreurs": {
+          "publication_incomplete": "La publication est refusée : des éléments manquent (liste ci-dessus).",
+          "evenement_introuvable": "Cet événement n'existe plus.",
+          "non_autorise": "Tu n'as plus le droit de gérer les événements. Recharge la page ou reconnecte-toi.",
+          "generique": "Le changement n'a pas pu être enregistré. Réessaie."
+        }
+      },
+      "images": {
+        "nombre": "{nombre} sur {max} photos.",
+        "vide": "Aucune photo pour le moment.",
+        "legende": "Photos de l'événement",
+        "image": "Photo {numero}",
+        "texteFr": "Texte alternatif en français : {texte}",
+        "texteEn": "Texte alternatif en anglais : {texte}",
+        "retirer": "Retirer la photo {numero}",
+        "ajout": {
+          "titre": "Ajouter une photo",
+          "fichier": {
+            "libelle": "Fichier",
+            "aide": "JPEG, PNG ou WebP, 15 Mo au plus."
+          },
+          "altFr": {
+            "libelle": "Texte alternatif en français",
+            "aide": "Décris la photo en une phrase, pour les personnes qui ne la voient pas."
+          },
+          "altEn": {
+            "libelle": "Texte alternatif en anglais",
+            "aide": "La même description, en anglais."
+          },
+          "ajouter": "Ajouter la photo",
+          "annuler": "Annuler l'envoi",
+          "progression": "Envoi : {pourcentage} %",
+          "reprise": "L'envoi reprend après une coupure.",
+          "traitement": "Vérification de l'image…",
+          "succes": "Photo ajoutée. Elle sera enregistrée avec l'événement.",
+          "annule": "Envoi annulé."
+        },
+        "erreurs": {
+          "format_invalide": "Ce fichier n'est pas une image JPEG, PNG ou WebP valide.",
+          "fichier_trop_lourd": "L'image dépasse 15 Mo.",
+          "alt_invalide": "Le texte alternatif doit avoir de 1 à 200 caractères.",
+          "images_limite": "Dix photos au maximum par événement.",
+          "non_autorise": "Tu n'as plus le droit de gérer les événements. Recharge la page ou reconnecte-toi.",
+          "generique": "La photo n'a pas pu être ajoutée. Réessaie."
+        }
       }
     },
     "messages": {

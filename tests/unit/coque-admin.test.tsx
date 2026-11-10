@@ -25,22 +25,22 @@ async function coque(enfants: React.ReactNode) {
 }
 
 describe("CoqueAdmin", () => {
-  it("une navigation « Administration » avec Tableau de bord, Commandes, Produits, Univers, Blog, Galerie, Codes promo, Messages, Tâches, Prestataires et Réglages, la page courante marquée", async () => {
+  it("une navigation « Administration » avec Tableau de bord, Commandes, Produits, Univers, Blog, Événements, Galerie, Codes promo, Messages, Tâches, Prestataires et Réglages, la page courante marquée", async () => {
     chemin.courant = "/admin/reglages";
     compteur.valeur = 0;
     rendre(await coque(<h1>Contenu</h1>));
     const nav = screen.getByRole("navigation", { name: "Administration" });
     const liens = within(nav).getAllByRole("link");
-    expect(liens.map((l) => l.textContent)).toEqual(["Tableau de bord", "Commandes", "Produits", "Univers", "Blog", "Galerie", "Codes promo", "Messages", "Tâches", "Prestataires", "Réglages"]);
-    expect(liens.map((l) => l.getAttribute("href"))).toEqual(["/admin", "/admin/commandes", "/admin/produits", "/admin/univers", "/admin/blog", "/admin/galerie", "/admin/codes-promo", "/admin/messages", "/admin/taches", "/admin/prestataires", "/admin/reglages"]);
-    expect(liens[10].getAttribute("aria-current")).toBe("page");
+    expect(liens.map((l) => l.textContent)).toEqual(["Tableau de bord", "Commandes", "Produits", "Univers", "Blog", "Événements", "Galerie", "Codes promo", "Messages", "Tâches", "Prestataires", "Réglages"]);
+    expect(liens.map((l) => l.getAttribute("href"))).toEqual(["/admin", "/admin/commandes", "/admin/produits", "/admin/univers", "/admin/blog", "/admin/evenements", "/admin/galerie", "/admin/codes-promo", "/admin/messages", "/admin/taches", "/admin/prestataires", "/admin/reglages"]);
+    expect(liens[11].getAttribute("aria-current")).toBe("page");
     expect(liens[0].getAttribute("aria-current")).toBeNull();
     expect(liens[1].getAttribute("aria-current")).toBeNull();
     // Barre rouge de 4 px sur l'entrée courante, cible tactile de 44 px.
-    expect(liens[10].className).toContain("border-primary");
-    expect(liens[10].className).toContain("border-t-4");
-    expect(liens[10].className).toContain("md:border-l-4");
-    expect(liens[10].className).toContain("min-h-touch");
+    expect(liens[11].className).toContain("border-primary");
+    expect(liens[11].className).toContain("border-t-4");
+    expect(liens[11].className).toContain("md:border-l-4");
+    expect(liens[11].className).toContain("min-h-touch");
     expect(screen.getByRole("heading", { name: "Contenu" })).toBeTruthy();
   });
 
@@ -98,7 +98,7 @@ describe("CoqueAdmin", () => {
       expect(bouton.closest("li")?.className).toContain("md:hidden");
     });
 
-    it("le bouton s'ouvre au clavier : dialogue avec les 8 autres pages, 44 px, focus dans le panneau, Échap ferme et rend le focus", async () => {
+    it("le bouton s'ouvre au clavier : dialogue avec les 9 autres pages, 44 px, focus dans le panneau, Échap ferme et rend le focus", async () => {
       chemin.courant = "/admin/commandes";
       const user = userEvent.setup();
       rendre(await coque("x"));
@@ -108,7 +108,7 @@ describe("CoqueAdmin", () => {
       const dialogue = screen.getByRole("dialog", { name: "Autres pages d'administration" });
       expect(bouton.getAttribute("aria-expanded")).toBe("true");
       const liens = within(dialogue).getAllByRole("link");
-      expect(liens.map((l) => l.textContent)).toEqual(["Produits", "Univers", "Blog", "Galerie", "Codes promo", "Messages", "Prestataires", "Réglages"]);
+      expect(liens.map((l) => l.textContent)).toEqual(["Produits", "Univers", "Blog", "Événements", "Galerie", "Codes promo", "Messages", "Prestataires", "Réglages"]);
       for (const lien of liens) expect(lien.className).toContain("min-h-touch");
       expect(dialogue.contains(document.activeElement)).toBe(true);
       await user.keyboard("{Escape}");

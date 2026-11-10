@@ -9,6 +9,7 @@ export const CLES_REGLAGE = [
   "retrait_goma_en",
   "plafond_fabrication",
   "delai_paiement",
+  "frais_annulation_pass",
 ] as const;
 
 export const cleReglageSchema = z.enum(CLES_REGLAGE);
@@ -36,6 +37,12 @@ export const delaiPaiementSchema = z
   .string()
   .transform((v) => v.trim())
   .pipe(z.union([z.literal("").transform(() => null), z.string().regex(/^[0-9]{1,4}$/).transform(Number).pipe(z.number().int().min(1).max(1440)).transform(String)]));
+
+// Frais d'annulation des Pass : pourcentage entier de 0 à 100, chiffres seulement ; vide = effacé (null). Renvoie le texte du nombre.
+export const fraisAnnulationPassSchema = z
+  .string()
+  .transform((v) => v.trim())
+  .pipe(z.union([z.literal("").transform(() => null), z.string().regex(/^[0-9]{1,3}$/).transform(Number).pipe(z.number().int().min(0).max(100)).transform(String)]));
 
 export const entreeReglageSchema = z.object({
   cle: cleReglageSchema,

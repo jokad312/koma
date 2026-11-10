@@ -397,3 +397,9 @@
 - 8.3 : bloc 4 « Ils le portent » (ancre `#galerie`), lecture par `lister_mur_public` seulement, cache `ETIQUETTES.galerie`, liens « Galerie » du pied de page et du ☰ seulement s'il y a une photo (EXPERIENCE.md:75, 79, 139, 241), bloc masqué sans photo, nom du site lu dans les réglages. Détail : spec-8-3-mur-public.md (Spec Change Log).
 - Bug corrigé : `ImagesArticle` rendait un `<form>` dans le `<form>` de `FormulaireArticle` ; garde automatique `tests/unit/formulaires-imbriques.test.ts` sur tout `src/`.
 - Menu ☰ connecté : « Mon compte » (vers la Navigation du compte : bibliothèque, commandes, photos, Réalisation, préférences) remplace « Ma bibliothèque » (EXPERIENCE.md:60, 74, 80 ; UX-DR37) ; pas de lien « Administration » dans les docs. Titre « Menu » du panneau plein : titre h2 discret, jamais un lien.
+
+
+## 2026-11-10 : correct-course Stand (Q-C1) et début de l'epic 7
+- Correct-course approuvé : `sprint-change-proposal-2026-11-10.md` ; PRD (FR-33, FR-33b, FR-52, glossaire), architecture (AD-37) et epics.md (7.1, 7.2, 7.4, nouvelle 7.11) mis à jour ; 7.11 ajoutée en backlog.
+- Décisions de Jonathan : 90 jours de conservation des photos d'exposants, textes FR/EN de la case d'engagement et de la mention de confidentialité (dans la 7.11). PawaPay 5.7 : écart accepté (pas de signature RFC 9421), pays hors RDC et Zimbabwe non couverts, échec sans cause = échec du prestataire.
+- Story 7.1 faite : voir `spec-7-1-creer-un-evenement-et-ses-types-de-pass.md`. Essai manuel : `/fr/admin/evenements` : créer un événement, ajouter deux Types de pass dont un Stand, essayer de publier (liste des manques), compléter, publier ; `/fr/admin/reglages` : frais d'annulation des Pass.

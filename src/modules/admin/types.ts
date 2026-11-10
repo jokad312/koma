@@ -12,6 +12,7 @@ export type CodeErreurAdmin =
   | "retrait_en_invalide"
   | "plafond_invalide"
   | "delai_paiement_invalide"
+  | "frais_annulation_invalide"
   | "raison_manquante"
   | "age_invalide"
   | "age_non_declare"
@@ -29,7 +30,8 @@ export type CleReglage =
   | "retrait_goma_fr"
   | "retrait_goma_en"
   | "plafond_fabrication"
-  | "delai_paiement";
+  | "delai_paiement"
+  | "frais_annulation_pass";
 
 // Ce que le service attend du serveur : en production, les vrais clients ; en test, des faux nommés TEST_.
 export type DependancesAdmin = {
@@ -56,6 +58,7 @@ export type ReglagesAdmin = {
   retraitGomaEn: string | null;
   plafondFabrication: string | null;
   delaiPaiement: string | null;
+  fraisAnnulationPass: string | null;
 };
 
 // Tâche de l'Admin (vue taches_admin) : une anomalie ouverte.

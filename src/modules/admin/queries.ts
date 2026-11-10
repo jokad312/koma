@@ -17,6 +17,7 @@ export async function lireReglagesAdmin(): Promise<ReglagesAdmin> {
       "retrait_goma_en",
       "plafond_fabrication",
       "delai_paiement",
+      "frais_annulation_pass",
     ]);
   if (error) throw new Error("Lecture des réglages impossible.");
   const valeur = (cle: string) => data?.find((ligne) => ligne.cle === cle)?.valeur?.trim() || null;
@@ -29,6 +30,7 @@ export async function lireReglagesAdmin(): Promise<ReglagesAdmin> {
     retraitGomaEn: valeur("retrait_goma_en"),
     plafondFabrication: valeur("plafond_fabrication"),
     delaiPaiement: valeur("delai_paiement"),
+    fraisAnnulationPass: valeur("frais_annulation_pass"),
   };
 }
 
