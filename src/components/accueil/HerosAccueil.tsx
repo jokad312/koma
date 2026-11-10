@@ -99,7 +99,7 @@ async function TuileVedette({ locale }: { locale: Locale }) {
           <div className="flex flex-col gap-1 p-4">
             <p className="t-label text-text-primary">{o.id === "porter" ? t("pretAPorter") : t("fabriquer")}</p>
             <p className="t-h3">
-              <Link href={cheminPublic(locale, o.href)} className="text-text-primary no-underline after:absolute after:inset-0 focus-visible:outline-none">
+              <Link href={cheminPublic(locale, o.href)} data-mesure="clic_heros" className="text-text-primary no-underline after:absolute after:inset-0 focus-visible:outline-none">
                 {o.titre}
               </Link>
             </p>

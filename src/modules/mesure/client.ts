@@ -81,11 +81,24 @@ function langueCourante(): LangueMesure {
 }
 
 // Une seule vue de fiche par onglet : une navigation en arrière ne gonfle pas le compte de sessions.
+// Repli en mémoire quand sessionStorage est refusé (navigation privée) : un retour arrière ne renvoie pas la vue.
+const vuesMemoire = new Set<string>();
 function dejaVu(page: string): boolean {
   const vues = lireJson<string[]>(CLE_VUES);
-  if (Array.isArray(vues) && vues.includes(page)) return true;
+  if (vuesMemoire.has(page) || (Array.isArray(vues) && vues.includes(page))) return true;
+  vuesMemoire.add(page);
   ecrireJson(CLE_VUES, [...(Array.isArray(vues) ? vues : []), page].slice(-50));
   return false;
+}
+
+// Durée du héros : seulement pour la première page du document. Après une navigation interne, performance.now() mesurerait
+// le temps passé sur le site, pas le chargement du héros.
+let navigationInterne = false;
+export function signalerNavigationInterne() {
+  navigationInterne = true;
+}
+export function estPremierePage(): boolean {
+  return !navigationInterne;
 }
 
 // Prépare la session et l'origine : appelé une fois au montage du layout.

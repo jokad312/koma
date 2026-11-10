@@ -12,6 +12,10 @@ export const LIMITE_SESSION_PAR_HEURE = 300;
 // derrière la même adresse ; une limite serrée bloquerait des visiteurs honnêtes. La clé est un HMAC, jamais l'adresse.
 export const LIMITE_IP_PAR_HEURE = 1200;
 
+// Plafond global : la session est choisie par le client et l'adresse IP peut manquer ; ce plafond borne quoi qu'il arrive
+// le nombre d'événements écrits par heure (une boutique à ses débuts en reçoit bien moins).
+export const LIMITE_GLOBALE_PAR_HEURE = 20000;
+
 // Seul le code d'erreur est journalisé : jamais le corps de la requête, jamais une valeur reçue.
 function journaliser(contexte: string, erreur: unknown) {
   const brut = typeof erreur === "string" ? erreur : erreur instanceof Error ? erreur.message : "";
@@ -51,6 +55,9 @@ export async function enregistrerEvenement(dependances: DependancesMesure, corps
       if (!ipAutorisee) return "refuse";
     }
 
+    const globalAutorise = await dependances.consommerEssai({ cle: "mesure:global", fenetreSecondes: FENETRE_SECONDES, maximum: LIMITE_GLOBALE_PAR_HEURE });
+    if (!globalAutorise) return "refuse";
+
     const { erreur } = await dependances.enregistrer({
       action: evenement.action,
       page,
@@ -58,7 +65,9 @@ export async function enregistrerEvenement(dependances: DependancesMesure, corps
       referent: evenement.provenance ?? null,
       langue: evenement.langue,
       appareil: evenement.appareil,
-      session: evenement.session,
+      // Espace privé : un identifiant jetable par événement, pour qu'une action faite depuis /compte ne puisse jamais être
+      // rattachée à la session de navigation (et, par l'heure, à un Compte).
+      session: page === "/compte" ? crypto.randomUUID() : evenement.session,
       dureeMs: evenement.duree ?? null,
     });
     if (erreur) {

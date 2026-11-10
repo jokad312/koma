@@ -132,4 +132,25 @@ describe("liste fermée", () => {
     expect(estActionMesure("achat")).toBe(false);
     expect(estActionMesure("")).toBe(false);
   });
+
+describe("correctifs de la revue croisée", () => {
+  it("décode et met en minuscules avant l'exclusion : /fr/%63ompte, /FR/compte et /Fr/Admin restent exclus", () => {
+    expect(pageMesuree("vue_fiche", "/fr/%63ompte/commandes")).toBeNull();
+    expect(pageMesuree("vue_fiche", "/FR/compte")).toBeNull();
+    expect(pageMesuree("vue_fiche", "/Fr/Admin/produits")).toBeNull();
+    expect(pageMesuree("vue_fiche", "/FR/Cosplays/Nezuko")).toBe("/cosplays/nezuko");
+  });
+
+  it("parcours d'achat, API et authentification jamais mesurés", () => {
+    for (const p of ["/fr/panier", "/en/paiement/retour", "/api/mesure", "/auth/callback"]) expect(pageMesuree("vue_fiche", p)).toBeNull();
+  });
+
+  it("refuse %2F, un encodage illisible et tout texte hors des caractères d'adresse du site", () => {
+    expect(normaliserChemin("/fr/compte%2Fx")).toBeNull();
+    expect(normaliserChemin("/fr/%E0%A4%A")).toBeNull();
+    expect(normaliserChemin("/fr/blog/bonjour jean@exemple.test")).toBeNull();
+    expect(normaliserChemin("/fr/blog/été")).toBeNull();
+    expect(normaliserChemin("/fr/blog/x".padEnd(201, "x"))).toBeNull();
+  });
+});
 });

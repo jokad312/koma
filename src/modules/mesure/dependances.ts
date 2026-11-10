@@ -2,7 +2,7 @@ import "server-only";
 import { createHmac } from "node:crypto";
 import { headers } from "next/headers";
 import { AUTEUR_VISITEUR } from "@/lib/auth/auteur";
-import { lireEnvServeur } from "@/lib/env";
+import { lireEnvPublique, lireEnvServeur } from "@/lib/env";
 import { creerClientService } from "@/lib/supabase/service";
 import type { DependancesMesure } from "./types";
 
@@ -12,22 +12,31 @@ type ClientMesure = {
   rpc: (nom: string, args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
 };
 
+// Hôte du site, lu dans NEXT_PUBLIC_SITE_URL : jamais dans Host ni X-Forwarded-Host (deux en-têtes que le client fixe).
+export function hoteDuSite(site: string): string | null {
+  try {
+    return new URL(site).host.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+// Adresse ajoutée par le proxy de l'hébergeur : la DERNIÈRE de X-Forwarded-For (les précédentes viennent du client).
+export function derniereAdresse(entete: string | null): string | null {
+  const adresses = (entete ?? "").split(",").map((a) => a.trim()).filter(Boolean);
+  return adresses.at(-1) ?? null;
+}
+
 export function dependancesMesure(): DependancesMesure {
   const admin = creerClientService() as unknown as ClientMesure;
   // Hachage à clé (la clé secrète du serveur) : ni l'adresse IP ni une valeur brute ne sont stockées ou journalisées.
   const hacher = (valeur: string) => createHmac("sha256", lireEnvServeur().SUPABASE_SECRET_KEY).update(valeur).digest("hex");
   return {
     referer: async () => (await headers()).get("referer"),
-    // Derrière un proxy, x-forwarded-host porte l'adresse publique ; sinon Host. Le Referer doit venir de cet hôte.
-    hote: async () => {
-      const h = await headers();
-      return h.get("x-forwarded-host")?.split(",")[0]?.trim() || h.get("host")?.trim() || null;
-    },
+    hote: async () => hoteDuSite(lireEnvPublique().NEXT_PUBLIC_SITE_URL),
     empreinteClient: async () => {
-      const h = await headers();
-      const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip")?.trim() || null;
-      if (!ip) return null;
-      return hacher(ip);
+      const ip = derniereAdresse((await headers()).get("x-forwarded-for"));
+      return ip ? hacher(ip) : null;
     },
     consommerEssai: async ({ cle, fenetreSecondes, maximum }) => {
       const { data, error } = await admin.rpc("consommer_essai", {

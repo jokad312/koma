@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { mesurer } from "@/modules/mesure/client";
+import { estPremierePage, mesurer } from "@/modules/mesure/client";
 
 type Props = {
   // Adresse du MP4 public validé par le serveur ; null : photo seule.
@@ -68,6 +68,8 @@ export function MediaHeros({ videoUrl, repli }: Props) {
   const signalerCharge = useCallback(() => {
     if (mesureFaite.current) return;
     mesureFaite.current = true;
+    // Héros affiché après une navigation interne : performance.now() ne mesurerait pas son chargement, rien n'est envoyé.
+    if (!estPremierePage()) return;
     mesurer("chargement_heros", { dureeMs: performance.now() });
   }, []);
 

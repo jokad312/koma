@@ -6,19 +6,29 @@ import type { Appareil } from "./types";
 
 // Segments de premier niveau jamais mesurés (décision de Jonathan du 2026-11-10). « /administration » n'est pas « /admin » :
 // la comparaison porte sur le segment entier.
-export const PREFIXES_EXCLUS = ["admin", "compte", "connexion", "commande", "checkout", "desinscription"] as const;
+// « panier » et « paiement » : jamais de mesure sur le parcours d'achat ; « api » et « auth » ne sont pas des pages.
+export const PREFIXES_EXCLUS = ["admin", "compte", "connexion", "commande", "checkout", "desinscription", "panier", "paiement", "api", "auth"] as const;
 
 const EXCLUS = new Set<string>(PREFIXES_EXCLUS);
 const DEPUIS_COMPTE = new Set<string>(ACTIONS_COMPTE);
 const PRIVEES = new Set<string>(ACTIONS_PRIVEES);
 const LANGUE_PREFIXE = /^\/(fr|en)(\/|$)/;
 
-// Garde un chemin seul : pas de requête, pas d'ancre, pas d'espace ni de caractère de contrôle, 200 caractères au plus.
+// Garde un chemin seul, décodé et en minuscules : pas de requête ni d'ancre, et seulement les caractères des adresses du site
+// (lettres latines minuscules, chiffres, « / », « . », « _ », « - »), 200 au plus. « /fr/%63ompte » devient « /fr/compte » et
+// tombe donc sous l'exclusion ; un encodage illisible, un « %2F » ou un texte libre sont refusés (même règle que la base).
+const CHEMIN_PERMIS = /^\/[a-z0-9/._-]*$/;
 export function normaliserChemin(brut: string | null | undefined): string | null {
   if (!brut) return null;
-  const coupe = brut.split(/[?#]/, 1)[0];
-  if (!coupe || coupe.length > 200 || coupe[0] !== "/" || coupe.startsWith("//")) return null;
-  if (/[\s\u0000-\u001f\u007f]/.test(coupe)) return null;
+  const brutCoupe = brut.split(/[?#]/, 1)[0];
+  if (!brutCoupe || /%2f/i.test(brutCoupe)) return null;
+  let coupe: string;
+  try {
+    coupe = decodeURIComponent(brutCoupe).toLowerCase();
+  } catch {
+    return null;
+  }
+  if (coupe.length > 200 || coupe.startsWith("//") || !CHEMIN_PERMIS.test(coupe)) return null;
   return coupe;
 }
 

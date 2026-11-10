@@ -1,7 +1,7 @@
 -- Story 9.7 : mesure d'audience maison. Table et vues fermées à anon et authenticated, écriture par la seule fonction
 -- serveur (service_role), aucune donnée personnelle, dérogation « /compte » limitée à sa liste fermée.
 begin;
-select plan(30);
+select plan(37);
 
 -- Droits : aucune lecture ni écriture directe pour anon et authenticated, fonction réservée au service_role.
 select ok(
@@ -126,6 +126,38 @@ select ok(
   and has_table_privilege('service_role', 'public.vue_ventes_origine', 'select')
   and not has_table_privilege('authenticated', 'public.vue_visites_jour', 'select'),
   'les vues sont réservées au service_role'
+);
+
+-- Correctifs de la revue croisée.
+select ok((select relrowsecurity from pg_class where oid = 'public.evenement_mesure'::regclass), 'RLS active sur evenement_mesure');
+select is(
+  (select count(*)::int from unnest(array['vue_visites_jour', 'vue_origines_jour', 'vue_entonnoir_jour', 'vue_paiements_jour', 'vue_ventes_code_promo',
+    'vue_ventes_origine', 'vue_deuxiemes_achats', 'vue_desinscriptions_jour']) v
+   where not has_table_privilege('anon', 'public.' || v, 'select') and not has_table_privilege('authenticated', 'public.' || v, 'select')
+     and has_table_privilege('service_role', 'public.' || v, 'select')
+     and exists (select 1 from pg_class c where c.oid = ('public.' || v)::regclass and c.reloptions @> array['security_invoker=true'])),
+  8, 'les 8 vues : security_invoker, fermées à anon et authenticated, lisibles par le service_role'
+);
+select is(
+  (select array_agg(attname::text order by attnum) from pg_attribute where attrelid = 'public.vue_deuxiemes_achats'::regclass and attnum > 0 and not attisdropped),
+  array['clients_payants', 'clients_deux_achats'], 'deuxièmes achats : un agrégat, aucune colonne de Compte'
+);
+select throws_ok(
+  $$select public.enregistrer_evenement_mesure('{"type":"visiteur"}'::jsonb, 'vue_fiche', '/blog/jean@exemple.test', null, null, 'fr', 'mobile', '00000000-0000-4000-8000-000000000001'::uuid)$$,
+  'P0001', 'KS_MESURE_INVALIDE', 'une page hors des caractères d''adresse (texte libre, email) est refusée'
+);
+select throws_ok(
+  $$select public.enregistrer_evenement_mesure('{"type":"visiteur"}'::jsonb, 'vue_fiche', '/Cosplays/%41', null, null, 'fr', 'mobile', '00000000-0000-4000-8000-000000000001'::uuid)$$,
+  'P0001', 'KS_MESURE_INVALIDE', 'une page non décodée ou en majuscules est refusée'
+);
+-- Jour à Goma (UTC+2) : un événement à 23 h 30 UTC compte pour le lendemain.
+insert into public.evenement_mesure (action, page, langue, appareil, session_id, cree_le)
+  values ('vue_fiche', '/fuseau', 'fr', 'mobile', '00000000-0000-4000-8000-000000000003', '2030-01-01 23:30:00+00');
+select is((select jour from public.vue_visites_jour where evenements = 1 and action = 'vue_fiche' and jour between '2030-01-01' and '2030-01-02' limit 1), '2030-01-02'::date, 'agrégats datés à l''heure de Goma');
+select ok(
+  not exists (select 1 from pg_extension where extname = 'pg_cron')
+  or exists (select 1 from cron.job where jobname = 'purger-limite-essai'),
+  'purge quotidienne de limite_essai planifiée (si pg_cron est disponible)'
 );
 
 select * from finish();

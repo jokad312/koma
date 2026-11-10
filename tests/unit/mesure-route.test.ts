@@ -125,4 +125,24 @@ describe("POST /api/mesure", () => {
   it("aucune méthode GET : la mesure ne se déclenche pas par une ouverture d'adresse", () => {
     expect((route as Record<string, unknown>).GET).toBeUndefined();
   });
+
+  it("corps envoyé en flux, sans Content-Length, au-delà de 1 024 octets : 413 sans tout lire, rien d'écrit", async () => {
+    let lus = 0;
+    const flux = new ReadableStream<Uint8Array>({
+      pull(controleur) {
+        lus += 1;
+        if (lus > 100) return controleur.close();
+        controleur.enqueue(new TextEncoder().encode("x".repeat(512)));
+      },
+    });
+    const r = await route.POST(new Request("https://boutique.test/api/mesure", { method: "POST", headers: { "content-type": "application/json" }, body: flux, duplex: "half" } as RequestInit));
+    expect(r.status).toBe(413);
+    expect(lus).toBeLessThan(10);
+    expect(ecrits).toHaveLength(0);
+  });
+
+  it("type de contenu : « application/json; charset=utf-8 » accepté, « application/jsonx » refusé (415)", async () => {
+    expect((await route.POST(requete(corps(), "application/json; charset=utf-8"))).status).toBe(204);
+    expect((await route.POST(requete(corps(), "application/jsonx"))).status).toBe(415);
+  });
 });

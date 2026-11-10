@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { enregistrerEvenement, LIMITE_IP_PAR_HEURE, LIMITE_SESSION_PAR_HEURE } from "@/modules/mesure/service";
+import { enregistrerEvenement, LIMITE_GLOBALE_PAR_HEURE, LIMITE_IP_PAR_HEURE, LIMITE_SESSION_PAR_HEURE } from "@/modules/mesure/service";
 import type { DependancesMesure, EntreeMesure } from "@/modules/mesure/types";
 
 // Story 9.7 : service d'écriture. Le chemin vient du Referer ; sans Referer vérifiable, rien n'est écrit.
@@ -135,7 +135,7 @@ describe("enregistrerEvenement", () => {
   it("se passe de la limite d'IP quand aucune empreinte n'est disponible", async () => {
     const { deps, ecrits, essais } = dependances({ empreinteClient: async () => null });
     expect(await enregistrerEvenement(deps, corps())).toBe("ok");
-    expect(essais).toEqual([`mesure:session:${SESSION}`]);
+    expect(essais).toEqual([`mesure:session:${SESSION}`, "mesure:global"]);
     expect(ecrits).toHaveLength(1);
   });
 
@@ -149,5 +149,26 @@ describe("enregistrerEvenement", () => {
       },
     });
     expect(await enregistrerEvenement(panne.deps, corps())).toBe("erreur");
+  });
+
+  it("plafond global : refusé au-delà, quelles que soient la session et l'adresse (un client qui change de session à chaque envoi reste borné)", async () => {
+    const plafonds: string[] = [];
+    const { deps, ecrits } = dependances({
+      consommerEssai: async ({ cle, maximum }) => {
+        plafonds.push(`${cle}:${maximum}`);
+        return cle !== "mesure:global";
+      },
+    });
+    expect(await enregistrerEvenement(deps, corps())).toBe("refuse");
+    expect(plafonds).toContain(`mesure:global:${LIMITE_GLOBALE_PAR_HEURE}`);
+    expect(ecrits).toHaveLength(0);
+  });
+
+  it("action faite depuis /compte : session jetable, jamais celle de la navigation", async () => {
+    const { deps, ecrits } = dependances({ referer: async () => "https://boutique.test/fr/compte/photos" });
+    expect(await enregistrerEvenement(deps, corps({ action: "photo_envoyee" }))).toBe("ok");
+    expect(ecrits[0].page).toBe("/compte");
+    expect(ecrits[0].session).not.toBe(SESSION);
+    expect(ecrits[0].session).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
   });
 });

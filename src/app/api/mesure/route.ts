@@ -11,10 +11,44 @@ function reponse(status: number) {
   return new NextResponse(null, { status, headers: SANS_CACHE });
 }
 
+// Lecture par morceaux, coupée dès 1 024 octets : un corps sans Content-Length (envoi en flux) n'est jamais lu en entier.
+async function lireBorne(requete: Request): Promise<string | null | "trop_gros"> {
+  if (!requete.body) return null;
+  const lecteur = requete.body.getReader();
+  const morceaux: Uint8Array[] = [];
+  let total = 0;
+  try {
+    for (;;) {
+      const { done, value } = await lecteur.read();
+      if (done) break;
+      total += value.byteLength;
+      if (total > TAILLE_MAX_OCTETS) {
+        await lecteur.cancel().catch(() => undefined);
+        return "trop_gros";
+      }
+      morceaux.push(value);
+    }
+  } catch {
+    return null;
+  }
+  const octets = new Uint8Array(total);
+  let position = 0;
+  for (const m of morceaux) {
+    octets.set(m, position);
+    position += m.byteLength;
+  }
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(octets);
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(requete: Request) {
   await connection();
   // Seul un envoi JSON de notre propre page passe : un formulaire croisé (text/plain) est refusé.
-  if (!(requete.headers.get("content-type") ?? "").toLowerCase().startsWith("application/json")) return reponse(415);
+  const type = (requete.headers.get("content-type") ?? "").split(";")[0].trim().toLowerCase();
+  if (type !== "application/json") return reponse(415);
 
   const annonce = requete.headers.get("content-length");
   if (annonce !== null) {
@@ -22,9 +56,9 @@ export async function POST(requete: Request) {
     if (!Number.isFinite(taille) || taille > TAILLE_MAX_OCTETS) return reponse(413);
   }
 
-  const texte = await requete.text().catch(() => null);
+  const texte = await lireBorne(requete);
+  if (texte === "trop_gros") return reponse(413);
   if (texte === null) return reponse(400);
-  if (new TextEncoder().encode(texte).length > TAILLE_MAX_OCTETS) return reponse(413);
 
   let corps: unknown;
   try {

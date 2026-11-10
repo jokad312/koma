@@ -20,13 +20,11 @@ create table public.evenement_mesure (
     'video_kit_demarree',
     'video_kit_terminee'
   )),
-  -- Chemin seul : jamais de « ? », de « # », d'espace ni de caractère de contrôle (donc jamais de jeton ni de numéro).
+  -- Chemin seul, décodé et en minuscules, dans un jeu de caractères fermé (celui des adresses du site) : jamais de « ? »,
+  -- de « # », de « % », d'espace ni de texte libre (donc jamais de jeton, de numéro ni de message).
   page text not null check (
     char_length(page) between 1 and 200
-    and left(page, 1) = '/'
-    and page !~ '[[:space:][:cntrl:]]'
-    and strpos(page, '?') = 0
-    and strpos(page, '#') = 0
+    and page ~ '^/[a-z0-9/._-]*$'
     and left(page, 2) <> '//'
   ),
   -- Origine : valeur d'un paramètre « origine » ou « utm_source », jamais l'adresse. Même forme que commande.origine.
@@ -92,11 +90,8 @@ begin
   end if;
   if p_page is null
      or char_length(p_page) not between 1 and 200
-     or left(p_page, 1) <> '/'
-     or left(p_page, 2) = '//'
-     or p_page ~ '[[:space:][:cntrl:]]'
-     or strpos(p_page, '?') > 0
-     or strpos(p_page, '#') > 0 then
+     or p_page !~ '^/[a-z0-9/._-]*$'
+     or left(p_page, 2) = '//' then
     raise exception 'KS_MESURE_INVALIDE' using errcode = 'P0001';
   end if;
   if p_action in ('photo_envoyee', 'realisation_envoyee', 'video_kit_demarree', 'video_kit_terminee')
@@ -140,11 +135,13 @@ grant execute on function public.enregistrer_evenement_mesure(jsonb, text, text,
 
 -- Indicateurs. Toutes les vues sont des agrégats, jamais une ligne nominative, et lisent les tables métier :
 -- les ventes, paiements, livraisons et Codes promo ne se calculent jamais à partir des clics (AD-19, story 9.7).
+-- Jour : date à Goma (Africa/Lubumbashi, UTC+2), jamais la date UTC. Ventes : Commandes payées, hors annulées et remboursées
+-- (une Commande remboursée garde son paye_le) ; une Commande offerte (Kit gratuit) n'est ni une Commande de l'entonnoir ni une vente.
 
 -- Visites mesurées : jour x action x langue x appareil, en événements et en sessions distinctes.
 create view public.vue_visites_jour with (security_invoker = true) as
   select
-    date_trunc('day', m.cree_le)::date as jour,
+    (m.cree_le at time zone 'Africa/Lubumbashi')::date as jour,
     m.action,
     m.langue,
     m.appareil,
@@ -156,7 +153,7 @@ create view public.vue_visites_jour with (security_invoker = true) as
 -- D'où viennent les visiteurs : jour x origine (nulle = accès direct), en sessions distinctes.
 create view public.vue_origines_jour with (security_invoker = true) as
   select
-    date_trunc('day', m.cree_le)::date as jour,
+    (m.cree_le at time zone 'Africa/Lubumbashi')::date as jour,
     m.origine,
     count(distinct m.session_id)::integer as sessions,
     count(*)::integer as evenements
@@ -169,7 +166,7 @@ create view public.vue_origines_jour with (security_invoker = true) as
 create view public.vue_entonnoir_jour with (security_invoker = true) as
   with mesures as (
     select
-      date_trunc('day', m.cree_le)::date as jour,
+      (m.cree_le at time zone 'Africa/Lubumbashi')::date as jour,
       case m.action when 'vue_fiche' then 'fiche' else 'panier' end as etape,
       count(distinct m.session_id)::integer as sessions,
       null::integer as commandes
@@ -177,16 +174,17 @@ create view public.vue_entonnoir_jour with (security_invoker = true) as
     where m.action in ('vue_fiche', 'ajout_panier')
     group by 1, 2
   ), commandes as (
-    select date_trunc('day', c.cree_le)::date as jour, 'commande'::text as etape, null::integer as sessions, count(*)::integer as commandes
+    select (c.cree_le at time zone 'Africa/Lubumbashi')::date as jour, 'commande'::text as etape, null::integer as sessions, count(*)::integer as commandes
     from public.commande c
+    where c.statut <> 'offerte'
     group by 1, 2
     union all
-    select date_trunc('day', c.paye_le)::date, 'payee', null, count(*)::integer
+    select (c.paye_le at time zone 'Africa/Lubumbashi')::date, 'payee', null, count(*)::integer
     from public.commande c
-    where c.paye_le is not null
+    where c.paye_le is not null and c.statut not in ('annulee', 'remboursee')
     group by 1, 2
     union all
-    select date_trunc('day', c.livree_le)::date, 'livree', null, count(*)::integer
+    select (c.livree_le at time zone 'Africa/Lubumbashi')::date, 'livree', null, count(*)::integer
     from public.commande c
     where c.livree_le is not null
     group by 1, 2
@@ -198,7 +196,7 @@ create view public.vue_entonnoir_jour with (security_invoker = true) as
 -- Paiements réussis ou échoués, par Prestataire et par moyen.
 create view public.vue_paiements_jour with (security_invoker = true) as
   select
-    date_trunc('day', t.cree_le)::date as jour,
+    (t.cree_le at time zone 'Africa/Lubumbashi')::date as jour,
     t.prestataire,
     t.moyen,
     t.statut,
@@ -206,14 +204,14 @@ create view public.vue_paiements_jour with (security_invoker = true) as
   from public.tentative_paiement t
   group by 1, 2, 3, 4;
 
--- Ventes par Code promo. Même règle que commission_code_promo (story 9.3) : seules les Commandes ayant un paye_le comptent,
--- pour que les deux vues ne se contredisent jamais.
+-- Ventes par Code promo : Commandes payées, hors annulées et remboursées. La commission (commission_code_promo, story 9.3)
+-- garde sa propre règle : elle est réglée à la main par l'admin, cette vue ne sert qu'à l'indicateur SM-7.
 create view public.vue_ventes_code_promo with (security_invoker = true) as
   select
     ccp.code,
-    count(*) filter (where c.paye_le is not null)::integer as commandes_payees,
-    coalesce(sum(ccp.reduction_cents) filter (where c.paye_le is not null), 0)::bigint as reduction_cents,
-    coalesce(sum(c.total_cents) filter (where c.paye_le is not null), 0)::bigint as montant_paye_cents
+    count(*) filter (where c.paye_le is not null and c.statut not in ('annulee', 'remboursee'))::integer as commandes_payees,
+    coalesce(sum(ccp.reduction_cents) filter (where c.paye_le is not null and c.statut not in ('annulee', 'remboursee')), 0)::bigint as reduction_cents,
+    coalesce(sum(c.total_cents) filter (where c.paye_le is not null and c.statut not in ('annulee', 'remboursee')), 0)::bigint as montant_paye_cents
   from public.commande_code_promo ccp
   join public.commande c on c.id = ccp.commande_id
   group by ccp.code;
@@ -221,30 +219,31 @@ create view public.vue_ventes_code_promo with (security_invoker = true) as
 -- Ventes par origine de la visite (valeur figée dans commande.origine à la création).
 create view public.vue_ventes_origine with (security_invoker = true) as
   select
-    date_trunc('day', c.paye_le)::date as jour,
+    (c.paye_le at time zone 'Africa/Lubumbashi')::date as jour,
     c.origine,
     count(*)::integer as commandes_payees,
     coalesce(sum(c.total_cents), 0)::bigint as montant_paye_cents
   from public.commande c
-  where c.paye_le is not null
+  where c.paye_le is not null and c.statut not in ('annulee', 'remboursee')
   group by 1, 2;
 
--- Deuxièmes achats d'un même Compte (une Commande offerte n'a pas de paye_le : elle ne compte pas).
+-- Deuxièmes achats (SM-9) : un seul agrégat, jamais une ligne par Compte. Clients ayant au moins une Commande payée, et parmi
+-- eux ceux qui en ont au moins deux (une Commande offerte n'a pas de paye_le : elle ne compte pas).
 create view public.vue_deuxiemes_achats with (security_invoker = true) as
   select
-    c.compte_id,
-    count(*)::integer as commandes_payees,
-    min(c.paye_le) as premier_achat_le,
-    max(c.paye_le) as dernier_achat_le
-  from public.commande c
-  where c.paye_le is not null
-  group by c.compte_id
-  having count(*) >= 2;
+    count(*)::integer as clients_payants,
+    (count(*) filter (where p.commandes >= 2))::integer as clients_deux_achats
+  from (
+    select c.compte_id, count(*) as commandes
+    from public.commande c
+    where c.paye_le is not null and c.statut not in ('annulee', 'remboursee')
+    group by c.compte_id
+  ) p;
 
 -- Désinscriptions des Relances, par jour.
 create view public.vue_desinscriptions_jour with (security_invoker = true) as
   select
-    date_trunc('day', d.cree_le)::date as jour,
+    (d.cree_le at time zone 'Africa/Lubumbashi')::date as jour,
     count(*)::integer as desinscriptions
   from public.desinscription d
   group by 1;
@@ -267,3 +266,16 @@ grant select on public.vue_ventes_code_promo to service_role;
 grant select on public.vue_ventes_origine to service_role;
 grant select on public.vue_deuxiemes_achats to service_role;
 grant select on public.vue_desinscriptions_jour to service_role;
+
+-- Purge des compteurs de limitation (limite_essai) : les fenêtres de plus de deux jours ne servent plus (la plus longue fenêtre
+-- utilisée est d'une heure). L'empreinte HMAC d'une adresse IP n'est donc jamais gardée plus de deux jours.
+do $$
+begin
+  if exists (select 1 from pg_available_extensions where name = 'pg_cron') then
+    create extension if not exists pg_cron;
+    perform cron.schedule('purger-limite-essai', '17 3 * * *', 'delete from public.limite_essai where fenetre_debut < now() - interval ''2 days''');
+  else
+    raise notice 'pg_cron indisponible : la purge de limite_essai n''est pas planifiée';
+  end if;
+end;
+$$;
