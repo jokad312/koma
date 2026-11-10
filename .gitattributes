@@ -1,0 +1,23 @@
+# Fins de ligne : LF dans le dépôt, pour tous les fichiers texte (évite les faux changements entre Windows et Linux/CI).
+* text=auto eol=lf
+
+# Scripts Windows : CRLF.
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Fichiers binaires : jamais convertis.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.pdf binary
+*.zip binary
+*.stl binary
+*.mp4 binary
