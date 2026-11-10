@@ -350,3 +350,7 @@
 - À valider par Jonathan : la limite absolue d'un Email commercial tous les 2 jours (règle de l'epic) fait que le panier oublié part une seule fois par modification (1 h, ou 24 h si le Panier est plus ancien) ; jamais les deux.
 - Revue (3 sous-agents) : 9 correctifs, banc de test du rendu commercial.
 - À tester à la main (Resend configuré) : Compte avec la case cochée, ajouter au panier puis attendre 1 h (ou reculer `mis_a_jour_le` en base de dev), lancer `select public.planifier_emails_cibles()` puis `POST /api/cron/envois` : l'email « Ton panier t'attend » arrive avec le lien « Me désinscrire » ; cliquer le lien ; aucun email suivant.
+- CI verte sur `e6d1909` (pgTAP et e2e compris). Story 9.6 : `done`.
+
+## Fin de la série (2026-11-10)
+- Stories terminées dans l'ordre : 9.2, 9.3, 9.4, 8.1, 8.2, 8.4, 9.6. Restent hors série : 8.3, 9.7, 9.8 (OpenCode possible), 9.5 (dépend de l'epic 7 pour un sujet), 8.5 et l'epic 7 (correct-course Q-C1), 4.4, 4.7, 5.6, 5.7, 5.9 (prestataires, Resend), 9.9 (domaine).
