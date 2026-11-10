@@ -386,3 +386,8 @@
 - `/admin` devient le tableau de bord (remplace la redirection vers Réglages) : Commandes payées, graphiques (Prestataire, Famille, jour), cartes de tâche, indicateurs SM-1 à SM-10 et SM-C1 à SM-C7 sur 7 et 30 jours. Lit seulement les cinq fonctions de la partie 1, les vues de la 9.7 et les compteurs de tâches existants ; test de garde sur les sources. Aucune migration.
 - Revue (3 sous-agents) : lectures de vues paginées (plafond de 1 000 lignes), nombres stricts (jamais de zéro silencieux), SM-2 en sessions, SM-3 et SM-6 « Pas encore mesuré » sans aucune ligne de mesure, pluriels ICU, listes par `Intl.ListFormat`, test de garde étendu à la page. Points reportés dans deferred-work.
 - CI verte sur `fd8b9a9` (pgTAP 55 fichiers dont tableau_de_bord.test.sql, e2e, build). 9.8 en done.
+
+
+## 2026-11-10 : décisions de Jonathan sur la 9.8, correctif de la navigation admin mobile
+- Formulation des graphiques validée. `.gitattributes` ajouté (`* text=auto eol=lf`, scripts Windows en CRLF, binaires protégés) en commit séparé `1177fe1` ; `git add --renormalize .` n'a changé aucun fichier suivi (dépôt déjà en LF).
+- Correctif UX-DR42 (spec-9-8b-navigation-admin-mobile.md) : barre du bas = Tableau de bord, Commandes, Tâches + bouton ☰ « Plus » (dialogue plein écran avec les 8 autres pages, cibles de 44 px, Échap, piège de focus, onglet actif annoncé, compteur de messages annoncé) ; barre latérale inchangée sur ordinateur. Revue d'accessibilité (sous-agent) : panneau fermé au passage à md+, `scroll-padding-bottom` sous la barre fixe.

@@ -455,7 +455,10 @@
       "prestataires": "Providers",
       "commandes": "Orders",
       "codesPromo": "Promo codes",
-      "galerie": "Gallery"
+      "galerie": "Gallery",
+      "plus": "More",
+      "plusTitre": "More admin pages",
+      "pageActuelle": ", current page: {nom}"
     },
     "blog": {
       "titre": "Blog",

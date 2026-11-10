@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
-import { screen, within } from "@testing-library/react";
+import { act, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { rendre } from "./aides-dom";
 
@@ -78,6 +79,109 @@ describe("CoqueAdmin", () => {
     compteur.valeur = 0;
     rendre(await coque("x"));
     expect(screen.getByRole("link", { name: "Messages" }).textContent).toBe("Messages");
+  });
+
+  describe("menu ☰ « Plus » sur mobile (UX-DR42)", () => {
+    it("la barre du bas montre Tableau de bord, Commandes, Tâches et le bouton Plus (cible de 44 px, annoncé comme dialogue)", async () => {
+      chemin.courant = "/admin/commandes";
+      compteur.valeur = 0;
+      rendre(await coque("x"));
+      const nav = screen.getByRole("navigation", { name: "Administration" });
+      const visibles = within(nav)
+        .getAllByRole("link")
+        .filter((l) => !l.closest("li")?.className.includes("hidden"));
+      expect(visibles.map((l) => l.textContent)).toEqual(["Tableau de bord", "Commandes", "Tâches"]);
+      const bouton = within(nav).getByRole("button", { name: /Plus/ });
+      expect(bouton.className).toContain("min-h-touch");
+      expect(bouton.getAttribute("aria-haspopup")).toBe("dialog");
+      expect(bouton.getAttribute("aria-expanded")).toBe("false");
+      expect(bouton.closest("li")?.className).toContain("md:hidden");
+    });
+
+    it("le bouton s'ouvre au clavier : dialogue avec les 8 autres pages, 44 px, focus dans le panneau, Échap ferme et rend le focus", async () => {
+      chemin.courant = "/admin/commandes";
+      const user = userEvent.setup();
+      rendre(await coque("x"));
+      const bouton = screen.getByRole("button", { name: /Plus/ });
+      bouton.focus();
+      await user.keyboard("{Enter}");
+      const dialogue = screen.getByRole("dialog", { name: "Autres pages d'administration" });
+      expect(bouton.getAttribute("aria-expanded")).toBe("true");
+      const liens = within(dialogue).getAllByRole("link");
+      expect(liens.map((l) => l.textContent)).toEqual(["Produits", "Univers", "Blog", "Galerie", "Codes promo", "Messages", "Prestataires", "Réglages"]);
+      for (const lien of liens) expect(lien.className).toContain("min-h-touch");
+      expect(dialogue.contains(document.activeElement)).toBe(true);
+      await user.keyboard("{Escape}");
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(document.activeElement).toBe(bouton);
+    });
+
+    it("page courante parmi les autres : le bouton porte le trait rouge et l'annonce ; le lien du panneau est aria-current", async () => {
+      chemin.courant = "/admin/reglages";
+      const user = userEvent.setup();
+      rendre(await coque("x"));
+      const bouton = screen.getByRole("button", { name: /Plus/ });
+      expect(bouton.className).toContain("border-primary");
+      expect(bouton.textContent).toContain("page actuelle : Réglages");
+      await user.click(bouton);
+      const dialogue = screen.getByRole("dialog");
+      expect(within(dialogue).getByRole("link", { name: "Réglages" }).getAttribute("aria-current")).toBe("page");
+      expect(within(dialogue).getByRole("link", { name: "Produits" }).getAttribute("aria-current")).toBeNull();
+    });
+
+    it("page courante parmi les principales : le bouton n'est pas marqué", async () => {
+      chemin.courant = "/admin/taches";
+      rendre(await coque("x"));
+      const bouton = screen.getByRole("button", { name: /Plus/ });
+      expect(bouton.className).toContain("border-transparent");
+      expect(bouton.textContent).not.toContain("page actuelle");
+    });
+
+    it("choisir une page ferme le panneau", async () => {
+      chemin.courant = "/admin";
+      const user = userEvent.setup();
+      rendre(await coque("x"));
+      await user.click(screen.getByRole("button", { name: /Plus/ }));
+      await user.click(within(screen.getByRole("dialog")).getByRole("link", { name: "Blog" }));
+      expect(screen.queryByRole("dialog")).toBeNull();
+    });
+
+    it("le compteur de messages est annoncé sur le bouton et dans le panneau", async () => {
+      chemin.courant = "/admin";
+      compteur.valeur = 2;
+      const user = userEvent.setup();
+      rendre(await coque("x"));
+      const bouton = screen.getByRole("button", { name: /Plus/ });
+      expect(bouton.textContent).toContain("2 nouveaux messages");
+      await user.click(bouton);
+      expect(within(screen.getByRole("dialog")).getByRole("link", { name: /Messages/ }).textContent).toContain("2 nouveaux messages");
+    });
+
+    it("le panneau se ferme si la fenêtre passe à la largeur ordinateur", async () => {
+      chemin.courant = "/admin";
+      let surChangement: (() => void) | null = null;
+      const mq = { matches: false, addEventListener: (_: string, f: () => void) => (surChangement = f), removeEventListener: () => {} };
+      vi.stubGlobal("matchMedia", () => mq);
+      try {
+        const user = userEvent.setup();
+        rendre(await coque("x"));
+        await user.click(screen.getByRole("button", { name: /Plus/ }));
+        expect(screen.getByRole("dialog")).toBeTruthy();
+        mq.matches = true;
+        await act(async () => surChangement?.());
+        expect(screen.queryByRole("dialog")).toBeNull();
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    });
+
+    it("libellés en anglais", async () => {
+      chemin.courant = "/admin";
+      const user = userEvent.setup();
+      rendre(await coque("x"), "en");
+      await user.click(screen.getByRole("button", { name: /More/ }));
+      expect(screen.getByRole("dialog", { name: "More admin pages" })).toBeTruthy();
+    });
   });
 
   it("lecture du compteur impossible : pas de compteur, jamais un faux zéro", async () => {

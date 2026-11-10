@@ -446,7 +446,9 @@
 - SM-C2 : une tentative `echouee` sans `cause` (colonne nullable) n'entre dans aucun compte ni dans le dénominateur ; ajouter une colonne `echouees_sans_cause` dans une nouvelle migration.
 - SM-C3 : la moyenne ne porte que sur les mesures déjà reçues, donc biaisée à la baisse sur les périodes récentes (le nombre en attente est affiché).
 - SM-9 : si `commande.compte_id` peut être nul (commande invité), tous les invités forment un seul client dans `vue_deuxiemes_achats` ; à vérifier.
-- Navigation admin sur mobile : 11 onglets dans une barre de 58 px (environ 34 px chacun, sous les 44 px de la règle 7). Problème déjà présent à 10 entrées, aggravé par « Tableau de bord » ; à reprendre avec le ☰ prévu par UX-DR42.
-- Écart de formulation à valider : les graphiques disent « Aucun paiement vérifié sur cette période. » (fenêtre de 7 ou 30 jours) au lieu de « aujourd'hui » de l'epic.
+- Navigation admin sur mobile : RÉSOLU le 2026-11-10 (menu ☰ « Plus », barre du bas à 3 entrées, cibles de 44 px). Reste : « Scan » et « Mesures » de UX-DR42 n'existent pas encore (à ajouter avec leurs pages) ; focus rendu au bouton ☰ après un choix de page (à noter, acceptable).
+- Formulation des graphiques « Aucun paiement vérifié sur cette période. » : validée par Jonathan le 2026-11-10.
 - Indicateurs « Pas encore mesuré » (sans source) : SM-4, SM-5, SM-6 (passage à un Kit payant), SM-8, SM-C1, SM-C4, SM-C6, SM-C7.
-- Fins de ligne : pas de `.gitattributes` et `core.autocrlf=true` ; `npm run types` écrit en LF, d'où un `types.ts` « modifié » sans changement de contenu. Proposition (non commitée) : `* text=auto eol=lf`.
+- Fins de ligne : RÉSOLU le 2026-11-10 (`.gitattributes` commit `1177fe1`, LF ; .ps1/.cmd/.bat en CRLF ; binaires protégés).
+
+- `tests/unit/commande-ui.test.tsx` : 2 à 4 tests échouent par moments quand toute la suite tourne en parallèle (machine chargée), et passent seuls. À stabiliser (attentes trop courtes ?).

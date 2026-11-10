@@ -455,7 +455,10 @@
       "prestataires": "Prestataires",
       "commandes": "Commandes",
       "codesPromo": "Codes promo",
-      "galerie": "Galerie"
+      "galerie": "Galerie",
+      "plus": "Plus",
+      "plusTitre": "Autres pages d'administration",
+      "pageActuelle": ", page actuelle : {nom}"
     },
     "blog": {
       "titre": "Blog",

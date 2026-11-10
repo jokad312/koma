@@ -386,4 +386,8 @@ a {
   body:has([data-barre-admin]) footer {
     padding-bottom: calc(2rem + 58px);
   }
+  /* Un élément qui reçoit le focus au clavier ne reste pas caché sous la barre. */
+  html:has([data-barre-admin]) {
+    scroll-padding-bottom: 58px;
+  }
 }
