@@ -1,10 +1,10 @@
 import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { estAdminConnecte } from "@/lib/auth/est-admin";
+import { LienAdminCompte } from "@/components/layout/LienAdminCompte";
 
 // « Mon compte » : la navigation n'affiche que les entrées qui existent déjà (UX-DR37). Aujourd'hui : Ma bibliothèque.
 export default async function CompteLayout({ children, params }: { children: ReactNode; params: Promise<{ locale: string }> }) {
@@ -12,8 +12,6 @@ export default async function CompteLayout({ children, params }: { children: Rea
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "Bibliotheque" });
-  const ta = await getTranslations({ locale, namespace: "Admin.nav" });
-  const admin = await estAdminConnecte();
   return (
     <section className="flex flex-col gap-6">
       <h1 className="t-h1">{t("compte.titre")}</h1>
@@ -44,13 +42,9 @@ export default async function CompteLayout({ children, params }: { children: Rea
               {t("compte.preferences")}
             </Link>
           </li>
-          {admin ? (
-            <li>
-              <Link href="/admin" className="t-small text-text-secondary underline underline-offset-4">
-                {ta("libelle")}
-              </Link>
-            </li>
-          ) : null}
+          <Suspense fallback={null}>
+            <LienAdminCompte />
+          </Suspense>
         </ul>
       </nav>
       {children}
