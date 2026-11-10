@@ -437,3 +437,6 @@
 - Tests d'instrumentation des composants (mesure envoyée après un succès réel, rien après un échec) : non écrits ; seuls le module et la route sont testés.
 - Actions hors périmètre de la 9.7 : Compte créé ou abandonné à l'étape de paiement (SM-C7, voie 1), Alertes et Pass (epic 7), livraisons en retard (SM-C1 : aucun délai promis stocké).
 - Pas de purge d'evenement_mesure : à décider avec la 9.8 ou la 9.9 selon le volume.
+
+## Formulaire de contact : adresse IP (à faire en 9.9)
+- Aligner le formulaire de contact (src/modules/contact/dependances.ts, empreinteClient) sur la mesure : retenir la DERNIÈRE adresse de X-Forwarded-For (celle ajoutée par le proxy de Hostinger), jamais la première, que le client peut fixer. Décision de Jonathan du 2026-11-10.

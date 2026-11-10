@@ -2600,6 +2600,7 @@ export type Database = {
         Returns: undefined
       }
       masquer_donnee_personnelle: { Args: { p_valeur: Json }; Returns: Json }
+      minuit_goma: { Args: { p_jours: number }; Returns: string }
       modifier_alt_photo: {
         Args: {
           p_alt_en: string
@@ -2760,6 +2761,54 @@ export type Database = {
       supprimer_video_kit: {
         Args: { p_auteur: Json; p_produit_id: string }
         Returns: Json
+      }
+      tableau_commandes_payees: {
+        Args: { p_auteur: Json; p_depuis: string }
+        Returns: {
+          familles: string[]
+          numero: string
+          prestataire: string
+          total_cents: number
+        }[]
+      }
+      tableau_delai_mesures: {
+        Args: { p_auteur: Json; p_depuis: string }
+        Returns: {
+          delai_moyen_heures: number
+          lignes_en_attente: number
+          lignes_recues: number
+        }[]
+      }
+      tableau_echecs_paiement: {
+        Args: { p_auteur: Json; p_depuis: string }
+        Returns: {
+          abandonnees: number
+          echouees_client: number
+          echouees_prestataire: number
+          en_cours: number
+          moyen: string
+          prestataire: string
+          reussies: number
+          tentatives: number
+        }[]
+      }
+      tableau_paiements: {
+        Args: { p_auteur: Json; p_depuis: string }
+        Returns: {
+          commandes: number
+          famille: string
+          jour: string
+          montant_cents: number
+          prestataire: string
+        }[]
+      }
+      tableau_trop_percus: {
+        Args: { p_auteur: Json }
+        Returns: {
+          a_rembourser: number
+          motif: string
+          plus_ancien_le: string
+        }[]
       }
       tentative_par_reference_interne: {
         Args: { p_reference: string }

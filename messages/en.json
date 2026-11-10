@@ -1939,7 +1939,7 @@
     },
     "confidentialite": {
       "titre": "Privacy policy",
-      "texte": "[Texte à fournir]",
+      "texte": "[Texte à fournir]\n\nWe measure site traffic anonymously, without cookies or third-party tools: page viewed, the site you came from (its name only), language and device type. This data cannot identify you.",
       "version": "[Texte à fournir]"
     }
   },

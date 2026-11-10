@@ -1939,7 +1939,7 @@
     },
     "confidentialite": {
       "titre": "Politique de confidentialité",
-      "texte": "[Texte à fournir]",
+      "texte": "[Texte à fournir]\n\nNous mesurons la fréquentation du site de façon anonyme, sans cookie ni outil externe : page consultée, site d'où tu viens (son nom seulement), langue et type d'appareil. Ces données ne permettent pas de t'identifier.",
       "version": "[Texte à fournir]"
     }
   },

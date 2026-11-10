@@ -373,3 +373,10 @@
 - Revue (3 sous-agents) : deux failles de débit (session choisie par le client, IP prise en tête de X-Forwarded-For), hôte falsifiable, corps lu en entier, vue nominative (vue_deuxiemes_achats), fuseau UTC, ventes remboursées comptées. Tout corrigé avant db:push (migration jamais appliquée auparavant, donc modifiée sur la branche). Détail dans la spec 9.7.
 - Garde AD-3 : aucune fonction de la 9.7 n'est exécutable par anon ; liste blanche inchangée.
 - 9.7 en done. Réponse à Jonathan sur la 9.8 : elle lit des Commandes et des paiements ; à couper (agrégats serveur par Claude, page par OpenCode).
+
+## 2026-11-10 : 9.8 partie 1 (agrégats du tableau de bord), décision de Jonathan
+- Migration 20270102100000_tableau_de_bord.sql (appliquée sur koma-dev) : tableau_commandes_payees, tableau_paiements, tableau_echecs_paiement, tableau_delai_mesures, tableau_trop_percus ; droit Admin revérifié en base (exiger_admin), service_role seulement ; minuit_goma (interne).
+- Revue (3 sous-agents) : forfait de livraison ajouté (Famille « livraison »), échecs séparés par cause (client, Prestataire), multiplication en bigint, index sur paye_le et cree_le, minuit à Goma par défaut, test du fuseau à date fixe, anon testé avec un jsonb littéral.
+- Phrase de confidentialité de Jonathan ajoutée (Legal.confidentialite.texte, FR et EN), après le marqueur « [Texte à fournir] » : la politique complète reste à fournir.
+- deferred-work : formulaire de contact à aligner sur la dernière adresse de X-Forwarded-For (9.9).
+- 9.8 en in-progress : la partie 2 (page) revient à OpenCode.
