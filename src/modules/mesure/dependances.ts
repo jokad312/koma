@@ -6,11 +6,10 @@ import { lireEnvPublique, lireEnvServeur } from "@/lib/env";
 import { creerClientService } from "@/lib/supabase/service";
 import type { DependancesMesure } from "./types";
 
-// Accès réels de la mesure. `evenement_mesure` et sa fonction ne sont pas dans les types générés (fichier non modifiable
-// ici) : le client est décrit localement, comme pour les autres tables récentes.
-type ClientMesure = {
-  rpc: (nom: string, args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
-};
+// Accès réels de la mesure, par le client typé (noms des fonctions et des paramètres vérifiés à la compilation).
+// Les types générés ne savent pas qu'un paramètre SQL sans valeur par défaut accepte null : origine et référent nuls sont
+// donc convertis explicitement.
+const nul = (valeur: string | null) => valeur as string;
 
 // Hôte du site, lu dans NEXT_PUBLIC_SITE_URL : jamais dans Host ni X-Forwarded-Host (deux en-têtes que le client fixe).
 export function hoteDuSite(site: string): string | null {
@@ -28,7 +27,7 @@ export function derniereAdresse(entete: string | null): string | null {
 }
 
 export function dependancesMesure(): DependancesMesure {
-  const admin = creerClientService() as unknown as ClientMesure;
+  const admin = creerClientService();
   // Hachage à clé (la clé secrète du serveur) : ni l'adresse IP ni une valeur brute ne sont stockées ou journalisées.
   const hacher = (valeur: string) => createHmac("sha256", lireEnvServeur().SUPABASE_SECRET_KEY).update(valeur).digest("hex");
   return {
@@ -49,15 +48,15 @@ export function dependancesMesure(): DependancesMesure {
     },
     enregistrer: async ({ action, page, origine, referent, langue, appareil, session, dureeMs }) => {
       const { error } = await admin.rpc("enregistrer_evenement_mesure", {
-        p_auteur: AUTEUR_VISITEUR as never,
+        p_auteur: AUTEUR_VISITEUR,
         p_action: action,
         p_page: page,
-        p_origine: origine as never,
-        p_referent: referent as never,
+        p_origine: nul(origine),
+        p_referent: nul(referent),
         p_langue: langue,
         p_appareil: appareil,
         p_session: session,
-        p_duree_ms: dureeMs as never,
+        p_duree_ms: dureeMs ?? undefined,
       });
       return { erreur: error ? error.message : null };
     },

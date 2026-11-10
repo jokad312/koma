@@ -429,3 +429,11 @@
 - Compte supprimé : `photo_galerie.compte_id ... on delete cascade` efface la ligne, mais la copie publiée reste dans `produits-public/galerie/` (elle quitte le mur, son adresse reste lisible par qui l'a gardée). À traiter avec la suppression de Compte : effacer d'abord les copies publiques.
 - `lister_mur_public` appelle `est_mineur` pour chaque photo publiée avant le tri : sans effet au volume actuel ; à remplacer par une jointure sur `profil` si le mur dépasse quelques milliers de photos.
 - Types générés : `pseudo`, `kit_slug`, `kit_titre_fr`, `kit_titre_en` sont typés `string` mais valent souvent null : la page 8.3 doit les traiter comme nullables.
+
+## Mesure d'audience (9.7, intégrée le 2026-11-10)
+- À vérifier à la mise en ligne (9.9) : comment le proxy de Hostinger remplit X-Forwarded-For. La mesure retient la dernière adresse ; si Hostinger n'ajoute pas l'adresse réelle en dernier, la limite par IP vise la mauvaise adresse (le plafond global borne quand même l'écriture). Le formulaire de contact (src/modules/contact/dependances.ts) lit encore la première adresse : à aligner au même moment.
+- À vérifier à la mise en ligne : NEXT_PUBLIC_SITE_URL doit être exactement l'adresse publique (même hôte, avec ou sans www), sinon tout Referer est refusé et la mesure reste muette.
+- Phrase de confidentialité proposée par la voie 3 (voie-3-notes.md) : à valider par Jonathan avant d'être ajoutée à la page de confidentialité.
+- Tests d'instrumentation des composants (mesure envoyée après un succès réel, rien après un échec) : non écrits ; seuls le module et la route sont testés.
+- Actions hors périmètre de la 9.7 : Compte créé ou abandonné à l'étape de paiement (SM-C7, voie 1), Alertes et Pass (epic 7), livraisons en retard (SM-C1 : aucun délai promis stocké).
+- Pas de purge d'evenement_mesure : à décider avec la 9.8 ou la 9.9 selon le volume.

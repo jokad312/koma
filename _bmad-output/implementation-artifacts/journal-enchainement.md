@@ -367,3 +367,9 @@
 - Décision de Jonathan (2026-11-10) : le texte alternatif des photos de la galerie est saisi par l'admin à la validation (FR et EN obligatoires) ; `valider_photo` prend deux arguments de plus, formulaire de la page Galerie adapté.
 - Revue (3 sous-agents) : test `photo_galerie.test.sql` qui aurait cassé (publication sans alt) corrigé ; curseur ISO UTC ; comparaison de lignes et index ; mêmes règles d'alt en SQL et TS ; droit vérifié avant l'alt ; tests ajoutés (dates distinctes, accord retiré, Kit futur, alt invisible ou trop long, alt EN vide). Notés dans deferred-work : copie publique après suppression de Compte, coût d'est_mineur, nullabilité des types.
 - À tester à la main : page admin Galerie, valider une photo sans alt (champ signalé), puis avec les deux alts (publiée).
+
+## 2026-11-10 : intégration de la 9.7 (voie 3, OpenCode)
+- Branche feat/voie-3-contenu rebasée sur main (sans conflit), migration 20270101100000_mesure.sql après 20261231230000 ; appliquée sur koma-dev, types régénérés.
+- Revue (3 sous-agents) : deux failles de débit (session choisie par le client, IP prise en tête de X-Forwarded-For), hôte falsifiable, corps lu en entier, vue nominative (vue_deuxiemes_achats), fuseau UTC, ventes remboursées comptées. Tout corrigé avant db:push (migration jamais appliquée auparavant, donc modifiée sur la branche). Détail dans la spec 9.7.
+- Garde AD-3 : aucune fonction de la 9.7 n'est exécutable par anon ; liste blanche inchangée.
+- 9.7 en done. Réponse à Jonathan sur la 9.8 : elle lit des Commandes et des paiements ; à couper (agrégats serveur par Claude, page par OpenCode).

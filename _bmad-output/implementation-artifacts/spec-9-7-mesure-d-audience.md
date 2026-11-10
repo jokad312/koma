@@ -117,3 +117,9 @@ route: 'dispatch'
 - Vérification manuelle : naviguer sur l'accueil et une fiche, vérifier dans l'onglet Réseau qu'un seul `POST /api/mesure` part par action, sans chaîne de requête ; ouvrir `/fr/admin` et `/fr/compte` et constater **aucune** requête ; forcer un envoi à la main depuis `/fr/admin` (console) et constater un 204 sans ligne ; vérifier qu'aucun cookie n'est créé et qu'aucune requête ne part vers un domaine tiers.
 
 </frozen-after-approval>
+
+## Intégration et revue croisée (2026-11-10)
+
+- Referer obligatoire (décision de Jonathan du 2026-11-10, rappelée à l'intégration) : sans Referer de la même origine, rien n'est écrit ; il n'y a plus de repli sur un chemin envoyé par le client.
+- Revue par 3 sous-agents. Correctifs : plafond global d'écriture (la session est choisie par le client) ; hôte de comparaison tiré de NEXT_PUBLIC_SITE_URL (Host et X-Forwarded-Host sont fixés par le client) ; IP = dernière adresse de X-Forwarded-For ; corps lu par morceaux et coupé à 1 024 octets ; type de contenu exact ; chemins décodés, en minuscules, jeu de caractères fermé (TS et base) ; panier, paiement, api, auth exclus ; session jetable pour les actions de /compte ; vue_deuxiemes_achats réduite à un agrégat ; jour à Goma (Africa/Lubumbashi) ; ventes hors Commandes annulées et remboursées, Commandes offertes hors entonnoir ; purge quotidienne de limite_essai (2 jours) ; durée du héros seulement en première page du document ; tuiles du héros sur ordinateur mesurées ; repli mémoire des vues de fiche ; client Supabase typé.
+- Rejetés ou reportés : voir deferred-work.md (mesure 9.7).

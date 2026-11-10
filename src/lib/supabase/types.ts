@@ -577,6 +577,45 @@ export type Database = {
         }
         Relationships: []
       }
+      evenement_mesure: {
+        Row: {
+          action: string
+          appareil: string
+          cree_le: string
+          duree_ms: number | null
+          id: number
+          langue: string
+          origine: string | null
+          page: string
+          referent_domaine: string | null
+          session_id: string
+        }
+        Insert: {
+          action: string
+          appareil: string
+          cree_le?: string
+          duree_ms?: number | null
+          id?: never
+          langue: string
+          origine?: string | null
+          page: string
+          referent_domaine?: string | null
+          session_id: string
+        }
+        Update: {
+          action?: string
+          appareil?: string
+          cree_le?: string
+          duree_ms?: number | null
+          id?: never
+          langue?: string
+          origine?: string | null
+          page?: string
+          referent_domaine?: string | null
+          session_id?: string
+        }
+        Relationships: []
+      }
       fichier_filigrane: {
         Row: {
           chemin_stockage: string
@@ -1855,6 +1894,85 @@ export type Database = {
         }
         Relationships: []
       }
+      vue_desinscriptions_jour: {
+        Row: {
+          desinscriptions: number | null
+          jour: string | null
+        }
+        Relationships: []
+      }
+      vue_deuxiemes_achats: {
+        Row: {
+          clients_deux_achats: number | null
+          clients_payants: number | null
+        }
+        Relationships: []
+      }
+      vue_entonnoir_jour: {
+        Row: {
+          commandes: number | null
+          etape: string | null
+          jour: string | null
+          sessions: number | null
+        }
+        Relationships: []
+      }
+      vue_origines_jour: {
+        Row: {
+          evenements: number | null
+          jour: string | null
+          origine: string | null
+          sessions: number | null
+        }
+        Relationships: []
+      }
+      vue_paiements_jour: {
+        Row: {
+          jour: string | null
+          moyen: string | null
+          prestataire: string | null
+          statut: string | null
+          tentatives: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tentative_paiement_prestataire_fkey"
+            columns: ["prestataire"]
+            isOneToOne: false
+            referencedRelation: "prestataire"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
+      vue_ventes_code_promo: {
+        Row: {
+          code: string | null
+          commandes_payees: number | null
+          montant_paye_cents: number | null
+          reduction_cents: number | null
+        }
+        Relationships: []
+      }
+      vue_ventes_origine: {
+        Row: {
+          commandes_payees: number | null
+          jour: string | null
+          montant_paye_cents: number | null
+          origine: string | null
+        }
+        Relationships: []
+      }
+      vue_visites_jour: {
+        Row: {
+          action: string | null
+          appareil: string | null
+          evenements: number | null
+          jour: string | null
+          langue: string | null
+          sessions: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       a_deja_achete: {
@@ -2228,6 +2346,20 @@ export type Database = {
       enregistrer_article: {
         Args: { p_article: Json; p_auteur: Json; p_id: string; p_images: Json }
         Returns: string
+      }
+      enregistrer_evenement_mesure: {
+        Args: {
+          p_action: string
+          p_appareil: string
+          p_auteur: Json
+          p_duree_ms?: number
+          p_langue: string
+          p_origine: string
+          p_page: string
+          p_referent: string
+          p_session: string
+        }
+        Returns: undefined
       }
       enregistrer_extrait_kit: {
         Args: { p_auteur: Json; p_extrait: string; p_produit_id: string }
