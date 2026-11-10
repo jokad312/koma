@@ -2,7 +2,7 @@
 title: 'Story 9.8 : Tableau de bord'
 type: 'feature'
 created: '2026-11-10'
-status: 'ready-for-dev'
+status: 'done'
 route: 'dispatch'
 ---
 
@@ -59,7 +59,7 @@ route: 'dispatch'
 
 ## Suivi
 
-- Partie 1 : `done` (commit `7bb5670`, CI à revérifier avec `tableau_de_bord.test.sql`).
-- Partie 2 : à faire dans cette session ; revue par sous-agents, `lint`, `typecheck`, `test`, `build`, CI verte, puis 9.8 en `done`.
+- Partie 1 : `done` (commit `7bb5670`, CI verte).
+- Partie 2 : `done` (commit `fd8b9a9`, CI verte du 2026-11-10 : pgTAP dont `tableau_de_bord.test.sql`, e2e, build).
 
 </frozen-after-approval>
