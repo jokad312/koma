@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 import { PAGES_LEGALES } from "@/lib/vitrine/pages-legales";
 import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
+import { lireMurPublie } from "@/modules/communaute/queries";
 import { lireMoyensPaiementActifs } from "@/modules/paiement/queries";
 
 const LIEN = "t-small inline-flex min-h-touch items-center text-text-primary underline";
@@ -12,6 +13,8 @@ export async function PiedDePage({ nomSite, numeroWhatsapp = null }: { nomSite: 
   const t = await getTranslations("Pied");
   const tw = await getTranslations("Whatsapp");
   const whatsapp = lienWhatsapp(numeroWhatsapp);
+  // Le lien vers le mur « Ils le portent » n'existe qu'une fois une photo publiée (FR-2) ; une erreur de lecture le masque.
+  const murPublie = await lireMurPublie();
   // Moyens des Prestataires actifs, lus côté serveur : aucun Prestataire inactif ; sans Prestataire actif, la carte n'est pas affichée.
   const moyensPaiement = await lireMoyensPaiementActifs();
   return (
@@ -38,6 +41,13 @@ export async function PiedDePage({ nomSite, numeroWhatsapp = null }: { nomSite: 
                 {t("aide.contact")}
               </Link>
             </li>
+            {murPublie ? (
+              <li>
+                <Link href="/#galerie" className={LIEN}>
+                  {t("aide.galerie")}
+                </Link>
+              </li>
+            ) : null}
             {whatsapp ? (
               <li>
                 <a href={whatsapp} target="_blank" rel="noopener noreferrer" className={LIEN}>

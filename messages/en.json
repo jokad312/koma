@@ -138,6 +138,10 @@
       "titre": "HANDMADE IN GOMA",
       "voirTout": "See all cosplays"
     },
+    "mur": {
+      "titre": "[Texte à fournir]",
+      "mention": "[Texte à fournir]"
+    },
     "jonathan": {
       "titre": "JONATHAN IN THREE SENTENCES",
       "phrase1": "[Texte à fournir]",
@@ -178,7 +182,8 @@
   "Menu": {
     "ouvrir": "Menu",
     "titre": "Menu",
-    "fermer": "Close menu"
+    "fermer": "Close menu",
+    "galerie": "[Texte à fournir]"
   },
   "Theme": {
     "sombre": "Dark theme"
@@ -195,7 +200,8 @@
     "aide": {
       "titre": "Help",
       "faq": "FAQ",
-      "contact": "Contact"
+      "contact": "Contact",
+      "galerie": "[Texte à fournir]"
     },
     "legal": {
       "titre": "Legal information",

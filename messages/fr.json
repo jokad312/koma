@@ -138,6 +138,10 @@
       "titre": "FAIT MAIN A GOMA",
       "voirTout": "Voir tous les cosplays"
     },
+    "mur": {
+      "titre": "ILS LE PORTENT",
+      "mention": "Fait avec un kit {nomSite}"
+    },
     "jonathan": {
       "titre": "JONATHAN EN TROIS PHRASES",
       "phrase1": "[Texte à fournir]",
@@ -178,7 +182,8 @@
   "Menu": {
     "ouvrir": "Menu",
     "titre": "Menu",
-    "fermer": "Fermer le menu"
+    "fermer": "Fermer le menu",
+    "galerie": "Galerie"
   },
   "Theme": {
     "sombre": "Thème sombre"
@@ -195,7 +200,8 @@
     "aide": {
       "titre": "Aide",
       "faq": "FAQ",
-      "contact": "Contact"
+      "contact": "Contact",
+      "galerie": "Galerie"
     },
     "legal": {
       "titre": "Infos légales",

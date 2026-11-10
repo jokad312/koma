@@ -69,6 +69,14 @@ for (const langue of ["fr", "en"] as const) {
     if (avecPorteOuFabrique) attentesH2.push(titrePorteOuFabrique);
     if (avecKits) attentesH2.push(titres.kits);
     if (avecCartes) attentesH2.push(titres.cosplays);
+    // Bloc 4 « Ils le portent » : n'existe que si une photo est publiée ; alors les liens « Galerie » du pied de page existent aussi, sinon aucun des deux.
+    const sectionMur = page.locator("main section#galerie");
+    const avecMur = (await sectionMur.count()) === 1;
+    if (avecMur) {
+      expect(await sectionMur.locator("li").count()).toBeGreaterThan(0);
+      attentesH2.push(langue === "fr" ? "ILS LE PORTENT" : "[Texte à fournir]");
+    }
+    await expect(page.locator('footer a[href$="#galerie"]')).toHaveCount(avecMur ? 1 : 0);
     attentesH2.push(titres.jonathan, titres.faq);
     await expect(h2).toHaveText(attentesH2);
     const tuiles = page.locator('section[aria-labelledby="accueil-categories"]');

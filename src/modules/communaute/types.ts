@@ -51,6 +51,41 @@ export type ErreurPhoto =
 
 export type ResultatPhoto<T extends object = object> = ({ ok: true } & T) | { ok: false; erreur: ErreurPhoto };
 
+// Mur public (story 8.3, FR-40, FR-42, AD-17, AD-18) : une entrée du mur « Ils le portent », telle que rendue.
+export type TypeMur = "photo" | "realisation";
+
+// Une entrée du mur : identité fermée, texte alternatif, pseudo autorisé, et (pour une Réalisation) le Kit lié publié.
+// Les noms d'affichage sont en camelCase, ceux de la base en snake_case (noms des colonnes de `lister_mur_public`).
+export type MurPublic = {
+  id: string;
+  // Chemin du bucket public `produits-public` (galerie/<uuid>.<ext>) ; l'adresse publique est construite par le lecteur.
+  fichier: string;
+  altFr: string;
+  altEn: string;
+  // Pseudonyme affiché, autorisé à l'affichage ; sans autorisation, rien n'est affiché (pas de fallback).
+  pseudo: string | null;
+  // Horodatage de publication (ISO 8601 UTC, microsecondes) : dernière clé de tri du mur, sert au curseur de pagination.
+  valideLe: string;
+  // Même instant en ISO UTC à la microseconde, tel que la base le rend pour le curseur (colonne `curseur_date`).
+  curseurDate: string;
+  type: TypeMur;
+  // Réalisation validée : la mention « Fait avec un kit {nomSite} » s'affiche, le lien Kit seulement si le Kit est publié.
+  faitAvecKit: boolean;
+  kitSlug: string | null;
+  kitTitreFr: string | null;
+  kitTitreEn: string | null;
+};
+
+// Une page du mur : les entrées affichées, puis la suite (curseur opaque) ; null : plus rien à afficher.
+export type PageMur = { murs: MurPublic[]; suite: string | null };
+
+// Curseur de pagination : horodatage et identifiant de la dernière entrée affichée, nombre d'entrées déjà affichées.
+export type CurseurMur = { date: string; id: string; n: number };
+
+// 24 entrées par page (limite bornée de `lister_mur_public`) ; plafond de sécurité pour un curseur forgé.
+export const TAILLE_PAGE_MURS = 24;
+export const CUMUL_MAX_MURS = 1200;
+
 export type DependancesCommunaute = {
   // null : non connecté ou Compte incomplet ; une panne de vérification lève.
   compte: () => Promise<{ compteId: string; auteur: Auteur } | null>;

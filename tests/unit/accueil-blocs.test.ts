@@ -24,12 +24,19 @@ function carte(i: number) {
 describe("liste ordonnée des blocs", () => {
   it("suit l'ordre de FR-2 et affiche héros, tuiles, bloc 1 « Porte-le ou fabrique-le », bloc 2, bloc 6, bloc 7 et bloc 8", () => {
     expect(BLOCS_ACCUEIL.map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrique", "kits", "cosplaysRecents", "galerie", "rendezVousOtaku", "jonathan", "bloc7", "faqCourte"]);
-    expect(blocsAffiches().map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrique", "kits", "cosplaysRecents", "jonathan", "bloc7", "faqCourte"]);
+    expect(blocsAffiches().map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrique", "kits", "cosplaysRecents", "galerie", "jonathan", "bloc7", "faqCourte"]);
   });
 
-  it("les emplacements des blocs 3 et 4 sont réservés et documentés", () => {
+  it("le bloc 4 est la Galerie « Ils le portent », rendue par la story 8.3 ; le bloc 5 reste réservé pour le Rendez-vous", () => {
+    const galerie = BLOCS_ACCUEIL.find((b) => b.id === "galerie");
+    expect(galerie).toEqual({ id: "galerie", numero: 4, etat: "affiche" });
+    const rendezVous = BLOCS_ACCUEIL.find((b) => b.id === "rendezVousOtaku");
+    expect(rendezVous).toEqual({ id: "rendezVousOtaku", numero: 5, etat: "reserve", arrivePar: "epic 8" });
+  });
+
+  it("les emplacements réservés sont documentés", () => {
     const reserves = BLOCS_ACCUEIL.filter((b) => b.etat === "reserve");
-    expect(reserves.map((b) => b.numero)).toEqual([3, 4]);
+    expect(reserves.map((b) => b.numero)).toEqual([5]);
     for (const b of reserves) expect("arrivePar" in b && b.arrivePar.length > 0).toBe(true);
   });
 
@@ -78,9 +85,11 @@ describe("textes de l'accueil", () => {
   for (const langue of ["fr", "en"] as const) {
     const accueil = messages[langue].Accueil;
 
-    it(`${langue} : seules les phrases du bloc « Jonathan » portent le marqueur`, () => {
+    it(`${langue} : seuls le bloc « Jonathan » (et, en anglais, les deux textes du mur sans source) portent le marqueur`, () => {
       const marqueurs = trouverMarqueurs(messages[langue], ["Accueil"]);
-      const attendus = ["Accueil.jonathan.phrase1", "Accueil.jonathan.phrase2", "Accueil.jonathan.phrase3"];
+      const jonathan = ["Accueil.jonathan.phrase1", "Accueil.jonathan.phrase2", "Accueil.jonathan.phrase3"];
+      // Le titre et la mention du mur n'ont pas de version anglaise dans EXPERIENCE.md ni DESIGN.md : « [Texte à fournir] ».
+      const attendus = langue === "en" ? ["Accueil.mur.titre", "Accueil.mur.mention", ...jonathan] : jonathan;
       expect(marqueurs).toEqual(attendus);
       expect(contientMarqueur(accueil.heros.accroche)).toBe(false);
     });

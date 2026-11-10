@@ -7,6 +7,7 @@ import { BlocCosplaysRecents } from "@/components/accueil/BlocCosplaysRecents";
 import { BlocFaqCourte } from "@/components/accueil/BlocFaqCourte";
 import { BlocGuides } from "@/components/accueil/BlocGuides";
 import { BlocKits } from "@/components/accueil/BlocKits";
+import { BlocMur } from "@/components/accueil/BlocMur";
 import { BlocPorteOuFabrique } from "@/components/accueil/BlocPorteOuFabrique";
 import { HerosAccueil } from "@/components/accueil/HerosAccueil";
 import { BlocJonathan } from "@/components/accueil/BlocJonathan";
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]">): Prom
 }
 
 // Rendu de chaque bloc affiché. L'ordre et les emplacements réservés (rien à rendre) viennent de src/modules/accueil/blocs.ts.
-function rendreBloc(id: string, locale: Locale): ReactNode {
+function rendreBloc(id: string, locale: Locale, requete: Promise<Record<string, string | string[] | undefined>>): ReactNode {
   switch (id) {
     case "heros":
       // Accroche (H1) dans la coque statique ; vedette, photo et vidéo lues à chaque requête.
@@ -52,6 +53,13 @@ function rendreBloc(id: string, locale: Locale): ReactNode {
           <BlocCosplaysRecents locale={locale} />
         </Suspense>
       );
+    case "galerie":
+      // Bloc 4 « Ils le portent » : le mur public des photos et Réalisations validées ; masqué sans photo publiée.
+      return (
+        <Suspense fallback={null}>
+          <BlocMur locale={locale} requete={requete} />
+        </Suspense>
+      );
     case "jonathan":
       return <BlocJonathan />;
     case "bloc7":
@@ -68,7 +76,7 @@ function rendreBloc(id: string, locale: Locale): ReactNode {
   }
 }
 
-export default async function Accueil({ params }: PageProps<"/[locale]">) {
+export default async function Accueil({ params, searchParams }: PageProps<"/[locale]">) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
@@ -77,7 +85,7 @@ export default async function Accueil({ params }: PageProps<"/[locale]">) {
     <div className="flex flex-col gap-10">
       {blocsAffiches().map((bloc) => (
         <div key={bloc.id} className="contents">
-          {rendreBloc(bloc.id, locale)}
+          {rendreBloc(bloc.id, locale, searchParams)}
         </div>
       ))}
     </div>

@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, screen, within } from "@testing-library/react";
+import { act, cleanup, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { renderToStaticMarkup } from "react-dom/server";
 import { NextIntlClientProvider } from "next-intl";
@@ -9,6 +9,8 @@ import { rendre } from "./aides-dom";
 
 const envoyer = vi.fn();
 vi.mock("@/modules/contact/actions", () => ({ envoyerMessageContact: (...a: unknown[]) => envoyer(...a) }));
+const murPublie = vi.fn();
+vi.mock("@/modules/communaute/queries", () => ({ lireMurPublie: () => murPublie() }));
 vi.mock("@/i18n/navigation", () => ({
   usePathname: () => "/",
   Link: ({ href, children, ...reste }: { href: string; children: React.ReactNode }) => (
@@ -34,6 +36,8 @@ import { PiedDePage } from "@/components/layout/PiedDePage";
 
 beforeEach(() => {
   vi.clearAllMocks();
+  murPublie.mockReset();
+  murPublie.mockResolvedValue(false);
 });
 
 describe("BoutonWhatsApp", () => {
@@ -184,6 +188,20 @@ describe("PiedDePage : carte Aide", () => {
     await rendrePied(null);
     const aide = screen.getByRole("region", { name: "Aide" });
     expect(within(aide).getAllByRole("link").map((l) => l.getAttribute("href"))).toEqual(["/faq", "/contact"]);
+  });
+
+  it("photo publiée : lien « Galerie » (accueil#galerie) ajouté à la carte Aide ; sans photo, il est masqué", async () => {
+    murPublie.mockResolvedValue(false);
+    await rendrePied(null);
+    expect(within(screen.getByRole("region", { name: "Aide" })).queryByRole("link", { name: "Galerie" })).toBeNull();
+
+    cleanup();
+    murPublie.mockResolvedValue(true);
+    await rendrePied(null);
+    const aide = screen.getByRole("region", { name: "Aide" });
+    const lien = within(aide).getByRole("link", { name: "Galerie" });
+    expect(lien.getAttribute("href")).toBe("/#galerie");
+    expect(within(aide).getAllByRole("link").map((l) => l.getAttribute("href"))).toEqual(["/faq", "/contact", "/#galerie"]);
   });
 
   it("carte Infos légales : quatre liens de 44 px vers les pages légales", async () => {

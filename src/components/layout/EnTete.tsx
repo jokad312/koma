@@ -4,6 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { cheminPublic } from "@/i18n/adresses";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
+import { lireMurPublie } from "@/modules/communaute/queries";
 import { BasculeTheme } from "./BasculeTheme";
 import { LangueRepli } from "./LangueRepli";
 import { MenuPanneau } from "./MenuPanneau";
@@ -19,7 +20,10 @@ type Props = { nomSite: string; rubriques?: readonly Rubrique[]; sansTraduction?
 // Le logo est affiché tel quel (fichier d'origine, jamais recoloré) ; le cadrage 530 x 124 est fait par recadrage CSS.
 export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }: Props) {
   const t = await getTranslations("Navigation");
+  const tm = await getTranslations("Menu");
   const locale = (await getLocale()) as Locale;
+  // L'entrée secondaire « Galerie » n'existe que si une photo a été publiée (FR-2).
+  const murPublie = await lireMurPublie();
   const liens =
     rubriques.length > 0 ? (
       <nav aria-label={t("principale")}>
@@ -80,6 +84,15 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }:
           <div className="lg:hidden">
             <MenuPanneau>
               {liens}
+              {murPublie ? (
+                <ul className="flex flex-col items-start gap-2">
+                  <li>
+                    <Link href="/#galerie" className="t-h3 inline-flex min-h-touch items-center text-text-primary">
+                      {tm("galerie")}
+                    </Link>
+                  </li>
+                </ul>
+              ) : null}
               <BasculeTheme />
               <Suspense fallback={<LangueRepli />}>
                 <SelecteurLangue sansTraduction={sansTraduction} />
