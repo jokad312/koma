@@ -466,15 +466,15 @@ Une visiteuse trouve l'Événement, achète ses Pass nominatifs et les reçoit a
 
 En tant qu'exposant,
 je veux candidater pour un Stand d'un Événement,
-afin que Jonathan étudie ce que je vends et, s'il accepte, que je paie ma place.
+afin que ma place soit réservée tout de suite et que je la paie sous 48 h ; Jonathan peut refuser après coup une candidature ou un Stand non conforme.
 
-**Dépend de** 7.1, 7.4, 7.5 et de la boîte d'envoi (4.4). Décisions de Jonathan du 2026-11-10 (`sprint-change-proposal-2026-11-10.md`).
+**Dépend de** 7.1, 7.4, 7.5, 7.9 et de la boîte d'envoi (4.4). Décisions de Jonathan du 2026-11-10, **modifiées le 2026-11-11 : validation automatique** (D6, D7, D9, D10 de `sprint-change-proposal-2026-11-10.md`).
 
 **Critères d'acceptation :**
 
 **Étant donné** un Événement publié avec un Type « Stand » dont il reste des places
 **Quand** un exposant non connecté touche « Candidater »
-**Alors** il passe par la connexion puis revient au formulaire ; un Compte ne peut avoir qu'une candidature active par Événement
+**Alors** il passe par la connexion puis revient au formulaire ; toute personne ayant un Compte peut candidater ; un Compte ne peut avoir qu'une candidature active par Événement
 
 **Étant donné** le formulaire de candidature
 **Quand** l'exposant le remplit
@@ -485,19 +485,19 @@ afin que Jonathan étudie ce que je vends et, s'il accepte, que je paie ma place
 
 **Étant donné** une candidature envoyée
 **Quand** elle est enregistrée
-**Alors** elle est `en_attente`, elle ne réserve aucune place, l'exposant reçoit l'email `candidature_recue`, et l'admin la voit dans « Candidatures à traiter » des Tâches
+**Alors** elle est acceptée immédiatement (`validee`), la place est réservée jusqu'à `expire_le` (envoi + délai de paiement, réglage, 48 h au départ), le lien de paiement est affiché tout de suite et envoyé par l'email `candidature_validee` avec l'heure limite ; s'il ne reste plus de Stand, « Complet » (`KS_COMPLET`) et rien n'est créé
 
 **Étant donné** l'admin
 **Quand** Jonathan ouvre une candidature
-**Alors** il voit la description, les photos et le lien Instagram, et choisit « Valider » ou « Refuser » (motif facultatif transmis au candidat par l'email `candidature_refusee`) ; chaque décision est journalisée
-**Et** « Valider » fixe `expire_le` à maintenant + le délai de paiement (réglage, 48 h au départ), occupe une place de Stand et planifie l'email `candidature_validee` avec le lien et l'heure limite ; valider au-delà du nombre de Stands est refusé (`KS_COMPLET`)
-**Et** une candidature expirée peut être revalidée (nouveau délai) s'il reste une place
+**Alors** il voit la description, les photos et le lien Instagram, et peut « Refuser » (motif facultatif transmis par l'email `candidature_refusee`) ; chaque décision est journalisée
+**Et** avant paiement, le refus annule le lien et libère la place ; après paiement, le refus annule le Stand et ses 2 Pass et ouvre le remboursement par le circuit de la 7.9 (preuve obligatoire) ; l'exposant reçoit l'email dans les deux cas
+**Et** une candidature expirée ne se revalide pas : l'exposant candidate de nouveau s'il reste une place
 
 **Étant donné** une candidature validée
 **Quand** l'exposant ouvre le lien
-**Alors** il doit être connecté avec le Compte du candidat (sinon 404) ; il saisit le nom de son aide, accepte la mention sur la publication des photos et vidéos de l'Événement, puis paie par mobile money ou MaishaPay, jamais Polar (règle 10)
+**Alors** il doit être connecté avec le Compte du candidat (sinon 404) ; il accepte la mention sur la publication des photos et vidéos de l'Événement, puis paie par mobile money ou MaishaPay, jamais Polar (règle 10) ; le nom de son aide est facultatif ici et se saisit plus tard depuis « Mes Pass », jusqu'à l'Événement
 **Et** `creer_commande` crée une Commande `pass` d'un Stand (2 Pass nominatifs : titulaire et aide) qui reprend `expire_le` de la candidature ; le Code promo s'applique comme aux autres Pass
-**Et** un Type « Stand » ne peut jamais être commandé sans candidature validée et non expirée, par aucun chemin (`KS_STAND_SUR_CANDIDATURE`, test)
+**Et** un Type « Stand » ne peut jamais être commandé sans candidature acceptée et non expirée, par aucun chemin (`KS_STAND_SUR_CANDIDATURE`, test) ; les autres Types (Standard, VIP…) s'achètent librement, sans candidature, y compris par un exposant
 
 **Étant donné** un délai de 48 h dépassé sans paiement
 **Quand** la page est lue

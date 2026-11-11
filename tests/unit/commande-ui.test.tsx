@@ -78,6 +78,8 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+// Stabilité (intermittence sous charge) : après une réponse du serveur, le message s'affiche avant la fin de la transition ; le bouton porte encore
+// son état « en cours ». On attend donc le bouton (findByRole) au lieu de le chercher tout de suite (getByRole).
 describe("FormulaireCommande", () => {
   it("Panier 100 % numérique : aucun champ de téléphone, de zone ni d'adresse", () => {
     rendre(
@@ -117,7 +119,7 @@ describe("FormulaireCommande", () => {
 
   it("champs ou cases manquants : résumé d'erreurs, aucun appel au serveur", async () => {
     rendre(<FormulaireCommande {...props} />);
-    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Confirmer la commande" }));
     const alerte = screen.getByRole("alert");
     expect(within(alerte).getByText("Indique ton numéro de téléphone, avec l'indicatif du pays.")).toBeTruthy();
     expect(within(alerte).getByText("Choisis Goma ou Bukavu.")).toBeTruthy();
@@ -137,7 +139,7 @@ describe("FormulaireCommande", () => {
     faux.creerCommande.mockResolvedValue({ ok: true, numero: "KS-2026-000042", expireLe: "2026-11-01T12:30:00Z" });
     rendre(<FormulaireCommande {...props} />);
     await remplir();
-    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Confirmer la commande" }));
     await waitFor(() => expect(faux.push).toHaveBeenCalledWith("/commande/KS-2026-000042"));
     expect(faux.creerCommande).toHaveBeenCalledWith(
       expect.objectContaining({ zone: "goma", mode: "retrait", telephone: "+243990000000", adresse: null, totalAttenduCents: 10000, acceptations: { cgv: true, kit: undefined, surMesure: undefined }, empreinte: "0123456789abcdef0123456789abcdef", emails: false }),
@@ -150,7 +152,7 @@ describe("FormulaireCommande", () => {
     rendre(<FormulaireCommande {...props} />);
     await remplir();
     await userEvent.click(screen.getByLabelText(frMessages.Consentement.emails));
-    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Confirmer la commande" }));
     await waitFor(() => expect(faux.creerCommande).toHaveBeenCalledWith(expect.objectContaining({ emails: true }), "fr"));
   });
 
@@ -160,10 +162,10 @@ describe("FormulaireCommande", () => {
       .mockResolvedValueOnce({ ok: true, numero: "KS-2026-000043", expireLe: "2026-11-01T12:30:00Z" });
     rendre(<FormulaireCommande {...props} />);
     await remplir();
-    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Confirmer la commande" }));
     await screen.findByText(`Le total a changé : ${formaterUsd(10000, "fr")} → ${formaterUsd(11000, "fr")}. Vérifie le récapitulatif, puis confirme à nouveau.`);
     expect(faux.push).not.toHaveBeenCalled();
-    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Confirmer la commande" }));
     await waitFor(() => expect(faux.push).toHaveBeenCalledWith("/commande/KS-2026-000043"));
     expect(faux.creerCommande).toHaveBeenLastCalledWith(expect.objectContaining({ totalAttenduCents: 11000 }), "fr");
   });
@@ -174,10 +176,10 @@ describe("FormulaireCommande", () => {
       .mockResolvedValueOnce({ ok: true, numero: "KS-2026-000044", expireLe: "2026-11-01T12:30:00Z" });
     rendre(<FormulaireCommande {...props} />);
     await remplir();
-    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Confirmer la commande" }));
     await screen.findByText("Le récapitulatif a changé (disponibilité ou délai d'un article). Vérifie-le, puis confirme à nouveau.");
     expect(faux.push).not.toHaveBeenCalled();
-    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Confirmer la commande" }));
     await waitFor(() => expect(faux.push).toHaveBeenCalledWith("/commande/KS-2026-000044"));
     expect(faux.creerCommande).toHaveBeenLastCalledWith(expect.objectContaining({ empreinte: "ffffffffffffffffffffffffffffffff" }), "fr");
   });
@@ -186,7 +188,7 @@ describe("FormulaireCommande", () => {
     faux.creerCommande.mockResolvedValue({ ok: false, erreur: "commande_en_attente" });
     rendre(<FormulaireCommande {...props} />);
     await remplir();
-    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Confirmer la commande" }));
     await screen.findByText(/Tu as déjà une commande à payer/);
     expect(faux.push).not.toHaveBeenCalled();
   });
@@ -195,9 +197,9 @@ describe("FormulaireCommande", () => {
     faux.creerCommande.mockResolvedValue({ ok: false, erreur: "erreur" });
     rendre(<FormulaireCommande {...props} />);
     await remplir();
-    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Confirmer la commande" }));
     await screen.findByText("La commande n'a pas pu être créée. Réessaie.");
-    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Confirmer la commande" }));
     await waitFor(() => expect(faux.creerCommande).toHaveBeenCalledTimes(2));
     const [a, b] = faux.creerCommande.mock.calls.map((c) => (c[0] as { cleIdempotence: string }).cleIdempotence);
     expect(a).toBe(b);
@@ -219,7 +221,7 @@ describe("FormulaireCommande", () => {
       />,
     );
     await userEvent.click(screen.getAllByRole("checkbox")[0]);
-    await userEvent.click(screen.getByRole("button", { name: "Confirmer la commande" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Confirmer la commande" }));
     expect(within(screen.getByRole("alert")).getByText("Coche la case de l'accès immédiat au kit.")).toBeTruthy();
     expect(faux.creerCommande).not.toHaveBeenCalled();
   });

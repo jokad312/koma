@@ -25,8 +25,14 @@ test.describe("navigateur intégré", () => {
 
   test("le bandeau se ferme et le choix est mémorisé sur une autre page", async ({ page }) => {
     await page.goto("/fr");
-    await page.getByRole("button", { name: "Fermer l'avis" }).click();
-    await expect(page.getByRole("region", { name: "Ouvrir dans ton navigateur" })).toHaveCount(0);
+    // Cause de l'intermittence : un clic parti avant l'hydratation de React tombe sur du HTML sans gestionnaire et ne ferme rien.
+    // On réessaie donc le clic jusqu'à ce que le bandeau soit fermé (le bouton existe encore tant que le clic n'a pas été pris en compte).
+    const bandeau = page.getByRole("region", { name: "Ouvrir dans ton navigateur" });
+    await expect(async () => {
+      const fermer = page.getByRole("button", { name: "Fermer l'avis" });
+      if (await fermer.count()) await fermer.click({ timeout: 1000 });
+      await expect(bandeau).toHaveCount(0, { timeout: 1000 });
+    }).toPass({ timeout: 15000 });
     await page.goto("/fr/connexion");
     await expect(page.getByRole("region", { name: "Ouvrir dans ton navigateur" })).toHaveCount(0);
   });
