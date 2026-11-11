@@ -3,12 +3,15 @@
 // message explicite sans Verrou, verdict local identique à la story 7.6 (même composant de résultat), un même Pass refusé la seconde fois, synchronisation
 // automatique au retour du réseau puis Verrou rendu et liste effacée. Actions serveur simulées et IndexedDB en mémoire (données TEST_) ; aucune caméra réelle.
 import "fake-indexeddb/auto";
-import { act, fireEvent, screen, waitFor } from "@testing-library/react";
+import { act, configure, fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { IDBFactory } from "fake-indexeddb";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { rendre } from "./aides-dom";
 import { listeDeTest, TEST_PASS } from "../doubles/TEST_liste-hors-ligne";
+
+// Les empreintes (HMAC, SHA-256) tournent pour de vrai dans ces tests : sur une machine chargée (CI), l'attente par défaut de 1 s est trop courte.
+configure({ asyncUtilTimeout: 8000 });
 
 const action = vi.hoisted(() => vi.fn());
 const hl = vi.hoisted(() => ({
