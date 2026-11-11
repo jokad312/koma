@@ -43,7 +43,8 @@ for (const langue of LANGUES) {
         for (const hreflang of ["fr", "en", "x-default"]) await expect(page.locator(`link[rel="alternate"][hreflang="${hreflang}"]`)).toHaveCount(1);
         await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
         const jsonld = (await page.locator('script[type="application/ld+json"]').allTextContents()).join("\n");
-        expect(jsonld).toContain(chemin === "contact" ? '"ContactPage"' : '"WebPage"');
+        // La FAQ a de vraies paires de questions : FAQPage (les paires au marqueur en seraient exclues).
+        expect(jsonld).toContain(chemin === "contact" ? '"ContactPage"' : chemin === "faq" ? '"FAQPage"' : '"WebPage"');
         // Le marqueur « [Texte à fournir] » n'entre jamais dans les données structurées.
         expect(jsonld).not.toContain("[Texte à fournir]");
         expect(jsonld).not.toMatch(/rating|review|aggregate/i);
