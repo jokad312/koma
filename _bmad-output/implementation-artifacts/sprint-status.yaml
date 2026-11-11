@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 10-21-2026 12:00
-last_updated: 10-31-2026 20:00
+last_updated: 11-11-2026 23:57
 project: KOMA SHOP
 project_key: NOKEY
 tracking_system: file-system
@@ -89,7 +89,8 @@ development_status:
   5-2-choix-du-mobile-money-par-le-client: done
   5-3-écran-d-attente-mobile-money-et-repli-entre-agrégateurs: done
   5-6-paiement-mobile-money-via-maishapay: review
-  5-9-paiement-par-carte-via-maishapay-produits-physiques-paniers-mixtes-et-pass: review
+  5-9-paiement-par-carte-via-maishapay-produits-physiques-paniers-mixtes-et-pass: 
+    review
   5-7-paiement-mobile-money-via-pawapay: review
   epic-5-retrospective: optional
 
@@ -114,8 +115,8 @@ development_status:
   7-8-scan-hors-ligne: done
   7-9-annulation-et-remboursement-d-un-pass: done
   7-10-galerie-d-événement: done
-  7-11-candidature-stand: review
-  epic-7-retrospective: optional
+  7-11-candidature-stand: done
+  epic-7-retrospective: done
 
   epic-8: backlog
   8-1-envoyer-sa-photo-depuis-son-compte: done
@@ -138,3 +139,45 @@ development_status:
   9-8-tableau-de-bord: done
   9-9-mise-en-ligne: backlog
   epic-9-retrospective: optional
+action_items:
+  - id: "epic-7-retro-item-1-planifier-les-tâches-serveur-de-purge-et"
+    epic: 7
+    action: "Planifier les tâches serveur de purge et de galerie sur le domaine à
+      la mise en ligne (déjà dans la liste de contrôle de la 9.9)"
+    owner: "Jonathan"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-11-11.md"
+  - id: "epic-7-retro-item-2-trancher-le-remboursement-d-un-stand-ref"
+    epic: 7
+    action: "Trancher le remboursement d un Stand refusé pour contrefaçon, le refus
+      définitif par Compte et la limite de répétition des candidatures"
+    owner: "Jonathan"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-11-11.md"
+  - id: "epic-7-retro-item-3-payer-bunny-puis-relancer-bunny-public-s"
+    epic: 7
+    action: "Payer Bunny puis relancer bunny-public.spec.ts avec BUNNY_TESTS_REELS=1
+      avant la 9.9"
+    owner: "Jonathan"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-11-11.md"
+  - id: "epic-7-retro-item-4-supprimer-next-dev-avant-les-tests-e2e-d"
+    epic: 7
+    action: "Supprimer .next/dev avant les tests e2e dans le script test:e2e"
+    owner: "agent de développement"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-11-11.md"
+  - id: "epic-7-retro-item-5-revalider-le-lien-de-galerie-à-l-afficha"
+    epic: 7
+    action: "Revalider le lien de galerie à l affichage et dans l email, réparer la
+      clé d envoi consommée sur ignorer, aligner la fin d Événement"
+    owner: "agent de développement"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-11-11.md"
+  - id: "epic-7-retro-item-6-essais-manuels-sur-téléphone-réel-scan-h"
+    epic: 7
+    action: "Essais manuels sur téléphone réel : Scan hors ligne, caméra, paiement
+      sandbox de Pass et de Stand, candidature avec photos"
+    owner: "Jonathan"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-11-11.md"

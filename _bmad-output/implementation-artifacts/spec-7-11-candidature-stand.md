@@ -2,7 +2,7 @@
 title: 'Story 7.11 : Candidature Stand'
 type: 'feature'
 created: '2026-11-11'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 ---
 
