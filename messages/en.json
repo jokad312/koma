@@ -90,6 +90,10 @@
       "titre": "My Passes",
       "description": "Your Passes and their QR codes."
     },
+    "scan": {
+      "titre": "Pass scanning",
+      "description": "Checking Pass QR codes at the entrance."
+    },
     "comptePreferences": {
       "titre": "Preferences",
       "description": "Choose the emails you receive."
@@ -361,6 +365,61 @@
     "aideAutre": "Tap ⋯ then \"Open in browser\", or copy the link and paste it in your browser.",
     "fermer": "Close notice"
   },
+  "Scan": {
+    "titre": "Pass scanning",
+    "retourAdmin": "Back to administration",
+    "aide": "Choose the event, then place the pass QR code in the frame.",
+    "evenement": {
+      "libelle": "Event to scan",
+      "choisir": "Choose an event",
+      "aucun": "No published event, upcoming or today. Publish an event to scan its passes.",
+      "erreurLecture": "The list of events could not be read. Reload the page."
+    },
+    "camera": {
+      "libelle": "Camera image",
+      "cadre": "Place the pass QR code in the frame.",
+      "ouverture": "Opening the camera...",
+      "verification": "Checking...",
+      "refusee": "Allow camera access to scan passes.",
+      "refuseeAide": "In your browser settings, open this site's permissions, allow the camera, then reload the page. You can also enter the code manually.",
+      "indisponible": "No camera can be used on this device, or the page is not opened over a secure connection. Enter the code manually.",
+      "lecteurIndisponible": "The QR code reader could not start. Enter the code manually or reload the page.",
+      "reessayer": "Try the camera again"
+    },
+    "manuel": {
+      "ouvrir": "Enter the code manually",
+      "fermer": "Back to the camera",
+      "libelle": "Pass short code",
+      "aide": "8 characters, written under the QR code. Spaces and dashes are ignored.",
+      "valider": "Check the code"
+    },
+    "resultat": {
+      "valide": "VALID",
+      "refuse": "REFUSED",
+      "suivant": "Scan next pass",
+      "nom": "Holder",
+      "type": "Pass type",
+      "evenement": "Event"
+    },
+    "raison": {
+      "inconnu": "Unknown pass.",
+      "deja_scanne": "Pass already scanned at {heure}.",
+      "deja_scanne_sans_heure": "Pass already scanned.",
+      "annule": "Pass cancelled.",
+      "rembourse": "Pass refunded.",
+      "autre_evenement": "Pass for another event.",
+      "commande_non_payee": "Order not paid: this pass is no longer valid.",
+      "qr_invalide": "This QR code is not a KOMA pass."
+    },
+    "erreur": {
+      "evenement_invalide": "Choose the event to scan first.",
+      "saisie_invalide": "This entry is not valid.",
+      "non_connecte": "Your session has expired. Sign in again to scan.",
+      "non_autorise": "You are not allowed to scan passes.",
+      "trop_d_essais": "Too many codes entered by hand. Wait a few minutes, or scan the QR code.",
+      "generique": "The result could not be checked. Scan the pass again: if it was already scanned, the screen will say so."
+    }
+  },
   "Admin": {
     "tableau": {
       "titre": "Dashboard",
@@ -476,6 +535,7 @@
       "commandes": "Orders",
       "codesPromo": "Promo codes",
       "galerie": "Gallery",
+      "scan": "Scan",
       "plus": "More",
       "plusNom": "More pages",
       "plusTitre": "More admin pages",

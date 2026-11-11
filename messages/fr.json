@@ -90,6 +90,10 @@
       "titre": "Mes Pass",
       "description": "Tes Pass et leurs Codes QR."
     },
+    "scan": {
+      "titre": "Scan des Pass",
+      "description": "Contrôle des Codes QR des Pass à l'entrée."
+    },
     "comptePreferences": {
       "titre": "Préférences",
       "description": "Choisis les emails que tu reçois."
@@ -361,6 +365,61 @@
     "aideAutre": "Touche ⋯ puis « Ouvrir dans le navigateur », ou copie le lien et colle-le dans ton navigateur.",
     "fermer": "Fermer l'avis"
   },
+  "Scan": {
+    "titre": "Scan des Pass",
+    "retourAdmin": "Retour à l'administration",
+    "aide": "Choisis l'événement, puis place le Code QR du pass dans le cadre.",
+    "evenement": {
+      "libelle": "Événement à scanner",
+      "choisir": "Choisis un événement",
+      "aucun": "Aucun événement publié, à venir ou du jour. Publie un événement pour scanner ses pass.",
+      "erreurLecture": "La liste des événements n'a pas pu être lue. Recharge la page."
+    },
+    "camera": {
+      "libelle": "Image de la caméra",
+      "cadre": "Place le Code QR du pass dans le cadre.",
+      "ouverture": "Ouverture de la caméra...",
+      "verification": "Vérification en cours...",
+      "refusee": "Autorise l'accès à la caméra pour scanner les pass.",
+      "refuseeAide": "Dans les réglages de ton navigateur, ouvre les permissions de ce site, autorise la caméra, puis recharge la page. Tu peux aussi saisir le code à la main.",
+      "indisponible": "Aucune caméra n'est utilisable sur cet appareil, ou la page n'est pas ouverte en connexion sécurisée. Saisis le code à la main.",
+      "lecteurIndisponible": "Le lecteur de Code QR n'a pas pu démarrer. Saisis le code à la main ou recharge la page.",
+      "reessayer": "Réessayer la caméra"
+    },
+    "manuel": {
+      "ouvrir": "Saisir le code à la main",
+      "fermer": "Revenir à la caméra",
+      "libelle": "Code court du pass",
+      "aide": "8 caractères, écrits sous le Code QR. Les espaces et les tirets sont ignorés.",
+      "valider": "Vérifier le code"
+    },
+    "resultat": {
+      "valide": "VALIDE",
+      "refuse": "REFUSÉ",
+      "suivant": "Scanner le pass suivant",
+      "nom": "Titulaire",
+      "type": "Type de pass",
+      "evenement": "Événement"
+    },
+    "raison": {
+      "inconnu": "Pass inconnu.",
+      "deja_scanne": "Pass déjà scanné à {heure}.",
+      "deja_scanne_sans_heure": "Pass déjà scanné.",
+      "annule": "Pass annulé.",
+      "rembourse": "Pass remboursé.",
+      "autre_evenement": "Pass d'un autre événement.",
+      "commande_non_payee": "Commande non payée : ce pass n'est plus valable.",
+      "qr_invalide": "Ce Code QR n'est pas un pass KOMA."
+    },
+    "erreur": {
+      "evenement_invalide": "Choisis d'abord l'événement à scanner.",
+      "saisie_invalide": "Cette saisie n'est pas valable.",
+      "non_connecte": "Ta session a expiré. Reconnecte-toi pour scanner.",
+      "non_autorise": "Tu n'as pas le droit de scanner les pass.",
+      "trop_d_essais": "Trop de codes saisis à la main. Attends quelques minutes, ou scanne le Code QR.",
+      "generique": "Le résultat n'a pas pu être vérifié. Scanne de nouveau le pass : s'il a déjà été scanné, l'écran l'indiquera."
+    }
+  },
   "Admin": {
     "tableau": {
       "titre": "Tableau de bord",
@@ -476,6 +535,7 @@
       "commandes": "Commandes",
       "codesPromo": "Codes promo",
       "galerie": "Galerie",
+      "scan": "Scan",
       "plus": "Plus",
       "plusNom": "Plus de pages",
       "plusTitre": "Autres pages d'administration",

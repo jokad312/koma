@@ -33,6 +33,10 @@
   --ks-tile-ink-start: #5a4c3e;
   --ks-tile-ink-end: #2b241d;
   --ks-scrim: #16130f99;
+  /* Écran de Scan (story 7.6) : mêmes couleurs dans les deux thèmes (non redéfinies sous data-theme="dark"). Texte blanc : contraste au moins 5,2:1. */
+  --ks-scan-valide: #2e7a4e;
+  --ks-scan-refuse: #b01b13;
+  --ks-scan-texte: #ffffff;
 
   color-scheme: light;
 }
@@ -80,6 +84,9 @@
   --color-danger: var(--ks-danger);
   --color-qr-background: var(--ks-qr-background);
   --color-scrim: var(--ks-scrim);
+  --color-scan-valide: var(--ks-scan-valide);
+  --color-scan-refuse: var(--ks-scan-refuse);
+  --color-scan-texte: var(--ks-scan-texte);
 
   --font-corps: var(--font-barlow), system-ui, sans-serif;
   --font-condensee: var(--font-barlow-condensed), "Arial Narrow", system-ui, sans-serif;

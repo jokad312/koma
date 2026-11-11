@@ -3070,6 +3070,19 @@ export type Database = {
         Args: { p_auteur: Json; p_photo: string }
         Returns: Json
       }
+      scan_exiger_acces: {
+        Args: { p_auteur: Json; p_evenement: string }
+        Returns: undefined
+      }
+      scanner_pass: {
+        Args: {
+          p_auteur: Json
+          p_code?: string
+          p_evenement: string
+          p_jeton?: string
+        }
+        Returns: Json
+      }
       seuil_dernieres_pieces: { Args: never; Returns: number }
       signaler_montant_indetermine: {
         Args: {

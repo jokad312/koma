@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import nextConfig from "../../next.config";
-import { entetesSecurite, politiqueContenu } from "@/lib/securite/entetes";
+import { entetesSecurite, politiqueContenu, SOURCE_HORS_SCAN, SOURCE_SCAN } from "@/lib/securite/entetes";
 
 const valeur = (entetes: { key: string; value: string }[], nom: string) => entetes.find((e) => e.key === nom)?.value;
 
@@ -39,11 +39,48 @@ describe("en-têtes de sécurité", () => {
     expect(valeur(entetesSecurite({ adresseSite: "http://localhost:3000", production: true }), "Strict-Transport-Security")).toBeUndefined();
   });
 
-  it("est branché sur toutes les routes par next.config", async () => {
+  it("est branché par next.config : le site entier hors Scan d'un côté, le Scan seul de l'autre", async () => {
     const regles = await nextConfig.headers?.();
-    expect(regles).toHaveLength(1);
-    expect(regles?.[0].source).toBe("/:path*");
-    expect(regles?.[0].headers.map((e) => e.key)).toEqual(expect.arrayContaining(["X-Frame-Options", "Content-Security-Policy-Report-Only"]));
+    expect(regles).toHaveLength(2);
+    expect(regles?.[0].source).toBe(SOURCE_HORS_SCAN);
+    expect(regles?.[1].source).toBe(SOURCE_SCAN);
+    for (const regle of regles ?? []) expect(regle.headers.map((e) => e.key)).toEqual(expect.arrayContaining(["X-Frame-Options", "Content-Security-Policy-Report-Only"]));
+  });
+
+  it("la caméra reste fermée partout, sauf sur la page de Scan (origine du site seulement)", async () => {
+    const regles = (await nextConfig.headers?.()) ?? [];
+    expect(valeur(regles[0].headers, "Permissions-Policy")).toBe("camera=(), microphone=(), geolocation=()");
+    expect(valeur(regles[1].headers, "Permissions-Policy")).toBe("camera=(self), microphone=(), geolocation=()");
+    expect(valeur(entetesSecurite({ production: true, scan: true }), "Permissions-Policy")).not.toContain("camera=()");
+    // Jamais un joker ni une origine tierce.
+    expect(valeur(regles[1].headers, "Permissions-Policy")).not.toMatch(/\*|https?:/);
+  });
+
+  it("les deux règles (moteur de chemins de Next) ne se recouvrent jamais et couvrent toutes les adresses", async () => {
+    // Le moteur de chemins compilé dans Next (celui qui lit les sources de headers()), sans fichier de types.
+    const moteur = "next/dist/compiled/path-to-regexp";
+    const { pathToRegexp } = (await import(/* @vite-ignore */ moteur)) as { pathToRegexp: (source: string) => RegExp };
+    const hors = pathToRegexp(SOURCE_HORS_SCAN);
+    const scan = pathToRegexp(SOURCE_SCAN);
+    const scans = ["/fr/scan", "/fr/scan/", "/fr/scan/x", "/en/scan", "/en/scan/x/y"];
+    const autres = ["/", "/fr", "/en", "/fr/scanner", "/fr/scan-x", "/en/admin/scan", "/fr/compte/pass", "/fr/festival", "/fr/admin/evenements", "/api/sante", "/robots.txt"];
+    for (const chemin of scans) {
+      expect(scan.exec(chemin) !== null, `${chemin} dans Scan`).toBe(true);
+      expect(hors.exec(chemin) !== null, `${chemin} hors Scan`).toBe(false);
+    }
+    for (const chemin of autres) {
+      expect(hors.exec(chemin) !== null, `${chemin} hors Scan`).toBe(true);
+      expect(scan.exec(chemin) !== null, `${chemin} dans Scan`).toBe(false);
+    }
+  });
+
+  it("le module WebAssembly du lecteur de Code QR n'est autorisé que sur la page de Scan, sans CDN tiers", () => {
+    const options = { adresseSupabase: "https://projet.supabase.co", production: true };
+    expect(politiqueContenu(options)).not.toContain("wasm-unsafe-eval");
+    const csp = politiqueContenu({ ...options, scan: true });
+    expect(csp).toContain("script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'");
+    expect(csp).not.toMatch(/jsdelivr|unpkg/);
+    expect(csp).toContain("connect-src 'self'");
   });
 
   it("autorise seulement le CDN public de Bunny comme média externe (héros, extrait HLS en blob:), et l'API de Bunny pour l'envoi", () => {

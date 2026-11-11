@@ -31,6 +31,8 @@ const INTERDITS_ASSISTANT: Droit[] = [
   "admin.acceder",
   // Décision de Jonathan du 2026-11-10 : les Événements restent à l'Admin seul pour l'instant (écart avec FR-53, noté dans deferred-work.md).
   "evenements.gerer",
+  // Story 7.6 : le Scan est à l'Admin seul pour l'instant (le bénévole viendra avec la story 7.7).
+  "pass.scanner",
 ];
 
 describe("matrice des droits", () => {

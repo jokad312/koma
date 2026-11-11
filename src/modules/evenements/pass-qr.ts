@@ -1,29 +1,17 @@
 import qrcode from "qrcode-generator";
 
-// Code QR d'un Pass (story 7.5, UX-DR40). Le Code QR encode une charge qui contient le jeton secret du Pass (192 bits aléatoires), jamais
-// l'identifiant du Pass seul. La charge n'est pas une adresse : un appareil photo qui la lit n'ouvre rien, et le site n'y est pas nommé.
-// Le scan (story 7.6) relit le jeton avec extraireJeton.
-export const PREFIXE_CHARGE_QR = "KOMA:PASS:";
+// Code QR d'un Pass (story 7.5, UX-DR40). Le Code QR encode une charge qui contient le jeton secret du Pass (192 bits aléatoires), jamais l'identifiant
+// du Pass seul. La charge n'est pas une adresse : un appareil photo qui la lit n'ouvre rien, et le site n'y est pas nommé.
+// Le scan (story 7.6) relit le jeton avec extraireJeton, défini dans pass-charge.ts (sans bibliothèque de dessin, donc léger côté navigateur).
+import { jetonValide, PREFIXE_CHARGE_QR } from "./pass-charge";
+
+export { extraireJeton, jetonValide, PREFIXE_CHARGE_QR } from "./pass-charge";
 // Zone de silence autour du Code QR, en modules (UX-DR40 : 4 modules, sur fond blanc pur).
 export const ZONE_SILENCE_MODULES = 4;
-
-const MOTIF_JETON = /^[0-9a-f]{48}$/;
-
-export function jetonValide(jeton: string): boolean {
-  return MOTIF_JETON.test(jeton);
-}
 
 export function chargeQr(jeton: string): string {
   if (!jetonValide(jeton)) throw new Error("Jeton de Pass invalide.");
   return `${PREFIXE_CHARGE_QR}${jeton}`;
-}
-
-// Lit le jeton d'une charge de Code QR ; null si ce n'est pas un Pass KOMA bien formé.
-export function extraireJeton(charge: string): string | null {
-  const texte = charge.trim();
-  if (!texte.startsWith(PREFIXE_CHARGE_QR)) return null;
-  const jeton = texte.slice(PREFIXE_CHARGE_QR.length);
-  return jetonValide(jeton) ? jeton : null;
 }
 
 // Code QR dessiné : « taille » (en modules, zone de silence comprise) et « chemin » (SVG, une unité par module). Le fond blanc est dessiné par le composant.

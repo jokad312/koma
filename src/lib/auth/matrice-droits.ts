@@ -14,6 +14,8 @@ export const DROITS = [
   // Réservés à l'Admin. « evenements.gerer » : décision de Jonathan du 2026-11-10, Admin seulement pour l'instant
   // (la base refuse déjà l'Assistant sur les fonctions d'écriture des Événements).
   "evenements.gerer",
+  // Scan des Pass à l'entrée (story 7.6) : Admin seulement pour l'instant ; l'accès du bénévole, limité à son Événement et à son jour, est la story 7.7.
+  "pass.scanner",
   "admin.acceder",
   "produits.modifier",
   "prix.modifier",

@@ -420,3 +420,8 @@
 ## Story 7.5 : émission des Pass et Mes Pass (2026-11-11)
 - Spec : `spec-7-5-emission-des-pass-et-mes-pass.md`. Textes écrits par Claude (FR/EN, espace `Pass`, `Emails.pass_emis`, `Metadata.comptePass`, lien « Mes Pass » du compte) à valider ; aucun `[Texte à fournir]`.
 - À tester à la main : après un vrai paiement sandbox d'une Commande de Pass, les Pass apparaissent dans `/fr/compte/pass` ; l'email arrive avec les QR joints ; scanner un QR avec un téléphone (charge `KOMA:PASS:` + 48 caractères hexadécimaux) ; « Agrandir » au clavier et à 375 px ; un autre Compte ne voit rien.
+
+
+## Story 7.6 : scan en ligne (2026-11-11)
+- Spec : `spec-7-6-scan-en-ligne.md`. Textes écrits par Claude (FR/EN, espace `Scan`, `Admin.nav.scan`, `Metadata.scan`) à valider ; « VALIDE / REFUSÉ » et les textes de caméra refusée viennent de l'epic. Aucun `[Texte à fournir]`.
+- À tester à la main sur téléphone : voir la spec (essai terrain obligatoire avant l'événement).

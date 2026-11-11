@@ -13,6 +13,8 @@ const ENTREES = [
   { cle: "univers", href: "/admin/univers" },
   { cle: "blog", href: "/admin/blog" },
   { cle: "evenements", href: "/admin/evenements" },
+  // Écran de Scan (story 7.6) : hors du dossier /admin (plein écran sur téléphone), mais réservé à l'administration.
+  { cle: "scan", href: "/scan" },
   { cle: "galerie", href: "/admin/galerie" },
   { cle: "codesPromo", href: "/admin/codes-promo" },
   { cle: "messages", href: "/admin/messages" },
