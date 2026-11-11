@@ -368,6 +368,9 @@
   "Scan": {
     "titre": "Scan des Pass",
     "retourAdmin": "Retour à l'administration",
+    "acces": {
+      "indisponible": "Ton accès au Scan n'est pas encore ouvert, ou il est terminé : il n'est valable que le jour de l'événement. Si tu penses que c'est une erreur, préviens l'organisateur."
+    },
     "aide": "Choisis l'événement, puis place le Code QR du pass dans le cadre.",
     "evenement": {
       "libelle": "Événement à scanner",
@@ -415,7 +418,7 @@
       "evenement_invalide": "Choisis d'abord l'événement à scanner.",
       "saisie_invalide": "Cette saisie n'est pas valable.",
       "non_connecte": "Ta session a expiré. Reconnecte-toi pour scanner.",
-      "non_autorise": "Tu n'as pas le droit de scanner les pass.",
+      "non_autorise": "Tu n'as pas (ou plus) le droit de scanner les pass de cet événement.",
       "trop_d_essais": "Trop de codes saisis à la main. Attends quelques minutes, ou scanne le Code QR.",
       "generique": "Le résultat n'a pas pu être vérifié. Scanne de nouveau le pass : s'il a déjà été scanné, l'écran l'indiquera."
     }
@@ -884,6 +887,45 @@
       }
     },
     "evenements": {
+      "benevoles": {
+        "titre": "Bénévoles à l'entrée",
+        "aide": "Donne à un bénévole l'accès à l'écran de Scan de cet événement, pour le jour de l'événement seulement. Il ne voit rien d'autre : ni commandes, ni clients, ni réglages.",
+        "aideFin": "Sans heure de fin, l'accès s'arrête à minuit (heure de Goma) le jour du début ; renseigne la fin de l'événement s'il dépasse minuit.",
+        "prerequis": "Le bénévole doit d'abord créer son Compte avec son adresse email (connexion par code reçu par email).",
+        "champ": {
+          "libelle": "Adresse email du bénévole",
+          "aide": "L'adresse qu'il utilise pour se connecter."
+        },
+        "donner": "Donner l'accès",
+        "enCours": "Enregistrement…",
+        "succes": {
+          "attribue": "Accès donné à {email}.",
+          "deja": "{email} a déjà cet accès.",
+          "mis_a_jour": "Accès mis à jour pour {email} : la date de l'événement a changé."
+        },
+        "sansCompte": "Aucun compte pour cet email : le bénévole doit d'abord créer son Compte par code email.",
+        "liste": {
+          "titre": "Accès donnés",
+          "vide": "Aucun bénévole pour cet événement.",
+          "jour": "Le {jour}",
+          "jours": "Du {debut} au {fin}",
+          "valide": "Valable maintenant",
+          "avenir": "Pas encore ouvert",
+          "termine": "Terminé",
+          "retirer": "Retirer",
+          "retirerPour": "Retirer l'accès de {email}",
+          "retire": "Accès retiré."
+        },
+        "erreurs": {
+          "email_invalide": "Cette adresse email n'est pas valable.",
+          "evenement_passe": "Le jour de cet événement est passé : l'accès ne peut plus être donné.",
+          "evenement_sans_date": "Cet événement n'a pas de date : renseigne-la avant de donner un accès.",
+          "non_connecte": "Ta session a expiré. Reconnecte-toi.",
+          "non_autorise": "Tu n'as plus le droit de gérer les accès bénévoles. Recharge la page ou reconnecte-toi.",
+          "generique": "L'opération n'a pas abouti. Réessaie dans un instant."
+        },
+        "erreurLecture": "Les accès bénévoles n'ont pas pu être lus. Recharge la page."
+      },
       "alertes": {
         "titre": "Alertes « Me prévenir »",
         "aide": "Personnes qui veulent être prévenues à l'ouverture de la vente des Pass. Les emails partent tout seuls à ce moment ; le site n'envoie aucun message WhatsApp.",

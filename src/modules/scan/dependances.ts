@@ -1,7 +1,7 @@
 import "server-only";
 import { createHmac } from "node:crypto";
 import { headers } from "next/headers";
-import { exigerDroit } from "@/lib/auth/droits";
+import { exigerAccesScan } from "@/lib/auth/droits";
 import { lireEnvServeur } from "@/lib/env";
 import { creerClientService } from "@/lib/supabase/service";
 import type { Json } from "@/lib/supabase/types";
@@ -15,8 +15,8 @@ export function dependancesScan(): DependancesScan {
   const admin = creerClientService();
   const hacher = (valeur: string) => createHmac("sha256", lireEnvServeur().SUPABASE_SECRET_KEY).update(valeur).digest("hex");
   return {
-    exigerDroit: async () => {
-      const { auteur } = await exigerDroit("pass.scanner");
+    exigerAcces: async (evenementId) => {
+      const { auteur } = await exigerAccesScan(evenementId);
       return { auteur: { type: "compte", id: auteur.id, role: auteur.role } };
     },
     empreinteValeur: hacher,

@@ -425,3 +425,8 @@
 ## Story 7.6 : scan en ligne (2026-11-11)
 - Spec : `spec-7-6-scan-en-ligne.md`. Textes écrits par Claude (FR/EN, espace `Scan`, `Admin.nav.scan`, `Metadata.scan`) à valider ; « VALIDE / REFUSÉ » et les textes de caméra refusée viennent de l'epic. Aucun `[Texte à fournir]`.
 - À tester à la main sur téléphone : voir la spec (essai terrain obligatoire avant l'événement).
+
+
+## Story 7.7 : accès bénévole (2026-11-11)
+- Spec : `spec-7-7-acces-benevole.md`. Textes écrits par Claude (FR/EN, `Admin.evenements.benevoles.*`, `Scan.acces.indisponible`) à valider. Aucun `[Texte à fournir]`.
+- À tester à la main : créer un compte de test par code email, lui donner l'accès dans l'admin d'un événement daté ; le jour J, `/fr/scan` ne montre que cet événement ; `/fr/admin` rend 404 ; hors fenêtre, refus.

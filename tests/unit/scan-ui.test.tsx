@@ -105,6 +105,20 @@ describe("écran de Scan", () => {
     await waitFor(() => expect(media.getUserMedia).toHaveBeenCalledTimes(1));
   });
 
+  it("bénévole (story 7.7) : un seul Événement, affiché en texte, sans liste de choix ; la caméra démarre et le scan vise cet Événement", async () => {
+    const media = fauxMedia("ok");
+    rendre(<EcranScan evenements={[EVENEMENT]} benevole />);
+    expect(screen.queryByRole("combobox")).toBeNull();
+    expect(screen.getByText("TEST_Festival")).toBeTruthy();
+    await waitFor(() => expect(media.getUserMedia).toHaveBeenCalledTimes(1));
+    action.mockResolvedValue({ ok: false, erreur: "non_autorise" });
+    await userEvent.click(screen.getByRole("button", { name: "Saisir le code à la main" }));
+    await userEvent.type(screen.getByLabelText("Code court du pass"), "KMNP2345");
+    await userEvent.click(screen.getByRole("button", { name: "Vérifier le code" }));
+    await waitFor(() => expect(action).toHaveBeenCalledWith({ evenementId: EVENEMENT.id, code: "KMNP2345" }));
+    expect((await screen.findByRole("alert")).textContent).toContain("Tu n'as pas (ou plus) le droit de scanner les pass de cet événement.");
+  });
+
   it("caméra refusée : message demandé, instructions en texte, saisie à la main toujours là", async () => {
     fauxMedia("refuse");
     rendre(<EcranScan evenements={[EVENEMENT]} />);

@@ -15,7 +15,7 @@ const VALIDE: ReponseScanBase = { resultat: "valide", nom: "TEST_Alice", eveneme
 
 function faux(s: Partial<DependancesScan> = {}): DependancesScan {
   return {
-    exigerDroit: vi.fn(async () => ({ auteur: AUTEUR })),
+    exigerAcces: vi.fn<DependancesScan["exigerAcces"]>(async () => ({ auteur: AUTEUR })),
     empreinteValeur: vi.fn((v: string) => `TEST_hash_${v.length}`),
     empreinteClient: vi.fn(async () => "TEST_empreinte_ip"),
     consommerEssai: vi.fn(async () => ({ erreur: null, autorise: true })),
@@ -92,20 +92,31 @@ describe("scan d'un Code QR", () => {
     expect(await scannerPass(d, { evenementId: EVENEMENT, langue: "fr", charge: "a", code: "b" })).toEqual({ ok: false, erreur: "saisie_invalide" });
     expect(await scannerPass(d, { ...qr(), evenementId: "pas-un-uuid" })).toEqual({ ok: false, erreur: "evenement_invalide" });
     expect(await scannerPass(d, { evenementId: EVENEMENT, langue: "fr", charge: "x".repeat(201) })).toEqual({ ok: false, erreur: "saisie_invalide" });
-    expect(d.exigerDroit).not.toHaveBeenCalled();
+    expect(d.exigerAcces).not.toHaveBeenCalled();
   });
 });
 
 describe("droit de scanner", () => {
+  it("le droit est demandé pour l'Événement choisi (accès bénévole par Événement, story 7.7)", async () => {
+    const d = faux();
+    await scannerPass(d, qr());
+    expect(d.exigerAcces).toHaveBeenCalledWith(EVENEMENT);
+  });
+  it("un bénévole sans accès valable pour cet Événement : refus, aucun appel à la base ni aux limites", async () => {
+    const d = faux({ exigerAcces: vi.fn(async () => { throw new Error("KS_DROIT_REFUSE"); }) });
+    expect(await scannerPass(d, manuel("KMNP2345"))).toEqual({ ok: false, erreur: "non_autorise" });
+    expect(d.consommerEssai).not.toHaveBeenCalled();
+    expect(d.scanner).not.toHaveBeenCalled();
+  });
   it("visiteur et Compte sans droit : aucun appel à la base", async () => {
     for (const [code, erreur] of [["KS_NON_CONNECTE", "non_connecte"], ["KS_DROIT_REFUSE", "non_autorise"]] as const) {
-      const d = faux({ exigerDroit: vi.fn(async () => { throw new Error(code); }) });
+      const d = faux({ exigerAcces: vi.fn(async () => { throw new Error(code); }) });
       expect(await scannerPass(d, qr())).toEqual({ ok: false, erreur });
       expect(d.scanner).not.toHaveBeenCalled();
     }
   });
   it("vérification impossible : échec générique, jamais un VALIDE", async () => {
-    const d = faux({ exigerDroit: vi.fn(async () => { throw new Error("KS_VERIFICATION_IMPOSSIBLE"); }) });
+    const d = faux({ exigerAcces: vi.fn(async () => { throw new Error("KS_VERIFICATION_IMPOSSIBLE"); }) });
     expect(await scannerPass(d, qr())).toEqual({ ok: false, erreur: "generique" });
   });
   it("la base qui refuse le droit est relayée", async () => {

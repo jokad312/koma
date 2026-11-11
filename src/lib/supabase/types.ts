@@ -39,6 +39,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      acces_benevole: {
+        Row: {
+          compte_id: string
+          cree_le: string
+          cree_par: string
+          evenement_id: string
+          id: string
+          modifie_le: string
+          valable_du: string
+          valable_jusqu_au: string
+        }
+        Insert: {
+          compte_id: string
+          cree_le?: string
+          cree_par: string
+          evenement_id: string
+          id?: string
+          modifie_le?: string
+          valable_du: string
+          valable_jusqu_au: string
+        }
+        Update: {
+          compte_id?: string
+          cree_le?: string
+          cree_par?: string
+          evenement_id?: string
+          id?: string
+          modifie_le?: string
+          valable_du?: string
+          valable_jusqu_au?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acces_benevole_evenement_id_fkey"
+            columns: ["evenement_id"]
+            isOneToOne: false
+            referencedRelation: "evenement"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       acces_kit: {
         Row: {
           commande_origine: string
@@ -2255,6 +2296,17 @@ export type Database = {
         Returns: boolean
       }
       abandonner_tentatives_perimees: { Args: never; Returns: number }
+      acces_benevole_fenetre: {
+        Args: { p_debut: string; p_fin: string }
+        Returns: {
+          du: string
+          jusqu_au: string
+        }[]
+      }
+      acces_scan_valide: {
+        Args: { p_compte: string; p_evenement: string }
+        Returns: boolean
+      }
       admin_sante: { Args: never; Returns: number }
       ajouter_au_panier: {
         Args: {
@@ -2319,6 +2371,10 @@ export type Database = {
       assurer_profil: {
         Args: { p_auteur: Json; p_compte: string; p_langue: string }
         Returns: undefined
+      }
+      attribuer_acces_benevole: {
+        Args: { p_auteur: Json; p_email: string; p_evenement: string }
+        Returns: Json
       }
       attribuer_role: {
         Args: {
@@ -2847,6 +2903,15 @@ export type Database = {
           ligne_id: string
         }[]
       }
+      lire_acces_benevole_compte: {
+        Args: { p_compte: string }
+        Returns: {
+          evenement_id: string
+          valable_du: string
+          valable_jusqu_au: string
+          valide: boolean
+        }[]
+      }
       lire_panier: {
         Args: { p_panier: string }
         Returns: {
@@ -2864,6 +2929,16 @@ export type Database = {
         }[]
       }
       lire_preferences: { Args: { p_compte: string }; Returns: Json }
+      lister_acces_benevoles: {
+        Args: { p_auteur: Json; p_evenement: string }
+        Returns: {
+          email: string
+          id: string
+          valable_du: string
+          valable_jusqu_au: string
+          valide: boolean
+        }[]
+      }
       lister_catalogue: {
         Args: {
           p_curseur_date?: string
@@ -3054,6 +3129,10 @@ export type Database = {
         }
         Returns: string
       }
+      retirer_acces_benevole: {
+        Args: { p_acces: string; p_auteur: Json; p_evenement: string }
+        Returns: boolean
+      }
       retirer_couverture: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
@@ -3102,6 +3181,7 @@ export type Database = {
         Returns: string
       }
       stock_disponible: { Args: { p_variante: string }; Returns: number }
+      supprimer_acces_benevoles_echus: { Args: never; Returns: number }
       supprimer_chapitre_kit: {
         Args: { p_auteur: Json; p_chapitre_id: string }
         Returns: undefined

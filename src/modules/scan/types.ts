@@ -20,8 +20,9 @@ export type EntreeScan = { evenementId: unknown; langue: unknown; charge?: unkno
 export type AuteurScan = { type: "compte"; id: string; role: string | null };
 
 export type DependancesScan = {
-  // Droit de scanner (« pass.scanner »), vérifié en base ; lève KS_NON_CONNECTE / KS_DROIT_REFUSE.
-  exigerDroit: () => Promise<{ auteur: AuteurScan }>;
+  // Droit de scanner les Pass de CET Événement : Admin (« pass.scanner ») ou bénévole dont l'accès est valable maintenant pour cet Événement (story 7.7).
+  // Vérifié en base ; lève KS_NON_CONNECTE / KS_DROIT_REFUSE.
+  exigerAcces: (evenementId: string) => Promise<{ auteur: AuteurScan }>;
   empreinteValeur: (valeur: string) => string;
   empreinteClient: () => Promise<string | null>;
   consommerEssai: (a: { cle: string; fenetreSecondes: number; maximum: number }) => Promise<{ erreur: string | null; autorise: boolean }>;

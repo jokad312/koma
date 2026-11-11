@@ -31,7 +31,7 @@ const INTERDITS_ASSISTANT: Droit[] = [
   "admin.acceder",
   // Décision de Jonathan du 2026-11-10 : les Événements restent à l'Admin seul pour l'instant (écart avec FR-53, noté dans deferred-work.md).
   "evenements.gerer",
-  // Story 7.6 : le Scan est à l'Admin seul pour l'instant (le bénévole viendra avec la story 7.7).
+  // Story 7.6 : le Scan est à l'Admin seul dans la matrice. Le bénévole (story 7.7) ne l'obtient PAS par la matrice : seulement par son accès par Événement.
   "pass.scanner",
 ];
 
@@ -58,6 +58,16 @@ describe("matrice des droits", () => {
       expect(droitAutorise("benevole", droit), droit).toBe(false);
       expect(droitAutorise(null, droit), droit).toBe(false);
     }
+  });
+
+  it("story 7.7 : « pass.scanner » reste réservé à l'Admin dans la matrice ; le bénévole ne le tient que d'un accès par Événement (base)", () => {
+    expect(droitAutorise("admin", "pass.scanner")).toBe(true);
+    expect(droitAutorise("assistant", "pass.scanner")).toBe(false);
+    expect(droitAutorise("benevole", "pass.scanner")).toBe(false);
+    expect(droitAutorise(null, "pass.scanner")).toBe(false);
+    // Donner ou retirer un accès bénévole est un droit de l'Admin seul.
+    expect(droitAutorise("assistant", "benevoles.acces")).toBe(false);
+    expect(droitAutorise("benevole", "benevoles.acces")).toBe(false);
   });
 
   it("refus par défaut : un droit inconnu ou un rôle inconnu n'est jamais accordé", () => {

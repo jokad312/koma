@@ -51,7 +51,7 @@ export async function scannerPass(deps: DependancesScan, entree: EntreeScan): Pr
 
   let auteur: AuteurScan;
   try {
-    ({ auteur } = await deps.exigerDroit());
+    ({ auteur } = await deps.exigerAcces(entree.evenementId));
   } catch (e) {
     const code = e instanceof Error ? e.message : "";
     if (code === "KS_NON_CONNECTE") return { ok: false, erreur: "non_connecte" };

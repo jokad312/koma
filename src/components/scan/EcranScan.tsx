@@ -29,7 +29,8 @@ function vibrer(motif: number | number[]) {
 
 // Écran de Scan en ligne (story 7.6). Le jeton du Code QR n'existe que le temps de l'appel au serveur : il n'est ni affiché, ni mis en état, ni écrit
 // dans l'adresse ou le stockage du navigateur, ni journalisé. Le contenu d'un Code QR qui n'est pas « KOMA:PASS:<jeton> » n'est jamais envoyé.
-export function EcranScan({ evenements }: { evenements: EvenementScannable[] }) {
+// « benevole » (story 7.7) : l'écran d'un bénévole n'offre pas de choix quand son accès ne couvre qu'un Événement ; le serveur revérifie l'accès à chaque scan.
+export function EcranScan({ evenements, benevole = false }: { evenements: EvenementScannable[]; benevole?: boolean }) {
   const t = useTranslations("Scan");
   const locale = useLocale();
   const idEvenement = useId();
@@ -201,19 +202,26 @@ export function EcranScan({ evenements }: { evenements: EvenementScannable[] }) 
   return (
     <>
     <div className="flex flex-col gap-5" inert={resultat?.ok === true}>
-      <div className="flex flex-col gap-2">
-        <label htmlFor={idEvenement} className="t-label">
-          {t("evenement.libelle")}
-        </label>
-        <select id={idEvenement} value={evenementId} onChange={(e) => changerEvenement(e.target.value)} className={CHAMP}>
-          {evenements.length > 1 ? <option value="">{t("evenement.choisir")}</option> : null}
-          {evenements.map((e) => (
-            <option key={e.id} value={e.id}>
-              {e.titre}
-            </option>
-          ))}
-        </select>
-      </div>
+      {benevole && evenements.length === 1 ? (
+        <div className="flex flex-col gap-1">
+          <p className="t-label">{t("evenement.libelle")}</p>
+          <p className="t-body font-bold">{evenements[0].titre}</p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-2">
+          <label htmlFor={idEvenement} className="t-label">
+            {t("evenement.libelle")}
+          </label>
+          <select id={idEvenement} value={evenementId} onChange={(e) => changerEvenement(e.target.value)} className={CHAMP}>
+            {evenements.length > 1 ? <option value="">{t("evenement.choisir")}</option> : null}
+            {evenements.map((e) => (
+              <option key={e.id} value={e.id}>
+                {e.titre}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       {evenementId ? (
         <section className="flex flex-col gap-4" aria-label={t("titre")}>

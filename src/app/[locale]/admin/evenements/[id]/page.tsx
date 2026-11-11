@@ -7,6 +7,7 @@ import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { FormulaireEvenement } from "@/components/admin/FormulaireEvenement";
 import { PublicationEvenement } from "@/components/admin/PublicationEvenement";
 import { SectionAlertes } from "@/components/admin/SectionAlertes";
+import { SectionBenevoles } from "@/components/admin/SectionBenevoles";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
 import { Link } from "@/i18n/navigation";
@@ -16,6 +17,8 @@ import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
 import { lireNombresAlertes } from "@/modules/alertes/dependances";
 import type { NombresAlertes } from "@/modules/alertes/types";
+import { lireAccesBenevoles } from "@/modules/benevoles/dependances";
+import type { AccesBenevole } from "@/modules/benevoles/types";
 import { lireEvenementAdmin, lireManquesPublication } from "@/modules/evenements/queries";
 import type { Evenement } from "@/modules/evenements/types";
 
@@ -76,6 +79,15 @@ async function EvenementSelonDroit({
       console.error("[alertes] lecture des alertes impossible");
     }
   }
+  // Accès bénévoles de CET Événement (story 7.7, Admin seulement) : une lecture en échec n'empêche pas d'éditer l'événement.
+  let benevoles: AccesBenevole[] | null = null;
+  if (evenement) {
+    try {
+      benevoles = await lireAccesBenevoles(auteur, id);
+    } catch {
+      console.error("[benevoles] lecture des accès impossible");
+    }
+  }
   if (lecture && !evenement) notFound();
   return (
     <CoqueAdmin>
@@ -92,6 +104,7 @@ async function EvenementSelonDroit({
             <PublicationEvenement evenementId={evenement.id} publie={evenement.publieLe !== null} manques={manques} />
             {alertes ? <SectionAlertes evenementId={evenement.id} nombres={alertes} /> : null}
             {alertesLisibles ? null : <MessageEtat type="erreur">{t("alertes.erreurLecture")}</MessageEtat>}
+            {benevoles ? <SectionBenevoles evenementId={evenement.id} acces={benevoles} /> : <MessageEtat type="erreur">{t("benevoles.erreurLecture")}</MessageEtat>}
             <FormulaireEvenement evenement={evenement} />
           </>
         ) : (

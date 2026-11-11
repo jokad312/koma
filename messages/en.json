@@ -368,6 +368,9 @@
   "Scan": {
     "titre": "Pass scanning",
     "retourAdmin": "Back to administration",
+    "acces": {
+      "indisponible": "Your Scan access is not open yet, or it has ended: it is only valid on the day of the event. If you think this is a mistake, let the organizer know."
+    },
     "aide": "Choose the event, then place the pass QR code in the frame.",
     "evenement": {
       "libelle": "Event to scan",
@@ -415,7 +418,7 @@
       "evenement_invalide": "Choose the event to scan first.",
       "saisie_invalide": "This entry is not valid.",
       "non_connecte": "Your session has expired. Sign in again to scan.",
-      "non_autorise": "You are not allowed to scan passes.",
+      "non_autorise": "You do not (or no longer) have the right to scan this event's passes.",
       "trop_d_essais": "Too many codes entered by hand. Wait a few minutes, or scan the QR code.",
       "generique": "The result could not be checked. Scan the pass again: if it was already scanned, the screen will say so."
     }
@@ -884,6 +887,45 @@
       }
     },
     "evenements": {
+      "benevoles": {
+        "titre": "Entrance volunteers",
+        "aide": "Give a volunteer access to this event's Scan screen, for the day of the event only. They see nothing else: no orders, no customers, no settings.",
+        "aideFin": "Without an end time, access stops at midnight (Goma time) on the start day; set the event's end if it runs past midnight.",
+        "prerequis": "The volunteer must first create their Account with their email address (sign-in with a code sent by email).",
+        "champ": {
+          "libelle": "Volunteer's email address",
+          "aide": "The address they use to sign in."
+        },
+        "donner": "Give access",
+        "enCours": "Saving…",
+        "succes": {
+          "attribue": "Access given to {email}.",
+          "deja": "{email} already has this access.",
+          "mis_a_jour": "Access updated for {email}: the event date has changed."
+        },
+        "sansCompte": "No account for this email: the volunteer must first create their Account with an email code.",
+        "liste": {
+          "titre": "Access given",
+          "vide": "No volunteer for this event.",
+          "jour": "On {jour}",
+          "jours": "From {debut} to {fin}",
+          "valide": "Valid now",
+          "avenir": "Not open yet",
+          "termine": "Ended",
+          "retirer": "Remove",
+          "retirerPour": "Remove access for {email}",
+          "retire": "Access removed."
+        },
+        "erreurs": {
+          "email_invalide": "This email address is not valid.",
+          "evenement_passe": "This event's day has passed: access can no longer be given.",
+          "evenement_sans_date": "This event has no date: set it before giving access.",
+          "non_connecte": "Your session has expired. Sign in again.",
+          "non_autorise": "You no longer have the right to manage volunteer access. Reload the page or sign in again.",
+          "generique": "The operation did not go through. Try again in a moment."
+        },
+        "erreurLecture": "Volunteer access could not be read. Reload the page."
+      },
       "alertes": {
         "titre": "\"Notify me\" alerts",
         "aide": "People who want to be told when Pass sales open. Emails go out by themselves at that moment; the site sends no WhatsApp message.",
