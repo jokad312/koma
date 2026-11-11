@@ -49,6 +49,7 @@ export async function lireEvenementAdmin(id: string): Promise<Evenement | null> 
     images: lireImages(data.images),
     publieLe: data.publie_le,
     modifieLe: data.modifie_le,
+    galerieUrl: data.galerie_url,
     types,
   };
 }

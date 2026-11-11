@@ -693,6 +693,7 @@ export type Database = {
           description_en: string | null
           description_fr: string | null
           fin_le: string | null
+          galerie_url: string | null
           id: string
           images: Json
           lieu_en: string | null
@@ -714,6 +715,7 @@ export type Database = {
           description_en?: string | null
           description_fr?: string | null
           fin_le?: string | null
+          galerie_url?: string | null
           id?: string
           images?: Json
           lieu_en?: string | null
@@ -735,6 +737,7 @@ export type Database = {
           description_en?: string | null
           description_fr?: string | null
           fin_le?: string | null
+          galerie_url?: string | null
           id?: string
           images?: Json
           lieu_en?: string | null
@@ -2843,6 +2846,10 @@ export type Database = {
         Args: { p_auteur: Json; p_extrait: string; p_produit_id: string }
         Returns: string
       }
+      enregistrer_galerie_evenement: {
+        Args: { p_auteur: Json; p_evenement: string; p_lien: string }
+        Returns: undefined
+      }
       enregistrer_initiation: {
         Args: { p_reference_transaction: string; p_tentative: string }
         Returns: undefined
@@ -3012,6 +3019,12 @@ export type Database = {
         Args: { p_auteur: Json; p_compte: string; p_panier: string }
         Returns: Json
       }
+      galerie_evenement_declencher: { Args: never; Returns: boolean }
+      galerie_evenement_pour_envoi: {
+        Args: { p_compte: string; p_evenement: string }
+        Returns: Json
+      }
+      galerie_url_valide: { Args: { p_url: string }; Returns: boolean }
       inscrire_alerte_evenement: {
         Args: {
           p_auteur: Json
@@ -3216,6 +3229,7 @@ export type Database = {
       places_type_pass_utilisees: { Args: { p_type: string }; Returns: number }
       planifier_alertes_evenements: { Args: never; Returns: number }
       planifier_emails_cibles: { Args: never; Returns: number }
+      planifier_galeries_evenements: { Args: never; Returns: number }
       possede_kit: {
         Args: { p_compte: string; p_produit: string }
         Returns: boolean
@@ -3516,6 +3530,7 @@ export type Database = {
         | "pass_emis"
         | "pass_annule"
         | "pass_rembourse"
+        | "galerie_evenement"
       envoi_statut: "a_envoyer" | "envoye" | "echec" | "abandonne" | "ignore"
     }
     CompositeTypes: {
@@ -3674,6 +3689,7 @@ export const Constants = {
         "pass_emis",
         "pass_annule",
         "pass_rembourse",
+        "galerie_evenement",
       ],
       envoi_statut: ["a_envoyer", "envoye", "echec", "abandonne", "ignore"],
     },

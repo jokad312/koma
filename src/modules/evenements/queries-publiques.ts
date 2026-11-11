@@ -145,7 +145,7 @@ export async function lireEvenementPublie(locale: "fr" | "en", slug: string): Pr
   const client = creerClientPublic();
   const { data, error } = await client
     .from("evenement")
-    .select("id, slug, titre_fr, titre_en, description_fr, description_en, lieu_fr, lieu_en, debut_le, fin_le, vente_ouvre_le, images")
+    .select("id, slug, titre_fr, titre_en, description_fr, description_en, lieu_fr, lieu_en, debut_le, fin_le, vente_ouvre_le, images, galerie_url")
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw new Error("Lecture de l'événement impossible.");
@@ -178,6 +178,8 @@ export async function lireEvenementPublie(locale: "fr" | "en", slug: string): Pr
     venteAVenir: new Date(data.debut_le).getTime() >= Date.now() && ouvertureFuture(data.vente_ouvre_le),
     venteOuvreLe: data.vente_ouvre_le,
     images: lireImages(data.images).map((image) => ({ url: urlPhotoPublique(image.fichier), alt: altDeLaLangue(locale, image) })),
+    // Le lien n'est montré que sur la page d'un Événement passé (FR-39).
+    galerieUrl: new Date(data.debut_le).getTime() < Date.now() ? data.galerie_url : null,
     types,
   };
 }

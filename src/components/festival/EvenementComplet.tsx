@@ -108,6 +108,19 @@ export async function EvenementComplet({ evenement, locale }: Props) {
         </section>
       ) : null}
 
+      {evenement.galerieUrl ? (
+        <section aria-labelledby="festival-galerie" className="flex max-w-[720px] flex-col gap-3">
+          <h2 id="festival-galerie" className="t-h2">
+            {t("galerie.titre")}
+          </h2>
+          <p className="t-body text-text-primary">{t("galerie.texte")}</p>
+          <a href={evenement.galerieUrl} target="_blank" rel="noopener noreferrer" className="t-body inline-flex min-h-touch items-center text-text-primary underline">
+            {t("galerie.lien")}
+          </a>
+          <p className="t-small text-text-secondary">{t("galerie.retrait")}</p>
+        </section>
+      ) : null}
+
       {evenement.types.length > 0 ? (
         <section aria-labelledby="festival-pass" className="flex flex-col gap-4">
           <h2 id="festival-pass" className="t-h2">

@@ -443,3 +443,10 @@
 - Défaut trouvé par le test pgTAP et corrigé par une nouvelle migration (`20270110120000`) : l'unité d'annulation d'une ligne de plusieurs Pass non-Stand regroupait tous ses Pass.
 - Décision : frais d'annulation figés par un déclencheur sur `commande` (la 7.4 ne les figeait pas) ; Pass offert non remboursable ; Stand annulé et remboursé par paire.
 - À tester à la main : voir la spec (Événement de test à plus de 48 h, annulation, acceptation, preuve, emails, Stand, réglage des frais vide).
+
+
+## Story 7.10 : galerie d'événement (2026-11-11)
+- Spec : `spec-7-10-galerie-d-evenement.md`. Textes écrits par Claude (FR/EN) à valider ; aucun `[Texte à fournir]`. Hôtes acceptés : Google Drive, Google Photos, liens courts Google Photos (décision à confirmer).
+- Correctif de migration : `{1,500}` dépasse la limite de 255 des expressions régulières PostgreSQL (migration `20270111120000`).
+- À tester à la main : voir la spec (lien, affichage public, un seul email par acheteur).
+- Rappel de méthode : un test Vitest (`commande-ui`, étranger à la 7.9) échoue par intermittence quand toute la suite tourne en parallèle ; il passe seul. Un commit de la 7.9 est parti avant d'avoir relu ce résultat : la suite a été relancée (verte) et la CI de la 7.9 est verte. Désormais, commit conditionné au code de sortie des vérifications.

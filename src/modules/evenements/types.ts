@@ -61,6 +61,8 @@ export type Evenement = {
   images: ImageEvenement[];
   publieLe: string | null;
   modifieLe: string;
+  // Lien public de la Galerie d'événement (story 7.10) ; null : pas encore saisi.
+  galerieUrl?: string | null;
   types: TypePass[];
 };
 
@@ -161,5 +163,7 @@ export type EvenementPublic = {
   venteAVenir: boolean;
   venteOuvreLe: string | null;
   images: Array<{ url: string; alt: string }>;
+  // Lien de la Galerie d'événement, seulement pour un Événement passé dont le lien est saisi (story 7.10).
+  galerieUrl?: string | null;
   types: TypePassPublic[];
 };

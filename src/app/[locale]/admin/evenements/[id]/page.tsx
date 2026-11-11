@@ -8,6 +8,7 @@ import { FormulaireEvenement } from "@/components/admin/FormulaireEvenement";
 import { PublicationEvenement } from "@/components/admin/PublicationEvenement";
 import { SectionAlertes } from "@/components/admin/SectionAlertes";
 import { SectionBenevoles } from "@/components/admin/SectionBenevoles";
+import { SectionGalerie } from "@/components/admin/SectionGalerie";
 import { SectionVerrou } from "@/components/admin/SectionVerrou";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
@@ -119,6 +120,7 @@ async function EvenementSelonDroit({
             {alertesLisibles ? null : <MessageEtat type="erreur">{t("alertes.erreurLecture")}</MessageEtat>}
             {benevoles ? <SectionBenevoles evenementId={evenement.id} acces={benevoles} /> : <MessageEtat type="erreur">{t("benevoles.erreurLecture")}</MessageEtat>}
             {verrouLisible ? <SectionVerrou evenementId={evenement.id} verrou={verrou} /> : <MessageEtat type="erreur">{t("verrou.erreurLecture")}</MessageEtat>}
+            <SectionGalerie evenementId={evenement.id} lien={evenement.galerieUrl ?? null} />
             <FormulaireEvenement evenement={evenement} />
           </>
         ) : (

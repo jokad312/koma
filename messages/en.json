@@ -932,6 +932,22 @@
       }
     },
     "evenements": {
+      "galerie": {
+        "titre": "Event gallery",
+        "aide": "The public link to the photo folder (Google Drive or Google Photos). It shows on the past Event's page, and every Pass buyer gets an email with this link once the Event is over (once per buyer, even if the link changes later).",
+        "lien": "Gallery link",
+        "format": "An https link from drive.google.com, photos.google.com or photos.app.goo.gl. Leave empty to clear the link.",
+        "enregistrer": "Save the link",
+        "enregistre": "Link saved.",
+        "efface": "Link cleared.",
+        "erreurs": {
+          "non_autorise": "Only an authorised account can do this.",
+          "entree_invalide": "This request is not valid. Reload the page.",
+          "lien_invalide": "This link is not accepted: it must start with https:// and come from Google Drive or Google Photos.",
+          "evenement_introuvable": "This event was not found.",
+          "generique": "The link could not be saved. Try again."
+        }
+      },
       "verrou": {
         "titre": "Offline scanning",
         "aide": "Only one device at a time can hold this event's offline lock; while it does, other devices cannot scan. If that device is lost, release the lock here: scans it had not sent can no longer be sent, and a task will flag it.",
@@ -2673,6 +2689,12 @@
     "vide": "No upcoming events for now.",
     "erreur": "Something went wrong. Try again in a moment.",
     "passe": "Past event",
+    "galerie": {
+      "titre": "Photos of the event",
+      "texte": "The photos of the event are in the gallery.",
+      "lien": "View the gallery (opens in a new tab)",
+      "retrait": "Are you in a photo and want it removed? Write to us from the Contact page (a parent can do it for their child): we remove it by hand."
+    },
     "programme": "Schedule",
     "pass": "Pass",
     "voirPlus": {
@@ -3180,6 +3202,14 @@
       "montant": "Amount returned: {montant}.",
       "lien": "Your Passes:",
       "bouton": "View my Passes"
+    },
+    "galerie_evenement": {
+      "sujet": "The photos of {evenement} are online",
+      "titre": "Photos of the event",
+      "intro": "The photos of {evenement} are in the gallery.",
+      "retrait": "Are you in a photo and want it removed? Write to us from the Contact page (a parent can do it for their child): we remove it by hand.",
+      "lien": "The gallery:",
+      "bouton": "View the gallery"
     },
     "commercial": {
       "desinscriptionTexte": "Don't want these emails anymore?",

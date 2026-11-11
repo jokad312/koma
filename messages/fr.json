@@ -932,6 +932,22 @@
       }
     },
     "evenements": {
+      "galerie": {
+        "titre": "Galerie d'événement",
+        "aide": "Le lien public du dossier de photos (Google Drive ou Google Photos). Il s'affiche sur la page de l'Événement passé, et chaque acheteur de Pass reçoit un email avec ce lien une fois l'Événement terminé (une seule fois par acheteur, même si le lien change ensuite).",
+        "lien": "Lien de la galerie",
+        "format": "Un lien https de drive.google.com, photos.google.com ou photos.app.goo.gl. Laisse vide pour effacer le lien.",
+        "enregistrer": "Enregistrer le lien",
+        "enregistre": "Lien enregistré.",
+        "efface": "Lien effacé.",
+        "erreurs": {
+          "non_autorise": "Seul un compte autorisé peut faire cela.",
+          "entree_invalide": "Cette demande n'est pas valide. Recharge la page.",
+          "lien_invalide": "Ce lien n'est pas accepté : il doit commencer par https:// et venir de Google Drive ou de Google Photos.",
+          "evenement_introuvable": "Cet événement est introuvable.",
+          "generique": "Le lien n'a pas pu être enregistré. Réessaie."
+        }
+      },
       "verrou": {
         "titre": "Scan hors ligne",
         "aide": "Un seul appareil à la fois peut tenir le Verrou hors ligne de cet événement ; tant qu'il le tient, les autres appareils ne peuvent pas scanner. Si cet appareil est perdu, libère le Verrou ici : les scans qu'il n'avait pas envoyés ne pourront plus l'être, et une tâche te le signalera.",
@@ -2673,6 +2689,12 @@
     "vide": "Aucun événement à venir pour le moment.",
     "erreur": "Un problème est survenu. Réessaie dans un instant.",
     "passe": "Événement passé",
+    "galerie": {
+      "titre": "Les photos de l'événement",
+      "texte": "Les photos de l'événement sont dans la galerie.",
+      "lien": "Voir la galerie (s'ouvre dans un nouvel onglet)",
+      "retrait": "Tu apparais sur une photo et tu veux qu'elle soit retirée ? Écris-nous depuis la page Contact (un parent peut le faire pour son enfant) : nous la retirons à la main."
+    },
     "programme": "Programme",
     "pass": "Pass",
     "voirPlus": {
@@ -3180,6 +3202,14 @@
       "montant": "Montant rendu : {montant}.",
       "lien": "Tes Pass :",
       "bouton": "Voir mes Pass"
+    },
+    "galerie_evenement": {
+      "sujet": "Les photos de {evenement} sont en ligne",
+      "titre": "Les photos de l'événement",
+      "intro": "Les photos de {evenement} sont dans la galerie.",
+      "retrait": "Tu apparais sur une photo et tu veux qu'elle soit retirée ? Écris-nous depuis la page Contact (un parent peut le faire pour son enfant) : nous la retirons à la main.",
+      "lien": "La galerie :",
+      "bouton": "Voir la galerie"
     },
     "commercial": {
       "desinscriptionTexte": "Tu ne veux plus recevoir ces emails ?",
