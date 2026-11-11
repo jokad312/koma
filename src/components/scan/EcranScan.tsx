@@ -243,7 +243,11 @@ export function EcranScan({ evenements, benevole = false, compteId }: { evenemen
       occupe.current = false;
     }, TEMPS_MORT_MS);
     // Le bouton du résultat disparaît : le focus revient à un élément stable de l'écran (le bouton de saisie à la main).
-    requestAnimationFrame(() => boutonManuel.current?.focus());
+    // Seulement si rien n'a pris le focus entre-temps : sur un téléphone chargé, le rappel arrive tard et volerait les premiers caractères d'un code déjà en cours de saisie.
+    requestAnimationFrame(() => {
+      const actif = document.activeElement;
+      if (!actif || actif === document.body) boutonManuel.current?.focus();
+    });
   }
 
   function changerEvenement(valeur: string) {

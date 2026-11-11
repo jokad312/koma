@@ -372,3 +372,25 @@ describe("correctifs de revue", () => {
     expect(screen.queryByText(/Liste de 3 pass/)).toBeNull();
   });
 });
+
+describe("focus après « Scanner le pass suivant » (course trouvée en CI lente)", () => {
+  it("le retour du focus, différé, ne vole pas la frappe d'un bénévole qui a déjà commencé à saisir le code suivant", async () => {
+    // Le navigateur exécute le rappel d'animation tard (machine chargée) : on le retient puis on le rejoue au milieu de la saisie.
+    const rappels: FrameRequestCallback[] = [];
+    vi.spyOn(window, "requestAnimationFrame").mockImplementation((f) => (rappels.push(f), rappels.length));
+    action.mockResolvedValue({ ok: true, resultat: "valide", nom: "TEST_Bob", evenement: "TEST_Festival", typePass: "TEST_Simple" });
+    rendre(<EcranScan evenements={[EVENEMENT]} />);
+    await ouvrirSaisie();
+    await saisir(TEST_PASS[1].code);
+    await screen.findByRole("alert");
+    await suivant();
+    const champ = screen.getByLabelText("Code court du pass") as HTMLInputElement;
+    await userEvent.click(champ);
+    await userEvent.type(champ, TEST_PASS[1].code.slice(0, 4));
+    act(() => rappels.forEach((f) => f(0)));
+    await userEvent.type(champ, TEST_PASS[1].code.slice(4), { skipClick: true });
+    expect(champ.value).toBe(TEST_PASS[1].code);
+    expect(document.activeElement).toBe(champ);
+    vi.restoreAllMocks();
+  });
+});
