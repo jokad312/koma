@@ -47,7 +47,8 @@ for (const langue of LANGUES) {
         expect(jsonld).toContain(chemin === "contact" ? '"ContactPage"' : chemin === "faq" ? '"FAQPage"' : '"WebPage"');
         // Le marqueur « [Texte à fournir] » n'entre jamais dans les données structurées.
         expect(jsonld).not.toContain("[Texte à fournir]");
-        expect(jsonld).not.toMatch(/rating|review|aggregate/i);
+        // Aucun avis ni note inventés : on cherche les types et propriétés de schema.org, pas le mot dans un texte (« after review » dans la FAQ).
+        expect(jsonld).not.toMatch(/"@type":"(Review|AggregateRating|Rating)"|"(aggregateRating|reviewRating|review)":/i);
       });
 
       for (const theme of ["light", "dark"] as const) {
