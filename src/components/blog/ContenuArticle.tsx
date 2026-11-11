@@ -58,7 +58,7 @@ const COMPOSANTS: Components = {
 // Un seul chemin de rendu pour l'aperçu admin et les pages publiques (story 8.7) : même nettoyage dans les deux cas.
 export function ContenuArticle({ texte }: { texte: string }) {
   return (
-    <div className="t-body flex flex-col gap-3 text-text-primary">
+    <div className="t-body flex flex-col gap-3 text-text-primary [&_h2]:t-h3 [&_h3]:t-h3 [&_h4]:t-h3 [&_h5]:font-semibold [&_h6]:font-semibold [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6 [&_li]:mt-1">
       <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[[rehypeSanitize, SCHEMA]]} components={COMPOSANTS}>
         {texte}
       </ReactMarkdown>

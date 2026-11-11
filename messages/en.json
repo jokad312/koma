@@ -479,9 +479,23 @@
       "titre": "Dashboard",
       "intro": "What needs action first, then the figures. Amounts in USD; days are Goma days.",
       "erreurLecture": "This area could not be read. Try again in a moment.",
-      "periode": { "libelle": "Period for charts and paid orders", "7": "7 days", "30": "30 days" },
-      "prestataires": { "pawapay": "PawaPay", "maishapay": "MaishaPay", "polar": "Polar" },
-      "familles": { "cosplay": "Cosplay", "accessoire": "Accessory", "kit": "Kit", "pass": "Pass", "livraison": "Delivery" },
+      "periode": {
+        "libelle": "Period for charts and paid orders",
+        "7": "7 days",
+        "30": "30 days"
+      },
+      "prestataires": {
+        "pawapay": "PawaPay",
+        "maishapay": "MaishaPay",
+        "polar": "Polar"
+      },
+      "familles": {
+        "cosplay": "Cosplay",
+        "accessoire": "Accessory",
+        "kit": "Kit",
+        "pass": "Pass",
+        "livraison": "Delivery"
+      },
       "commandes": {
         "titre": "New paid orders",
         "titreSept": "Orders paid in the last 7 days",
@@ -1169,7 +1183,7 @@
         "aidePublie": "The event is visible to the public as soon as the Festival pages exist.",
         "aideBrouillon": "The event is not visible to the public.",
         "incomplet": "To publish, the following is missing:",
-    "incompletPublie": "This event is published but is no longer complete. Missing:",
+        "incompletPublie": "This event is published but is no longer complete. Missing:",
         "manques": {
           "titre_fr": "the title in French",
           "titre_en": "the title in English",
@@ -2601,7 +2615,7 @@
     },
     "charte": {
       "titre": "Gallery charter",
-      "texte": "The gallery shows our community's cosplays. To keep it safe and friendly:\n\n• Your photo, your consent: send a photo of yourself, or of someone who agreed. You must have the right to share it.\n• 18 and over: we don't publish photos of anyone under 18.\n• Review: every photo is checked before publication. We may decline a photo without giving a reason.\n• Respect: no nudity, violence, hate or advertising.\n• Privacy: photos are published with your username only, without your city or GPS location.\n• Removal: you can ask for your photo to be removed at any time from “My account”; it disappears from the gallery.\n• Builds: if you made your costume with one of our kits, your photo can carry the “Made with a kit” label."
+      "texte": "The gallery shows our community's cosplays. To keep it safe and friendly:\n\n- Your photo, your consent: send a photo of yourself, or of someone who agreed. You must have the right to share it.\n- 18 and over: we don't publish photos of anyone under 18.\n- Review: every photo is checked before publication. We may decline a photo without giving a reason.\n- Respect: no nudity, violence, hate or advertising.\n- Privacy: photos are published with your username only, without your city or GPS location.\n- Removal: you can ask for your photo to be removed at any time from “My account”; it disappears from the gallery.\n- Builds: if you made your costume with one of our kits, your photo can carry the “Made with a kit” label."
     }
   },
   "Catalogue": {
@@ -2705,7 +2719,7 @@
       },
       "mention": {
         "titre": "Event photos and videos",
-        "texte": "[Texte à fournir]"
+        "texte": "Photos and videos are taken during the event and may be published on the website and our social media. If you'd rather not appear, tell the welcome desk on the day or write to us."
       },
       "confirmer": "Confirm and choose how to pay",
       "confirmerEnCours": "Creating the order…",
@@ -2930,7 +2944,7 @@
       "obtenir": "Get the free kit",
       "enCours": "Opening your kit…",
       "ouvrir": "Open in my library",
-      "licenceCase": "[Texte à fournir]",
+      "licenceCase": "I accept the kit licence: personal use only, no sharing or reselling of the files.",
       "raisonLicence": "Tick the Kit license box first.",
       "succes": "Your kit is open. Order {numero}.",
       "erreurs": {

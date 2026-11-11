@@ -1,12 +1,13 @@
 import { getTranslations } from "next-intl/server";
+import { ContenuArticle } from "@/components/blog/ContenuArticle";
 import { TitreVitrine } from "@/components/ui/TitreVitrine";
 import { JsonLd } from "@/lib/seo/balise-jsonld";
 import { pageWebJsonLd } from "@/lib/seo/jsonld";
 import { lireNomSite } from "@/lib/reglages";
 import { urlLocalisee } from "@/lib/seo/url";
-import { decouperParagraphes, formaterVersion, PAGES_LEGALES, PAGES_SANS_VERSION, type ClePageLegale } from "@/lib/vitrine/pages-legales";
+import { formaterVersion, PAGES_LEGALES, PAGES_SANS_VERSION, type ClePageLegale } from "@/lib/vitrine/pages-legales";
 
-// Page légale : H1, date de version, paragraphes. Le contenu vient de messages/*.json (Legal.<cle>), jamais du code.
+// Page légale : H1, date de version, texte en Markdown (mêmes titres, listes et nettoyage que le blog : ContenuArticle, sans HTML brut). Le contenu vient de messages/*.json (Legal.<cle>), jamais du code.
 export async function PageLegale({ locale, cle }: { locale: "fr" | "en"; cle: ClePageLegale }) {
   const t = await getTranslations({ locale, namespace: "Legal" });
   const tm = await getTranslations({ locale, namespace: "Metadata.legal" });
@@ -24,11 +25,7 @@ export async function PageLegale({ locale, cle }: { locale: "fr" | "en"; cle: Cl
         </p>
       ) : null}
       <div className="flex w-full flex-col gap-4 rounded-lg border border-border bg-surface p-5">
-        {decouperParagraphes(t(`${cle}.texte`, { nomSite })).map((paragraphe, i) => (
-          <p key={i} className="t-body whitespace-pre-line text-text-secondary">
-            {paragraphe}
-          </p>
-        ))}
+        <ContenuArticle texte={t(`${cle}.texte`, { nomSite })} />
       </div>
     </article>
   );

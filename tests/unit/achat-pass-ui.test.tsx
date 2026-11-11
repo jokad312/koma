@@ -24,6 +24,8 @@ vi.mock("@/i18n/navigation", () => ({
 
 import { FormulaireAchatPass, nomValable } from "@/components/festival/FormulaireAchatPass";
 
+const MENTION_FR = "Des photos et vidéos sont prises pendant l'événement et peuvent être publiées sur le site et nos réseaux sociaux. Si tu ne veux pas apparaître, signale-le à l'accueil le jour de l'événement ou écris-nous.";
+
 const A = fr.Festival.achat;
 const EVENEMENT = "00000000-0000-4000-8000-0000000000c1";
 const TYPES = [
@@ -145,7 +147,7 @@ describe("Récapitulatif et confirmation", () => {
 
   it("la case de la mention n'est jamais pré-cochée et porte le texte de Jonathan ; sans elle, rien n'est créé", async () => {
     await versRecap();
-    const caseMention = screen.getByRole("checkbox", { name: "[Texte à fournir]" }) as HTMLInputElement;
+    const caseMention = screen.getByRole("checkbox", { name: MENTION_FR }) as HTMLInputElement;
     expect(caseMention.checked).toBe(false);
     await userEvent.click(screen.getByRole("button", { name: A.confirmer }));
     expect(await screen.findByText(A.champs.mention)).toBeTruthy();
@@ -154,7 +156,7 @@ describe("Récapitulatif et confirmation", () => {
 
   it("confirmation : total vu envoyé au serveur avec une clé d'idempotence, puis choix du moyen de paiement de la Commande", async () => {
     await versRecap();
-    await userEvent.click(screen.getByRole("checkbox", { name: "[Texte à fournir]" }));
+    await userEvent.click(screen.getByRole("checkbox", { name: MENTION_FR }));
     await userEvent.click(screen.getByRole("button", { name: A.confirmer }));
     await waitFor(() => expect(faux.push).toHaveBeenCalledWith("/commande/KS-2099-000001"));
     expect(faux.creer).toHaveBeenCalledTimes(1);
@@ -165,7 +167,7 @@ describe("Récapitulatif et confirmation", () => {
   it("refus du serveur : message lisible, aucune redirection ; Complet est dit comme tel", async () => {
     faux.creer.mockResolvedValue({ ok: false, erreur: "complet" });
     await versRecap();
-    await userEvent.click(screen.getByRole("checkbox", { name: "[Texte à fournir]" }));
+    await userEvent.click(screen.getByRole("checkbox", { name: MENTION_FR }));
     await userEvent.click(screen.getByRole("button", { name: A.confirmer }));
     expect(await screen.findByText(A.erreurs.complet)).toBeTruthy();
     expect(faux.push).not.toHaveBeenCalled();
@@ -174,7 +176,7 @@ describe("Récapitulatif et confirmation", () => {
   it("total changé : le nouveau total est montré avec l'ancien, il faut reconfirmer", async () => {
     faux.creer.mockResolvedValue({ ok: false, erreur: "total_change", recap: { ...RECAP, sousTotalCents: 3200, totalCents: 3200 } });
     await versRecap();
-    await userEvent.click(screen.getByRole("checkbox", { name: "[Texte à fournir]" }));
+    await userEvent.click(screen.getByRole("checkbox", { name: MENTION_FR }));
     await userEvent.click(screen.getByRole("button", { name: A.confirmer }));
     expect(await screen.findByText(/Le total a changé/)).toBeTruthy();
     expect(screen.getAllByText(/32,00[\s ]\$US/).length).toBeGreaterThan(0);

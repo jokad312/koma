@@ -37,7 +37,7 @@ describe("PageLegale", () => {
     expect(temps).toHaveLength(1);
     expect(temps[0].textContent).toBe("1 novembre 2026");
     expect(container.querySelectorAll("article p")).toHaveLength(3); // version + 2 paragraphes
-    expect(container.querySelectorAll("article > div > p")).toHaveLength(2);
+    expect(container.querySelectorAll("article > div p")).toHaveLength(2);
     expect(screen.getByRole("heading", { level: 1 }).textContent).toBe("CGV test");
   });
 
@@ -47,5 +47,14 @@ describe("PageLegale", () => {
     const { container } = rendre(await PageLegale({ locale: "fr", cle: "cgv" }));
     expect(container.querySelector("time")).toBeNull();
     expect(container.textContent).toContain("Version du [Texte à fournir]");
+  });
+
+  it("Markdown : vrais titres (sous le H1 unique) et vraies listes", async () => {
+    etat.version = "2026-11-01";
+    etat.texte = "# 1. Vendeur\n\nIntro.\n\n- Premier\n- Second";
+    const { container } = rendre(await PageLegale({ locale: "fr", cle: "cgv" }));
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getByRole("heading", { level: 2 }).textContent).toBe("1. Vendeur");
+    expect(container.querySelectorAll("ul > li")).toHaveLength(2);
   });
 });

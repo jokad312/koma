@@ -6,6 +6,7 @@ import { lireConfigBunnyPublic, type ConfigBunnyPublic } from "../../src/lib/bun
 
 // Réseau réel, bibliothèque Bunny PUBLIQUE : crée une vidéo nommée koma-heros-TEST_…, prouve que la signature d'envoi TUS est acceptée
 // (et qu'une signature fausse est refusée), puis efface TOUJOURS la vidéo. Rien ne reste dans la bibliothèque.
+// Ne tourne que si BUNNY_TESTS_REELS=1 (environnement ou .env.local) : un service externe suspendu ou indisponible ne casse plus la suite locale.
 // Sauté sans message d'erreur si les variables Bunny publiques manquent (CI). Aucune valeur secrète n'est affichée.
 
 function lireEnv(): Record<string, string | undefined> {
@@ -28,6 +29,7 @@ function configOuNull(): ConfigBunnyPublic | null {
 }
 
 test("Bunny publique : création, signature TUS valide et refus d'une fausse signature, puis effacement", async () => {
+  test.skip(lireEnv().BUNNY_TESTS_REELS !== "1", "Test sauté : appelle le vrai Bunny ; à lancer avec BUNNY_TESTS_REELS=1.");
   const config = configOuNull();
   test.skip(!config, "Test sauté : BUNNY_PUBLIC_LIBRARY_ID, BUNNY_PUBLIC_API_KEY ou NEXT_PUBLIC_BUNNY_PUBLIC_CDN_HOSTNAME est absente de l'environnement et de .env.local.");
   const c = config as ConfigBunnyPublic;

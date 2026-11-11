@@ -2664,3 +2664,4 @@ afin d'ouvrir les ventes.
 **Et** les tests manuels TalkBack sur les parcours clés et le test dans le navigateur intégré d'Instagram (accueil et parcours d'achat) sont faits ; le test VoiceOver est fait par un testeur avant l'ouverture des ventes (UX-DR48)
 **Et** Lighthouse mobile sur l'accueil du domaine donne ≥ 90 en performance, accessibilité et SEO (NFR-2)
 **Et** le plan du site et `robots.txt` donnent les adresses du domaine ; le site est déclaré à Google Search Console
+**Et** la date de version de chaque page légale (mentions légales, CGV, livraison et retours, confidentialité : `Legal.<page>.version`, aujourd'hui au marqueur) est fixée au jour de la mise en ligne, en français et en anglais ; la charte de la galerie n'a pas de version (décision de Jonathan, 2026-11-11)
