@@ -436,3 +436,10 @@
 - Spec : `spec-7-8-scan-hors-ligne.md` (protection des empreintes : jeton SHA-256, code court HMAC à clé de Verrou non extractible ; limites documentées). Textes écrits par Claude (FR/EN, `Scan.horsLigne.*`, `Admin.evenements.verrou.*`, `Admin.taches`) à valider ; « Scan réservé à l'appareil hors ligne » vient de l'epic. Aucun `[Texte à fournir]`.
 - À tester à la main sur téléphone réel : mode avion après la prise du Verrou, scan QR et code court, même Pass refusé la 2e fois ; deux appareils ; retour du réseau (synchro, Verrou rendu, liste effacée) ; libération forcée par l'admin ; Chrome Android et Safari iOS ; en production HTTPS.
 - Limite : un bénévole dont l'accès a pris fin avec des scans non synchronisés ne peut pas rouvrir l'écran pour synchroniser (l'Admin libère le Verrou ; l'anomalie le signale).
+
+
+## Story 7.9 : annulation et remboursement d'un Pass (2026-11-11)
+- Spec : `spec-7-9-annulation-et-remboursement-d-un-pass.md`. Reprise après coupure (limite d'usage) : arbre propre, aucune migration 7.9 préexistante ; travail refait depuis le début. Textes écrits par Claude (FR/EN) à valider ; aucun `[Texte à fournir]`.
+- Défaut trouvé par le test pgTAP et corrigé par une nouvelle migration (`20270110120000`) : l'unité d'annulation d'une ligne de plusieurs Pass non-Stand regroupait tous ses Pass.
+- Décision : frais d'annulation figés par un déclencheur sur `commande` (la 7.4 ne les figeait pas) ; Pass offert non remboursable ; Stand annulé et remboursé par paire.
+- À tester à la main : voir la spec (Événement de test à plus de 48 h, annulation, acceptation, preuve, emails, Stand, réglage des frais vide).

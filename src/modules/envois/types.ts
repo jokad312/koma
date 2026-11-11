@@ -1,5 +1,5 @@
 export type LangueEmail = "fr" | "en";
-export type ModeleEnvoi = "commande_payee" | "kit_ouvert" | "commande_en_fabrication" | "commande_expediee" | "commande_livree" | "commande_annulee" | "commande_remboursee" | "pass_emis";
+export type ModeleEnvoi = "commande_payee" | "kit_ouvert" | "commande_en_fabrication" | "commande_expediee" | "commande_livree" | "commande_annulee" | "commande_remboursee" | "pass_emis" | "pass_annule" | "pass_rembourse";
 
 // Envoi réservé par le lot : uniquement des identifiants (jamais d'adresse ni de montant).
 export type EnvoiReserve = {

@@ -4,6 +4,8 @@ import { z } from "zod";
 // le succès n'existe qu'après la réponse réelle de la base (règle 13).
 export type ErreurAdminCommande =
   | "non_autorise"
+  | "pass_introuvable"
+  | "reglage_manquant"
   | "entree_invalide"
   | "commande_introuvable"
   | "pas_de_livraison"
@@ -37,7 +39,7 @@ export type DependancesAdminCommande = {
   confirmerMesures: (auteur: unknown, ligneId: string) => Promise<{ erreur: string | null }>;
   traiterDemande: (auteur: unknown, demandeId: string, decision: "accepter" | "refuser") => Promise<{ erreur: string | null }>;
   traiterReclamation: (auteur: unknown, demandeId: string, etape: string, depuisStock: boolean, quantite: number | null) => Promise<{ erreur: string | null }>;
-  confirmerRemboursement: (auteur: unknown, cibleType: "commande" | "trop_percu", cibleId: string, preuve: string) => Promise<{ erreur: string | null }>;
+  confirmerRemboursement: (auteur: unknown, cibleType: "commande" | "trop_percu" | "pass", cibleId: string, preuve: string) => Promise<{ erreur: string | null }>;
   marquerStockVerifie: (auteur: unknown, commandeId: string) => Promise<{ erreur: string | null }>;
   invalider: () => void | Promise<void>;
 };
@@ -71,6 +73,8 @@ export function erreurBaseCommande(erreur: string): ErreurAdminCommande {
     ["KS_QUANTITE_INVALIDE", "quantite_invalide"],
     ["KS_STOCK_DEJA_VERIFIE", "stock_deja_verifie"],
     ["KS_REMBOURSEMENT_IMPOSSIBLE", "remboursement_impossible"],
+    ["KS_PASS_INTROUVABLE", "pass_introuvable"],
+    ["KS_REGLAGE_MANQUANT", "reglage_manquant"],
     ["KS_TROP_PERCU_INTROUVABLE", "remboursement_impossible"],
   ];
   return table.find(([code]) => erreur.includes(code))?.[1] ?? "generique";
@@ -173,7 +177,7 @@ const preuveSchema = z.string().trim().min(3).max(200);
 // Confirmation d'un remboursement : la preuve (référence du Prestataire ou du virement manuel) est exigée ; sans elle, rien n'est enregistré (UX-DR44).
 export async function confirmerRemboursementAdmin(deps: DependancesAdminCommande, entree: { cibleType: string; cibleId: string; preuve: string }): Promise<ResultatAdminCommande> {
   const id = z.string().uuid().safeParse(entree.cibleId);
-  const type = entree.cibleType === "commande" || entree.cibleType === "trop_percu" ? entree.cibleType : null;
+  const type = entree.cibleType === "commande" || entree.cibleType === "trop_percu" || entree.cibleType === "pass" ? entree.cibleType : null;
   if (!id.success || !type) return { ok: false, erreur: "entree_invalide" };
   const preuve = preuveSchema.safeParse(entree.preuve);
   if (!preuve.success) return { ok: false, erreur: "preuve_requise" };

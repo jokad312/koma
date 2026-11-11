@@ -8,7 +8,7 @@ import { MessageEtat } from "@/components/ui/MessageEtat";
 import { confirmerRemboursementAction, traiterDemandeAction } from "@/modules/commande/admin-actions";
 import type { ErreurAdminCommande } from "@/modules/commande/admin-service";
 
-const ERREURS_CONNUES = ["non_autorise", "annulation_impossible", "demande_introuvable", "demande_deja_traitee", "preuve_requise", "remboursement_impossible", "remboursement_nul", "decision_invalide", "type_non_pris_en_charge"] as const;
+const ERREURS_CONNUES = ["non_autorise", "annulation_impossible", "demande_introuvable", "demande_deja_traitee", "preuve_requise", "remboursement_impossible", "remboursement_nul", "decision_invalide", "type_non_pris_en_charge", "pass_introuvable", "reglage_manquant"] as const;
 const erreurAffichee = (e: ErreurAdminCommande) => ((ERREURS_CONNUES as readonly string[]).includes(e) ? e : "generique");
 
 // Demande d'annulation ouverte : accepter (la Commande est annulée, le montant à rendre est figé) ou refuser (la Commande ne change pas).
@@ -45,7 +45,7 @@ export function DecisionDemande({ demandeId }: { demandeId: string }) {
 }
 
 // Confirmation d'un remboursement fait à la main : la preuve est obligatoire ; sans elle, un résumé d'erreur s'affiche et rien n'est enregistré (UX-DR44).
-export function FormulaireRemboursement({ cibleType, cibleId }: { cibleType: "commande" | "trop_percu"; cibleId: string }) {
+export function FormulaireRemboursement({ cibleType, cibleId }: { cibleType: "commande" | "trop_percu" | "pass"; cibleId: string }) {
   const t = useTranslations("Admin.commandes.remboursement");
   const ta = useTranslations("Admin.commandes.annulation");
   const id = useId();

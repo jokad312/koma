@@ -1950,7 +1950,9 @@
         "vide": "Aucune demande ni remboursement en attente.",
         "erreurLecture": "Les demandes et remboursements n'ont pas pu être lus.",
         "reclamation": "Réclamation à traiter : commande {numero}",
-        "stock": "Vérifier le stock : commande {numero}"
+        "stock": "Vérifier le stock : commande {numero}",
+        "demande_pass": "Demande d'annulation d'un Pass : commande {numero}",
+        "remboursement_pass": "Remboursement de Pass à confirmer : commande {numero}"
       },
       "photos": {
         "titre": "Photos",
@@ -2199,6 +2201,17 @@
           "generique": "La confirmation n'a pas pu être enregistrée. Réessaie."
         }
       },
+      "annulationPass": {
+        "titre": "Annulations de Pass",
+        "ligne": "Pass de {nom}",
+        "montant": "Montant à rendre : {montant} (frais d'annulation déjà retenus).",
+        "statuts": {
+          "ouverte": "Le client demande l'annulation de ce Pass.",
+          "acceptee": "Annulation acceptée : le Pass n'ouvre plus l'entrée. Remboursement à confirmer.",
+          "refusee": "Demande d'annulation refusée.",
+          "close": "Remboursement confirmé."
+        }
+      },
       "annulation": {
         "titre": "Annulation et remboursement",
         "accepter": "Accepter l'annulation",
@@ -2220,6 +2233,8 @@
           "remboursement_nul": "Le montant à rendre est nul : rien à rembourser.",
           "decision_invalide": "Cette décision n'est pas reconnue. Recharge la page.",
           "type_non_pris_en_charge": "Ce type de demande n'est pas traité ici.",
+          "pass_introuvable": "Ce Pass est introuvable.",
+          "reglage_manquant": "Les frais d'annulation des Pass ne sont pas réglés : fixe-les dans les Réglages.",
           "generique": "L'action n'a pas pu être enregistrée. Réessaie."
         }
       },
@@ -3150,6 +3165,22 @@
       "lien": "Page de ta commande :",
       "bouton": "Voir ma commande"
     },
+    "pass_annule": {
+      "sujet": "L'annulation de ton Pass pour {evenement} est acceptée",
+      "titre": "Ton Pass est annulé",
+      "intro": "L'annulation du Pass de {nom} pour {evenement} (commande {numero}) est acceptée. Ce Pass n'ouvre plus l'entrée.",
+      "montant": "Montant à te rendre : {montant}, après les frais d'annulation. Il te sera rendu à la main ; tu recevras un email quand ce sera fait.",
+      "lien": "Tes Pass :",
+      "bouton": "Voir mes Pass"
+    },
+    "pass_rembourse": {
+      "sujet": "Ton Pass pour {evenement} est remboursé",
+      "titre": "Ton Pass est remboursé",
+      "intro": "Le remboursement du Pass de {nom} pour {evenement} (commande {numero}) a été effectué.",
+      "montant": "Montant rendu : {montant}.",
+      "lien": "Tes Pass :",
+      "bouton": "Voir mes Pass"
+    },
     "commercial": {
       "desinscriptionTexte": "Tu ne veux plus recevoir ces emails ?",
       "desinscriptionLien": "Me désinscrire"
@@ -3387,7 +3418,24 @@
       "offert": "Offert",
       "codeCourt": "Code court : {code}",
       "qrAlt": "Code QR du Pass {type} de {nom}, {evenement}",
-      "sansCode": "Le Code QR n'est plus affiché pour ce Pass."
+      "sansCode": "Le Code QR n'est plus affiché pour ce Pass.",
+      "annulation": {
+        "bouton": "Demander l'annulation",
+        "titre": "Annuler ce Pass ?",
+        "frais": "Des frais d'annulation de {frais} % sont retenus ; le reste t'est rendu après validation de ta demande.",
+        "stand": "Ce Pass fait partie d'un Stand : l'autre titulaire du Stand est annulé en même temps.",
+        "confirmer": "Oui, demander l'annulation",
+        "garder": "Non, garder mon Pass",
+        "enCours": "Demande d'annulation en cours : elle sera étudiée avant l'Événement.",
+        "refusee": "Ta dernière demande d'annulation a été refusée.",
+        "envoyee": "Demande envoyée. Elle sera étudiée avant l'Événement.",
+        "erreurs": {
+          "impossible": "Ce Pass ne peut plus être annulé (Événement dans moins de 48 heures, Pass déjà utilisé ou offert).",
+          "deja": "Une demande d'annulation est déjà en cours pour ce Pass.",
+          "reglage": "L'annulation n'est pas disponible pour le moment. Écris-nous depuis la page Contact.",
+          "generique": "La demande n'a pas pu être envoyée. Réessaie."
+        }
+      }
     },
     "agrandi": {
       "bouton": "Agrandir",

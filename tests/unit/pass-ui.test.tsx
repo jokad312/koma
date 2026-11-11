@@ -12,6 +12,7 @@ const faux = vi.hoisted(() => ({
   etat: vi.fn(),
   session: vi.fn(),
   lister: vi.fn(),
+  annulations: vi.fn(async () => new Map()),
   versConnexion: vi.fn(),
   nomSite: vi.fn(),
 }));
@@ -27,7 +28,9 @@ vi.mock("next-intl/server", async () => {
 });
 vi.mock("@/i18n/navigation", () => ({ Link: ({ href, children, ...r }: { href: string; children: React.ReactNode }) => <a href={href} {...r}>{children}</a> }));
 vi.mock("@/lib/auth/compte", () => ({ lireEtatCompte: faux.etat, lireSessionVerifiee: faux.session }));
-vi.mock("@/modules/evenements/pass-queries", () => ({ listerMesPass: faux.lister }));
+vi.mock("@/modules/evenements/pass-queries", () => ({ listerMesPass: faux.lister, lireAnnulationsMesPass: faux.annulations }));
+vi.mock("@/modules/evenements/annulation-actions", () => ({ demanderAnnulationPassAction: vi.fn() }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock("@/components/commande/PageCommande", () => ({ versConnexion: faux.versConnexion }));
 vi.mock("@/lib/reglages", () => ({ lireNomSite: faux.nomSite }));
 
@@ -122,6 +125,7 @@ describe("Mes Pass", () => {
     faux.etat.mockReset().mockResolvedValue("complet");
     faux.session.mockReset().mockResolvedValue({ compteId: "TEST_compte" });
     faux.lister.mockReset().mockResolvedValue([]);
+    faux.annulations.mockReset().mockResolvedValue(new Map());
     faux.versConnexion.mockReset().mockImplementation(() => {
       throw new Error("REDIRECT");
     });

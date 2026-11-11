@@ -1950,7 +1950,9 @@
         "vide": "No request or refund is waiting.",
         "erreurLecture": "The requests and refunds could not be read.",
         "reclamation": "Claim to handle: order {numero}",
-        "stock": "Check the stock: order {numero}"
+        "stock": "Check the stock: order {numero}",
+        "demande_pass": "Pass cancellation request: order {numero}",
+        "remboursement_pass": "Pass refund to confirm: order {numero}"
       },
       "photos": {
         "titre": "Photos",
@@ -2199,6 +2201,17 @@
           "generique": "The confirmation could not be saved. Try again."
         }
       },
+      "annulationPass": {
+        "titre": "Pass cancellations",
+        "ligne": "{nom}'s Pass",
+        "montant": "Amount to return: {montant} (cancellation fee already kept).",
+        "statuts": {
+          "ouverte": "The customer asks to cancel this Pass.",
+          "acceptee": "Cancellation accepted: the Pass no longer gives entry. Refund to confirm.",
+          "refusee": "Cancellation request declined.",
+          "close": "Refund confirmed."
+        }
+      },
       "annulation": {
         "titre": "Cancellation and refund",
         "accepter": "Accept the cancellation",
@@ -2220,6 +2233,8 @@
           "remboursement_nul": "The amount to refund is zero: nothing to refund.",
           "decision_invalide": "This decision is not recognised. Reload the page.",
           "type_non_pris_en_charge": "This type of request is not handled here.",
+          "pass_introuvable": "This Pass was not found.",
+          "reglage_manquant": "The Pass cancellation fee is not set: set it in Settings.",
           "generique": "The action could not be saved. Try again."
         }
       },
@@ -3150,6 +3165,22 @@
       "lien": "Your order page:",
       "bouton": "View my order"
     },
+    "pass_annule": {
+      "sujet": "The cancellation of your Pass for {evenement} is accepted",
+      "titre": "Your Pass is cancelled",
+      "intro": "The cancellation of {nom}'s Pass for {evenement} (order {numero}) is accepted. This Pass no longer gives entry.",
+      "montant": "Amount to be returned to you: {montant}, after the cancellation fee. It will be returned by hand; you will get an email when it is done.",
+      "lien": "Your Passes:",
+      "bouton": "View my Passes"
+    },
+    "pass_rembourse": {
+      "sujet": "Your Pass for {evenement} is refunded",
+      "titre": "Your Pass is refunded",
+      "intro": "The refund of {nom}'s Pass for {evenement} (order {numero}) has been made.",
+      "montant": "Amount returned: {montant}.",
+      "lien": "Your Passes:",
+      "bouton": "View my Passes"
+    },
     "commercial": {
       "desinscriptionTexte": "Don't want these emails anymore?",
       "desinscriptionLien": "Unsubscribe"
@@ -3387,7 +3418,24 @@
       "offert": "Free",
       "codeCourt": "Short code: {code}",
       "qrAlt": "QR code of the {type} Pass of {nom}, {evenement}",
-      "sansCode": "The QR code is no longer shown for this Pass."
+      "sansCode": "The QR code is no longer shown for this Pass.",
+      "annulation": {
+        "bouton": "Request cancellation",
+        "titre": "Cancel this Pass?",
+        "frais": "A {frais}% cancellation fee is kept; the rest is returned to you once your request is approved.",
+        "stand": "This Pass is part of a Stand: the Stand's other holder is cancelled at the same time.",
+        "confirmer": "Yes, request cancellation",
+        "garder": "No, keep my Pass",
+        "enCours": "Cancellation request in progress: it will be reviewed before the Event.",
+        "refusee": "Your last cancellation request was declined.",
+        "envoyee": "Request sent. It will be reviewed before the Event.",
+        "erreurs": {
+          "impossible": "This Pass can no longer be cancelled (Event in less than 48 hours, Pass already used or free).",
+          "deja": "A cancellation request is already in progress for this Pass.",
+          "reglage": "Cancellation is not available right now. Write to us from the Contact page.",
+          "generique": "The request could not be sent. Try again."
+        }
+      }
     },
     "agrandi": {
       "bouton": "Enlarge",

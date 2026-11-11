@@ -347,6 +347,7 @@ export type Database = {
           expire_le: string | null
           fabrication_le: string | null
           forfait_cents: number
+          frais_annulation_pass: number | null
           id: string
           livree_le: string | null
           mis_a_jour_le: string
@@ -377,6 +378,7 @@ export type Database = {
           expire_le?: string | null
           fabrication_le?: string | null
           forfait_cents?: number
+          frais_annulation_pass?: number | null
           id?: string
           livree_le?: string | null
           mis_a_jour_le?: string
@@ -407,6 +409,7 @@ export type Database = {
           expire_le?: string | null
           fabrication_le?: string | null
           forfait_cents?: number
+          frais_annulation_pass?: number | null
           id?: string
           livree_le?: string | null
           mis_a_jour_le?: string
@@ -561,6 +564,7 @@ export type Database = {
           description: string | null
           id: string
           ligne_id: string | null
+          pass_id: string | null
           quantite_remplacee: number | null
           statut: string
           traitee_le: string | null
@@ -572,6 +576,7 @@ export type Database = {
           description?: string | null
           id?: string
           ligne_id?: string | null
+          pass_id?: string | null
           quantite_remplacee?: number | null
           statut?: string
           traitee_le?: string | null
@@ -583,6 +588,7 @@ export type Database = {
           description?: string | null
           id?: string
           ligne_id?: string | null
+          pass_id?: string | null
           quantite_remplacee?: number | null
           statut?: string
           traitee_le?: string | null
@@ -601,6 +607,13 @@ export type Database = {
             columns: ["ligne_id"]
             isOneToOne: false
             referencedRelation: "ligne_commande"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demande_client_pass_id_fkey"
+            columns: ["pass_id"]
+            isOneToOne: false
+            referencedRelation: "pass"
             referencedColumns: ["id"]
           },
         ]
@@ -2460,6 +2473,10 @@ export type Database = {
         Args: { p_auteur: Json; p_commande: string }
         Returns: number
       }
+      annuler_pass: {
+        Args: { p_auteur: Json; p_pass: string }
+        Returns: number
+      }
       assurer_profil: {
         Args: { p_auteur: Json; p_compte: string; p_langue: string }
         Returns: undefined
@@ -2693,6 +2710,10 @@ export type Database = {
       }
       demander_annulation: {
         Args: { p_compte: string; p_numero: string }
+        Returns: string
+      }
+      demander_annulation_pass: {
+        Args: { p_compte: string; p_pass: string }
         Returns: string
       }
       demarrer_tentative: {
@@ -2960,6 +2981,16 @@ export type Database = {
       }
       etat_vente_evenement: { Args: { p_evenement: string }; Returns: Json }
       evenements_emettre_pass: { Args: { p_commande: string }; Returns: number }
+      evenements_frais_commande: {
+        Args: { p_commande: string }
+        Returns: number
+      }
+      evenements_frais_reglage: { Args: never; Returns: number }
+      evenements_motif_refus_annulation: {
+        Args: { p_pass: string }
+        Returns: string
+      }
+      evenements_unite_pass: { Args: { p_pass: string }; Returns: string[] }
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
       exiger_client: { Args: { p_auteur: Json }; Returns: string }
       exiger_personnel: { Args: { p_auteur: Json }; Returns: undefined }
@@ -3174,6 +3205,7 @@ export type Database = {
         Args: { p_compte: string; p_panier: string }
         Returns: boolean
       }
+      pass_annulables: { Args: { p_compte: string }; Returns: string[] }
       pass_code_court_generer: { Args: never; Returns: string }
       pass_jeton_generer: { Args: never; Returns: string }
       places_evenement_utilisees: {
@@ -3482,6 +3514,8 @@ export type Database = {
         | "nouveau_produit"
         | "alerte_evenement"
         | "pass_emis"
+        | "pass_annule"
+        | "pass_rembourse"
       envoi_statut: "a_envoyer" | "envoye" | "echec" | "abandonne" | "ignore"
     }
     CompositeTypes: {
@@ -3638,6 +3672,8 @@ export const Constants = {
         "nouveau_produit",
         "alerte_evenement",
         "pass_emis",
+        "pass_annule",
+        "pass_rembourse",
       ],
       envoi_statut: ["a_envoyer", "envoye", "echec", "abandonne", "ignore"],
     },

@@ -37,7 +37,7 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
         <AvancementCommande numero={commande.numero} transitions={transitions} mesuresManquantes={mesuresManquantes} retrait={commande.modeRemise === "retrait"} />
       </section>
 
-      {commande.demandeAnnulation || commande.remboursement || commande.tropPercus.length > 0 ? (
+      {commande.demandeAnnulation || commande.remboursement || commande.tropPercus.length > 0 || commande.annulationsPass.length > 0 ? (
         <section aria-labelledby="adm-argent" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
           <h2 id="adm-argent" className="t-h2">
             {t("annulation.titre")}
@@ -54,6 +54,19 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
               {commande.remboursement.valide ? <p className="t-label">{t("remboursement.confirme")}</p> : commande.statut === "annulee" ? <FormulaireRemboursement cibleType="commande" cibleId={commande.id} /> : null}
             </div>
           ) : null}
+          {commande.annulationsPass.map((a) => (
+            <div key={a.demandeId} className="flex flex-col gap-2 border-t border-border pt-3">
+              <p className="t-label">{t("annulationPass.ligne", { nom: a.nomTitulaire })}</p>
+              <p className="t-body">{t(`annulationPass.statuts.${["ouverte", "acceptee", "refusee", "close"].includes(a.statut) ? a.statut : "close"}`)}</p>
+              {a.statut === "ouverte" ? <DecisionDemande demandeId={a.demandeId} /> : null}
+              {a.remboursement ? (
+                <>
+                  <p className="t-body">{t("annulationPass.montant", { montant: formaterUsd(a.remboursement.montantCents, locale) })}</p>
+                  {a.remboursement.valide ? <p className="t-label">{t("remboursement.confirme")}</p> : <FormulaireRemboursement cibleType="pass" cibleId={a.passId} />}
+                </>
+              ) : null}
+            </div>
+          ))}
           {commande.tropPercus.map((p) => (
             <div key={p.id} className="flex flex-col gap-2 border-t border-border pt-3">
               <p className="t-body">{t("remboursement.tropPercu", { montant: `${p.montantRecu} ${p.devise}`, motif: t(`remboursement.motifs.${["montant_superieur", "deja_payee", "expiree", "annulee", "reservations_liberees"].includes(p.motif) ? p.motif : "autre"}`) })}</p>

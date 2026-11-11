@@ -1,7 +1,7 @@
 import "server-only";
 import { creerClientService } from "@/lib/supabase/service";
 import { statutAffiche } from "./pass-groupes";
-import type { PassLu, StatutPass } from "./pass-types";
+import type { AnnulationPass, PassLu, StatutPass } from "./pass-types";
 
 const STATUTS: readonly StatutPass[] = ["valide", "scanne", "annule", "rembourse"];
 
@@ -51,6 +51,50 @@ export async function listerMesPass(compteId: string, locale: "fr" | "en"): Prom
         lieu: dansLaLangue(locale, evenement.lieu_fr, evenement.lieu_en),
       },
     });
+  }
+  return resultat;
+}
+
+const FRAIS = /^[0-9]{1,3}$/;
+const pourcentage = (valeur: string | number | null | undefined): number | null => {
+  const v = valeur === null || valeur === undefined ? "" : String(valeur);
+  return FRAIS.test(v) && Number(v) <= 100 ? Number(v) : null;
+};
+
+// État d'annulation des Pass du Compte (story 7.9). « Annulable » vient de la base (pass_annulables : délai de 48 h calculé avec now(), AD-23) ;
+// une lecture impossible est relancée en erreur : jamais un bouton affiché ni caché par défaut.
+export async function lireAnnulationsMesPass(compteId: string): Promise<Map<string, AnnulationPass>> {
+  const client = creerClientService();
+  const [annulables, demandes, reglage] = await Promise.all([
+    client.rpc("pass_annulables", { p_compte: compteId }),
+    client
+      .from("demande_client")
+      .select("pass_id, statut, cree_le, commande:commande_id!inner(compte_id)")
+      .eq("type", "annulation_pass")
+      .eq("commande.compte_id", compteId)
+      .order("cree_le", { ascending: true }),
+    client.from("reglage").select("valeur").eq("cle", "frais_annulation_pass").maybeSingle(),
+  ]);
+  if (annulables.error || demandes.error || reglage.error) throw new Error("Lecture des annulations de Pass impossible.");
+  const ids = (annulables.data ?? []).filter((x): x is string => typeof x === "string");
+  const details = new Map<string, { stand: boolean; frais: number | null }>();
+  if (ids.length > 0) {
+    const { data, error } = await client.from("pass").select("id, ligne:ligne_commande_id(est_stand), commande:commande_id(frais_annulation_pass)").in("id", ids);
+    if (error) throw new Error("Lecture des annulations de Pass impossible.");
+    for (const p of data ?? []) {
+      const ligne = un(p.ligne);
+      const commande = un(p.commande);
+      details.set(p.id, { stand: ligne?.est_stand === true, frais: pourcentage(commande?.frais_annulation_pass) ?? pourcentage(reglage.data?.valeur) });
+    }
+  }
+  const derniere = new Map<string, "ouverte" | "refusee" | null>();
+  for (const d of demandes.data ?? []) {
+    if (d.pass_id) derniere.set(d.pass_id, d.statut === "ouverte" ? "ouverte" : d.statut === "refusee" ? "refusee" : null);
+  }
+  const resultat = new Map<string, AnnulationPass>();
+  for (const id of new Set([...ids, ...derniere.keys()])) {
+    const d = details.get(id);
+    resultat.set(id, { possible: d !== undefined && d.frais !== null, fraisPct: d?.frais ?? null, stand: d?.stand ?? false, demande: derniere.get(id) ?? null });
   }
   return resultat;
 }

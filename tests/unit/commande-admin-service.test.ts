@@ -121,7 +121,10 @@ describe("traiterDemandeClient et confirmerRemboursementAdmin (story 6.6)", () =
     const d = deps();
     await expect(confirmerRemboursementAdmin(d, { cibleType: "trop_percu", cibleId: ID, preuve: "  VIR-TEST-1  " })).resolves.toEqual({ ok: true });
     expect(d.confirmerRemboursement).toHaveBeenCalledWith(AUTEUR, "trop_percu", ID, "VIR-TEST-1");
-    await expect(confirmerRemboursementAdmin(d, { cibleType: "pass", cibleId: ID, preuve: "VIR-TEST-1" })).resolves.toEqual({ ok: false, erreur: "entree_invalide" });
+    // Story 7.9 : la cible « pass » est acceptée (le Pass de la demande) ; une cible inconnue reste refusée.
+    await expect(confirmerRemboursementAdmin(d, { cibleType: "pass", cibleId: ID, preuve: "VIR-TEST-1" })).resolves.toEqual({ ok: true });
+    expect(d.confirmerRemboursement).toHaveBeenLastCalledWith(AUTEUR, "pass", ID, "VIR-TEST-1");
+    await expect(confirmerRemboursementAdmin(d, { cibleType: "ticket", cibleId: ID, preuve: "VIR-TEST-1" })).resolves.toEqual({ ok: false, erreur: "entree_invalide" });
   });
   it("erreur de la base : rendue, jamais un succès", async () => {
     const d = deps({ confirmerRemboursement: vi.fn(async () => ({ erreur: "KS_REMBOURSEMENT_IMPOSSIBLE" })) });

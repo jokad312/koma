@@ -75,6 +75,8 @@ export type CommandeAdminDetail = {
   moyen: string | null;
   demandeAnnulation: { id: string; statut: string } | null;
   remboursement: { montantCents: number; devise: string; valide: boolean } | null;
+  // Demandes d'annulation de Pass (story 7.9) ; le remboursement est rattaché au Pass de la demande.
+  annulationsPass: { demandeId: string; statut: string; passId: string; nomTitulaire: string; remboursement: { montantCents: number; devise: string; valide: boolean } | null }[];
   reclamations: { id: string; statut: string; description: string; ligneTitre: string; ligneNombre: number }[];
   tropPercus: { id: string; montantRecu: number; devise: string; motif: string }[];
   lignes: { id: string; titre: string; famille: string; taille: string | null; nombre: number; prixCents: number; origine: string | null; mesuresRecuesLe: string | null }[];
@@ -98,15 +100,20 @@ export async function lireCommandeAdmin(numero: string): Promise<CommandeAdminDe
   if (!statut) return null;
   // Moyen de la Tentative réussie (lecture seule du bloc Paiement).
   const { data: tentative } = await client.from("tentative_paiement").select("moyen").eq("commande_id", data.id).eq("statut", "reussie").order("cree_le", { ascending: false }).limit(1).maybeSingle();
-  const [demande, remboursement, tropPercus, reclamations, promo] = await Promise.all([
+  const [demande, remboursement, tropPercus, reclamations, promo, demandesPass] = await Promise.all([
     client.from("demande_client").select("id, statut").eq("commande_id", data.id).eq("type", "annulation_commande").order("cree_le", { ascending: false }).limit(1).maybeSingle(),
     client.from("remboursement").select("montant_cents, devise, valide_le").eq("cible_type", "commande").eq("cible_id", data.id).maybeSingle(),
     client.from("trop_percu").select("id, montant_recu, devise_recue, motif").eq("commande_id", data.id).eq("statut", "a_rembourser"),
     client.from("demande_client").select("id, statut, description, ligne_id").eq("commande_id", data.id).eq("type", "reclamation").order("cree_le", { ascending: false }),
     client.from("commande_code_promo").select("code, reduction_cents, reduction_pct, commission_pct").eq("commande_id", data.id).maybeSingle(),
+    client.from("demande_client").select("id, statut, pass_id, pass:pass_id(nom_titulaire)").eq("commande_id", data.id).eq("type", "annulation_pass").order("cree_le", { ascending: true }),
   ]);
   if (demande.error || remboursement.error || tropPercus.error || reclamations.error) throw new Error("lecture des demandes impossible");
   if (promo.error) throw new Error("lecture du code promo impossible");
+  if (demandesPass.error) throw new Error("lecture des demandes de Pass impossible");
+  const idsPass = (demandesPass.data ?? []).flatMap((d) => (d.pass_id ? [d.pass_id] : []));
+  const remboursementsPass = idsPass.length > 0 ? await client.from("remboursement").select("cible_id, montant_cents, devise, valide_le").eq("cible_type", "pass").in("cible_id", idsPass) : { data: [], error: null };
+  if (remboursementsPass.error) throw new Error("lecture des remboursements de Pass impossible");
   return {
     id: data.id,
     numero: data.numero,
@@ -114,6 +121,12 @@ export async function lireCommandeAdmin(numero: string): Promise<CommandeAdminDe
     creeLe: data.cree_le,
     demandeAnnulation: demande.data ? { id: demande.data.id, statut: demande.data.statut } : null,
     remboursement: remboursement.data ? { montantCents: remboursement.data.montant_cents, devise: remboursement.data.devise, valide: remboursement.data.valide_le !== null } : null,
+    annulationsPass: (demandesPass.data ?? []).flatMap((d) => {
+      if (!d.pass_id) return [];
+      const r = (remboursementsPass.data ?? []).find((x) => x.cible_id === d.pass_id);
+      const pass = Array.isArray(d.pass) ? d.pass[0] : d.pass;
+      return [{ demandeId: d.id, statut: d.statut, passId: d.pass_id, nomTitulaire: pass?.nom_titulaire ?? "", remboursement: r ? { montantCents: r.montant_cents, devise: r.devise, valide: r.valide_le !== null } : null }];
+    }),
     reclamations: (reclamations.data ?? []).map((r) => ({
       id: r.id,
       statut: r.statut,
@@ -167,19 +180,21 @@ export async function lireMesuresARecevoir(): Promise<{ total: number; commandes
   return { total: data?.length ?? 0, commandes: [...parNumero.entries()].map(([numero, lignes]) => ({ numero, lignes })).sort((a, b) => a.numero.localeCompare(b.numero)) };
 }
 
-export type TacheRemboursement = { type: "demande" | "remboursement" | "trop_percu" | "reclamation" | "stock"; numero: string; cibleId: string };
+export type TacheRemboursement = { type: "demande" | "remboursement" | "trop_percu" | "reclamation" | "stock" | "demande_pass" | "remboursement_pass"; numero: string; cibleId: string };
 
 // Tâches d'argent (story 6.6) : demandes d'annulation ouvertes, remboursements d'annulation non confirmés, Trop-perçus à rembourser. Lecture impossible : erreur.
 export async function lireTachesRemboursement(): Promise<TacheRemboursement[]> {
   const client = creerClientService();
-  const [demandes, rembs, trops, reclamations, stocks] = await Promise.all([
+  const [demandes, rembs, trops, reclamations, stocks, demandesPass, rembsPass] = await Promise.all([
     client.from("demande_client").select("id, commande:commande_id(numero)").eq("type", "annulation_commande").eq("statut", "ouverte"),
     client.from("remboursement").select("cible_id").eq("cible_type", "commande").is("valide_le", null),
     client.from("trop_percu").select("id, commande:commande_id(numero)").eq("statut", "a_rembourser"),
     client.from("demande_client").select("id, commande:commande_id(numero)").eq("type", "reclamation").in("statut", ["ouverte", "acceptee", "article_rendu"]),
     client.from("commande").select("id, numero").eq("stock_a_verifier", true),
+    client.from("demande_client").select("id, commande:commande_id(numero)").eq("type", "annulation_pass").eq("statut", "ouverte"),
+    client.from("remboursement").select("cible_id").eq("cible_type", "pass").is("valide_le", null),
   ]);
-  if (demandes.error || rembs.error || trops.error || reclamations.error || stocks.error) throw new Error("lecture des tâches de remboursement impossible");
+  if (demandes.error || rembs.error || trops.error || reclamations.error || stocks.error || demandesPass.error || rembsPass.error) throw new Error("lecture des tâches de remboursement impossible");
   const numero = (c: unknown) => {
     const x = Array.isArray(c) ? c[0] : c;
     return (x as { numero?: string } | null)?.numero ?? null;
@@ -202,6 +217,19 @@ export async function lireTachesRemboursement(): Promise<TacheRemboursement[]> {
   for (const r of reclamations.data ?? []) {
     const n = numero(r.commande);
     if (n) taches.push({ type: "reclamation", numero: n, cibleId: r.id });
+  }
+  for (const d of demandesPass.data ?? []) {
+    const n = numero(d.commande);
+    if (n) taches.push({ type: "demande_pass", numero: n, cibleId: d.id });
+  }
+  const idsRembPass = (rembsPass.data ?? []).map((r) => r.cible_id);
+  if (idsRembPass.length > 0) {
+    const { data, error } = await client.from("pass").select("id, commande:commande_id(numero)").in("id", idsRembPass);
+    if (error) throw new Error("lecture des tâches de remboursement impossible");
+    for (const p of data ?? []) {
+      const n = numero(p.commande);
+      if (n) taches.push({ type: "remboursement_pass", numero: n, cibleId: p.id });
+    }
   }
   for (const c of stocks.data ?? []) taches.push({ type: "stock", numero: c.numero, cibleId: c.id });
   return taches;

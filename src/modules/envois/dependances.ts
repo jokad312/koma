@@ -6,6 +6,7 @@ import { rendreCommandePayee } from "./modeles/commande-payee";
 import { TEXTES } from "./modeles/commun";
 import { rendreKitOuvert } from "./modeles/kit-ouvert";
 import { rendrePassEmis } from "./modeles/pass-emis";
+import { rendrePassAnnule, rendrePassRembourse } from "./modeles/pass-statut";
 import { rendreCommandeAnnulee, rendreCommandeEnFabrication, rendreCommandeExpediee, rendreCommandeLivree, rendreCommandeRemboursee } from "./modeles/statut-commande";
 import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
 import { cheminPublic } from "@/i18n/adresses";
@@ -234,6 +235,34 @@ async function rendre(client: ClientService, brut: EnvoiReserve): Promise<Result
         };
       }),
     });
+    return { statut: "pret", destinataire, message };
+  }
+
+  // Pass annulé ou remboursé (story 7.9) : jamais envoyé si le Pass n'est pas dans l'état annoncé ou n'appartient pas à la Commande du Compte ;
+  // le montant vient du remboursement figé (USD seulement), le nom et l'Événement sont relus en base.
+  if (envoi.modele === "pass_annule" || envoi.modele === "pass_rembourse") {
+    const passId = envoi.donnees.pass_id;
+    if (!passId) return { statut: "ignorer", raison: "Pass non indiqué" };
+    const atteints = envoi.modele === "pass_annule" ? ["annule", "rembourse"] : ["rembourse"];
+    const [pass, remboursement] = await Promise.all([
+      client.from("pass").select("nom_titulaire, statut, commande_id, evenement:evenement_id(titre_fr, titre_en)").eq("id", passId).maybeSingle(),
+      client.from("remboursement").select("montant_cents, devise").eq("cible_type", "pass").eq("cible_id", passId).maybeSingle(),
+    ]);
+    if (pass.error || remboursement.error) return { statut: "reessayer", raison: "lecture du Pass impossible" };
+    if (!pass.data || pass.data.commande_id !== commande.id || commande.compte_id !== envoi.compteId) return { statut: "ignorer", raison: "Pass introuvable pour ce Compte" };
+    if (!atteints.includes(pass.data.statut)) return { statut: "ignorer", raison: "statut du Pass non atteint" };
+    if (!remboursement.data || remboursement.data.devise !== "USD") return { statut: "ignorer", raison: "remboursement introuvable ou hors USD" };
+    const evenement = Array.isArray(pass.data.evenement) ? (pass.data.evenement[0] ?? null) : pass.data.evenement;
+    if (!evenement) return { statut: "ignorer", raison: "Événement introuvable" };
+    const donnees = {
+      nomSite,
+      numero: commande.numero,
+      url: `${site}/${envoi.langue}/compte/pass`,
+      nomTitulaire: pass.data.nom_titulaire,
+      evenement: titreSelonLangue({ titre_fr: evenement.titre_fr, titre_en: evenement.titre_en }, envoi.langue),
+      montantCents: remboursement.data.montant_cents,
+    };
+    const message = envoi.modele === "pass_annule" ? rendrePassAnnule(envoi.langue, donnees) : rendrePassRembourse(envoi.langue, donnees);
     return { statut: "pret", destinataire, message };
   }
 

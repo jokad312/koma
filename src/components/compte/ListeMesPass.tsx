@@ -7,7 +7,7 @@ import type { Locale } from "@/i18n/routing";
 import { lireEtatCompte, lireSessionVerifiee } from "@/lib/auth/compte";
 import { formaterDateBoutique } from "@/lib/dates";
 import { grouperParEvenement } from "@/modules/evenements/pass-groupes";
-import { listerMesPass } from "@/modules/evenements/pass-queries";
+import { lireAnnulationsMesPass, listerMesPass } from "@/modules/evenements/pass-queries";
 import { CartePass } from "./CartePass";
 
 const CLASSES_LIEN = "t-body inline-flex min-h-touch items-center text-text-primary underline";
@@ -24,8 +24,9 @@ export async function ListeMesPass({ locale }: { locale: Locale }) {
   if (!session) versConnexion(locale, retour);
 
   let pass;
+  let annulations;
   try {
-    pass = await listerMesPass(session.compteId, locale);
+    [pass, annulations] = await Promise.all([listerMesPass(session.compteId, locale), lireAnnulationsMesPass(session.compteId)]);
   } catch {
     console.error("[pass] lecture de Mes Pass impossible");
     return <MessageEtat type="erreur">{t("erreur")}</MessageEtat>;
@@ -60,7 +61,7 @@ export async function ListeMesPass({ locale }: { locale: Locale }) {
             <ul className="grid gap-4 md:grid-cols-2">
               {g.pass.map((p) => (
                 <li key={p.id}>
-                  <CartePass pass={p} />
+                  <CartePass pass={p} annulation={annulations.get(p.id)} />
                 </li>
               ))}
             </ul>
