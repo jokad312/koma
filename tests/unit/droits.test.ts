@@ -8,7 +8,6 @@ const ACCORDES_ASSISTANT: Droit[] = [
   "mesures.verifier",
   "galerie.valider",
   "blog.gerer",
-  "evenements.gerer",
   "remboursement.preparer",
   "activite.propre",
 ];
@@ -30,6 +29,8 @@ const INTERDITS_ASSISTANT: Droit[] = [
   "age.corriger",
   "messages.traiter",
   "admin.acceder",
+  // Décision de Jonathan du 2026-11-10 : les Événements restent à l'Admin seul pour l'instant (écart avec FR-53, noté dans deferred-work.md).
+  "evenements.gerer",
 ];
 
 describe("matrice des droits", () => {

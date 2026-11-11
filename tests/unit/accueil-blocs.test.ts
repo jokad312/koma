@@ -83,12 +83,12 @@ describe("textes de l'accueil", () => {
   for (const langue of ["fr", "en"] as const) {
     const accueil = messages[langue].Accueil;
 
-    it(`${langue} : seul le bloc « Jonathan » (et le titre anglais du bloc 5) porte le marqueur`, () => {
+    it(`${langue} : seul le bloc « Jonathan » porte le marqueur`, () => {
       const marqueurs = trouverMarqueurs(messages[langue], ["Accueil"]);
       const jonathan = ["Accueil.jonathan.phrase1", "Accueil.jonathan.phrase2", "Accueil.jonathan.phrase3"];
       // Titre et mention du mur : textes anglais fournis par Jonathan (2026-11-10), plus aucun marqueur.
-      // Titre anglais du bloc 5 « Rendez-vous otaku » : sans source (EXPERIENCE.md ne donne que le français), story 7.2.
-      expect(marqueurs).toEqual(langue === "en" ? ["Accueil.rendezVous.titre", ...jonathan] : jonathan);
+      // Titre anglais du bloc 5 : « Otaku meetups », fourni par Jonathan (2026-11-10).
+      expect(marqueurs).toEqual(jonathan);
       expect(contientMarqueur(accueil.heros.accroche)).toBe(false);
     });
 

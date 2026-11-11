@@ -139,7 +139,7 @@
       "voirTout": "See all cosplays"
     },
     "rendezVous": {
-      "titre": "[Texte à fournir]"
+      "titre": "Otaku meetups"
     },
     "mur": {
       "titre": "THEY WEAR IT",
@@ -2332,18 +2332,18 @@
     }
   },
   "Festival": {
-    "titre": "[Texte à fournir]",
+    "titre": "Festival",
     "fil": {
       "navigation": "Breadcrumb",
       "accueil": "Home"
     },
-    "avenir": "[Texte à fournir]",
-    "passes": "[Texte à fournir]",
-    "vide": "[Texte à fournir]",
+    "avenir": "Upcoming",
+    "passes": "Past",
+    "vide": "No upcoming events for now.",
     "erreur": "Something went wrong. Try again in a moment.",
-    "passe": "[Texte à fournir]",
-    "programme": "[Texte à fournir]",
-    "pass": "[Texte à fournir]",
+    "passe": "Past event",
+    "programme": "Schedule",
+    "pass": "Pass",
     "voirPlus": {
       "libelle": "See more",
       "enCours": "Loading…"

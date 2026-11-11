@@ -9,10 +9,11 @@ export const DROITS = [
   "mesures.verifier",
   "galerie.valider",
   "blog.gerer",
-  "evenements.gerer",
   "remboursement.preparer",
   "activite.propre",
-  // Réservés à l'Admin.
+  // Réservés à l'Admin. « evenements.gerer » : décision de Jonathan du 2026-11-10, Admin seulement pour l'instant
+  // (la base refuse déjà l'Assistant sur les fonctions d'écriture des Événements).
+  "evenements.gerer",
   "admin.acceder",
   "produits.modifier",
   "prix.modifier",
@@ -37,7 +38,6 @@ export const DROITS_ASSISTANT: ReadonlySet<Droit> = new Set<Droit>([
   "mesures.verifier",
   "galerie.valider",
   "blog.gerer",
-  "evenements.gerer",
   "remboursement.preparer",
   "activite.propre",
 ]);

@@ -2337,13 +2337,13 @@
       "navigation": "Fil d'Ariane",
       "accueil": "Accueil"
     },
-    "avenir": "[Texte à fournir]",
-    "passes": "[Texte à fournir]",
+    "avenir": "À venir",
+    "passes": "Passés",
     "vide": "Aucun événement à venir pour le moment.",
     "erreur": "Un problème est survenu. Réessaie dans un instant.",
-    "passe": "[Texte à fournir]",
-    "programme": "[Texte à fournir]",
-    "pass": "[Texte à fournir]",
+    "passe": "Événement passé",
+    "programme": "Programme",
+    "pass": "Pass",
     "voirPlus": {
       "libelle": "Voir plus",
       "enCours": "Chargement…"
