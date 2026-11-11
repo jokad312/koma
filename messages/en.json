@@ -113,6 +113,14 @@
     "compteRealisation": {
       "titre": "Send a Creation",
       "description": "Show the costume you made with a KOMA kit."
+    },
+    "festivalCandidature": {
+      "titre": "Apply for a stand",
+      "description": "Describe what you sell and send three photos to book a stand."
+    },
+    "festivalStand": {
+      "titre": "Pay for my stand",
+      "description": "Pay for your accepted stand before the deadline."
     }
   },
   "Accueil": {
@@ -818,7 +826,8 @@
         "non_autorise": "You no longer have the right to change this setting. Reload the page or sign in again.",
         "generique": "The setting could not be saved. Your entry is kept: try again.",
         "delai_paiement_invalide": "The time limit must be a whole number from 1 to 1440 minutes.",
-        "frais_annulation_invalide": "The fee must be a whole number from 0 to 100."
+        "frais_annulation_invalide": "The fee must be a whole number from 0 to 100.",
+        "delai_stand_invalide": "The delay must be a whole number from 1 to 168 hours."
       },
       "tranches": {
         "titre": "Price ranges",
@@ -949,9 +958,50 @@
         "titre": "Pass cancellation fee",
         "libelle": "Pass cancellation fee (%)",
         "aide": "Percentage kept when a Pass is cancelled, from 0 to 100. While this setting is empty, no Pass cancellation can be accepted."
+      },
+      "delaiStand": {
+        "titre": "Stand payment delay",
+        "libelle": "Stand payment delay (hours)",
+        "aide": "Time given to an exhibitor to pay for their stand once the application is accepted, from 1 to 168 hours. After that, the spot is released. While this setting is empty, no application can be accepted."
       }
     },
     "evenements": {
+      "candidatures": {
+        "titre": "Stand applications",
+        "aide": "An application is accepted right away and holds a spot during the payment delay. You can refuse it afterwards (counterfeits, inappropriate content): before payment, the link is cancelled and the spot released; after payment, the stand and its 2 Passes are cancelled and a refund is opened. Photos and the Instagram link are only visible here and are deleted 90 days later.",
+        "vide": "No application for this Event.",
+        "erreurLecture": "The applications could not be read. Reload the page.",
+        "etat": {
+          "acceptee": "Accepted, waiting for payment",
+          "payee": "Paid",
+          "expiree": "Payment delay passed",
+          "refusee": "Refused"
+        },
+        "jusqua": "until {date}",
+        "compteInconnu": "Account without an email address",
+        "instagram": "Instagram:",
+        "photoAlt": "Photo {n} of the application",
+        "photosPurgees": "Photos and Instagram link deleted (90 days passed).",
+        "motifRefus": "Reason for refusal: {motif}",
+        "refuser": "Refuse this application",
+        "motif": "Reason (optional, sent to the exhibitor)",
+        "aideRefus": "The payment link is cancelled and the spot is released. The exhibitor receives an email.",
+        "aideRefusPaye": "The paid stand and its 2 Passes are cancelled. A refund is opened: you confirm it afterwards with a proof. The exhibitor receives an email.",
+        "confirmerRefus": "Confirm the refusal",
+        "annuler": "Cancel",
+        "refuse": "Application refused. The exhibitor was told by email.",
+        "refuseRembourser": "Application refused. Amount to refund: {montant}. Confirm the refund with a proof in the task \"Pass refund to confirm\".",
+        "lienTaches": "Open the tasks",
+        "erreurs": {
+          "non_autorise": "You no longer have the right to do this. Reload the page or sign in again.",
+          "entree_invalide": "The reason is too long (500 characters at most).",
+          "introuvable": "This application cannot be found.",
+          "deja_refusee": "This application is already refused.",
+          "annulation_impossible": "Not possible: a Pass of this stand has already been scanned.",
+          "reglage_manquant": "Not possible: the Pass cancellation fee is not set (Settings).",
+          "generique": "The refusal could not be saved. Try again."
+        }
+      },
       "galerie": {
         "titre": "Event gallery",
         "aide": "The public link to the photo folder (Google Drive or Google Photos). It shows on the past Event's page, and every Pass buyer gets an email with this link once the Event is over (once per buyer, even if the link changes later).",
@@ -2746,7 +2796,8 @@
         "total_change": "The total has changed. Check the summary.",
         "reglage_manquant": "The shop is not ready to take this order. Try again later.",
         "erreur": "The order could not be created. Your choices are kept: try again in a moment."
-      }
+      },
+      "candidater": "Apply for a stand"
     },
     "prevenir": {
       "titre": "Get notified when sales open",
@@ -2815,6 +2866,110 @@
     "voirPlus": {
       "libelle": "See more",
       "enCours": "Loading…"
+    },
+    "candidature": {
+      "titre": "Apply for a stand",
+      "intro": "Describe what you sell, send three photos and your Instagram. If your application is accepted, your spot is reserved right away and you pay on the next page.",
+      "pasEncore": "Applications are not open yet.",
+      "venteFermee": "Applications are closed.",
+      "complet": "Sold out: there is no stand left for this event.",
+      "retourEvenement": "Back to the event",
+      "type": "Stand type",
+      "description": "What you sell",
+      "descriptionAide": "From {min} to {max} characters.",
+      "compteur": "{n} / {max} characters",
+      "instagram": "Your Instagram",
+      "instagramAide": "An instagram.com link or your @handle.",
+      "photos": "Three photos of your items",
+      "photosAide": "Exactly three photos, in JPEG, PNG or WebP, 15 MB at most each.",
+      "photoN": "Photo {n}",
+      "engagement": "I certify that the items shown on my stand are my own creations and that none is counterfeit. I understand that my application or stand may be refused or withdrawn if this is not respected.",
+      "confidentialite": "Your photos and Instagram link are only used to review your application. They are not published and are deleted 90 days after the event.",
+      "envoyer": "Send my application",
+      "envoiEnCours": "Sending… {pct}%",
+      "traitement": "Checking the photos…",
+      "progression": "Sending photos: {pct}%",
+      "reprise": "Connection lost: resuming the upload…",
+      "annuler": "Cancel the upload",
+      "erreurs": {
+        "non_connecte": "Sign in to apply.",
+        "compte_incomplet": "Your account is not complete: finish it to apply.",
+        "invalide": "Your application is not valid. Reload the page and try again.",
+        "format_invalide": "A photo is not valid: use three JPEG, PNG or WebP photos.",
+        "fichier_trop_lourd": "A photo is larger than 15 MB.",
+        "engagement_manquant": "Tick the commitment box to apply.",
+        "description_invalide": "The description must be 20 to 1,000 characters long, without “<” or “>” or invisible characters.",
+        "instagram_invalide": "Enter a valid instagram.com link or your @handle.",
+        "trop_d_envois": "Too many recent uploads. Try again in an hour.",
+        "complet": "Sold out: there is no stand left for this event.",
+        "deja_candidat": "You already have an application for this event. Open the link you received by email to pay for it.",
+        "vente_fermee": "Applications are not open.",
+        "evenement_introuvable": "This event is no longer available.",
+        "type_introuvable": "This stand type is no longer available. Reload the page.",
+        "reglage_manquant": "The shop is not ready to receive this application. Try again later.",
+        "generique": "Your application could not be sent. Try again in a moment.",
+        "type_manquant": "Choose a stand type.",
+        "photos_manquantes": "Choose exactly three photos.",
+        "envoi_echec": "The photo upload failed. Check your connection and try again.",
+        "candidature_refusee": "Your application for this event was declined: you can no longer apply for this stand. Write to us if you think this is a mistake."
+      }
+    },
+    "stand": {
+      "titre": "Pay for my stand",
+      "retourEvenement": "Back to the event",
+      "refusee": "This application was refused. Write to us if you have a question.",
+      "delaiDepasse": "Time is up: the spot has been released.",
+      "delaiDepasseAide": "You can apply again if a stand is left.",
+      "accepte": "Your application is accepted and your spot is reserved until {limite}. Pay before then, or the spot is released.",
+      "limite": "Payment deadline:",
+      "resume": "There are errors to fix.",
+      "champs": {
+        "titulaire": "Enter your name (2 to 80 characters, without “<” or “>”).",
+        "aide": "Your helper's name is not valid (2 to 80 characters, without “<” or “>”).",
+        "mention": "Tick the box about the event photos and videos."
+      },
+      "noms": {
+        "titre": "Who runs the stand?",
+        "aide": "A stand comes with two named Passes: yours and your helper's.",
+        "moiConnu": "Exhibitor Pass: {nom} (your account)",
+        "moiSaisie": "Your name (exhibitor Pass)",
+        "aideChamp": "Your helper's name (optional)",
+        "aideFacultatif": "You can leave it empty and write it later from “My Passes”, until the event starts."
+      },
+      "recap": {
+        "titre": "Summary",
+        "ligne": "Stand: {nom}",
+        "deuxPass": "Two named Passes included.",
+        "prix": "Stand price",
+        "reduction": "Discount ({code})",
+        "reductionMontant": "−{montant}",
+        "total": "Total"
+      },
+      "mention": {
+        "titre": "Event photos and videos",
+        "texte": "Photos and videos are taken during the event and may be published on the website and our social media. If you'd rather not appear, tell the welcome desk on the day or write to us."
+      },
+      "confirmer": "Confirm and choose how to pay",
+      "confirmerEnCours": "Creating the order…",
+      "totalChange": "The total has changed: it was {ancien}, it is now {nouveau}. Check the summary before confirming.",
+      "aideProvisoire": "Stand helper",
+      "erreurs": {
+        "non_connecte": "Sign in to pay for your stand.",
+        "compte_incomplet": "Your account is not complete: finish it to pay for your stand.",
+        "invalide": "Your entry is not valid. Reload the page and try again.",
+        "titulaire": "A name is not valid: it needs 2 to 80 characters, without “<” or “>”.",
+        "mention": "Tick the box about the event photos and videos.",
+        "introuvable": "This application cannot be found.",
+        "expiree": "Time is up: the spot has been released.",
+        "refusee": "This application was refused.",
+        "deja_commandee": "This stand already has an order in progress or paid.",
+        "vente_fermee": "Sales are no longer open.",
+        "commande_en_attente": "You already have an order to pay. Finish it or wait for it to expire.",
+        "total_change": "The total has changed. Check the summary.",
+        "reglage_manquant": "The shop is not ready to take this order. Try again later.",
+        "gratuit": "This stand is not sold online.",
+        "erreur": "The order could not be created. Your entry is kept: try again in a moment."
+      }
     }
   },
   "Fiche": {
@@ -3326,6 +3481,23 @@
       "lien": "The gallery:",
       "bouton": "View the gallery"
     },
+    "candidature_validee": {
+      "sujet": "Your stand spot for {evenement} is reserved",
+      "titre": "Your stand application is accepted",
+      "intro": "Your application for a stand at {evenement} is accepted and your spot is reserved.",
+      "delai": "Pay for your stand before {limite} (Goma time): after that, the spot is released.",
+      "lien": "To pay for your stand:",
+      "bouton": "Pay for my stand"
+    },
+    "candidature_refusee": {
+      "sujet": "Your stand application for {evenement}",
+      "titre": "Your stand application is not accepted",
+      "intro": "We cannot keep your application for a stand at {evenement}.",
+      "motif": "Reason: {motif}",
+      "remboursement": "We are refunding {montant} (after any cancellation fee): we will let you know as soon as it is done.",
+      "lien": "Your Passes:",
+      "bouton": "View my Passes"
+    },
     "commercial": {
       "desinscriptionTexte": "Don't want these emails anymore?",
       "desinscriptionLien": "Unsubscribe"
@@ -3579,6 +3751,22 @@
           "deja": "A cancellation request is already in progress for this Pass.",
           "reglage": "Cancellation is not available right now. Write to us from the Contact page.",
           "generique": "The request could not be sent. Try again."
+        }
+      },
+      "aide": {
+        "titre": "Helper's name to enter",
+        "aide": "Enter the name of the person who helps you at the stand, as it should appear on their Pass. You can do this once, until the event starts.",
+        "enregistrer": "Save the name",
+        "nonSaisi": "The helper's name was not entered. This Pass stays valid at the entrance.",
+        "erreurs": {
+          "non_connecte": "Sign in to continue.",
+          "compte_incomplet": "Your account is not complete.",
+          "invalide": "Invalid entry. Reload the page and try again.",
+          "nom_invalide": "A name needs 2 to 80 characters, without “<” or “>”.",
+          "introuvable": "This Pass cannot be found.",
+          "deja_saisi": "This Pass already has its name.",
+          "evenement_commence": "The event has started: the name can no longer be changed.",
+          "generique": "The name could not be saved. Try again in a moment."
         }
       }
     },

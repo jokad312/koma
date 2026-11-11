@@ -12,6 +12,9 @@ export type PassLu = {
   codeCourt: string;
   // Commande de Pass offerte (story 8.5) : la carte porte « Offert ».
   offert: boolean;
+  // Stand (story 7.11) : le nom de l'aide reste à saisir (nom provisoire affiché) ; « aideNommable » : encore possible (Pass valide, Événement pas commencé).
+  nomASaisir?: boolean;
+  aideNommable?: boolean;
   evenement: { id: string; slug: string; titre: string; debutLe: string | null; finLe: string | null; lieu: string | null };
 };
 

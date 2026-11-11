@@ -41,6 +41,7 @@ describe("lireReglagesAdmin", () => {
       plafondFabrication: null,
       delaiPaiement: null,
       fraisAnnulationPass: null,
+      delaiStandHeures: null,
     });
     expect(faux.cles).toEqual([
       "nom_site",
@@ -52,6 +53,7 @@ describe("lireReglagesAdmin", () => {
       "plafond_fabrication",
       "delai_paiement",
       "frais_annulation_pass",
+      "delai_stand_heures",
     ]);
   });
 
@@ -67,6 +69,7 @@ describe("lireReglagesAdmin", () => {
       plafondFabrication: null,
       delaiPaiement: null,
       fraisAnnulationPass: null,
+      delaiStandHeures: null,
     });
   });
 
@@ -80,6 +83,7 @@ describe("lireReglagesAdmin", () => {
         { cle: "plafond_fabrication", valeur: "40" },
         { cle: "delai_paiement", valeur: "30" },
         { cle: "frais_annulation_pass", valeur: "20" },
+        { cle: "delai_stand_heures", valeur: "48" },
       ],
       error: null,
     };
@@ -91,6 +95,7 @@ describe("lireReglagesAdmin", () => {
       plafondFabrication: "40",
       delaiPaiement: "30",
       fraisAnnulationPass: "20",
+      delaiStandHeures: "48",
     });
   });
 

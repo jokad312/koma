@@ -261,6 +261,85 @@ export type Database = {
           },
         ]
       }
+      candidature_stand: {
+        Row: {
+          commande_id: string | null
+          compte_id: string
+          cree_le: string
+          description: string
+          engagement_accepte_le: string
+          engagement_version: string
+          evenement_id: string
+          expire_le: string
+          id: string
+          instagram: string | null
+          motif_refus: string | null
+          photos: string[]
+          photos_purgees_le: string | null
+          refuse_le: string | null
+          statut: string
+          type_pass_id: string
+        }
+        Insert: {
+          commande_id?: string | null
+          compte_id: string
+          cree_le?: string
+          description: string
+          engagement_accepte_le?: string
+          engagement_version: string
+          evenement_id: string
+          expire_le: string
+          id: string
+          instagram?: string | null
+          motif_refus?: string | null
+          photos?: string[]
+          photos_purgees_le?: string | null
+          refuse_le?: string | null
+          statut?: string
+          type_pass_id: string
+        }
+        Update: {
+          commande_id?: string | null
+          compte_id?: string
+          cree_le?: string
+          description?: string
+          engagement_accepte_le?: string
+          engagement_version?: string
+          evenement_id?: string
+          expire_le?: string
+          id?: string
+          instagram?: string | null
+          motif_refus?: string | null
+          photos?: string[]
+          photos_purgees_le?: string | null
+          refuse_le?: string | null
+          statut?: string
+          type_pass_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "candidature_stand_commande_id_fkey"
+            columns: ["commande_id"]
+            isOneToOne: false
+            referencedRelation: "commande"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidature_stand_evenement_id_fkey"
+            columns: ["evenement_id"]
+            isOneToOne: false
+            referencedRelation: "evenement"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "candidature_stand_type_pass_id_fkey"
+            columns: ["type_pass_id"]
+            isOneToOne: false
+            referencedRelation: "type_pass"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chapitre_kit: {
         Row: {
           cree_le: string
@@ -970,6 +1049,7 @@ export type Database = {
       }
       ligne_commande: {
         Row: {
+          aide_a_saisir: boolean
           annulee: boolean
           commande_id: string
           cree_le: string
@@ -990,6 +1070,7 @@ export type Database = {
           variante_id: string | null
         }
         Insert: {
+          aide_a_saisir?: boolean
           annulee?: boolean
           commande_id: string
           cree_le?: string
@@ -1010,6 +1091,7 @@ export type Database = {
           variante_id?: string | null
         }
         Update: {
+          aide_a_saisir?: boolean
           annulee?: boolean
           commande_id?: string
           cree_le?: string
@@ -1235,6 +1317,7 @@ export type Database = {
           id: string
           jeton: string
           ligne_commande_id: string
+          nom_a_saisir: boolean
           nom_titulaire: string
           rang: number
           scanne_le: string | null
@@ -1250,6 +1333,7 @@ export type Database = {
           id?: string
           jeton: string
           ligne_commande_id: string
+          nom_a_saisir?: boolean
           nom_titulaire: string
           rang: number
           scanne_le?: string | null
@@ -1265,6 +1349,7 @@ export type Database = {
           id?: string
           jeton?: string
           ligne_commande_id?: string
+          nom_a_saisir?: boolean
           nom_titulaire?: string
           rang?: number
           scanne_le?: string | null
@@ -2561,6 +2646,17 @@ export type Database = {
         Args: { p_compte: string; p_slug: string }
         Returns: Json
       }
+      candidature_stand_possible: {
+        Args: { p_compte: string; p_evenement: string; p_type: string }
+        Returns: string
+      }
+      candidatures_stand_a_purger: {
+        Args: { p_limite?: number }
+        Returns: {
+          candidature_id: string
+          photos: string[]
+        }[]
+      }
       capacite_fabrication_atteinte: { Args: never; Returns: boolean }
       catalogue_decrementer_stock: {
         Args: { p_nombre: number; p_variante: string }
@@ -2592,6 +2688,15 @@ export type Database = {
           p_compte: string
           p_evenement: string
           p_lignes: Json
+          p_strict: boolean
+        }
+        Returns: Json
+      }
+      commande_stand_calculer: {
+        Args: {
+          p_candidature: string
+          p_code: string
+          p_compte: string
           p_strict: boolean
         }
         Returns: Json
@@ -2690,6 +2795,21 @@ export type Database = {
         }
         Returns: Json
       }
+      creer_commande_stand: {
+        Args: {
+          p_acceptations: Json
+          p_aide_a_saisir: boolean
+          p_auteur: Json
+          p_candidature: string
+          p_cle_idempotence: string
+          p_code?: string
+          p_nom_aide: string
+          p_nom_titulaire: string
+          p_origine?: string
+          p_total_attendu_cents: number
+        }
+        Returns: Json
+      }
       creer_panier: { Args: { p_auteur: Json }; Returns: string }
       creer_univers: {
         Args: { p_auteur: Json; p_nom_en: string; p_nom_fr: string }
@@ -2743,6 +2863,19 @@ export type Database = {
       deplacer_prestataire: {
         Args: { p_auteur: Json; p_code: string; p_sens: string }
         Returns: undefined
+      }
+      deposer_candidature_stand: {
+        Args: {
+          p_auteur: Json
+          p_description: string
+          p_engagement_version: string
+          p_evenement: string
+          p_id: string
+          p_instagram: string
+          p_photos: string[]
+          p_type: string
+        }
+        Returns: Json
       }
       deposer_photo_galerie: {
         Args: {
@@ -3155,6 +3288,10 @@ export type Database = {
         Args: { p_id: string }
         Returns: string[]
       }
+      marquer_candidature_stand_purgee: {
+        Args: { p_candidature: string }
+        Returns: undefined
+      }
       marquer_message_traite: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
@@ -3203,6 +3340,11 @@ export type Database = {
           p_nombre: number
           p_panier: string
         }
+        Returns: undefined
+      }
+      nom_titulaire_propre: { Args: { p_nom: string }; Returns: string }
+      nommer_aide_pass: {
+        Args: { p_auteur: Json; p_nom: string; p_pass: string }
         Returns: undefined
       }
       offrir_commande: {
@@ -3271,7 +3413,15 @@ export type Database = {
         }
         Returns: Json
       }
+      recapitulatif_commande_stand: {
+        Args: { p_candidature: string; p_code?: string; p_compte: string }
+        Returns: Json
+      }
       reconcilier_declencher: { Args: never; Returns: boolean }
+      refuser_candidature_stand: {
+        Args: { p_auteur: Json; p_candidature: string; p_motif: string }
+        Returns: number
+      }
       refuser_photo: {
         Args: { p_auteur: Json; p_photo: string }
         Returns: string
@@ -3531,6 +3681,8 @@ export type Database = {
         | "pass_annule"
         | "pass_rembourse"
         | "galerie_evenement"
+        | "candidature_validee"
+        | "candidature_refusee"
       envoi_statut: "a_envoyer" | "envoye" | "echec" | "abandonne" | "ignore"
     }
     CompositeTypes: {
@@ -3690,6 +3842,8 @@ export const Constants = {
         "pass_annule",
         "pass_rembourse",
         "galerie_evenement",
+        "candidature_validee",
+        "candidature_refusee",
       ],
       envoi_statut: ["a_envoyer", "envoye", "echec", "abandonne", "ignore"],
     },

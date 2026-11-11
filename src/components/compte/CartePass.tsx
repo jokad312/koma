@@ -6,6 +6,7 @@ import type { AnnulationPass, PassLu } from "@/modules/evenements/pass-types";
 import { AgrandirCodeQr } from "./AgrandirCodeQr";
 import { CodeQrPass } from "./CodeQrPass";
 import { DemanderAnnulationPass } from "./DemanderAnnulationPass";
+import { NommerAidePass } from "./NommerAidePass";
 
 // Carte Pass (story 7.5, UX-DR40) : nom, Type de pass en toutes lettres, Événement, date à l'heure de Goma, lieu, statut, Code QR sur blanc pur,
 // code court sous le QR et « Agrandir ». Seul un Pass valide montre son Code QR : un Pass déjà scanné, annulé ou remboursé est marqué comme tel.
@@ -45,6 +46,13 @@ export function CartePass({ pass, annulation }: { pass: PassLu; annulation?: Ann
       ) : (
         <p className="t-small text-text-secondary">{t("sansCode")}</p>
       )}
+      {pass.nomASaisir ? (
+        pass.aideNommable ? (
+          <NommerAidePass passId={pass.id} />
+        ) : (
+          <p className="t-small text-text-secondary">{t("aide.nonSaisi")}</p>
+        )
+      ) : null}
       {annulation ? <DemanderAnnulationPass passId={pass.id} annulation={annulation} /> : null}
     </article>
   );

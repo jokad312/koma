@@ -40,7 +40,7 @@ select ok(
 select is(
   (select array_agg(e.enumlabel::text order by e.enumsortorder) from pg_enum e where e.enumtypid = 'public.envoi_modele'::regtype),
   array['commande_payee', 'kit_ouvert', 'commande_en_fabrication', 'commande_expediee', 'commande_livree', 'commande_annulee', 'commande_remboursee',
-        'relance', 'panier_abandonne', 'rappel_kit', 'nouveau_produit', 'alerte_evenement', 'pass_emis', 'pass_annule', 'pass_rembourse', 'galerie_evenement'],
+        'relance', 'panier_abandonne', 'rappel_kit', 'nouveau_produit', 'alerte_evenement', 'pass_emis', 'pass_annule', 'pass_rembourse', 'galerie_evenement', 'candidature_validee', 'candidature_refusee'],
   'envoi.modele : énumération fermée (modèles liés à un achat, puis Emails commerciaux de la story 9.4)'
 );
 select is(

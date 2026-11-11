@@ -136,6 +136,9 @@ describe("bouton d'achat de la page d'un Événement (story 7.4)", () => {
     expect(faux.etat).toHaveBeenCalledWith("00000000-0000-4000-8000-000000000001");
     expect(page).toContain('href="/festival/test-evenement-1/acheter"');
     expect(page).toContain("Acheter des pass");
+    // Un Type « Stand » ne s'achète pas : il se candidate (story 7.11).
+    expect(page).toContain('href="/festival/test-evenement-1/candidater"');
+    expect(page).toContain("Candidater pour un stand");
     expect(page).not.toMatch(/Complet|Vente fermée|places/i);
   });
 
@@ -144,12 +147,13 @@ describe("bouton d'achat de la page d'un Événement (story 7.4)", () => {
     expect(await html(await AchatEvenement({ evenement: evenement(), locale: "en" }), "en")).toContain("Buy passes");
   });
 
-  it("un Type au quota atteint est signalé « complet », le bouton reste ; un Stand n'est jamais cité", async () => {
+  it("un Type au quota atteint est signalé « complet », le bouton reste ; un Stand complet est signalé et ne se candidate plus", async () => {
     faux.etat.mockResolvedValue({ etat: "ouverte", types: [{ id: "t1", complet: true }, { id: "t2", complet: true }] });
     const page = await html(await AchatEvenement({ evenement: evenement(), locale: "fr" }));
     expect(page).toContain("TEST_Pass simple : complet");
-    expect(page).not.toContain("TEST_Stand : complet");
+    expect(page).toContain("TEST_Stand : complet");
     expect(page).toContain("Acheter des pass");
+    expect(page).not.toContain("/candidater");
   });
 
   it("Capacité atteinte : « Complet » à la place du bouton", async () => {
@@ -168,10 +172,14 @@ describe("bouton d'achat de la page d'un Événement (story 7.4)", () => {
   });
 
   it("vente pas encore ouverte, rien à acheter, Événement passé, lecture impossible : ni bouton ni mention inventée", async () => {
-    for (const etat of [{ etat: "a_venir", types: [] }, { etat: "aucun", types: [] }]) {
-      faux.etat.mockResolvedValue(etat);
-      expect(await AchatEvenement({ evenement: evenement(), locale: "fr" })).toBeNull();
-    }
+    faux.etat.mockResolvedValue({ etat: "a_venir", types: [] });
+    expect(await AchatEvenement({ evenement: evenement(), locale: "fr" })).toBeNull();
+    // Rien d'achetable et aucun Stand : aucun bouton. Avec un Stand, seule la candidature reste proposée.
+    faux.etat.mockResolvedValue({ etat: "aucun", types: [] });
+    expect(await AchatEvenement({ evenement: evenement({ types: [] }), locale: "fr" })).toBeNull();
+    const seulStand = await html(await AchatEvenement({ evenement: evenement(), locale: "fr" }));
+    expect(seulStand).toContain("Candidater pour un stand");
+    expect(seulStand).not.toContain("/acheter");
     faux.etat.mockClear();
     faux.etat.mockResolvedValue(ouverte);
     expect(await AchatEvenement({ evenement: evenement({ passe: true }), locale: "fr" })).toBeNull();

@@ -10,6 +10,7 @@ export const CLES_REGLAGE = [
   "plafond_fabrication",
   "delai_paiement",
   "frais_annulation_pass",
+  "delai_stand_heures",
 ] as const;
 
 export const cleReglageSchema = z.enum(CLES_REGLAGE);
@@ -43,6 +44,12 @@ export const fraisAnnulationPassSchema = z
   .string()
   .transform((v) => v.trim())
   .pipe(z.union([z.literal("").transform(() => null), z.string().regex(/^[0-9]{1,3}$/).transform(Number).pipe(z.number().int().min(0).max(100)).transform(String)]));
+
+// Délai de paiement d'un Stand accepté : entier de 1 à 168 heures, chiffres seulement ; vide = effacé (null). Renvoie le texte du nombre.
+export const delaiStandHeuresSchema = z
+  .string()
+  .transform((v) => v.trim())
+  .pipe(z.union([z.literal("").transform(() => null), z.string().regex(/^[0-9]{1,3}$/).transform(Number).pipe(z.number().int().min(1).max(168)).transform(String)]));
 
 export const entreeReglageSchema = z.object({
   cle: cleReglageSchema,

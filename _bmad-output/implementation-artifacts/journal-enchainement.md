@@ -455,3 +455,17 @@
 ## Textes du site (2026-11-11)
 - Document de Jonathan « Textes du site (version complète) » repris sans reformulation (FR et EN) : Accueil (3 phrases et signature), À propos, FAQ (24 questions en 5 groupes), licence des kits, mentions légales, CGV, livraison et retours, confidentialité, charte de la galerie (nouvelle page /charte-galerie, aussi affichée au-dessus des formulaires de photo et de Réalisation). « KOMA SHOP » devient {nomSite} (le nom vient des réglages).
 - Restent au marqueur : faits non fournis (adresse, RCCM, NIF, frais, délais, dates de version…) et « Choix » non tranchés. Le build de production reste bloqué tant qu'ils sont là (comportement voulu).
+
+
+## Story 7.11, volet admin, emails, purge, réglage (fork B, 2026-11-11)
+- Emails `candidature_validee` (lien de paiement `/<langue>/festival/<slug>/stand/<id>` et échéance, relus en base, jamais envoyés si la candidature n'est plus acceptée ou est échue) et `candidature_refusee` (motif, montant du remboursement s'il y en a un). Bloc « Candidatures Stand » dans le détail d'un Événement (photos par liens signés de 5 minutes, bouton « Refuser »). Réglage `delai_stand_heures` (1 à 168) dans les Réglages (migration `20270112130000`). Textes écrits par Claude (FR/EN) à valider.
+- Route `/api/cron/purger-candidatures-stand` (POST, CRON_SECRET) prête et testée mais **non planifiée** : aucun domaine (Q-D1), comme `purger-galerie-attente`. À planifier à la mise en ligne (9.9).
+
+
+## Story 7.11 : candidature Stand, validation automatique (2026-11-11)
+- Spec : `spec-7-11-candidature-stand.md`. Décision de Jonathan du 2026-11-11 : candidature acceptée tout de suite, place réservée 48 h (réglage `delai_stand_heures`), lien de paiement affiché et envoyé ; D6, D7, D9, D10, PRD, AD-37 et epics.md mis à jour avant de coder. Écart corrigé par rapport à l'epic : le nom de l'aide n'est plus exigé au paiement, il se saisit dans « Mes Pass ».
+- Migrations : `20270112100000` à `20270112160000` (modèles d'email, table et fonctions, écriture fermée, réglage, contrainte du lien de galerie, correctifs de revue, variable renommée). pgTAP `candidature_stand` (71), `reglage_delai_stand` (8), rejouées sur koma-dev avec les tests voisins (envois, achat, émission, annulation, scan, événement, galerie), tous verts.
+- Revue par deux sous-agents (base et paiement ; photos privées et interface) : aucun défaut bloquant. Corrigés : refus définitif par Compte et Événement, fenêtre de paiement d'au moins le délai ordinaire et jamais après la fermeture de la vente, Stand dont les Pass sont remboursés qui ne bloque plus, ordre des verrous du refus, demandes d'annulation fermées au refus, pré-contrôle avant l'envoi des photos, émojis composés acceptés, délai d'abandon des envois ramené à 3 h, texte de l'email de refus.
+- Décisions à confirmer : le refus après paiement applique les frais d'annulation figés (CGV §10 dit « sans remboursement » pour contrefaçon) ; un refus est définitif pour le Compte ; un Compte peut recandidater après expiration (pas de limite de répétition).
+- À tester à la main : voir la spec.
+- Méthode : après `npm run build`, supprimer `.next/dev` avant `npm run test:e2e` (un cache mélangé a fait échouer 135 tests e2e avec « Unexpected non-whitespace character after JSON »).

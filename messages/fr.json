@@ -113,6 +113,14 @@
     "compteRealisation": {
       "titre": "Envoyer une Réalisation",
       "description": "Montre le costume que tu as fabriqué avec un kit KOMA."
+    },
+    "festivalCandidature": {
+      "titre": "Candidater pour un stand",
+      "description": "Décris ce que tu vends et envoie trois photos pour réserver un stand."
+    },
+    "festivalStand": {
+      "titre": "Payer mon stand",
+      "description": "Paie ton stand accepté avant l'heure limite."
     }
   },
   "Accueil": {
@@ -818,7 +826,8 @@
         "non_autorise": "Tu n'as plus le droit de modifier ce réglage. Recharge la page ou reconnecte-toi.",
         "generique": "Le réglage n'a pas pu être enregistré. Ta saisie est conservée : réessaie.",
         "delai_paiement_invalide": "Le délai doit être un nombre entier de 1 à 1440 minutes.",
-        "frais_annulation_invalide": "Les frais doivent être un nombre entier de 0 à 100."
+        "frais_annulation_invalide": "Les frais doivent être un nombre entier de 0 à 100.",
+        "delai_stand_invalide": "Le délai doit être un nombre entier de 1 à 168 heures."
       },
       "tranches": {
         "titre": "Tranches de prix",
@@ -949,9 +958,50 @@
         "titre": "Frais d'annulation des Pass",
         "libelle": "Frais d'annulation des Pass (%)",
         "aide": "Pourcentage retenu quand un Pass est annulé, de 0 à 100. Tant que ce réglage est vide, aucune annulation de Pass ne peut être acceptée."
+      },
+      "delaiStand": {
+        "titre": "Délai de paiement d'un Stand",
+        "libelle": "Délai de paiement d'un Stand (heures)",
+        "aide": "Temps laissé à un exposant pour payer son Stand après l'acceptation de sa candidature, de 1 à 168 heures. Passé ce délai, la place est libérée. Tant que ce réglage est vide, aucune candidature ne peut être acceptée."
       }
     },
     "evenements": {
+      "candidatures": {
+        "titre": "Candidatures Stand",
+        "aide": "Une candidature est acceptée tout de suite et réserve une place pendant le délai de paiement. Tu peux la refuser après coup (contrefaçon, contenu inapproprié) : avant paiement, le lien est annulé et la place libérée ; après paiement, le Stand et ses 2 Pass sont annulés et un remboursement est ouvert. Les photos et le lien Instagram ne sont visibles que d'ici et sont supprimés 90 jours après.",
+        "vide": "Aucune candidature pour cet Événement.",
+        "erreurLecture": "Les candidatures n'ont pas pu être lues. Recharge la page.",
+        "etat": {
+          "acceptee": "Acceptée, en attente de paiement",
+          "payee": "Payée",
+          "expiree": "Délai de paiement dépassé",
+          "refusee": "Refusée"
+        },
+        "jusqua": "jusqu'au {date}",
+        "compteInconnu": "Compte sans adresse email",
+        "instagram": "Instagram :",
+        "photoAlt": "Photo {n} de la candidature",
+        "photosPurgees": "Photos et lien Instagram supprimés (90 jours écoulés).",
+        "motifRefus": "Motif du refus : {motif}",
+        "refuser": "Refuser cette candidature",
+        "motif": "Motif (facultatif, envoyé à l'exposant)",
+        "aideRefus": "Le lien de paiement est annulé et la place est libérée. L'exposant reçoit un email.",
+        "aideRefusPaye": "Le Stand payé et ses 2 Pass sont annulés. Un remboursement est ouvert : tu le confirmes ensuite avec une preuve. L'exposant reçoit un email.",
+        "confirmerRefus": "Confirmer le refus",
+        "annuler": "Annuler",
+        "refuse": "Candidature refusée. L'exposant a été prévenu par email.",
+        "refuseRembourser": "Candidature refusée. Montant à rembourser : {montant}. Confirme le remboursement avec une preuve dans la tâche « Remboursement de Pass à confirmer ».",
+        "lienTaches": "Ouvrir les tâches",
+        "erreurs": {
+          "non_autorise": "Tu n'as plus le droit de faire cela. Recharge la page ou reconnecte-toi.",
+          "entree_invalide": "Le motif est trop long (500 caractères au plus).",
+          "introuvable": "Cette candidature est introuvable.",
+          "deja_refusee": "Cette candidature est déjà refusée.",
+          "annulation_impossible": "Impossible : un Pass de ce Stand a déjà été scanné.",
+          "reglage_manquant": "Impossible : les frais d'annulation des Pass ne sont pas réglés (Réglages).",
+          "generique": "Le refus n'a pas pu être enregistré. Réessaie."
+        }
+      },
       "galerie": {
         "titre": "Galerie d'événement",
         "aide": "Le lien public du dossier de photos (Google Drive ou Google Photos). Il s'affiche sur la page de l'Événement passé, et chaque acheteur de Pass reçoit un email avec ce lien une fois l'Événement terminé (une seule fois par acheteur, même si le lien change ensuite).",
@@ -2746,7 +2796,8 @@
         "total_change": "Le total a changé. Vérifie le récapitulatif.",
         "reglage_manquant": "La boutique n'est pas prête à prendre cette commande. Réessaie plus tard.",
         "erreur": "La commande n'a pas pu être créée. Ta saisie est conservée : réessaie dans un instant."
-      }
+      },
+      "candidater": "Candidater pour un stand"
     },
     "prevenir": {
       "titre": "Être prévenu à l'ouverture de la vente",
@@ -2815,6 +2866,110 @@
     "voirPlus": {
       "libelle": "Voir plus",
       "enCours": "Chargement…"
+    },
+    "candidature": {
+      "titre": "Candidater pour un stand",
+      "intro": "Décris ce que tu vends, envoie trois photos et ton Instagram. Si la candidature est acceptée, ta place est réservée tout de suite et tu paies sur la page suivante.",
+      "pasEncore": "Les candidatures ne sont pas encore ouvertes.",
+      "venteFermee": "Les candidatures sont fermées.",
+      "complet": "Complet : il ne reste plus de stand pour cet événement.",
+      "retourEvenement": "Retour à l'événement",
+      "type": "Type de stand",
+      "description": "Ce que tu vends",
+      "descriptionAide": "De {min} à {max} caractères.",
+      "compteur": "{n} / {max} caractères",
+      "instagram": "Ton Instagram",
+      "instagramAide": "Un lien instagram.com ou ton @pseudo.",
+      "photos": "Trois photos de tes articles",
+      "photosAide": "Exactement trois photos, en JPEG, PNG ou WebP, de 15 Mo au plus chacune.",
+      "photoN": "Photo {n}",
+      "engagement": "Je certifie que les articles présentés sur mon stand sont mes propres créations et qu'aucun n'est une contrefaçon. Je comprends que ma candidature ou mon stand peut être refusé ou retiré en cas de non-respect.",
+      "confidentialite": "Tes photos et ton lien Instagram servent uniquement à étudier ta candidature. Ils ne sont pas publiés et sont supprimés 90 jours après l'événement.",
+      "envoyer": "Envoyer ma candidature",
+      "envoiEnCours": "Envoi en cours… {pct} %",
+      "traitement": "Vérification des photos…",
+      "progression": "Envoi des photos : {pct} %",
+      "reprise": "Connexion coupée : reprise de l'envoi…",
+      "annuler": "Annuler l'envoi",
+      "erreurs": {
+        "non_connecte": "Connecte-toi pour candidater.",
+        "compte_incomplet": "Ton compte n'est pas complet : termine-le pour candidater.",
+        "invalide": "Ta candidature n'est pas valide. Recharge la page et réessaie.",
+        "format_invalide": "Une photo n'est pas valable : utilise trois photos JPEG, PNG ou WebP.",
+        "fichier_trop_lourd": "Une photo dépasse 15 Mo.",
+        "engagement_manquant": "Coche la case d'engagement pour candidater.",
+        "description_invalide": "La description doit faire de 20 à 1 000 caractères, sans « < » ni « > » ni caractère invisible.",
+        "instagram_invalide": "Écris un lien instagram.com valide ou ton @pseudo.",
+        "trop_d_envois": "Trop d'envois récents. Réessaie dans une heure.",
+        "complet": "Complet : il ne reste plus de stand pour cet événement.",
+        "deja_candidat": "Tu as déjà une candidature pour cet événement. Ouvre le lien reçu par email pour la payer.",
+        "vente_fermee": "Les candidatures ne sont pas ouvertes.",
+        "evenement_introuvable": "Cet événement n'est plus disponible.",
+        "type_introuvable": "Ce type de stand n'est plus disponible. Recharge la page.",
+        "reglage_manquant": "La boutique n'est pas prête à recevoir cette candidature. Réessaie plus tard.",
+        "generique": "La candidature n'a pas pu être envoyée. Réessaie dans un instant.",
+        "type_manquant": "Choisis un type de stand.",
+        "photos_manquantes": "Choisis exactement trois photos.",
+        "envoi_echec": "L'envoi des photos a échoué. Vérifie ta connexion et réessaie.",
+        "candidature_refusee": "Ta candidature à cet événement a été refusée : tu ne peux plus candidater pour ce stand. Écris-nous si tu penses à une erreur."
+      }
+    },
+    "stand": {
+      "titre": "Payer mon stand",
+      "retourEvenement": "Retour à l'événement",
+      "refusee": "Cette candidature a été refusée. Écris-nous si tu as une question.",
+      "delaiDepasse": "Délai dépassé : la place a été libérée.",
+      "delaiDepasseAide": "Tu peux candidater de nouveau s'il reste un stand.",
+      "accepte": "Ta candidature est acceptée et ta place est réservée jusqu'au {limite}. Paie avant cette heure, sinon la place est libérée.",
+      "limite": "Heure limite de paiement :",
+      "resume": "Il y a des erreurs à corriger.",
+      "champs": {
+        "titulaire": "Écris ton nom (2 à 80 caractères, sans « < » ni « > »).",
+        "aide": "Le nom de ton aide n'est pas valable (2 à 80 caractères, sans « < » ni « > »).",
+        "mention": "Coche la case sur les photos et vidéos de l'événement."
+      },
+      "noms": {
+        "titre": "Qui tient le stand ?",
+        "aide": "Un stand donne deux Pass nominatifs : le tien et celui de ton aide.",
+        "moiConnu": "Pass de l'exposant : {nom} (ton compte)",
+        "moiSaisie": "Ton nom (Pass de l'exposant)",
+        "aideChamp": "Nom de ton aide (facultatif)",
+        "aideFacultatif": "Tu peux le laisser vide et l'écrire plus tard depuis « Mes Pass », jusqu'au début de l'événement."
+      },
+      "recap": {
+        "titre": "Récapitulatif",
+        "ligne": "Stand : {nom}",
+        "deuxPass": "Deux Pass nominatifs inclus.",
+        "prix": "Prix du stand",
+        "reduction": "Réduction ({code})",
+        "reductionMontant": "−{montant}",
+        "total": "Total"
+      },
+      "mention": {
+        "titre": "Photos et vidéos de l'événement",
+        "texte": "Des photos et vidéos sont prises pendant l'événement et peuvent être publiées sur le site et nos réseaux sociaux. Si tu ne veux pas apparaître, signale-le à l'accueil le jour de l'événement ou écris-nous."
+      },
+      "confirmer": "Confirmer et choisir le moyen de paiement",
+      "confirmerEnCours": "Création de la commande…",
+      "totalChange": "Le total a changé : il était de {ancien}, il est maintenant de {nouveau}. Vérifie le récapitulatif avant de confirmer.",
+      "aideProvisoire": "Aide du stand",
+      "erreurs": {
+        "non_connecte": "Connecte-toi pour payer ton stand.",
+        "compte_incomplet": "Ton compte n'est pas complet : termine-le pour payer ton stand.",
+        "invalide": "Ta saisie n'est pas valide. Recharge la page et réessaie.",
+        "titulaire": "Un nom n'est pas valable : il faut de 2 à 80 caractères, sans « < » ni « > ».",
+        "mention": "Coche la case sur les photos et vidéos de l'événement.",
+        "introuvable": "Cette candidature est introuvable.",
+        "expiree": "Délai dépassé : la place a été libérée.",
+        "refusee": "Cette candidature a été refusée.",
+        "deja_commandee": "Ce stand a déjà une commande en cours ou payée.",
+        "vente_fermee": "La vente n'est plus ouverte.",
+        "commande_en_attente": "Tu as déjà une commande à payer. Termine-la ou attends qu'elle expire.",
+        "total_change": "Le total a changé. Vérifie le récapitulatif.",
+        "reglage_manquant": "La boutique n'est pas prête à prendre cette commande. Réessaie plus tard.",
+        "gratuit": "Ce stand n'est pas vendu en ligne.",
+        "erreur": "La commande n'a pas pu être créée. Ta saisie est conservée : réessaie dans un instant."
+      }
     }
   },
   "Fiche": {
@@ -3326,6 +3481,23 @@
       "lien": "La galerie :",
       "bouton": "Voir la galerie"
     },
+    "candidature_validee": {
+      "sujet": "Ta place de Stand pour {evenement} est réservée",
+      "titre": "Ta candidature Stand est acceptée",
+      "intro": "Ta candidature pour un Stand à {evenement} est acceptée et ta place est réservée.",
+      "delai": "Paie ton Stand avant le {limite} (heure de Goma) : passé ce délai, la place est libérée.",
+      "lien": "Pour payer ton Stand :",
+      "bouton": "Payer mon Stand"
+    },
+    "candidature_refusee": {
+      "sujet": "Ta candidature Stand pour {evenement}",
+      "titre": "Ta candidature Stand n'est pas retenue",
+      "intro": "Nous ne pouvons pas garder ta candidature pour un Stand à {evenement}.",
+      "motif": "Motif : {motif}",
+      "remboursement": "Nous te remboursons {montant} (après les frais d'annulation éventuels) : nous te prévenons dès que c'est fait.",
+      "lien": "Tes Pass :",
+      "bouton": "Voir mes Pass"
+    },
     "commercial": {
       "desinscriptionTexte": "Tu ne veux plus recevoir ces emails ?",
       "desinscriptionLien": "Me désinscrire"
@@ -3579,6 +3751,22 @@
           "deja": "Une demande d'annulation est déjà en cours pour ce Pass.",
           "reglage": "L'annulation n'est pas disponible pour le moment. Écris-nous depuis la page Contact.",
           "generique": "La demande n'a pas pu être envoyée. Réessaie."
+        }
+      },
+      "aide": {
+        "titre": "Nom de l'aide à saisir",
+        "aide": "Écris le nom de la personne qui t'aide sur le stand, tel qu'il doit apparaître sur son Pass. Tu peux le faire une seule fois, jusqu'au début de l'événement.",
+        "enregistrer": "Enregistrer le nom",
+        "nonSaisi": "Le nom de l'aide n'a pas été saisi. Ce Pass reste valable à l'entrée.",
+        "erreurs": {
+          "non_connecte": "Connecte-toi pour continuer.",
+          "compte_incomplet": "Ton compte n'est pas complet.",
+          "invalide": "Saisie invalide. Recharge la page et réessaie.",
+          "nom_invalide": "Un nom doit faire de 2 à 80 caractères, sans « < » ni « > ».",
+          "introuvable": "Ce Pass est introuvable.",
+          "deja_saisi": "Le nom de ce Pass est déjà saisi.",
+          "evenement_commence": "L'événement a commencé : le nom ne peut plus être changé.",
+          "generique": "Le nom n'a pas pu être enregistré. Réessaie dans un instant."
         }
       }
     },

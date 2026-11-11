@@ -62,6 +62,7 @@ async function ReglagesSelonDroit({ locale }: { locale: Locale }) {
         <FormulaireReglage cle="plafond_fabrication" valeur={reglages.plafondFabrication} />
         <FormulaireReglage cle="delai_paiement" valeur={reglages.delaiPaiement} />
         <FormulaireReglage cle="frais_annulation_pass" valeur={reglages.fraisAnnulationPass} />
+        <FormulaireReglage cle="delai_stand_heures" valeur={reglages.delaiStandHeures} />
         <EditeurTranchesPrix tranches={tranches} />
         <ReglageHeros heros={heros} />
       </div>

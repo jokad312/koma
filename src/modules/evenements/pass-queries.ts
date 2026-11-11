@@ -20,7 +20,7 @@ export async function listerMesPass(compteId: string, locale: "fr" | "en"): Prom
   const { data, error } = await creerClientService()
     .from("pass")
     .select(
-      "id, nom_titulaire, statut, jeton, code_court, rang, cree_le, evenement:evenement_id(id, slug, titre_fr, titre_en, lieu_fr, lieu_en, debut_le, fin_le), ligne:ligne_commande_id(pass_nom_fr, pass_nom_en), commande:commande_id!inner(compte_id, offerte, statut)",
+      "id, nom_titulaire, nom_a_saisir, statut, jeton, code_court, rang, cree_le, evenement:evenement_id(id, slug, titre_fr, titre_en, lieu_fr, lieu_en, debut_le, fin_le), ligne:ligne_commande_id(pass_nom_fr, pass_nom_en), commande:commande_id!inner(compte_id, offerte, statut)",
     )
     .eq("commande.compte_id", compteId)
     .order("cree_le", { ascending: true })
@@ -42,6 +42,8 @@ export async function listerMesPass(compteId: string, locale: "fr" | "en"): Prom
       jeton: ligne.jeton,
       codeCourt: ligne.code_court,
       offert: commande.offerte === true,
+      nomASaisir: ligne.nom_a_saisir === true,
+      aideNommable: ligne.nom_a_saisir === true && statut === "valide" && (evenement.debut_le === null || Date.parse(evenement.debut_le) > Date.now()),
       evenement: {
         id: evenement.id,
         slug: evenement.slug,

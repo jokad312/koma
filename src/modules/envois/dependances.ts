@@ -7,6 +7,7 @@ import { TEXTES } from "./modeles/commun";
 import { rendreKitOuvert } from "./modeles/kit-ouvert";
 import { rendrePassEmis } from "./modeles/pass-emis";
 import { rendrePassAnnule, rendrePassRembourse } from "./modeles/pass-statut";
+import { rendreCandidatureRefusee, rendreCandidatureValidee } from "./modeles/candidature-stand";
 import { rendreGalerieEvenement } from "./modeles/galerie-evenement";
 import { rendreCommandeAnnulee, rendreCommandeEnFabrication, rendreCommandeExpediee, rendreCommandeLivree, rendreCommandeRemboursee } from "./modeles/statut-commande";
 import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
@@ -126,6 +127,46 @@ async function rendre(client: ClientService, brut: EnvoiReserve): Promise<Result
   if ((MODELES_CIBLES as readonly string[]).includes(envoi.modele)) return rendreCommercial(client, envoi, destinataire, nomSite, site);
   // Autre Email commercial (relance 9.5) : pas encore de gabarit, jamais rendu par erreur comme une Commande.
   if ((MODELES_COMMERCIAUX as readonly string[]).includes(envoi.modele)) return { statut: "ignorer", raison: "modèle sans gabarit" };
+
+  // Candidature Stand (story 7.11) : pas de Commande dans les données ; le rendu relit la candidature du Compte. « Acceptée » n'est jamais envoyé si la
+  // candidature n'est plus acceptée ou si son échéance est passée ; « refusée » seulement si elle est refusée. Rien de la candidature (description,
+  // Instagram, photos) ne va dans l'email.
+  if (envoi.modele === "candidature_validee" || envoi.modele === "candidature_refusee") {
+    const candidatureId = envoi.donnees.candidature_id;
+    if (!candidatureId) return { statut: "ignorer", raison: "candidature non indiquée" };
+    const { data: k, error } = await client
+      .from("candidature_stand")
+      .select("compte_id, statut, expire_le, motif_refus, commande_id, evenement:evenement_id(slug, titre_fr, titre_en)")
+      .eq("id", candidatureId)
+      .maybeSingle();
+    if (error) return { statut: "reessayer", raison: "lecture de la candidature impossible" };
+    if (!k || k.compte_id !== envoi.compteId) return { statut: "ignorer", raison: "candidature introuvable pour ce Compte" };
+    const evenement = Array.isArray(k.evenement) ? (k.evenement[0] ?? null) : k.evenement;
+    if (!evenement) return { statut: "ignorer", raison: "Événement introuvable" };
+    const titre = titreSelonLangue({ titre_fr: evenement.titre_fr, titre_en: evenement.titre_en }, envoi.langue);
+    if (envoi.modele === "candidature_validee") {
+      if (k.statut !== "validee" || new Date(k.expire_le).getTime() <= Date.now()) return { statut: "ignorer", raison: "candidature plus acceptée ou échue" };
+      const limite = formaterDateHeureBoutique(k.expire_le, envoi.langue);
+      if (!limite) return { statut: "ignorer", raison: "échéance illisible" };
+      const url = `${site}/${envoi.langue}/festival/${evenement.slug}/stand/${candidatureId}`;
+      return { statut: "pret", destinataire, message: rendreCandidatureValidee(envoi.langue, { nomSite, evenement: titre, limite, url }) };
+    }
+    if (k.statut !== "refusee") return { statut: "ignorer", raison: "candidature non refusée" };
+    // Remboursement ouvert par le refus d'un Stand payé : le montant vient du remboursement figé (USD seulement).
+    let montantCents: number | null = null;
+    if (k.commande_id) {
+      const { data: passes, error: erreurPass } = await client.from("pass").select("id").eq("commande_id", k.commande_id);
+      if (erreurPass) return { statut: "reessayer", raison: "lecture des Pass impossible" };
+      const ids = (passes ?? []).map((p) => p.id);
+      if (ids.length > 0) {
+        const { data: remb, error: erreurRemb } = await client.from("remboursement").select("montant_cents, devise").eq("cible_type", "pass").in("cible_id", ids).limit(1).maybeSingle();
+        if (erreurRemb) return { statut: "reessayer", raison: "lecture du remboursement impossible" };
+        if (remb && remb.devise === "USD") montantCents = remb.montant_cents;
+      }
+    }
+    const url = `${site}/${envoi.langue}/compte/pass`;
+    return { statut: "pret", destinataire, message: rendreCandidatureRefusee(envoi.langue, { nomSite, evenement: titre, motif: k.motif_refus, montantCents, url }) };
+  }
 
   // Galerie d'événement (story 7.10) : pas de Commande ; le rendu relit l'Événement, son lien et le Pass du Compte. Jamais envoyé si l'Événement n'est
   // pas publié ni terminé, si le lien a été effacé ou si le Compte ne garde plus de Pass valide ou scanné.

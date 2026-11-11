@@ -7,6 +7,7 @@ import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { FormulaireEvenement } from "@/components/admin/FormulaireEvenement";
 import { PublicationEvenement } from "@/components/admin/PublicationEvenement";
 import { SectionAlertes } from "@/components/admin/SectionAlertes";
+import { SectionCandidatures } from "@/components/admin/SectionCandidatures";
 import { SectionBenevoles } from "@/components/admin/SectionBenevoles";
 import { SectionGalerie } from "@/components/admin/SectionGalerie";
 import { SectionVerrou } from "@/components/admin/SectionVerrou";
@@ -21,6 +22,8 @@ import { lireNombresAlertes } from "@/modules/alertes/dependances";
 import type { NombresAlertes } from "@/modules/alertes/types";
 import { lireAccesBenevoles } from "@/modules/benevoles/dependances";
 import type { AccesBenevole } from "@/modules/benevoles/types";
+import type { CandidatureAdmin } from "@/modules/evenements/candidatures-admin";
+import { lireCandidaturesAdmin } from "@/modules/evenements/candidatures-admin-queries";
 import { lireEvenementAdmin, lireManquesPublication } from "@/modules/evenements/queries";
 import type { Evenement } from "@/modules/evenements/types";
 import { lireVerrouEvenement, type VerrouHorsLigne } from "@/modules/scan/queries";
@@ -102,6 +105,15 @@ async function EvenementSelonDroit({
       console.error("[scan-hors-ligne] lecture du Verrou impossible");
     }
   }
+  // Candidatures Stand de CET Événement (story 7.11, Admin seulement) : une lecture en échec n'empêche pas d'éditer l'événement.
+  let candidatures: CandidatureAdmin[] | null = null;
+  if (evenement) {
+    try {
+      candidatures = await lireCandidaturesAdmin(auteur, id);
+    } catch {
+      console.error("[candidatures-stand] lecture des candidatures impossible");
+    }
+  }
   if (lecture && !evenement) notFound();
   return (
     <CoqueAdmin>
@@ -120,6 +132,7 @@ async function EvenementSelonDroit({
             {alertesLisibles ? null : <MessageEtat type="erreur">{t("alertes.erreurLecture")}</MessageEtat>}
             {benevoles ? <SectionBenevoles evenementId={evenement.id} acces={benevoles} /> : <MessageEtat type="erreur">{t("benevoles.erreurLecture")}</MessageEtat>}
             {verrouLisible ? <SectionVerrou evenementId={evenement.id} verrou={verrou} /> : <MessageEtat type="erreur">{t("verrou.erreurLecture")}</MessageEtat>}
+            {candidatures ? <SectionCandidatures candidatures={candidatures} /> : <MessageEtat type="erreur">{t("candidatures.erreurLecture")}</MessageEtat>}
             <SectionGalerie evenementId={evenement.id} lien={evenement.galerieUrl ?? null} />
             <FormulaireEvenement evenement={evenement} />
           </>
