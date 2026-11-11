@@ -120,3 +120,40 @@ export type DependancesEvenements = {
   // Étiquette « evenements » vidée après une écriture : le public relit la base.
   invaliderEvenements(): Promise<void>;
 };
+
+// ---- Lecture publique (story 7.2) ----
+
+// 12 Événements par page (FR-31, UX-DR19) ; plafond de sécurité pour un nombre forgé dans l'adresse.
+export const TAILLE_PAGE_EVENEMENTS = 12;
+export const CUMUL_MAX_EVENEMENTS = 1200;
+
+// Carte de la liste publique : photo (première image, ou aucune), date, titre et lieu de la langue.
+export type CarteEvenement = {
+  id: string;
+  slug: string;
+  titre: string;
+  debutLe: string;
+  lieu: string | null;
+  vignetteUrl: string | null;
+  vignetteAlt: string | null;
+  // Début passé au moment de la lecture : l'Événement figure dans « passés ».
+  passe: boolean;
+};
+
+// Une page de la liste : « suite » est le nombre d'Événements déjà montrés quand on demande la suivante ; null s'il n'y en a plus.
+export type PageEvenements = { evenements: CarteEvenement[]; suite: number | null; nbAvenir: number };
+
+export type TypePassPublic = { id: string; nom: string; prixCents: number; inclus: string | null; estStand: boolean };
+
+export type EvenementPublic = {
+  id: string;
+  slug: string;
+  titre: string;
+  programme: string | null;
+  lieu: string | null;
+  debutLe: string;
+  finLe: string | null;
+  passe: boolean;
+  images: Array<{ url: string; alt: string }>;
+  types: TypePassPublic[];
+};

@@ -138,6 +138,9 @@
       "titre": "FAIT MAIN A GOMA",
       "voirTout": "Voir tous les cosplays"
     },
+    "rendezVous": {
+      "titre": "Rendez-vous otaku"
+    },
     "mur": {
       "titre": "ILS LE PORTENT",
       "mention": "Fait avec un kit {nomSite}"
@@ -2323,6 +2326,24 @@
     "vide": "Aucun article pour le moment.",
     "retourAccueil": "Retour à l'accueil",
     "erreur": "Un problème est survenu. Réessaie dans un instant.",
+    "voirPlus": {
+      "libelle": "Voir plus",
+      "enCours": "Chargement…"
+    }
+  },
+  "Festival": {
+    "titre": "Rendez-vous otaku",
+    "fil": {
+      "navigation": "Fil d'Ariane",
+      "accueil": "Accueil"
+    },
+    "avenir": "[Texte à fournir]",
+    "passes": "[Texte à fournir]",
+    "vide": "Aucun événement à venir pour le moment.",
+    "erreur": "Un problème est survenu. Réessaie dans un instant.",
+    "passe": "[Texte à fournir]",
+    "programme": "[Texte à fournir]",
+    "pass": "[Texte à fournir]",
     "voirPlus": {
       "libelle": "Voir plus",
       "enCours": "Chargement…"

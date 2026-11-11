@@ -8,6 +8,7 @@ import { BlocFaqCourte } from "@/components/accueil/BlocFaqCourte";
 import { BlocGuides } from "@/components/accueil/BlocGuides";
 import { BlocKits } from "@/components/accueil/BlocKits";
 import { BlocMur } from "@/components/accueil/BlocMur";
+import { BlocRendezVous } from "@/components/accueil/BlocRendezVous";
 import { BlocPorteOuFabrique } from "@/components/accueil/BlocPorteOuFabrique";
 import { HerosAccueil } from "@/components/accueil/HerosAccueil";
 import { BlocJonathan } from "@/components/accueil/BlocJonathan";
@@ -58,6 +59,13 @@ function rendreBloc(id: string, locale: Locale, requete: Promise<Record<string, 
       return (
         <Suspense fallback={null}>
           <BlocMur locale={locale} requete={requete} />
+        </Suspense>
+      );
+    case "rendezVousOtaku":
+      // Bloc 5 « Rendez-vous otaku » : le prochain Événement à venir ; masqué sans Événement à venir ou si la lecture échoue (FR-2).
+      return (
+        <Suspense fallback={null}>
+          <BlocRendezVous locale={locale} />
         </Suspense>
       );
     case "jonathan":

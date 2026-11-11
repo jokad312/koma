@@ -8,7 +8,7 @@ export type BlocAccueil =
   | { id: "kits"; numero: 3; etat: "affiche" }
   | { id: "cosplaysRecents"; numero: 2; etat: "affiche" }
   | { id: "galerie"; numero: 4; etat: "affiche" }
-  | { id: "rendezVousOtaku"; numero: 5; etat: "reserve"; arrivePar: "epic 8" }
+  | { id: "rendezVousOtaku"; numero: 5; etat: "affiche" }
   | { id: "jonathan"; numero: 6; etat: "affiche" }
   | { id: "bloc7"; numero: 7; etat: "affiche" }
   | { id: "faqCourte"; numero: 8; etat: "affiche" };
@@ -20,7 +20,7 @@ export const BLOCS_ACCUEIL: readonly BlocAccueil[] = [
   { id: "kits", numero: 3, etat: "affiche" },
   { id: "cosplaysRecents", numero: 2, etat: "affiche" },
   { id: "galerie", numero: 4, etat: "affiche" },
-  { id: "rendezVousOtaku", numero: 5, etat: "reserve", arrivePar: "epic 8" },
+  { id: "rendezVousOtaku", numero: 5, etat: "affiche" },
   { id: "jonathan", numero: 6, etat: "affiche" },
   { id: "bloc7", numero: 7, etat: "affiche" },
   { id: "faqCourte", numero: 8, etat: "affiche" },

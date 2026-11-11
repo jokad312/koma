@@ -136,3 +136,48 @@ export function articleJsonLd({ titre, description, images, url, langue, publieL
     publisher: { "@type": "Organization", name: nomSite },
   };
 }
+
+type DonneesEvenement = {
+  nom: string;
+  description: string | null;
+  lieu: string | null;
+  debut: string;
+  fin: string | null;
+  images: readonly string[];
+  url: string;
+  langue: string;
+  // Une offre par Type de pass : prix lu en base, en USD.
+  offres: ReadonlyArray<{ nom: string; prixCents: number }>;
+};
+
+// Event d'une page Festival : dates ISO avec le décalage de Goma, lieu nommé (sans adresse inventée), une offre par Type de pass.
+// Un texte contenant le marqueur « [Texte à fournir] » n'entre jamais dans les données structurées : le champ est omis.
+export function evenementJsonLd({ nom, description, lieu, debut, fin, images, url, langue, offres }: DonneesEvenement) {
+  const propre = (texte: string | null) => (texte && !contientMarqueur(texte) ? texte : null);
+  const lieuPropre = propre(lieu);
+  const descriptionPropre = propre(description);
+  const offresPropres = offres.filter((o) => !contientMarqueur(o.nom));
+  return {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: nom,
+    ...(descriptionPropre ? { description: descriptionPropre } : {}),
+    startDate: debut,
+    ...(fin ? { endDate: fin } : {}),
+    ...(lieuPropre ? { location: { "@type": "Place", name: lieuPropre } } : {}),
+    ...(images.length > 0 ? { image: images } : {}),
+    url,
+    inLanguage: langue,
+    ...(offresPropres.length > 0
+      ? {
+          offers: offresPropres.map((o) => ({
+            "@type": "Offer",
+            name: o.nom,
+            url,
+            price: (o.prixCents / 100).toFixed(2),
+            priceCurrency: "USD",
+          })),
+        }
+      : {}),
+  };
+}

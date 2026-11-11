@@ -24,20 +24,18 @@ function carte(i: number) {
 describe("liste ordonnée des blocs", () => {
   it("suit l'ordre de FR-2 et affiche héros, tuiles, bloc 1 « Porte-le ou fabrique-le », bloc 2, bloc 6, bloc 7 et bloc 8", () => {
     expect(BLOCS_ACCUEIL.map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrique", "kits", "cosplaysRecents", "galerie", "rendezVousOtaku", "jonathan", "bloc7", "faqCourte"]);
-    expect(blocsAffiches().map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrique", "kits", "cosplaysRecents", "galerie", "jonathan", "bloc7", "faqCourte"]);
+    expect(blocsAffiches().map((b) => b.id)).toEqual(["heros", "categories", "porteOuFabrique", "kits", "cosplaysRecents", "galerie", "rendezVousOtaku", "jonathan", "bloc7", "faqCourte"]);
   });
 
-  it("le bloc 4 est la Galerie « Ils le portent », rendue par la story 8.3 ; le bloc 5 reste réservé pour le Rendez-vous", () => {
+  it("le bloc 4 est la Galerie « Ils le portent », rendue par la story 8.3 ; le bloc 5 « Rendez-vous otaku » est affiché par la story 7.2", () => {
     const galerie = BLOCS_ACCUEIL.find((b) => b.id === "galerie");
     expect(galerie).toEqual({ id: "galerie", numero: 4, etat: "affiche" });
     const rendezVous = BLOCS_ACCUEIL.find((b) => b.id === "rendezVousOtaku");
-    expect(rendezVous).toEqual({ id: "rendezVousOtaku", numero: 5, etat: "reserve", arrivePar: "epic 8" });
+    expect(rendezVous).toEqual({ id: "rendezVousOtaku", numero: 5, etat: "affiche" });
   });
 
-  it("les emplacements réservés sont documentés", () => {
-    const reserves = BLOCS_ACCUEIL.filter((b) => b.etat === "reserve");
-    expect(reserves.map((b) => b.numero)).toEqual([5]);
-    for (const b of reserves) expect("arrivePar" in b && b.arrivePar.length > 0).toBe(true);
+  it("plus aucun emplacement n'est réservé : tous les blocs de FR-2 sont rendus", () => {
+    expect(BLOCS_ACCUEIL.filter((b) => (b.etat as string) === "reserve")).toEqual([]);
   });
 
   it("le bloc 7 « Guides » est affiché par la story 8.7 ; l'ancien emplacement « guides » n'existe plus", () => {
@@ -85,11 +83,12 @@ describe("textes de l'accueil", () => {
   for (const langue of ["fr", "en"] as const) {
     const accueil = messages[langue].Accueil;
 
-    it(`${langue} : seul le bloc « Jonathan » porte le marqueur`, () => {
+    it(`${langue} : seul le bloc « Jonathan » (et le titre anglais du bloc 5) porte le marqueur`, () => {
       const marqueurs = trouverMarqueurs(messages[langue], ["Accueil"]);
       const jonathan = ["Accueil.jonathan.phrase1", "Accueil.jonathan.phrase2", "Accueil.jonathan.phrase3"];
       // Titre et mention du mur : textes anglais fournis par Jonathan (2026-11-10), plus aucun marqueur.
-      expect(marqueurs).toEqual(jonathan);
+      // Titre anglais du bloc 5 « Rendez-vous otaku » : sans source (EXPERIENCE.md ne donne que le français), story 7.2.
+      expect(marqueurs).toEqual(langue === "en" ? ["Accueil.rendezVous.titre", ...jonathan] : jonathan);
       expect(contientMarqueur(accueil.heros.accroche)).toBe(false);
     });
 

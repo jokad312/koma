@@ -1,18 +1,7 @@
 import "server-only";
 import { creerClientService } from "@/lib/supabase/service";
-import type { Evenement, EvenementListe, ImageEvenement, LieuType, TypePass } from "./types";
-
-function lireImages(brut: unknown): ImageEvenement[] {
-  if (!Array.isArray(brut)) return [];
-  const images: ImageEvenement[] = [];
-  for (const item of brut) {
-    if (typeof item !== "object" || item === null) continue;
-    const o = item as Record<string, unknown>;
-    if (typeof o.fichier !== "string" || typeof o.alt_fr !== "string" || typeof o.alt_en !== "string") continue;
-    images.push({ fichier: o.fichier, altFr: o.alt_fr, altEn: o.alt_en });
-  }
-  return images;
-}
+import { lireImages } from "./images";
+import type { Evenement, EvenementListe, LieuType, TypePass } from "./types";
 
 // Liste admin : les plus récents d'abord. Une erreur de lecture est relancée : jamais une liste vide inventée.
 export async function lireEvenementsAdmin(): Promise<EvenementListe[]> {

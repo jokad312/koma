@@ -35,3 +35,10 @@ export function versSaisieBoutique(date: string | null | undefined): string {
   const v = (type: string) => parties.find((p) => p.type === type)?.value ?? "";
   return `${v("year")}-${v("month")}-${v("day")}T${v("hour")}:${v("minute")}`;
 }
+
+// Instant (ISO) → date et heure ISO 8601 à l'heure de la boutique avec son décalage (« 2026-11-14T18:00:00+02:00 »), pour les données
+// structurées. Goma est à UTC+2 toute l'année, sans heure d'été. Une date absente ou invalide donne null.
+export function versIsoBoutique(date: string | null | undefined): string | null {
+  const saisie = versSaisieBoutique(date);
+  return saisie === "" ? null : `${saisie}:00+02:00`;
+}

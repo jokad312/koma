@@ -138,6 +138,9 @@
       "titre": "HANDMADE IN GOMA",
       "voirTout": "See all cosplays"
     },
+    "rendezVous": {
+      "titre": "[Texte à fournir]"
+    },
     "mur": {
       "titre": "THEY WEAR IT",
       "mention": "Made with a kit {nomSite}"
@@ -2323,6 +2326,24 @@
     "vide": "No articles yet.",
     "retourAccueil": "Back to the home page",
     "erreur": "Something went wrong. Try again in a moment.",
+    "voirPlus": {
+      "libelle": "See more",
+      "enCours": "Loading…"
+    }
+  },
+  "Festival": {
+    "titre": "[Texte à fournir]",
+    "fil": {
+      "navigation": "Breadcrumb",
+      "accueil": "Home"
+    },
+    "avenir": "[Texte à fournir]",
+    "passes": "[Texte à fournir]",
+    "vide": "[Texte à fournir]",
+    "erreur": "Something went wrong. Try again in a moment.",
+    "passe": "[Texte à fournir]",
+    "programme": "[Texte à fournir]",
+    "pass": "[Texte à fournir]",
     "voirPlus": {
       "libelle": "See more",
       "enCours": "Loading…"
