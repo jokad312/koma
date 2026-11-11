@@ -16,6 +16,8 @@ export type LigneCommandeLue = {
   delaiFabricationJours: number | null;
   // Date de réception des mesures d'une ligne Sur-mesure, confirmée par l'admin (story 6.5) ; aucune mesure n'est stockée.
   mesuresRecuesLe: string | null;
+  // Ligne de Pass (story 7.4) : noms figés des titulaires et Événement ; null pour une ligne de produit.
+  pass: { titulaires: string[]; evenement: string } | null;
 };
 
 export type CommandeLue = {
@@ -29,6 +31,8 @@ export type CommandeLue = {
   zone: ZoneRemise | null;
   mode: ModeRemise | null;
   lignes: LigneCommandeLue[];
+  // « produits » ou « pass » (story 7.4) : une Commande de Pass n'a ni livraison ni frise de fabrication.
+  type: "produits" | "pass";
   offerte: boolean;
   creeLe: string;
   // Dates de la frise des statuts (story 6.1) et numéro de suivi saisi à la main, affiché tel quel (règle 12).
@@ -62,7 +66,7 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
   const { data, error } = await creerClientService()
     .from("commande")
     .select(
-      "id, numero, statut, sous_total_cents, forfait_cents, total_cents, expire_le, zone, mode_remise, offerte, cree_le, paye_le, fabrication_le, expediee_le, livree_le, numero_suivi, ligne_commande(id, prix_cents, nombre, origine, delai_fabrication_jours, mesures_recues_le, produit(slug, famille, titre_fr, titre_en), variante(taille))",
+      "id, numero, type, statut, sous_total_cents, forfait_cents, total_cents, expire_le, zone, mode_remise, offerte, cree_le, paye_le, fabrication_le, expediee_le, livree_le, numero_suivi, ligne_commande(id, prix_cents, nombre, origine, delai_fabrication_jours, mesures_recues_le, titulaires, pass_nom_fr, pass_nom_en, produit(slug, famille, titre_fr, titre_en), variante(taille), type_pass(evenement(titre_fr, titre_en)))",
     )
     .eq("compte_id", compteId)
     .eq("numero", numero)
@@ -90,11 +94,20 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
   const lignes = (data.ligne_commande ?? []).map((l) => {
     const produit = Array.isArray(l.produit) ? l.produit[0] : l.produit;
     const variante = Array.isArray(l.variante) ? l.variante[0] : l.variante;
+    const typePass = Array.isArray(l.type_pass) ? l.type_pass[0] : l.type_pass;
+    const evenementBrut = typePass ? (Array.isArray(typePass.evenement) ? typePass.evenement[0] : typePass.evenement) : null;
+    const estPass = !produit && Array.isArray(l.titulaires);
     return {
       id: l.id,
-      titre: langue === "en" && produit?.titre_en ? produit.titre_en : (produit?.titre_fr ?? ""),
+      titre: estPass ? (langue === "en" && l.pass_nom_en ? l.pass_nom_en : (l.pass_nom_fr ?? "")) : langue === "en" && produit?.titre_en ? produit.titre_en : (produit?.titre_fr ?? ""),
       slug: produit?.slug ?? "",
-      famille: produit?.famille ?? "",
+      famille: estPass ? "pass" : (produit?.famille ?? ""),
+      pass: estPass
+        ? {
+            titulaires: (l.titulaires as unknown[]).filter((n): n is string => typeof n === "string"),
+            evenement: evenementBrut ? (langue === "en" && evenementBrut.titre_en ? evenementBrut.titre_en : evenementBrut.titre_fr) : "",
+          }
+        : null,
       taille: variante?.taille ?? null,
       nombre: l.nombre,
       prixCents: l.prix_cents,
@@ -114,6 +127,7 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
     zone: data.zone === "goma" || data.zone === "bukavu" ? data.zone : null,
     mode: data.mode_remise === "retrait" || data.mode_remise === "livraison" ? data.mode_remise : null,
     lignes,
+    type: data.type === "pass" ? "pass" : "produits",
     offerte: data.offerte,
     creeLe: data.cree_le,
     dates: { payee: data.paye_le, en_fabrication: data.fabrication_le, expediee: data.expediee_le, livree: data.livree_le },

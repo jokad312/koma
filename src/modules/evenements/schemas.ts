@@ -75,6 +75,7 @@ const CODES: ReadonlySet<string> = new Set<CodeErreurEvenement>([
   "quota_invalide",
   "evenement_introuvable",
   "type_pass_introuvable",
+  "type_pass_vendu",
   "publication_incomplete",
   "non_autorise",
   "format_invalide",

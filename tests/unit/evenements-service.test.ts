@@ -125,6 +125,7 @@ describe("enregistrerEvenement", () => {
     ["KS_SLUG_PRIS", "slug_pris"],
     ["KS_DATE_INVALIDE", "date_invalide"],
     ["KS_TYPE_PASS_INTROUVABLE", "type_pass_introuvable"],
+    ["KS_TYPE_PASS_VENDU", "type_pass_vendu"],
     ["KS_EVENEMENT_INTROUVABLE", "evenement_introuvable"],
     ["23505", "generique"],
   ])("refus de la base %s : %s, cache non invalidé", async (code, erreur) => {

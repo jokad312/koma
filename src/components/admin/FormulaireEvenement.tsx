@@ -36,6 +36,7 @@ function champDe(erreur: EtatEvenement): Champ | null {
     case "prix_invalide":
     case "quota_invalide":
     case "type_pass_introuvable":
+    case "type_pass_vendu":
       return "types";
     default:
       return null;

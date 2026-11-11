@@ -66,6 +66,10 @@
       "titre": "Passer la commande",
       "description": "Indique comment tu reçois ta commande et vérifie le total."
     },
+    "festivalAchat": {
+      "titre": "Acheter des pass",
+      "description": "Choisis tes Pass pour l'événement et écris le nom de chaque personne."
+    },
     "commandeDetail": {
       "titre": "Ma commande",
       "description": "Le détail de ta commande."
@@ -305,6 +309,8 @@
       "enCours": "Enregistrement…",
       "erreur": "Tes réponses n'ont pas pu être enregistrées. Réessaie, ou passe cette étape.",
       "reprendre": "Se reconnecter",
+      "retourFestival": "Retour au Festival",
+      "expireePass": "Cette commande a expiré : les places ont été libérées. Tu peux refaire ton choix sur la page de l'événement.",
       "erreurSession": "Ta session a pris fin. Reconnecte-toi pour continuer.",
       "univers": {
         "libelle": "Quel univers préfères-tu ?",
@@ -952,6 +958,7 @@
           "quota_invalide": "Un quota doit être un nombre entier de 1 à 100 000.",
           "evenement_introuvable": "Cet événement n'existe plus.",
           "type_pass_introuvable": "Un Type de pass n'appartient pas à cet événement. Recharge la page.",
+          "type_pass_vendu": "Ce Type de pass a déjà été commandé : il ne peut plus être retiré. Tu peux le renommer ou modifier ses avantages.",
           "publication_incomplete": "Cet événement est publié : il doit rester complet (textes anglais, photo avec ses textes alternatifs, Type de pass payant). Complète-le ou dépublie-le d'abord.",
           "non_autorise": "Tu n'as plus le droit de gérer les événements. Recharge la page ou reconnecte-toi.",
           "format_invalide": "Ce fichier n'est pas une image JPEG, PNG ou WebP valide.",
@@ -2344,6 +2351,74 @@
     }
   },
   "Festival": {
+    "achat": {
+      "bouton": "Acheter des pass",
+      "complet": "Complet",
+      "venteFermee": "Vente fermée",
+      "pasEncore": "La vente des Pass n'est pas encore ouverte.",
+      "aucunPass": "Aucun Pass n'est en vente pour cet événement.",
+      "typeComplet": "{nom} : complet",
+      "titre": "Acheter des pass",
+      "retourEvenement": "Retour à l'événement",
+      "intro": "Choisis le nombre de Pass de chaque type, puis écris le nom de chaque personne. Tu paies en une seule fois.",
+      "types": "Types de pass",
+      "quantite": "Quantité de Pass {nom}",
+      "retirer": "Retirer un Pass {nom}",
+      "ajouter": "Ajouter un Pass {nom}",
+      "maxAtteint": "Tu as atteint le maximum de {max} Pass par commande.",
+      "noms": {
+        "titre": "Qui vient ?",
+        "aide": "Un nom par Pass, tel qu'il doit apparaître sur le Pass.",
+        "moi": "Le premier Pass est pour moi",
+        "moiConnu": "Pass {type} : {nom} (ton compte)",
+        "moiSaisie": "Ton nom (Pass {type})",
+        "champ": "Nom de la personne, Pass {type} n° {numero}"
+      },
+      "voirRecap": "Voir le récapitulatif",
+      "enCours": "Calcul en cours…",
+      "modifier": "Modifier mon choix",
+      "recap": {
+        "titre": "Récapitulatif",
+        "liste": "Pass choisis",
+        "ligne": "{nombre} × {nom}",
+        "prixUnite": "{prix} par Pass",
+        "noms": "Noms : {noms}",
+        "sousTotal": "Sous-total",
+        "reduction": "Réduction ({code})",
+        "reductionMontant": "−{montant}",
+        "total": "Total"
+      },
+      "mention": {
+        "titre": "Photos et vidéos de l'événement",
+        "texte": "[Texte à fournir]"
+      },
+      "confirmer": "Confirmer et choisir le moyen de paiement",
+      "confirmerEnCours": "Création de la commande…",
+      "totalChange": "Le total a changé : il était de {ancien}, il est maintenant de {nouveau}. Vérifie le récapitulatif avant de confirmer.",
+      "resume": "Il y a des erreurs à corriger.",
+      "champs": {
+        "aucun": "Choisis au moins un Pass.",
+        "nom": "Écris le nom de chaque personne (2 à 80 caractères, sans « < » ni « > »).",
+        "mention": "Coche la case sur les photos et vidéos de l'événement."
+      },
+      "erreurs": {
+        "non_connecte": "Connecte-toi pour acheter des pass.",
+        "compte_incomplet": "Ton compte n'est pas complet : termine-le pour acheter des pass.",
+        "invalide": "Ta sélection n'est pas valide. Recharge la page et réessaie.",
+        "titulaire": "Un nom n'est pas valable : il faut de 2 à 80 caractères, sans « < » ni « > ».",
+        "mention": "Coche la case sur les photos et vidéos de l'événement.",
+        "complet": "Complet : il ne reste pas assez de places pour ta sélection. Choisis moins de Pass ou un autre type.",
+        "vente_fermee": "La vente des Pass n'est pas ouverte.",
+        "evenement_introuvable": "Cet événement n'est plus disponible.",
+        "type_introuvable": "Un type de pass n'est plus disponible. Recharge la page.",
+        "stand": "Un stand ne s'obtient que sur candidature.",
+        "gratuit": "Ce pass n'est pas vendu en ligne.",
+        "commande_en_attente": "Tu as déjà une commande à payer. Termine-la ou attends qu'elle expire.",
+        "total_change": "Le total a changé. Vérifie le récapitulatif.",
+        "reglage_manquant": "La boutique n'est pas prête à prendre cette commande. Réessaie plus tard.",
+        "erreur": "La commande n'a pas pu être créée. Ta saisie est conservée : réessaie dans un instant."
+      }
+    },
     "prevenir": {
       "titre": "Être prévenu à l'ouverture de la vente",
       "ouvertureLe": "La vente des Pass ouvre le {date}.",
@@ -2572,6 +2647,7 @@
     "liste": "Articles du panier",
     "taille": "Taille : {taille}",
     "tailleSurMesure": "Taille : sur mesure",
+    "titulaires": "Noms : {noms}",
     "kitUnExemplaire": "Kit numérique, en un seul exemplaire",
     "quantite": "Quantité",
     "mettreAJour": "Mettre à jour",

@@ -36,6 +36,7 @@ const ERREURS_BASE: ReadonlyArray<readonly [string, CodeErreurEvenement]> = [
   ["KS_QUOTA_INVALIDE", "quota_invalide"],
   ["KS_EVENEMENT_INTROUVABLE", "evenement_introuvable"],
   ["KS_TYPE_PASS_INTROUVABLE", "type_pass_introuvable"],
+  ["KS_TYPE_PASS_VENDU", "type_pass_vendu"],
   ["KS_PUBLICATION_INCOMPLETE", "publication_incomplete"],
   ["KS_DROIT_REFUSE", "non_autorise"],
   ["KS_AUTEUR_MANQUANT", "non_autorise"],

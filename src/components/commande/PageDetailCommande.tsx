@@ -66,7 +66,9 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
     }
   }
 
-  const physique = commande.lignes.some((l) => l.famille !== "kit");
+  // Une Commande de Pass n'a ni livraison ni fabrication : ni frise des statuts, ni ligne de taille (story 7.4).
+  const pass = commande.type === "pass";
+  const physique = !pass && commande.lignes.some((l) => l.famille !== "kit");
   const etapes = construireFrise({ statut: commande.statut, physique, fabrication: commande.lignes.some((l) => l.origine === "fabrication"), dates: commande.dates });
   const retraitGoma = commande.mode === "retrait";
   // Lignes Sur-mesure : la date de réception n'existe que quand toutes ont été confirmées par l'admin.
@@ -78,7 +80,7 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
   return (
     <div className="flex flex-col gap-6">
       <p className="t-label text-text-primary">{t("detail.statut", { statut: libelleStatut })}</p>
-      <FriseStatuts etapes={etapes} retraitGoma={retraitGoma} locale={locale} />
+      {pass ? null : <FriseStatuts etapes={etapes} retraitGoma={retraitGoma} locale={locale} />}
       {commande.numeroSuivi ? (
         <p className="t-body text-text-primary">
           {t("detail.numeroSuivi")} <span>{commande.numeroSuivi}</span>
@@ -87,10 +89,16 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
       {commande.statut === "en_attente" && heure ? <p className="t-body text-text-primary">{t("detail.aPayerAvant", { heure })}</p> : null}
       {commande.statut === "expiree" ? (
         <div className="flex flex-col items-start gap-3">
-          <MessageEtat type="attention">{t("detail.expiree")}</MessageEtat>
-          <Link href={cheminPublic(locale, "/commande")} className={CLASSES_LIEN}>
-            {t("detail.reprendre")}
-          </Link>
+          <MessageEtat type="attention">{pass ? t("detail.expireePass") : t("detail.expiree")}</MessageEtat>
+          {pass ? (
+            <Link href="/festival" className={CLASSES_LIEN}>
+              {t("detail.retourFestival")}
+            </Link>
+          ) : (
+            <Link href={cheminPublic(locale, "/commande")} className={CLASSES_LIEN}>
+              {t("detail.reprendre")}
+            </Link>
+          )}
         </div>
       ) : null}
 
@@ -127,7 +135,13 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
           {commande.lignes.map((l, i) => (
             <li key={`${l.slug}-${l.taille ?? "kit"}-${i}`} className="flex flex-col gap-1">
               <p className="t-label text-text-primary">{l.titre}</p>
-              {l.famille !== "kit" ? <p className="t-small text-text-secondary">{l.taille === "sur_mesure" ? t("recap.tailleSurMesure") : t("recap.taille", { taille: l.taille ?? "" })}</p> : null}
+              {l.pass ? (
+                <>
+                  {l.pass.evenement ? <p className="t-small text-text-secondary">{l.pass.evenement}</p> : null}
+                  <p className="t-small text-text-secondary">{t("recap.titulaires", { noms: l.pass.titulaires.join(", ") })}</p>
+                </>
+              ) : null}
+              {l.famille !== "kit" && !l.pass ? <p className="t-small text-text-secondary">{l.taille === "sur_mesure" ? t("recap.tailleSurMesure") : t("recap.taille", { taille: l.taille ?? "" })}</p> : null}
               <p className="t-body text-text-primary">{t("recap.quantitePrix", { nombre: l.nombre, prix: formaterUsd(l.prixCents, locale) })}</p>
               {l.origine === "fabrication" && l.delaiFabricationJours !== null ? (
                 <p className="t-small text-text-secondary">

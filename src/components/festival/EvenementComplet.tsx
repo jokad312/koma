@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 import { BoutonPartager } from "@/components/fiche/BoutonPartager";
+import { AchatEvenement } from "./AchatEvenement";
 import { BlocPrevenir } from "./BlocPrevenir";
 import { ContenuArticle } from "@/components/blog/ContenuArticle";
 import { TitreVitrine } from "@/components/ui/TitreVitrine";
@@ -20,7 +22,8 @@ type Props = { evenement: EvenementPublic; locale: Locale };
 
 // Une page Événement : fil d'Ariane et JSON-LD, titre en H1, date et lieu, programme (même rendu Markdown nettoyé que le blog),
 // photos avec le texte alternatif de la langue, cartes des Types de pass en lecture seule (nom, prix USD, avantages) et « Partager ».
-// « Me prévenir » (story 7.3) tant que la vente n'est pas ouverte. Aucun compteur de places, aucun bouton d'achat (stories 7.4 et suivantes). Un Événement passé est marqué comme tel.
+// « Me prévenir » (story 7.3) tant que la vente n'est pas ouverte. Aucun compteur de places. Le bouton « Acheter des pass » (ou « Complet », « Vente fermée »)
+// est un composant à part, lu à chaque requête sous Suspense : le reste de la page reste en cache (story 7.4). Un Événement passé est marqué comme tel.
 export async function EvenementComplet({ evenement, locale }: Props) {
   const t = await getTranslations({ locale, namespace: "Festival" });
   const tn = await getTranslations({ locale, namespace: "Navigation" });
@@ -131,6 +134,10 @@ export async function EvenementComplet({ evenement, locale }: Props) {
           </ul>
         </section>
       ) : null}
+
+      <Suspense fallback={null}>
+        <AchatEvenement evenement={evenement} locale={locale} />
+      </Suspense>
 
       {evenement.venteAVenir ? <BlocPrevenir evenementId={evenement.id} venteOuvreLe={evenement.venteOuvreLe} locale={locale} /> : null}
 

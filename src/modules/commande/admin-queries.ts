@@ -88,7 +88,7 @@ export async function lireCommandeAdmin(numero: string): Promise<CommandeAdminDe
   const { data, error } = await client
     .from("commande")
     .select(
-      "id, numero, statut, expire_le, cree_le, sous_total_cents, forfait_cents, total_cents, devise, offerte, zone, mode_remise, telephone, adresse, numero_suivi, prestataire, reference_transaction, paye_le, ligne_commande(id, prix_cents, nombre, origine, mesures_recues_le, produit(famille, titre_fr), variante(taille))",
+      "id, numero, statut, expire_le, cree_le, sous_total_cents, forfait_cents, total_cents, devise, offerte, zone, mode_remise, telephone, adresse, numero_suivi, prestataire, reference_transaction, paye_le, ligne_commande(id, prix_cents, nombre, origine, mesures_recues_le, pass_nom_fr, produit(famille, titre_fr), variante(taille))",
     )
     .eq("numero", numero)
     .maybeSingle();
@@ -142,7 +142,7 @@ export async function lireCommandeAdmin(numero: string): Promise<CommandeAdminDe
     lignes: (data.ligne_commande ?? []).map((l) => {
       const produit = Array.isArray(l.produit) ? l.produit[0] : l.produit;
       const variante = Array.isArray(l.variante) ? l.variante[0] : l.variante;
-      return { id: l.id, titre: produit?.titre_fr ?? "", famille: produit?.famille ?? "", taille: variante?.taille ?? null, nombre: l.nombre, prixCents: l.prix_cents, origine: l.origine, mesuresRecuesLe: l.mesures_recues_le };
+      return { id: l.id, titre: produit?.titre_fr ?? l.pass_nom_fr ?? "", famille: produit?.famille ?? "", taille: variante?.taille ?? null, nombre: l.nombre, prixCents: l.prix_cents, origine: l.origine, mesuresRecuesLe: l.mesures_recues_le };
     }),
   };
 }

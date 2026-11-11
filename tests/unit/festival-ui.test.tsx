@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import en from "../../messages/en.json";
 import fr from "../../messages/fr.json";
 
-const faux = vi.hoisted(() => ({ prochain: vi.fn() }));
+const faux = vi.hoisted(() => ({ prochain: vi.fn(), etat: vi.fn() }));
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ cacheTag: vi.fn(), cacheLife: vi.fn() }));
 vi.mock("next/server", () => ({ connection: async () => undefined }));
@@ -17,6 +17,7 @@ vi.mock("next-intl/server", async () => {
   };
 });
 vi.mock("@/modules/evenements/queries-publiques", () => ({ lireProchainEvenement: (...a: unknown[]) => faux.prochain(...a) }));
+vi.mock("@/modules/evenements/achat-queries", () => ({ lireEtatVente: (...a: unknown[]) => faux.etat(...a) }));
 vi.mock("@/modules/mesure/client", () => ({ mesurer: vi.fn() }));
 vi.mock("@/i18n/navigation", () => ({
   Link: ({ href, children, ...reste }: { href: string; children: React.ReactNode }) => (
@@ -33,6 +34,7 @@ vi.mock("next/image", () => ({
 }));
 
 import { BlocRendezVous } from "@/components/accueil/BlocRendezVous";
+import { AchatEvenement } from "@/components/festival/AchatEvenement";
 import { EvenementComplet } from "@/components/festival/EvenementComplet";
 import type { CarteEvenement, EvenementPublic } from "@/modules/evenements/types";
 
@@ -94,6 +96,7 @@ function jsonLd(page: string) {
 
 beforeEach(() => {
   faux.prochain.mockReset();
+  faux.etat.mockReset();
   process.env.NEXT_PUBLIC_SITE_URL = "http://localhost:3000";
   process.env.NEXT_PUBLIC_SUPABASE_URL = "http://127.0.0.1:54321";
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "TEST_cle_publique";
@@ -124,8 +127,70 @@ describe("bloc 5 « Rendez-vous otaku » de l'accueil", () => {
   });
 });
 
+describe("bouton d'achat de la page d'un Événement (story 7.4)", () => {
+  const ouverte = { etat: "ouverte", types: [{ id: "t1", complet: false }, { id: "t2", complet: false }] };
+
+  it("vente ouverte : « Acheter des pass » mène à la page d'achat, sans compteur de places", async () => {
+    faux.etat.mockResolvedValue(ouverte);
+    const page = await html(await AchatEvenement({ evenement: evenement(), locale: "fr" }));
+    expect(faux.etat).toHaveBeenCalledWith("00000000-0000-4000-8000-000000000001");
+    expect(page).toContain('href="/festival/test-evenement-1/acheter"');
+    expect(page).toContain("Acheter des pass");
+    expect(page).not.toMatch(/Complet|Vente fermée|places/i);
+  });
+
+  it("anglais : « Buy passes »", async () => {
+    faux.etat.mockResolvedValue(ouverte);
+    expect(await html(await AchatEvenement({ evenement: evenement(), locale: "en" }), "en")).toContain("Buy passes");
+  });
+
+  it("un Type au quota atteint est signalé « complet », le bouton reste ; un Stand n'est jamais cité", async () => {
+    faux.etat.mockResolvedValue({ etat: "ouverte", types: [{ id: "t1", complet: true }, { id: "t2", complet: true }] });
+    const page = await html(await AchatEvenement({ evenement: evenement(), locale: "fr" }));
+    expect(page).toContain("TEST_Pass simple : complet");
+    expect(page).not.toContain("TEST_Stand : complet");
+    expect(page).toContain("Acheter des pass");
+  });
+
+  it("Capacité atteinte : « Complet » à la place du bouton", async () => {
+    faux.etat.mockResolvedValue({ etat: "complet", types: [{ id: "t1", complet: true }] });
+    const page = await html(await AchatEvenement({ evenement: evenement(), locale: "fr" }));
+    expect(page).toContain("Complet");
+    expect(page).not.toContain("/acheter");
+    expect(page).not.toContain("Acheter des pass");
+  });
+
+  it("vente fermée : « Vente fermée » à la place du bouton", async () => {
+    faux.etat.mockResolvedValue({ etat: "fermee", types: [] });
+    const page = await html(await AchatEvenement({ evenement: evenement(), locale: "fr" }));
+    expect(page).toContain("Vente fermée");
+    expect(page).not.toContain("/acheter");
+  });
+
+  it("vente pas encore ouverte, rien à acheter, Événement passé, lecture impossible : ni bouton ni mention inventée", async () => {
+    for (const etat of [{ etat: "a_venir", types: [] }, { etat: "aucun", types: [] }]) {
+      faux.etat.mockResolvedValue(etat);
+      expect(await AchatEvenement({ evenement: evenement(), locale: "fr" })).toBeNull();
+    }
+    faux.etat.mockClear();
+    faux.etat.mockResolvedValue(ouverte);
+    expect(await AchatEvenement({ evenement: evenement({ passe: true }), locale: "fr" })).toBeNull();
+    expect(faux.etat).not.toHaveBeenCalled();
+    faux.etat.mockRejectedValue(new Error("TEST_panne"));
+    expect(await AchatEvenement({ evenement: evenement(), locale: "fr" })).toBeNull();
+    faux.etat.mockResolvedValue(null);
+    expect(await AchatEvenement({ evenement: evenement(), locale: "fr" })).toBeNull();
+  });
+
+  it("dans la page : le bouton est sous Suspense et la page entière rend le bouton quand la vente est ouverte", async () => {
+    faux.etat.mockResolvedValue(ouverte);
+    const page = await html(await EvenementComplet({ evenement: evenement(), locale: "fr" }));
+    expect(page).toContain("Acheter des pass");
+  });
+});
+
 describe("page d'un Événement", () => {
-  it("date, lieu, programme nettoyé, photos avec alt, cartes de Types de pass en USD, Partager ; aucun compteur ni achat", async () => {
+  it("date, lieu, programme nettoyé, photos avec alt, cartes de Types de pass en USD, Partager ; aucun compteur de places", async () => {
     const page = await html(await EvenementComplet({ evenement: evenement(), locale: "fr" }), "fr");
     expect(page).toContain("<h1");
     expect(page).toContain("TEST_Lieu");
@@ -137,7 +202,7 @@ describe("page d'un Événement", () => {
     expect(page).toMatch(/15,00[\s ]\$US/);
     expect(page).toContain("<li>TEST_entrée</li>");
     expect(page).toContain("Partager");
-    expect(page).not.toMatch(/Acheter|Candidater|Complet|Vente fermée|Me prévenir|places/i);
+    expect(page).not.toMatch(/Candidater|Complet|Vente fermée|Me prévenir|places/i);
   });
 
   it("un Événement passé est marqué comme passé, un Événement à venir ne l'est pas", async () => {

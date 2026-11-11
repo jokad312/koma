@@ -66,6 +66,10 @@
       "titre": "Checkout",
       "description": "Choose how you receive your order and check the total."
     },
+    "festivalAchat": {
+      "titre": "Buy passes",
+      "description": "Choose your Passes for the event and write each person's name."
+    },
     "commandeDetail": {
       "titre": "My order",
       "description": "The details of your order."
@@ -305,6 +309,8 @@
       "enCours": "Saving…",
       "erreur": "Your answers could not be saved. Try again, or skip this step.",
       "reprendre": "Sign in again",
+      "retourFestival": "Back to the Festival",
+      "expireePass": "This order has expired: the places have been released. You can choose again on the event page.",
       "erreurSession": "Your session has ended. Sign in again to continue.",
       "univers": {
         "libelle": "Which universe do you prefer?",
@@ -952,6 +958,7 @@
           "quota_invalide": "A quota must be a whole number from 1 to 100,000.",
           "evenement_introuvable": "This event no longer exists.",
           "type_pass_introuvable": "A Pass Type does not belong to this event. Reload the page.",
+          "type_pass_vendu": "This Pass Type has already been ordered: it can no longer be removed. You can rename it or edit what it includes.",
           "publication_incomplete": "This event is published: it must stay complete (English texts, a photo with its alternative texts, a paid Pass Type). Complete it or unpublish it first.",
           "non_autorise": "You no longer have the right to manage events. Reload the page or sign in again.",
           "format_invalide": "This file is not a valid JPEG, PNG or WebP image.",
@@ -2344,6 +2351,74 @@
     }
   },
   "Festival": {
+    "achat": {
+      "bouton": "Buy passes",
+      "complet": "Sold out",
+      "venteFermee": "Sales closed",
+      "pasEncore": "Pass sales have not opened yet.",
+      "aucunPass": "No Pass is on sale for this event.",
+      "typeComplet": "{nom}: sold out",
+      "titre": "Buy passes",
+      "retourEvenement": "Back to the event",
+      "intro": "Choose how many Passes of each type you want, then write each person's name. You pay once for everything.",
+      "types": "Pass types",
+      "quantite": "Number of {nom} Passes",
+      "retirer": "Remove one {nom} Pass",
+      "ajouter": "Add one {nom} Pass",
+      "maxAtteint": "You have reached the maximum of {max} Passes per order.",
+      "noms": {
+        "titre": "Who is coming?",
+        "aide": "One name per Pass, as it should appear on the Pass.",
+        "moi": "The first Pass is for me",
+        "moiConnu": "{type} Pass: {nom} (your account)",
+        "moiSaisie": "Your name ({type} Pass)",
+        "champ": "Person's name, {type} Pass no. {numero}"
+      },
+      "voirRecap": "See the summary",
+      "enCours": "Calculating…",
+      "modifier": "Change my choice",
+      "recap": {
+        "titre": "Summary",
+        "liste": "Chosen Passes",
+        "ligne": "{nombre} × {nom}",
+        "prixUnite": "{prix} per Pass",
+        "noms": "Names: {noms}",
+        "sousTotal": "Subtotal",
+        "reduction": "Discount ({code})",
+        "reductionMontant": "−{montant}",
+        "total": "Total"
+      },
+      "mention": {
+        "titre": "Event photos and videos",
+        "texte": "[Texte à fournir]"
+      },
+      "confirmer": "Confirm and choose how to pay",
+      "confirmerEnCours": "Creating the order…",
+      "totalChange": "The total has changed: it was {ancien}, it is now {nouveau}. Check the summary before confirming.",
+      "resume": "Some fields need your attention.",
+      "champs": {
+        "aucun": "Choose at least one Pass.",
+        "nom": "Write each person's name (2 to 80 characters, without \"<\" or \">\").",
+        "mention": "Tick the box about the event's photos and videos."
+      },
+      "erreurs": {
+        "non_connecte": "Sign in to buy passes.",
+        "compte_incomplet": "Your account is not complete: finish it to buy passes.",
+        "invalide": "Your selection is not valid. Reload the page and try again.",
+        "titulaire": "A name is not valid: it needs 2 to 80 characters, without \"<\" or \">\".",
+        "mention": "Tick the box about the event's photos and videos.",
+        "complet": "Sold out: there are not enough places left for your selection. Choose fewer Passes or another type.",
+        "vente_fermee": "Pass sales are not open.",
+        "evenement_introuvable": "This event is no longer available.",
+        "type_introuvable": "A pass type is no longer available. Reload the page.",
+        "stand": "A stand can only be obtained by application.",
+        "gratuit": "This pass is not sold online.",
+        "commande_en_attente": "You already have an order to pay. Finish it or wait for it to expire.",
+        "total_change": "The total has changed. Check the summary.",
+        "reglage_manquant": "The shop is not ready to take this order. Try again later.",
+        "erreur": "The order could not be created. Your choices are kept: try again in a moment."
+      }
+    },
     "prevenir": {
       "titre": "Get notified when sales open",
       "ouvertureLe": "Pass sales open on {date}.",
@@ -2572,6 +2647,7 @@
     "liste": "Cart items",
     "taille": "Size: {taille}",
     "tailleSurMesure": "Size: made to measure",
+    "titulaires": "Names: {noms}",
     "kitUnExemplaire": "Digital kit, single copy",
     "quantite": "Quantity",
     "mettreAJour": "Update",

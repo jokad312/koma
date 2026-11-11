@@ -917,14 +917,19 @@ export type Database = {
           commande_id: string
           cree_le: string
           delai_fabrication_jours: number | null
+          est_stand: boolean | null
           id: string
           mesures_recues_le: string | null
           nombre: number
           origine: string | null
+          pass_nom_en: string | null
+          pass_nom_fr: string | null
           prix_cents: number
-          produit_id: string
+          produit_id: string | null
           reduction_cents: number
           stock_retire: number | null
+          titulaires: Json | null
+          type_pass_id: string | null
           variante_id: string | null
         }
         Insert: {
@@ -932,14 +937,19 @@ export type Database = {
           commande_id: string
           cree_le?: string
           delai_fabrication_jours?: number | null
+          est_stand?: boolean | null
           id?: string
           mesures_recues_le?: string | null
           nombre?: number
           origine?: string | null
+          pass_nom_en?: string | null
+          pass_nom_fr?: string | null
           prix_cents: number
-          produit_id: string
+          produit_id?: string | null
           reduction_cents?: number
           stock_retire?: number | null
+          titulaires?: Json | null
+          type_pass_id?: string | null
           variante_id?: string | null
         }
         Update: {
@@ -947,14 +957,19 @@ export type Database = {
           commande_id?: string
           cree_le?: string
           delai_fabrication_jours?: number | null
+          est_stand?: boolean | null
           id?: string
           mesures_recues_le?: string | null
           nombre?: number
           origine?: string | null
+          pass_nom_en?: string | null
+          pass_nom_fr?: string | null
           prix_cents?: number
-          produit_id?: string
+          produit_id?: string | null
           reduction_cents?: number
           stock_retire?: number | null
+          titulaires?: Json | null
+          type_pass_id?: string | null
           variante_id?: string | null
         }
         Relationships: [
@@ -970,6 +985,13 @@ export type Database = {
             columns: ["produit_id"]
             isOneToOne: false
             referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ligne_commande_type_pass_id_fkey"
+            columns: ["type_pass_id"]
+            isOneToOne: false
+            referencedRelation: "type_pass"
             referencedColumns: ["id"]
           },
           {
@@ -2319,6 +2341,16 @@ export type Database = {
         }
         Returns: Json
       }
+      commande_pass_calculer: {
+        Args: {
+          p_code: string
+          p_compte: string
+          p_evenement: string
+          p_lignes: Json
+          p_strict: boolean
+        }
+        Returns: Json
+      }
       compte_complet: { Args: { p_compte: string }; Returns: boolean }
       compter_alertes_evenement: {
         Args: { p_auteur: Json; p_evenement: string }
@@ -2397,6 +2429,19 @@ export type Database = {
           p_telephone: string
           p_total_attendu_cents: number
           p_zone: string
+        }
+        Returns: Json
+      }
+      creer_commande_pass: {
+        Args: {
+          p_acceptations: Json
+          p_auteur: Json
+          p_cle_idempotence: string
+          p_code?: string
+          p_evenement: string
+          p_lignes: Json
+          p_origine?: string
+          p_total_attendu_cents: number
         }
         Returns: Json
       }
@@ -2688,6 +2733,7 @@ export type Database = {
         Args: { p_compte: string; p_numero: string }
         Returns: Json
       }
+      etat_vente_evenement: { Args: { p_evenement: string }; Returns: Json }
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
       exiger_client: { Args: { p_auteur: Json }; Returns: string }
       exiger_personnel: { Args: { p_auteur: Json }; Returns: undefined }
@@ -2860,7 +2906,12 @@ export type Database = {
         Args: { p_compte: string; p_panier: string }
         Returns: boolean
       }
+      places_evenement_utilisees: {
+        Args: { p_evenement: string }
+        Returns: number
+      }
       places_fabrication_utilisees: { Args: never; Returns: number }
+      places_type_pass_utilisees: { Args: { p_type: string }; Returns: number }
       planifier_alertes_evenements: { Args: never; Returns: number }
       planifier_emails_cibles: { Args: never; Returns: number }
       possede_kit: {
@@ -2888,6 +2939,15 @@ export type Database = {
           p_mode: string
           p_panier: string
           p_zone: string
+        }
+        Returns: Json
+      }
+      recapitulatif_commande_pass: {
+        Args: {
+          p_code?: string
+          p_compte: string
+          p_evenement: string
+          p_lignes: Json
         }
         Returns: Json
       }
