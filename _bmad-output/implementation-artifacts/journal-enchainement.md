@@ -430,3 +430,9 @@
 ## Story 7.7 : accès bénévole (2026-11-11)
 - Spec : `spec-7-7-acces-benevole.md`. Textes écrits par Claude (FR/EN, `Admin.evenements.benevoles.*`, `Scan.acces.indisponible`) à valider. Aucun `[Texte à fournir]`.
 - À tester à la main : créer un compte de test par code email, lui donner l'accès dans l'admin d'un événement daté ; le jour J, `/fr/scan` ne montre que cet événement ; `/fr/admin` rend 404 ; hors fenêtre, refus.
+
+
+## Story 7.8 : scan hors ligne (2026-11-11)
+- Spec : `spec-7-8-scan-hors-ligne.md` (protection des empreintes : jeton SHA-256, code court HMAC à clé de Verrou non extractible ; limites documentées). Textes écrits par Claude (FR/EN, `Scan.horsLigne.*`, `Admin.evenements.verrou.*`, `Admin.taches`) à valider ; « Scan réservé à l'appareil hors ligne » vient de l'epic. Aucun `[Texte à fournir]`.
+- À tester à la main sur téléphone réel : mode avion après la prise du Verrou, scan QR et code court, même Pass refusé la 2e fois ; deux appareils ; retour du réseau (synchro, Verrou rendu, liste effacée) ; libération forcée par l'admin ; Chrome Android et Safari iOS ; en production HTTPS.
+- Limite : un bénévole dont l'accès a pris fin avec des scans non synchronisés ne peut pas rouvrir l'écran pour synchroniser (l'Admin libère le Verrou ; l'anomalie le signale).

@@ -8,6 +8,7 @@ import { FormulaireEvenement } from "@/components/admin/FormulaireEvenement";
 import { PublicationEvenement } from "@/components/admin/PublicationEvenement";
 import { SectionAlertes } from "@/components/admin/SectionAlertes";
 import { SectionBenevoles } from "@/components/admin/SectionBenevoles";
+import { SectionVerrou } from "@/components/admin/SectionVerrou";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
 import { Link } from "@/i18n/navigation";
@@ -21,6 +22,7 @@ import { lireAccesBenevoles } from "@/modules/benevoles/dependances";
 import type { AccesBenevole } from "@/modules/benevoles/types";
 import { lireEvenementAdmin, lireManquesPublication } from "@/modules/evenements/queries";
 import type { Evenement } from "@/modules/evenements/types";
+import { lireVerrouEvenement, type VerrouHorsLigne } from "@/modules/scan/queries";
 
 // Les identifiants ne sont connus qu'à la requête. Un seul exemplaire factice permet à Next.js de préparer la coque statique de la route
 // (la page lit la base sous Suspense et rend 404 pour un identifiant inconnu).
@@ -88,6 +90,17 @@ async function EvenementSelonDroit({
       console.error("[benevoles] lecture des accès impossible");
     }
   }
+  // Verrou hors ligne de CET Événement (story 7.8, Admin seulement) : une lecture en échec n'empêche pas d'éditer l'événement.
+  let verrou: VerrouHorsLigne | null = null;
+  let verrouLisible = true;
+  if (evenement) {
+    try {
+      verrou = await lireVerrouEvenement(auteur, id);
+    } catch {
+      verrouLisible = false;
+      console.error("[scan-hors-ligne] lecture du Verrou impossible");
+    }
+  }
   if (lecture && !evenement) notFound();
   return (
     <CoqueAdmin>
@@ -105,6 +118,7 @@ async function EvenementSelonDroit({
             {alertes ? <SectionAlertes evenementId={evenement.id} nombres={alertes} /> : null}
             {alertesLisibles ? null : <MessageEtat type="erreur">{t("alertes.erreurLecture")}</MessageEtat>}
             {benevoles ? <SectionBenevoles evenementId={evenement.id} acces={benevoles} /> : <MessageEtat type="erreur">{t("benevoles.erreurLecture")}</MessageEtat>}
+            {verrouLisible ? <SectionVerrou evenementId={evenement.id} verrou={verrou} /> : <MessageEtat type="erreur">{t("verrou.erreurLecture")}</MessageEtat>}
             <FormulaireEvenement evenement={evenement} />
           </>
         ) : (

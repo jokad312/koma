@@ -68,6 +68,6 @@ export type TacheAdmin = {
   gravite: "info" | "attention" | "critique";
   cibleType: string;
   cibleId: string;
-  details: { modele?: string; tentatives?: number };
+  details: { modele?: string; tentatives?: number; motif?: string; pris_le?: string; scans_synchronises?: number };
   creeLe: string;
 };

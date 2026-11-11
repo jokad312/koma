@@ -29,10 +29,11 @@ export function dependancesScan(): DependancesScan {
       const { data, error } = await admin.rpc("consommer_essai", { p_cle: cle, p_fenetre_secondes: fenetreSecondes, p_maximum: maximum });
       return { erreur: error ? codeKs(error.message, error.code) : null, autorise: data === true };
     },
-    scanner: async ({ auteur, evenementId, jeton, code }) => {
+    scanner: async ({ auteur, evenementId, jeton, code, appareil }) => {
       // La fonction attend un argument absent plutôt que null : on n'envoie que celui qui existe.
       const { data, error } = await admin.rpc("scanner_pass", {
-        p_auteur: auteur as unknown as Json,
+        // L'appareil voyage dans l'auteur : la base le compare au Verrou hors ligne et ne l'écrit jamais au journal.
+        p_auteur: (appareil ? { ...auteur, appareil } : auteur) as unknown as Json,
         p_evenement: evenementId,
         ...(jeton ? { p_jeton: jeton } : {}),
         ...(code ? { p_code: code } : {}),

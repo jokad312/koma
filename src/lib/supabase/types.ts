@@ -1778,6 +1778,51 @@ export type Database = {
         }
         Relationships: []
       }
+      scan_hors_ligne: {
+        Row: {
+          applique_le: string
+          id: string
+          motif: string | null
+          pass_id: string | null
+          resultat: string
+          scanne_le_appareil: string
+          verrou_id: string
+        }
+        Insert: {
+          applique_le?: string
+          id: string
+          motif?: string | null
+          pass_id?: string | null
+          resultat: string
+          scanne_le_appareil: string
+          verrou_id: string
+        }
+        Update: {
+          applique_le?: string
+          id?: string
+          motif?: string | null
+          pass_id?: string | null
+          resultat?: string
+          scanne_le_appareil?: string
+          verrou_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "scan_hors_ligne_pass_id_fkey"
+            columns: ["pass_id"]
+            isOneToOne: false
+            referencedRelation: "pass"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "scan_hors_ligne_verrou_id_fkey"
+            columns: ["verrou_id"]
+            isOneToOne: false
+            referencedRelation: "verrou_hors_ligne"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sous_titre_kit: {
         Row: {
           cree_le: string
@@ -2097,6 +2142,53 @@ export type Database = {
             columns: ["produit_id"]
             isOneToOne: false
             referencedRelation: "produit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      verrou_hors_ligne: {
+        Row: {
+          appareil: string
+          cle_code_court: string
+          compte_id: string
+          evenement_id: string
+          expire_le: string
+          id: string
+          libere_le: string | null
+          liste_telechargee_le: string | null
+          pris_le: string
+          statut: string
+        }
+        Insert: {
+          appareil: string
+          cle_code_court: string
+          compte_id: string
+          evenement_id: string
+          expire_le: string
+          id?: string
+          libere_le?: string | null
+          liste_telechargee_le?: string | null
+          pris_le?: string
+          statut?: string
+        }
+        Update: {
+          appareil?: string
+          cle_code_court?: string
+          compte_id?: string
+          evenement_id?: string
+          expire_le?: string
+          id?: string
+          libere_le?: string | null
+          liste_telechargee_le?: string | null
+          pris_le?: string
+          statut?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verrou_hors_ligne_evenement_id_fkey"
+            columns: ["evenement_id"]
+            isOneToOne: false
+            referencedRelation: "evenement"
             referencedColumns: ["id"]
           },
         ]
@@ -2881,6 +2973,10 @@ export type Database = {
         Args: { p_commande: string; p_compte: string }
         Returns: string[]
       }
+      forcer_liberation_verrou: {
+        Args: { p_auteur: Json; p_evenement: string }
+        Returns: Json
+      }
       fusionner_panier: {
         Args: { p_auteur: Json; p_compte: string; p_panier: string }
         Returns: Json
@@ -2897,6 +2993,10 @@ export type Database = {
         Returns: boolean
       }
       kits_payes: { Args: { p_compte: string }; Returns: Json }
+      liberer_verrou: {
+        Args: { p_appareil: string; p_auteur: Json; p_evenement: string }
+        Returns: Json
+      }
       lignes_reclamables: {
         Args: { p_compte: string; p_numero: string }
         Returns: {
@@ -2911,6 +3011,10 @@ export type Database = {
           valable_jusqu_au: string
           valide: boolean
         }[]
+      }
+      lire_etat_verrou: {
+        Args: { p_appareil: string; p_auteur: Json; p_evenement: string }
+        Returns: Json
       }
       lire_panier: {
         Args: { p_panier: string }
@@ -2929,6 +3033,17 @@ export type Database = {
         }[]
       }
       lire_preferences: { Args: { p_compte: string }; Returns: Json }
+      lire_verrou_evenement: {
+        Args: { p_auteur: Json; p_evenement: string }
+        Returns: {
+          echu: boolean
+          email: string
+          expire_le: string
+          id: string
+          liste_telechargee: boolean
+          pris_le: string
+        }[]
+      }
       lister_acces_benevoles: {
         Args: { p_auteur: Json; p_evenement: string }
         Returns: {
@@ -3073,6 +3188,10 @@ export type Database = {
         Args: { p_compte: string; p_produit: string }
         Returns: boolean
       }
+      prendre_verrou: {
+        Args: { p_appareil: string; p_auteur: Json; p_evenement: string }
+        Returns: Json
+      }
       publier_article: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
@@ -3149,10 +3268,21 @@ export type Database = {
         Args: { p_auteur: Json; p_photo: string }
         Returns: Json
       }
+      scan_compte_depuis_auteur: { Args: { p_auteur: Json }; Returns: string }
       scan_exiger_acces: {
         Args: { p_auteur: Json; p_evenement: string }
         Returns: undefined
       }
+      scan_exiger_verrou: {
+        Args: { p_auteur: Json; p_evenement: string }
+        Returns: undefined
+      }
+      scan_forcer_verrou_interne: {
+        Args: { p_auteur: Json; p_motif: string; p_verrou: string }
+        Returns: undefined
+      }
+      scan_horodatage: { Args: { p_texte: string }; Returns: string }
+      scan_verrou_expirer: { Args: { p_evenement: string }; Returns: undefined }
       scanner_pass: {
         Args: {
           p_auteur: Json
@@ -3206,6 +3336,15 @@ export type Database = {
         Args: { p_auteur: Json; p_produit_id: string }
         Returns: Json
       }
+      synchroniser_scans: {
+        Args: {
+          p_appareil: string
+          p_auteur: Json
+          p_evenement: string
+          p_scans: Json
+        }
+        Returns: Json
+      }
       tableau_commandes_payees: {
         Args: { p_auteur: Json; p_depuis: string }
         Returns: {
@@ -3253,6 +3392,10 @@ export type Database = {
           motif: string
           plus_ancien_le: string
         }[]
+      }
+      telecharger_liste_hors_ligne: {
+        Args: { p_appareil: string; p_auteur: Json; p_evenement: string }
+        Returns: Json
       }
       tentative_par_reference_interne: {
         Args: { p_reference: string }
@@ -3323,6 +3466,8 @@ export type Database = {
         | "kit_deja_possede"
         | "montant_indetermine"
         | "stock_insuffisant"
+        | "scans_non_synchronises"
+        | "scan_conflit"
       envoi_modele:
         | "commande_payee"
         | "kit_ouvert"
@@ -3476,6 +3621,8 @@ export const Constants = {
         "kit_deja_possede",
         "montant_indetermine",
         "stock_insuffisant",
+        "scans_non_synchronises",
+        "scan_conflit",
       ],
       envoi_modele: [
         "commande_payee",

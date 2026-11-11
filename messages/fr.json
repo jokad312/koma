@@ -420,7 +420,52 @@
       "non_connecte": "Ta session a expiré. Reconnecte-toi pour scanner.",
       "non_autorise": "Tu n'as pas (ou plus) le droit de scanner les pass de cet événement.",
       "trop_d_essais": "Trop de codes saisis à la main. Attends quelques minutes, ou scanne le Code QR.",
-      "generique": "Le résultat n'a pas pu être vérifié. Scanne de nouveau le pass : s'il a déjà été scanné, l'écran l'indiquera."
+      "generique": "Le résultat n'a pas pu être vérifié. Scanne de nouveau le pass : s'il a déjà été scanné, l'écran l'indiquera.",
+      "verrouille": "Scan réservé à l'appareil hors ligne.",
+      "synchro_en_cours": "Synchronisation en cours : ce scan n'est pas validé. Scanne de nouveau le pass dans un instant.",
+      "stockage": "Ce scan n'a pas pu être gardé sur cet appareil : il n'est pas validé. Scanne de nouveau le pass.",
+      "liste_expiree": "La liste hors ligne n'est plus valable. Reviens en ligne pour continuer."
+    },
+    "horsLigne": {
+      "titre": "Scan hors ligne",
+      "indisponible": "Le scan hors ligne n'est pas disponible sur ce navigateur : le stockage local est bloqué ou absent.",
+      "reserve": "Scan réservé à l'appareil hors ligne",
+      "reserveAide": "Un autre appareil tient le Verrou hors ligne de cet événement : lui seul peut scanner, jusqu'à ce qu'il se synchronise ou que l'organisateur libère le Verrou.",
+      "rappel": "Prends le Verrou hors ligne et télécharge la liste des pass maintenant, avec du réseau, de préférence la veille. Sans cela, aucun scan hors ligne ne sera possible.",
+      "prendre": "Prendre le Verrou hors ligne et télécharger la liste",
+      "priseEnCours": "Téléchargement de la liste...",
+      "prise": "Verrou pris. La liste des pass est enregistrée sur cet appareil.",
+      "tenu": "Cet appareil tient le Verrou hors ligne jusqu'au {fin}. Liste de {nombre, plural, one {# pass} other {# pass}} téléchargée à {heure}.",
+      "modeHorsLigne": "Pas de connexion. Les pass sont vérifiés avec la liste de cet appareil ({nombre, plural, one {# pass} other {# pass}}, téléchargée à {heure}).",
+      "enAttente": "{nombre, plural, =0 {Aucun scan en attente d'envoi.} one {# scan en attente d'envoi.} other {# scans en attente d'envoi.}}",
+      "sansVerrou": "Pas de connexion, et aucun Verrou n'a été pris à l'avance : le scan hors ligne est impossible. Reviens en ligne pour scanner.",
+      "verrouPerdu": "Cet appareil ne tient plus le Verrou hors ligne : sa liste n'est plus fiable.",
+      "reessayer": "Réessayer",
+      "synchroniser": "Synchroniser et rendre le Verrou",
+      "synchroniserQuandMeme": "Envoyer les scans en attente",
+      "synchroEnCours": "Synchronisation en cours...",
+      "effacer": "Effacer la liste de cet appareil",
+      "efface": "La liste de cet appareil est effacée.",
+      "erreurPrise": {
+        "non_connecte": "Ta session a expiré. Reconnecte-toi, puis réessaie.",
+        "non_autorise": "Tu n'as pas (ou plus) le droit de scanner les pass de cet événement.",
+        "evenement_invalide": "Choisis d'abord l'événement à scanner.",
+        "appareil_invalide": "Cet appareil n'a pas pu être identifié. Recharge la page.",
+        "verrou_pris": "Un autre appareil tient déjà le Verrou hors ligne de cet événement.",
+        "verrou_absent": "Cet appareil ne tient pas le Verrou hors ligne.",
+        "verrou_libere_de_force": "Le Verrou de cet appareil a été libéré par l'organisateur.",
+        "evenement_passe": "Cet événement est terminé : le Verrou ne peut plus être pris.",
+        "lot_trop_grand": "Trop de scans envoyés d'un coup. Réessaie.",
+        "hors_ligne": "Pas de connexion : le Verrou se prend avec du réseau.",
+        "trop_d_essais": "Trop de demandes en peu de temps. Attends quelques minutes, puis réessaie.",
+        "generique": "Le Verrou n'a pas pu être pris. Vérifie la connexion, puis réessaie."
+      },
+      "synchro": {
+        "libere": "{nombre, plural, =0 {Synchronisation terminée : aucun scan à enregistrer.} one {Synchronisation terminée : # scan enregistré.} other {Synchronisation terminée : # scans enregistrés.}} Le Verrou est rendu et la liste de cet appareil est effacée.",
+        "conflits": "{nombre, plural, one {# scan n'a pas pu être appliqué (pass déjà scanné, annulé ou inconnu entre-temps).} other {# scans n'ont pas pu être appliqués (pass déjà scannés, annulés ou inconnus entre-temps).}} L'organisateur en est prévenu dans ses tâches.",
+        "echec": "La synchronisation n'a pas abouti. Les scans restent sur cet appareil ; réessaie quand la connexion est stable.",
+        "perdue": "Le Verrou de cet appareil n'est plus valable. {nombre, plural, =0 {Aucun scan n'est resté sans envoi.} one {# scan n'a pas pu être envoyé.} other {# scans n'ont pas pu être envoyés.}}"
+      }
     }
   },
   "Admin": {
@@ -887,6 +932,27 @@
       }
     },
     "evenements": {
+      "verrou": {
+        "titre": "Scan hors ligne",
+        "aide": "Un seul appareil à la fois peut tenir le Verrou hors ligne de cet événement ; tant qu'il le tient, les autres appareils ne peuvent pas scanner. Si cet appareil est perdu, libère le Verrou ici : les scans qu'il n'avait pas envoyés ne pourront plus l'être, et une tâche te le signalera.",
+        "aucun": "Aucun appareil ne tient le Verrou hors ligne.",
+        "tenu": "Verrou tenu par {email} depuis le {depuis}, jusqu'au {fin}.",
+        "tenuListe": "La liste des pass a été téléchargée sur cet appareil.",
+        "tenuSansListe": "La liste des pass n'a pas encore été téléchargée.",
+        "echu": "La fenêtre du Verrou est terminée : il sera libéré à la prochaine prise.",
+        "liberer": "Libérer le Verrou",
+        "confirmer": "Confirmer la libération",
+        "annuler": "Annuler",
+        "enCours": "Libération en cours...",
+        "succes": "Verrou libéré. Une tâche signale que les scans de cet appareil ont pu ne pas être synchronisés.",
+        "aucunALiberer": "Il n'y a plus de Verrou à libérer.",
+        "erreurLecture": "Le Verrou hors ligne n'a pas pu être lu. Recharge la page.",
+        "erreurs": {
+          "non_connecte": "Ta session a expiré. Reconnecte-toi, puis réessaie.",
+          "non_autorise": "Tu n'as pas le droit de libérer ce Verrou.",
+          "generique": "Le Verrou n'a pas pu être libéré. Réessaie."
+        }
+      },
       "benevoles": {
         "titre": "Bénévoles à l'entrée",
         "aide": "Donne à un bénévole l'accès à l'écran de Scan de cet événement, pour le jour de l'événement seulement. Il ne voit rien d'autre : ni commandes, ni clients, ni réglages.",
@@ -1847,9 +1913,20 @@
         "critique": "Urgent"
       },
       "types": {
-        "envoi_echec_definitif": "Email non envoyé après plusieurs essais"
+        "envoi_echec_definitif": "Email non envoyé après plusieurs essais",
+        "scans_non_synchronises": "Scans hors ligne peut-être non synchronisés",
+        "scan_conflit": "Scan hors ligne en conflit"
       },
       "detailEnvoi": "Email « {modele} » : {tentatives} essais.",
+      "detailScansNonSynchronises": "Verrou hors ligne libéré de force (pris le {date}). {synchronises, plural, =0 {Aucun scan n'avait été synchronisé.} one {# scan avait été synchronisé.} other {# scans avaient été synchronisés.}} Les scans faits depuis sur cet appareil sont inconnus : vérifie à l'entrée de l'événement.",
+      "detailScanConflit": "Un scan fait hors ligne n'a pas pu être appliqué : {motif}. L'état du pass est conservé tel quel.",
+      "motifsConflit": {
+        "deja_scanne": "le pass avait déjà été scanné",
+        "annule": "le pass a été annulé",
+        "rembourse": "le pass a été remboursé",
+        "commande_non_payee": "la commande n'est plus payée",
+        "statut": "le pass n'était plus valide"
+      },
       "modeles": {
         "commande_payee": "commande payée",
         "kit_ouvert": "kit ouvert",

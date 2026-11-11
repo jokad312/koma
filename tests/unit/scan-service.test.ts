@@ -69,7 +69,7 @@ describe("scan d'un Code QR", () => {
   it("transmet le jeton et rend VALIDE dans la langue demandée", async () => {
     const d = faux();
     expect(await scannerPass(d, qr())).toEqual({ ok: true, resultat: "valide", nom: "TEST_Alice", evenement: "TEST_Festival", typePass: "TEST_VIP" });
-    expect(d.scanner).toHaveBeenCalledWith({ auteur: AUTEUR, evenementId: EVENEMENT, jeton: JETON, code: null });
+    expect(d.scanner).toHaveBeenCalledWith({ auteur: AUTEUR, evenementId: EVENEMENT, jeton: JETON, code: null, appareil: null });
     expect(await scannerPass(d, { ...qr(), langue: "en" })).toMatchObject({ evenement: "TEST_Festival EN", typePass: "TEST_VIP" });
   });
   it("le Code QR n'est pas limité par consommer_essai", async () => {
@@ -129,7 +129,7 @@ describe("saisie à la main", () => {
   it("normalise le code, limite par auteur puis par adresse IP hachés, puis scanne", async () => {
     const d = faux();
     expect((await scannerPass(d, manuel(" kmnp-2345 "))).ok).toBe(true);
-    expect(d.scanner).toHaveBeenCalledWith({ auteur: AUTEUR, evenementId: EVENEMENT, jeton: null, code: "KMNP2345" });
+    expect(d.scanner).toHaveBeenCalledWith({ auteur: AUTEUR, evenementId: EVENEMENT, jeton: null, code: "KMNP2345", appareil: null });
     const appels = vi.mocked(d.consommerEssai).mock.calls.map(([a]) => a);
     expect(appels).toHaveLength(2);
     expect(appels[0]).toMatchObject({ cle: expect.stringMatching(/^scan:code:auteur:TEST_hash_/), maximum: LIMITE_CODE_PAR_AUTEUR });

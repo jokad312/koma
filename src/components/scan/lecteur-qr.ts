@@ -7,6 +7,13 @@ export type DetecteurQr = { source: "natif" | "bibliotheque"; lire: (video: HTML
 
 type ClasseDetecteur = typeof DetecteurNatif;
 
+// Fichier WebAssembly du lecteur de secours (servi par le site lui-même) : le Scan hors ligne le fait entrer dans le cache du service worker (story 7.8).
+// Inutile quand le navigateur lit les Codes QR en natif.
+export function urlsAPrechauffer(): string[] {
+  if ((globalThis as { BarcodeDetector?: unknown }).BarcodeDetector) return [];
+  return [new URL("../../../node_modules/zxing-wasm/dist/reader/zxing_reader.wasm", import.meta.url).href];
+}
+
 async function natifQr(): Promise<ClasseDetecteur | null> {
   const classe = (globalThis as { BarcodeDetector?: ClasseDetecteur }).BarcodeDetector;
   if (!classe) return null;

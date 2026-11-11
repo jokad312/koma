@@ -420,7 +420,52 @@
       "non_connecte": "Your session has expired. Sign in again to scan.",
       "non_autorise": "You do not (or no longer) have the right to scan this event's passes.",
       "trop_d_essais": "Too many codes entered by hand. Wait a few minutes, or scan the QR code.",
-      "generique": "The result could not be checked. Scan the pass again: if it was already scanned, the screen will say so."
+      "generique": "The result could not be checked. Scan the pass again: if it was already scanned, the screen will say so.",
+      "verrouille": "Scanning is reserved for the offline device.",
+      "synchro_en_cours": "Sync in progress: this scan is not validated. Scan the pass again in a moment.",
+      "stockage": "This scan could not be saved on this device, so it is not validated. Scan the pass again.",
+      "liste_expiree": "The offline list is no longer valid. Go back online to continue."
+    },
+    "horsLigne": {
+      "titre": "Offline scanning",
+      "indisponible": "Offline scanning is not available in this browser: local storage is blocked or missing.",
+      "reserve": "Scanning is reserved for the offline device",
+      "reserveAide": "Another device holds the offline lock for this event: only it can scan, until it syncs or the organiser releases the lock.",
+      "rappel": "Take the offline lock and download the pass list now, while you have a connection, ideally the day before. Without it, offline scanning will not be possible.",
+      "prendre": "Take the offline lock and download the list",
+      "priseEnCours": "Downloading the list...",
+      "prise": "Lock taken. The pass list is saved on this device.",
+      "tenu": "This device holds the offline lock until {fin}. List of {nombre, plural, one {# pass} other {# passes}} downloaded at {heure}.",
+      "modeHorsLigne": "No connection. Passes are checked against this device's list ({nombre, plural, one {# pass} other {# passes}}, downloaded at {heure}).",
+      "enAttente": "{nombre, plural, =0 {No scans waiting to be sent.} one {# scan waiting to be sent.} other {# scans waiting to be sent.}}",
+      "sansVerrou": "No connection, and no lock was taken in advance: offline scanning is not possible. Go back online to scan.",
+      "verrouPerdu": "This device no longer holds the offline lock: its list can no longer be trusted.",
+      "reessayer": "Try again",
+      "synchroniser": "Sync and release the lock",
+      "synchroniserQuandMeme": "Send the waiting scans",
+      "synchroEnCours": "Syncing...",
+      "effacer": "Clear this device's list",
+      "efface": "This device's list has been cleared.",
+      "erreurPrise": {
+        "non_connecte": "Your session has expired. Sign in again, then try again.",
+        "non_autorise": "You do not have (or no longer have) the right to scan this event's passes.",
+        "evenement_invalide": "Choose the event to scan first.",
+        "appareil_invalide": "This device could not be identified. Reload the page.",
+        "verrou_pris": "Another device already holds the offline lock for this event.",
+        "verrou_absent": "This device does not hold the offline lock.",
+        "verrou_libere_de_force": "This device's lock was released by the organiser.",
+        "evenement_passe": "This event is over: the lock can no longer be taken.",
+        "lot_trop_grand": "Too many scans sent at once. Try again.",
+        "hors_ligne": "No connection: the lock can only be taken online.",
+        "trop_d_essais": "Too many requests in a short time. Wait a few minutes, then try again.",
+        "generique": "The lock could not be taken. Check your connection, then try again."
+      },
+      "synchro": {
+        "libere": "{nombre, plural, =0 {Sync complete: no scans to record.} one {Sync complete: # scan recorded.} other {Sync complete: # scans recorded.}} The lock is released and this device's list is cleared.",
+        "conflits": "{nombre, plural, one {# scan could not be applied (pass already scanned, cancelled or unknown in the meantime).} other {# scans could not be applied (passes already scanned, cancelled or unknown in the meantime).}} The organiser is notified in their tasks.",
+        "echec": "The sync did not complete. The scans stay on this device; try again when the connection is stable.",
+        "perdue": "This device's lock is no longer valid. {nombre, plural, =0 {No scans were left unsent.} one {# scan could not be sent.} other {# scans could not be sent.}}"
+      }
     }
   },
   "Admin": {
@@ -887,6 +932,27 @@
       }
     },
     "evenements": {
+      "verrou": {
+        "titre": "Offline scanning",
+        "aide": "Only one device at a time can hold this event's offline lock; while it does, other devices cannot scan. If that device is lost, release the lock here: scans it had not sent can no longer be sent, and a task will flag it.",
+        "aucun": "No device holds the offline lock.",
+        "tenu": "Lock held by {email} since {depuis}, until {fin}.",
+        "tenuListe": "The pass list has been downloaded on that device.",
+        "tenuSansListe": "The pass list has not been downloaded yet.",
+        "echu": "The lock window is over: it will be released at the next lock request.",
+        "liberer": "Release the lock",
+        "confirmer": "Confirm the release",
+        "annuler": "Cancel",
+        "enCours": "Releasing...",
+        "succes": "Lock released. A task flags that scans from that device may not have been synced.",
+        "aucunALiberer": "There is no lock left to release.",
+        "erreurLecture": "The offline lock could not be read. Reload the page.",
+        "erreurs": {
+          "non_connecte": "Your session has expired. Sign in again, then try again.",
+          "non_autorise": "You do not have the right to release this lock.",
+          "generique": "The lock could not be released. Try again."
+        }
+      },
       "benevoles": {
         "titre": "Entrance volunteers",
         "aide": "Give a volunteer access to this event's Scan screen, for the day of the event only. They see nothing else: no orders, no customers, no settings.",
@@ -1847,9 +1913,20 @@
         "critique": "Urgent"
       },
       "types": {
-        "envoi_echec_definitif": "Email not sent after several attempts"
+        "envoi_echec_definitif": "Email not sent after several attempts",
+        "scans_non_synchronises": "Offline scans possibly not synced",
+        "scan_conflit": "Offline scan in conflict"
       },
       "detailEnvoi": "“{modele}” email: {tentatives} attempts.",
+      "detailScansNonSynchronises": "Offline lock force-released (taken on {date}). {synchronises, plural, =0 {No scans had been synced.} one {# scan had been synced.} other {# scans had been synced.}} Scans made on that device since are unknown: check at the event entrance.",
+      "detailScanConflit": "An offline scan could not be applied: {motif}. The pass keeps its current state.",
+      "motifsConflit": {
+        "deja_scanne": "the pass had already been scanned",
+        "annule": "the pass was cancelled",
+        "rembourse": "the pass was refunded",
+        "commande_non_payee": "the order is no longer paid",
+        "statut": "the pass was no longer valid"
+      },
       "modeles": {
         "commande_payee": "order paid",
         "kit_ouvert": "kit open",

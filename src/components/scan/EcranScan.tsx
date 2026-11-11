@@ -5,9 +5,13 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { extraireJeton } from "@/modules/evenements/pass-charge";
 import { scannerPassAction } from "@/modules/scan/actions";
+import { DELAI_SERVEUR_MS } from "@/modules/scan/hors-ligne-types";
 import type { EvenementScannable, ResultatScan } from "@/modules/scan/types";
-import { creerDetecteurQr } from "./lecteur-qr";
+import { creerDetecteurQr, urlsAPrechauffer } from "./lecteur-qr";
+import { PanneauHorsLigne } from "./PanneauHorsLigne";
 import { ResultatPlein } from "./ResultatPlein";
+import { enregistrerServiceWorkerScan } from "./service-worker";
+import { useScanHorsLigne } from "./useScanHorsLigne";
 
 type Phase = "ouverture" | "actif" | "refusee" | "indisponible" | "lecteur";
 
@@ -15,6 +19,7 @@ type Phase = "ouverture" | "actif" | "refusee" | "indisponible" | "lecteur";
 const INTERVALLE_LECTURE_MS = 200;
 const TEMPS_MORT_MS = 1200;
 const PAUSE_ERREUR_MS = 2000;
+const DELAI = Symbol("delai");
 
 const BOUTON = "t-button inline-flex min-h-touch items-center justify-center rounded-full border border-border-field bg-surface px-5 py-3 text-text-primary";
 const CHAMP = "t-body min-h-touch w-full rounded-md border border-border-field bg-surface px-4 py-3 text-text-primary";
@@ -30,7 +35,7 @@ function vibrer(motif: number | number[]) {
 // Écran de Scan en ligne (story 7.6). Le jeton du Code QR n'existe que le temps de l'appel au serveur : il n'est ni affiché, ni mis en état, ni écrit
 // dans l'adresse ou le stockage du navigateur, ni journalisé. Le contenu d'un Code QR qui n'est pas « KOMA:PASS:<jeton> » n'est jamais envoyé.
 // « benevole » (story 7.7) : l'écran d'un bénévole n'offre pas de choix quand son accès ne couvre qu'un Événement ; le serveur revérifie l'accès à chaque scan.
-export function EcranScan({ evenements, benevole = false }: { evenements: EvenementScannable[]; benevole?: boolean }) {
+export function EcranScan({ evenements, benevole = false, compteId }: { evenements: EvenementScannable[]; benevole?: boolean; compteId?: string }) {
   const t = useTranslations("Scan");
   const locale = useLocale();
   const idEvenement = useId();
@@ -49,19 +54,61 @@ export function EcranScan({ evenements, benevole = false }: { evenements: Evenem
   const [manuel, setManuel] = useState(false);
   const [code, setCode] = useState("");
   const [erreur, setErreur] = useState<string | null>(null);
+  const horsLigne = useScanHorsLigne({ evenementId, langue: locale === "en" ? "en" : "fr", compteId });
+  const { liste: listeLocale, etat: etatVerrou, appareil, scannerLocal, noterEnLigne, signalerAutre, attendreEtat } = horsLigne;
+  const synchroEnCours = horsLigne.occupe === "synchro";
+  // Un autre appareil tient le Verrou hors ligne : « Scan réservé à l'appareil hors ligne », ni caméra ni saisie.
+  const reserve = etatVerrou === "autre" && !listeLocale;
+  // La caméra n'est ouverte ni pour un appareil réservé, ni avant de savoir s'il l'est.
+  const cameraBloquee = reserve || attendreEtat;
 
   const envoyer = useCallback(
     async (entree: { charge: string } | { code: string }) => {
       if (envoiEnCours.current) return;
+      // Pendant l'envoi des scans au serveur, aucun scan n'est jugé : un Pass affiché VALIDE doit toujours être enregistré avant que la liste soit effacée.
+      if (synchroEnCours) {
+        occupe.current = true;
+        setErreur(t("erreur.synchro_en_cours"));
+        setTimeout(() => {
+          occupe.current = false;
+        }, PAUSE_ERREUR_MS);
+        return;
+      }
       envoiEnCours.current = true;
       occupe.current = true;
       setEnVerification(true);
       setErreur(null);
       let res: ResultatScan;
-      try {
-        res = await scannerPassAction({ evenementId, ...entree });
-      } catch {
-        res = { ok: false, erreur: "generique" };
+      // Un scan est jugé sur la liste locale seulement si l'appareil en a une ET que le réseau manque (coupure déclarée, ou serveur muet trop longtemps).
+      let jugeLocalement = false;
+      if (listeLocale && !navigator.onLine) {
+        jugeLocalement = true;
+        res = await scannerLocal(entree);
+      } else {
+        try {
+          // L'appareil qui tient le Verrou se fait connaître : la base refuse tout autre appareil tant que le Verrou est tenu.
+          const appel = scannerPassAction({ evenementId, ...entree, ...(listeLocale && appareil ? { appareil } : {}) });
+          const r = listeLocale
+            ? await Promise.race([appel, new Promise<typeof DELAI>((resolu) => setTimeout(() => resolu(DELAI), DELAI_SERVEUR_MS))])
+            : await appel;
+          if (r === DELAI) {
+            jugeLocalement = true;
+            res = await scannerLocal(entree);
+          } else {
+            res = r;
+          }
+        } catch {
+          if (listeLocale) {
+            jugeLocalement = true;
+            res = await scannerLocal(entree);
+          } else {
+            res = { ok: false, erreur: "generique" };
+          }
+        }
+        if (!jugeLocalement) {
+          if (res.ok && res.resultat === "valide" && listeLocale) await noterEnLigne(entree);
+          if (!res.ok && res.erreur === "verrouille") signalerAutre();
+        }
       }
       envoiEnCours.current = false;
       setEnVerification(false);
@@ -77,12 +124,12 @@ export function EcranScan({ evenements, benevole = false }: { evenements: Evenem
         occupe.current = false;
       }, PAUSE_ERREUR_MS);
     },
-    [evenementId, t],
+    [evenementId, t, listeLocale, appareil, scannerLocal, noterEnLigne, signalerAutre, synchroEnCours],
   );
 
   // Caméra et lecture : démarrées une fois l'Événement choisi, arrêtées au départ de l'écran (la caméra est toujours relâchée).
   useEffect(() => {
-    if (!evenementId) return;
+    if (!evenementId || cameraBloquee) return;
     let arret = false;
     let flux: MediaStream | null = null;
     let minuterie: ReturnType<typeof setTimeout> | undefined;
@@ -167,7 +214,27 @@ export function EcranScan({ evenements, benevole = false }: { evenements: Evenem
       document.removeEventListener("visibilitychange", surVisibilite);
       relacher();
     };
-  }, [evenementId, essai, envoyer]);
+  }, [evenementId, essai, envoyer, cameraBloquee]);
+
+  // Service worker du Scan : enregistré seulement ici (portée /fr/scan ou /en/scan), pour que la page s'ouvre sans réseau. Le module WebAssembly du lecteur de
+  // Code QR est demandé une fois pour entrer dans le cache du service worker (seulement si le navigateur n'a pas la lecture native).
+  useEffect(() => {
+    let annule = false;
+    async function preparer() {
+      if ((await enregistrerServiceWorkerScan(locale)) !== "enregistre") return;
+      try {
+        await navigator.serviceWorker.ready;
+        if (annule) return;
+        for (const url of urlsAPrechauffer()) await fetch(url).then((r) => r.arrayBuffer());
+      } catch {
+        // Sans préchauffage, le module est mis en cache à sa première utilisation.
+      }
+    }
+    void preparer();
+    return () => {
+      annule = true;
+    };
+  }, [locale]);
 
   function suivant() {
     setResultat(null);
@@ -223,7 +290,9 @@ export function EcranScan({ evenements, benevole = false }: { evenements: Evenem
         </div>
       )}
 
-      {evenementId ? (
+      {evenementId ? <PanneauHorsLigne etat={horsLigne} /> : null}
+
+      {evenementId && !reserve ? (
         <section className="flex flex-col gap-4" aria-label={t("titre")}>
           <div className="relative aspect-[3/4] w-full overflow-hidden rounded-lg sm:aspect-video" style={{ backgroundColor: "#16130f" }}>
             <video ref={video} aria-label={t("camera.libelle")} muted playsInline className="size-full object-cover" />
@@ -256,10 +325,11 @@ export function EcranScan({ evenements, benevole = false }: { evenements: Evenem
           ) : null}
           {erreur ? <MessageEtat type="erreur">{erreur}</MessageEtat> : null}
         </section>
-      ) : (
+      ) : evenementId ? null : (
         <p className="t-body text-text-secondary">{t("aide")}</p>
       )}
 
+      {reserve ? null : (
       <div className="flex flex-col gap-3">
         <button ref={boutonManuel} type="button" className={BOUTON} aria-expanded={manuel} onClick={() => setManuel((v) => !v)}>
           {manuel ? t("manuel.fermer") : t("manuel.ouvrir")}
@@ -290,6 +360,7 @@ export function EcranScan({ evenements, benevole = false }: { evenements: Evenem
           </form>
         ) : null}
       </div>
+      )}
 
     </div>
       {resultat?.ok && resultat.resultat === "valide" ? (

@@ -1,4 +1,5 @@
 import { extraireJeton } from "@/modules/evenements/pass-charge";
+import { MOTIF_APPAREIL } from "./hors-ligne-types";
 import { codeCourtValide, normaliserCodeCourt } from "./code-court";
 import type { AuteurScan, DependancesScan, EntreeScan, ReponseScanBase, ResultatScan } from "./types";
 
@@ -89,10 +90,12 @@ export async function scannerPass(deps: DependancesScan, entree: EntreeScan): Pr
       if (!codeCourtValide(code)) return { ok: true, resultat: "refuse", raison: "inconnu", scanneLe: null };
     }
 
-    const { erreur, reponse } = await deps.scanner({ auteur, evenementId: entree.evenementId, jeton, code });
+    const appareil = typeof entree.appareil === "string" && MOTIF_APPAREIL.test(entree.appareil) ? entree.appareil : null;
+    const { erreur, reponse } = await deps.scanner({ auteur, evenementId: entree.evenementId, jeton, code, appareil });
     if (erreur) {
       journaliser("scan", erreur);
       if (erreur.includes("KS_DROIT_REFUSE")) return { ok: false, erreur: "non_autorise" };
+      if (erreur.includes("KS_SCAN_VERROUILLE")) return { ok: false, erreur: "verrouille" };
       return GENERIQUE;
     }
     if (!reponse) return GENERIQUE;

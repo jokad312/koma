@@ -9,6 +9,14 @@ import { rendre } from "./aides-dom";
 const action = vi.hoisted(() => vi.fn());
 const lecteur = vi.hoisted(() => ({ lire: vi.fn(async (): Promise<string | null> => null), creer: vi.fn() }));
 vi.mock("@/modules/scan/actions", () => ({ scannerPassAction: action }));
+// Scan hors ligne (story 7.8) : sans IndexedDB (jsdom), l'écran de la story 7.6 ne change pas ; les actions du Verrou sont simulées (données TEST_).
+vi.mock("@/modules/scan/hors-ligne-actions", () => ({
+  prendreVerrouAction: vi.fn(),
+  synchroniserScansAction: vi.fn(),
+  libererVerrouAction: vi.fn(),
+  lireEtatVerrouAction: vi.fn(async () => ({ ok: true, etat: { etat: "libre" } })),
+  forcerLiberationVerrouAction: vi.fn(),
+}));
 vi.mock("@/components/scan/lecteur-qr", () => ({ creerDetecteurQr: () => lecteur.creer() }));
 
 import { EcranScan } from "@/components/scan/EcranScan";

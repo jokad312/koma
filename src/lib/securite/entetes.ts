@@ -30,8 +30,9 @@ export function politiqueContenu({ adresseSupabase, hoteVideoPublic, production,
     `media-src ${medias}`,
     "font-src 'self' data:",
     `connect-src ${connexions}`,
-    // hls.js transcode les segments dans un worker créé depuis une source blob:.
-    "worker-src 'self' blob:",
+    // hls.js transcode les segments dans un worker créé depuis une source blob:. Sur la page de Scan (story 7.8), seul le service worker du site lui-même
+    // (/sw-scan.js) est permis : ni blob:, ni origine tierce.
+    scan ? "worker-src 'self'" : "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -47,6 +48,16 @@ const PERMISSIONS_SCAN = "camera=(self), microphone=(), geolocation=()";
 export const SOURCE_HORS_SCAN = "/:chemin((?!(?:fr|en)/scan(?:/|$)).*)";
 // La page de Scan et tout ce qui est dessous (/fr/scan, /fr/scan/, /fr/scan/x) : exactement le complément de SOURCE_HORS_SCAN.
 export const SOURCE_SCAN = "/:langue(fr|en)/scan/:reste*";
+
+// Fichier du service worker du Scan (story 7.8, public/sw-scan.js) : jamais gardé par le cache HTTP, pour que chaque contrôle de mise à jour lise la version
+// publiée. Aucun en-tête Service-Worker-Allowed : la portée demandée (/fr/scan, /en/scan) est plus étroite que le dossier du fichier, rien n'est élargi.
+export const SOURCE_SERVICE_WORKER = "/sw-scan.js";
+export function entetesServiceWorker(): EnteteHttp[] {
+  return [
+    { key: "Cache-Control", value: "no-cache, max-age=0, must-revalidate" },
+    { key: "Content-Type", value: "text/javascript; charset=utf-8" },
+  ];
+}
 
 // HSTS seulement en production et sur une adresse https : jamais sur http://localhost.
 export function entetesSecurite({ adresseSite, adresseSupabase, hoteVideoPublic, production, scan = false }: Options): EnteteHttp[] {

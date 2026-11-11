@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import nextConfig from "../../next.config";
-import { entetesSecurite, politiqueContenu, SOURCE_HORS_SCAN, SOURCE_SCAN } from "@/lib/securite/entetes";
+import { entetesSecurite, entetesServiceWorker, politiqueContenu, SOURCE_HORS_SCAN, SOURCE_SCAN, SOURCE_SERVICE_WORKER } from "@/lib/securite/entetes";
 
 const valeur = (entetes: { key: string; value: string }[], nom: string) => entetes.find((e) => e.key === nom)?.value;
 
@@ -41,10 +41,12 @@ describe("en-têtes de sécurité", () => {
 
   it("est branché par next.config : le site entier hors Scan d'un côté, le Scan seul de l'autre", async () => {
     const regles = await nextConfig.headers?.();
-    expect(regles).toHaveLength(2);
+    expect(regles).toHaveLength(3);
     expect(regles?.[0].source).toBe(SOURCE_HORS_SCAN);
     expect(regles?.[1].source).toBe(SOURCE_SCAN);
-    for (const regle of regles ?? []) expect(regle.headers.map((e) => e.key)).toEqual(expect.arrayContaining(["X-Frame-Options", "Content-Security-Policy-Report-Only"]));
+    // Story 7.8 : une troisième règle, pour le seul fichier du service worker du Scan.
+    expect(regles?.[2].source).toBe(SOURCE_SERVICE_WORKER);
+    for (const regle of (regles ?? []).slice(0, 2)) expect(regle.headers.map((e) => e.key)).toEqual(expect.arrayContaining(["X-Frame-Options", "Content-Security-Policy-Report-Only"]));
   });
 
   it("la caméra reste fermée partout, sauf sur la page de Scan (origine du site seulement)", async () => {
@@ -90,5 +92,36 @@ describe("en-têtes de sécurité", () => {
     expect(csp).toContain("img-src 'self' data: blob: https://vz-test.b-cdn.net");
     expect(csp).toContain("worker-src 'self' blob:");
     expect(politiqueContenu({ production: true })).toContain("media-src 'self' blob:;");
+  });
+
+  it("story 7.8 : le service worker du Scan est limité à la page de Scan, sans élargir le reste du site", async () => {
+    const options = { adresseSupabase: "https://projet.supabase.co", production: true };
+    // Hors Scan : inchangé (hls.js garde son worker blob:).
+    expect(politiqueContenu(options)).toContain("worker-src 'self' blob:");
+    // Page de Scan : le worker du site lui-même seulement, ni blob:, ni origine tierce.
+    const scan = politiqueContenu({ ...options, scan: true });
+    expect(scan).toContain("worker-src 'self';");
+    expect(scan).not.toMatch(/worker-src[^;]*(blob:|https?:|\*)/);
+    // La CSP du Scan n'est pas élargie ailleurs : mêmes autres directives qu'avant, plus wasm-unsafe-eval.
+    expect(scan.replace(" 'wasm-unsafe-eval'", "").replace("worker-src 'self';", "worker-src 'self' blob:;")).toBe(politiqueContenu(options));
+    const regles = (await nextConfig.headers?.()) ?? [];
+    expect(valeur(regles[0].headers, "Content-Security-Policy-Report-Only")).toContain("worker-src 'self' blob:");
+    expect(valeur(regles[1].headers, "Content-Security-Policy-Report-Only")).toContain("worker-src 'self';");
+  });
+
+  it("story 7.8 : /sw-scan.js n'est jamais gardé par le cache HTTP, sans Service-Worker-Allowed (la portée ne s'élargit pas)", async () => {
+    const entetes = entetesServiceWorker();
+    expect(valeur(entetes, "Cache-Control")).toContain("no-cache");
+    expect(valeur(entetes, "Content-Type")).toContain("text/javascript");
+    expect(entetes.map((e) => e.key)).not.toContain("Service-Worker-Allowed");
+    const regles = (await nextConfig.headers?.()) ?? [];
+    for (const regle of regles) expect(regle.headers.map((e) => e.key)).not.toContain("Service-Worker-Allowed");
+    // Le chemin du fichier appartient à la règle « hors Scan » (qui garde la caméra fermée) et ne recouvre jamais la page de Scan.
+    const moteur = "next/dist/compiled/path-to-regexp";
+    const { pathToRegexp } = (await import(/* @vite-ignore */ moteur)) as { pathToRegexp: (source: string) => RegExp };
+    expect(pathToRegexp(SOURCE_HORS_SCAN).exec("/sw-scan.js")).not.toBeNull();
+    expect(pathToRegexp(SOURCE_SCAN).exec("/sw-scan.js")).toBeNull();
+    expect(pathToRegexp(SOURCE_SERVICE_WORKER).exec("/sw-scan.js")).not.toBeNull();
+    expect(pathToRegexp(SOURCE_SERVICE_WORKER).exec("/fr/scan")).toBeNull();
   });
 });

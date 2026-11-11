@@ -33,14 +33,15 @@ export async function ScanSelonDroit({ locale, chemin }: { locale: Locale; chemi
   if (!accesConnus) notFound();
   const accesTermine = !estAdmin && evenements !== null && evenements.length === 0;
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col gap-5">
+    // Repère lu par le service worker du Scan (public/sw-scan.js) : seule la page qui montre l'écran de Scan est gardée pour l'ouvrir sans réseau.
+    <div className="mx-auto flex w-full max-w-xl flex-col gap-5" {...(evenements !== null && !accesTermine ? { "data-koma-ecran-scan": "1" } : {})}>
       <h1 className="t-h1">{t("titre")}</h1>
       {evenements === null ? (
         <MessageEtat type="erreur">{t("evenement.erreurLecture")}</MessageEtat>
       ) : accesTermine ? (
         <MessageEtat type="attention">{t("acces.indisponible")}</MessageEtat>
       ) : (
-        <EcranScan evenements={evenements} benevole={!estAdmin} />
+        <EcranScan evenements={evenements} benevole={!estAdmin} compteId={compteId} />
       )}
       {estAdmin ? (
         <Link href="/admin" className="t-small text-text-secondary underline">

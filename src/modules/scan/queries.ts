@@ -1,5 +1,7 @@
 import "server-only";
+import type { AuteurCompte } from "@/lib/auth/auteur";
 import { creerClientService } from "@/lib/supabase/service";
+import type { Json } from "@/lib/supabase/types";
 import { debutDuJourLubumbashi } from "./jour";
 import type { EvenementScannable } from "./types";
 
@@ -37,4 +39,16 @@ export async function lireEvenementsDeLAccesBenevole(locale: "fr" | "en", compte
     accesConnus: true,
     evenements: (data ?? []).map((e) => ({ id: e.id, titre: (locale === "en" ? e.titre_en?.trim() : "") || e.titre_fr, debutLe: e.debut_le, finLe: e.fin_le })),
   };
+}
+
+// Verrou hors ligne actif d'UN Événement (page admin, Admin seulement : la base revérifie le droit). Le Compte qui le tient est montré par son email ;
+// jamais l'identifiant de l'appareil. Une erreur est relancée : jamais « aucun Verrou » inventé.
+export type VerrouHorsLigne = { id: string; email: string; prisLe: string; expireLe: string; listeTelechargee: boolean; echu: boolean };
+
+export async function lireVerrouEvenement(auteur: AuteurCompte, evenementId: string): Promise<VerrouHorsLigne | null> {
+  const { data, error } = await creerClientService().rpc("lire_verrou_evenement", { p_auteur: auteur as unknown as Json, p_evenement: evenementId });
+  if (error || !Array.isArray(data)) throw new Error("Lecture du Verrou impossible.");
+  const v = data[0];
+  if (!v) return null;
+  return { id: v.id, email: v.email, prisLe: v.pris_le, expireLe: v.expire_le, listeTelechargee: v.liste_telechargee, echu: v.echu };
 }

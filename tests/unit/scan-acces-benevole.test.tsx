@@ -94,6 +94,16 @@ describe("page de Scan : bénévole", () => {
     expect(ecran.textContent).toBe("TEST_Festival");
     expect(ecran.getAttribute("data-benevole")).toBe("true");
   });
+  it("story 7.8 : seule la page qui montre l'écran de Scan porte le repère du service worker (jamais le message d'accès terminé)", async () => {
+    faux.exigerConnectePage.mockResolvedValue({ compteId: "TEST_benevole", role: null });
+    faux.lireDeLAcces.mockResolvedValue({ evenements: [{ id: EV1, titre: "TEST_Festival", debutLe: null, finLe: null }], accesConnus: true });
+    const { container, unmount } = await rendrePage();
+    expect(container.querySelector("[data-koma-ecran-scan]")).not.toBeNull();
+    unmount();
+    faux.lireDeLAcces.mockResolvedValue({ evenements: [], accesConnus: true });
+    const termine = await rendrePage();
+    expect(termine.container.querySelector("[data-koma-ecran-scan]")).toBeNull();
+  });
   it("pas de lien vers l'administration (qui lui répondrait 404)", async () => {
     faux.exigerConnectePage.mockResolvedValue({ compteId: "TEST_benevole", role: "benevole" });
     faux.lireDeLAcces.mockResolvedValue({ evenements: [{ id: EV1, titre: "TEST_Festival", debutLe: null, finLe: null }], accesConnus: true });
