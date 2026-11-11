@@ -11,7 +11,7 @@ import type { CarteEvenement, EvenementPublic, ImageEvenement, PageEvenements, T
 // (jamais select("*")) car le droit de lecture anonyme est limité aux colonnes listées. Une erreur de lecture est relancée :
 // jamais une liste vide inventée (l'appelant masque la section ou affiche un message sobre).
 
-const COLONNES_CARTE = "id, slug, titre_fr, titre_en, lieu_fr, lieu_en, debut_le, images";
+const COLONNES_CARTE = "id, slug, titre_fr, titre_en, lieu_fr, lieu_en, debut_le, vente_ouvre_le, images";
 
 type LigneCarte = {
   id: string;
@@ -21,6 +21,7 @@ type LigneCarte = {
   lieu_fr: string | null;
   lieu_en: string | null;
   debut_le: string | null;
+  vente_ouvre_le: string | null;
   images: unknown;
 };
 
@@ -32,6 +33,11 @@ function dansLaLangue(locale: "fr" | "en", fr: string | null, en: string | null)
 // Le texte alternatif suit la langue quand il existe ; repli sur le français, jamais un texte inventé.
 function altDeLaLangue(locale: "fr" | "en", image: ImageEvenement): string {
   return locale === "en" ? image.altEn.trim() || image.altFr : image.altFr;
+}
+
+// La vente s'ouvre à vente_ouvre_le (ou à la publication sans date : jamais « à venir » alors).
+function ouvertureFuture(venteOuvreLe: string | null): boolean {
+  return venteOuvreLe !== null && Date.parse(venteOuvreLe) > Date.now();
 }
 
 function versCarte(locale: "fr" | "en", ligne: LigneCarte, passe: boolean): CarteEvenement | null {
@@ -46,6 +52,7 @@ function versCarte(locale: "fr" | "en", ligne: LigneCarte, passe: boolean): Cart
     vignetteUrl: premiere ? urlPhotoPublique(premiere.fichier) : null,
     vignetteAlt: premiere ? altDeLaLangue(locale, premiere) : null,
     passe,
+    venteAVenir: !passe && ouvertureFuture(ligne.vente_ouvre_le),
   };
 }
 
@@ -138,7 +145,7 @@ export async function lireEvenementPublie(locale: "fr" | "en", slug: string): Pr
   const client = creerClientPublic();
   const { data, error } = await client
     .from("evenement")
-    .select("id, slug, titre_fr, titre_en, description_fr, description_en, lieu_fr, lieu_en, debut_le, fin_le, images")
+    .select("id, slug, titre_fr, titre_en, description_fr, description_en, lieu_fr, lieu_en, debut_le, fin_le, vente_ouvre_le, images")
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw new Error("Lecture de l'événement impossible.");
@@ -168,6 +175,8 @@ export async function lireEvenementPublie(locale: "fr" | "en", slug: string): Pr
     debutLe: data.debut_le,
     finLe: data.fin_le,
     passe: new Date(data.debut_le).getTime() < Date.now(),
+    venteAVenir: new Date(data.debut_le).getTime() >= Date.now() && ouvertureFuture(data.vente_ouvre_le),
+    venteOuvreLe: data.vente_ouvre_le,
     images: lireImages(data.images).map((image) => ({ url: urlPhotoPublique(image.fichier), alt: altDeLaLangue(locale, image) })),
     types,
   };

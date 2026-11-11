@@ -46,6 +46,7 @@ function carte(n: number, surcharge: Partial<CarteEvenement> = {}): CarteEveneme
     vignetteUrl: "https://exemple.test/photo.jpg",
     vignetteAlt: "TEST_alt de la photo",
     passe: false,
+    venteAVenir: false,
     ...surcharge,
   };
 }
@@ -60,6 +61,8 @@ function evenement(surcharge: Partial<EvenementPublic> = {}): EvenementPublic {
     debutLe: "2099-05-01T08:00:00+00:00",
     finLe: "2099-05-01T16:30:00+00:00",
     passe: false,
+    venteAVenir: false,
+    venteOuvreLe: null,
     images: [{ url: "https://exemple.test/photo.jpg", alt: "TEST_alt de la photo" }],
     types: [
       { id: "t1", nom: "TEST_Pass simple", prixCents: 1500, inclus: "TEST_entrée\nTEST_badge", estStand: false },

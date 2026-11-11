@@ -10,8 +10,9 @@ import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
 import { cheminPublic } from "@/i18n/adresses";
 import { lienDesinscription, lienDesinscriptionUnClic } from "@/modules/preferences/lien-desinscription";
 import { rendreNouveauProduit, rendrePanierAbandonne, rendreRappelKit } from "./modeles/commerciaux";
+import { rendreAlerte } from "@/modules/alertes/rendu";
 import { MODELES_COMMERCIAUX } from "./types";
-import type { DependancesEnvois, EnvoiReserve, LangueEmail, ResultatRendu } from "./types";
+import type { DependancesEnvois, EnvoiLie, EnvoiReserve, LangueEmail, ResultatRendu } from "./types";
 
 type ClientService = ReturnType<typeof creerClientService>;
 
@@ -23,7 +24,7 @@ const titreSelonLangue = (p: { titre_fr: string; titre_en: string | null }, lang
 // Emails commerciaux ciblés (story 9.6) : jamais envoyés si leur sujet n'est plus vrai (Panier vidé ou payé, Kit terminé, Produit dépublié).
 const MODELES_CIBLES = ["panier_abandonne", "rappel_kit", "nouveau_produit"] as const;
 
-async function rendreCommercial(client: ClientService, envoi: EnvoiReserve, destinataire: string, nomSite: string, site: string): Promise<ResultatRendu> {
+async function rendreCommercial(client: ClientService, envoi: EnvoiLie, destinataire: string, nomSite: string, site: string): Promise<ResultatRendu> {
   const langue = envoi.langue;
   // Lien signé de désinscription, obligatoire dans tout Email commercial : sans clé configurée, l'email n'est jamais envoyé sans lui.
   let lien: string;
@@ -101,7 +102,11 @@ async function rendreCommercial(client: ClientService, envoi: EnvoiReserve, dest
 
 // Relit la base au moment du rendu : l'envoi ne porte que des identifiants. Un contenu qui ne correspond plus au Compte
 // ou à l'état de la Commande n'est jamais envoyé (« ignorer »).
-async function rendre(client: ClientService, envoi: EnvoiReserve): Promise<ResultatRendu> {
+async function rendre(client: ClientService, brut: EnvoiReserve): Promise<ResultatRendu> {
+  // Alerte « Me prévenir » (story 7.3) : l'inscrit par email n'a pas de Compte ; son rendu lit sa propre inscription.
+  if (brut.modele === "alerte_evenement") return rendreAlerte(client, brut);
+  if (brut.compteId === null) return { statut: "ignorer", raison: "envoi sans Compte" };
+  const envoi: EnvoiLie = { ...brut, compteId: brut.compteId };
   const { data: utilisateur, error: erreurCompte } = await client.auth.admin.getUserById(envoi.compteId);
   if (erreurCompte && erreurCompte.status !== 404) return { statut: "reessayer", raison: "lecture du Compte impossible" };
   const destinataire = utilisateur?.user?.email;
@@ -115,7 +120,7 @@ async function rendre(client: ClientService, envoi: EnvoiReserve): Promise<Resul
 
   // Emails commerciaux ciblés (story 9.6) : pas de Commande ; le rendu relit le Panier, le Kit ou le Produit au moment de l'envoi.
   if ((MODELES_CIBLES as readonly string[]).includes(envoi.modele)) return rendreCommercial(client, envoi, destinataire, nomSite, site);
-  // Autre Email commercial (relance 9.5, alerte 7.3) : pas encore de gabarit, jamais rendu par erreur comme une Commande.
+  // Autre Email commercial (relance 9.5) : pas encore de gabarit, jamais rendu par erreur comme une Commande.
   if ((MODELES_COMMERCIAUX as readonly string[]).includes(envoi.modele)) return { statut: "ignorer", raison: "modèle sans gabarit" };
 
   const commandeId = envoi.donnees.commande_id;

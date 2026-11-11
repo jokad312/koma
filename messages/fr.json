@@ -814,6 +814,18 @@
       }
     },
     "evenements": {
+      "alertes": {
+        "titre": "Alertes « Me prévenir »",
+        "aide": "Personnes qui veulent être prévenues à l'ouverture de la vente des Pass. Les emails partent tout seuls à ce moment ; le site n'envoie aucun message WhatsApp.",
+        "email": "Par email",
+        "compte": "Avec un compte",
+        "whatsapp": "Par WhatsApp",
+        "desinscrits": "Désinscrits",
+        "exporter": "Exporter les numéros WhatsApp (CSV)",
+        "aucunNumero": "Aucun numéro WhatsApp à exporter pour le moment.",
+        "exportAide": "L'export est enregistré dans le journal.",
+        "erreurLecture": "Les alertes n'ont pas pu être lues. Recharge la page."
+      },
       "titre": "Événements",
       "intro": "Crée tes événements, leurs Types de pass et leurs Stands. Rien n'est affiché au public avant la publication.",
       "nouveau": "Nouvel événement",
@@ -2332,6 +2344,52 @@
     }
   },
   "Festival": {
+    "prevenir": {
+      "titre": "Être prévenu à l'ouverture de la vente",
+      "ouvertureLe": "La vente des Pass ouvre le {date}.",
+      "legende": "Comment veux-tu être prévenu ?",
+      "canaux": {
+        "email": "Par email",
+        "compte": "Avec mon compte",
+        "whatsapp": "Par WhatsApp"
+      },
+      "email": {
+        "libelle": "Adresse email"
+      },
+      "whatsapp": {
+        "libelle": "Numéro WhatsApp",
+        "aide": "Commence par « + » et l'indicatif du pays, puis le numéro."
+      },
+      "compte": {
+        "aide": "Nous utiliserons l'adresse email de ton compte."
+      },
+      "consentement": {
+        "email": "Je veux recevoir un email quand la vente des Pass de cet événement ouvre. Je peux me désinscrire à tout moment.",
+        "whatsapp": "Je veux recevoir un message WhatsApp quand la vente des Pass de cet événement ouvre. Je peux me désinscrire à tout moment.",
+        "whatsappAide": "Pour ne plus être prévenu sur WhatsApp, écris-nous depuis la page Contact."
+      },
+      "bouton": "Me prévenir",
+      "enCours": "Enregistrement…",
+      "succes": "C'est noté : tu seras prévenu à l'ouverture de la vente.",
+      "carte": {
+        "lien": "Me prévenir",
+        "pour": " pour {titre}"
+      },
+      "erreurs": {
+        "resume": "Il y a des erreurs à corriger.",
+        "canal_requis": "Choisis comment tu veux être prévenu.",
+        "email_invalide": "Saisis une adresse email valide.",
+        "whatsapp_invalide": "Saisis un numéro au format international : « + », l'indicatif du pays, puis le numéro (8 à 15 chiffres).",
+        "consentement_requis": "Coche la case pour confirmer.",
+        "trop_d_essais": "Trop de demandes, réessaie dans un moment.",
+        "vente_ouverte": "La vente vient d'ouvrir : tu peux déjà choisir ton Pass sur cette page.",
+        "indisponible": "Cet événement n'accepte plus d'inscription.",
+        "non_connecte": "Connecte-toi pour utiliser ton compte, ou choisis un autre moyen.",
+        "compte_incomplet": "Ton compte n'est pas complet : termine-le, ou choisis un autre moyen.",
+        "lienConnexion": "Aller à la connexion",
+        "generique": "L'inscription n'a pas pu être enregistrée. Ta saisie est conservée : réessaie dans un instant."
+      }
+    },
     "titre": "Rendez-vous otaku",
     "fil": {
       "navigation": "Fil d'Ariane",
@@ -2740,6 +2798,13 @@
     }
   },
   "Emails": {
+    "alerte_evenement": {
+      "sujet": "La vente des Pass est ouverte : {evenement}",
+      "titre": "La vente des Pass est ouverte",
+      "intro": "La vente des Pass pour {evenement} vient d'ouvrir sur {nomSite}.",
+      "lien": "Choisis ton Pass sur la page de l'événement :",
+      "bouton": "Voir l'événement"
+    },
     "commun": {
       "bonjour": "Bonjour,",
       "pied": "Cet email est envoyé automatiquement par {nomSite}. Ne réponds pas à ce message : écris-nous depuis la page Contact du site.",

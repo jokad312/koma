@@ -12,5 +12,5 @@ export async function reglerPreferenceAction(entree: unknown) {
 // Appelable avec n'importe quelle valeur : l'entrée est contrôlée à l'exécution.
 export async function desinscrireAction(entree: unknown) {
   const e = typeof entree === "object" && entree !== null ? (entree as Record<string, unknown>) : {};
-  return service.desinscrireParLien(dependancesPreferences(), { c: e.c, s: e.s });
+  return service.desinscrireParLien(dependancesPreferences(), { c: e.c, a: e.a, s: e.s });
 }

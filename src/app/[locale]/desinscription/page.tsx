@@ -25,8 +25,8 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/desinscr
 
 async function Contenu({ locale, searchParams }: { locale: Locale; searchParams: PageProps<"/[locale]/desinscription">["searchParams"] }) {
   await connection();
-  const { c, s } = await searchParams;
-  return <ResultatDesinscription locale={locale} c={c} s={s} />;
+  const { c, a, s } = await searchParams;
+  return <ResultatDesinscription locale={locale} c={c} a={a} s={s} />;
 }
 
 export default async function PageDesinscription({ params, searchParams }: PageProps<"/[locale]/desinscription">) {

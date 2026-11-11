@@ -27,4 +27,6 @@ export type DependancesPreferences = {
   lire: (compteId: string) => Promise<{ preferences: Preferences } | { erreur: string }>;
   regler: (auteur: Auteur, objet: ObjetConsentement, actif: boolean) => Promise<{ actif: boolean } | { erreur: string }>;
   desinscrire: (compteId: string) => Promise<{ fait: boolean } | { erreur: string }>;
+  // Inscription par email sans Compte à « Me prévenir » (story 7.3) : identifiant de l'inscription, jamais l'adresse.
+  desinscrireAlerte: (alerteId: string) => Promise<{ fait: boolean } | { erreur: string }>;
 };

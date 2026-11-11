@@ -78,6 +78,59 @@ export type Database = {
           },
         ]
       }
+      alerte_evenement: {
+        Row: {
+          canal: string
+          compte_id: string | null
+          consentement_le: string
+          consentement_version: string
+          cree_le: string
+          desinscrit_le: string | null
+          email: string | null
+          envoye_le: string | null
+          evenement_id: string
+          id: string
+          langue: string
+          whatsapp: string | null
+        }
+        Insert: {
+          canal: string
+          compte_id?: string | null
+          consentement_le?: string
+          consentement_version: string
+          cree_le?: string
+          desinscrit_le?: string | null
+          email?: string | null
+          envoye_le?: string | null
+          evenement_id: string
+          id?: string
+          langue: string
+          whatsapp?: string | null
+        }
+        Update: {
+          canal?: string
+          compte_id?: string | null
+          consentement_le?: string
+          consentement_version?: string
+          cree_le?: string
+          desinscrit_le?: string | null
+          email?: string | null
+          envoye_le?: string | null
+          evenement_id?: string
+          id?: string
+          langue?: string
+          whatsapp?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alerte_evenement_evenement_id_fkey"
+            columns: ["evenement_id"]
+            isOneToOne: false
+            referencedRelation: "evenement"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       anomalie: {
         Row: {
           cible_id: string
@@ -532,7 +585,7 @@ export type Database = {
       envoi: {
         Row: {
           cle: string
-          compte_id: string
+          compte_id: string | null
           cree_le: string
           derniere_erreur: string | null
           donnees: Json
@@ -547,7 +600,7 @@ export type Database = {
         }
         Insert: {
           cle: string
-          compte_id: string
+          compte_id?: string | null
           cree_le?: string
           derniere_erreur?: string | null
           donnees?: Json
@@ -562,7 +615,7 @@ export type Database = {
         }
         Update: {
           cle?: string
-          compte_id?: string
+          compte_id?: string | null
           cree_le?: string
           derniere_erreur?: string | null
           donnees?: Json
@@ -2157,6 +2210,8 @@ export type Database = {
         }
         Returns: string
       }
+      alerte_evenement_pour_envoi: { Args: { p_alerte: string }; Returns: Json }
+      alertes_evenements_declencher: { Args: never; Returns: boolean }
       alt_nettoye: { Args: { p: string }; Returns: string }
       annuler_commande: {
         Args: { p_auteur: Json; p_commande: string }
@@ -2265,6 +2320,10 @@ export type Database = {
         Returns: Json
       }
       compte_complet: { Args: { p_compte: string }; Returns: boolean }
+      compter_alertes_evenement: {
+        Args: { p_auteur: Json; p_evenement: string }
+        Returns: Json
+      }
       compter_panier: { Args: { p_panier: string }; Returns: number }
       compter_photos_a_traiter: { Args: never; Returns: Json }
       confirmer_couverture: {
@@ -2439,6 +2498,7 @@ export type Database = {
         Returns: undefined
       }
       desinscrire: { Args: { p_compte: string }; Returns: boolean }
+      desinscrire_alerte: { Args: { p_alerte: string }; Returns: boolean }
       disponibilite_variantes: {
         Args: { p_produit: string }
         Returns: {
@@ -2632,6 +2692,10 @@ export type Database = {
       exiger_client: { Args: { p_auteur: Json }; Returns: string }
       exiger_personnel: { Args: { p_auteur: Json }; Returns: undefined }
       expirer_commandes_echues: { Args: never; Returns: number }
+      exporter_alertes_whatsapp: {
+        Args: { p_auteur: Json; p_evenement: string }
+        Returns: string[]
+      }
       extension_fichier_kit: { Args: { p_format: string }; Returns: string }
       familles_commande: {
         Args: { p_commande: string; p_compte: string }
@@ -2640,6 +2704,17 @@ export type Database = {
       fusionner_panier: {
         Args: { p_auteur: Json; p_compte: string; p_panier: string }
         Returns: Json
+      }
+      inscrire_alerte_evenement: {
+        Args: {
+          p_auteur: Json
+          p_canal: string
+          p_evenement: string
+          p_langue: string
+          p_valeur: string
+          p_version: string
+        }
+        Returns: boolean
       }
       kits_payes: { Args: { p_compte: string }; Returns: Json }
       lignes_reclamables: {
@@ -2786,6 +2861,7 @@ export type Database = {
         Returns: boolean
       }
       places_fabrication_utilisees: { Args: never; Returns: number }
+      planifier_alertes_evenements: { Args: never; Returns: number }
       planifier_emails_cibles: { Args: never; Returns: number }
       possede_kit: {
         Args: { p_compte: string; p_produit: string }

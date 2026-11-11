@@ -2075,6 +2075,8 @@ afin de décider d'y aller et avec quel Pass.
 
 ### Story 7.3 : « Me prévenir » (Alerte événement)
 
+**Décision de Jonathan du 2026-11-11 (remplace le déclencheur ci-dessous) :** l'inscription est par Événement et l'email `alerte_evenement` part à l'ouverture de la vente de cet Événement, selon le consentement « Je veux recevoir un email quand la vente des Pass de cet événement ouvre. Je peux me désinscrire à tout moment. » ; pas d'annonce générique « nouvel événement publié ».
+
 En tant que visiteur,
 je veux être prévenu du prochain Événement par email ou par WhatsApp,
 afin de ne pas le rater.

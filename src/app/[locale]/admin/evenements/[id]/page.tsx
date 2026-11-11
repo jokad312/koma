@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { FormulaireEvenement } from "@/components/admin/FormulaireEvenement";
 import { PublicationEvenement } from "@/components/admin/PublicationEvenement";
+import { SectionAlertes } from "@/components/admin/SectionAlertes";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
 import { Link } from "@/i18n/navigation";
@@ -13,6 +14,8 @@ import { routing, type Locale } from "@/i18n/routing";
 import { exigerAdminPage } from "@/lib/auth/droits";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
+import { lireNombresAlertes } from "@/modules/alertes/dependances";
+import type { NombresAlertes } from "@/modules/alertes/types";
 import { lireEvenementAdmin, lireManquesPublication } from "@/modules/evenements/queries";
 import type { Evenement } from "@/modules/evenements/types";
 
@@ -47,13 +50,14 @@ async function EvenementSelonDroit({
   id: string;
   searchParams: PageProps<"/[locale]/admin/evenements/[id]">["searchParams"];
 }) {
-  await exigerAdminPage(locale, `/admin/evenements/${id}`, "evenements.gerer");
+  const { auteur } = await exigerAdminPage(locale, `/admin/evenements/${id}`, "evenements.gerer");
   const { cree: crees } = await searchParams;
   const cree = (Array.isArray(crees) ? crees[0] : crees) === "1";
   const t = await getTranslations("Admin.evenements");
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) notFound();
   let evenement: Evenement | null = null;
   let manques: string[] = [];
+  let alertes: NombresAlertes | null = null;
   let lecture = true;
   try {
     evenement = await lireEvenementAdmin(id);
@@ -61,6 +65,16 @@ async function EvenementSelonDroit({
   } catch {
     lecture = false;
     console.error("[evenements] lecture de l'événement impossible");
+  }
+  // Alertes « Me prévenir » (story 7.3) : une lecture en échec n'empêche pas d'éditer l'événement.
+  let alertesLisibles = true;
+  if (evenement) {
+    try {
+      alertes = await lireNombresAlertes(auteur, id);
+    } catch {
+      alertesLisibles = false;
+      console.error("[alertes] lecture des alertes impossible");
+    }
   }
   if (lecture && !evenement) notFound();
   return (
@@ -76,6 +90,8 @@ async function EvenementSelonDroit({
         {evenement ? (
           <>
             <PublicationEvenement evenementId={evenement.id} publie={evenement.publieLe !== null} manques={manques} />
+            {alertes ? <SectionAlertes evenementId={evenement.id} nombres={alertes} /> : null}
+            {alertesLisibles ? null : <MessageEtat type="erreur">{t("alertes.erreurLecture")}</MessageEtat>}
             <FormulaireEvenement evenement={evenement} />
           </>
         ) : (

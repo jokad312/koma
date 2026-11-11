@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { verifierDesinscription } from "./lien-desinscription";
+import { verifierDesinscription, verifierDesinscriptionAlerte } from "./lien-desinscription";
 import { OBJETS_CONSENTEMENT } from "./types";
 import type { DependancesPreferences, Preferences, ResultatPreferences } from "./types";
 
@@ -46,15 +46,23 @@ export async function reglerPreference(deps: DependancesPreferences, entree: unk
 }
 
 // Désinscription par le lien : la signature est vérifiée avant tout appel à la base ; sans connexion.
+// « c » : Compte (story 9.4). « a » : inscription par email sans Compte à « Me prévenir » (story 7.3).
 export async function desinscrireParLien(
-  deps: Pick<DependancesPreferences, "desinscrire">,
-  params: { c?: unknown; s?: unknown },
+  deps: Pick<DependancesPreferences, "desinscrire" | "desinscrireAlerte">,
+  params: { c?: unknown; s?: unknown; a?: unknown },
 ): Promise<"desinscrit" | "lien_invalide" | "erreur"> {
   const c = Array.isArray(params.c) ? params.c[0] : params.c;
+  const a = Array.isArray(params.a) ? params.a[0] : params.a;
   const s = Array.isArray(params.s) ? params.s[0] : params.s;
   try {
-    if (!verifierDesinscription(c, s)) return "lien_invalide";
-    const r = await deps.desinscrire(c);
+    let r: { fait: boolean } | { erreur: string };
+    if (typeof a === "string" && (c === undefined || c === null)) {
+      if (!verifierDesinscriptionAlerte(a, s)) return "lien_invalide";
+      r = await deps.desinscrireAlerte(a);
+    } else {
+      if (!verifierDesinscription(c, s)) return "lien_invalide";
+      r = await deps.desinscrire(c);
+    }
     if ("erreur" in r) {
       journaliser("désinscription");
       return "erreur";

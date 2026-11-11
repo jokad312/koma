@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { formaterDateBoutique } from "@/lib/dates";
@@ -16,6 +16,7 @@ type Props = {
 // Utilisable côté serveur (accueil) et côté client (« Voir plus » ajoute des cartes dans le navigateur).
 export function CarteEvenement({ evenement, niveau = 3 }: Props) {
   const locale = useLocale() as Locale;
+  const t = useTranslations("Festival.prevenir.carte");
   const date = formaterDateBoutique(evenement.debutLe, locale);
   const Balise = niveau === 2 ? "h2" : "h3";
 
@@ -41,6 +42,13 @@ export function CarteEvenement({ evenement, niveau = 3 }: Props) {
           </Link>
         </Balise>
         {evenement.lieu ? <p className="t-small text-text-secondary">{evenement.lieu}</p> : null}
+        {evenement.venteAVenir ? (
+          // Au-dessus du lien étendu de la carte (z-10) : un lien distinct vers le formulaire « Me prévenir » de la page de l'événement.
+          <Link href={`/festival/${evenement.slug}#prevenir`} className="t-label relative z-10 mt-1 inline-flex min-h-touch items-center self-start text-text-primary underline">
+            {t("lien")}
+            <span className="sr-only">{t("pour", { titre: evenement.titre })}</span>
+          </Link>
+        ) : null}
       </div>
     </article>
   );

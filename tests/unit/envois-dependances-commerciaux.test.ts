@@ -113,8 +113,8 @@ describe("rendu des emails ciblés", () => {
     expect(await rendre(envoi("panier_abandonne", { panier_id: "TEST_panier" }))).toMatchObject({ statut: "reessayer" });
   });
 
-  it("relance et alerte (sans gabarit) : ignorées, jamais lues comme une Commande", async () => {
+  it("relance (sans gabarit) : ignorée, jamais lue comme une Commande ; l'alerte a son gabarit (story 7.3) et refuse un envoi sans inscription", async () => {
     expect(await rendre(envoi("relance", {}))).toEqual({ statut: "ignorer", raison: "modèle sans gabarit" });
-    expect(await rendre(envoi("alerte_evenement", {}))).toEqual({ statut: "ignorer", raison: "modèle sans gabarit" });
+    expect(await rendre(envoi("alerte_evenement", {}))).toEqual({ statut: "ignorer", raison: "inscription non indiquée" });
   });
 });

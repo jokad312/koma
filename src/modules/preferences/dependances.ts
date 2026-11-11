@@ -40,6 +40,11 @@ export function dependancesPreferences(): DependancesPreferences {
       if (error || typeof data !== "boolean") return { erreur: error?.message ?? "desinscrire" };
       return { fait: data };
     },
+    desinscrireAlerte: async (alerteId) => {
+      const { data, error } = await creerClientService().rpc("desinscrire_alerte", { p_alerte: alerteId });
+      if (error || typeof data !== "boolean") return { erreur: error?.message ?? "desinscrire_alerte" };
+      return { fait: data };
+    },
   };
 }
 

@@ -24,6 +24,7 @@ function faux(s: Partial<DependancesPreferences> = {}): DependancesPreferences {
     lire: vi.fn(async () => ({ preferences: { relances: true, nouveautes: false, alertesFestival: false, mineurBloque: false } })),
     regler: vi.fn(async (_a, _o, actif) => ({ actif })),
     desinscrire: vi.fn(async () => ({ fait: true })),
+    desinscrireAlerte: vi.fn(async () => ({ fait: true })),
     ...s,
   };
 }

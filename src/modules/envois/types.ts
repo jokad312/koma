@@ -5,13 +5,17 @@ export type ModeleEnvoi = "commande_payee" | "kit_ouvert" | "commande_en_fabrica
 export type EnvoiReserve = {
   id: string;
   modele: string;
-  compteId: string;
+  // null : inscrit par email sans Compte (modèle alerte_evenement seulement, story 7.3).
+  compteId: string | null;
   langue: LangueEmail;
   donnees: Record<string, string>;
   tentatives: number;
 };
 
 // entetes : en-têtes supplémentaires (Emails commerciaux : List-Unsubscribe et List-Unsubscribe-Post, RFC 8058).
+// Envoi lié à un Compte (tous les modèles sauf l'alerte d'un inscrit par email).
+export type EnvoiLie = EnvoiReserve & { compteId: string };
+
 export type MessageEmail = { sujet: string; html: string; texte: string; entetes?: Record<string, string> };
 
 // Résultat du rendu, relu en base au moment de l'envoi.
@@ -21,7 +25,7 @@ export type ResultatRendu =
   | { statut: "reessayer"; raison: string };
 
 // Emails commerciaux (AD-9, story 9.4) : seuls ces modèles passent par email_commercial_autorise ; un email lié à un achat
-// (commande, paiement, statut, Kit ouvert, Pass) n'y passe jamais. Les modèles eux-mêmes arrivent avec les stories 9.5, 9.6 et 7.3.
+// (commande, paiement, statut, Kit ouvert, Pass) n'y passe jamais. Gabarits : 9.6 (panier, rappel de Kit, nouveau produit) et 7.3 (alerte_evenement) ; 9.5 (relance) à venir.
 export const MODELES_COMMERCIAUX = ["relance", "panier_abandonne", "rappel_kit", "nouveau_produit", "alerte_evenement"] as const;
 
 export type AutorisationCommerciale = { erreur: string } | { autorise: true } | { autorise: false; motif: string };

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { BoutonPartager } from "@/components/fiche/BoutonPartager";
+import { BlocPrevenir } from "./BlocPrevenir";
 import { ContenuArticle } from "@/components/blog/ContenuArticle";
 import { TitreVitrine } from "@/components/ui/TitreVitrine";
 import { Link } from "@/i18n/navigation";
@@ -19,7 +20,7 @@ type Props = { evenement: EvenementPublic; locale: Locale };
 
 // Une page Événement : fil d'Ariane et JSON-LD, titre en H1, date et lieu, programme (même rendu Markdown nettoyé que le blog),
 // photos avec le texte alternatif de la langue, cartes des Types de pass en lecture seule (nom, prix USD, avantages) et « Partager ».
-// Aucun compteur de places, aucun bouton d'achat (stories 7.4 et suivantes). Un Événement passé est marqué comme tel.
+// « Me prévenir » (story 7.3) tant que la vente n'est pas ouverte. Aucun compteur de places, aucun bouton d'achat (stories 7.4 et suivantes). Un Événement passé est marqué comme tel.
 export async function EvenementComplet({ evenement, locale }: Props) {
   const t = await getTranslations({ locale, namespace: "Festival" });
   const tn = await getTranslations({ locale, namespace: "Navigation" });
@@ -130,6 +131,8 @@ export async function EvenementComplet({ evenement, locale }: Props) {
           </ul>
         </section>
       ) : null}
+
+      {evenement.venteAVenir ? <BlocPrevenir evenementId={evenement.id} venteOuvreLe={evenement.venteOuvreLe} locale={locale} /> : null}
 
       <BoutonPartager titre={evenement.titre} url={url} />
     </article>

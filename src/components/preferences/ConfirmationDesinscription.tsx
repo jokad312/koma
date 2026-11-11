@@ -8,7 +8,7 @@ import { desinscrireAction } from "@/modules/preferences/actions";
 
 // Confirmation de la désinscription (décision de Jonathan du 2026-11-10) : ouvrir le lien ne fait rien ; seul le bouton envoie la demande
 // signée (POST d'une Server Action). Le résultat réel de la base est annoncé dans une zone d'état stable (règles 7 et 13).
-export function ConfirmationDesinscription({ c, s }: { c: string; s: string }) {
+export function ConfirmationDesinscription({ c, a, s }: { c?: string; a?: string; s: string }) {
   const t = useTranslations("Desinscription");
   const [etat, setEtat] = useState<"attente" | "desinscrit" | "lien_invalide" | "erreur">("attente");
   const [enCours, setEnCours] = useState(false);
@@ -19,7 +19,7 @@ export function ConfirmationDesinscription({ c, s }: { c: string; s: string }) {
     enVol.current = true;
     setEnCours(true);
     try {
-      setEtat(await desinscrireAction({ c, s }));
+      setEtat(await desinscrireAction(a ? { a, s } : { c, s }));
     } catch {
       setEtat("erreur");
     } finally {

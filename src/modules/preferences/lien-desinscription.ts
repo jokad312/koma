@@ -43,3 +43,35 @@ export function lienDesinscription(compteId: string, langue: "fr" | "en", source
   const { site, params } = siteEtParametres(compteId, source);
   return `${site}/${langue}/desinscription?${params}`;
 }
+
+// ---- Inscrit par email sans Compte (story 7.3, « Me prévenir ») ----
+// Le lien porte l'identifiant de l'inscription (paramètre « a »), signé avec un contexte distinct : la signature d'un Compte ne vaut jamais
+// pour une inscription, ni l'inverse.
+const PREFIXE_ALERTE = "desinscription-alerte:v1:";
+
+export function signerDesinscriptionAlerte(alerteId: string, source?: Record<string, string | undefined>): string {
+  return createHmac("sha256", secret(source)).update(PREFIXE_ALERTE + alerteId.toLowerCase()).digest("base64url");
+}
+
+export function verifierDesinscriptionAlerte(alerteId: unknown, signature: unknown, source?: Record<string, string | undefined>): alerteId is string {
+  if (typeof alerteId !== "string" || typeof signature !== "string" || !UUID.test(alerteId) || signature.length > 100) return false;
+  const attendue = Buffer.from(signerDesinscriptionAlerte(alerteId, source));
+  const recue = Buffer.from(signature);
+  return attendue.length === recue.length && timingSafeEqual(attendue, recue);
+}
+
+function parametresAlerte(alerteId: string, source?: Record<string, string | undefined>): { site: string; params: string } {
+  if (!UUID.test(alerteId.toLowerCase())) throw new Error("Identifiant d'inscription invalide pour le lien de désinscription.");
+  const site = lireEnvPublique().NEXT_PUBLIC_SITE_URL.replace(/\/+$/, "");
+  return { site, params: new URLSearchParams({ a: alerteId.toLowerCase(), s: signerDesinscriptionAlerte(alerteId, source) }).toString() };
+}
+
+export function lienDesinscriptionAlerteUnClic(alerteId: string, source?: Record<string, string | undefined>): string {
+  const { site, params } = parametresAlerte(alerteId, source);
+  return `${site}/api/desinscription?${params}`;
+}
+
+export function lienDesinscriptionAlerte(alerteId: string, langue: "fr" | "en", source?: Record<string, string | undefined>): string {
+  const { site, params } = parametresAlerte(alerteId, source);
+  return `${site}/${langue}/desinscription?${params}`;
+}

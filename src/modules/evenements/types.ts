@@ -138,6 +138,8 @@ export type CarteEvenement = {
   vignetteAlt: string | null;
   // Début passé au moment de la lecture : l'Événement figure dans « passés ».
   passe: boolean;
+  // Publié, pas passé, et vente des Pass pas encore ouverte (vente_ouvre_le dans le futur) : « Me prévenir » est proposé (story 7.3).
+  venteAVenir: boolean;
 };
 
 // Une page de la liste : « suite » est le nombre d'Événements déjà montrés quand on demande la suivante ; null s'il n'y en a plus.
@@ -154,6 +156,9 @@ export type EvenementPublic = {
   debutLe: string;
   finLe: string | null;
   passe: boolean;
+  // Ouverture de la vente dans le futur : « Me prévenir » est proposé ; venteOuvreLe est cette date (story 7.3).
+  venteAVenir: boolean;
+  venteOuvreLe: string | null;
   images: Array<{ url: string; alt: string }>;
   types: TypePassPublic[];
 };

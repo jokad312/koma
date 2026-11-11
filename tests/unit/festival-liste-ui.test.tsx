@@ -35,6 +35,7 @@ function evenement(n: number, passe: boolean): CarteEvenement {
     vignetteUrl: null,
     vignetteAlt: null,
     passe,
+    venteAVenir: false,
   };
 }
 

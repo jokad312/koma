@@ -814,6 +814,18 @@
       }
     },
     "evenements": {
+      "alertes": {
+        "titre": "\"Notify me\" alerts",
+        "aide": "People who want to be told when Pass sales open. Emails go out by themselves at that moment; the site sends no WhatsApp message.",
+        "email": "By email",
+        "compte": "With an account",
+        "whatsapp": "By WhatsApp",
+        "desinscrits": "Unsubscribed",
+        "exporter": "Export WhatsApp numbers (CSV)",
+        "aucunNumero": "No WhatsApp number to export yet.",
+        "exportAide": "The export is recorded in the log.",
+        "erreurLecture": "The alerts could not be read. Reload the page."
+      },
       "titre": "Events",
       "intro": "Create your events, their Pass Types and their Stands. Nothing is shown to the public until you publish.",
       "nouveau": "New event",
@@ -2332,6 +2344,52 @@
     }
   },
   "Festival": {
+    "prevenir": {
+      "titre": "Get notified when sales open",
+      "ouvertureLe": "Pass sales open on {date}.",
+      "legende": "How do you want to be notified?",
+      "canaux": {
+        "email": "By email",
+        "compte": "With my account",
+        "whatsapp": "By WhatsApp"
+      },
+      "email": {
+        "libelle": "Email address"
+      },
+      "whatsapp": {
+        "libelle": "WhatsApp number",
+        "aide": "Start with \"+\" and the country code, then the number."
+      },
+      "compte": {
+        "aide": "We will use your account email address."
+      },
+      "consentement": {
+        "email": "Email me when passes for this event go on sale. I can unsubscribe at any time.",
+        "whatsapp": "Message me on WhatsApp when passes for this event go on sale. I can unsubscribe at any time.",
+        "whatsappAide": "To stop being notified on WhatsApp, write to us from the Contact page."
+      },
+      "bouton": "Notify me",
+      "enCours": "Saving…",
+      "succes": "Got it: we'll let you know when sales open.",
+      "carte": {
+        "lien": "Notify me",
+        "pour": " for {titre}"
+      },
+      "erreurs": {
+        "resume": "There are errors to fix.",
+        "canal_requis": "Choose how you want to be notified.",
+        "email_invalide": "Enter a valid email address.",
+        "whatsapp_invalide": "Enter a number in international format: \"+\", the country code, then the number (8 to 15 digits).",
+        "consentement_requis": "Tick the box to confirm.",
+        "trop_d_essais": "Too many requests, try again in a moment.",
+        "vente_ouverte": "Sales have just opened: you can already choose your Pass on this page.",
+        "indisponible": "This event no longer accepts sign-ups.",
+        "non_connecte": "Sign in to use your account, or choose another option.",
+        "compte_incomplet": "Your account is not complete: finish it, or choose another option.",
+        "lienConnexion": "Go to sign-in",
+        "generique": "Your sign-up could not be saved. Your entry is kept: try again in a moment."
+      }
+    },
     "titre": "Festival",
     "fil": {
       "navigation": "Breadcrumb",
@@ -2740,6 +2798,13 @@
     }
   },
   "Emails": {
+    "alerte_evenement": {
+      "sujet": "Passes are on sale: {evenement}",
+      "titre": "Passes are on sale",
+      "intro": "Passes for {evenement} have just gone on sale on {nomSite}.",
+      "lien": "Choose your pass on the event page:",
+      "bouton": "See the event"
+    },
     "commun": {
       "bonjour": "Hello,",
       "pied": "This email was sent automatically by {nomSite}. Please do not reply: write to us from the Contact page of the site.",
