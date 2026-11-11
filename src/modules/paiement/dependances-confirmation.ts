@@ -64,7 +64,11 @@ export function dependancesConfirmation(): DependancesConfirmation {
         p_devise_recue: deviseRecue,
         p_reference_transaction: referenceTransaction,
       });
-      if (error) return { erreur: error.message };
+      if (error) {
+        // Diagnostic : seulement le code KS_* ou SQLSTATE (ex. KS_EMISSION_IMPOSSIBLE), jamais de donnée client ni de jeton.
+        console.error(`[paiement] confirmer_paiement refusée : ${/KS_[A-Z_]+/.exec(error.message ?? "")?.[0] ?? error.code ?? "inconnu"}`);
+        return { erreur: error.message };
+      }
       return { resultat: String((data as { resultat?: unknown } | null)?.resultat ?? "") };
     },
     echouer: async (tentativeId, cause) => {

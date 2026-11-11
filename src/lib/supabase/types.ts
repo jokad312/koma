@@ -1169,6 +1169,83 @@ export type Database = {
         }
         Relationships: []
       }
+      pass: {
+        Row: {
+          code_court: string
+          commande_id: string
+          cree_le: string
+          evenement_id: string
+          id: string
+          jeton: string
+          ligne_commande_id: string
+          nom_titulaire: string
+          rang: number
+          scanne_le: string | null
+          scanne_par: string | null
+          statut: string
+          type_pass_id: string
+        }
+        Insert: {
+          code_court: string
+          commande_id: string
+          cree_le?: string
+          evenement_id: string
+          id?: string
+          jeton: string
+          ligne_commande_id: string
+          nom_titulaire: string
+          rang: number
+          scanne_le?: string | null
+          scanne_par?: string | null
+          statut?: string
+          type_pass_id: string
+        }
+        Update: {
+          code_court?: string
+          commande_id?: string
+          cree_le?: string
+          evenement_id?: string
+          id?: string
+          jeton?: string
+          ligne_commande_id?: string
+          nom_titulaire?: string
+          rang?: number
+          scanne_le?: string | null
+          scanne_par?: string | null
+          statut?: string
+          type_pass_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pass_commande_id_fkey"
+            columns: ["commande_id"]
+            isOneToOne: false
+            referencedRelation: "commande"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pass_evenement_id_fkey"
+            columns: ["evenement_id"]
+            isOneToOne: false
+            referencedRelation: "evenement"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pass_ligne_commande_id_fkey"
+            columns: ["ligne_commande_id"]
+            isOneToOne: false
+            referencedRelation: "ligne_commande"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pass_type_pass_id_fkey"
+            columns: ["type_pass_id"]
+            isOneToOne: false
+            referencedRelation: "type_pass"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       photo_galerie: {
         Row: {
           accord_whatsapp_le: string | null
@@ -2734,6 +2811,7 @@ export type Database = {
         Returns: Json
       }
       etat_vente_evenement: { Args: { p_evenement: string }; Returns: Json }
+      evenements_emettre_pass: { Args: { p_commande: string }; Returns: number }
       exiger_admin: { Args: { p_auteur: Json }; Returns: undefined }
       exiger_client: { Args: { p_auteur: Json }; Returns: string }
       exiger_personnel: { Args: { p_auteur: Json }; Returns: undefined }
@@ -2906,6 +2984,8 @@ export type Database = {
         Args: { p_compte: string; p_panier: string }
         Returns: boolean
       }
+      pass_code_court_generer: { Args: never; Returns: string }
+      pass_jeton_generer: { Args: never; Returns: string }
       places_evenement_utilisees: {
         Args: { p_evenement: string }
         Returns: number
@@ -3163,6 +3243,7 @@ export type Database = {
         | "rappel_kit"
         | "nouveau_produit"
         | "alerte_evenement"
+        | "pass_emis"
       envoi_statut: "a_envoyer" | "envoye" | "echec" | "abandonne" | "ignore"
     }
     CompositeTypes: {
@@ -3316,6 +3397,7 @@ export const Constants = {
         "rappel_kit",
         "nouveau_produit",
         "alerte_evenement",
+        "pass_emis",
       ],
       envoi_statut: ["a_envoyer", "envoye", "echec", "abandonne", "ignore"],
     },

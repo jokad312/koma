@@ -25,6 +25,8 @@ export function envelopper(args: {
   total?: string;
   // Paragraphe écrit après le total et avant le lien (facultatif).
   paragrapheFinal?: string;
+  // Bloc libre écrit après les paragraphes (Pass émis, story 7.5) : le HTML doit être déjà échappé par l'appelant.
+  bloc?: { html: string; texte: string[] };
   texteLien: string;
   libelleBouton: string;
   url: string;
@@ -41,6 +43,7 @@ export function envelopper(args: {
     `<h1 style="margin:0 0 16px;font-size:22px;line-height:1.3;">${echapperHtml(args.titre)}</h1>`,
     p(t.commun.bonjour),
     ...args.paragraphes.map(p),
+    ...(args.bloc ? [args.bloc.html] : []),
     ...(args.lignes && args.lignes.length > 0 ? [`<ul style="margin:0 0 16px;padding-left:20px;font-size:16px;line-height:1.5;">${args.lignes.map((l) => `<li>${echapperHtml(l)}</li>`).join("")}</ul>`] : []),
     ...(args.total ? [`<p style="margin:0 0 16px;font-size:16px;font-weight:bold;">${echapperHtml(args.total)}</p>`] : []),
     ...(args.paragrapheFinal ? [p(args.paragrapheFinal)] : []),
@@ -61,6 +64,7 @@ export function envelopper(args: {
     t.commun.bonjour,
     "",
     ...args.paragraphes.flatMap((x) => [x, ""]),
+    ...(args.bloc ? [...args.bloc.texte, ""] : []),
     ...(args.lignes && args.lignes.length > 0 ? [...args.lignes.map((l) => `- ${l}`), ""] : []),
     ...(args.total ? [args.total, ""] : []),
     ...(args.paragrapheFinal ? [args.paragrapheFinal, ""] : []),

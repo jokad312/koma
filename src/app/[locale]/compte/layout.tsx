@@ -28,6 +28,11 @@ export default async function CompteLayout({ children, params }: { children: Rea
             </Link>
           </li>
           <li>
+            <Link href="/compte/pass" className="t-small underline underline-offset-4">
+              {t("compte.pass")}
+            </Link>
+          </li>
+          <li>
             <Link href="/compte/photos" className="t-small underline underline-offset-4">
               {t("compte.photos")}
             </Link>

@@ -415,3 +415,8 @@
 - Spec : `spec-7-4-achat-de-pass.md`. Textes écrits par Claude (FR/EN, `Festival.achat.*`, `Metadata.festivalAchat`, `Commande.detail.*`) à valider ; seul `Festival.achat.mention.texte` vaut `[Texte à fournir]` (engagement légal).
 - À valider par Jonathan : CGV non exigées pour un Pass ; plafond de 20 Pass par Commande ; texte de la mention photos/vidéos.
 - À tester à la main (événement de test publié, vente ouverte) : bouton / Complet / Vente fermée ; parcours déconnecté ; compteurs au clavier ; création de la Commande puis écran de choix du moyen de paiement (carte indisponible si MaishaPay désactivé, Polar jamais proposé) ; expiration qui libère les places ; refus de retirer un Type commandé.
+
+
+## Story 7.5 : émission des Pass et Mes Pass (2026-11-11)
+- Spec : `spec-7-5-emission-des-pass-et-mes-pass.md`. Textes écrits par Claude (FR/EN, espace `Pass`, `Emails.pass_emis`, `Metadata.comptePass`, lien « Mes Pass » du compte) à valider ; aucun `[Texte à fournir]`.
+- À tester à la main : après un vrai paiement sandbox d'une Commande de Pass, les Pass apparaissent dans `/fr/compte/pass` ; l'email arrive avec les QR joints ; scanner un QR avec un téléphone (charge `KOMA:PASS:` + 48 caractères hexadécimaux) ; « Agrandir » au clavier et à 375 px ; un autre Compte ne voit rien.

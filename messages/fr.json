@@ -86,6 +86,10 @@
       "titre": "Mes commandes",
       "description": "La liste de tes commandes."
     },
+    "comptePass": {
+      "titre": "Mes Pass",
+      "description": "Tes Pass et leurs Codes QR."
+    },
     "comptePreferences": {
       "titre": "Préférences",
       "description": "Choisis les emails que tu reçois."
@@ -2874,6 +2878,21 @@
     }
   },
   "Emails": {
+    "pass_emis": {
+      "sujet": "Tes Pass pour {evenement}",
+      "titre": "Tes Pass sont prêts",
+      "intro": "Ton paiement est confirmé (commande {numero}). Voici tes Pass.",
+      "pass": "Pass {type} de {nom}",
+      "evenement": "Événement : {evenement}",
+      "date": "Date : {date} (heure de Goma)",
+      "lieu": "Lieu : {lieu}",
+      "codeCourt": "Code court : {code}",
+      "qrAlt": "Code QR du Pass {type} de {nom}, {evenement}",
+      "qrTexte": "Le Code QR est joint à cet email.",
+      "transmettre": "Chaque Pass porte un nom. Tu peux transmettre son Code QR à la personne concernée : elle le présente à l'entrée. Garde ces Codes QR pour les seules personnes qui viennent : quiconque les possède peut les présenter.",
+      "lien": "Retrouve aussi tes Pass dans ton compte :",
+      "bouton": "Voir mes Pass"
+    },
     "alerte_evenement": {
       "sujet": "La vente des Pass est ouverte : {evenement}",
       "titre": "La vente des Pass est ouverte",
@@ -2985,6 +3004,7 @@
       "titre": "Mon compte",
       "navigation": "Navigation du compte",
       "commandes": "Mes commandes",
+      "pass": "Mes Pass",
       "preferences": "Préférences",
       "photos": "Envoyer une photo",
       "realisation": "Envoyer une Réalisation"
@@ -3167,6 +3187,36 @@
   },
   "Consentement": {
     "emails": "Recevoir par email les nouveautés de mes univers et les rappels utiles. Tu peux te désabonner à tout moment."
+  },
+  "Pass": {
+    "titre": "Mes Pass",
+    "intro": "Chaque Pass porte un nom et un Code QR. Tu peux envoyer son Code QR à la personne concernée : elle le présente à l'entrée.",
+    "vide": "Aucun pass pour le moment.",
+    "versFestival": "Voir les événements",
+    "erreur": "Impossible d'afficher tes Pass pour le moment. Réessaie plus tard.",
+    "avenir": "À venir",
+    "passe": "Passé",
+    "carte": {
+      "type": "Pass {type}",
+      "heureGoma": "(heure de Goma)",
+      "statuts": {
+        "valide": "Valide",
+        "scanne": "Déjà utilisé à l'entrée",
+        "annule": "Annulé",
+        "rembourse": "Remboursé"
+      },
+      "offert": "Offert",
+      "codeCourt": "Code court : {code}",
+      "qrAlt": "Code QR du Pass {type} de {nom}, {evenement}",
+      "sansCode": "Le Code QR n'est plus affiché pour ce Pass."
+    },
+    "agrandi": {
+      "bouton": "Agrandir",
+      "pour": "le Code QR du Pass de {nom}",
+      "titre": "Code QR de {nom}",
+      "code": "Code court : {code}",
+      "luminosite": "Augmente la luminosité de ton écran pour que le Code QR soit lu plus facilement."
+    }
   },
   "Communaute": {
     "titre": "Envoyer une photo",

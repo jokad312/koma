@@ -1,5 +1,5 @@
 export type LangueEmail = "fr" | "en";
-export type ModeleEnvoi = "commande_payee" | "kit_ouvert" | "commande_en_fabrication" | "commande_expediee" | "commande_livree" | "commande_annulee" | "commande_remboursee";
+export type ModeleEnvoi = "commande_payee" | "kit_ouvert" | "commande_en_fabrication" | "commande_expediee" | "commande_livree" | "commande_annulee" | "commande_remboursee" | "pass_emis";
 
 // Envoi réservé par le lot : uniquement des identifiants (jamais d'adresse ni de montant).
 export type EnvoiReserve = {
@@ -16,7 +16,10 @@ export type EnvoiReserve = {
 // Envoi lié à un Compte (tous les modèles sauf l'alerte d'un inscrit par email).
 export type EnvoiLie = EnvoiReserve & { compteId: string };
 
-export type MessageEmail = { sujet: string; html: string; texte: string; entetes?: Record<string, string> };
+// pieces : fichiers joints, affichables dans le HTML par leur contentId (« cid: »), par exemple les Codes QR des Pass (story 7.5).
+export type PieceJointe = { nom: string; contenu: Buffer; type: string; contentId: string };
+
+export type MessageEmail = { sujet: string; html: string; texte: string; entetes?: Record<string, string>; pieces?: PieceJointe[] };
 
 // Résultat du rendu, relu en base au moment de l'envoi.
 export type ResultatRendu =

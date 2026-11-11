@@ -5,9 +5,11 @@ import { creerClientService } from "@/lib/supabase/service";
 import { rendreCommandePayee } from "./modeles/commande-payee";
 import { TEXTES } from "./modeles/commun";
 import { rendreKitOuvert } from "./modeles/kit-ouvert";
+import { rendrePassEmis } from "./modeles/pass-emis";
 import { rendreCommandeAnnulee, rendreCommandeEnFabrication, rendreCommandeExpediee, rendreCommandeLivree, rendreCommandeRemboursee } from "./modeles/statut-commande";
 import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
 import { cheminPublic } from "@/i18n/adresses";
+import { formaterDateHeureBoutique } from "@/lib/dates";
 import { lienDesinscription, lienDesinscriptionUnClic } from "@/modules/preferences/lien-desinscription";
 import { rendreNouveauProduit, rendrePanierAbandonne, rendreRappelKit } from "./modeles/commerciaux";
 import { rendreAlerte } from "@/modules/alertes/rendu";
@@ -196,6 +198,45 @@ async function rendre(client: ClientService, brut: EnvoiReserve): Promise<Result
     return { statut: "pret", destinataire, message };
   }
 
+  // Pass émis (story 7.5) : jamais envoyé pour une Commande non payée (ni offerte) ni sans Pass valide. Le contenu (noms, Types, Événement, jetons)
+  // est relu en base au moment du rendu ; l'envoi ne portait que l'identifiant de la Commande.
+  if (envoi.modele === "pass_emis") {
+    if (!STATUTS_PAYES.includes(commande.statut) && commande.statut !== "offerte") return { statut: "ignorer", raison: "commande de Pass non payée" };
+    const { data: lignesPass, error: erreurPass } = await client
+      .from("pass")
+      .select(
+        "id, nom_titulaire, statut, jeton, code_court, rang, cree_le, evenement:evenement_id(titre_fr, titre_en, lieu_fr, lieu_en, debut_le), ligne:ligne_commande_id(pass_nom_fr, pass_nom_en)",
+      )
+      .eq("commande_id", commande.id)
+      .order("cree_le", { ascending: true })
+      .order("rang", { ascending: true });
+    if (erreurPass) return { statut: "reessayer", raison: "lecture des Pass impossible" };
+    const valides = (lignesPass ?? []).filter((p) => p.statut === "valide");
+    if (valides.length === 0) return { statut: "ignorer", raison: "aucun Pass valide" };
+    const un = <T,>(v: T | T[] | null): T | null => (Array.isArray(v) ? (v[0] ?? null) : v);
+    const message = rendrePassEmis(envoi.langue, {
+      nomSite,
+      numero: commande.numero,
+      url: `${site}/${envoi.langue}/compte/pass`,
+      pass: valides.map((p) => {
+        const evenement = un(p.evenement);
+        const ligne = un(p.ligne);
+        const lieu = (envoi.langue === "en" ? evenement?.lieu_en?.trim() : "") || evenement?.lieu_fr?.trim() || null;
+        return {
+          id: p.id,
+          typeNom: ((envoi.langue === "en" ? ligne?.pass_nom_en : null) ?? ligne?.pass_nom_fr ?? "").trim(),
+          nomTitulaire: p.nom_titulaire,
+          evenement: evenement ? titreSelonLangue({ titre_fr: evenement.titre_fr, titre_en: evenement.titre_en }, envoi.langue) : "",
+          date: formaterDateHeureBoutique(evenement?.debut_le, envoi.langue),
+          lieu,
+          codeCourt: p.code_court,
+          jeton: p.jeton,
+        };
+      }),
+    });
+    return { statut: "pret", destinataire, message };
+  }
+
   if (envoi.modele === "kit_ouvert") {
     const produitId = envoi.donnees.produit_id;
     if (!produitId || !STATUTS_KIT.includes(commande.statut)) return { statut: "ignorer", raison: "Kit non indiqué ou commande non ouverte" };
@@ -248,7 +289,18 @@ export function creerDependancesEnvois(config: { cleResend: string; expediteur: 
     },
     envoyer: async ({ envoiId, destinataire, message }) => {
       const { data, error } = await resend.emails.send(
-        { from: config.expediteur, to: destinataire, subject: message.sujet, html: message.html, text: message.texte, ...(message.entetes ? { headers: message.entetes } : {}) },
+        {
+          from: config.expediteur,
+          to: destinataire,
+          subject: message.sujet,
+          html: message.html,
+          text: message.texte,
+          ...(message.entetes ? { headers: message.entetes } : {}),
+          // Pièces jointes affichées dans le message par leur contentId (Codes QR des Pass).
+          ...(message.pieces && message.pieces.length > 0
+            ? { attachments: message.pieces.map((x) => ({ filename: x.nom, content: x.contenu, contentType: x.type, contentId: x.contentId })) }
+            : {}),
+        },
         { idempotencyKey: `koma-envoi-${envoiId}` },
       );
       // Jamais l'adresse ni le contenu dans l'erreur gardée.

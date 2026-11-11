@@ -145,7 +145,9 @@ select throws_ok($$select public.creer_commande_pass(pg_temp.cl('a5'), (select o
 update public.commande set statut = 'expiree' where compte_id = '00000000-0000-0000-0000-0000000000a4';
 select is(public.places_evenement_utilisees((select ok from ev)), 3, 'Commande expirée : 7 places libérées');
 update public.commande set statut = 'payee', paye_le = now() where compte_id = '00000000-0000-0000-0000-0000000000a2';
-select is(public.places_evenement_utilisees((select ok from ev)), 3, 'Commande payée : ses places comptent encore');
+-- Story 7.5 : une Commande payée est comptée par ses Pass émis (confirmer_paiement les émet) ; l'émission est rejouée ici comme le fait le paiement.
+select public.evenements_emettre_pass(id) from public.commande where compte_id = '00000000-0000-0000-0000-0000000000a2' and statut = 'payee';
+select is(public.places_evenement_utilisees((select ok from ev)), 3, 'Commande payée : ses Pass émis comptent encore');
 update public.commande set expire_le = now() - interval '1 minute' where compte_id = '00000000-0000-0000-0000-0000000000a1';
 select is(public.places_evenement_utilisees((select ok from ev)), 1, 'en attente avec échéance dépassée : ne compte plus');
 update public.commande set statut = 'annulee' where compte_id = '00000000-0000-0000-0000-0000000000a2';
