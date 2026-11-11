@@ -83,13 +83,11 @@ describe("textes de l'accueil", () => {
   for (const langue of ["fr", "en"] as const) {
     const accueil = messages[langue].Accueil;
 
-    it(`${langue} : seul le bloc « Jonathan » porte le marqueur`, () => {
-      const marqueurs = trouverMarqueurs(messages[langue], ["Accueil"]);
-      const jonathan = ["Accueil.jonathan.phrase1", "Accueil.jonathan.phrase2", "Accueil.jonathan.phrase3"];
-      // Titre et mention du mur : textes anglais fournis par Jonathan (2026-11-10), plus aucun marqueur.
-      // Titre anglais du bloc 5 : « Otaku meetups », fourni par Jonathan (2026-11-10).
-      expect(marqueurs).toEqual(jonathan);
+    it(`${langue} : plus aucun marqueur, les trois phrases de Jonathan et sa signature sont fournies`, () => {
+      // Phrases et signature : document des textes du 2026-11-11. Titre et mention du mur : fournis le 2026-11-10.
+      expect(trouverMarqueurs(messages[langue], ["Accueil"])).toEqual([]);
       expect(contientMarqueur(accueil.heros.accroche)).toBe(false);
+      expect(accueil.jonathan.signature).toBe("— Jonathan");
     });
 
     it(`${langue} : titres de blocs en majuscules sans accent`, () => {
@@ -110,16 +108,16 @@ describe("textes de l'accueil", () => {
       expect(cheminPublic(langue, "/kits")).toBe("/kits");
     });
 
-    it(`${langue} : la FAQ courte lit les entrées de Faq et n'a aucun JSON-LD tant qu'elles portent le marqueur`, () => {
+    it(`${langue} : la FAQ courte lit les entrées de Faq : trois paires réelles, JSON-LD complet, et une paire au marqueur en est exclue`, () => {
       const elements = QUESTIONS_FAQ_COURTE.map((cle) => ({
         question: messages[langue].Faq.questions[cle].question as string,
         reponse: messages[langue].Faq.questions[cle].reponse as string,
       }));
-      expect(elements.every((e) => e.question === MARQUEUR_TEXTE)).toBe(true);
-      expect(faqJsonLd(elements, { url: "https://exemple.test", langue })).toBeNull();
-      const mixte = [...elements, { question: "Question de test ?", reponse: "Réponse de test." }];
-      const json = faqJsonLd(mixte, { url: "https://exemple.test", langue });
-      expect(json?.mainEntity).toHaveLength(1);
+      expect(elements.some((e) => e.question.includes(MARQUEUR_TEXTE) || e.reponse.includes(MARQUEUR_TEXTE))).toBe(false);
+      expect(faqJsonLd(elements, { url: "https://exemple.test", langue })?.mainEntity).toHaveLength(3);
+      const avecMarqueur = [{ question: MARQUEUR_TEXTE, reponse: MARQUEUR_TEXTE }, ...elements];
+      const json = faqJsonLd(avecMarqueur, { url: "https://exemple.test", langue });
+      expect(json?.mainEntity).toHaveLength(3);
       expect(JSON.stringify(json)).not.toContain(MARQUEUR_TEXTE);
     });
   }

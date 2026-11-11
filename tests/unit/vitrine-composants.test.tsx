@@ -204,11 +204,11 @@ describe("PiedDePage : carte Aide", () => {
     expect(within(aide).getAllByRole("link").map((l) => l.getAttribute("href"))).toEqual(["/faq", "/contact", "/#galerie"]);
   });
 
-  it("carte Infos légales : quatre liens de 44 px vers les pages légales", async () => {
+  it("carte Infos légales : cinq liens de 44 px vers les pages légales et la charte de la galerie", async () => {
     await rendrePied(null);
     const legal = screen.getByRole("region", { name: "Infos légales" });
     const liens = within(legal).getAllByRole("link");
-    expect(liens.map((l) => l.getAttribute("href"))).toEqual(["/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite"]);
+    expect(liens.map((l) => l.getAttribute("href"))).toEqual(["/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite", "/charte-galerie"]);
     for (const l of liens) expect(l.className).toContain("min-h-touch");
   });
 

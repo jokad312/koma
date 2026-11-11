@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { versConnexion } from "@/components/commande/PageCommande";
+import { CharteGalerie } from "@/components/communaute/CharteGalerie";
 import { EnvoiPhotoClient } from "@/components/compte/EnvoiPhotoClient";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
@@ -45,6 +46,7 @@ async function Contenu({ locale }: { locale: Locale }) {
   }
   return (
     <>
+      <CharteGalerie locale={locale} />
       <EnvoiPhotoClient kits={lu.kits} />
       <Link href="/compte/photos" className="t-small inline-flex min-h-touch items-center text-text-primary underline">
         {t("suivre")}

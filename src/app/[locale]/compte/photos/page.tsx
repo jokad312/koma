@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { versConnexion } from "@/components/commande/PageCommande";
+import { CharteGalerie } from "@/components/communaute/CharteGalerie";
 import { EnvoiPhotoClient } from "@/components/compte/EnvoiPhotoClient";
 import { RetirerPhoto } from "@/components/compte/RetirerPhoto";
 import { MessageEtat } from "@/components/ui/MessageEtat";
@@ -35,6 +36,7 @@ async function Contenu({ locale }: { locale: Locale }) {
   if (!lu.ok) return <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>;
   return (
     <>
+      <CharteGalerie locale={locale} />
       {lu.mineur ? <MessageEtat type="information">{t("mineur")}</MessageEtat> : <EnvoiPhotoClient />}
       <section className="flex flex-col gap-3">
         <h3 className="t-h2">{t("mesPhotos.titre")}</h3>

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { MARQUEUR_TEXTE } from "@/lib/vitrine/marqueur";
-import { decouperParagraphes, formaterVersion, PAGES_LEGALES } from "@/lib/vitrine/pages-legales";
+import { decouperParagraphes, formaterVersion, PAGES_LEGALES, PAGES_SANS_VERSION } from "@/lib/vitrine/pages-legales";
 
 describe("pages légales", () => {
   it("version ISO : date formatée selon la langue, avec l'attribut datetime", () => {
@@ -20,13 +20,13 @@ describe("pages légales", () => {
     expect(decouperParagraphes("  ")).toEqual([]);
   });
 
-  it("quatre pages, et chaque page a ses clés dans les deux langues", () => {
-    expect(PAGES_LEGALES.map((p) => p.chemin)).toEqual(["/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite"]);
+  it("cinq pages (la charte de la galerie sans version), et chaque page a ses clés dans les deux langues", () => {
+    expect(PAGES_LEGALES.map((p) => p.chemin)).toEqual(["/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite", "/charte-galerie"]);
     for (const langue of ["fr", "en"]) {
       const m = JSON.parse(readFileSync(`messages/${langue}.json`, "utf8"));
       for (const { cle } of PAGES_LEGALES) {
         expect(m.Legal[cle].texte, `${langue} Legal.${cle}.texte`).toBeTruthy();
-        expect(m.Legal[cle].version).toBeTruthy();
+        if (!PAGES_SANS_VERSION.includes(cle)) expect(m.Legal[cle].version).toBeTruthy();
         expect(m.Metadata.legal[cle].titre).toBeTruthy();
         expect(m.Pied.legal[cle]).toBeTruthy();
       }

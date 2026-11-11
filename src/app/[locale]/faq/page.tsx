@@ -10,10 +10,10 @@ import { JsonLd } from "@/lib/seo/balise-jsonld";
 import { faqJsonLd, pageWebJsonLd } from "@/lib/seo/jsonld";
 import { construireMetadata } from "@/lib/seo/metadata";
 import { urlLocalisee } from "@/lib/seo/url";
+import { GROUPES_FAQ } from "@/lib/vitrine/faq";
 
 const CHEMIN = "/faq";
-// Questions de la FAQ, dans l'ordre d'affichage. Chaque question et chaque réponse viennent de Jonathan (marqueur tant qu'elles manquent).
-const QUESTIONS = ["paiement", "livraison", "delais"] as const;
+// Groupes et questions de la FAQ, dans l'ordre d'affichage (lib/vitrine/faq.ts). Chaque texte vient de Jonathan (messages/*.json).
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/faq">): Promise<Metadata> {
   const { locale } = await params;
@@ -28,7 +28,11 @@ export default async function Faq({ params }: PageProps<"/[locale]/faq">) {
   setRequestLocale(locale);
   const t = await getTranslations("Faq");
   const tm = await getTranslations("Metadata.faq");
-  const elements: ElementFaq[] = QUESTIONS.map((cle) => ({ cle, question: t(`questions.${cle}.question`), reponse: t(`questions.${cle}.reponse`) }));
+  const groupes = GROUPES_FAQ.map((g) => ({
+    cle: g.cle,
+    elements: g.questions.map((cle): ElementFaq => ({ cle, question: t(`questions.${cle}.question`), reponse: t(`questions.${cle}.reponse`) })),
+  }));
+  const elements = groupes.flatMap((g) => g.elements);
   const url = urlLocalisee(locale, CHEMIN);
   // FAQPage des seules vraies paires ; aucune paire réelle : WebPage.
   const donnees =
@@ -38,9 +42,14 @@ export default async function Faq({ params }: PageProps<"/[locale]/faq">) {
     <section className="flex flex-col items-start gap-6">
       <JsonLd donnees={donnees} />
       <TitreVitrine niveau={1}>{t("titre")}</TitreVitrine>
-      <div className="w-full">
-        <QuestionsFaq elements={elements} />
-      </div>
+      {groupes.map((g) => (
+        <section key={g.cle} aria-labelledby={`faq-${g.cle}`} className="flex w-full flex-col gap-3">
+          <h2 id={`faq-${g.cle}`} className="t-h2">
+            {t(`groupes.${g.cle}`)}
+          </h2>
+          <QuestionsFaq elements={g.elements} />
+        </section>
+      ))}
     </section>
   );
 }

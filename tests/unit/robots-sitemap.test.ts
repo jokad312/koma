@@ -58,9 +58,11 @@ describe("sitemap", () => {
       "http://localhost:3000/en/livraison-et-retours",
       "http://localhost:3000/fr/confidentialite",
       "http://localhost:3000/en/confidentialite",
+      "http://localhost:3000/fr/charte-galerie",
+      "http://localhost:3000/en/charte-galerie",
     ]);
     // Catalogues : adresse propre à chaque langue (vérifiée dans adresses-langues.test.ts).
-    for (const chemin of ["", "/cosplays", "/kits", "/blog", "/a-propos", "/faq", "/contact", "/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite"]) {
+    for (const chemin of ["", "/cosplays", "/kits", "/blog", "/a-propos", "/faq", "/contact", "/mentions-legales", "/cgv", "/livraison-et-retours", "/confidentialite", "/charte-galerie"]) {
       const e = entrees.find((x) => x.url === `http://localhost:3000/fr${chemin}`);
       expect(e?.alternates?.languages).toEqual({
         fr: `http://localhost:3000/fr${chemin}`,
@@ -104,7 +106,7 @@ describe("sitemap", () => {
     expect(urls).toContain("http://localhost:3000/fr/cosplays");
     expect(urls).toContain("http://localhost:3000/en/accessories");
     expect(urls).toContain("http://localhost:3000/fr/blog");
-    expect(urls).toHaveLength(24);
+    expect(urls).toHaveLength(26);
     expect(erreur).toHaveBeenCalled();
     erreur.mockRestore();
   });

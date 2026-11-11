@@ -149,7 +149,8 @@ describe("FicheKit", () => {
     expect(html).toContain("TEST_Patron · PDF A4 · 2 Ko");
     expect(html).toContain("TEST_Intro");
     expect(html).toContain("1:15");
-    expect(html).toContain(fr.Kit.licence.texte.replace(/'/g, "&#x27;"));
+    // La licence est découpée en paragraphes : chacun est rendu tel quel.
+    for (const paragraphe of fr.Kit.licence.texte.split(/\n\s*\n/)) expect(html).toContain(paragraphe.split("\n")[0].replace(/'/g, "&#x27;"));
     expect(html).toContain(`poster="https://vz-test.b-cdn.net/${EXTRAIT}/thumbnail.jpg"`);
     expect(html).toContain(`src="https://vz-test.b-cdn.net/${EXTRAIT}/captions/fr.vtt"`);
     expect(html).toMatch(/<video[^>]*controls/);

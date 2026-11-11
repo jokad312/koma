@@ -11,6 +11,8 @@ import { pageWebJsonLd } from "@/lib/seo/jsonld";
 import { construireMetadata } from "@/lib/seo/metadata";
 import { urlLocalisee } from "@/lib/seo/url";
 
+import { decouperParagraphes } from "@/lib/vitrine/pages-legales";
+
 const CHEMIN = "/a-propos";
 // Sections dont le texte est fourni par Jonathan (marqueur « [Texte à fournir] » tant qu'il manque).
 const SECTIONS = ["portrait", "histoire", "atelier"] as const;
@@ -29,6 +31,7 @@ export default async function APropos({ params }: PageProps<"/[locale]/a-propos"
   const t = await getTranslations("APropos");
   const tm = await getTranslations("Metadata.aPropos");
   const numero = await lireNumeroWhatsappOuNull();
+  const nomSite = await lireNomSite();
 
   return (
     <section className="flex flex-col items-start gap-6">
@@ -39,7 +42,11 @@ export default async function APropos({ params }: PageProps<"/[locale]/a-propos"
           <h2 id={`a-propos-${cle}`} className="t-h3">
             {t(`${cle}.titre`)}
           </h2>
-          <p className="t-body text-text-secondary">{t(`${cle}.texte`)}</p>
+          {decouperParagraphes(t(`${cle}.texte`, { nomSite })).map((paragraphe, i) => (
+            <p key={i} className="t-body text-text-secondary">
+              {paragraphe}
+            </p>
+          ))}
         </section>
       ))}
       <BoutonWhatsApp numero={numero} />

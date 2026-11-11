@@ -5,6 +5,7 @@ import { rendre } from "./aides-dom";
 
 const etat = vi.hoisted(() => ({ version: "2026-11-01", texte: "Premier paragraphe.\nLigne suivante.\n\nSecond paragraphe." }));
 vi.mock("server-only", () => ({}));
+vi.mock("@/lib/reglages", () => ({ lireNomSite: async () => "TEST_Boutique" }));
 vi.mock("@/lib/seo/url", () => ({ urlLocalisee: (l: string, c: string) => `http://test/${l}${c}` }));
 vi.mock("next-intl/server", async () => {
   const { createTranslator } = await import("next-intl");

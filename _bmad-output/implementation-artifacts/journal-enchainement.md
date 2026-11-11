@@ -450,3 +450,8 @@
 - Correctif de migration : `{1,500}` dépasse la limite de 255 des expressions régulières PostgreSQL (migration `20270111120000`).
 - À tester à la main : voir la spec (lien, affichage public, un seul email par acheteur).
 - Rappel de méthode : un test Vitest (`commande-ui`, étranger à la 7.9) échoue par intermittence quand toute la suite tourne en parallèle ; il passe seul. Un commit de la 7.9 est parti avant d'avoir relu ce résultat : la suite a été relancée (verte) et la CI de la 7.9 est verte. Désormais, commit conditionné au code de sortie des vérifications.
+
+
+## Textes du site (2026-11-11)
+- Document de Jonathan « Textes du site (version complète) » repris sans reformulation (FR et EN) : Accueil (3 phrases et signature), À propos, FAQ (24 questions en 5 groupes), licence des kits, mentions légales, CGV, livraison et retours, confidentialité, charte de la galerie (nouvelle page /charte-galerie, aussi affichée au-dessus des formulaires de photo et de Réalisation). « KOMA SHOP » devient {nomSite} (le nom vient des réglages).
+- Restent au marqueur : faits non fournis (adresse, RCCM, NIF, frais, délais, dates de version…) et « Choix » non tranchés. Le build de production reste bloqué tant qu'ils sont là (comportement voulu).

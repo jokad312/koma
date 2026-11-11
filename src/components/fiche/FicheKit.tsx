@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { decouperParagraphes } from "@/lib/vitrine/pages-legales";
 import { TitreVitrine } from "@/components/ui/TitreVitrine";
 import { cheminPublic } from "@/i18n/adresses";
 import { Link } from "@/i18n/navigation";
@@ -178,7 +179,11 @@ export async function FicheKit({ fiche, locale, hoteCdn }: Props) {
         <h2 id="kit-licence" className="t-h2">
           {t("licence.titre")}
         </h2>
-        <p className="t-body text-text-primary">{t("licence.texte")}</p>
+        {decouperParagraphes(t("licence.texte")).map((paragraphe, i) => (
+          <p key={i} className="t-body whitespace-pre-line text-text-primary">
+            {paragraphe}
+          </p>
+        ))}
       </section>
     </article>
   );

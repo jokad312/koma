@@ -68,21 +68,22 @@ describe("BlocCosplaysRecents", () => {
 describe("BlocFaqCourte", () => {
   const jsonLd = (c: HTMLElement) => Array.from(c.querySelectorAll('script[type="application/ld+json"]')).map((s) => s.textContent ?? "");
 
-  it("tout au marqueur : trois questions rendues, aucun JSON-LD", async () => {
+  it("textes fournis : trois questions rendues et FAQPage de ces trois paires, sans marqueur", async () => {
     const { container } = rendre(await BlocFaqCourte({ locale: "fr" }));
     expect(container.querySelectorAll("details")).toHaveLength(3);
     expect(screen.getAllByRole("heading", { level: 2 })).toHaveLength(1);
-    expect(jsonLd(container)).toEqual([]);
+    const blocs = jsonLd(container);
+    expect(blocs).toHaveLength(1);
+    expect(JSON.parse(blocs[0]).mainEntity).toHaveLength(3);
+    expect(blocs[0]).not.toContain(MARQUEUR);
   });
 
-  it("paires réelles : FAQPage présent, sans aucune occurrence du marqueur", async () => {
+  it("une paire au marqueur : FAQPage des deux autres, sans aucune occurrence du marqueur", async () => {
     const reel = structuredClone(fr) as typeof fr;
     const q = reel.Faq.questions;
-    q.paiement.question = "Question de test 1 ?";
-    q.paiement.reponse = "Réponse de test 1.";
-    q.livraison.question = "Question de test 2 ?";
-    q.livraison.reponse = "Réponse de test 2.";
-    // « delais » garde le marqueur : sa paire est exclue du JSON-LD mais reste affichée.
+    q.delais.question = MARQUEUR;
+    q.delais.reponse = MARQUEUR;
+    // « delais » porte le marqueur : sa paire est exclue du JSON-LD mais reste affichée.
     faux.messages = reel;
     const { container } = rendre(await BlocFaqCourte({ locale: "fr" }));
     expect(container.querySelectorAll("details")).toHaveLength(3);

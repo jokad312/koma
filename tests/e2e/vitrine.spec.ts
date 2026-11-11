@@ -13,6 +13,7 @@ const PAGES = [
   { chemin: "cgv", h1: { fr: "Conditions générales de vente", en: "Terms and conditions of sale" } },
   { chemin: "livraison-et-retours", h1: { fr: "Livraison et retours", en: "Delivery and returns" } },
   { chemin: "confidentialite", h1: { fr: "Politique de confidentialité", en: "Privacy policy" } },
+  { chemin: "charte-galerie", h1: { fr: "Charte de la galerie « Ils le portent »", en: "Gallery charter" } },
 ] as const;
 const LANGUES = ["fr", "en"] as const;
 
@@ -73,7 +74,8 @@ test("la FAQ sans paire réelle ne publie pas de FAQPage", async ({ page }) => {
 test("FAQ : accordéons au clavier, plusieurs ouverts à la fois", async ({ page }) => {
   await ouvrir(page, "/fr/faq");
   const resumes = page.locator("main summary");
-  await expect(resumes).toHaveCount(3);
+  // 24 questions en 5 groupes (document des textes du 2026-11-11).
+  await expect(resumes).toHaveCount(24);
   await resumes.nth(0).focus();
   await page.keyboard.press("Enter");
   await resumes.nth(1).focus();

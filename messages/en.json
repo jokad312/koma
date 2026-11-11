@@ -44,6 +44,10 @@
       "confidentialite": {
         "titre": "Privacy policy",
         "description": "Privacy policy of the shop."
+      },
+      "charte": {
+        "titre": "Gallery charter",
+        "description": "Rules of the community gallery."
       }
     },
     "cosplays": {
@@ -159,9 +163,10 @@
     },
     "jonathan": {
       "titre": "JONATHAN IN THREE SENTENCES",
-      "phrase1": "[Texte à fournir]",
-      "phrase2": "[Texte à fournir]",
-      "phrase3": "[Texte à fournir]"
+      "phrase1": "Every costume is cut, sewn and finished by hand, here in Goma.",
+      "phrase2": "Wear it as it is, or make it yourself with my kits and videos.",
+      "phrase3": "I answer every message myself: write to me and let's talk.",
+      "signature": "— Jonathan"
     },
     "faqCourte": {
       "titre": "QUICK ANSWERS",
@@ -223,7 +228,8 @@
       "mentions": "Legal notice",
       "cgv": "Terms and conditions of sale",
       "livraison": "Delivery and returns",
-      "confidentialite": "Privacy policy"
+      "confidentialite": "Privacy policy",
+      "charte": "Gallery charter"
     },
     "paiement": {
       "titre": "Payment",
@@ -2424,31 +2430,122 @@
     "titre": "Jonathan and his workshop",
     "portrait": {
       "titre": "Portrait",
-      "texte": "[Texte à fournir]"
+      "texte": "Handmade in Goma, for otakus.\n\nEvery cosplay and accessory is handmade by Jonathan in Goma. No factory, no endless stock: carefully crafted pieces, made one by one and delivered by hand.\n\n{nomSite} is run by NATHANGROUP SARL, a Congolese company based in Goma."
     },
     "histoire": {
       "titre": "Story",
-      "texte": "[Texte à fournir]"
+      "texte": "{nomSite} was born from a simple wish: that anime, manga and video game fans in the DRC could finally wear their favourite characters, without waiting for a parcel from the other side of the world.\n\nAnd because cosplay is better together, we also run festivals in Goma, to meet up, take the stage and share our creations."
     },
     "atelier": {
       "titre": "Workshop",
-      "texte": "[Texte à fournir]"
+      "texte": "Prefer to make it yourself? Our crafting kits give you the patterns, the files and a video split into chapters, so you can move at your own pace, wherever you are."
     }
   },
   "Faq": {
     "titre": "FAQ",
+    "groupes": {
+      "commande": "Orders and payment",
+      "expedition": "Delivery and made-to-measure",
+      "kits": "Digital kits",
+      "festival": "Festival, Passes and Stands",
+      "compte": "Account and emails"
+    },
     "questions": {
       "paiement": {
-        "question": "[Texte à fournir]",
-        "reponse": "[Texte à fournir]"
+        "question": "How can I pay?",
+        "reponse": "By mobile money (Airtel Money, Orange Money or M-Pesa depending on your network) or by Visa or Mastercard. Available methods are shown at checkout, based on your country and cart."
+      },
+      "devise": {
+        "question": "What currency are prices in?",
+        "reponse": "US dollars (USD). The exact total, including delivery, is shown before you pay."
+      },
+      "attente": {
+        "question": "My payment is pending. What should I do?",
+        "reponse": "Approve the request on your phone if your network asks you to. The page updates by itself. Your order is only confirmed once the payment is verified, and you then receive an email."
+      },
+      "debite": {
+        "question": "I was charged but my order isn't confirmed.",
+        "reponse": "Don't worry: we check every payment with the provider. Write to us with your order number and we'll sort it out."
+      },
+      "codePromo": {
+        "question": "Where do I enter a promo code?",
+        "reponse": "At checkout, in the “Promo code” field. The discount is shown before you pay."
+      },
+      "compte": {
+        "question": "Do I need an account?",
+        "reponse": "Yes, to place an order: it lets you track your orders and find your kits. Sign in with a code sent by email, or with Google."
       },
       "livraison": {
-        "question": "[Texte à fournir]",
-        "reponse": "[Texte à fournir]"
+        "question": "Where do you deliver?",
+        "reponse": "In Goma and Bukavu. Pickup in Goma is also available. Areas and exact fees are shown before you pay."
       },
       "delais": {
-        "question": "[Texte à fournir]",
-        "reponse": "[Texte à fournir]"
+        "question": "How long does it take?",
+        "reponse": "It's shown on each product page. In-stock items leave quickly; made-to-order items take longer."
+      },
+      "mesures": {
+        "question": "How do I send my measurements?",
+        "reponse": "After ordering, tap “Send my measurements on WhatsApp”: the message already includes your order number. Making starts once we receive your measurements."
+      },
+      "horsZone": {
+        "question": "I'm not in Goma or Bukavu.",
+        "reponse": "Digital kits are available worldwide: you make the costume yourself."
+      },
+      "defaut": {
+        "question": "My item has a defect.",
+        "reponse": "Report it from “My orders” within 48 hours of delivery, with a photo. We'll offer an alteration, a replacement or a refund."
+      },
+      "contenuKit": {
+        "question": "What's in a kit?",
+        "reponse": "Patterns and files (PDF, SVG or STL depending on the kit) and a tutorial video split into chapters."
+      },
+      "accesKit": {
+        "question": "How do I access it?",
+        "reponse": "As soon as payment is confirmed, in “My account › My library”. Your access is permanent."
+      },
+      "videoKit": {
+        "question": "Can I download the video?",
+        "reponse": "No, you watch it online from your account. Playback resumes where you left off."
+      },
+      "partageKit": {
+        "question": "Can I share my files?",
+        "reponse": "No: they are licensed to you for personal use. See the kit licence."
+      },
+      "kitGratuit": {
+        "question": "Is there a free kit?",
+        "reponse": "Yes, to try us out: get it for free from its page."
+      },
+      "acheterPass": {
+        "question": "How do I buy a Pass?",
+        "reponse": "On the event page, while sales are open. Your Pass and its QR code are in your account."
+      },
+      "passNominatif": {
+        "question": "Is my Pass personal?",
+        "reponse": "Yes, it carries the name of the person attending."
+      },
+      "stand": {
+        "question": "How do I get a Stand?",
+        "reponse": "Apply from the event page: describe what you sell, add 3 photos and your Instagram. If accepted, you receive a payment link valid for 48 hours. A Stand includes 2 Passes: yours and your helper's."
+      },
+      "produitsStand": {
+        "question": "What can I sell on a Stand?",
+        "reponse": "Only your own creations. No counterfeits."
+      },
+      "prevenir": {
+        "question": "I want to hear about the next sale.",
+        "reponse": "Tap “Notify me” on the event page."
+      },
+      "desinscription": {
+        "question": "How do I stop your emails?",
+        "reponse": "Click “Unsubscribe” at the bottom of an email, or set your choices in “My account › Preferences”. Emails about your orders are still sent."
+      },
+      "photo": {
+        "question": "How do I share my cosplay photo?",
+        "reponse": "From “My account › Send a photo”. It's published in the gallery after review, and you can ask for it to be removed at any time."
+      },
+      "contact": {
+        "question": "How do I contact you?",
+        "reponse": "Through the contact form or on WhatsApp. We answer personally."
       }
     }
   },
@@ -2494,13 +2591,17 @@
     },
     "livraison": {
       "titre": "Delivery and returns",
-      "texte": "[Texte à fournir]",
+      "texte": "We deliver ourselves in Goma and Bukavu, with free pickup in Goma. Fees and lead times are shown before you pay. For made-to-measure items, tap “Send my measurements on WhatsApp” after ordering: making starts when we receive them, and the site does not store them. Report any defect from “My orders” within 48 hours of delivery, with a photo: we offer an alteration, a replacement or a refund. Ready-to-wear items can be returned within [Texte à fournir] (number) days if unworn and complete; made-to-measure items cannot be returned unless defective. Refunds go back to your original payment method.",
       "version": "[Texte à fournir]"
     },
     "confidentialite": {
       "titre": "Privacy policy",
       "texte": "[Texte à fournir]\n\nWe measure site traffic anonymously, without cookies or third-party tools: page viewed, the site you came from (its name only), language and device type. This data cannot identify you.",
       "version": "[Texte à fournir]"
+    },
+    "charte": {
+      "titre": "Gallery charter",
+      "texte": "The gallery shows our community's cosplays. To keep it safe and friendly:\n\n• Your photo, your consent: send a photo of yourself, or of someone who agreed. You must have the right to share it.\n• 18 and over: we don't publish photos of anyone under 18.\n• Review: every photo is checked before publication. We may decline a photo without giving a reason.\n• Respect: no nudity, violence, hate or advertising.\n• Privacy: photos are published with your username only, without your city or GPS location.\n• Removal: you can ask for your photo to be removed at any time from “My account”; it disappears from the gallery.\n• Builds: if you made your costume with one of our kits, your photo can carry the “Made with a kit” label."
     }
   },
   "Catalogue": {
@@ -2844,7 +2945,7 @@
     },
     "licence": {
       "titre": "Kit license",
-      "texte": "The files and the video of this kit are for your personal use only. You may not resell, share or distribute them."
+      "texte": "Kit patterns, files and videos are works of NATHANGROUP SARL, protected by copyright. When you buy or get a kit, you receive a personal, non-exclusive, non-transferable licence.\n\nYou may:\n• make the costume or accessory for yourself, as many times as you like;\n• print the patterns for your own use;\n• wear your creation, photograph it and share it on social media, crediting the kit if you wish.\n\nYou may not:\n• share, resell, publish or upload the files or the video, even for free;\n• use the patterns to create a competing product or another kit.\n\n[Texte à fournir] (choice to make: “You may not sell items made with the kit.” or “You may sell up to [Texte à fournir] (number) items made with the kit, handmade by you.”)\n\nPDFs carry a watermark with your name. Unlawful sharing may lead to your access being suspended, without prejudice to our other rights."
     },
     "extrait": {
       "titre": "Tutorial preview",

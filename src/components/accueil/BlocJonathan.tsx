@@ -18,6 +18,7 @@ export function BlocJonathan() {
             {t(cle)}
           </p>
         ))}
+        <p className="t-label text-text-primary">{t("signature")}</p>
       </div>
     </section>
   );

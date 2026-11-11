@@ -44,6 +44,10 @@
       "confidentialite": {
         "titre": "Politique de confidentialité",
         "description": "Politique de confidentialité de la boutique."
+      },
+      "charte": {
+        "titre": "Charte de la galerie",
+        "description": "Règles de la galerie « Ils le portent »."
       }
     },
     "cosplays": {
@@ -159,9 +163,10 @@
     },
     "jonathan": {
       "titre": "JONATHAN EN TROIS PHRASES",
-      "phrase1": "[Texte à fournir]",
-      "phrase2": "[Texte à fournir]",
-      "phrase3": "[Texte à fournir]"
+      "phrase1": "Chaque costume est coupé, cousu et fini à la main, ici à Goma.",
+      "phrase2": "Tu peux le porter tel quel, ou le fabriquer toi-même avec mes kits et mes vidéos.",
+      "phrase3": "Je réponds moi-même à chaque message : écris-moi, on en parle.",
+      "signature": "— Jonathan"
     },
     "faqCourte": {
       "titre": "REPONSES RAPIDES",
@@ -223,7 +228,8 @@
       "mentions": "Mentions légales",
       "cgv": "Conditions générales de vente",
       "livraison": "Livraison et retours",
-      "confidentialite": "Politique de confidentialité"
+      "confidentialite": "Politique de confidentialité",
+      "charte": "Charte de la galerie"
     },
     "paiement": {
       "titre": "Paiement",
@@ -2424,31 +2430,122 @@
     "titre": "Jonathan et son atelier",
     "portrait": {
       "titre": "Portrait",
-      "texte": "[Texte à fournir]"
+      "texte": "Fait main à Goma, pour les otakus.\n\nChaque cosplay et chaque accessoire est créé à la main par Jonathan, à Goma. Pas d'usine, pas de stock à l'infini : des pièces fabriquées avec soin, une à une, et livrées en main propre.\n\n{nomSite} est une activité de NATHANGROUP SARL, société congolaise basée à Goma."
     },
     "histoire": {
       "titre": "Histoire",
-      "texte": "[Texte à fournir]"
+      "texte": "{nomSite} est né d'une envie simple : que les fans d'animés, de mangas et de jeux vidéo en RDC puissent enfin porter leurs personnages préférés, sans attendre un colis de l'autre bout du monde.\n\nEt parce que le cosplay se vit ensemble, nous organisons aussi des festivals à Goma, pour se retrouver, défiler et partager nos créations."
     },
     "atelier": {
       "titre": "Atelier",
-      "texte": "[Texte à fournir]"
+      "texte": "Tu préfères créer toi-même ? Nos kits de fabrication te donnent les patrons, les fichiers et une vidéo découpée en chapitres, pour avancer à ton rythme, où que tu sois."
     }
   },
   "Faq": {
     "titre": "FAQ",
+    "groupes": {
+      "commande": "Commande et paiement",
+      "expedition": "Livraison et sur mesure",
+      "kits": "Kits numériques",
+      "festival": "Festival, Pass et Stands",
+      "compte": "Compte et emails"
+    },
     "questions": {
       "paiement": {
-        "question": "[Texte à fournir]",
-        "reponse": "[Texte à fournir]"
+        "question": "Comment payer ?",
+        "reponse": "Par mobile money (Airtel Money, Orange Money, M-Pesa selon ton opérateur) ou par carte Visa ou Mastercard. Les moyens disponibles s'affichent au moment de payer, selon ton pays et ton panier."
+      },
+      "devise": {
+        "question": "En quelle devise sont les prix ?",
+        "reponse": "En dollars américains (USD). Le total exact, livraison comprise, s'affiche avant de payer."
+      },
+      "attente": {
+        "question": "Mon paiement est en attente, que faire ?",
+        "reponse": "Valide la demande sur ton téléphone si ton opérateur te la propose. La page se met à jour toute seule. Ta commande n'est confirmée que quand le paiement est vérifié : tu reçois alors un email."
+      },
+      "debite": {
+        "question": "Mon argent a été débité mais la commande n'est pas confirmée.",
+        "reponse": "Pas de panique : nous vérifions chaque paiement auprès du prestataire. Écris-nous avec ton numéro de commande, nous réglons ça."
+      },
+      "codePromo": {
+        "question": "J'ai un code promo, où le mettre ?",
+        "reponse": "À l'étape de commande, dans le champ « Code promo ». La réduction s'affiche avant de payer."
+      },
+      "compte": {
+        "question": "Dois-je créer un compte ?",
+        "reponse": "Oui pour commander : il te permet de suivre tes commandes et de retrouver tes kits. Tu te connectes avec un code reçu par email, ou avec Google."
       },
       "livraison": {
-        "question": "[Texte à fournir]",
-        "reponse": "[Texte à fournir]"
+        "question": "Où livrez-vous ?",
+        "reponse": "À Goma et à Bukavu. Le retrait à Goma est aussi possible. Les zones et les frais exacts s'affichent avant de payer."
       },
       "delais": {
-        "question": "[Texte à fournir]",
-        "reponse": "[Texte à fournir]"
+        "question": "Quel est le délai ?",
+        "reponse": "Il est indiqué sur chaque fiche produit. Une pièce en stock part vite ; une pièce fabriquée sur commande demande plus de temps."
+      },
+      "mesures": {
+        "question": "Comment envoyer mes mesures pour un costume sur mesure ?",
+        "reponse": "Après ta commande, touche « Envoyer mes mesures sur WhatsApp » : le message contient déjà ton numéro de commande. La fabrication commence à la réception de tes mesures."
+      },
+      "horsZone": {
+        "question": "Je ne suis pas à Goma ni à Bukavu.",
+        "reponse": "Les kits numériques sont accessibles partout dans le monde : tu fabriques ton costume toi-même."
+      },
+      "defaut": {
+        "question": "Mon article a un défaut.",
+        "reponse": "Signale-le depuis « Mes commandes » dans les 48 h après la livraison, avec une photo. Nous proposons une retouche, un remplacement ou un remboursement."
+      },
+      "contenuKit": {
+        "question": "Que contient un kit ?",
+        "reponse": "Les patrons et fichiers (PDF, SVG ou STL selon le kit) et une vidéo tutorielle découpée en chapitres."
+      },
+      "accesKit": {
+        "question": "Comment y accéder ?",
+        "reponse": "Dès le paiement confirmé, dans « Mon compte › Ma bibliothèque ». Ton accès est permanent."
+      },
+      "videoKit": {
+        "question": "Puis-je télécharger la vidéo ?",
+        "reponse": "Non, elle se regarde en ligne depuis ton compte. La lecture reprend là où tu t'es arrêté."
+      },
+      "partageKit": {
+        "question": "Puis-je partager mes fichiers ?",
+        "reponse": "Non : ils sont à ton nom et pour ton usage personnel. Voir la licence des kits."
+      },
+      "kitGratuit": {
+        "question": "Y a-t-il un kit gratuit ?",
+        "reponse": "Oui, pour découvrir : il s'obtient sans payer depuis sa fiche."
+      },
+      "acheterPass": {
+        "question": "Comment acheter un Pass ?",
+        "reponse": "Sur la page de l'événement, quand la vente est ouverte. Ton Pass, avec son QR code, est dans ton compte."
+      },
+      "passNominatif": {
+        "question": "Mon Pass est-il nominatif ?",
+        "reponse": "Oui, il porte le nom de la personne qui vient."
+      },
+      "stand": {
+        "question": "Comment avoir un Stand ?",
+        "reponse": "Candidate depuis la page de l'événement : décris ce que tu vends, ajoute 3 photos et ton Instagram. Si ta candidature est acceptée, tu reçois un lien de paiement valable 48 h. Un Stand donne 2 Pass : le tien et celui de ton aide."
+      },
+      "produitsStand": {
+        "question": "Quels produits sont acceptés sur un Stand ?",
+        "reponse": "Uniquement tes propres créations. Aucune contrefaçon."
+      },
+      "prevenir": {
+        "question": "Je veux être prévenu de la prochaine vente.",
+        "reponse": "Touche « Me prévenir » sur la page de l'événement."
+      },
+      "desinscription": {
+        "question": "Comment ne plus recevoir vos emails ?",
+        "reponse": "Clique sur « Me désinscrire » en bas d'un email, ou règle tes choix dans « Mon compte › Préférences ». Les emails liés à tes commandes restent envoyés."
+      },
+      "photo": {
+        "question": "Comment partager ma photo en cosplay ?",
+        "reponse": "Depuis « Mon compte › Envoyer une photo ». Elle est publiée dans la galerie après validation, et tu peux demander son retrait à tout moment."
+      },
+      "contact": {
+        "question": "Comment nous contacter ?",
+        "reponse": "Par le formulaire de contact ou sur WhatsApp. Nous répondons nous-mêmes."
       }
     }
   },
@@ -2484,23 +2581,27 @@
     "versionDu": "Version du",
     "mentions": {
       "titre": "Mentions légales",
-      "texte": "[Texte à fournir]",
+      "texte": "Éditeur\n\nLe site {nomSite} ([Texte à fournir] : nom de domaine) est édité par NATHANGROUP SARL, société à responsabilité limitée de droit congolais, régie par les Actes uniformes de l'OHADA.\n\n• Siège social : [Texte à fournir] (adresse complète), Goma, Nord-Kivu, République démocratique du Congo\n• RCCM : [Texte à fournir]\n• Identification nationale : [Texte à fournir]\n• NIF : [Texte à fournir]\n• Email : [Texte à fournir]\n• Téléphone et WhatsApp : [Texte à fournir]\n• Directeur de la publication : Jonathan Manduara Tshimpaka, gérant\n\nHébergement et prestataires techniques\n\n• Site web : Hostinger ([Texte à fournir] : entité indiquée sur ta facture), serveur situé en France.\n• Comptes et base de données : Supabase, serveurs à Paris (France).\n• Vidéos : Bunny.net (BunnyWay d.o.o., Slovénie).\n\nPropriété intellectuelle\n\nLe nom {nomSite}, les logos, les photos, les textes, les patrons, les fichiers et les vidéos appartiennent à NATHANGROUP SARL ou sont utilisés avec l'accord de leurs auteurs. Toute reproduction ou diffusion sans autorisation écrite est interdite. Les photos de la galerie appartiennent à leurs auteurs, qui nous ont autorisés à les publier. Le bouton « Continuer avec Google » et son logo appartiennent à Google LLC.\n\nŒuvres de fans\n\nNos créations sont inspirées d'œuvres de fiction (animés, mangas, jeux vidéo). Les noms de ces œuvres et de leurs personnages appartiennent à leurs titulaires. {nomSite} n'est ni affilié à eux, ni approuvé par eux : ces noms servent uniquement à décrire l'inspiration d'un produit. Si tu détiens des droits et estimes qu'un produit y porte atteinte, écris-nous : nous examinerons ta demande rapidement.",
       "version": "[Texte à fournir]"
     },
     "cgv": {
       "titre": "Conditions générales de vente",
-      "texte": "[Texte à fournir]",
+      "texte": "1. Vendeur\n\nLes ventes sont faites par NATHANGROUP SARL (voir les mentions légales). Pour un panier composé uniquement de kits numériques, le paiement passe par Polar (Polar Software, Inc., États-Unis), qui agit comme revendeur officiel ; ses conditions d'achat s'appliquent alors en plus des présentes.\n\n2. Produits\n\n• Articles physiques : cosplays et accessoires faits main à Goma, en stock ou fabriqués sur commande, parfois sur mesure.\n• Kits numériques : fichiers (PDF, SVG ou STL) et vidéo tutorielle, sous la licence des kits.\n• Pass d'événement et Stands pour nos festivals.\n\nChaque pièce étant faite à la main, de légères différences avec les photos sont possibles et ne constituent pas un défaut.\n\n3. Compte\n\nUn compte est nécessaire pour commander. Tu dois y déclarer ton âge. [Texte à fournir] (choix à trancher : « Il faut avoir au moins 18 ans pour commander. » ou « Si tu as moins de 18 ans, commande avec l'accord d'un parent ou tuteur. »)\n\n4. Prix\n\nLes prix sont en dollars américains (USD). [Texte à fournir] (préciser après avis du comptable si les prix incluent les taxes applicables.) Les frais de livraison et les réductions sont calculés par le site et affichés avant le paiement. Le prix appliqué est celui affiché au moment de la commande.\n\n5. Codes promo\n\nUn code promo s'applique à l'étape de commande, dans la limite de son nombre d'utilisations et tant qu'il est actif. Il n'est ni cumulable avec un autre code, ni échangeable contre de l'argent. Il ne s'applique pas aux frais de livraison.\n\n6. Commande et paiement\n\nLa commande est confirmée uniquement quand le prestataire de paiement nous confirme le paiement : tu reçois alors un email. Une commande non payée dans le délai affiché expire, et les articles réservés sont libérés.\n\nMoyens de paiement : mobile money (via MaishaPay ou PawaPay selon ton pays et ton opérateur), carte Visa ou Mastercard (via MaishaPay), et Polar pour les paniers 100 % numériques. Nous ne voyons jamais ton numéro de carte ni ton code mobile money.\n\nSi tu as payé plus que le montant dû, nous te remboursons la différence ou l'appliquons à ta commande, à ton choix.\n\n7. Annulation d'une commande\n\nTu peux demander l'annulation depuis « Mes commandes » tant que la fabrication ou l'expédition n'a pas commencé. Une fois la demande acceptée, tu es remboursé par le moyen de paiement utilisé. Un article sur mesure dont la fabrication a commencé ne peut plus être annulé.\n\n8. Kits numériques\n\nLe kit est accessible dès le paiement confirmé, dans « Ma bibliothèque », sans limite de durée tant que le site existe. En payant, tu demandes un accès immédiat : une fois un fichier téléchargé ou la vidéo commencée, le kit n'est plus remboursable, sauf défaut que nous ne pouvons pas corriger. Si tu résides dans l'Union européenne, tu reconnais renoncer à ton droit de rétractation pour ce contenu numérique dès le début de son utilisation.\n\n9. Pass d'événement\n\nLe Pass est nominatif et présenté à l'entrée sous forme de QR code. Les dates, le lieu, le programme et le contenu de chaque Pass sont indiqués sur la page de l'événement.\n\n• Annulation par toi : possible jusqu'à [Texte à fournir] (nombre) jours avant l'événement, avec des frais d'annulation de [Texte à fournir] (montant ou pourcentage, réglé dans l'admin). Après ce délai ou en cas d'absence : pas de remboursement.\n• Événement annulé par nous : remboursement intégral.\n• Événement reporté : le Pass reste valable à la nouvelle date ; si tu ne peux pas venir, tu peux demander un remboursement dans les [Texte à fournir] (nombre) jours suivant l'annonce.\n• L'accès peut être refusé en cas de comportement dangereux ou de non-respect du règlement du lieu, sans remboursement.\n\n10. Stands\n\n• Candidature : l'exposant décrit ce qu'il vend, envoie 3 photos et son Instagram, et certifie que ses articles sont ses propres créations et qu'aucun n'est une contrefaçon. Une candidature ne réserve aucune place.\n• Validation : nous acceptons ou refusons librement chaque candidature. Si elle est acceptée, l'exposant reçoit un lien de paiement valable 48 h ; sans paiement dans ce délai, la place est libérée.\n• Stand payé : il donne droit à un emplacement et à 2 Pass nominatifs (l'exposant et son aide).\n• Contrefaçon : un stand qui présente des contrefaçons peut être fermé sur place, sans remboursement. L'exposant reste seul responsable de ses ventes, de ses prix et de ses obligations fiscales.\n• Annulation : règles des Pass (section 9), appliquées au prix du Stand.\n\n11. Responsabilité et force majeure\n\nNous ne sommes pas responsables des retards ou empêchements dus à des événements indépendants de notre volonté : troubles, intempéries, coupures de réseau ou d'électricité, fermeture de routes ou de frontières, panne d'un prestataire. Nous te prévenons dès que possible et te proposons un nouveau délai ou un remboursement.\n\n12. Litiges et droit applicable\n\nÉcris-nous d'abord : nous cherchons toujours une solution amiable. Les présentes CGV sont soumises au droit de la République démocratique du Congo ; tout litige relève des juridictions compétentes de Goma. Si tu achètes depuis un autre pays, tu conserves les protections obligatoires que la loi de ton pays de résidence t'accorde.\n\n13. Modifications\n\nNous pouvons modifier ces CGV. La version applicable est celle en vigueur le jour de ta commande.",
       "version": "[Texte à fournir]"
     },
     "livraison": {
       "titre": "Livraison et retours",
-      "texte": "[Texte à fournir]",
+      "texte": "Nous livrons nous-mêmes, sans transporteur, à Goma et à Bukavu, avec retrait possible à Goma. Les kits numériques ne sont pas livrés : ils s'ouvrent dans ton compte dès le paiement confirmé.\n\nZones, frais et délais\n\n• Goma — Livraison à domicile — Frais (USD) : [Texte à fournir] — Délai après fabrication : [Texte à fournir]\n• Goma — Retrait — Frais (USD) : Gratuit — Délai après fabrication : Dès que la commande est prête\n• Bukavu — Livraison — Frais (USD) : [Texte à fournir] — Délai après fabrication : [Texte à fournir]\n\nLe délai de fabrication est indiqué sur chaque fiche produit. Les frais exacts sont affichés avant le paiement. Si ton adresse n'est pas desservie, le site te le dit avant le paiement.\n\nArticles sur mesure\n\nAprès ta commande, touche « Envoyer mes mesures sur WhatsApp » : le message contient ton numéro de commande. Envoie tes mesures ou une capture. Le délai de fabrication commence à la réception de tes mesures. Le site ne conserve pas tes mesures : elles restent dans notre conversation WhatsApp.\n\nRemise de la commande\n\n• Nous te contactons par WhatsApp ou par email pour fixer le jour et le lieu de remise.\n• Vérifie ta commande devant nous et signale tout défaut visible tout de suite.\n• Si tu es absent au rendez-vous, nous en fixons un nouveau. [Texte à fournir] (frais éventuels d'un second déplacement, ou « sans frais »).\n\nRéclamations (défaut ou erreur)\n\nSignale le problème depuis « Mes commandes » dans les 48 h après la livraison, avec une photo. Nous proposons, dans cet ordre : une retouche, un remplacement, puis un remboursement.\n\nRetours et échanges\n\n• Article prêt à porter : retour possible dans les [Texte à fournir] (nombre) jours après la remise, s'il est neuf, non porté hors essayage et complet. Échange ou remboursement, hors frais de livraison.\n• Article sur mesure ou personnalisé : ni repris ni échangé, sauf défaut de fabrication ou erreur de notre part.\n• Accessoire : [Texte à fournir] (choix à trancher : même règle que le prêt-à-porter ou non repris pour raison d'hygiène (perruques, lentilles, maquillage)).\n• Kits numériques, Pass et Stands : voir les CGV.\n\nRemboursement\n\nPar le moyen de paiement utilisé, dans les [Texte à fournir] (nombre) jours suivant notre accord. Le délai de réception dépend ensuite de ton opérateur ou de ta banque.",
       "version": "[Texte à fournir]"
     },
     "confidentialite": {
       "titre": "Politique de confidentialité",
-      "texte": "[Texte à fournir]\n\nNous mesurons la fréquentation du site de façon anonyme, sans cookie ni outil externe : page consultée, site d'où tu viens (son nom seulement), langue et type d'appareil. Ces données ne permettent pas de t'identifier.",
+      "texte": "NATHANGROUP SARL est responsable des données personnelles collectées sur {nomSite}. Nous collectons seulement ce qui sert à ton compte, à tes commandes, à nos événements et à la sécurité du site. Nous ne vendons jamais tes données.\n\nDonnées collectées\n\n• Email, ou nom et email transmis par Google — Créer ton compte et te connecter — Obligatoire : Oui\n• Âge déclaré, langue — Respecter les règles d'âge, afficher ta langue — Obligatoire : Oui\n• Réponses aux questions d'accueil — Mieux connaître nos clients — Obligatoire : Non\n• Commandes, montants, statut et référence du paiement — Exécuter la vente, tenir la comptabilité — Obligatoire : Oui pour acheter\n• Adresse ou zone de livraison, téléphone ou WhatsApp — Livrer et fixer le rendez-vous — Obligatoire : Oui pour un article physique\n• Nom et téléphone du payeur — Exigés par le prestataire pour un paiement par carte — Obligatoire : Oui pour payer par carte\n• Nom sur le Pass — Contrôler l'accès à l'événement — Obligatoire : Oui pour un Pass\n• Candidature Stand : description, 3 photos, Instagram — Étudier la candidature — Obligatoire : Oui pour candidater\n• Photos envoyées pour la galerie, pseudo — Les publier avec ton accord — Obligatoire : Non\n• Messages du formulaire de contact — Te répondre — Obligatoire : Oui pour nous écrire\n• Choix d'emails (relances, nouveautés, alertes festival) — T'envoyer seulement ce que tu acceptes — Obligatoire : Non\n• Empreinte chiffrée de l'adresse IP, journal des actions sensibles — Bloquer les abus, protéger les comptes — Obligatoire : Oui\n\nTes mesures pour le sur-mesure passent par WhatsApp : le site ne les enregistre pas. Nous ne recevons jamais ton numéro de carte ni ton code mobile money. Les photos de la galerie sont publiées sans leurs métadonnées (position GPS comprise) ; celles des personnes de moins de 18 ans ne sont jamais publiées.\n\nMesure d'audience\n\nNous mesurons la fréquentation du site de façon anonyme, sans cookie ni outil externe : page consultée, site d'où tu viens (son nom seulement), langue et type d'appareil. Ces données ne permettent pas de t'identifier.\n\nCookies\n\nSeulement les cookies nécessaires : session de connexion, panier, langue et thème. Aucun cookie publicitaire.\n\nQui reçoit tes données\n\nUniquement nos prestataires, chacun pour sa mission :\n\n• Supabase (comptes et base de données, France) ;\n• Hostinger (hébergement, France) ;\n• Bunny.net (vidéos, Slovénie) ;\n• Resend (envoi des emails, États-Unis) ;\n• Google, seulement si tu choisis « Continuer avec Google » ;\n• MaishaPay et PawaPay (mobile money et carte), Polar (États-Unis) pour les paniers 100 % numériques.\n\nCertaines données sont donc traitées hors de la RDC. Nous choisissons des prestataires qui s'engagent à les protéger.\n\nDurées de conservation\n\n• Compte et préférences : Tant que le compte existe\n• Commandes et factures : [Texte à fournir] (durée légale comptable, à confirmer)\n• Candidatures Stand (photos, Instagram) : 90 jours après la fin de l'événement\n• Photos de la galerie : Jusqu'à ta demande de retrait\n• Messages de contact : [Texte à fournir] (par exemple 12 mois)\n• Empreintes d'IP anti-abus : 2 jours\n• Statistiques d'audience : Anonymes, sans limite\n\nTes droits\n\nTu peux demander à voir, corriger ou supprimer tes données, t'opposer à un usage, ou retirer un consentement (emails, galerie) à tout moment, depuis « Mon compte » ou en écrivant à [Texte à fournir] (email). Nous répondons sous 30 jours. Les données que la loi nous oblige à garder, comme les factures, sont conservées le temps requis.\n\nEn RDC, la protection des données relève du Code du numérique (ordonnance-loi n° 23/010). Si tu vis dans l'Union européenne, le Règlement général sur la protection des données (RGPD) te protège aussi, et tu peux saisir l'autorité de ton pays.\n\nSécurité\n\nLe site est chiffré (HTTPS), les accès aux données sont limités à ceux qui en ont besoin, et les actions sensibles sont journalisées.\n\nModifications\n\nLa date de version en haut de la page indique la dernière mise à jour.",
       "version": "[Texte à fournir]"
+    },
+    "charte": {
+      "titre": "Charte de la galerie « Ils le portent »",
+      "texte": "La galerie montre les cosplays de notre communauté. Pour qu'elle reste un endroit sûr et agréable :\n\n• Ta photo, ton accord : tu envoies une photo de toi, ou d'une personne qui t'a donné son accord. Tu dois avoir le droit de la partager.\n• 18 ans et plus : nous ne publions pas de photo d'une personne de moins de 18 ans.\n• Validation : chaque photo est vérifiée avant publication. Nous pouvons refuser une photo sans avoir à nous justifier.\n• Respect : pas de nudité, de violence, de message haineux ni de publicité.\n• Discrétion : la photo est publiée avec ton pseudo seulement, sans ta ville ni ta position GPS.\n• Retrait : tu peux demander le retrait de ta photo à tout moment depuis « Mon compte » ; elle disparaît de la galerie.\n• Réalisations : si tu as fabriqué ton costume avec un de nos kits, ta photo peut porter la mention « Fait avec un kit »."
     }
   },
   "Catalogue": {
@@ -2844,7 +2945,7 @@
     },
     "licence": {
       "titre": "Licence de kit",
-      "texte": "Les fichiers et la vidéo de ce kit sont réservés à ton usage personnel. Tu ne peux ni les revendre, ni les partager, ni les diffuser."
+      "texte": "Les patrons, fichiers et vidéos des kits sont des œuvres de NATHANGROUP SARL, protégées par le droit d'auteur. En achetant ou en obtenant un kit, tu reçois une licence personnelle, non exclusive et non transférable.\n\nTu peux :\n• fabriquer le costume ou l'accessoire pour toi, autant de fois que tu veux ;\n• imprimer les patrons pour ton usage ;\n• porter ta création, la photographier et la montrer sur les réseaux sociaux, en citant le kit si tu le souhaites.\n\nTu ne peux pas :\n• partager, revendre, publier ou mettre en ligne les fichiers ou la vidéo, même gratuitement ;\n• utiliser les patrons pour créer un produit concurrent ou un autre kit.\n\n[Texte à fournir] (choix à trancher : « Tu ne peux pas vendre les pièces fabriquées avec le kit. » ou « Tu peux vendre jusqu'à [Texte à fournir] (nombre) pièces fabriquées avec le kit, faites par toi à la main. »)\n\nLes PDF portent un filigrane à ton nom. En cas de partage illicite, ton accès peut être suspendu, sans préjudice de nos autres droits."
     },
     "extrait": {
       "titre": "Extrait du tutoriel",

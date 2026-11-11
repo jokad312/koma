@@ -5,7 +5,11 @@ export const PAGES_LEGALES = [
   { cle: "cgv", chemin: "/cgv" },
   { cle: "livraison", chemin: "/livraison-et-retours" },
   { cle: "confidentialite", chemin: "/confidentialite" },
+  { cle: "charte", chemin: "/charte-galerie" },
 ] as const;
+
+// Pages sans date de version (la charte de la galerie n'en a pas dans le document de Jonathan).
+export const PAGES_SANS_VERSION: readonly string[] = ["charte"];
 
 export type ClePageLegale = (typeof PAGES_LEGALES)[number]["cle"];
 
