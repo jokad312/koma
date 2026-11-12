@@ -28,11 +28,8 @@ import { lireEvenementAdmin, lireManquesPublication } from "@/modules/evenements
 import type { Evenement } from "@/modules/evenements/types";
 import { lireVerrouEvenement, type VerrouHorsLigne } from "@/modules/scan/queries";
 
-// Les identifiants ne sont connus qu'à la requête. Un seul exemplaire factice permet à Next.js de préparer la coque statique de la route
-// (la page lit la base sous Suspense et rend 404 pour un identifiant inconnu).
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale, id: "00000000-0000-4000-8000-000000000000" }));
-}
+// Page d'administration rendue à la demande : l'identifiant est une donnée de requête, jamais indexée.
+export const instant = false;
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/evenements/[id]">): Promise<Metadata> {
   const { locale } = await params;

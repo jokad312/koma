@@ -17,11 +17,8 @@ import { lireArticleAdmin } from "@/modules/blog/queries";
 import type { Article, ProduitLien } from "@/modules/blog/types";
 import { lireProduitsAdmin } from "@/modules/catalogue/queries";
 
-// Les identifiants d'articles ne sont connus qu'à la requête. Un seul exemplaire, jamais un vrai article (la page lit la base
-// sous Suspense et rend 404 pour un identifiant inconnu), permet à Next.js de préparer la coque statique de la route.
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale, id: "00000000-0000-4000-8000-000000000000" }));
-}
+// Page d'administration rendue à la demande : l'identifiant est une donnée de requête, jamais indexée.
+export const instant = false;
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/blog/[id]">): Promise<Metadata> {
   // Seule la langue est lue : l'identifiant est une donnée de requête, lue sous Suspense dans la page.

@@ -26,12 +26,8 @@ import { lireProduitAdmin, lireProduitsLiables, lireUniversAdmin } from "@/modul
 import { idSchema } from "@/modules/catalogue/schemas";
 import type { ProduitAdmin, ProduitLiable, UniversAdmin } from "@/modules/catalogue/types";
 
-// Les identifiants de produits ne sont connus qu'à la requête (jamais à la compilation). Un seul exemplaire, jamais un vrai produit
-// (la page lit la base sous Suspense et rend 404 pour un identifiant inconnu), permet à Next.js de préparer la coque statique de la route :
-// sans lui, lire la langue dans params au niveau de la page bloque la compilation (Cache Components).
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale, id: "00000000-0000-4000-8000-000000000000" }));
-}
+// Page d'administration rendue à la demande : l'identifiant est une donnée de requête, jamais indexée.
+export const instant = false;
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/produits/[id]">): Promise<Metadata> {
   // Seule la langue est lue : l'identifiant est une donnée de requête, lue sous Suspense dans la page.
