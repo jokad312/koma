@@ -1,5 +1,6 @@
 import { creerAdaptateurPawaPay, type ConfigPawaPay } from "./adaptateurs/pawapay";
 import { creerAdaptateurMaishaPay, type ConfigMaishaPay } from "./adaptateurs/maishapay";
+import { creerAdaptateurPolar, type ConfigPolar } from "./adaptateurs/polar";
 import type { CodePrestataire, PrestatairePaiement } from "./types";
 
 // Clés de l'application dédiée au site chez MaishaPay, lues dans l'environnement à chaque appel (jamais dans le code). Absentes ou mode illisible : null.
@@ -19,6 +20,17 @@ function lireConfigPawaPay(source: Record<string, string | undefined> = process.
   return { jeton, production: mode === "production" };
 }
 
+// Clés de l'organisation Polar dédiée au site : jeton d'accès, serveur (sandbox ou production, deux organisations et deux jetons distincts), secret de signature
+// des webhooks et produit numérique qui porte les prix ad hoc. Lues dans l'environnement à chaque appel ; une clé absente ou un serveur illisible : null.
+function lireConfigPolar(source: Record<string, string | undefined> = process.env): ConfigPolar | null {
+  const jeton = source.POLAR_ACCESS_TOKEN?.trim();
+  const serveur = source.POLAR_SERVER?.trim();
+  const secretWebhook = source.POLAR_WEBHOOK_SECRET?.trim();
+  const produitId = source.POLAR_PRODUCT_ID?.trim();
+  if (!jeton || !secretWebhook || !produitId || (serveur !== "sandbox" && serveur !== "production")) return null;
+  return { jeton, production: serveur === "production", secretWebhook, produitId };
+}
+
 // Adaptateurs réellement écrits. Un Prestataire dont l'adaptateur n'existe pas, ou dont la documentation laisse des questions ouvertes, ne peut
 // pas être activé : sans cela, le site annoncerait « Paiement traité par MaishaPay » sans aucun moyen sûr de payer (règles 13, 14 et 15).
 // Chaque story d'adaptateur ajoute le sien ici : Polar (4.7), MaishaPay mobile money et carte (5.6 et 5.9), PawaPay (5.7). K-Pay et GeniusPay sont
@@ -26,6 +38,7 @@ function lireConfigPawaPay(source: Record<string, string | undefined> = process.
 const ADAPTATEURS: Partial<Record<CodePrestataire, PrestatairePaiement>> = {
   maishapay: creerAdaptateurMaishaPay(lireConfigMaishaPay),
   pawapay: creerAdaptateurPawaPay(lireConfigPawaPay),
+  polar: creerAdaptateurPolar(lireConfigPolar),
 };
 
 // Adaptateurs activables : écrits ET sans question ouverte. Seuls ceux-là sont proposés au client et peuvent être activés dans l'admin.

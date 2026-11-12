@@ -37,6 +37,8 @@ export type DonneesTentative = {
   contact: { telephone: string | null; email: string | null; nom: string | null };
   // Réseau de la carte choisi par le client (Visa ou Mastercard) ; null hors paiement par carte.
   reseauCarte: "VISA" | "MASTERCARD" | null;
+  // Ce que la Commande contient, lu en base (règle 11) : un adaptateur qui n'accepte pas tout (Polar : Kits seulement) le refuse de lui-même.
+  achat: Achat;
   // Adresse où le client revient après le paiement (page de retour) et adresse que le Prestataire appelle pour signaler le résultat.
   adresseRetour: string;
   adresseNotification: string;

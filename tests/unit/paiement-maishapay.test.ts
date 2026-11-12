@@ -28,6 +28,7 @@ const MM: DonneesTentative = {
   operateur: "Airtel Money",
   contact: { telephone: "+243990000000", email: "TEST@example.invalid", nom: null },
   reseauCarte: null,
+  achat: { familles: ["cosplay"], estPass: false },
   adresseRetour: "https://TEST.invalid/retour",
   adresseNotification: "https://TEST.invalid/api/paiement/notification/maishapay",
 };

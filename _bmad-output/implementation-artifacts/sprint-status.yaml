@@ -80,7 +80,7 @@ development_status:
   4-4-boîte-d-envoi-et-premiers-emails: review
   4-5-couche-de-paiement-aiguilleur-et-admin-des-prestataires: done
   4-6-page-de-retour-attente-et-état-réel-de-la-commande: done
-  4-7-paiement-d-un-kit-par-carte-via-polar: backlog
+  4-7-paiement-d-un-kit-par-carte-via-polar: review
   4-8-socle-de-confirmation-du-paiement: done
   epic-4-retrospective: optional
 

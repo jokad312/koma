@@ -484,3 +484,11 @@
 - Sujets : Kit commencé (chapitre suivant), Événement dans les 30 jours, nouveauté de l'univers (publiée depuis moins de 30 jours, pas déjà possédée). Le sujet est porté par la clé de `envoi.donnees` (`kit_id`, `evenement_id`, `produit_id`).
 - Textes `Emails.relance` écrits par Claude (FR/EN) : à valider par Jonathan. La tâche pg_cron et la route ne tournent qu'avec les secrets Vault `site_url` et `cron_secret` (Q-D1 : pas de domaine).
 - Erreur de CI de la 8.5 (liste fermée des types d'anomalie dans `envois.test.sql`) corrigée en `407f2c1`.
+
+
+## Story 4.7 : adaptateur Polar (2026-11-12)
+- Résumé de la documentation publique de Polar lu et rangé dans `docs/references/paiements/polar.md` (hors dépôt). Adaptateur `src/modules/paiement/adaptateurs/polar.ts` : session `POST /v1/checkouts/` avec prix ad hoc fixe en centimes USD, signature des webhooks Standard Webhooks, contre-vérification par `GET /v1/checkouts/{id}` (le corps du webhook n'est jamais cru), recherche des commandes par metadata si la référence Polar manque, comparaison exacte en USD.
+- Règle 10 : `DonneesTentative` porte maintenant `achat` (lu en base) ; l'adaptateur refuse de lui-même, avant tout appel réseau, tout panier qui n'est pas 100 % Kits (Produit physique, Pass, mixte, vide). Cela couvre aussi la limite notée en 7.11 (`demarrer_tentative` n'interdit pas Polar pour un Pass).
+- L'adaptateur reste NON ACTIVABLE (règle 15) : `QUESTIONS_OUVERTES` (forme du webhook, tolérance d'horodatage, prix ad hoc sur le produit, taxes du marchand officiel, carte seule, politique d'utilisation pour les eBooks). Statut `review` dans sprint-status : la story passera `done` après les essais sandbox de Jonathan (organisation Polar sandbox, clés dans `.env.local`, `POLAR_PRODUCT_ID`, tunnel `cloudflared`, carte de test).
+- Variables : `POLAR_ACCESS_TOKEN`, `POLAR_SERVER` (sandbox ou production), `POLAR_WEBHOOK_SECRET`, `POLAR_PRODUCT_ID`. Aucune clé fournie : rien n'a été appelé chez Polar.
+- Vitest `paiement-polar` (39 tests, faux accès nommés TEST) ; exception d'adresse pour les hôtes de l'API Polar dans `domaine-en-dur.test.ts`.

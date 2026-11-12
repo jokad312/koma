@@ -179,6 +179,7 @@ export async function demarrerTentative(deps: DependancesTentative, brut: unknow
         operateur: entree.operateur ?? null,
         contact: { telephone, email: commande.contact.email, nom: nomPayeur ?? commande.contact.nom },
         reseauCarte,
+        achat: commande.achat,
         adresseRetour: deps.adresseRetour(choix.prestataire, entree.numero),
         adresseNotification: deps.adresseNotification(choix.prestataire),
       });
