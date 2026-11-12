@@ -8,6 +8,7 @@ import { rendreKitOuvert } from "./modeles/kit-ouvert";
 import { rendrePassEmis } from "./modeles/pass-emis";
 import { rendrePassAnnule, rendrePassRembourse } from "./modeles/pass-statut";
 import { rendreCandidatureRefusee, rendreCandidatureValidee } from "./modeles/candidature-stand";
+import { lienGalerieAffichable } from "@/modules/evenements/galerie";
 import { rendreGalerieEvenement } from "./modeles/galerie-evenement";
 import { rendreCommandeAnnulee, rendreCommandeEnFabrication, rendreCommandeExpediee, rendreCommandeLivree, rendreCommandeRemboursee } from "./modeles/statut-commande";
 import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
@@ -179,10 +180,11 @@ async function rendre(client: ClientService, brut: EnvoiReserve): Promise<Result
     if (!e) return { statut: "ignorer", raison: "Événement introuvable" };
     if (e.publie !== true || e.termine !== true) return { statut: "ignorer", raison: "Événement non publié ou pas terminé" };
     if (e.acheteur !== true) return { statut: "ignorer", raison: "aucun Pass valide pour ce Compte" };
-    if (typeof e.galerie_url !== "string" || e.galerie_url === "") return { statut: "ignorer", raison: "lien de la Galerie absent" };
+    const lienGalerie = lienGalerieAffichable(e.galerie_url);
+    if (lienGalerie === null) return { statut: "ignorer", raison: "lien de la Galerie absent ou invalide" };
     const titreFr = typeof e.titre_fr === "string" ? e.titre_fr : "";
     const titreEn = typeof e.titre_en === "string" ? e.titre_en : null;
-    const message = rendreGalerieEvenement(envoi.langue, { nomSite, evenement: titreSelonLangue({ titre_fr: titreFr, titre_en: titreEn }, envoi.langue), lienGalerie: e.galerie_url });
+    const message = rendreGalerieEvenement(envoi.langue, { nomSite, evenement: titreSelonLangue({ titre_fr: titreFr, titre_en: titreEn }, envoi.langue), lienGalerie });
     return { statut: "pret", destinataire, message };
   }
 

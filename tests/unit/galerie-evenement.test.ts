@@ -178,7 +178,9 @@ describe("rendu relu en base", () => {
     [{ ...complet, termine: false }, "Événement non publié ou pas terminé"],
     [{ ...complet, publie: false }, "Événement non publié ou pas terminé"],
     [{ ...complet, acheteur: false }, "aucun Pass valide pour ce Compte"],
-    [{ ...complet, galerie_url: null }, "lien de la Galerie absent"],
+    [{ ...complet, galerie_url: null }, "lien de la Galerie absent ou invalide"],
+    [{ ...complet, galerie_url: "https://exemple.invalid/photos" }, "lien de la Galerie absent ou invalide"],
+    [{ ...complet, galerie_url: "http://drive.google.com/x" }, "lien de la Galerie absent ou invalide"],
     [null, "Événement introuvable"],
   ])("ignoré : %#", async (donnees, raison) => {
     etat.donneesEnvoi = donnees;

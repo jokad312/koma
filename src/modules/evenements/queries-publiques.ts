@@ -3,6 +3,7 @@ import { cacheLife, cacheTag } from "next/cache";
 import { ETIQUETTES } from "@/lib/cache/etiquettes";
 import { creerClientPublic } from "@/lib/supabase/public";
 import { urlPhotoPublique } from "@/lib/supabase/stockage";
+import { lienGalerieAffichable } from "./galerie";
 import { lireImages } from "./images";
 import { CUMUL_MAX_EVENEMENTS, TAILLE_PAGE_EVENEMENTS } from "./types";
 import type { CarteEvenement, EvenementPublic, ImageEvenement, PageEvenements, TypePassPublic } from "./types";
@@ -178,8 +179,8 @@ export async function lireEvenementPublie(locale: "fr" | "en", slug: string): Pr
     venteAVenir: new Date(data.debut_le).getTime() >= Date.now() && ouvertureFuture(data.vente_ouvre_le),
     venteOuvreLe: data.vente_ouvre_le,
     images: lireImages(data.images).map((image) => ({ url: urlPhotoPublique(image.fichier), alt: altDeLaLangue(locale, image) })),
-    // Le lien n'est montré que sur la page d'un Événement passé (FR-39).
-    galerieUrl: new Date(data.debut_le).getTime() < Date.now() ? data.galerie_url : null,
+    // Le lien n'est montré qu'une fois l'Événement terminé (fin, sinon début : même règle que l'email de Galerie) et s'il a la forme attendue (FR-39).
+    galerieUrl: new Date(data.fin_le ?? data.debut_le).getTime() < Date.now() ? lienGalerieAffichable(data.galerie_url) : null,
     types,
   };
 }

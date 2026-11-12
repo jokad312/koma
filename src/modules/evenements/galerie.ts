@@ -16,6 +16,12 @@ export type DependancesGalerie = {
 const LIEN = /^https:\/\/(drive\.google\.com|photos\.google\.com|photos\.app\.goo\.gl)\/\S+$/;
 export const LIEN_GALERIE_MAX = 600;
 
+// Défense en profondeur : le lien lu en base est revérifié avant d'être affiché sur la page ou mis dans un email (même règle qu'à l'écriture).
+// Retourne le lien, ou null s'il n'a pas la forme attendue.
+export function lienGalerieAffichable(valeur: unknown): string | null {
+  return typeof valeur === "string" && valeur.length <= LIEN_GALERIE_MAX && LIEN.test(valeur) ? valeur : null;
+}
+
 // Lien public de la Galerie d'événement (story 7.10, FR-39) : un texte vide efface le lien. La base revérifie le droit, le format et l'Événement.
 export async function enregistrerGalerieEvenement(deps: DependancesGalerie, entree: { evenementId: unknown; lien: unknown }): Promise<ResultatGalerie> {
   const id = z.string().uuid().safeParse(entree.evenementId);

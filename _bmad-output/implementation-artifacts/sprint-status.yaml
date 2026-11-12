@@ -172,7 +172,7 @@ action_items:
     action: "Revalider le lien de galerie à l affichage et dans l email, réparer la
       clé d envoi consommée sur ignorer, aligner la fin d Événement"
     owner: "agent de développement"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-11-11.md"
   - id: "epic-7-retro-item-6-essais-manuels-sur-téléphone-réel-scan-h"
     epic: 7

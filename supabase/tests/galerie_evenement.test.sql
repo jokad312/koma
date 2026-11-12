@@ -3,7 +3,7 @@
 -- un Événement futur, sans lien ou non publié), fonctions fermées aux clients. Données TEST_ annulées à la fin.
 -- Exécuté par la CI (Docker) ; en local, `npm run test:sql` explique l'absence de Docker et sort sans erreur.
 begin;
-select plan(34);
+select plan(37);
 
 select set_config('ks.auteur', '{"type":"systeme","nom":"test"}', true);
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -123,6 +123,11 @@ select is((select galerie_url from public.evenement where id = pg_temp.ev(1)), n
 update public.evenement set debut_le = now() - interval '1 day', fin_le = now() - interval '1 hour' where id = pg_temp.ev(2);
 select is(public.planifier_galeries_evenements(), 1, 'l''Événement 2, devenu terminé avec son lien, prévient son acheteur');
 select is((select count(*)::int from public.envoi where modele = 'galerie_evenement'), 4, 'quatre emails au total');
+
+-- Un envoi « ignoré » (lien effacé au moment du rendu) repart quand le lien est de nouveau valide : la clé d'envoi n'est pas consommée pour rien.
+select ok(public.envois_ignorer((select id from public.envoi where modele = 'galerie_evenement' and donnees = jsonb_build_object('evenement_id', pg_temp.ev(2)) limit 1), 'TEST lien absent'), 'un envoi de l''Événement 2 est ignoré');
+select is(public.planifier_galeries_evenements(), 0, 'rien de nouveau à planifier, mais l''envoi ignoré est remis à envoyer');
+select is((select count(*)::int from public.envoi where modele = 'galerie_evenement' and statut = 'ignore'), 0, 'plus aucun envoi de Galerie ignoré tant que le lien est valide');
 
 select * from finish();
 rollback;
