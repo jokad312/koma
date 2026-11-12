@@ -30,6 +30,8 @@
   --ks-hero-wash-end: #eadfcc;
   /* Halo rouge doux du héros : 25 % sur crème, 40 % sur sombre (DESIGN.md). */
   --ks-hero-halo: 25%;
+  /* Mot géant du héros : beige chaud du dégradé (jeton existant) en clair, encre à 5 % en sombre. */
+  --ks-mot-geant: var(--ks-hero-wash-end);
   --ks-tile-red-start: #e3261c;
   --ks-tile-red-end: #9e1a12;
   --ks-tile-ink-start: #5a4c3e;
@@ -62,6 +64,7 @@
   --ks-hero-wash-start: #2a221b;
   --ks-hero-wash-end: #16130f;
   --ks-hero-halo: 40%;
+  --ks-mot-geant: #f3eee40d;
   --ks-tile-red-start: #e3261c;
   --ks-tile-red-end: #7a1a12;
   --ks-tile-ink-start: #4a3d31;
@@ -288,9 +291,7 @@ a {
   line-height: 0.8;
   letter-spacing: -0.02em;
   font-size: clamp(6rem, 29vw, 26.25rem);
-  /* Navigateur sans color-mix (anciens navigateurs intégrés) : le filigrane décoratif reste invisible plutôt que plein. */
-  color: transparent;
-  color: color-mix(in srgb, var(--ks-text-primary) 4%, transparent);
+  color: var(--ks-mot-geant);
 }
 .mot-geant::before {
   content: attr(data-mot);

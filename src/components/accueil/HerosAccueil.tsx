@@ -37,7 +37,7 @@ const FOCUS = "focus-within:outline focus-within:outline-2 focus-within:outline-
 function MediaVue({ videoUrl, repli }: { videoUrl: string | null; repli: { url: string; alt: string; detoure: boolean } | null }) {
   if (!repli && !videoUrl) return null;
   return (
-    <div className="relative min-h-[26rem] xl:col-start-3 xl:row-span-4 xl:row-start-1 xl:min-h-0">
+    <div className="relative min-h-[26rem] xl:col-start-3 xl:row-span-4 xl:row-start-1 xl:min-h-[40rem]">
       <div aria-hidden="true" className="halo-heros absolute inset-0" />
       <MediaHeros videoUrl={videoUrl} repli={repli} />
     </div>
@@ -143,7 +143,7 @@ export async function HerosAccueil({ locale }: { locale: Locale }) {
 async function HerosVue({ locale, media, cartes }: { locale: Locale; media: ReactNode; cartes: ReactNode }) {
   const t = await getTranslations({ locale, namespace: "Accueil.heros" });
   return (
-    <section aria-label={t("region")} className="relative isolate overflow-hidden rounded-xl bg-background xl:min-h-[44rem]">
+    <section aria-label={t("region")} className="relative isolate overflow-hidden rounded-xl bg-background">
       {/* Mot géant décoratif : texte généré par CSS (attr), donc ni lu, ni sélectionnable, ni candidat au LCP (il retarderait la mesure sans rien montrer d'utile). */}
       <p aria-hidden="true" data-mot={t("motGeant")} className="mot-geant pointer-events-none absolute -right-4 top-6 -z-10 select-none whitespace-nowrap xl:top-8" />
       <div className="grid grid-cols-[minmax(0,1fr)] gap-x-8 gap-y-6 px-4 py-6 xl:grid-cols-[minmax(0,28rem)_minmax(0,15rem)_minmax(0,1fr)] xl:grid-rows-[auto_1fr_auto_auto] xl:px-10 xl:pb-8 xl:pt-8">
