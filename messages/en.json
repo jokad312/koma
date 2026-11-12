@@ -2017,6 +2017,7 @@
         "critique": "Urgent"
       },
       "types": {
+        "pass_offert_impossible": "Free Pass impossible: Event full",
         "envoi_echec_definitif": "Email not sent after several attempts",
         "scans_non_synchronises": "Offline scans possibly not synced",
         "scan_conflit": "Offline scan in conflict"
@@ -2491,6 +2492,31 @@
       "realisations": {
         "titre": "Creations to approve ({nombre})",
         "vide": "No Creation to approve."
+      },
+      "passOffert": {
+        "titre": "Free Pass (\"10 free Passes\" operation)",
+        "choisir": "Upcoming Event and Pass type",
+        "placeholder": "Choose…",
+        "option": "{evenement} · {type} ({attribues}/10 given)",
+        "attribuer": "Give a free Pass",
+        "aucun": "No upcoming Event with room and a Standard Pass type.",
+        "deja": "Free Pass given: rank {rang} for {evenement}.",
+        "succes": "Free Pass given (rank {rang}). The customer receives the Pass by email.",
+        "erreurs": {
+          "non_autorise": "You no longer have the right to do this. Reload the page or sign in again.",
+          "entree_invalide": "Choose an Event and a Pass type.",
+          "introuvable": "This Creation cannot be found.",
+          "non_validee": "This Creation is not validated yet.",
+          "kit_non_paye": "The Kit of this Creation was not paid: no free Pass.",
+          "type_introuvable": "This Pass type cannot be found or is not a Standard Pass.",
+          "evenement_indisponible": "This Event is no longer upcoming or is not published.",
+          "deja_utilisee": "This Creation already gave a free Pass.",
+          "deja_offert": "This Account already has a free Pass for this Event.",
+          "terminee": "The 10 free Passes of this Event are already given.",
+          "complet": "This Event is full: nothing was given. An anomaly was added to the tasks.",
+          "nom_requis": "This Account has no name and the Creation has no nickname: ask the customer for their name before giving the Pass.",
+          "generique": "The Pass could not be saved. Try again."
+        }
       },
       "altSaisie": {
         "fr": {
@@ -3870,7 +3896,13 @@
       "mineur": "Photos of people under 18 are not published: sending is not possible for now.",
       "aucunKit": "A Creation is made with a purchased kit. A free kit does not count.",
       "voirKits": "See the kits",
-      "suivre": "Follow my photos and Creations"
+      "suivre": "Follow my photos and Creations",
+      "operation": {
+        "titre": "\"10 free Passes\" operation",
+        "texte": "The first 10 validated Creations, for an upcoming Event, can win a free Pass. Jonathan gives the Passes one by one.",
+        "terminee": "The operation is over for: {evenements}. You can still send a Creation.",
+        "reglement": "[Texte à fournir]"
+      }
     }
   }
 }

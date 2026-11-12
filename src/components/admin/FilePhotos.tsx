@@ -9,6 +9,8 @@ import type { Locale } from "@/i18n/routing";
 import { formaterDateBoutique } from "@/lib/dates";
 import { refuserPhotoAction, retirerPhotoAdminAction, validerPhotoAction } from "@/modules/communaute/admin-actions";
 import type { PhotoAdmin } from "@/modules/communaute/admin-types";
+import type { OptionsPassOffert } from "@/modules/communaute/pass-offert";
+import { AttributionPassOffert } from "./AttributionPassOffert";
 import { ChampTexte } from "./ChampTexte";
 
 type Action = "valider" | "refuser" | "retirer";
@@ -16,7 +18,7 @@ type Action = "valider" | "refuser" | "retirer";
 // File de la page « Galerie » (story 8.2) : photos à valider, retraits demandés, puis photos publiées. « Refuser » et « Retirer » sont
 // irréversibles : une confirmation est demandée. Chaque décision n'est annoncée qu'après la réponse réelle du serveur (règle 13), dans une
 // zone d'état hors de la liste (la carte peut disparaître quand la liste est relue).
-export function FilePhotos({ photos }: { photos: PhotoAdmin[] }) {
+export function FilePhotos({ photos, passOffert = null }: { photos: PhotoAdmin[]; passOffert?: OptionsPassOffert | null }) {
   const t = useTranslations("Admin.galerie");
   const locale = useLocale() as Locale;
   const router = useRouter();
@@ -106,6 +108,7 @@ export function FilePhotos({ photos }: { photos: PhotoAdmin[] }) {
               {p.realisation.rang ? <p className="t-small text-text-secondary">{t("realisation.rang", { rang: p.realisation.rang })}</p> : null}
             </>
           ) : null}
+          {passOffert && p.statut === "publiee" && p.realisation?.rang ? <AttributionPassOffert photoId={p.id} options={passOffert} /> : null}
           {p.retraitDemande ? <p className="t-label text-text-primary">{t("retraitDemande")}</p> : null}
           {actions.includes("valider") ? (
             <div className="mt-2 flex flex-col gap-3">

@@ -469,3 +469,11 @@
 - Décisions à confirmer : le refus après paiement applique les frais d'annulation figés (CGV §10 dit « sans remboursement » pour contrefaçon) ; un refus est définitif pour le Compte ; un Compte peut recandidater après expiration (pas de limite de répétition).
 - À tester à la main : voir la spec.
 - Méthode : après `npm run build`, supprimer `.next/dev` avant `npm run test:e2e` (un cache mélangé a fait échouer 135 tests e2e avec « Unexpected non-whitespace character after JSON »).
+
+
+## Mode enchaîné du 2026-11-12 : actions de rétro, fermeture sur place, story 8.5
+- Actions 4 (script `pretest:e2e`) et 5 (lien de Galerie revalidé, fin d'Événement alignée, envoi ignoré relancé, migration `20270113120000`) faites ; action 2 : CGV §10 mise à jour (formulation de Jonathan) et fermeture sur place d'un Stand sans remboursement (migrations `20270113100000` et `20270113110000`, bouton admin « Fermer ce stand sur place »). Actions 1, 3 et 6 restent à Jonathan.
+- Un test intermittent (`benevoles-ui`) stabilisé avec `waitFor`.
+- Story 8.5 : spec `spec-8-5-operation-10-pass-gratuits.md`, migrations `20270114100000` à `20270114130000`, pgTAP `pass_offerts` (24, rejoué sur koma-dev avec des fonctions de remplacement de pgTAP, absent de koma-dev), revue par sous-agent : corrigés (libellé de la tâche `pass_offert_impossible`, premier rang libre, double annonce d'état). Le règlement de l'opération reste `[Texte à fournir]` (`Communaute.realisation.operation.reglement`) : le build de production échoue avec `KOMA_VERIFIER_TEXTES` tant que Jonathan ne l'a pas fourni.
+- Spec `spec-9-10-refonte-mise-en-page-admin.md` écrite en brouillon (refonte de la mise en page de l'admin), non implémentée.
+- Méthode : une chaîne `cat > fichier <<'EOF'` contenant `$$` fait échouer l'outil Bash ; écrire les fichiers avec l'outil d'écriture.

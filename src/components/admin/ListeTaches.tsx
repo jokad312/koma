@@ -4,7 +4,7 @@ import type { TacheAdmin } from "@/modules/admin/types";
 // Fuseau de la boutique (Goma) pour afficher la date, identique pour tout le monde.
 const FUSEAU_BOUTIQUE = "Africa/Lubumbashi";
 const GRAVITES = ["info", "attention", "critique"] as const;
-const TYPES_CONNUS = ["envoi_echec_definitif", "scans_non_synchronises", "scan_conflit"] as const;
+const TYPES_CONNUS = ["envoi_echec_definitif", "scans_non_synchronises", "scan_conflit", "pass_offert_impossible"] as const;
 const MOTIFS_CONFLIT = ["deja_scanne", "annule", "rembourse", "commande_non_payee", "statut"] as const;
 const MODELES_CONNUS = ["commande_payee", "kit_ouvert", "commande_en_fabrication", "commande_expediee", "commande_livree", "commande_annulee", "commande_remboursee"] as const;
 

@@ -2017,6 +2017,7 @@
         "critique": "Urgent"
       },
       "types": {
+        "pass_offert_impossible": "Pass offert impossible : Événement complet",
         "envoi_echec_definitif": "Email non envoyé après plusieurs essais",
         "scans_non_synchronises": "Scans hors ligne peut-être non synchronisés",
         "scan_conflit": "Scan hors ligne en conflit"
@@ -2491,6 +2492,31 @@
       "realisations": {
         "titre": "Réalisations à valider ({nombre})",
         "vide": "Aucune Réalisation à valider."
+      },
+      "passOffert": {
+        "titre": "Pass offert (opération « 10 Pass gratuits »)",
+        "choisir": "Événement à venir et Type de pass",
+        "placeholder": "Choisir…",
+        "option": "{evenement} · {type} ({attribues}/10 attribués)",
+        "attribuer": "Attribuer un Pass offert",
+        "aucun": "Aucun Événement à venir avec de la place et un Type de pass Standard.",
+        "deja": "Pass offert attribué : rang {rang} pour {evenement}.",
+        "succes": "Pass offert attribué (rang {rang}). Le client reçoit son Pass par email.",
+        "erreurs": {
+          "non_autorise": "Tu n'as plus le droit de faire cela. Recharge la page ou reconnecte-toi.",
+          "entree_invalide": "Choisis un Événement et un Type de pass.",
+          "introuvable": "Cette Réalisation est introuvable.",
+          "non_validee": "Cette Réalisation n'est pas encore validée.",
+          "kit_non_paye": "Le Kit de cette Réalisation n'a pas été payé : aucun Pass offert.",
+          "type_introuvable": "Ce Type de pass est introuvable ou n'est pas un Pass Standard.",
+          "evenement_indisponible": "Cet Événement n'est plus à venir ou n'est pas publié.",
+          "deja_utilisee": "Cette Réalisation a déjà donné un Pass offert.",
+          "deja_offert": "Ce Compte a déjà un Pass offert pour cet Événement.",
+          "terminee": "Les 10 Pass offerts de cet Événement sont déjà attribués.",
+          "complet": "Cet Événement est complet : rien n'a été attribué. Une anomalie a été ajoutée aux tâches.",
+          "nom_requis": "Ce Compte n'a pas de nom et la Réalisation n'a pas de pseudo : demande son nom au client avant d'attribuer.",
+          "generique": "L'attribution n'a pas pu être enregistrée. Réessaie."
+        }
       },
       "altSaisie": {
         "fr": {
@@ -3870,7 +3896,13 @@
       "mineur": "Les photos des moins de 18 ans ne sont pas publiées : l'envoi n'est pas possible pour le moment.",
       "aucunKit": "Une Réalisation se fait avec un kit acheté. Un kit gratuit ne compte pas.",
       "voirKits": "Voir les kits",
-      "suivre": "Suivre mes photos et Réalisations"
+      "suivre": "Suivre mes photos et Réalisations",
+      "operation": {
+        "titre": "Opération « 10 Pass gratuits »",
+        "texte": "Les 10 premières Réalisations validées, pour un Événement à venir, peuvent gagner un Pass gratuit. Jonathan attribue les Pass un par un.",
+        "terminee": "L'opération est terminée pour : {evenements}. Tu peux toujours envoyer une Réalisation.",
+        "reglement": "[Texte à fournir]"
+      }
     }
   }
 }

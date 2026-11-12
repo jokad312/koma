@@ -15,6 +15,7 @@ import type { Locale } from "@/i18n/routing";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
 import { dependancesCommunaute } from "@/modules/communaute/dependances";
+import { lireOperationsTerminees } from "@/modules/communaute/pass-offert-dependances";
 import { lireKitsPayes } from "@/modules/communaute/service";
 
 // « Mon compte › Envoyer une Réalisation » (story 8.4, FR-42) : photo d'un costume fabriqué avec un Kit payé. Page privée, jamais indexée.
@@ -44,8 +45,25 @@ async function Contenu({ locale }: { locale: Locale }) {
       </div>
     );
   }
+  // Opération « 10 Pass gratuits » : terminée pour un Événement quand ses 10 Pass sont attribués ; on peut toujours envoyer une Réalisation.
+  // Une lecture impossible n'affiche rien de plus (jamais une information inventée).
+  let terminees: { titreFr: string; titreEn: string | null }[] = [];
+  try {
+    terminees = await lireOperationsTerminees();
+  } catch {
+    console.error("[realisation] opérations terminées illisibles : message masqué");
+  }
+  const noms = terminees.map((e) => (locale === "en" && e.titreEn ? e.titreEn : e.titreFr)).join(", ");
   return (
     <>
+      <section aria-labelledby="realisation-operation" className="flex flex-col gap-2">
+        <h3 id="realisation-operation" className="t-h3">
+          {t("operation.titre")}
+        </h3>
+        <p className="t-body text-text-primary">{t("operation.texte")}</p>
+        {terminees.length > 0 ? <MessageEtat type="information">{t("operation.terminee", { evenements: noms })}</MessageEtat> : null}
+        <p className="t-small text-text-secondary whitespace-pre-line">{t("operation.reglement")}</p>
+      </section>
       <CharteGalerie locale={locale} />
       <EnvoiPhotoClient kits={lu.kits} />
       <Link href="/compte/photos" className="t-small inline-flex min-h-touch items-center text-text-primary underline">

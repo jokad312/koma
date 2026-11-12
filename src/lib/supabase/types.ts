@@ -1394,6 +1394,58 @@ export type Database = {
           },
         ]
       }
+      pass_offert: {
+        Row: {
+          commande_id: string
+          compte_id: string
+          cree_le: string
+          evenement_id: string
+          id: string
+          rang: number
+          realisation_id: string
+        }
+        Insert: {
+          commande_id: string
+          compte_id: string
+          cree_le?: string
+          evenement_id: string
+          id?: string
+          rang: number
+          realisation_id: string
+        }
+        Update: {
+          commande_id?: string
+          compte_id?: string
+          cree_le?: string
+          evenement_id?: string
+          id?: string
+          rang?: number
+          realisation_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pass_offert_commande_id_fkey"
+            columns: ["commande_id"]
+            isOneToOne: true
+            referencedRelation: "commande"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pass_offert_evenement_id_fkey"
+            columns: ["evenement_id"]
+            isOneToOne: false
+            referencedRelation: "evenement"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pass_offert_realisation_id_fkey"
+            columns: ["realisation_id"]
+            isOneToOne: true
+            referencedRelation: "realisation"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       photo_galerie: {
         Row: {
           accord_whatsapp_le: string | null
@@ -2579,6 +2631,15 @@ export type Database = {
         Args: { p_auteur: Json; p_email: string; p_evenement: string }
         Returns: Json
       }
+      attribuer_pass_offert: {
+        Args: {
+          p_auteur: Json
+          p_realisation: string
+          p_titulaire: string
+          p_type: string
+        }
+        Returns: Json
+      }
       attribuer_role: {
         Args: {
           p_auteur: Json
@@ -3366,6 +3427,7 @@ export type Database = {
         }
         Returns: Json
       }
+      operations_pass_offerts_terminees: { Args: never; Returns: Json }
       panier_accessible: {
         Args: { p_compte: string; p_panier: string }
         Returns: boolean
@@ -3373,6 +3435,7 @@ export type Database = {
       pass_annulables: { Args: { p_compte: string }; Returns: string[] }
       pass_code_court_generer: { Args: never; Returns: string }
       pass_jeton_generer: { Args: never; Returns: string }
+      pass_offerts_options: { Args: { p_auteur: Json }; Returns: Json }
       places_evenement_utilisees: {
         Args: { p_evenement: string }
         Returns: number
@@ -3404,6 +3467,10 @@ export type Database = {
       }
       questions_accueil_vues: { Args: { p_compte: string }; Returns: boolean }
       rang_disponibilite: { Args: { p_etat: string }; Returns: number }
+      realisation_pour_offre: {
+        Args: { p_auteur: Json; p_photo: string }
+        Returns: Json
+      }
       recapitulatif_commande: {
         Args: {
           p_code?: string
@@ -3674,6 +3741,7 @@ export type Database = {
         | "stock_insuffisant"
         | "scans_non_synchronises"
         | "scan_conflit"
+        | "pass_offert_impossible"
       envoi_modele:
         | "commande_payee"
         | "kit_ouvert"
@@ -3834,6 +3902,7 @@ export const Constants = {
         "stock_insuffisant",
         "scans_non_synchronises",
         "scan_conflit",
+        "pass_offert_impossible",
       ],
       envoi_modele: [
         "commande_payee",

@@ -10,11 +10,12 @@ import { FilePhotos } from "@/components/admin/FilePhotos";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
 import { routing, type Locale } from "@/i18n/routing";
-import { exigerAdminPage } from "@/lib/auth/droits";
+import { droitAutorise, exigerAdminPage } from "@/lib/auth/droits";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
 import { dependancesGalerie } from "@/modules/communaute/admin-dependances";
 import { lirePhotosAdmin } from "@/modules/communaute/admin-service";
+import { lireOptionsPassOffert } from "@/modules/communaute/pass-offert-dependances";
 
 const CHEMIN = "/admin/galerie";
 
@@ -37,16 +38,25 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/admin/ga
 // Droit galerie.valider (Admin et Assistant) vérifié sur la page elle-même, puis par chaque action et chaque fonction SQL.
 async function GalerieSelonDroit({ locale }: { locale: Locale }) {
   await connection();
-  await exigerAdminPage(locale, CHEMIN, "galerie.valider");
+  const { auteur } = await exigerAdminPage(locale, CHEMIN, "galerie.valider");
   const t = await getTranslations("Admin.galerie");
   const lu = await lirePhotosAdmin(dependancesGalerie());
+  // Attribution des Pass offerts (story 8.5) : réservée à l'Admin (droit evenements.gerer) ; une lecture impossible masque seulement ce bloc.
+  let passOffert: Awaited<ReturnType<typeof lireOptionsPassOffert>> | null = null;
+  if (droitAutorise(auteur.role, "evenements.gerer")) {
+    try {
+      passOffert = await lireOptionsPassOffert(auteur);
+    } catch {
+      console.error("[galerie] options des Pass offerts illisibles : bloc masqué");
+    }
+  }
   const { aujourdhui, ilYaUnAn } = bornesAccord(new Date());
   return (
     <CoqueAdmin>
       <div className="flex flex-col gap-6">
         <h1 className="t-h1">{t("titre")}</h1>
         <p className="t-body text-text-secondary">{t("intro")}</p>
-        {lu.ok ? <FilePhotos photos={lu.photos} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
+        {lu.ok ? <FilePhotos photos={lu.photos} passOffert={passOffert} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
         <DepotPhotoWhatsapp aujourdhui={aujourdhui} ilYaUnAn={ilYaUnAn} />
       </div>
     </CoqueAdmin>
