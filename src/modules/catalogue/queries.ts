@@ -9,7 +9,7 @@ import { contientMarqueur } from "@/lib/vitrine/marqueur";
 import { choisirSlugLibre, SLUG_REGEX } from "./slug";
 import { CUMUL_MAX_CATALOGUE, DISPONIBILITES, LANGUES_SOUS_TITRES, NIVEAUX_KIT, TAILLE_PAGE_CATALOGUE, TAILLES } from "./types";
 import { FORMATS_FICHIER_KIT, type FormatFichierKit } from "./fichiers-kit";
-import type { FicheKit, CarteProduit, ChapitreAdmin, Disponibilite, LangueSousTitres, SousTitreAdmin, FamillePhysique, FamilleProduit, FichierKitAdmin, FicheProduit, KitLieFiche, NiveauKit, ProduitLiable, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
+import type { EtatStockListe, FicheKit, CarteProduit, ChapitreAdmin, Disponibilite, LangueSousTitres, SousTitreAdmin, FamillePhysique, FamilleProduit, FichierKitAdmin, FicheProduit, KitLieFiche, NiveauKit, ProduitLiable, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
 
 // Lectures admin par le client service (après le droit vérifié par la page) : une erreur de lecture est relancée,
 // jamais une liste vide inventée. Aucune valeur de repli (règle 15).
@@ -20,19 +20,37 @@ export async function lireUniversAdmin(): Promise<UniversAdmin[]> {
 }
 
 export async function lireProduitsAdmin(): Promise<ProduitListe[]> {
-  const { data, error } = await creerClientService()
-    .from("produit")
-    .select("id, famille, titre_fr, slug, prix_cents, publie_le")
-    .order("cree_le", { ascending: false });
-  if (error) throw new Error("Lecture des produits impossible.");
-  return (data ?? []).map((p) => ({
-    id: p.id,
-    famille: p.famille as FamilleProduit,
-    titreFr: p.titre_fr,
-    slug: p.slug,
-    prixCents: p.prix_cents,
-    publieLe: p.publie_le,
-  }));
+  const client = creerClientService();
+  const [produits, photos, variantes] = await Promise.all([
+    client.from("produit").select("id, famille, titre_fr, slug, prix_cents, publie_le, univers:univers_id(nom_fr)").order("cree_le", { ascending: false }),
+    client.from("produit_photo").select("produit_id, fichier, alt_fr, position").order("position", { ascending: true }),
+    client.from("variante").select("produit_id, stock, fabrication_sur_commande"),
+  ]);
+  if (produits.error || photos.error || variantes.error) throw new Error("Lecture des produits impossible.");
+  // Première photo de chaque produit (la liste est déjà triée par position).
+  const premieres = new Map<string, { fichier: string; alt: string }>();
+  for (const ph of photos.data ?? []) if (!premieres.has(ph.produit_id)) premieres.set(ph.produit_id, { fichier: ph.fichier, alt: ph.alt_fr ?? "" });
+  const parProduit = new Map<string, { stock: number; surCommande: boolean }[]>();
+  for (const v of variantes.data ?? []) parProduit.set(v.produit_id, [...(parProduit.get(v.produit_id) ?? []), { stock: v.stock, surCommande: v.fabrication_sur_commande }]);
+  return (produits.data ?? []).map((p) => {
+    const famille = p.famille as FamilleProduit;
+    const liste = parProduit.get(p.id) ?? [];
+    const stock: EtatStockListe =
+      famille === "kit" ? "numerique" : liste.length === 0 ? "sans_variante" : liste.some((v) => v.stock > 0) ? "en_stock" : liste.some((v) => v.surCommande) ? "sur_commande" : "epuise";
+    const premiere = premieres.get(p.id);
+    const univers = Array.isArray(p.univers) ? p.univers[0] : p.univers;
+    return {
+      id: p.id,
+      famille,
+      titreFr: p.titre_fr,
+      slug: p.slug,
+      prixCents: p.prix_cents,
+      publieLe: p.publie_le,
+      universFr: univers?.nom_fr ?? null,
+      photo: premiere ? { url: urlPhotoPublique(premiere.fichier), alt: premiere.alt } : null,
+      stock,
+    };
+  });
 }
 
 // Un produit et ses variantes pour la fiche d'édition ; null si l'identifiant est inconnu (404).

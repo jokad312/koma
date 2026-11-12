@@ -596,6 +596,27 @@
         "raisonSmc7": "Account creation at the payment step is not measured."
       }
     },
+    "utilisateurs": {
+      "titre": "Users",
+      "intro": "The site's Accounts, read-only: no role is changed here. Email addresses are partly hidden.",
+      "recherche": "Search for a user",
+      "recherchePlaceholder": "Search for a user…",
+      "nombre": "{nombre, plural, =0 {No users} one {# user} other {# users}}",
+      "aucunResultat": "No user matches your search.",
+      "vide": "No Account yet.",
+      "erreurLecture": "The users could not be read. Reload the page.",
+      "sansNom": "Account without a name",
+      "inscritLe": "Joined on {date}",
+      "inscritInconnu": "Joining date unknown",
+      "commandes": "Orders",
+      "pass": "Passes",
+      "roles": {
+        "admin": "Administrator",
+        "assistant": "Assistant",
+        "benevole": "Volunteer",
+        "aucun": "User"
+      }
+    },
     "nav": {
       "tableau": "Dashboard",
       "libelle": "Administration",
@@ -615,7 +636,30 @@
       "plus": "More",
       "plusNom": "More pages",
       "plusTitre": "More admin pages",
-      "pageActuelle": ", current page: {nom}"
+      "pageActuelle": ", current page: {nom}",
+      "utilisateurs": "Users",
+      "groupes": {
+        "navigation": "Navigation",
+        "communaute": "Community",
+        "reglages": "Settings"
+      },
+      "aide": {
+        "titre": "Need help?",
+        "texte": "Check your data and manage your shop from this space."
+      },
+      "evitement": "Skip to the page content",
+      "voirSite": "View the site",
+      "voirSiteNom": "View the {nom} site",
+      "bandeau": {
+        "surtitre": "Administrator area",
+        "avatar": "{nom}, {role}",
+        "roles": {
+          "admin": "Administrator",
+          "assistant": "Assistant",
+          "benevole": "Volunteer",
+          "aucun": "No role"
+        }
+      }
     },
     "blog": {
       "titre": "Blog",
@@ -1346,6 +1390,20 @@
         "texte": "No products yet. Create the first one: it stays a draft until it is published.",
         "creer": "Create a product"
       },
+      "grille": {
+        "recherche": "Search for a product",
+        "recherchePlaceholder": "Search for a product…",
+        "aucunResultat": "No product matches your search.",
+        "photoAbsente": "No photo",
+        "modifier": "Edit",
+        "stock": {
+          "numerique": "Digital",
+          "en_stock": "In stock",
+          "sur_commande": "Made to order",
+          "epuise": "Sold out",
+          "sans_variante": "No size"
+        }
+      },
       "liste": {
         "legende": "Product list",
         "colonnes": {
@@ -1533,6 +1591,7 @@
         "statutPublie": "Published",
         "aideBrouillon": "This product is a draft: nobody can see it on the site.",
         "aidePublie": "This product is published: it is visible on the site. Its address and family can no longer change.",
+        "actionSur": "{action}: {titre}",
         "publier": "Publish",
         "depublier": "Unpublish",
         "enCours": "One moment…",

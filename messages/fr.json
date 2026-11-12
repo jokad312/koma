@@ -596,6 +596,27 @@
         "raisonSmc7": "La création de compte à l'étape de paiement n'est pas mesurée."
       }
     },
+    "utilisateurs": {
+      "titre": "Utilisateurs",
+      "intro": "Les Comptes du site, en lecture seule : aucun rôle ne se change ici. Les adresses email sont partiellement masquées.",
+      "recherche": "Rechercher un utilisateur",
+      "recherchePlaceholder": "Rechercher un utilisateur…",
+      "nombre": "{nombre, plural, =0 {Aucun utilisateur} one {# utilisateur} other {# utilisateurs}}",
+      "aucunResultat": "Aucun utilisateur ne correspond à ta recherche.",
+      "vide": "Aucun Compte pour le moment.",
+      "erreurLecture": "Les utilisateurs n'ont pas pu être lus. Recharge la page.",
+      "sansNom": "Compte sans nom",
+      "inscritLe": "Inscrit le {date}",
+      "inscritInconnu": "Date d'inscription inconnue",
+      "commandes": "Commandes",
+      "pass": "Pass",
+      "roles": {
+        "admin": "Administrateur",
+        "assistant": "Assistant",
+        "benevole": "Bénévole",
+        "aucun": "Utilisateur"
+      }
+    },
     "nav": {
       "tableau": "Tableau de bord",
       "libelle": "Administration",
@@ -615,7 +636,30 @@
       "plus": "Plus",
       "plusNom": "Plus de pages",
       "plusTitre": "Autres pages d'administration",
-      "pageActuelle": ", page actuelle : {nom}"
+      "pageActuelle": ", page actuelle : {nom}",
+      "utilisateurs": "Utilisateurs",
+      "groupes": {
+        "navigation": "Navigation",
+        "communaute": "Communauté",
+        "reglages": "Réglages"
+      },
+      "aide": {
+        "titre": "Besoin d'aide ?",
+        "texte": "Consulte les données et gère ta boutique depuis cet espace."
+      },
+      "evitement": "Aller au contenu de la page",
+      "voirSite": "Voir le site",
+      "voirSiteNom": "Voir le site {nom}",
+      "bandeau": {
+        "surtitre": "Espace administrateur",
+        "avatar": "{nom}, {role}",
+        "roles": {
+          "admin": "Administrateur",
+          "assistant": "Assistant",
+          "benevole": "Bénévole",
+          "aucun": "Sans rôle"
+        }
+      }
     },
     "blog": {
       "titre": "Blog",
@@ -1346,6 +1390,20 @@
         "texte": "Aucun produit pour le moment. Crée le premier : il restera un brouillon tant qu'il n'est pas publié.",
         "creer": "Créer un produit"
       },
+      "grille": {
+        "recherche": "Rechercher un produit",
+        "recherchePlaceholder": "Rechercher un produit…",
+        "aucunResultat": "Aucun produit ne correspond à ta recherche.",
+        "photoAbsente": "Pas de photo",
+        "modifier": "Modifier",
+        "stock": {
+          "numerique": "Numérique",
+          "en_stock": "En stock",
+          "sur_commande": "Sur commande",
+          "epuise": "Épuisé",
+          "sans_variante": "Aucune taille"
+        }
+      },
       "liste": {
         "legende": "Liste des produits",
         "colonnes": {
@@ -1533,6 +1591,7 @@
         "statutPublie": "Publié",
         "aideBrouillon": "Ce produit est un brouillon : personne ne le voit sur le site.",
         "aidePublie": "Ce produit est publié : il est visible sur le site. Son adresse et sa famille ne peuvent plus changer.",
+        "actionSur": "{action} : {titre}",
         "publier": "Publier",
         "depublier": "Dépublier",
         "enCours": "Un instant…",

@@ -3354,6 +3354,7 @@ export type Database = {
         }[]
       }
       lister_photos_admin: { Args: { p_auteur: Json }; Returns: Json }
+      lister_utilisateurs_admin: { Args: { p_auteur: Json }; Returns: Json }
       manques_publication: { Args: { p_produit_id: string }; Returns: string[] }
       manques_publication_evenement: {
         Args: { p_id: string }

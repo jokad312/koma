@@ -18,7 +18,7 @@ export async function PiedDePage({ nomSite, numeroWhatsapp = null }: { nomSite: 
   // Moyens des Prestataires actifs, lus côté serveur : aucun Prestataire inactif ; sans Prestataire actif, la carte n'est pas affichée.
   const moyensPaiement = await lireMoyensPaiementActifs();
   return (
-    <footer className="mt-12 px-marge pb-8">
+    <footer className="pied-site mt-12 px-marge pb-8">
       <div className="mx-auto grid max-w-7xl gap-ecart-cartes md:grid-cols-2 lg:grid-cols-4">
         <section aria-labelledby="pied-identite" className="rounded-lg border border-border bg-surface p-5">
           <h2 id="pied-identite" className="t-label text-text-primary">

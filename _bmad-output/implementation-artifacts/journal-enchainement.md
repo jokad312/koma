@@ -492,3 +492,9 @@
 - L'adaptateur reste NON ACTIVABLE (règle 15) : `QUESTIONS_OUVERTES` (forme du webhook, tolérance d'horodatage, prix ad hoc sur le produit, taxes du marchand officiel, carte seule, politique d'utilisation pour les eBooks). Statut `review` dans sprint-status : la story passera `done` après les essais sandbox de Jonathan (organisation Polar sandbox, clés dans `.env.local`, `POLAR_PRODUCT_ID`, tunnel `cloudflared`, carte de test).
 - Variables : `POLAR_ACCESS_TOKEN`, `POLAR_SERVER` (sandbox ou production), `POLAR_WEBHOOK_SECRET`, `POLAR_PRODUCT_ID`. Aucune clé fournie : rien n'a été appelé chez Polar.
 - Vitest `paiement-polar` (39 tests, faux accès nommés TEST) ; exception d'adresse pour les hôtes de l'API Polar dans `domaine-en-dur.test.ts`.
+
+
+## Correctif de design 9.10 : mise en page de l'admin (2026-11-12)
+- Spec `spec-9-10-refonte-mise-en-page-admin.md` (done). Disposition en L (barre latérale fixe, bandeau), Produits en grille de cartes, page Utilisateurs en lecture seule (migration `20270116100000`, pgTAP `utilisateurs_admin`), tests Vitest (`coque-admin`, `catalogue-ui`, `utilisateurs-admin`, `catalogue-queries`).
+- Le dossier `docs/references/maquettes-admin/` est ignoré par git (`docs/references/`), comme `docs/captures-admin/`. Outil de capture local `scripts/_capturer-admin.mjs` (exclu par `.git/info/exclude`) : il crée un Compte de test admin sur koma-dev par l'API d'administration, ouvre une vraie session, prend les captures et supprime le Compte.
+- À tester à la main : parcourir l'admin à 1280 px et sur téléphone ; créer un produit de test avec photo et publier / dépublier depuis la carte ; vérifier la page Utilisateurs avec un Compte Assistant (entrée absente, page refusée).

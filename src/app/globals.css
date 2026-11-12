@@ -389,6 +389,21 @@ a {
 
 /* ---------- Admin : la barre d'onglets fixe du mobile (58 px) ne doit pas masquer la fin du pied de page ---------- */
 
+/* Admin (story 9.10) : la coquille de l'admin a sa propre barre latérale et son propre bandeau ; l'en-tête et le pied du site sont retirés (display: none les retire
+   aussi des technologies d'assistance) et le contenu de la page prend toute la largeur. */
+body:has([data-coque-admin]) .entete-collant,
+body:has([data-coque-admin]) .pied-site {
+  display: none;
+}
+main:has([data-coque-admin]) {
+  max-width: none;
+  padding: 0;
+}
+/* Le bandeau collant ne cache pas un élément qui reçoit le focus au clavier. */
+html:has([data-coque-admin]) {
+  scroll-padding-top: 5rem;
+}
+
 @media (max-width: 767px) {
   body:has([data-barre-admin]) footer {
     padding-bottom: calc(2rem + 58px);

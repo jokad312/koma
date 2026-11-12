@@ -46,44 +46,84 @@ const UNIVERS = [
   { id: "TEST_univers-2", nomFr: "Univers de test B", nomEn: "Test universe B" },
 ];
 
-describe("ListeProduits", () => {
+describe("ListeProduits (grille de cartes)", () => {
   const produits: ProduitListe[] = [
-    { id: "TEST_p1", famille: "cosplay", titreFr: "TEST_Cosplay un", slug: "test-cosplay-un", prixCents: 4990, publieLe: null },
-    { id: "TEST_p2", famille: "accessoire", titreFr: "TEST_Accessoire deux", slug: "test-accessoire-deux", prixCents: null, publieLe: null },
+    { id: "TEST_p1", famille: "cosplay", titreFr: "TEST_Cosplay un", slug: "test-cosplay-un", prixCents: 4990, publieLe: null, universFr: "TEST_Univers", photo: { url: "https://test.invalid/p1.jpg", alt: "TEST_alt un" }, stock: "en_stock" },
+    { id: "TEST_p2", famille: "accessoire", titreFr: "TEST_Accessoire deux", slug: "test-accessoire-deux", prixCents: null, publieLe: "2026-11-01T00:00:00Z", universFr: null, photo: null, stock: "epuise" },
   ];
 
-  it("état vide : message et bouton de création", async () => {
-    rendre(await ListeProduits({ produits: [] }));
+  it("état vide : message et bouton de création", () => {
+    rendre(<ListeProduits produits={[]} />);
     expect(screen.getByText(/Aucun produit pour le moment/)).toBeTruthy();
     expect(screen.getByRole("link", { name: "Créer un produit" }).getAttribute("href")).toBe("/admin/produits/nouveau");
   });
 
-  it("nombre annoncé en statut, tableau avec légende et en-têtes de colonne, cartes pour le mobile", async () => {
-    rendre(await ListeProduits({ produits }));
+  it("compteur annoncé en statut, une carte par produit en grille (1 colonne sur téléphone, 2 à 4 ensuite)", () => {
+    rendre(<ListeProduits produits={produits} />);
     expect(screen.getByRole("status").textContent).toBe("2 produits");
-    const tableau = screen.getByRole("table", { hidden: true });
-    expect(within(tableau).getByText("Liste des produits")).toBeTruthy();
-    const entetes = within(tableau).getAllByRole("columnheader", { hidden: true });
-    expect(entetes.map((e) => e.textContent)).toEqual(["Titre", "Famille", "Statut", "Prix"]);
-    expect(entetes.every((e) => e.getAttribute("scope") === "col")).toBe(true);
-    // Un lien vers la fiche d'édition par produit, dans le tableau comme dans les cartes.
-    expect(screen.getAllByRole("link", { name: "TEST_Cosplay un", hidden: true }).map((l) => l.getAttribute("href"))).toEqual([
-      "/admin/produits/TEST_p1",
-      "/admin/produits/TEST_p1",
-    ]);
-    // Le tableau est masqué sous md, les cartes à partir de md.
-    expect(tableau.parentElement?.className).toContain("hidden");
-    expect(tableau.parentElement?.className).toContain("md:block");
-    expect(screen.getAllByRole("list", { hidden: true })[0].className).toContain("md:hidden");
+    const liste = screen.getByRole("list");
+    expect(liste.className).toContain("grid-cols-1");
+    expect(liste.className).toContain("sm:grid-cols-2");
+    expect(liste.className).toContain("2xl:grid-cols-4");
+    expect(within(liste).getAllByRole("listitem")).toHaveLength(2);
   });
 
-  it("statut avec icône et mot, prix en USD ou « Prix à fixer » (jamais inventé)", async () => {
-    rendre(await ListeProduits({ produits }));
-    expect(screen.getAllByText("Brouillon", { exact: true }).length).toBe(4);
-    expect(screen.getAllByText("Prix à fixer").length).toBe(2);
-    expect(screen.getAllByText((contenu) => contenu.replace(/\s/g, " ") === "49,90 $US").length).toBe(2);
-    expect(screen.getAllByText("Cosplay").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Accessoire").length).toBeGreaterThan(0);
+  it("carte : image avec texte alternatif (ou « Pas de photo »), nom, famille et univers, prix en USD ou « Prix à fixer », statut, stock, Modifier", () => {
+    rendre(<ListeProduits produits={produits} />);
+    const [un, deux] = screen.getAllByRole("listitem");
+    expect(within(un).getByRole("img", { name: "TEST_alt un" }).getAttribute("src")).toBe("https://test.invalid/p1.jpg");
+    expect(within(un).getByText("Cosplay · TEST_Univers")).toBeTruthy();
+    expect(within(un).getByText((contenu) => contenu.replace(/\s/g, " ") === "49,90 $US")).toBeTruthy();
+    expect(within(un).getByText("Brouillon")).toBeTruthy();
+    expect(within(un).getByText("En stock")).toBeTruthy();
+    expect(within(un).getByText("Modifier")).toBeTruthy();
+    expect(within(deux).queryByRole("img")).toBeNull();
+    expect(within(deux).getByText("Pas de photo")).toBeTruthy();
+    expect(within(deux).getByText("Prix à fixer")).toBeTruthy();
+    expect(within(deux).getByText("Publié")).toBeTruthy();
+    expect(within(deux).getByText("Épuisé")).toBeTruthy();
+    expect(within(deux).getByRole("button", { name: /Dépublier/ })).toBeTruthy();
+    expect(within(un).getByRole("button", { name: /^Publier/ })).toBeTruthy();
+  });
+
+  it("carte entière cliquable par un seul lien vers la fiche d'édition", () => {
+    rendre(<ListeProduits produits={produits} />);
+    for (const [carte, id] of [
+      [screen.getAllByRole("listitem")[0], "TEST_p1"],
+      [screen.getAllByRole("listitem")[1], "TEST_p2"],
+    ] as const) {
+      const liens = within(carte).getAllByRole("link");
+      expect(liens).toHaveLength(1);
+      expect(liens[0].getAttribute("href")).toBe(`/admin/produits/${id}`);
+      expect(liens[0].className).toContain("after:absolute");
+      expect(liens[0].className).toContain("min-h-touch");
+    }
+  });
+
+  it("le faux bouton « Modifier » laisse passer le clic vers le lien de la carte ; seul Publier / Dépublier capte la souris", () => {
+    rendre(<ListeProduits produits={produits} />);
+    const carte = screen.getAllByRole("listitem")[0];
+    const modifier = within(carte).getByText("Modifier");
+    expect(modifier.getAttribute("aria-hidden")).toBe("true");
+    expect(modifier.parentElement?.className).toContain("pointer-events-none");
+    expect(within(carte).getByRole("button", { name: /^Publier/ }).closest(".pointer-events-auto")).toBeTruthy();
+  });
+
+  it("recherche : par nom, famille ou univers, sans tenir compte de la casse ni des accents ; le compteur suit ; aucun résultat annoncé", async () => {
+    const user = userEvent.setup();
+    rendre(<ListeProduits produits={produits} />);
+    const champ = screen.getByRole("searchbox", { name: "Rechercher un produit" });
+    await user.type(champ, "accessoire");
+    expect(screen.getByRole("status").textContent).toBe("1 produit");
+    expect(screen.queryByText("TEST_Cosplay un")).toBeNull();
+    await user.clear(champ);
+    await user.type(champ, "UNIVERS");
+    expect(screen.getByRole("status").textContent).toBe("1 produit");
+    expect(screen.getByText("TEST_Cosplay un")).toBeTruthy();
+    await user.clear(champ);
+    await user.type(champ, "zzz");
+    expect(screen.getByRole("status").textContent).toBe("Aucun produit");
+    expect(screen.getByText("Aucun produit ne correspond à ta recherche.")).toBeTruthy();
   });
 });
 

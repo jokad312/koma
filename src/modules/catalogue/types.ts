@@ -304,7 +304,22 @@ export type PhotoAdmin = { id: string; fichier: string; altFr: string; altEn: st
 // Lectures admin.
 export type UniversAdmin = { id: string; nomFr: string; nomEn: string };
 
-export type ProduitListe = { id: string; famille: FamilleProduit; titreFr: string; slug: string; prixCents: number | null; publieLe: string | null };
+// État du stock affiché sur la carte d'un produit (admin) : « numerique » pour un Kit (pas de stock) ; pour un produit physique, d'après ses variantes.
+export type EtatStockListe = "numerique" | "en_stock" | "sur_commande" | "epuise" | "sans_variante";
+
+export type ProduitListe = {
+  id: string;
+  famille: FamilleProduit;
+  titreFr: string;
+  slug: string;
+  prixCents: number | null;
+  publieLe: string | null;
+  // Nom français de l'univers ; null si le produit n'en a pas.
+  universFr: string | null;
+  // Première photo (adresse publique et texte alternatif français) ; null tant qu'aucune photo n'est ajoutée (jamais une image inventée).
+  photo: { url: string; alt: string } | null;
+  stock: EtatStockListe;
+};
 
 export type VarianteAdmin = { taille: Taille; stock: number; fabricationSurCommande: boolean; delaiFabricationJours: number | null };
 

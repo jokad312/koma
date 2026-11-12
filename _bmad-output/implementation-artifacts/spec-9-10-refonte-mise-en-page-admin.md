@@ -2,7 +2,7 @@
 title: 'Correctif de design 9.10 : mise en page de l''admin (disposition en L, grilles Produits et Utilisateurs)'
 type: 'feature'
 created: '2026-11-12'
-status: 'draft'
+status: 'done'
 route: 'plan'
 ---
 
@@ -41,3 +41,11 @@ route: 'plan'
 ## Fichiers (prévus)
 
 `src/components/admin/CoqueAdmin.tsx`, `NavigationAdmin.tsx`, `BandeauAdmin.tsx`, `ListeProduits.tsx` (grille), `GrilleUtilisateurs.tsx`, `src/app/[locale]/admin/utilisateurs/page.tsx`, `src/modules/admin/utilisateurs.ts`, `supabase/migrations/2027011310*.sql`, `supabase/tests/utilisateurs_admin.test.sql`, `src/app/globals.css`, `messages/{fr,en}.json`, tests Vitest et e2e.
+
+## Réalisé (2026-11-12)
+
+- Coquille `CoqueAdmin` (barre latérale fixe, bandeau, second lien d'évitement), `NavigationAdmin` (groupes Navigation, Communauté, Réglages ; panneau « Plus » avec « Voir le site », thème, langue et déconnexion sur mobile), `BandeauAdmin`, grille `ListeProduits` (image, famille et univers, prix, statut, stock, Modifier et Publier / Dépublier, recherche, compteur, un seul lien par carte), page et grille `Utilisateurs` (lecture seule).
+- Migration `20270116100000_utilisateurs_admin.sql` (`lister_utilisateurs_admin`, réservée au serveur et à l'Admin, email masqué dans la base) ; pgTAP `utilisateurs_admin` (13, rejoué sur koma-dev avec des fonctions de remplacement de pgTAP).
+- Pas d'entrée « Kits » (pas de page propre) ni d'icônes (à la demande : seulement la disposition des maquettes). Le titre du bandeau reprend le libellé de la section : le h1 de chaque page reste (double titre visible, volontaire).
+- Revues par sous-agents (design et accessibilité) : corrigés le faux bouton « Modifier » (clic perdu), le lien d'évitement, la marge de défilement sous le bandeau, la hauteur de la barre latérale. Axe-core : 0 violation et aucun défilement horizontal sur 6 pages à 1280 et 375 px (Compte de test TEST_ créé puis supprimé sur koma-dev par un outil local non commité).
+- Captures avant et après dans `docs/captures-admin/` (ignoré par git).

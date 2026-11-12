@@ -60,3 +60,6 @@ gofullpage-*
 
 # Documentation des prestataires de paiement (résumés locaux, hors dépôt)
 docs/references/
+
+# Captures d'écran de comparaison de l'admin (jamais commitées)
+docs/captures-admin/

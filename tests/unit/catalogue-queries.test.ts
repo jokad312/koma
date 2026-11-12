@@ -100,8 +100,44 @@ describe("lectures admin", () => {
   it("univers et produits : correspondance des colonnes, erreur relancée", async () => {
     faux.resultat = { data: [{ id: "TEST_1", nom_fr: "A", nom_en: "B" }], error: null };
     expect(await lireUniversAdmin()).toEqual([{ id: "TEST_1", nomFr: "A", nomEn: "B" }]);
-    faux.resultat = { data: [{ id: "TEST_p", famille: "cosplay", titre_fr: "T", slug: "t", prix_cents: null, publie_le: null }], error: null };
-    expect(await lireProduitsAdmin()).toEqual([{ id: "TEST_p", famille: "cosplay", titreFr: "T", slug: "t", prixCents: null, publieLe: null }]);
+    // L'adresse publique d'une photo se calcule depuis l'adresse du projet (jamais écrite en dur).
+    process.env.NEXT_PUBLIC_SITE_URL = "https://test.example.invalid";
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://supabase.example.invalid";
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = "TEST_cle";
+    faux.parTable = {
+      produit: {
+        data: [
+          { id: "TEST_p", famille: "cosplay", titre_fr: "T", slug: "t", prix_cents: null, publie_le: null, univers: { nom_fr: "TEST_Univers" } },
+          { id: "TEST_k", famille: "kit", titre_fr: "K", slug: "k", prix_cents: 990, publie_le: null, univers: null },
+          { id: "TEST_s", famille: "accessoire", titre_fr: "S", slug: "s", prix_cents: 100, publie_le: null, univers: null },
+          { id: "TEST_e", famille: "accessoire", titre_fr: "E", slug: "e", prix_cents: 100, publie_le: null, univers: null },
+        ],
+        error: null,
+      },
+      produit_photo: {
+        data: [
+          { produit_id: "TEST_p", fichier: "TEST_p/a.jpg", alt_fr: "Face", position: 1 },
+          { produit_id: "TEST_p", fichier: "TEST_p/b.jpg", alt_fr: "Dos", position: 2 },
+        ],
+        error: null,
+      },
+      variante: {
+        data: [
+          { produit_id: "TEST_p", stock: 2, fabrication_sur_commande: false },
+          { produit_id: "TEST_s", stock: 0, fabrication_sur_commande: true },
+          { produit_id: "TEST_e", stock: 0, fabrication_sur_commande: false },
+        ],
+        error: null,
+      },
+    };
+    const produits = await lireProduitsAdmin();
+    // Univers, première photo (position la plus basse) et état du stock : en stock, numérique (Kit), sur commande, épuisé ; sans photo : null.
+    expect(produits[0]).toMatchObject({ id: "TEST_p", titreFr: "T", prixCents: null, publieLe: null, universFr: "TEST_Univers", stock: "en_stock", photo: { alt: "Face" } });
+    expect(produits[0].photo?.url).toContain("TEST_p/a.jpg");
+    expect(produits[1]).toMatchObject({ id: "TEST_k", universFr: null, photo: null, stock: "numerique" });
+    expect(produits[2]).toMatchObject({ id: "TEST_s", stock: "sur_commande" });
+    expect(produits[3]).toMatchObject({ id: "TEST_e", stock: "epuise" });
+    faux.parTable = {};
     faux.resultat = { data: null, error: { message: "TEST" } };
     await expect(lireProduitsAdmin()).rejects.toThrow();
     await expect(lireUniversAdmin()).rejects.toThrow();
