@@ -104,7 +104,7 @@ development_status:
   6-7-réclamation-et-remplacement: done
   epic-6-retrospective: optional
 
-  epic-7: backlog
+  epic-7: done
   7-1-créer-un-événement-et-ses-types-de-pass: done
   7-2-pages-festival: done
   7-3-me-prévenir-alerte-événement: done
@@ -118,7 +118,7 @@ development_status:
   7-11-candidature-stand: done
   epic-7-retrospective: done
 
-  epic-8: backlog
+  epic-8: done
   8-1-envoyer-sa-photo-depuis-son-compte: done
   8-2-validation-dépôt-whatsapp-et-retrait-des-photos: done
   8-3-galerie-ils-le-portent-sur-l-accueil: done
