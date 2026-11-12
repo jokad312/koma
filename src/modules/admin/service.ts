@@ -1,6 +1,6 @@
 import type { AuteurCompte } from "@/lib/auth/auteur";
 import { analyserForfaitUsd } from "@/lib/argent";
-import { cleReglageSchema, correctionAgeSchema, entreeReglageSchema, idMessageSchema, nomSiteSchema, numeroWhatsappSchema, delaiPaiementSchema, fraisAnnulationPassSchema, delaiStandHeuresSchema, plafondSchema, retraitSchema } from "./schemas";
+import { cleReglageSchema, correctionAgeSchema, entreeReglageSchema, idMessageSchema, nomSiteSchema, numeroWhatsappSchema, delaiPaiementSchema, fraisAnnulationPassSchema, delaiStandHeuresSchema, relancesRythmeJoursSchema, plafondSchema, retraitSchema } from "./schemas";
 import type { CorrectionAge, EntreeReglage } from "./schemas";
 import type { CleReglage, CodeErreurAdmin, DependancesAdmin, ResultatAdmin } from "./types";
 
@@ -55,6 +55,10 @@ function normaliser(cle: CleReglage, valeur: string): { valeur: string | null } 
     const lu = delaiStandHeuresSchema.safeParse(valeur);
     return lu.success ? { valeur: lu.data } : { erreur: "delai_stand_invalide" };
   }
+  if (cle === "relances_rythme_jours") {
+    const lu = relancesRythmeJoursSchema.safeParse(valeur);
+    return lu.success ? { valeur: lu.data } : { erreur: "relances_rythme_invalide" };
+  }
   if (cle === "plafond_fabrication") {
     const lu = plafondSchema.safeParse(valeur);
     return lu.success ? { valeur: lu.data } : { erreur: "plafond_invalide" };
@@ -75,6 +79,7 @@ const ERREUR_PAR_CLE: Record<CleReglage, CodeErreurAdmin> = {
   delai_paiement: "delai_paiement_invalide",
   frais_annulation_pass: "frais_annulation_invalide",
   delai_stand_heures: "delai_stand_invalide",
+  relances_rythme_jours: "relances_rythme_invalide",
 };
 
 // Droit, validation, écriture, puis invalidation du cache : « ok » n'est renvoyé qu'après la réponse réelle de la base (règle 13).

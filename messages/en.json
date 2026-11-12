@@ -827,7 +827,8 @@
         "generique": "The setting could not be saved. Your entry is kept: try again.",
         "delai_paiement_invalide": "The time limit must be a whole number from 1 to 1440 minutes.",
         "frais_annulation_invalide": "The fee must be a whole number from 0 to 100.",
-        "delai_stand_invalide": "The delay must be a whole number from 1 to 168 hours."
+        "delai_stand_invalide": "The delay must be a whole number from 1 to 168 hours.",
+        "relances_rythme_invalide": "The rhythm must be a whole number from 1 to 30 days."
       },
       "tranches": {
         "titre": "Price ranges",
@@ -963,6 +964,11 @@
         "titre": "Stand payment delay",
         "libelle": "Stand payment delay (hours)",
         "aide": "Time given to an exhibitor to pay for their stand once the application is accepted, from 1 to 168 hours. After that, the spot is released. While this setting is empty, no application can be accepted."
+      },
+      "relancesRythme": {
+        "titre": "Reminder rhythm",
+        "libelle": "Days between two reminders",
+        "aide": "Minimum number of days between two reminders sent to the same customer after a purchase, from 1 to 30. While this setting is empty, no reminder is scheduled."
       }
     },
     "evenements": {
@@ -3567,6 +3573,29 @@
       "intro": "{produit} has just arrived in the {univers} universe.",
       "lien": "See the product:",
       "bouton": "Discover"
+    },
+    "relance": {
+      "kit": {
+        "sujet": "Your kit {kit} is still waiting",
+        "titre": "Keep going with your kit {kit}",
+        "texte": "Move on to chapter {n} of {kit}.",
+        "lien": "Your kit:",
+        "bouton": "Open my kit"
+      },
+      "evenement": {
+        "sujet": "{evenement} is coming up",
+        "titre": "{evenement} is coming up",
+        "texte": "{evenement} takes place on {date}. Find the details and get your spot.",
+        "lien": "The Event:",
+        "bouton": "See the Event"
+      },
+      "nouveaute": {
+        "sujet": "New in {univers}: {produit}",
+        "titre": "New in {univers}",
+        "texte": "{produit} just arrived in the {univers} universe.",
+        "lien": "The product:",
+        "bouton": "See the product"
+      }
     }
   },
   "Bibliotheque": {

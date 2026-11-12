@@ -15,7 +15,7 @@ import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
 import { cheminPublic } from "@/i18n/adresses";
 import { formaterDateHeureBoutique } from "@/lib/dates";
 import { lienDesinscription, lienDesinscriptionUnClic } from "@/modules/preferences/lien-desinscription";
-import { rendreNouveauProduit, rendrePanierAbandonne, rendreRappelKit } from "./modeles/commerciaux";
+import { rendreNouveauProduit, rendrePanierAbandonne, rendreRappelKit, rendreRelanceEvenement, rendreRelanceKit, rendreRelanceNouveaute } from "./modeles/commerciaux";
 import { rendreAlerte } from "@/modules/alertes/rendu";
 import { MODELES_COMMERCIAUX } from "./types";
 import type { DependancesEnvois, EnvoiLie, EnvoiReserve, LangueEmail, ResultatRendu } from "./types";
@@ -28,7 +28,7 @@ const STATUTS_KIT = ["offerte", "livree", "payee"];
 const titreSelonLangue = (p: { titre_fr: string; titre_en: string | null }, langue: LangueEmail) => (langue === "en" && p.titre_en ? p.titre_en : p.titre_fr);
 
 // Emails commerciaux ciblés (story 9.6) : jamais envoyés si leur sujet n'est plus vrai (Panier vidé ou payé, Kit terminé, Produit dépublié).
-const MODELES_CIBLES = ["panier_abandonne", "rappel_kit", "nouveau_produit"] as const;
+const MODELES_CIBLES = ["panier_abandonne", "rappel_kit", "nouveau_produit", "relance"] as const;
 
 async function rendreCommercial(client: ClientService, envoi: EnvoiLie, destinataire: string, nomSite: string, site: string): Promise<ResultatRendu> {
   const langue = envoi.langue;
@@ -53,6 +53,8 @@ async function rendreCommercial(client: ClientService, envoi: EnvoiLie, destinat
     if ((panier.ligne_panier ?? []).length === 0) return { statut: "ignorer", raison: "panier vide ou payé" };
     return { statut: "pret", destinataire, message: { ...rendrePanierAbandonne(langue, { ...commun, url: `${site}/${langue}${cheminPublic(langue, "/panier")}` }), entetes } };
   }
+
+  if (envoi.modele === "relance") return rendreRelance(client, envoi, destinataire, site, { ...commun, entetes });
 
   const produitId = envoi.donnees.produit_id;
   if (!produitId) return { statut: "ignorer", raison: "produit non indiqué" };
@@ -104,6 +106,81 @@ async function rendreCommercial(client: ClientService, envoi: EnvoiLie, destinat
   }
 
   return { statut: "ignorer", raison: "modèle sans gabarit" };
+}
+
+// Relance après achat (story 9.5) : un seul sujet, porté par la clé de envoi.donnees (kit_id, evenement_id ou produit_id) et relu en base : un Kit terminé,
+// un Événement passé ou trop lointain, un produit dépublié n'est jamais relancé (« ignorer »). Un produit acheté entre la planification et l'envoi est encore
+// relancé (écart de quelques heures, noté dans deferred-work).
+async function rendreRelance(
+  client: ClientService,
+  envoi: EnvoiLie,
+  destinataire: string,
+  site: string,
+  commun: { nomSite: string; lienDesinscription: string; entetes: Record<string, string> },
+): Promise<ResultatRendu> {
+  const langue = envoi.langue;
+  const { entetes, ...base } = commun;
+  const kitId = envoi.donnees.kit_id;
+  const evenementId = envoi.donnees.evenement_id;
+  const produitId = envoi.donnees.produit_id;
+
+  if (kitId) {
+    const { data: kit, error } = await client.from("produit").select("slug, famille, titre_fr, titre_en").eq("id", kitId).maybeSingle();
+    if (error) return { statut: "reessayer", raison: "lecture du produit impossible" };
+    if (!kit || kit.famille !== "kit") return { statut: "ignorer", raison: "kit introuvable" };
+    const { data: acces, error: erreurAcces } = await client.from("acces_kit").select("id").eq("compte_id", envoi.compteId).eq("produit_id", kitId).maybeSingle();
+    if (erreurAcces) return { statut: "reessayer", raison: "lecture de l'accès impossible" };
+    if (!acces) return { statut: "ignorer", raison: "kit sans accès" };
+    const { data: progression, error: erreurProgression } = await client
+      .from("progression_video")
+      .select("position_secondes, max_position_secondes, terminee_le")
+      .eq("compte_id", envoi.compteId)
+      .eq("produit_id", kitId)
+      .maybeSingle();
+    if (erreurProgression) return { statut: "reessayer", raison: "lecture de la progression impossible" };
+    if (!progression || progression.max_position_secondes <= 0) return { statut: "ignorer", raison: "kit pas commencé" };
+    if (progression.terminee_le) return { statut: "ignorer", raison: "kit terminé" };
+    const { count: commences, error: erreurCommences } = await client
+      .from("chapitre_kit")
+      .select("id", { count: "exact", head: true })
+      .eq("produit_id", kitId)
+      .lte("debut_secondes", progression.position_secondes);
+    const { count: total, error: erreurTotal } = await client.from("chapitre_kit").select("id", { count: "exact", head: true }).eq("produit_id", kitId);
+    if (erreurCommences || erreurTotal) return { statut: "reessayer", raison: "lecture des chapitres impossible" };
+    // Chapitre suivant celui en cours ; sur le dernier chapitre, on reprend ce dernier (jamais un chapitre qui n'existe pas).
+    const chapitre = Math.max(1, Math.min(total ?? 1, (commences ?? 1) + 1));
+    const url = `${site}/${langue}/compte/bibliotheque/${encodeURIComponent(kit.slug)}`;
+    return { statut: "pret", destinataire, message: { ...rendreRelanceKit(langue, { ...base, url, kit: titreSelonLangue(kit, langue), chapitre }), entetes } };
+  }
+
+  if (evenementId) {
+    const { data: evenement, error } = await client.from("evenement").select("slug, titre_fr, titre_en, publie_le, debut_le").eq("id", evenementId).maybeSingle();
+    if (error) return { statut: "reessayer", raison: "lecture de l'Événement impossible" };
+    if (!evenement || !evenement.publie_le || Date.parse(evenement.publie_le) > Date.now()) return { statut: "ignorer", raison: "Événement non publié" };
+    const debut = evenement.debut_le ? Date.parse(evenement.debut_le) : NaN;
+    if (!Number.isFinite(debut) || debut <= Date.now() || debut > Date.now() + 30 * 86_400_000) return { statut: "ignorer", raison: "Événement passé ou pas dans les 30 jours" };
+    const date = new Intl.DateTimeFormat(langue === "en" ? "en-GB" : "fr-FR", { dateStyle: "long", timeZone: "Africa/Lubumbashi" }).format(debut);
+    const url = `${site}/${langue}/festival/${encodeURIComponent(evenement.slug)}`;
+    return { statut: "pret", destinataire, message: { ...rendreRelanceEvenement(langue, { ...base, url, evenement: titreSelonLangue(evenement, langue), date }), entetes } };
+  }
+
+  if (produitId) {
+    const { data: produit, error } = await client
+      .from("produit")
+      .select("slug, famille, titre_fr, titre_en, publie_le, univers:univers_id(nom_fr, nom_en)")
+      .eq("id", produitId)
+      .maybeSingle();
+    if (error) return { statut: "reessayer", raison: "lecture du produit impossible" };
+    if (!produit || !produit.publie_le || Date.parse(produit.publie_le) > Date.now()) return { statut: "ignorer", raison: "produit non publié" };
+    const univers = Array.isArray(produit.univers) ? produit.univers[0] : produit.univers;
+    if (!univers) return { statut: "ignorer", raison: "produit sans univers" };
+    const dossier = produit.famille === "kit" ? "/kits" : produit.famille === "accessoire" ? "/accessoires" : "/cosplays";
+    const url = `${site}/${langue}${cheminPublic(langue, dossier)}/${encodeURIComponent(produit.slug)}`;
+    const nomUnivers = langue === "en" ? univers.nom_en : univers.nom_fr;
+    return { statut: "pret", destinataire, message: { ...rendreRelanceNouveaute(langue, { ...base, url, produit: titreSelonLangue(produit, langue), univers: nomUnivers }), entetes } };
+  }
+
+  return { statut: "ignorer", raison: "relance sans sujet" };
 }
 
 // Relit la base au moment du rendu : l'envoi ne porte que des identifiants. Un contenu qui ne correspond plus au Compte

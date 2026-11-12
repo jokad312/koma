@@ -19,6 +19,7 @@ export async function lireReglagesAdmin(): Promise<ReglagesAdmin> {
       "delai_paiement",
       "frais_annulation_pass",
       "delai_stand_heures",
+      "relances_rythme_jours",
     ]);
   if (error) throw new Error("Lecture des réglages impossible.");
   const valeur = (cle: string) => data?.find((ligne) => ligne.cle === cle)?.valeur?.trim() || null;
@@ -33,6 +34,7 @@ export async function lireReglagesAdmin(): Promise<ReglagesAdmin> {
     delaiPaiement: valeur("delai_paiement"),
     fraisAnnulationPass: valeur("frais_annulation_pass"),
     delaiStandHeures: valeur("delai_stand_heures"),
+    relancesRythmeJours: valeur("relances_rythme_jours"),
   };
 }
 

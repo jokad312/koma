@@ -28,6 +28,7 @@ const CONFIG: Record<CleReglage, { texte: string; champ: "texte" | "tel" | "usd"
   delai_paiement: { texte: "delaiPaiement", champ: "entier", erreur: "delai_paiement_invalide" },
   frais_annulation_pass: { texte: "fraisAnnulationPass", champ: "entier", erreur: "frais_annulation_invalide" },
   delai_stand_heures: { texte: "delaiStand", champ: "entier", erreur: "delai_stand_invalide" },
+  relances_rythme_jours: { texte: "relancesRythme", champ: "entier", erreur: "relances_rythme_invalide" },
 };
 
 // Un réglage = un formulaire. Le succès n'apparaît qu'après la réponse de l'action serveur ; la saisie est conservée après un échec.

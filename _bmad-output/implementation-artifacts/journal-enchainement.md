@@ -477,3 +477,10 @@
 - Story 8.5 : spec `spec-8-5-operation-10-pass-gratuits.md`, migrations `20270114100000` à `20270114130000`, pgTAP `pass_offerts` (24, rejoué sur koma-dev avec des fonctions de remplacement de pgTAP, absent de koma-dev), revue par sous-agent : corrigés (libellé de la tâche `pass_offert_impossible`, premier rang libre, double annonce d'état). Le règlement de l'opération reste `[Texte à fournir]` (`Communaute.realisation.operation.reglement`) : le build de production échoue avec `KOMA_VERIFIER_TEXTES` tant que Jonathan ne l'a pas fourni.
 - Spec `spec-9-10-refonte-mise-en-page-admin.md` écrite en brouillon (refonte de la mise en page de l'admin), non implémentée.
 - Méthode : une chaîne `cat > fichier <<'EOF'` contenant `$$` fait échouer l'outil Bash ; écrire les fichiers avec l'outil d'écriture.
+
+
+## Story 9.5 : Relances (2026-11-12)
+- Migrations `20270115100000` (réglage `relances_rythme_jours`, 3 jours au départ, modifiable dans Réglages), `20270115110000` (`planifier_relances`, déclencheur pg_cron toutes les 6 h, route `/api/cron/relances`), `20270115120000` (correctifs de revue : filtres avant la limite de 1000 Comptes, index, univers acheté sans Commande offerte). pgTAP `relances` (17, rejoué sur koma-dev avec des fonctions de remplacement de pgTAP). Vitest `relances` (rendu des trois sujets, route, réglage, textes).
+- Sujets : Kit commencé (chapitre suivant), Événement dans les 30 jours, nouveauté de l'univers (publiée depuis moins de 30 jours, pas déjà possédée). Le sujet est porté par la clé de `envoi.donnees` (`kit_id`, `evenement_id`, `produit_id`).
+- Textes `Emails.relance` écrits par Claude (FR/EN) : à valider par Jonathan. La tâche pg_cron et la route ne tournent qu'avec les secrets Vault `site_url` et `cron_secret` (Q-D1 : pas de domaine).
+- Erreur de CI de la 8.5 (liste fermée des types d'anomalie dans `envois.test.sql`) corrigée en `407f2c1`.

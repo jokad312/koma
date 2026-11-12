@@ -11,6 +11,7 @@ export const CLES_REGLAGE = [
   "delai_paiement",
   "frais_annulation_pass",
   "delai_stand_heures",
+  "relances_rythme_jours",
 ] as const;
 
 export const cleReglageSchema = z.enum(CLES_REGLAGE);
@@ -50,6 +51,12 @@ export const delaiStandHeuresSchema = z
   .string()
   .transform((v) => v.trim())
   .pipe(z.union([z.literal("").transform(() => null), z.string().regex(/^[0-9]{1,3}$/).transform(Number).pipe(z.number().int().min(1).max(168)).transform(String)]));
+
+// Rythme des Relances (story 9.5) : jours minimum entre deux Relances d'un même Compte, entier de 1 à 30 ; vide = effacé (null).
+export const relancesRythmeJoursSchema = z
+  .string()
+  .transform((v) => v.trim())
+  .pipe(z.union([z.literal("").transform(() => null), z.string().regex(/^[0-9]{1,2}$/).transform(Number).pipe(z.number().int().min(1).max(30)).transform(String)]));
 
 export const entreeReglageSchema = z.object({
   cle: cleReglageSchema,

@@ -42,6 +42,7 @@ describe("lireReglagesAdmin", () => {
       delaiPaiement: null,
       fraisAnnulationPass: null,
       delaiStandHeures: null,
+      relancesRythmeJours: null,
     });
     expect(faux.cles).toEqual([
       "nom_site",
@@ -54,6 +55,7 @@ describe("lireReglagesAdmin", () => {
       "delai_paiement",
       "frais_annulation_pass",
       "delai_stand_heures",
+      "relances_rythme_jours",
     ]);
   });
 
@@ -70,6 +72,7 @@ describe("lireReglagesAdmin", () => {
       delaiPaiement: null,
       fraisAnnulationPass: null,
       delaiStandHeures: null,
+      relancesRythmeJours: null,
     });
   });
 
@@ -96,6 +99,7 @@ describe("lireReglagesAdmin", () => {
       delaiPaiement: "30",
       fraisAnnulationPass: "20",
       delaiStandHeures: "48",
+      relancesRythmeJours: null,
     });
   });
 

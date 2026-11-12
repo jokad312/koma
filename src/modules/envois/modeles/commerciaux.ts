@@ -38,3 +38,22 @@ export function rendreNouveauProduit(langue: LangueEmail, d: Commun & { produit:
   const { html, texte } = finir(langue, remplir(t.titre, { univers: d.univers }), [remplir(t.intro, { produit: d.produit, univers: d.univers })], d, t.lien, t.bouton);
   return { sujet: remplir(t.sujet, { produit: d.produit, univers: d.univers }), html, texte };
 }
+
+// Relance après achat (story 9.5, FR-45) : un seul sujet par email, textes dans messages/*.json (Emails.relance), à valider par Jonathan.
+export function rendreRelanceKit(langue: LangueEmail, d: Commun & { kit: string; chapitre: number }): MessageEmail {
+  const t = TEXTES[langue].relance.kit;
+  const { html, texte } = finir(langue, remplir(t.titre, { kit: d.kit }), [remplir(t.texte, { kit: d.kit, n: d.chapitre })], d, t.lien, t.bouton);
+  return { sujet: remplir(t.sujet, { kit: d.kit }), html, texte };
+}
+
+export function rendreRelanceEvenement(langue: LangueEmail, d: Commun & { evenement: string; date: string }): MessageEmail {
+  const t = TEXTES[langue].relance.evenement;
+  const { html, texte } = finir(langue, remplir(t.titre, { evenement: d.evenement }), [remplir(t.texte, { evenement: d.evenement, date: d.date })], d, t.lien, t.bouton);
+  return { sujet: remplir(t.sujet, { evenement: d.evenement }), html, texte };
+}
+
+export function rendreRelanceNouveaute(langue: LangueEmail, d: Commun & { produit: string; univers: string }): MessageEmail {
+  const t = TEXTES[langue].relance.nouveaute;
+  const { html, texte } = finir(langue, remplir(t.titre, { univers: d.univers }), [remplir(t.texte, { produit: d.produit, univers: d.univers })], d, t.lien, t.bouton);
+  return { sujet: remplir(t.sujet, { produit: d.produit, univers: d.univers }), html, texte };
+}

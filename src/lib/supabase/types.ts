@@ -3445,6 +3445,7 @@ export type Database = {
       planifier_alertes_evenements: { Args: never; Returns: number }
       planifier_emails_cibles: { Args: never; Returns: number }
       planifier_galeries_evenements: { Args: never; Returns: number }
+      planifier_relances: { Args: never; Returns: number }
       possede_kit: {
         Args: { p_compte: string; p_produit: string }
         Returns: boolean
@@ -3512,6 +3513,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      relances_declencher: { Args: never; Returns: boolean }
       remplacer_fichier_kit: {
         Args: {
           p_auteur: Json

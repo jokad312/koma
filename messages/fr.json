@@ -827,7 +827,8 @@
         "generique": "Le réglage n'a pas pu être enregistré. Ta saisie est conservée : réessaie.",
         "delai_paiement_invalide": "Le délai doit être un nombre entier de 1 à 1440 minutes.",
         "frais_annulation_invalide": "Les frais doivent être un nombre entier de 0 à 100.",
-        "delai_stand_invalide": "Le délai doit être un nombre entier de 1 à 168 heures."
+        "delai_stand_invalide": "Le délai doit être un nombre entier de 1 à 168 heures.",
+        "relances_rythme_invalide": "Le rythme doit être un nombre entier de 1 à 30 jours."
       },
       "tranches": {
         "titre": "Tranches de prix",
@@ -963,6 +964,11 @@
         "titre": "Délai de paiement d'un Stand",
         "libelle": "Délai de paiement d'un Stand (heures)",
         "aide": "Temps laissé à un exposant pour payer son Stand après l'acceptation de sa candidature, de 1 à 168 heures. Passé ce délai, la place est libérée. Tant que ce réglage est vide, aucune candidature ne peut être acceptée."
+      },
+      "relancesRythme": {
+        "titre": "Rythme des Relances",
+        "libelle": "Jours entre deux Relances",
+        "aide": "Nombre de jours minimum entre deux Relances envoyées à un même client après un achat, de 1 à 30. Tant que ce réglage est vide, aucune Relance n'est planifiée."
       }
     },
     "evenements": {
@@ -3567,6 +3573,29 @@
       "intro": "{produit} vient d'arriver dans l'univers {univers}.",
       "lien": "Voir le produit :",
       "bouton": "Découvrir"
+    },
+    "relance": {
+      "kit": {
+        "sujet": "Ton kit {kit} t'attend toujours",
+        "titre": "Continue ton kit {kit}",
+        "texte": "Passe au chapitre {n} de {kit}.",
+        "lien": "Ton kit :",
+        "bouton": "Ouvrir mon kit"
+      },
+      "evenement": {
+        "sujet": "{evenement} approche",
+        "titre": "{evenement} approche",
+        "texte": "{evenement} a lieu le {date}. Retrouve les informations et prends ta place.",
+        "lien": "L'Événement :",
+        "bouton": "Voir l'Événement"
+      },
+      "nouveaute": {
+        "sujet": "Nouveau dans {univers} : {produit}",
+        "titre": "Nouveau dans {univers}",
+        "texte": "{produit} vient d'arriver dans l'univers {univers}.",
+        "lien": "Le produit :",
+        "bouton": "Voir le produit"
+      }
     }
   },
   "Bibliotheque": {
