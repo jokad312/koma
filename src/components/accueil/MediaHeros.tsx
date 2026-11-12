@@ -8,12 +8,13 @@ import { estPremierePage, mesurer } from "@/modules/mesure/client";
 type Props = {
   // Adresse du MP4 public validé par le serveur ; null : photo seule.
   videoUrl: string | null;
-  repli: { url: string; alt: string } | null;
+  // detoure : photo détourée (fond transparent), posée en pied du cadre sans rognage ; sinon photo rectangulaire, remplissant un cadre arrondi.
+  repli: { url: string; alt: string; detoure: boolean } | null;
 };
 
 const CLE_PAUSE = "ks-heros-pause";
 const EVENEMENT_PAUSE = "ks-heros-pause";
-// Parallaxe légère : le média suit le défilement à 8 % de sa vitesse, jusqu'à 600 px de défilement.
+// Parallaxe légère de la vidéo : elle suit le défilement à 8 % de sa vitesse, jusqu'à 600 px de défilement.
 const FACTEUR_PARALLAXE = 0.08;
 const DEFILEMENT_MAX = 600;
 
@@ -120,10 +121,23 @@ export function MediaHeros({ videoUrl, repli }: Props) {
 
   return (
     <>
-      <div ref={refMedia} className="absolute inset-0 overflow-hidden" data-media-heros={afficheVideo ? "video" : "photo"}>
-        <div className="absolute inset-0 origin-center [transform:translate3d(0,var(--decalage,0px),0)_scale(1.1)] motion-reduce:[transform:none]">
+      <div
+        ref={refMedia}
+        className={`absolute inset-0 ${repli?.detoure && !afficheVideo ? "" : "overflow-hidden rounded-xl"}`}
+        data-media-heros={afficheVideo ? "video" : "photo"}
+      >
+        <div className={`absolute inset-0 ${afficheVideo ? "origin-center [transform:translate3d(0,var(--decalage,0px),0)_scale(1.1)] motion-reduce:[transform:none]" : ""}`}>
           {repli ? (
-            <Image ref={refImage} src={repli.url} alt={repli.alt} fill priority sizes="(min-width: 1024px) 66vw, 100vw" className="object-cover" onLoad={signalerCharge} />
+            <Image
+              ref={refImage}
+              src={repli.url}
+              alt={repli.alt}
+              fill
+              priority
+              sizes="(min-width: 1280px) 40vw, 100vw"
+              className={repli.detoure ? "object-contain object-bottom" : "object-cover"}
+              onLoad={signalerCharge}
+            />
           ) : null}
           {avecVideo ? (
             <video

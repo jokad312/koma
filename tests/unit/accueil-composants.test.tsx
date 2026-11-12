@@ -112,6 +112,7 @@ describe("BlocPorteOuFabrique", () => {
     videoUrl: null,
     repli: null,
     vedette: {
+      slug: "test",
       titre: "Cosplay de test",
       href: "/cosplays/test",
       hrefKit: "/kits/test-kit",

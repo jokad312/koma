@@ -18,7 +18,8 @@ async function ouvrir(page: Page, langue: string, theme: string) {
 }
 
 async function violationsGraves(page: Page, regles: { sansContraste?: boolean } = {}) {
-  const axe = new AxeBuilder({ page });
+  // Mot géant « COSPLAY » du héros : filigrane purement décoratif (aria-hidden, couleur volontairement proche du fond) ; WCAG 1.4.3 exempte la décoration pure.
+  const axe = new AxeBuilder({ page }).exclude(".mot-geant");
   if (regles.sansContraste) axe.disableRules(["color-contrast"]);
   const resultat = await axe.analyze();
   return resultat.violations

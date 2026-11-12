@@ -468,3 +468,7 @@
 - Fermeture sur place d'un Stand (2026-11-12, revue sous-agent) : décidé de ne pas ajouter d'état « fermé » côté exposant (`lireCandidatureDuCompte` le voit « payée » ; ses Pass apparaissent annulés dans « Mes Pass », aucun email n'est envoyé : fermeture sur place). À revoir si Jonathan veut un message pour l'exposant. Corrigés par la migration `20270113110000` : nouvelle candidature refusée après fermeture, date de fermeture dans le journal d'audit.
 - Action 5 (revue 2026-11-12) : un envoi de Galerie « ignoré » pour un Compte sans adresse email est remis à envoyer chaque heure puis ignoré de nouveau (bruit seulement, aucun email). Accepté, cas rare.
 - Relances (9.5, revue 2026-11-12) : un produit acheté entre la planification et l'envoi d'une Relance « nouveauté » est encore relancé (écart de quelques heures) ; une Relance ignorée compte pour le rythme. Acceptés.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-refonte-haut-accueil.md`
+  summary: Tester les variantes de `MediaHeros` (photo détourée, photo rectangulaire, vidéo) par un test de composant.
+  evidence: Aucun test n'importe `MediaHeros` ; la vérification actuelle est visuelle (captures 1440 et 375 px) et les e2e ne couvrent la vidéo que si elle existe en base.

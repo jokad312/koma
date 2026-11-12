@@ -85,7 +85,7 @@ Toutes les pages publiques existent sous `/fr` et `/en` (sauf Articles sans vers
 
 Héros → (1) « Porte-le ou fabrique-le » (même costume, deux colonnes) → (2) Cosplays « Fait main à Goma » → (3) Kits (Kit gratuit en évidence quand il existe) → (4) Galerie « Ils le portent » → (5) « Rendez-vous otaku » (prochain Événement) + « Me prévenir » → (6) Jonathan en trois phrases → (7) guides (Articles) → (8) FAQ courte. **Tout bloc sans contenu réel est masqué.** Hiérarchie : l'accroche du héros est le H1 (texte réel), titres de bloc en H2, noms de produit en H3. Accroche et titres de bloc en Sakura Town, sans accent, en majuscules (Voice and Tone).
 
-→ Maquette : [key-accueil](mockups/key-accueil.html) (héros mobile et ordinateur, blocs 1 à 3, thème sombre). Structure 1win : voir Inspiration & Anti-patterns.
+→ Maquette du haut de page (refonte du 2026-11-12) : `docs/design/maquette-accueil/` (`fusion.html` = mise en page, `fusion-creme.png` clair, `fusion-sombre.png` sombre). Maquette des blocs 1 à 3 : [key-accueil](mockups/key-accueil.html) (son héros est remplacé par la maquette ci-dessus). Structure 1win : voir Inspiration & Anti-patterns.
 
 ## Voice and Tone
 
@@ -156,9 +156,9 @@ Comportement seulement ; l'aspect est dans `DESIGN.md` › Components, sous les 
 
 | Composant | Usage | Règles de comportement |
 |---|---|---|
-| **Héros vidéo** | Accueil | Vidéo en boucle, sans son ni piste audio, `muted` `playsinline` `aria-hidden="true"` ; affichée en < 2,5 s (FR-1) ; photo de repli si la vidéo ne charge pas à temps ou n'est pas prise en charge. **Sous `prefers-reduced-motion: reduce`, la photo de repli est affichée et la vidéo n'est pas chargée** (décision). Aucune information indispensable dans la vidéo (NFR-3). Accroche = H1 en texte réel. Mobile : accroche + **Bouton principal** « Prêt à porter » (→ fiche du Cosplay vedette) + **Bouton secondaire** « Le fabriquer moi-même » (→ son Kit lié). Le Cosplay vedette est choisi dans l'admin. Parallaxe légère, coupée en mouvement réduit et quand la vidéo est en pause. |
-| **Bouton Pause du héros** | Héros vidéo | **Obligatoire** (WCAG 2.2.2) : visible, au clavier, 44 × 44 px, `aria-label` traduit (« Mettre la vidéo en pause » / « Lire la vidéo »), `aria-pressed` ; choix mémorisé. Absent quand la photo de repli est affichée. |
-| **Tuile d'option du héros** | Accueil, ordinateur | Deux tuiles verticales à droite de la vidéo = la double option : « Prêt à porter » (photo, prix, délai) et « Le fabriquer moi-même » (Kit lié, prix). Lien sur le titre de la tuile, étendu à toute la tuile par pseudo-élément (pas de `<a>` enveloppant). Si le Cosplay vedette n'a pas de Kit lié : [HYPOTHÈSE] une seule tuile, E-16. |
+| **Héros** | Accueil | Accroche = H1 en texte réel (« Porte ton personnage. Ou fabrique-le. »). Deux boutons : « Voir les cosplays » (→ catalogue Cosplays) et « Découvrir les kits » (→ catalogue Kits). Mot géant « COSPLAY » décoratif (`aria-hidden`, texte, pas une image). Deux colonnes : « Fait main à Goma » et « Kits à fabriquer ». **Photo détourée** du Cosplay vedette (photo de repli réglée dans l'admin ; à défaut, première photo du vedette) sur un halo, chargée en priorité. **Rangée de trois cartes** : un cosplay publié (le plus récent autre que la vedette), un accessoire publié (le plus récent), « Kit du mois » (le Kit publié le plus récent : aucun réglage dédié au lancement) ; chaque carte est masquée si aucun produit n'est publié ; prix et titres lus en base. Bouton rond vers le catalogue des cosplays (à défaut, de la première famille ayant un produit publié) ; signature « Fait main à Goma — 2026 ». Ordre de lecture = ordre du DOM : texte, colonnes, photo, cartes, signature. **Vidéo** (toujours possible au même emplacement que la photo) : en boucle, sans son ni piste audio, `muted` `playsinline` `aria-hidden="true"` ; photo de repli si elle ne charge pas ou n'est pas prise en charge ; **sous `prefers-reduced-motion: reduce`, la photo est affichée et la vidéo n'est pas chargée** (décision) ; aucune information indispensable dans la vidéo (NFR-3). Parallaxe légère de la vidéo, coupée en mouvement réduit et en pause. La double option « Prêt à porter / Le fabriquer moi-même » vit dans le bloc 1. |
+| **Bouton Pause du héros** | Héros avec vidéo | **Obligatoire** (WCAG 2.2.2) : visible, au clavier, 44 × 44 px, `aria-label` traduit (« Mettre la vidéo en pause » / « Lire la vidéo »), `aria-pressed` ; choix mémorisé. Absent quand la photo est affichée. |
+| **Carte du héros** | Accueil | Cosplay et accessoire : lien sur le nom, étendu à toute la carte par pseudo-élément (pas de `<a>` enveloppant). Kit du mois : bouton « Voir le kit » (nom accessible « Voir le kit : <titre> »). Rangée en défilement horizontal sur mobile, cibles ≥ 44 px, ordre de tabulation = ordre visuel. |
 | **Tuile de catégorie** | Accueil | Lien vers le catalogue correspondant. |
 | **Carte produit** | Catalogues, accueil | Lien sur le titre (`h3 > a`), étendu à toute la carte par pseudo-élément ; image `alt=""` si le titre la nomme déjà ; prix USD et **Badge de disponibilité** lus après le titre ; s'élève au survol (ordinateur). |
 | **Filtres de catalogue** | Catalogues | Filtres de FR-5 (univers, prix, disponibilité, niveau pour les Kits) en multi-sélection [HYPOTHÈSE], tri nouveauté / prix ; l'URL reflète filtres et tri (lien partageable) [HYPOTHÈSE] ; le nombre de résultats est annoncé (`role="status"`, « 12 produits ») ; aucun rechargement sans prévenir ; « Effacer les filtres » dès qu'un filtre est actif. Univers : genres génériques, aucune liste saisie par défaut (E-29). |
@@ -426,9 +426,9 @@ Règle 2 : **l'admin ne peut jamais mettre une Commande en `payée`** ; seule la
 | Largeur | Comportement |
 |---|---|
 | **320–359 px** | Une colonne partout, **tuiles de catégorie en 1 colonne** ; reflow sans défilement horizontal. |
-| **375 px (référence)** | Une colonne ; héros vidéo plein écran + panneau de verre renforcé ; en-tête compact + ☰ ; tuiles de catégorie en 2 colonnes (≥ 360 px) ; FAQ en 1 colonne. |
+| **375 px (référence)** | Une colonne ; héros : texte, colonnes, photo, cartes en défilement horizontal, bouton rond, signature ; en-tête compact + ☰ ; tuiles de catégorie en 2 colonnes (≥ 360 px) ; FAQ en 1 colonne. |
 | **Tablette** [HYPOTHÈSE `md`] | Grilles de cartes à 2–3 colonnes ; ☰ conservé [HYPOTHÈSE]. |
-| **Ordinateur** [HYPOTHÈSE `lg`+] | Barre du haut complète ; héros = vidéo ~2/3 + deux **Tuiles d'option du héros** ; FAQ en 2 colonnes ; survol actif. |
+| **Ordinateur** [HYPOTHÈSE `lg`+] | Barre du haut complète ; à partir de 1280 px (`xl`), héros en trois colonnes (texte | deux colonnes | photo à droite), rangée de cartes en bas à gauche ; entre 1024 et 1279 px, la composition d'une colonne reste en place ; FAQ en 2 colonnes ; survol actif. |
 | **Zoom ≥ 200 % ou hauteur < 500 px** | En-tête non collant ; tuiles de catégorie en 1 colonne. |
 
 - **Navigateurs intégrés** (Instagram, Facebook, TikTok) : cible prioritaire ; pas de dépendance à Google OAuth ; verre avec repli (renforcé à 85 % sans flou, discret → surface opaque).
@@ -507,7 +507,7 @@ Maquette : [key-paiement](mockups/key-paiement.html), cadre 2.
 Maquettes : [key-accueil](mockups/key-accueil.html), [key-fiche-kit](mockups/key-fiche-kit.html).
 
 1. Kevin clique sur une pub Instagram ; le site s'ouvre dans le navigateur intégré, avec le bandeau « Ouvrir dans Chrome » non bloquant.
-2. Les 3 premières secondes : le **Héros vidéo** (fabrication puis costume porté), « Deviens ton personnage. », boutons « Prêt à porter » et « Le fabriquer moi-même » ; le **Bouton Pause du héros** est là s'il veut arrêter la vidéo.
+2. Les 3 premières secondes : le **Héros** (photo détourée du cosplay vedette), « Porte ton personnage. Ou fabrique-le. », boutons « Voir les cosplays » et « Découvrir les kits » ; la double option « Prêt à porter / Le fabriquer moi-même » l'attend dans le bloc 1 juste en dessous (s'il y a une vidéo, le **Bouton Pause du héros** est là).
 3. Il fait défiler : bloc « Porte-le ou fabrique-le », Cosplays, Kits, Galerie (si photos), prochain Événement, Jonathan, guides, FAQ.
 4. **Moment fort (le moment où il craque)** : il touche « Le fabriquer moi-même » — budget serré, et la promesse de dire « c'est moi qui l'ai fait ».
 5. Sur la **Fiche Kit**, il crée son Compte par code email (Google masqué) et paie par mobile money.
@@ -564,7 +564,7 @@ Maquettes : [key-admin-tableau](mockups/key-admin-tableau.html), [key-admin-comm
 | E-12 | Forme du formulaire « Me prévenir » (un champ ou trois options). | Non. |
 | E-14 | Écran de Scan : vibration ou son distinct, couleurs par Type de pass. | Non. |
 | E-15 | Échelle de niveau des Kits (rendu : Débutant, Intermédiaire, Avancé). | Non. |
-| E-16 | Héros quand le Cosplay vedette n'a pas de Kit lié. | Non. |
+| E-16 | Bloc 1 quand le Cosplay vedette n'a pas de Kit lié (le héros n'en dépend plus ; seul le bloc 1 se masque). | Non. |
 | E-17 | Pré-remplissage du pays dans le sélecteur mobile money (la détection n'est interdite que pour l'avertissement de zone). | Non. |
 | E-21 | **Licence Sakura Town** (voir `DESIGN.md` D-1). | Bloque la mise en ligne, pas la conception. |
 | E-22 | **Q-5** : textes des cases à cocher, de la mention photos, du règlement « 10 pass ». | **Oui** avant la première vente. |

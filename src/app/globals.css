@@ -28,6 +28,8 @@
   --ks-qr-background: #ffffff;
   --ks-hero-wash-start: #fbf8f2;
   --ks-hero-wash-end: #eadfcc;
+  /* Halo rouge doux du héros : 25 % sur crème, 40 % sur sombre (DESIGN.md). */
+  --ks-hero-halo: 25%;
   --ks-tile-red-start: #e3261c;
   --ks-tile-red-end: #9e1a12;
   --ks-tile-ink-start: #5a4c3e;
@@ -59,6 +61,7 @@
   --ks-qr-background: #ffffff;
   --ks-hero-wash-start: #2a221b;
   --ks-hero-wash-end: #16130f;
+  --ks-hero-halo: 40%;
   --ks-tile-red-start: #e3261c;
   --ks-tile-red-end: #7a1a12;
   --ks-tile-ink-start: #4a3d31;
@@ -269,6 +272,28 @@ a {
 }
 @media (min-width: 64rem) {
   .titre-vitrine[data-police="sakura"] { font-size: 64px; }
+}
+
+/* ---------- Haut de l'accueil (spec refonte-haut-accueil) ---------- */
+
+/* Halo lumineux derrière la photo vedette : rouge doux, jamais sous du texte. */
+.halo-heros {
+  background: radial-gradient(ellipse at 50% 55%, color-mix(in srgb, var(--ks-primary) var(--ks-hero-halo), transparent), transparent 62%);
+}
+/* Mot géant en filigrane (décoratif, aria-hidden côté composant) : couleur très proche du fond, en texte. */
+.mot-geant {
+  font-family: var(--font-condensee);
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  font-size: clamp(6rem, 29vw, 26.25rem);
+  /* Navigateur sans color-mix (anciens navigateurs intégrés) : le filigrane décoratif reste invisible plutôt que plein. */
+  color: transparent;
+  color: color-mix(in srgb, var(--ks-text-primary) 4%, transparent);
+}
+.mot-geant::before {
+  content: attr(data-mot);
 }
 
 /* ---------- Verre (UX-DR6) ---------- */

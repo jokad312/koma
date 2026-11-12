@@ -243,7 +243,7 @@ test("Tab vers un élément sous le pli : l'en-tête ne le recouvre pas", async 
     lien.textContent = "bas";
     main.append(vide, lien);
   });
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 40; i++) {
     await page.keyboard.press("Tab");
     if (await page.evaluate(() => document.activeElement?.id === "bas-de-page")) break;
   }

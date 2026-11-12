@@ -61,6 +61,8 @@ export async function lireHerosAdmin(): Promise<HerosAdmin> {
 // ---- Lecture publique du héros ----
 
 export type VedetteHeros = {
+  // Adresse propre du Cosplay vedette (sert à ne pas le répéter dans la rangée de cartes du héros).
+  slug: string;
   titre: string;
   href: string;
   // Kit lié publié à la fiche de la vedette (double option, story 3.4) : « /kits/<slug> ». Null si le Cosplay vedette n'a pas de Kit lié publié.
@@ -102,6 +104,7 @@ export async function lireHerosPublic(locale: "fr" | "en", hoteCdn: string | nul
       const { etat: disponibilite, delaiJours } = resumerDisponibilite(fiche);
       const hrefKit = fiche.kitLie ? `/kits/${fiche.kitLie.slug}` : null;
       vedette = {
+        slug: fiche.slug,
         titre: fiche.titre,
         href: `/cosplays/${fiche.slug}`,
         hrefKit,

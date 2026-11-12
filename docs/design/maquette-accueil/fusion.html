@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<style>
+:root{--creme:#F3EEE3;--papier:#FBF8F2;--sumi:#141210;--rouge:#D7261E;--gris:#6B655C;--trait:#D9D1C3}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#888;font-family:Inter,sans-serif}
+.frame{width:1440px;height:900px;position:relative;overflow:hidden;margin:0 0 40px}
+.cond{font-family:"TeX Gyre Heros Cn",sans-serif;text-transform:uppercase;letter-spacing:.01em}
+.logo{display:flex;align-items:center;gap:2px;font-family:"TeX Gyre Heros Cn";font-weight:700;font-size:34px;letter-spacing:.02em}
+.logo .o{width:28px;height:28px;border-radius:50%;background:var(--rouge);display:inline-block;margin:0 2px;position:relative}
+.logo .o:after{content:"";position:absolute;left:12px;top:3px;width:4px;height:22px;background:var(--papier);transform:rotate(25deg);border-radius:2px}
+.logo .kana{font-family:"Noto Sans CJK JP";font-size:13px;color:var(--rouge);writing-mode:vertical-rl;margin-left:6px;font-weight:700}
+nav.top{position:absolute;top:0;left:0;right:0;height:84px;display:flex;align-items:center;justify-content:space-between;padding:0 56px;z-index:5}
+nav.top ul{display:flex;gap:34px;list-style:none;font-size:13px;letter-spacing:.12em}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 22px;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:.06em}
+.ph{position:relative;overflow:hidden}
+.ph span{position:absolute;left:14px;bottom:12px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.75}
+
+/* ---- MODELE 1 : cinematique sombre ---- */
+#m1{background:#121110;color:var(--creme)}
+#m1 nav.top ul{color:#bdb6aa}
+#m1 .giant{position:absolute;top:96px;left:-20px;right:-20px;text-align:center;font-family:"TeX Gyre Heros Cn";font-weight:700;font-size:430px;line-height:.82;color:#1f1d1a;letter-spacing:-.02em;z-index:0}
+#m1 .hero{position:absolute;left:50%;top:150px;transform:translateX(-50%);width:560px;height:750px;z-index:2}
+#m1 .left{position:absolute;left:56px;top:330px;z-index:3;width:380px}
+#m1 .kicker{font-size:12px;letter-spacing:.16em;color:#a39c90;margin-bottom:14px}
+#m1 h1{font-family:"TeX Gyre Heros Cn";font-size:64px;line-height:.95;text-transform:uppercase;font-weight:700}
+#m1 .right{position:absolute;right:56px;top:330px;width:300px;z-index:3;font-size:15px;line-height:1.5;color:#cfc8bb}
+#m1 .right b{display:block;color:var(--rouge);font-size:12px;letter-spacing:.16em;margin-bottom:10px}
+#m1 .card{position:absolute;right:56px;bottom:56px;width:380px;height:150px;background:#1d1b19;border:1px solid #2c2925;border-radius:18px;display:flex;gap:16px;padding:14px;z-index:3}
+#m1 .foot{position:absolute;left:56px;bottom:56px;font-size:12px;letter-spacing:.14em;color:#8d867a;z-index:3}
+#m1 .arrow{position:absolute;right:56px;top:470px;width:48px;height:48px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-size:22px;z-index:3}
+
+/* ---- MODELE 2 : studio, galerie incurvee ---- */
+#m2{background:#fff;color:var(--sumi)}
+#m2 nav.top ul{background:#f3f1ec;padding:10px 22px;border-radius:999px;color:#3b3732}
+#m2 h1{position:absolute;top:120px;width:100%;text-align:center;font-family:"TeX Gyre Heros Cn";font-size:84px;line-height:.92;text-transform:uppercase}
+#m2 .sub{position:absolute;top:310px;width:100%;text-align:center;font-size:16px;color:var(--gris)}
+#m2 .gal{position:absolute;top:370px;left:0;right:0;height:380px;display:flex;gap:10px;justify-content:center;perspective:900px}
+#m2 .gal .ph{width:340px;height:100%;border-radius:4px}
+#m2 .gal .ph:nth-child(1){transform:rotateY(32deg) translateZ(-60px)}
+#m2 .gal .ph:nth-child(4){transform:rotateY(-32deg) translateZ(-60px)}
+#m2 .curve-top,#m2 .curve-bot{position:absolute;left:-10%;width:120%;height:180px;background:#fff;border-radius:50%;z-index:2}
+#m2 .curve-top{top:270px}
+#m2 .curve-bot{top:680px}
+#m2 .bottom{position:absolute;top:800px;width:100%;text-align:center;z-index:3}
+#m2 .bottom p{font-size:15px;color:var(--gris);max-width:520px;margin:0 auto 14px;line-height:1.5}
+#m2 .bottom a{font-size:13px;font-weight:600;text-decoration:underline;margin:0 12px}
+
+/* ---- MODELE 3 : editorial e-commerce ---- */
+#m3{background:var(--creme);color:var(--sumi)}
+#m3 nav.top ul{color:#4a453e}
+#m3 .dots{position:absolute;top:150px;left:56px;width:600px;display:flex;justify-content:space-between}
+#m3 h1{position:absolute;left:56px;top:190px;width:470px;font-family:"TeX Gyre Heros Cn";font-size:54px;line-height:.95;text-transform:uppercase}
+#m3 .cols{position:absolute;left:560px;top:196px;display:flex;gap:28px;width:300px;flex-direction:column;font-size:14px;line-height:1.5;color:#3f3a33}
+#m3 .meta{position:absolute;left:56px;top:420px;font-size:13px;color:var(--gris);line-height:1.5}
+#m3 .cta{position:absolute;left:56px;top:490px}
+#m3 .hero{position:absolute;right:0;top:150px;width:520px;height:750px;height:650px;border-radius:24px 0 0 0}
+#m3 .row{position:absolute;left:56px;bottom:56px;display:flex;gap:14px;z-index:3}
+#m3 .row .ph{width:220px;height:260px;border-radius:18px}
+#m3 .kitcard{width:240px;height:260px;border-radius:18px;background:#fff;padding:20px;display:flex;flex-direction:column}
+#m3 .round{position:absolute;right:600px;bottom:70px;width:52px;height:52px;border-radius:50%;background:var(--rouge);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;z-index:4}
+</style><style>
+.m4{background:var(--creme);color:var(--sumi)}
+.m4.dark{background:#121110;color:var(--creme)}
+.m4 nav.top ul{color:#4a453e}.m4.dark nav.top ul{color:#bdb6aa}
+.m4 .giant{position:absolute;top:110px;right:-30px;font-family:"TeX Gyre Heros Cn";font-weight:700;font-size:420px;line-height:.8;color:#e6dece;letter-spacing:-.02em;z-index:0;white-space:nowrap}
+.m4.dark .giant{color:#1f1d1a}
+.m4 .kicker{position:absolute;left:56px;top:150px;font-size:12px;letter-spacing:.16em;color:var(--gris)}
+.m4.dark .kicker{color:#a39c90}
+.m4 .dots{position:absolute;top:186px;left:56px;width:600px;display:flex;justify-content:space-between;z-index:2}
+.m4 h1{position:absolute;left:56px;top:216px;width:470px;font-family:"TeX Gyre Heros Cn";font-size:58px;line-height:.95;text-transform:uppercase;z-index:3}
+.m4 .cols{position:absolute;left:560px;top:222px;display:flex;flex-direction:column;gap:22px;width:280px;font-size:14px;line-height:1.5;color:#3f3a33;z-index:3}
+.m4.dark .cols{color:#cfc8bb}
+.m4 .cols b{color:var(--rouge);font-size:11px;letter-spacing:.16em;display:block;margin-bottom:6px}
+.m4 .cta{position:absolute;left:56px;top:420px;display:flex;gap:12px;z-index:3}
+.m4 .hero{position:absolute;right:40px;top:150px;width:560px;height:750px;z-index:2}
+.m4 .glow{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,rgba(215,38,30,.18),rgba(0,0,0,0) 60%)}
+.m4.dark .glow{background:radial-gradient(ellipse at 50% 50%,rgba(90,80,70,.75),rgba(18,17,16,0) 62%)}
+.m4 .row{position:absolute;left:56px;bottom:56px;display:flex;gap:14px;z-index:3}
+.m4 .row .ph{width:200px;height:250px;border-radius:18px;box-shadow:0 20px 40px rgba(20,18,16,.12)}
+.m4 .kitcard{width:250px;height:250px;border-radius:18px;background:var(--papier);padding:18px;display:flex;flex-direction:column;box-shadow:0 20px 40px rgba(20,18,16,.12)}
+.m4.dark .kitcard{background:#1d1b19;border:1px solid #2c2925}
+.m4 .round{position:absolute;left:770px;bottom:72px;width:52px;height:52px;border-radius:50%;background:var(--rouge);color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;z-index:4}
+.m4 .foot{position:absolute;left:56px;bottom:22px;font-size:12px;letter-spacing:.14em;color:var(--gris);z-index:4}
+</style></head><body><svg width="0" height="0" style="position:absolute">
+ <defs>
+  <symbol id="fig" viewBox="0 0 200 300">
+   <path d="M100 30c14 0 24 11 24 26s-10 26-24 26-24-11-24-26 10-26 24-26z" />
+   <path d="M60 95c10-8 25-12 40-12s30 4 40 12l18 70-20 6-10-40 4 160h-26l-6-110-6 110H68l4-160-10 40-20-6z"/>
+   <path d="M40 90 L60 95 L44 280 L20 285 Z" opacity=".55"/>
+   <path d="M160 90 L140 95 L156 280 L180 285 Z" opacity=".55"/>
+   <rect x="150" y="40" width="5" height="160" transform="rotate(18 152 120)"/>
+  </symbol>
+ </defs>
+</svg><section class="frame m4 " id="m4">
+ <nav class="top"><div class="logo" style="color:var(--sumi)">K<i class="o"></i>MA<span class="kana">コマ</span></div>
+  <ul class="cond"><li>Cosplays</li><li>Accessoires</li><li>Kits</li><li>Festival</li><li style="border:1px solid currentColor;border-radius:999px;padding:4px 14px">Panier</li></ul></nav>
+ <div class="giant">COSPLAY</div>
+ <div class="kicker">NOUVELLE COLLECTION — 2027</div>
+ <div class="dots"><span>●</span><span>●</span><span></span></div>
+ <h1>Porte ton personnage.<br>Ou fabrique-le.</h1>
+ <div class="cols"><p><b>FAIT MAIN À GOMA</b>Chaque cosplay est coupé, cousu et fini à la main, une pièce à la fois.</p><p><b>KITS À FABRIQUER</b>Patrons, fichiers et vidéo en chapitres, accessibles partout.</p></div>
+ <div class="cta"><span class="btn" style="background:var(--sumi);color:#fff">Voir les cosplays</span><span class="btn" style="background:var(--rouge);color:#fff">Découvrir les kits</span></div>
+ <div class="hero ph"><div class="glow"></div>
+  <svg viewBox="0 0 200 300" style="position:absolute;left:70px;top:50px;width:420px;height:630px;fill:#2a2622;filter:drop-shadow(0 30px 40px rgba(0,0,0,.35))"><use href="#fig"/></svg>
+  <span style="left:50%;transform:translateX(-50%);bottom:30px">Photo du cosplay vedette (détourée)</span></div>
+ <div class="row">
+  <div class="ph" style="background:linear-gradient(160deg,#cdbfa6,#8c7c62)"><span>Cosplay porté</span></div>
+  <div class="ph" style="background:linear-gradient(160deg,#3a3430,#1c1916)"><span style="color:#ddd">Accessoire</span></div>
+  <div class="kitcard"><div style="font-size:11px;letter-spacing:.16em;color:var(--rouge)">KIT DU MOIS</div>
+   <div class="cond" style="font-size:28px;line-height:.95;margin-top:10px">Armure EVA — buste</div>
+   <div style="font-size:13px;color:var(--gris);margin-top:8px;line-height:1.4">Patrons PDF + vidéo en chapitres. Accès immédiat.</div>
+   <span class="btn" style="margin-top:auto;align-self:flex-start;background:var(--rouge);color:#fff;height:38px">Voir le kit</span></div>
+ </div>
+ <div class="round">→</div>
+ <div class="foot">FAIT MAIN À GOMA — 2026</div>
+</section><section class="frame m4 dark" id="m5">
+ <nav class="top"><div class="logo" style="color:var(--creme)">K<i class="o"></i>MA<span class="kana">コマ</span></div>
+  <ul class="cond"><li>Cosplays</li><li>Accessoires</li><li>Kits</li><li>Festival</li><li style="border:1px solid currentColor;border-radius:999px;padding:4px 14px">Panier</li></ul></nav>
+ <div class="giant">COSPLAY</div>
+ <div class="kicker">NOUVELLE COLLECTION — 2027</div>
+ <div class="dots"><span>●</span><span>●</span><span></span></div>
+ <h1>Porte ton personnage.<br>Ou fabrique-le.</h1>
+ <div class="cols"><p><b>FAIT MAIN À GOMA</b>Chaque cosplay est coupé, cousu et fini à la main, une pièce à la fois.</p><p><b>KITS À FABRIQUER</b>Patrons, fichiers et vidéo en chapitres, accessibles partout.</p></div>
+ <div class="cta"><span class="btn" style="background:var(--creme);color:var(--sumi)">Voir les cosplays</span><span class="btn" style="background:var(--rouge);color:#fff">Découvrir les kits</span></div>
+ <div class="hero ph"><div class="glow"></div>
+  <svg viewBox="0 0 200 300" style="position:absolute;left:70px;top:50px;width:420px;height:630px;fill:#0a0908;filter:drop-shadow(0 30px 40px rgba(0,0,0,.35))"><use href="#fig"/></svg>
+  <span style="left:50%;transform:translateX(-50%);bottom:30px">Photo du cosplay vedette (détourée)</span></div>
+ <div class="row">
+  <div class="ph" style="background:linear-gradient(160deg,#cdbfa6,#8c7c62)"><span>Cosplay porté</span></div>
+  <div class="ph" style="background:linear-gradient(160deg,#3a3430,#1c1916)"><span style="color:#ddd">Accessoire</span></div>
+  <div class="kitcard"><div style="font-size:11px;letter-spacing:.16em;color:var(--rouge)">KIT DU MOIS</div>
+   <div class="cond" style="font-size:28px;line-height:.95;margin-top:10px">Armure EVA — buste</div>
+   <div style="font-size:13px;color:var(--gris);margin-top:8px;line-height:1.4">Patrons PDF + vidéo en chapitres. Accès immédiat.</div>
+   <span class="btn" style="margin-top:auto;align-self:flex-start;background:var(--rouge);color:#fff;height:38px">Voir le kit</span></div>
+ </div>
+ <div class="round">→</div>
+ <div class="foot">FAIT MAIN À GOMA — 2026</div>
+</section></body></html>

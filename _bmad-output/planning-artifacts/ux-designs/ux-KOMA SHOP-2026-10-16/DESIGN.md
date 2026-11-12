@@ -195,24 +195,24 @@ components:
     radius: '{rounded.glass}'
     usage: 'tout texte posé sur vidéo, photo ou contenu qui défile'
   hero:
-    background: 'radial {colors.primary} 25 % + dégradé {colors.hero-wash-start} → {colors.hero-wash-end}'
+    background: '{colors.background}, halo radial {colors.primary} 25 % (crème) / 40 % (sombre) derrière la photo vedette'
     radius: '{rounded.xl}'
-    panel: '{components.glass-panel-strong}'
-    headline: '{typography.display-brush}'
-    headline-fallback: '{typography.display}'
+    watermark: 'mot géant « COSPLAY », Barlow Condensed 800, {colors.text-primary} à 4 %, décoratif'
+    headline: '{typography.h1}'
+    headline-fallback: '{typography.h1}'
     headline-color: '{colors.text-primary}'
-    eyebrow-color: '{colors.text-primary}'
+    eyebrow-color: '{colors.text-secondary}'
   hero-pause-button:
     background: '{colors.surface}'
     foreground: '{colors.text-primary}'
     border: '1px solid {colors.border-field}'
     radius: '{rounded.full}'
     size: '{spacing.touch-target}'
-  hero-option-tile:
-    background: '{colors.surface-glass-strong}'
-    radius: '{rounded.lg}'
-    label: '{typography.label}'
-    price: '{typography.price-card}'
+  hero-card:
+    background: '{colors.surface}'
+    radius: '{rounded.glass}'
+    caption: '{colors.surface-glass-strong} sur la photo : étiquette {typography.label}, nom {typography.h3}, prix {typography.price-card}'
+    size: '200 × 248 px (photo), 248 × 248 px (Kit du mois)'
   product-gallery:
     radius: '{rounded.lg}'
     control: '{components.button-secondary}'
@@ -620,7 +620,7 @@ Duo « Affiche shōnen » ([typography-1](mockups/typography-1.html), duo 5) + S
 - **Mobile d'abord, 375 px, sans défilement horizontal** (CLAUDE règle 7) ; **reflow à 320 px CSS** sans perte ni défilement horizontal ; texte agrandi à 200 % sans coupure. Aucune pilule ni carte à hauteur fixe qui couperait le texte (espacement de texte 1.4.12).
 - Une colonne sur mobile. **Tuiles de catégorie** : deux colonnes à partir de 360 px ; **une colonne en dessous de 360 px ou à un zoom ≥ 200 %** ; titre en `clamp(20px, 6vw, 30px)` avec `overflow-wrap: anywhere` et `hyphens: auto`. Toutes les chaînes FR et EN sont testées, les plus longues d'abord (« ACCESSOIRES », « ÉVÉNEMENTS »).
 - Espacement : échelle Tailwind (pas de 4 px) **[HYPOTHÈSE]** ; marge latérale mobile `{spacing.margin-mobile}` **[HYPOTHÈSE]** ; écart entre cartes `{spacing.card-gap}` (rendu). Cible tactile de toute commande isolée : `{spacing.touch-target}` (44 × 44 px), zone de touche étendue pour les pilules compactes.
-- **Héros** : mobile = vidéo plein écran, accroche et deux boutons dans un `{components.glass-panel-strong}`, bouton Pause dans un coin. Ordinateur = vidéo large (~2/3) + **deux tuiles verticales** à droite (« Prêt à porter » / « Le fabriquer moi-même »), structure 1win ([key-accueil](mockups/key-accueil.html)).
+- **Héros** (refonte du 2026-11-12, maquette `docs/design/maquette-accueil/` : `fusion.html`, `fusion-creme.png`, `fusion-sombre.png`) : ordinateur large (≥ 1280 px, `xl` ; maquette à 1440 px) = mot géant « COSPLAY » en filigrane ; à gauche surtitre, deux points, H1 et deux boutons ; au centre deux colonnes de texte ; à droite la photo détourée du cosplay vedette sur un halo ; en bas à gauche trois cartes (cosplay, accessoire, Kit du mois) puis un bouton rond rouge vers le catalogue ; signature en pied. En dessous de 1280 px et sur mobile (375 px) = une colonne dans l'ordre de lecture (texte, colonnes, photo, cartes en défilement horizontal, bouton rond, signature). L'ancienne composition « vidéo ~2/3 + deux tuiles » est abandonnée ; la double option « Prêt à porter / Le fabriquer moi-même » reste dans le bloc 1 « Porte-le ou fabrique-le ».
 - **Accueil** : sections en rangées (cartes produit, tuiles, galerie), FAQ en accordéons (deux colonnes sur ordinateur, structure 1win), pied de page en cartes.
 - **En-tête** : mobile 64 px de haut, cibles 44 × 44 px ; ordinateur sans débordement à 1280 px. Contenu : Components › En-tête ; logo : Brand & Style › Logo.
 - Points de rupture : Tailwind par défaut (`sm` 640, `md` 768, `lg` 1024, `xl` 1280) **[HYPOTHÈSE]**, plus le seuil de 360 px des tuiles de catégorie.
@@ -698,9 +698,9 @@ Spécifications visuelles ; le comportement est dans `EXPERIENCE.md` § Componen
 
 | Composant | Anatomie et rendu |
 |---|---|
-| **Héros vidéo** (`hero`) | Vidéo plein cadre `{rounded.xl}`, halo rouge, `{components.glass-panel-strong}` avec surtitre `{typography.label}` (« Fait main à Goma ») et accroche `{typography.display-brush}` (repli `{typography.display}`), tous deux en `{colors.text-primary}`, deux boutons ([key-accueil](mockups/key-accueil.html)). |
+| **Héros** (`hero`) | Cadre `{rounded.xl}` sur `{colors.background}`. Mot géant « COSPLAY » (texte, `aria-hidden`, Barlow Condensed 800, `{colors.text-primary}` à 4 %). Surtitre `{typography.label}` en `{colors.text-secondary}` (« Nouvelle collection — 2027 »), deux points décoratifs, accroche H1 `{typography.h1}` (Sakura Town si active : repli Barlow Condensed) en `{colors.text-primary}`, deux boutons : « Voir les cosplays » (fond `{colors.text-primary}`, texte `{colors.background}`) et « Découvrir les kits » (`{components.button-primary}`). Deux colonnes de texte : titre `{typography.label}` précédé d'un repère rouge (jamais de texte rouge : règle du rouge) puis phrase `{typography.small}`. À droite : photo détourée (photo de repli de l'admin, `object-contain`) ou, à défaut, première photo du cosplay vedette dans un cadre arrondi, sur un halo rouge doux ; la vidéo du héros, si elle existe, occupe le même emplacement. Signature `{typography.label}` en pied. Maquette : `docs/design/maquette-accueil/`. |
 | **Bouton Pause du héros** (`hero-pause-button`) | Pilule ronde 44 × 44 px, fond `{colors.surface}`, contour `{colors.border-field}`, icône pause / lecture, dans un coin du héros, hors du panneau d'accroche. |
-| **Tuile d'option du héros** (`hero-option-tile`) | Ordinateur seulement : tuile verticale, photo, bandeau `{colors.surface-glass-strong}` portant étiquette, prix `{typography.price-card}`, délai `{typography.small}`. |
+| **Carte du héros** (`hero-card`) | Rangée de trois cartes `{rounded.glass}`, hauteur minimale 248 px (le texte ne la dépasse jamais : titres coupés à 2 lignes, Kit à 3) : un cosplay publié et un accessoire publié (photo, bandeau `{colors.surface-glass-strong}` avec étiquette, nom `{typography.h3}`, prix `{typography.price-card}` ; le nom est un lien étendu à toute la carte) ; la carte « Kit du mois » (surface, repère rouge + étiquette, titre du Kit publié le plus récent, phrase fixe traduite, bouton principal « Voir le kit » 44 px). Une carte sans produit publié est masquée ; sans aucun produit, la rangée et le bouton rond disparaissent. Bouton rond `{colors.primary}`, 52 px, flèche `{colors.on-primary}`, vers le catalogue des cosplays (à défaut, de la première famille ayant un produit publié). Mobile : rangée en défilement horizontal. |
 | **Tuile de catégorie** (`category-tile`) | Dégradé rouge ou encre, titre `{typography.h2}` réduit en `clamp(20px, 6vw, 30px)`, en `{colors.on-primary}`. |
 | **Carte produit** (`product-card`) | Surface, photo `{rounded.md}`, nom `{typography.h3}`, prix `{typography.price-card}`, badge de disponibilité. |
 | **Filtres de catalogue** (`catalog-filters`) | Rangée de pilules filtres (contour `{colors.border-field}`, actif = fond `{colors.text-primary}` + coche) qui passe à la ligne, jamais en défilement horizontal de page ; tri en liste déroulante native ; nombre de résultats en `{typography.small}`. Sur mobile, au-delà d'une ligne, les filtres se replient sous un bouton secondaire « Filtrer (n) », n = nombre de filtres actifs ([key-catalogue](mockups/key-catalogue.html)). |
