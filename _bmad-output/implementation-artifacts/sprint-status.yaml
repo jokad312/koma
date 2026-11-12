@@ -152,7 +152,7 @@ action_items:
     action: "Trancher le remboursement d un Stand refusé pour contrefaçon, le refus
       définitif par Compte et la limite de répétition des candidatures"
     owner: "Jonathan"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-11-11.md"
   - id: "epic-7-retro-item-3-payer-bunny-puis-relancer-bunny-public-s"
     epic: 7

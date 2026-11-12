@@ -13,7 +13,7 @@ export async function lireCandidaturesAdmin(_auteur: AuteurCompte, evenementId: 
   const client = creerClientService();
   const { data, error } = await client
     .from("candidature_stand")
-    .select("id, compte_id, statut, expire_le, description, instagram, photos, motif_refus, commande_id, photos_purgees_le, cree_le, type:type_pass_id(nom_fr)")
+    .select("id, compte_id, statut, expire_le, description, instagram, photos, motif_refus, commande_id, photos_purgees_le, cree_le, fermee_le, motif_fermeture, type:type_pass_id(nom_fr)")
     .eq("evenement_id", evenementId)
     .order("cree_le", { ascending: false })
     .limit(200);
@@ -39,7 +39,7 @@ export async function lireCandidaturesAdmin(_auteur: AuteurCompte, evenementId: 
       }
       return {
         id: l.id,
-        etat: etatCandidature({ statut: l.statut, expireLe: l.expire_le, commandeStatut: l.commande_id ? (statuts.get(l.commande_id) ?? null) : null }, maintenant),
+        etat: etatCandidature({ statut: l.statut, expireLe: l.expire_le, commandeStatut: l.commande_id ? (statuts.get(l.commande_id) ?? null) : null, fermeeLe: l.fermee_le }, maintenant),
         email: compte.data.user?.email ?? null,
         typeNom: type?.nom_fr ?? "",
         creeLe: l.cree_le,
@@ -49,6 +49,7 @@ export async function lireCandidaturesAdmin(_auteur: AuteurCompte, evenementId: 
         photos,
         photosPurgees: l.photos_purgees_le !== null,
         motifRefus: l.motif_refus,
+        motifFermeture: l.motif_fermeture,
       };
     }),
   );

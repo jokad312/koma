@@ -271,8 +271,10 @@ export type Database = {
           engagement_version: string
           evenement_id: string
           expire_le: string
+          fermee_le: string | null
           id: string
           instagram: string | null
+          motif_fermeture: string | null
           motif_refus: string | null
           photos: string[]
           photos_purgees_le: string | null
@@ -289,8 +291,10 @@ export type Database = {
           engagement_version: string
           evenement_id: string
           expire_le: string
+          fermee_le?: string | null
           id: string
           instagram?: string | null
+          motif_fermeture?: string | null
           motif_refus?: string | null
           photos?: string[]
           photos_purgees_le?: string | null
@@ -307,8 +311,10 @@ export type Database = {
           engagement_version?: string
           evenement_id?: string
           expire_le?: string
+          fermee_le?: string | null
           id?: string
           instagram?: string | null
+          motif_fermeture?: string | null
           motif_refus?: string | null
           photos?: string[]
           photos_purgees_le?: string | null
@@ -3143,6 +3149,10 @@ export type Database = {
       familles_commande: {
         Args: { p_commande: string; p_compte: string }
         Returns: string[]
+      }
+      fermer_stand_sur_place: {
+        Args: { p_auteur: Json; p_candidature: string; p_motif: string }
+        Returns: undefined
       }
       forcer_liberation_verrou: {
         Args: { p_auteur: Json; p_evenement: string }

@@ -56,8 +56,8 @@ describe("section Bénévoles", () => {
     const formData = faux.donner.mock.calls[0][1] as FormData;
     expect(formData.get("evenementId")).toBe(EVENEMENT);
     expect(formData.get("email")).toBe("test.benevole@example.invalid");
-    expect(champ.value).toBe("");
-    expect(faux.refresh).toHaveBeenCalled();
+    await waitFor(() => expect(champ.value).toBe(""));
+    await waitFor(() => expect(faux.refresh).toHaveBeenCalled());
   });
 
   it("aucun compte pour cet email : le dit clairement, garde la saisie, ne rafraîchit pas", async () => {

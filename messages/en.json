@@ -975,7 +975,8 @@
           "acceptee": "Accepted, waiting for payment",
           "payee": "Paid",
           "expiree": "Payment delay passed",
-          "refusee": "Refused"
+          "refusee": "Refused",
+          "fermee": "Stand closed on site"
         },
         "jusqua": "until {date}",
         "compteInconnu": "Account without an email address",
@@ -992,12 +993,29 @@
         "refuse": "Application refused. The exhibitor was told by email.",
         "refuseRembourser": "Application refused. Amount to refund: {montant}. Confirm the refund with a proof in the task \"Pass refund to confirm\".",
         "lienTaches": "Open the tasks",
+        "fermer": "Close this stand on site (no refund)",
+        "motifFermetureChamp": "Reason for closing (optional, kept in the log)",
+        "motifFermeture": "Reason for closing: {motif}",
+        "aideFermer": "On the day of the Event only: the stand and its 2 Passes are cancelled (the Scan refuses them) and NO refund is opened. No email is sent. Before the Event, use \"Refuse\" (cancellation and refund).",
+        "confirmerFermer": "Confirm the closing without refund",
+        "ferme": "Stand closed. Its 2 Passes are cancelled; no refund is opened.",
+        "erreursFermeture": {
+          "non_autorise": "You no longer have the right to do this. Reload the page or sign in again.",
+          "entree_invalide": "The reason is too long (500 characters at most).",
+          "introuvable": "This application cannot be found.",
+          "deja_refusee": "This application is already refused.",
+          "deja_ferme": "This stand is already closed.",
+          "non_paye": "Not possible: this stand is not paid.",
+          "evenement_pas_commence": "Not possible: the Event has not started. Use \"Refuse\" (cancellation and refund).",
+          "annulation_impossible": "Not possible: a Pass of this stand is already cancelled or refunded.",
+          "generique": "The closing could not be saved. Try again."
+        },
         "erreurs": {
           "non_autorise": "You no longer have the right to do this. Reload the page or sign in again.",
           "entree_invalide": "The reason is too long (500 characters at most).",
           "introuvable": "This application cannot be found.",
           "deja_refusee": "This application is already refused.",
-          "annulation_impossible": "Not possible: a Pass of this stand has already been scanned.",
+          "annulation_impossible": "Not possible: a Pass of this stand has already been scanned. On the day of the Event, use \"Close this stand on site\".",
           "reglage_manquant": "Not possible: the Pass cancellation fee is not set (Settings).",
           "generique": "The refusal could not be saved. Try again."
         }

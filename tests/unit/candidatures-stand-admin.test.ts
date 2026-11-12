@@ -16,7 +16,7 @@ vi.mock("@/lib/supabase/service", () => ({
 }));
 
 import { POST } from "@/app/api/cron/purger-candidatures-stand/route";
-import { etatCandidature, refuserCandidatureStand, type DependancesRefusCandidature } from "@/modules/evenements/candidatures-admin";
+import { etatCandidature, fermerStandSurPlace, refuserCandidatureStand, type DependancesFermetureStand, type DependancesRefusCandidature } from "@/modules/evenements/candidatures-admin";
 import { purgerCandidaturesStand, type DependancesPurgeCandidatures } from "@/modules/evenements/candidatures-purge";
 
 const CAND = "00000000-0000-4000-8000-0000000000b1";
@@ -34,8 +34,69 @@ describe("etatCandidature", () => {
     [{ statut: "validee", expireLe: demain, commandeStatut: "en_attente" }, "acceptee"],
     [{ statut: "validee", expireLe: hier, commandeStatut: "en_attente" }, "expiree"],
     [{ statut: "validee", expireLe: hier, commandeStatut: null }, "expiree"],
+    [{ statut: "validee", expireLe: hier, commandeStatut: "payee", fermeeLe: hier }, "fermee"],
+    [{ statut: "validee", expireLe: hier, commandeStatut: "payee", fermeeLe: null }, "payee"],
   ])("%j → %s", (entree, attendu) => {
     expect(etatCandidature(entree, maintenant)).toBe(attendu);
+  });
+});
+
+describe("fermerStandSurPlace (sans remboursement)", () => {
+  const deps = (fermer?: DependancesFermetureStand["fermer"], droit = true) => {
+    const invalider = vi.fn(async () => {});
+    const d: DependancesFermetureStand = {
+      exigerDroit: async () => {
+        if (!droit) throw new Error("KS_DROIT_REFUSE");
+        return { auteur: AUTEUR };
+      },
+      fermer: fermer ?? (async () => ({ erreur: null })),
+      invalider,
+    };
+    return { d, invalider };
+  };
+
+  it("sans droit : refusé, la base n'est pas appelée", async () => {
+    const fermer = vi.fn(async () => ({ erreur: null }));
+    const { d } = deps(fermer, false);
+    expect(await fermerStandSurPlace(d, { candidatureId: CAND, motif: "" })).toEqual({ ok: false, erreur: "non_autorise" });
+    expect(fermer).not.toHaveBeenCalled();
+  });
+  it("entrée invalide : identifiant mal formé, motif non texte ou trop long", async () => {
+    const { d } = deps();
+    expect(await fermerStandSurPlace(d, { candidatureId: "x", motif: "" })).toEqual({ ok: false, erreur: "entree_invalide" });
+    expect(await fermerStandSurPlace(d, { candidatureId: CAND, motif: 12 })).toEqual({ ok: false, erreur: "entree_invalide" });
+    expect(await fermerStandSurPlace(d, { candidatureId: CAND, motif: "x".repeat(501) })).toEqual({ ok: false, erreur: "entree_invalide" });
+  });
+  it("succès : motif nettoyé, aucun montant, cache vidé une seule fois", async () => {
+    const fermer = vi.fn(async () => ({ erreur: null }));
+    const { d, invalider } = deps(fermer);
+    expect(await fermerStandSurPlace(d, { candidatureId: CAND, motif: "  Copies de figurines  " })).toEqual({ ok: true });
+    expect(fermer).toHaveBeenCalledWith({ auteur: AUTEUR, candidatureId: CAND, motif: "Copies de figurines" });
+    expect(invalider).toHaveBeenCalledTimes(1);
+    await fermerStandSurPlace(d, { candidatureId: CAND, motif: "   " });
+    expect(fermer).toHaveBeenLastCalledWith({ auteur: AUTEUR, candidatureId: CAND, motif: null });
+  });
+  it.each([
+    ["KS_CANDIDATURE_INTROUVABLE", "introuvable"],
+    ["KS_CANDIDATURE_REFUSEE", "deja_refusee"],
+    ["KS_STAND_DEJA_FERME", "deja_ferme"],
+    ["KS_STAND_NON_PAYE", "non_paye"],
+    ["KS_EVENEMENT_PAS_COMMENCE", "evenement_pas_commence"],
+    ["KS_ANNULATION_IMPOSSIBLE", "annulation_impossible"],
+    ["KS_MOTIF_INVALIDE", "entree_invalide"],
+    ["KS_DROIT_REFUSE", "non_autorise"],
+    ["KS_AUTRE", "generique"],
+  ])("erreur de la base %s → %s, cache non vidé", async (message, attendu) => {
+    const { d, invalider } = deps(async () => ({ erreur: `P0001 ${message}` }));
+    expect(await fermerStandSurPlace(d, { candidatureId: CAND, motif: "" })).toEqual({ ok: false, erreur: attendu });
+    expect(invalider).not.toHaveBeenCalled();
+  });
+  it("exception inattendue : erreur générique, cache non vidé", async () => {
+    const { d, invalider } = deps(async () => {
+      throw new Error("réseau");
+    });
+    expect(await fermerStandSurPlace(d, { candidatureId: CAND, motif: "" })).toEqual({ ok: false, erreur: "generique" });
+    expect(invalider).not.toHaveBeenCalled();
   });
 });
 

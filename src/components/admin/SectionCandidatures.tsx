@@ -7,8 +7,8 @@ import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Link, useRouter } from "@/i18n/navigation";
 import { formaterUsd } from "@/lib/argent";
 import { formaterDateHeureBoutique } from "@/lib/dates";
-import { MOTIF_REFUS_MAX, type CandidatureAdmin, type ErreurRefusCandidature } from "@/modules/evenements/candidatures-admin";
-import { refuserCandidatureStandAction } from "@/modules/evenements/candidatures-admin-actions";
+import { MOTIF_REFUS_MAX, type CandidatureAdmin, type ErreurFermetureStand, type ErreurRefusCandidature } from "@/modules/evenements/candidatures-admin";
+import { fermerStandSurPlaceAction, refuserCandidatureStandAction } from "@/modules/evenements/candidatures-admin-actions";
 
 // Adresse Instagram affichable en lien : @pseudo ou lien instagram.com ; toute autre forme reste du texte (jamais un lien arbitraire).
 function lienInstagram(valeur: string): string | null {
@@ -26,6 +26,10 @@ function Candidature({ c }: { c: CandidatureAdmin }) {
   const [motif, setMotif] = useState("");
   const [retour, setRetour] = useState<{ type: "ok"; montantCents: number } | { type: "erreur"; erreur: ErreurRefusCandidature } | null>(null);
   const [enCours, demarrer] = useTransition();
+  const [fermetureOuverte, setFermetureOuverte] = useState(false);
+  const [motifFermeture, setMotifFermeture] = useState("");
+  const [retourFermeture, setRetourFermeture] = useState<{ type: "ok" } | { type: "erreur"; erreur: ErreurFermetureStand } | null>(null);
+  const [fermetureEnCours, demarrerFermeture] = useTransition();
   const instagram = c.instagram ? lienInstagram(c.instagram) : null;
   const echeance = formaterDateHeureBoutique(c.expireLe, locale);
 
@@ -43,6 +47,24 @@ function Candidature({ c }: { c: CandidatureAdmin }) {
         }
       } catch {
         setRetour({ type: "erreur", erreur: "generique" });
+      }
+    });
+  }
+
+  function fermer() {
+    setRetourFermeture(null);
+    demarrerFermeture(async () => {
+      try {
+        const r = await fermerStandSurPlaceAction({ candidatureId: c.id, motif: motifFermeture });
+        if (r.ok) {
+          setRetourFermeture({ type: "ok" });
+          setFermetureOuverte(false);
+          router.refresh();
+        } else {
+          setRetourFermeture({ type: "erreur", erreur: r.erreur });
+        }
+      } catch {
+        setRetourFermeture({ type: "erreur", erreur: "generique" });
       }
     });
   }
@@ -79,7 +101,8 @@ function Candidature({ c }: { c: CandidatureAdmin }) {
         </ul>
       ) : null}
       {c.etat === "refusee" && c.motifRefus ? <p className="t-small">{t("motifRefus", { motif: c.motifRefus })}</p> : null}
-      {c.etat !== "refusee" ? (
+      {c.etat === "fermee" && c.motifFermeture ? <p className="t-small">{t("motifFermeture", { motif: c.motifFermeture })}</p> : null}
+      {c.etat !== "refusee" && c.etat !== "fermee" ? (
         ouvert ? (
           <form
             onSubmit={(e) => {
@@ -120,6 +143,49 @@ function Candidature({ c }: { c: CandidatureAdmin }) {
           </div>
         )
       ) : null}
+      {c.etat === "payee" ? (
+        fermetureOuverte ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              fermer();
+            }}
+            className="flex flex-col gap-2"
+          >
+            <label htmlFor={`${id}-motif-fermeture`} className="t-label">
+              {t("motifFermetureChamp")}
+            </label>
+            <textarea
+              id={`${id}-motif-fermeture`}
+              value={motifFermeture}
+              onChange={(e) => setMotifFermeture(e.target.value)}
+              maxLength={MOTIF_REFUS_MAX}
+              rows={3}
+              aria-describedby={`${id}-aide-fermeture`}
+              className="rounded-md border border-border-field bg-surface px-3 py-2"
+            />
+            <p id={`${id}-aide-fermeture`} className="t-small text-text-secondary">
+              {t("aideFermer")}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Bouton type="submit" enCours={fermetureEnCours}>
+                {t("confirmerFermer")}
+              </Bouton>
+              <Bouton type="button" variante="secondaire" onClick={() => setFermetureOuverte(false)}>
+                {t("annuler")}
+              </Bouton>
+            </div>
+          </form>
+        ) : (
+          <div>
+            <Bouton type="button" variante="secondaire" onClick={() => setFermetureOuverte(true)}>
+              {t("fermer")}
+            </Bouton>
+          </div>
+        )
+      ) : null}
+      {retourFermeture?.type === "ok" ? <MessageEtat type="succes">{t("ferme")}</MessageEtat> : null}
+      {retourFermeture?.type === "erreur" ? <MessageEtat type="erreur">{t(`erreursFermeture.${retourFermeture.erreur}`)}</MessageEtat> : null}
       {retour?.type === "ok" ? (
         <MessageEtat type="succes">
           {retour.montantCents > 0 ? t("refuseRembourser", { montant: formaterUsd(retour.montantCents, locale) }) : t("refuse")}{" "}
