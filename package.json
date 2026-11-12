@@ -11,6 +11,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:sql": "node scripts/test-sql.mjs",
+    "pretest:e2e": "node scripts/nettoyer-next-dev.mjs",
     "test:e2e": "playwright test",
     "test:e2e:prod": "node scripts/test-e2e-prod.mjs",
     "types": "node scripts/generer-types.mjs",
