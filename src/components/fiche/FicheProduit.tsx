@@ -80,7 +80,7 @@ export async function FicheProduit({ fiche, locale, forfaitGoma, forfaitBukavu, 
       <div className="grid gap-8 lg:grid-cols-2">
         <GaleriePhotos photos={fiche.photos} />
         <div className="flex min-w-0 flex-col gap-6">
-          <TitreVitrine niveau={1}>{fiche.titre}</TitreVitrine>
+          <TitreVitrine niveau={1} donnee>{fiche.titre}</TitreVitrine>
           <p className="t-price-card text-text-primary">{formaterUsd(fiche.prixCents, locale)}</p>
           {description ? <p className="t-body whitespace-pre-line text-text-primary">{description}</p> : null}
           <BoutonPartager titre={fiche.titre} url={urlFiche} />

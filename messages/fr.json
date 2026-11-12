@@ -152,7 +152,7 @@
       "lecture": "Lire la vidéo"
     },
     "categories": {
-      "titre": "CATEGORIES",
+      "titre": "CATÉGORIES",
       "cosplays": {
         "nom": "Cosplays",
         "description": "Costumes complets faits main"
@@ -175,7 +175,7 @@
       "voirTout": "Voir tous les kits"
     },
     "cosplaysRecents": {
-      "titre": "FAIT MAIN A GOMA",
+      "titre": "FAIT MAIN À GOMA",
       "voirTout": "Voir tous les cosplays"
     },
     "rendezVous": {
@@ -193,7 +193,7 @@
       "signature": "— Jonathan"
     },
     "faqCourte": {
-      "titre": "REPONSES RAPIDES",
+      "titre": "RÉPONSES RAPIDES",
       "toutes": "Voir toutes les questions"
     },
     "bloc7": {

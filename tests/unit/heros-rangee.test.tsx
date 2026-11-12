@@ -25,7 +25,7 @@ vi.mock("@/components/ui/TitreVitrine", () => ({ TitreVitrine: ({ children }: { 
 vi.mock("./MediaHeros", () => ({ MediaHeros: () => null }));
 vi.mock("next/server", () => ({ connection: async () => undefined }));
 
-import { RangeeVue } from "@/components/accueil/HerosAccueil";
+import { MediaVue, RangeeVue } from "@/components/accueil/HerosAccueil";
 import type { CarteProduit } from "@/modules/catalogue/types";
 
 function carte(famille: CarteProduit["famille"], slug: string): CarteProduit {
@@ -70,5 +70,24 @@ describe("RangeeVue (cartes du héros)", () => {
     expect(screen.getByText(en.Accueil.heros.kitDuMois)).toBeTruthy();
     expect(screen.getByRole("link", { name: "Titre a1" }).getAttribute("href")).toBe("/accessories/a1");
     expect(screen.getByRole("link", { name: "See the kit: Titre k1" })).toBeTruthy();
+  });
+});
+
+describe("MediaVue (repère du héros sans photo)", () => {
+  it("ni photo ni vidéo : un repère caché « sans-media » fait recentrer le héros, sans média ni halo", () => {
+    const { container } = rendre(<MediaVue videoUrl={null} repli={null} />);
+    const repere = container.querySelector(".sans-media");
+    expect(repere).not.toBeNull();
+    expect(repere?.hasAttribute("hidden")).toBe(true);
+    expect(container.querySelector(".halo-heros")).toBeNull();
+  });
+
+  it("avec une photo : pas de repère, halo présent", () => {
+    // jsdom n'a pas matchMedia (lu par MediaHeros pour « mouvement réduit »).
+    vi.stubGlobal("matchMedia", () => ({ matches: false, addEventListener: () => undefined, removeEventListener: () => undefined }));
+    const { container } = rendre(<MediaVue videoUrl={null} repli={{ url: "https://exemple.test/p.jpg", alt: "Alt", detoure: true }} />);
+    expect(container.querySelector(".sans-media")).toBeNull();
+    expect(container.querySelector(".halo-heros")).not.toBeNull();
+    vi.unstubAllGlobals();
   });
 });

@@ -73,7 +73,7 @@ export async function EvenementComplet({ evenement, locale }: Props) {
       </nav>
 
       <header className="flex flex-col gap-2">
-        <TitreVitrine niveau={1}>{evenement.titre}</TitreVitrine>
+        <TitreVitrine niveau={1} donnee>{evenement.titre}</TitreVitrine>
         {evenement.passe ? <p className="t-label text-text-secondary">{t("passe")}</p> : null}
         {debut ? (
           <p className="t-body text-text-primary">

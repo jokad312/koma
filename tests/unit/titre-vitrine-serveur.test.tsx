@@ -11,10 +11,21 @@ describe("TitreVitrine (rendu serveur)", () => {
   });
   afterEach(() => vi.unstubAllEnvs());
 
-  it("option Sakura active : « Accès » passe entièrement en Barlow Condensed, « KOMA » reste en Sakura Town", () => {
+  it("option Sakura active : « Accès » est écrit sans accent en Sakura Town, « L’accès » (apostrophe absente) reste en Barlow Condensed avec ses accents", () => {
     vi.stubEnv("NEXT_PUBLIC_TITRES_SAKURA", "true");
-    expect(renderToStaticMarkup(<TitreVitrine niveau={1}>Accès</TitreVitrine>)).toContain('data-police="condensee"');
+    expect(renderToStaticMarkup(<TitreVitrine niveau={1}>Accès</TitreVitrine>)).toContain('data-police="sakura"');
+    expect(renderToStaticMarkup(<TitreVitrine niveau={1}>Accès</TitreVitrine>)).toContain(">Acces<");
+    const autre = renderToStaticMarkup(<TitreVitrine niveau={1}>L’accès</TitreVitrine>);
+    expect(autre).toContain('data-police="condensee"');
+    expect(autre).toContain(">L’accès<");
     expect(renderToStaticMarkup(<TitreVitrine niveau={1}>KOMA</TitreVitrine>)).toContain('data-police="sakura"');
+  });
+
+  it("titre venu de la base (donnee) : jamais réécrit, Barlow avec ses accents même si Sakura est active", () => {
+    vi.stubEnv("NEXT_PUBLIC_TITRES_SAKURA", "true");
+    const rendu = renderToStaticMarkup(<TitreVitrine niveau={1} donnee>Épée de Zoro</TitreVitrine>);
+    expect(rendu).toContain('data-police="condensee"');
+    expect(rendu).toContain(">Épée de Zoro<");
   });
 
   it("option éteinte (défaut) : tous les titres en Barlow Condensed", () => {

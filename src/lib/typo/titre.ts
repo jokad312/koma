@@ -20,3 +20,17 @@ export function sakuraCouvre(texte: string): boolean {
 export function choisirPoliceTitre(texte: string, sakuraActive: boolean): PoliceTitre {
   return sakuraActive && sakuraCouvre(texte) ? "sakura" : "condensee";
 }
+
+// Sakura Town n'a aucun accent : quand elle est active, le titre est écrit sans accents (« CATÉGORIES » devient « CATEGORIES »).
+// Avec Barlow Condensed (Sakura éteinte, ou titre qu'elle ne couvre pas même sans accents), le titre garde ses accents.
+export function retirerAccents(texte: string): string {
+  return texte.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+export function preparerTitre(texte: string, sakuraActive: boolean): { texte: string; police: PoliceTitre } {
+  if (sakuraActive) {
+    const sansAccents = retirerAccents(texte);
+    if (sakuraCouvre(sansAccents)) return { texte: sansAccents, police: "sakura" };
+  }
+  return { texte, police: "condensee" };
+}

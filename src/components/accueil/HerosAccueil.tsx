@@ -34,8 +34,9 @@ const FOCUS = "focus-within:outline focus-within:outline-2 focus-within:outline-
 
 // Photo détourée du Cosplay vedette (photo de repli réglée dans l'admin), halo derrière. Sans photo de repli : première photo de la
 // vedette ; sans rien : pas de média ni de halo vide. La vidéo, si elle existe, vient au même emplacement.
-function MediaVue({ videoUrl, repli }: { videoUrl: string | null; repli: { url: string; alt: string; detoure: boolean } | null }) {
-  if (!repli && !videoUrl) return null;
+export function MediaVue({ videoUrl, repli }: { videoUrl: string | null; repli: { url: string; alt: string; detoure: boolean } | null }) {
+  // Rien à montrer : un repère caché fait recentrer le héros (voir .heros-grille:has(.sans-media) dans globals.css), sans trou.
+  if (!repli && !videoUrl) return <span hidden className="sans-media" />;
   return (
     <div className="relative min-h-[26rem] xl:col-start-3 xl:row-span-4 xl:row-start-1 xl:min-h-[40rem]">
       <div aria-hidden="true" className="halo-heros absolute inset-0" />
@@ -46,7 +47,7 @@ function MediaVue({ videoUrl, repli }: { videoUrl: string | null; repli: { url: 
 
 async function Media({ locale }: { locale: Locale }) {
   const heros = await lireHeros(locale);
-  if (!heros) return null;
+  if (!heros) return <MediaVue videoUrl={null} repli={null} />;
   const repli = heros.repli ? { ...heros.repli, detoure: true } : heros.vedette ? { url: heros.vedette.photoUrl, alt: heros.vedette.photoAlt, detoure: false } : null;
   return <MediaVue videoUrl={heros.videoUrl} repli={repli} />;
 }
@@ -146,7 +147,7 @@ async function HerosVue({ locale, media, cartes }: { locale: Locale; media: Reac
     <section aria-label={t("region")} className="relative isolate overflow-hidden rounded-xl bg-background">
       {/* Mot géant décoratif : texte généré par CSS (attr), donc ni lu, ni sélectionnable, ni candidat au LCP (il retarderait la mesure sans rien montrer d'utile). */}
       <p aria-hidden="true" data-mot={t("motGeant")} className="mot-geant pointer-events-none absolute -right-4 top-6 -z-10 select-none whitespace-nowrap xl:top-8" />
-      <div className="grid grid-cols-[minmax(0,1fr)] gap-x-8 gap-y-6 px-4 py-6 xl:grid-cols-[minmax(0,28rem)_minmax(0,15rem)_minmax(0,1fr)] xl:grid-rows-[auto_1fr_auto_auto] xl:px-10 xl:pb-8 xl:pt-8">
+      <div className="heros-grille grid grid-cols-[minmax(0,1fr)] gap-x-8 gap-y-6 px-4 py-6 xl:grid-cols-[minmax(0,28rem)_minmax(0,15rem)_minmax(0,1fr)] xl:grid-rows-[auto_1fr_auto_auto] xl:px-10 xl:pb-8 xl:pt-8">
         <div className="flex flex-col gap-4 xl:col-start-1 xl:row-start-1">
           <p className="t-label text-text-secondary">{t("surtitre")}</p>
           <span aria-hidden="true" className="flex gap-24 xl:gap-32">
@@ -154,7 +155,7 @@ async function HerosVue({ locale, media, cartes }: { locale: Locale; media: Reac
             <span className="size-2.5 rounded-full bg-text-primary" />
           </span>
           <TitreVitrine niveau={1}>{t("accroche")}</TitreVitrine>
-          <div className="flex flex-wrap gap-3">
+          <div className="heros-boutons flex flex-wrap gap-3">
             <Link href={cheminPublic(locale, "/cosplays")} data-mesure="clic_heros" className="t-button inline-flex min-h-touch items-center justify-center rounded-full bg-text-primary px-5 py-3 text-center text-background no-underline">
               {t("voirCosplays")}
             </Link>

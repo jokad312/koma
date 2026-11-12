@@ -296,6 +296,36 @@ a {
 .mot-geant::before {
   content: attr(data-mot);
 }
+/* Héros sans photo (aucun Cosplay vedette publié) : tout est centré sur une seule colonne, sans colonne vide.
+   Les déclarations de grille sont en !important : ces règles sont dans la couche components et doivent l'emporter sur les classes
+   de grille de la page (couche utilities). */
+.heros-grille:has(.sans-media) {
+  grid-template-columns: minmax(0, 40rem) !important;
+  grid-template-rows: none !important;
+  justify-content: center;
+  text-align: center;
+}
+.heros-grille:has(.sans-media) > * {
+  grid-column: 1 !important;
+  grid-row: auto !important;
+}
+.heros-grille:has(.sans-media) .heros-boutons {
+  justify-content: center;
+}
+.heros-grille:has(.sans-media) > div:first-child > span[aria-hidden="true"] {
+  align-self: center;
+}
+.heros-grille:has(.sans-media) > div:nth-child(2) .t-label {
+  justify-content: center;
+}
+.heros-grille:has(.sans-media) ul {
+  justify-content: center;
+}
+section:has(.sans-media) > .mot-geant {
+  right: auto !important;
+  left: 50%;
+  transform: translateX(-50%);
+}
 
 /* ---------- Verre (UX-DR6) ---------- */
 

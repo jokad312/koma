@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { choisirPoliceTitre, GLYPHES_SAKURA, sakuraCouvre } from "./titre";
+import { choisirPoliceTitre, preparerTitre, retirerAccents, GLYPHES_SAKURA, sakuraCouvre } from "./titre";
 
 describe("glyphes de Sakura Town", () => {
   it("couvre les caractères ASCII imprimables (95 caractères, sans accent)", () => {
@@ -25,5 +25,18 @@ describe("choisirPoliceTitre", () => {
   it("option active : Sakura seulement si tout le titre est couvert (bascule entière)", () => {
     expect(choisirPoliceTitre("KOMA", true)).toBe("sakura");
     expect(choisirPoliceTitre("Accès", true)).toBe("condensee");
+  });
+});
+
+describe("preparerTitre", () => {
+  it("garde les accents avec Barlow (Sakura éteinte)", () => {
+    expect(preparerTitre("CATÉGORIES", false)).toEqual({ texte: "CATÉGORIES", police: "condensee" });
+  });
+  it("retire les accents seulement quand Sakura est active et couvre le titre", () => {
+    expect(preparerTitre("CATÉGORIES", true)).toEqual({ texte: "CATEGORIES", police: "sakura" });
+    expect(retirerAccents("RÉPONSES À GOMA")).toBe("REPONSES A GOMA");
+  });
+  it("garde le titre d'origine en Barlow si Sakura ne le couvre pas même sans accents", () => {
+    expect(preparerTitre("L’ÉCOLE", true)).toEqual({ texte: "L’ÉCOLE", police: "condensee" });
   });
 });

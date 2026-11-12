@@ -66,7 +66,7 @@ export async function ArticleComplet({ article, locale, nomSite }: Props) {
           <li aria-current="page">{article.titre}</li>
         </ol>
       </nav>
-      <TitreVitrine niveau={1}>{article.titre}</TitreVitrine>
+      <TitreVitrine niveau={1} donnee>{article.titre}</TitreVitrine>
       {date ? (
         <p className="t-small text-text-secondary">
           <time dateTime={article.publieLe}>{date}</time>
