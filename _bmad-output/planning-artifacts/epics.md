@@ -2620,6 +2620,30 @@ afin de faire l'essentiel avant d'ouvrir l'atelier.
 **Et** sans donnée : « Aucune nouvelle commande payée aujourd'hui. », « Aucune tâche en attente. », « Aucun paiement vérifié aujourd'hui. » avec un lien vers les 7 derniers jours (UX-DR44)
 **Et** une carte de tâche à zéro reste affichée, en ton atténué
 
+### Story 9.11 : Performance avant mise en ligne
+
+En tant que Jonathan,
+je veux que les pages clés soient rapides sur un téléphone avec une connexion moyenne,
+afin que la mise en ligne n'écarte pas les visiteurs mobiles (NFR-2).
+
+**Contexte :** Lighthouse mobile a donné 81 en performance sur l'accueil (2026-11-12, mesure en développement). Cette story mesure d'abord, puis corrige ; elle ne contient aucune fonctionnalité nouvelle (règle 14).
+
+**Critères d'acceptation :**
+
+**Étant donné** le build de production lancé en local (`npm run build` puis `npm start`)
+**Quand** Lighthouse mobile (profil par défaut) est exécuté sur l'accueil, une fiche produit, le catalogue et le festival
+**Alors** les scores de performance, d'accessibilité, de bonnes pratiques et de SEO de chaque page sont consignés dans un rapport de l'audit (`_bmad-output/implementation-artifacts/`), avec LCP, TBT, CLS et les trois causes principales par page
+
+**Étant donné** ce rapport
+**Quand** les corrections sont faites (images, polices, JavaScript du client, mise en cache, streaming, ce que l'audit désigne)
+**Alors** chacune des quatre pages atteint ≥ 90 en performance en mobile, mesurée sur le build de production, et le rapport donne les scores avant et après
+**Et** aucune correction ne dégrade l'accessibilité, le SEO, les thèmes clair et sombre, ni le mobile 375 px sans défilement horizontal
+**Et** une correction qui exigerait un choix de Jonathan (retrait d'un élément du design, nouvelle dépendance) est proposée, jamais appliquée seule
+
+**Étant donné** la mesure sur le domaine de production
+**Quand** la story 9.9 est faite
+**Alors** la mesure est refaite sur le domaine réel (la mesure locale ne remplace pas celle de la 9.9)
+
 ### Story 9.9 : Mise en ligne
 
 En tant que Jonathan,
