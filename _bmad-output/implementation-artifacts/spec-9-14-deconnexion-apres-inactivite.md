@@ -80,7 +80,8 @@ context: []
 
 ## Implementation Notes
 
-- 2026-11-13 : terminée avec les décisions renégociées (réglage `session_inactivite_heures` 1–24 h, 4 h par défaut ; bandeau sur les pages publiques ; redirection seulement pour /compte, /commande ou /checkout, /admin, /scan). Corrections de la revue commune 9.12/9.14 : adresses anglaises protégées, marge d'une minute, cookie de 400 jours, requête en cours désauthentifiée quand `signOut` échoue, tests du réglage (zod et SQL), du message de connexion et du bandeau. Report : cookie d'activité signé (voir deferred-work.md). Commit 9968574.
+- 2026-11-13 : terminée avec les décisions renégociées (réglage `session_inactivite_heures` 1–24 h, 4 h par défaut ; bandeau sur les pages publiques ; redirection seulement pour /compte, /commande ou /checkout, /admin, /scan). Corrections de la revue commune 9.12/9.14 : adresses anglaises protégées, marge d'une minute, cookie de 400 jours, requête en cours désauthentifiée quand `signOut` échoue, tests du réglage (zod et SQL), du message de connexion et du bandeau. Commit 9968574.
+- 2026-11-13 (décision de Jonathan) : cookie d'activité signé. Valeur « heure.signature », HMAC-SHA256 avec `ACTIVITE_COOKIE_SECRET`, liée à la session Supabase (`session_id`). Cookie absent, fabriqué ou d'une autre session : la session expire si sa connexion (`amr` du jeton) date de plus que le délai, sinon le cookie est posé. Sans secret configuré : ancien cookie non signé et une erreur au journal. Secret ajouté à `.env.local` et `.env.example` ; à saisir sur Hostinger (story 9.9).
 
 ## Spec Change Log
 

@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Faux client Supabase et faux réglage de test (règle 13 : tests uniquement).
-const etat = vi.hoisted(() => ({ session: true, claimsErreur: false, deconnexions: 0, signOutEchoue: false, signOutErreur: false, role: undefined as string | undefined }));
+const etat = vi.hoisted(() => ({ session: true, claimsErreur: false, deconnexions: 0, signOutEchoue: false, signOutErreur: false, role: undefined as string | undefined, connexion: null as number | null }));
 
 vi.mock("@supabase/ssr", () => ({
   createServerClient: (
@@ -12,7 +12,7 @@ vi.mock("@supabase/ssr", () => ({
   ) => ({
     auth: {
       getClaims: async () =>
-        etat.claimsErreur ? { data: null, error: { name: "TEST_Erreur" } } : { data: etat.session ? { claims: { sub: "TEST_compte", ...(etat.role ? { koma_role: etat.role } : {}) } } : null, error: null },
+        etat.claimsErreur ? { data: null, error: { name: "TEST_Erreur" } } : { data: etat.session ? { claims: { sub: "TEST_compte", session_id: "TEST_session", ...(etat.role ? { koma_role: etat.role } : {}), ...(etat.connexion ? { amr: [{ method: "otp", timestamp: Math.floor(etat.connexion / 1000) }] } : {}) } } : null, error: null },
       signOut: async () => {
         etat.deconnexions += 1;
         if (etat.signOutEchoue) throw new Error("TEST_echec");
@@ -45,7 +45,9 @@ describe("proxy : déconnexion après inactivité", () => {
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "http://localhost:3000");
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "http://localhost:54321");
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "TEST_cle");
-    Object.assign(etat, { session: true, claimsErreur: false, deconnexions: 0, signOutEchoue: false, signOutErreur: false, role: undefined });
+    // Sans secret par défaut (ancien cookie non signé) ; le bloc « cookie signé » plus bas en pose un.
+    vi.stubEnv("ACTIVITE_COOKIE_SECRET", "");
+    Object.assign(etat, { session: true, claimsErreur: false, deconnexions: 0, signOutEchoue: false, signOutErreur: false, role: undefined, connexion: null });
   });
   afterEach(() => vi.unstubAllEnvs());
 
@@ -216,5 +218,59 @@ describe("proxy : déconnexion après inactivité", () => {
     expect(etat.deconnexions).toBe(1);
     expect(r.status).not.toBe(307);
     expect(aCookie(r, "koma_session_expiree", "1")).toBe(true);
+  });
+});
+
+describe("proxy : cookie d'activité signé (décision du 2026-11-13)", () => {
+  const SECRET = "TEST_secret_activite_de_trente_deux_caracteres_au_moins";
+  const cookieSession = { "sb-TEST-auth-token": "TEST_jeton" };
+  beforeEach(() => {
+    vi.stubEnv("NEXT_PUBLIC_SITE_URL", "http://localhost:3000");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "http://localhost:54321");
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", "TEST_cle");
+    vi.stubEnv("ACTIVITE_COOKIE_SECRET", SECRET);
+    Object.assign(etat, { session: true, claimsErreur: false, deconnexions: 0, signOutEchoue: false, signOutErreur: false, role: undefined, connexion: Date.now() - 10 * H });
+  });
+  afterEach(() => vi.unstubAllEnvs());
+
+  it("le cookie posé est signé et lié à la session", async () => {
+    const { signerActivite } = await import("@/lib/auth/activite-signee");
+    etat.connexion = Date.now() - 1000;
+    const r = await proxy(demande("/fr/cosplays", cookieSession));
+    const pose = posés(r).find((c) => c.startsWith("koma_activite="))!;
+    const valeur = decodeURIComponent(pose.split(";")[0].slice("koma_activite=".length));
+    const [heure] = valeur.split(".");
+    expect(valeur).toBe(signerActivite(Number(heure), "TEST_session", SECRET));
+  });
+
+  it("une heure récente fabriquée (non signée) ne prolonge pas une session connectée depuis plus longtemps que le délai", async () => {
+    const r = await proxy(demande("/fr/compte", { ...cookieSession, koma_activite: String(Date.now() - 1000) }));
+    expect(etat.deconnexions).toBe(1);
+    expect(r.status).toBe(307);
+    expect(new URL(r.headers.get("location")!).searchParams.get("expiree")).toBe("1");
+  });
+
+  it("cookie supprimé : une session connectée depuis plus longtemps que le délai expire", async () => {
+    await proxy(demande("/fr/cosplays", cookieSession));
+    expect(etat.deconnexions).toBe(1);
+  });
+
+  it("cookie signé pour une autre session : refusé", async () => {
+    const { signerActivite } = await import("@/lib/auth/activite-signee");
+    await proxy(demande("/fr/cosplays", { ...cookieSession, koma_activite: signerActivite(Date.now() - 1000, "TEST_autre_session", SECRET) }));
+    expect(etat.deconnexions).toBe(1);
+  });
+
+  it("cookie signé récent de cette session : pas de déconnexion", async () => {
+    const { signerActivite } = await import("@/lib/auth/activite-signee");
+    await proxy(demande("/fr/compte", { ...cookieSession, koma_activite: signerActivite(Date.now() - 1000, "TEST_session", SECRET) }));
+    expect(etat.deconnexions).toBe(0);
+  });
+
+  it("connexion récente sans cookie (nouvelle session) : cookie posé, pas de déconnexion", async () => {
+    etat.connexion = Date.now() - 60_000;
+    const r = await proxy(demande("/fr/cosplays", cookieSession));
+    expect(etat.deconnexions).toBe(0);
+    expect(aCookie(r, "koma_activite")).toBe(true);
   });
 });

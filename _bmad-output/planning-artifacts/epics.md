@@ -2709,7 +2709,7 @@ afin d'ouvrir les ventes.
 
 **Étant donné** le crochet de jeton de la story 9.12
 **Quand** la production est créée
-**Alors** Jonathan active dans le tableau de bord Supabase de production : Authentication › Hooks › « Customize Access Token (JWT) Claims » › Postgres › `public.crochet_role_jeton` (migration `20270118100000_crochet_role_jeton.sql` déjà poussée) ; sans cette activation, l'admin arrive sur `/compte` depuis `/fr` (il reste joignable par `/fr/admin`)
+**Alors** Jonathan active dans le tableau de bord Supabase de production : Authentication › Hooks › « Customize Access Token (JWT) Claims » › Postgres › `public.crochet_role_jeton` (migration `20270118100000_crochet_role_jeton.sql` déjà poussée) ; sans cette activation, l'admin voit l'accueil depuis `/fr` (il reste joignable par `/fr/admin`)
 
 **Étant donné** les dépendances de `next-intl` (`@swc/core`, `@parcel/watcher`, qui ont des scripts d'installation)
 **Quand** Jonathan prépare le déploiement sur Hostinger (Node.js 24)
@@ -2717,7 +2717,7 @@ afin d'ouvrir les ventes.
 
 **Étant donné** hPanel
 **Quand** Jonathan règle l'application
-**Alors** l'application Node.js 24 déploie la branche `production`, avec `next build` puis `next start` (Q-A2 vérifiée), et les variables d'environnement de production sont saisies par Jonathan, jamais dans le dépôt (règle 4)
+**Alors** l'application Node.js 24 déploie la branche `production`, avec `next build` puis `next start` (Q-A2 vérifiée), et les variables d'environnement de production sont saisies par Jonathan, jamais dans le dépôt (règle 4) ; parmi elles, `ACTIVITE_COOKIE_SECRET` (cookie d'activité signé de la story 9.14 : 32 caractères aléatoires au moins, propre à la production, jamais celui de `.env.local`)
 
 **Étant donné** les emails
 **Quand** le domaine est vérifié chez Resend (SPF, DKIM, DMARC)

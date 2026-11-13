@@ -16,13 +16,16 @@ const HEURE_MS = 3_600_000;
 export type DecisionActivite = "rien" | "poser" | "expire" | "supprimer";
 
 // Décision pour une requête : valeur du cookie d'activité, heure courante, session présente, délai en millisecondes.
-export function evaluerActivite(args: { valeur: string | undefined; maintenant: number; aSession: boolean; delaiMs: number }): DecisionActivite {
-  const { valeur, maintenant, aSession, delaiMs } = args;
+// connexionLe : heure de connexion de la session (jeton) ; quand le cookie manque ou est refusé (supprimé, fabriqué, d'une autre session),
+// une session connectée depuis plus longtemps que le délai expire au lieu de repartir de zéro (cookie signé, décision du 2026-11-13).
+export function evaluerActivite(args: { valeur: string | undefined; maintenant: number; aSession: boolean; delaiMs: number; connexionLe?: number | null }): DecisionActivite {
+  const { valeur, maintenant, aSession, delaiMs, connexionLe = null } = args;
   if (!aSession) return valeur === undefined ? "rien" : "supprimer";
-  if (valeur === undefined || !/^[0-9]{10,14}$/.test(valeur)) return "poser";
+  const sansCookieValable = () => (connexionLe !== null && maintenant - connexionLe > delaiMs + PAS_RAFRAICHISSEMENT_MS ? "expire" : "poser");
+  if (valeur === undefined || !/^[0-9]{10,14}$/.test(valeur)) return sansCookieValable();
   const derniere = Number(valeur);
   // Heure dans le futur (horloge ou cookie bricolé) : traitée comme absente.
-  if (derniere > maintenant + PAS_RAFRAICHISSEMENT_MS) return "poser";
+  if (derniere > maintenant + PAS_RAFRAICHISSEMENT_MS) return sansCookieValable();
   // Le cookie n'est réécrit qu'une fois par minute : la dernière activité réelle peut être jusqu'à une minute plus récente que lui.
   // La marge évite d'expirer trop tôt (au pire une minute trop tard).
   if (maintenant - derniere > delaiMs + PAS_RAFRAICHISSEMENT_MS) return "expire";

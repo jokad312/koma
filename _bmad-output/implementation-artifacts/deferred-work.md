@@ -492,3 +492,11 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-9-12-accueils-selon-la-connexion.md`
   summary: Accueil visiteur ≥ 1280 px : cadre de 900 px de haut avec overflow hidden, le texte peut être coupé si l'utilisateur augmente l'espacement ou la taille (WCAG 1.4.12).
   evidence: revue accessibilité du 2026-11-13.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-14-deconnexion-apres-inactivite.md`
+  summary: Résolu le 2026-11-13 — le cookie d'activité est signé (HMAC, lié à la session) et un cookie absent ou fabriqué ne prolonge plus une session plus ancienne que le délai (entrée « cookie d'activité supprimable ou forgeable » de la 9.12).
+  evidence: décision de Jonathan du 2026-11-13 ; tests tests/unit/activite-signee.test.ts et proxy-inactivite.test.ts (bloc « cookie d'activité signé »).
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-12-accueils-selon-la-connexion.md`
+  summary: Résolu le 2026-11-13 — le « Voir le site » de l'admin laissait l'en-tête du site masqué après une navigation interne (règle body:has([data-coque-admin]) de la 9.10, page admin gardée en mémoire par Next.js) ; les liens rechargent maintenant la page. À surveiller : tout autre lien interne de l'admin vers le site public aurait le même effet.
+  evidence: captures au clic du 2026-11-13 (docs/captures-accueil/journal-tout.txt).

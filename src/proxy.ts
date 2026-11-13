@@ -4,12 +4,15 @@ import { NextResponse, type NextRequest } from "next/server";
 import { lireEnvPublique } from "@/lib/env";
 import { choisirLangue } from "@/i18n/detection";
 import { NOM_COOKIE_LANGUE, routing } from "@/i18n/routing";
+import { heureConnexion, lienSession, lireActiviteSignee, lireSecretActivite, signerActivite } from "@/lib/auth/activite-signee";
 import { arriveeParDefaut, roleDuJeton } from "@/lib/auth/arrivee";
 import { COOKIE_ACTIVITE, COOKIE_SESSION_EXPIREE, estPageProtegee, evaluerActivite, lireDelaiInactiviteMs } from "@/lib/auth/inactivite";
 import { analyserAdresseFiche, ficheExiste } from "@/modules/catalogue/existence";
 import { analyserAdresseArticle, articleExiste } from "@/modules/blog/existence";
 
 const intl = createIntlMiddleware(routing);
+// L'absence du secret du cookie d'activité n'est journalisée qu'une fois par processus.
+let absenceSecretSignalee = false;
 
 function estCheminLocalise(chemin: string) {
   return routing.locales.some((l) => chemin === `/${l}` || chemin.startsWith(`/${l}/`));
@@ -38,12 +41,14 @@ export async function proxy(request: NextRequest) {
   let aSession: boolean | null = null;
   // Revendication koma_role du jeton (crochet Supabase, story 9.12) : aiguillage seulement, jamais une barrière.
   let roleJeton: "admin" | "assistant" | null = null;
+  let claims: unknown = null;
   try {
     const { data, error } = await supabase.auth.getClaims();
     if (error) console.error(`[proxy] getClaims en erreur : ${error.name}`);
     else {
       aSession = Boolean(data?.claims);
       roleJeton = roleDuJeton(data?.claims);
+      claims = data?.claims ?? null;
     }
   } catch (e) {
     console.error(`[proxy] getClaims indisponible : ${e instanceof Error ? e.name : "erreur inconnue"}`);
@@ -58,13 +63,25 @@ export async function proxy(request: NextRequest) {
   // Déconnexion après inactivité (story 9.14) : toute requête reçue compte comme activité.
   if (aSession !== null) {
     const maintenant = Date.now();
+    const brut = request.cookies.get(COOKIE_ACTIVITE)?.value;
+    // Cookie signé (décision du 2026-11-13) : seule une heure signée pour CETTE session compte. Sans secret configuré (ACTIVITE_COOKIE_SECRET),
+    // l'ancien cookie non signé reste utilisé et l'absence est journalisée (à corriger dans l'environnement, jamais de secret de repli).
+    const secret = lireSecretActivite();
+    if (!secret && aSession && !absenceSecretSignalee) {
+      absenceSecretSignalee = true;
+      console.error("[proxy] ACTIVITE_COOKIE_SECRET absent ou trop court : cookie d'activité non signé");
+    }
+    const lien = lienSession(claims);
+    const valeur = aSession && secret ? (lien ? lireActiviteSignee(brut, lien, secret) : undefined) : brut;
     const decision = evaluerActivite({
-      valeur: request.cookies.get(COOKIE_ACTIVITE)?.value,
+      valeur,
       maintenant,
       aSession,
       delaiMs: aSession ? await lireDelaiInactiviteMs(maintenant) : 0,
+      connexionLe: aSession ? heureConnexion(claims) : null,
     });
-    if (decision === "poser") reponseSession.cookies.set(COOKIE_ACTIVITE, String(maintenant), { ...optionsCookie, httpOnly: true });
+    const valeurPosee = secret && lien ? signerActivite(maintenant, lien, secret) : String(maintenant);
+    if (decision === "poser") reponseSession.cookies.set(COOKIE_ACTIVITE, valeurPosee, { ...optionsCookie, httpOnly: true });
     else if (decision === "supprimer") reponseSession.cookies.set(COOKIE_ACTIVITE, "", { ...optionsCookie, httpOnly: true, maxAge: 0 });
     // Reconnectée : le message d'expiration n'a plus lieu d'être.
     if (aSession && request.cookies.has(COOKIE_SESSION_EXPIREE)) reponseSession.cookies.set(COOKIE_SESSION_EXPIREE, "", { ...optionsCookie, maxAge: 0 });
