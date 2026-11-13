@@ -2620,6 +2620,28 @@ afin de faire l'essentiel avant d'ouvrir l'atelier.
 **Et** sans donnée : « Aucune nouvelle commande payée aujourd'hui. », « Aucune tâche en attente. », « Aucun paiement vérifié aujourd'hui. » avec un lien vers les 7 derniers jours (UX-DR44)
 **Et** une carte de tâche à zéro reste affichée, en ton atténué
 
+### Story 9.14 : Déconnexion après inactivité
+
+En tant que client ou admin,
+je veux que ma session se ferme après une longue inactivité,
+afin que mon Compte ne reste pas ouvert sur un appareil oublié ou partagé.
+
+**Spec :** `_bmad-output/implementation-artifacts/spec-9-14-deconnexion-apres-inactivite.md`.
+
+**Critères d'acceptation :**
+
+**Étant donné** le réglage « Déconnexion après inactivité » de l'admin (1 à 24 h, 4 h par défaut)
+**Quand** une personne connectée ne fait aucune requête pendant cette durée
+**Alors** sa session est fermée côté serveur ; son panier est conservé
+
+**Étant donné** une session expirée
+**Quand** la personne ouvre une page publique
+**Alors** elle continue en visiteur, avec un bandeau discret, sans redirection
+
+**Étant donné** une session expirée
+**Quand** la personne ouvre Mon compte, une commande ou son paiement, l'admin ou le scan
+**Alors** elle est menée à la connexion avec un message, puis ramenée à la page quittée
+
 ### Story 9.11 : Performance avant mise en ligne
 
 En tant que Jonathan,

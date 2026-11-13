@@ -85,6 +85,12 @@ Toutes les pages publiques existent sous `/fr` et `/en` (sauf Articles sans vers
 
 Héros → (1) « Porte-le ou fabrique-le » (même costume, deux colonnes) → (2) Cosplays « Fait main à Goma » → (3) Kits (Kit gratuit en évidence quand il existe) → (4) Galerie « Ils le portent » → (5) « Rendez-vous otaku » (prochain Événement) + « Me prévenir » → (6) Jonathan en trois phrases → (7) guides (Articles) → (8) FAQ courte. **Tout bloc sans contenu réel est masqué.** Hiérarchie : l'accroche du héros est le H1 (texte réel), titres de bloc en H2, noms de produit en H3. Accroche et titres de bloc en majuscules. Les titres fixes sont rédigés avec leurs accents (« CATÉGORIES », « RÉPONSES RAPIDES », « FAIT MAIN À GOMA ») : avec Barlow Condensed (cas actuel) ils les gardent ; seulement si `NEXT_PUBLIC_TITRES_SAKURA` active Sakura Town, les accents sont retirés au rendu pour ces titres, et ceux que la police ne couvre pas même sans accents restent en Barlow avec leurs accents (décision de Jonathan, 2026-11-12).
 
+### Déconnexion après inactivité (story 9.14, décisions de Jonathan du 2026-11-12 et du 2026-11-13)
+
+- Toute requête reçue compte comme activité. Après la durée réglée dans l'admin (Réglages, 1 à 24 h, 4 h par défaut) sans requête, la session est fermée côté serveur ; le panier est conservé.
+- Sur une page publique, aucune redirection : la personne continue en visiteur et voit un bandeau discret (`role="status"`) qui l'invite à se reconnecter.
+- Sur Mon compte, une commande ou son paiement, l'admin ou le scan : redirection vers la connexion avec le message « Ta session a expiré après une longue inactivité. Reconnecte-toi pour continuer. », puis retour à la page quittée.
+
 → Maquette du haut de page (refonte du 2026-11-12) : `docs/design/maquette-accueil/` (`fusion.html` = mise en page, `fusion-creme.png` clair, `fusion-sombre.png` sombre). Maquette des blocs 1 à 3 : [key-accueil](mockups/key-accueil.html) (son héros est remplacé par la maquette ci-dessus). Structure 1win : voir Inspiration & Anti-patterns.
 
 ## Voice and Tone

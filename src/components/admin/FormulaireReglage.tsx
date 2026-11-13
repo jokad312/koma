@@ -29,6 +29,7 @@ const CONFIG: Record<CleReglage, { texte: string; champ: "texte" | "tel" | "usd"
   frais_annulation_pass: { texte: "fraisAnnulationPass", champ: "entier", erreur: "frais_annulation_invalide" },
   delai_stand_heures: { texte: "delaiStand", champ: "entier", erreur: "delai_stand_invalide" },
   relances_rythme_jours: { texte: "relancesRythme", champ: "entier", erreur: "relances_rythme_invalide" },
+  session_inactivite_heures: { texte: "sessionInactivite", champ: "entier", erreur: "session_inactivite_invalide" },
 };
 
 // Un réglage = un formulaire. Le succès n'apparaît qu'après la réponse de l'action serveur ; la saisie est conservée après un échec.

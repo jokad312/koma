@@ -43,10 +43,13 @@ async function FormulaireSelonSession({
   searchParams: PageProps<"/[locale]/connexion">["searchParams"];
 }) {
   const etat = await lireEtatCompte();
-  const { retour, erreur } = await searchParams;
+  const { retour, erreur, expiree } = await searchParams;
   if (etat === "complet") {
     redirect(cheminRetourValide(Array.isArray(retour) ? retour[0] : retour, locale));
   }
+  const t = await getTranslations("Connexion");
+  // Message d'expiration seulement pour une personne qui n'est plus connectée (jamais à un Compte ouvert, même incomplet).
+  const sessionExpiree = etat === "anonyme" && (Array.isArray(expiree) ? expiree[0] : expiree) === "1";
   const integre = detecterNavigateurIntegre((await headers()).get("user-agent")).integre;
   // Univers de la question d'accueil, dans la langue de la route. Lecture impossible : la question est omise (elle est facultative),
   // le reste de l'étape est inchangé.
@@ -57,12 +60,19 @@ async function FormulaireSelonSession({
     console.error("[connexion] lecture des univers impossible : question omise");
   }
   return (
-    <FormulaireConnexion
-      etapeInitiale={etat === "incomplet" ? "age" : etat === "questions" ? "questions" : "email"}
-      google={integre ? "indisponible" : "disponible"}
-      erreurGoogle={(Array.isArray(erreur) ? erreur[0] : erreur) === "google"}
-      univers={univers}
-    />
+    <>
+      {sessionExpiree ? (
+        <p role="status" className="t-body rounded-md border border-border bg-surface px-4 py-3">
+          {t("sessionExpiree")}
+        </p>
+      ) : null}
+      <FormulaireConnexion
+        etapeInitiale={etat === "incomplet" ? "age" : etat === "questions" ? "questions" : "email"}
+        google={integre ? "indisponible" : "disponible"}
+        erreurGoogle={(Array.isArray(erreur) ? erreur[0] : erreur) === "google"}
+        univers={univers}
+      />
+    </>
   );
 }
 

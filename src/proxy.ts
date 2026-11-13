@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { lireEnvPublique } from "@/lib/env";
 import { choisirLangue } from "@/i18n/detection";
 import { NOM_COOKIE_LANGUE, routing } from "@/i18n/routing";
+import { COOKIE_ACTIVITE, COOKIE_SESSION_EXPIREE, estPageProtegee, evaluerActivite, lireDelaiInactiviteMs } from "@/lib/auth/inactivite";
 import { analyserAdresseFiche, ficheExiste } from "@/modules/catalogue/existence";
 import { analyserAdresseArticle, articleExiste } from "@/modules/blog/existence";
 
@@ -32,14 +33,74 @@ export async function proxy(request: NextRequest) {
 
   // Supabase indisponible : la requête continue comme pour un visiteur non connecté (aucune page publique en 500).
   // Seul le nom de l'erreur est journalisé : ni message, ni jeton, ni cookie.
+  // aSession reste null quand l'état est inconnu : alors aucune déconnexion et aucun cookie d'activité touché.
+  let aSession: boolean | null = null;
   try {
-    const { error } = await supabase.auth.getClaims();
+    const { data, error } = await supabase.auth.getClaims();
     if (error) console.error(`[proxy] getClaims en erreur : ${error.name}`);
+    else aSession = Boolean(data?.claims);
   } catch (e) {
     console.error(`[proxy] getClaims indisponible : ${e instanceof Error ? e.name : "erreur inconnue"}`);
   }
 
   const chemin = request.nextUrl.pathname;
+  const optionsCookie = { path: "/", sameSite: "lax" as const, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 400 };
+  // 400 jours (plafond des navigateurs) : le cookie d'activité ne doit pas disparaître avant la session, sinon elle serait « reposée » au lieu d'expirer.
+  let redirectionExpiree: NextResponse | null = null;
+
+  // Déconnexion après inactivité (story 9.14) : toute requête reçue compte comme activité.
+  if (aSession !== null) {
+    const maintenant = Date.now();
+    const decision = evaluerActivite({
+      valeur: request.cookies.get(COOKIE_ACTIVITE)?.value,
+      maintenant,
+      aSession,
+      delaiMs: aSession ? await lireDelaiInactiviteMs(maintenant) : 0,
+    });
+    if (decision === "poser") reponseSession.cookies.set(COOKIE_ACTIVITE, String(maintenant), { ...optionsCookie, httpOnly: true });
+    else if (decision === "supprimer") reponseSession.cookies.set(COOKIE_ACTIVITE, "", { ...optionsCookie, httpOnly: true, maxAge: 0 });
+    // Reconnectée : le message d'expiration n'a plus lieu d'être.
+    if (aSession && request.cookies.has(COOKIE_SESSION_EXPIREE)) reponseSession.cookies.set(COOKIE_SESSION_EXPIREE, "", { ...optionsCookie, maxAge: 0 });
+    if (decision === "expire") {
+      try {
+        // signOut renvoie son erreur (il ne lève pas toujours) : seul son nom est journalisé.
+        const { error } = await supabase.auth.signOut({ scope: "local" });
+        if (error) console.error(`[proxy] fermeture de session impossible : ${error.name}`);
+      } catch (e) {
+        console.error(`[proxy] fermeture de session impossible : ${e instanceof Error ? e.name : "erreur inconnue"}`);
+      }
+      // Même si la révocation a échoué, les cookies de session sont retirés : la personne continue en visiteur.
+      const nomsSession = request.cookies.getAll().map((c) => c.name).filter((n) => n.startsWith("sb-"));
+      nomsSession.forEach((name) => request.cookies.delete(name));
+      // Réponse recréée après la suppression : la requête transmise au serveur n'a plus les cookies de session (elle n'est plus authentifiée).
+      // Les cookies déjà posés sur la réponse sont reportés, puis ceux de session sont effacés chez le navigateur.
+      const dejaPoses = reponseSession.cookies.getAll();
+      reponseSession = NextResponse.next({ request });
+      dejaPoses.forEach((cookie) => reponseSession.cookies.set(cookie));
+      for (const name of nomsSession) reponseSession.cookies.set(name, "", { path: "/", maxAge: 0 });
+      reponseSession.cookies.set(COOKIE_ACTIVITE, "", { ...optionsCookie, httpOnly: true, maxAge: 0 });
+      const langue = routing.locales.find((l) => chemin === `/${l}` || chemin.startsWith(`/${l}/`));
+      if (langue && request.method === "GET" && estPageProtegee(chemin.slice(langue.length + 1) || "/")) {
+        // Page qui exige un Compte : connexion avec retour à la page quittée et message (le panier n'est pas touché).
+        const cible = request.nextUrl.clone();
+        cible.pathname = `/${langue}/connexion`;
+        cible.search = "";
+        cible.searchParams.set("retour", `${chemin}${request.nextUrl.search}`);
+        cible.searchParams.set("expiree", "1");
+        redirectionExpiree = NextResponse.redirect(cible);
+        redirectionExpiree.headers.set("Cache-Control", "no-store");
+      } else {
+        // Page publique, action ou route hors langue : pas de redirection forcée, le bandeau discret prévient la personne.
+        reponseSession.cookies.set(COOKIE_SESSION_EXPIREE, "1", { ...optionsCookie, maxAge: 60 * 60 * 24 });
+      }
+    }
+  }
+
+  if (redirectionExpiree) {
+    const redirection = redirectionExpiree;
+    reponseSession.cookies.getAll().forEach((cookie) => redirection.cookies.set(cookie));
+    return redirection;
+  }
   let reponse: NextResponse;
 
   if (chemin === "/") {

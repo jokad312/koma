@@ -275,6 +275,7 @@
     }
   },
   "Connexion": {
+    "sessionExpiree": "Your session expired after a long period of inactivity. Sign in again to continue.",
     "titre": "Sign in",
     "intro": "Enter your email address: we send you a 6-digit code. No password to remember.",
     "email": {
@@ -382,6 +383,11 @@
     "seDeconnecter": "Sign out",
     "deconnexionEnCours": "Signing out…",
     "erreurDeconnexion": "Signing out failed. Try again."
+  },
+  "SessionExpiree": {
+    "message": "Your session expired after a long period of inactivity. Sign in again to continue.",
+    "reconnecter": "Sign in again",
+    "fermer": "Close the message"
   },
   "NavigateurIntegre": {
     "nom": "Open in your browser",
@@ -504,9 +510,9 @@
       "intro": "What needs action first, then the figures. Amounts in USD; days are Goma days.",
       "erreurLecture": "This area could not be read. Try again in a moment.",
       "periode": {
-        "libelle": "Period for charts and paid orders",
         "7": "7 days",
-        "30": "30 days"
+        "30": "30 days",
+        "libelle": "Period for charts and paid orders"
       },
       "prestataires": {
         "pawapay": "PawaPay",
@@ -888,7 +894,8 @@
         "delai_paiement_invalide": "The time limit must be a whole number from 1 to 1440 minutes.",
         "frais_annulation_invalide": "The fee must be a whole number from 0 to 100.",
         "delai_stand_invalide": "The delay must be a whole number from 1 to 168 hours.",
-        "relances_rythme_invalide": "The rhythm must be a whole number from 1 to 30 days."
+        "relances_rythme_invalide": "The rhythm must be a whole number from 1 to 30 days.",
+        "session_inactivite_invalide": "The delay must be a whole number from 1 to 24 hours."
       },
       "tranches": {
         "titre": "Price ranges",
@@ -1029,6 +1036,11 @@
         "titre": "Reminder rhythm",
         "libelle": "Days between two reminders",
         "aide": "Minimum number of days between two reminders sent to the same customer after a purchase, from 1 to 30. While this setting is empty, no reminder is scheduled."
+      },
+      "sessionInactivite": {
+        "titre": "Sign-out after inactivity",
+        "libelle": "Hours of inactivity before sign-out",
+        "aide": "Time without any visit or action after which a signed-in account is signed out, from 1 to 24 hours. The cart is kept. Leave empty to go back to 4 hours."
       }
     },
     "evenements": {

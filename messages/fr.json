@@ -275,6 +275,7 @@
     }
   },
   "Connexion": {
+    "sessionExpiree": "Ta session a expiré après une longue inactivité. Reconnecte-toi pour continuer.",
     "titre": "Connexion",
     "intro": "Entre ton adresse email : nous t'envoyons un code à 6 chiffres. Pas de mot de passe à retenir.",
     "email": {
@@ -382,6 +383,11 @@
     "seDeconnecter": "Se déconnecter",
     "deconnexionEnCours": "Déconnexion…",
     "erreurDeconnexion": "La déconnexion a échoué. Réessaie."
+  },
+  "SessionExpiree": {
+    "message": "Ta session a expiré après une longue inactivité. Reconnecte-toi pour continuer.",
+    "reconnecter": "Se reconnecter",
+    "fermer": "Fermer le message"
   },
   "NavigateurIntegre": {
     "nom": "Ouvrir dans ton navigateur",
@@ -504,9 +510,9 @@
       "intro": "Ce qui demande une action d'abord, puis les chiffres. Montants en USD ; les jours sont ceux de Goma.",
       "erreurLecture": "Cette zone n'a pas pu être lue. Réessaie dans un instant.",
       "periode": {
-        "libelle": "Période des graphiques et des commandes payées",
         "7": "7 jours",
-        "30": "30 jours"
+        "30": "30 jours",
+        "libelle": "Période des graphiques et des commandes payées"
       },
       "prestataires": {
         "pawapay": "PawaPay",
@@ -888,7 +894,8 @@
         "delai_paiement_invalide": "Le délai doit être un nombre entier de 1 à 1440 minutes.",
         "frais_annulation_invalide": "Les frais doivent être un nombre entier de 0 à 100.",
         "delai_stand_invalide": "Le délai doit être un nombre entier de 1 à 168 heures.",
-        "relances_rythme_invalide": "Le rythme doit être un nombre entier de 1 à 30 jours."
+        "relances_rythme_invalide": "Le rythme doit être un nombre entier de 1 à 30 jours.",
+        "session_inactivite_invalide": "Le délai doit être un nombre entier de 1 à 24 heures."
       },
       "tranches": {
         "titre": "Tranches de prix",
@@ -1029,6 +1036,11 @@
         "titre": "Rythme des Relances",
         "libelle": "Jours entre deux Relances",
         "aide": "Nombre de jours minimum entre deux Relances envoyées à un même client après un achat, de 1 à 30. Tant que ce réglage est vide, aucune Relance n'est planifiée."
+      },
+      "sessionInactivite": {
+        "titre": "Déconnexion après inactivité",
+        "libelle": "Heures d'inactivité avant déconnexion",
+        "aide": "Temps sans aucune visite ni action après lequel un compte connecté est déconnecté, de 1 à 24 heures. Le panier est conservé. Laisse vide pour revenir à 4 heures."
       }
     },
     "evenements": {

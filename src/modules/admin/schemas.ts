@@ -12,6 +12,7 @@ export const CLES_REGLAGE = [
   "frais_annulation_pass",
   "delai_stand_heures",
   "relances_rythme_jours",
+  "session_inactivite_heures",
 ] as const;
 
 export const cleReglageSchema = z.enum(CLES_REGLAGE);
@@ -57,6 +58,12 @@ export const relancesRythmeJoursSchema = z
   .string()
   .transform((v) => v.trim())
   .pipe(z.union([z.literal("").transform(() => null), z.string().regex(/^[0-9]{1,2}$/).transform(Number).pipe(z.number().int().min(1).max(30)).transform(String)]));
+
+// Inactivité avant déconnexion (story 9.14) : entier de 1 à 24 heures ; vide = effacé (null, le serveur applique alors 4 h).
+export const sessionInactiviteHeuresSchema = z
+  .string()
+  .transform((v) => v.trim())
+  .pipe(z.union([z.literal("").transform(() => null), z.string().regex(/^[0-9]{1,2}$/).transform(Number).pipe(z.number().int().min(1).max(24)).transform(String)]));
 
 export const entreeReglageSchema = z.object({
   cle: cleReglageSchema,

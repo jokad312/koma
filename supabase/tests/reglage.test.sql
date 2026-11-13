@@ -1,5 +1,5 @@
 begin;
-select plan(8);
+select plan(9);
 
 select set_config('ks.auteur', '{"type":"test","nom":"reglage.test"}', true);
 
@@ -14,7 +14,13 @@ insert into public.reglage (cle, valeur) values ('numero_whatsapp', '+2439700000
 insert into public.reglage (cle, valeur) values ('autre_cle', 'x');
 
 set local role anon;
-select is((select array_agg(cle order by cle) from public.reglage), array['nom_site', 'numero_whatsapp'], 'anon ne lit que nom_site et numero_whatsapp');
+-- Story 9.14 : session_inactivite_heures est lisible par anon (le proxy le lit avec la clé publique ; la valeur n'a rien de secret).
+select is(
+  (select array_agg(cle order by cle) from public.reglage where cle in ('nom_site', 'numero_whatsapp', 'session_inactivite_heures', 'autre_cle')),
+  array['nom_site', 'numero_whatsapp', 'session_inactivite_heures'],
+  'anon lit nom_site, numero_whatsapp et session_inactivite_heures, pas une autre clé'
+);
+select ok(exists (select 1 from public.reglage where cle = 'session_inactivite_heures'), 'anon lit session_inactivite_heures');
 select throws_ok($$insert into public.reglage (cle, valeur) values ('pirate', 'x')$$, '42501', null, 'anon ne peut pas insérer');
 select throws_ok($$update public.reglage set valeur = 'x' where cle = 'nom_site'$$, '42501', null, 'anon ne peut pas modifier');
 select throws_ok($$delete from public.reglage where cle = 'nom_site'$$, '42501', null, 'anon ne peut pas supprimer');

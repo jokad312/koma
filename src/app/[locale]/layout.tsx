@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BandeauNavigateurIntegre } from "@/components/layout/BandeauNavigateurIntegre";
 import { EnvoiMesure } from "@/components/mesure/EnvoiMesure";
+import { BandeauSessionExpiree } from "@/components/layout/BandeauSessionExpiree";
 import { EnTete } from "@/components/layout/EnTete";
 import { ID_CONTENU, ID_RACINE_PAGE } from "@/components/layout/constantes";
 import { LienEvitement } from "@/components/layout/LienEvitement";
@@ -57,6 +58,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
             <Suspense fallback={null}>
               <BandeauNavigateurIntegre />
             </Suspense>
+            <BandeauSessionExpiree />
             <EnTete nomSite={nomSite} sansTraduction={sansTraduction} />
             <main id={ID_CONTENU} tabIndex={-1} className="mx-auto w-full max-w-7xl flex-1 px-marge py-8">
               <JsonLd donnees={organisationJsonLd(nomSite)} />
