@@ -129,12 +129,15 @@
 .hv-colonnes p {
   margin: 0;
 }
+/* Titres rouges en « grand texte » WCAG (19 px gras, seuil 3:1) : le rouge de la maquette reste, le contraste est conforme
+   (4,34:1 sur crème, 3,69:1 sur fond sombre). Décision de Jonathan du 2026-11-13. */
 .hv-colonnes b {
   display: block;
   margin-bottom: 6px;
-  font-size: 11px;
+  font-size: 19px;
   font-weight: 700;
-  letter-spacing: 0.16em;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ks-primary);
 }
@@ -249,9 +252,12 @@
 .hv-kit p {
   margin: 0;
 }
+/* Même règle que les titres rouges des colonnes : grand texte gras (3,42:1 sur la carte sombre, 4,73:1 sur la carte claire). */
 .hv-kit-etiquette {
-  font-size: 11px;
-  letter-spacing: 0.16em;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ks-primary);
 }
