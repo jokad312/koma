@@ -279,7 +279,8 @@ test.describe("ordinateur 1280 px", () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
   test("bascule de thème et langue dans l'en-tête, pas de bouton ☰, pas de débordement", async ({ page }) => {
-    await page.goto("/fr");
+    // Sur l'accueil visiteur, thème et langue passent dans le bouton rond « compte » (story 9.12) : on vérifie l'en-tête commun ailleurs.
+    await page.goto("/fr/cosplays");
     await expect(page.locator("header").getByRole("button", { name: "Thème sombre" })).toBeVisible();
     await expect(page.locator("header").getByRole("link", { name: "English" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Menu", exact: true })).toBeHidden();

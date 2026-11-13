@@ -52,7 +52,7 @@ for (const langue of ["fr", "en"] as const) {
     await page.goto(`/${langue}`);
     await expect(page.locator("h1")).toHaveCount(1);
     const titres = langue === "fr"
-      ? { categories: "CATEGORIES", kits: "KITS", cosplays: "FAIT MAIN A GOMA", jonathan: "JONATHAN EN TROIS PHRASES", faq: "REPONSES RAPIDES" }
+      ? { categories: "CATÉGORIES", kits: "KITS", cosplays: "FAIT MAIN À GOMA", jonathan: "JONATHAN EN TROIS PHRASES", faq: "RÉPONSES RAPIDES" }
       : { categories: "CATEGORIES", kits: "KITS", cosplays: "HANDMADE IN GOMA", jonathan: "JONATHAN IN THREE SENTENCES", faq: "QUICK ANSWERS" };
     const h2 = page.locator("main h2");
     // « Fait main à Goma » et le bloc Kits n'existent que si leurs sections portent des éléments : le nombre de `li` de la section en décide, sans tolérance.
@@ -169,7 +169,10 @@ for (const langue of ["fr", "en"] as const) {
       const section = document.querySelector("main section > div");
       // Les cartes défilent dans leur rangée : seuls les éléments hors de la liste défilante doivent tenir dans la fenêtre.
       const cibles = [...(section?.querySelectorAll("h1, a") ?? [])].filter((e) => !e.closest("ul"));
-      return { nb: cibles.length, section: (section?.scrollWidth ?? 0) > (section?.clientWidth ?? 0), droite: Math.max(...cibles.map((e) => e.getBoundingClientRect().right)) };
+      // Le mot géant (.hv-geant) est volontairement rogné par .hv ; la rangée de cartes défile dans sa liste : les deux sont exclus.
+      const bord = section?.getBoundingClientRect().right ?? 0;
+      const deborde = [...(section?.querySelectorAll("*") ?? [])].some((e) => !e.closest(".hv-geant") && !e.closest("ul") && e.getBoundingClientRect().right > bord + 1);
+      return { nb: cibles.length, section: deborde, droite: Math.max(...cibles.map((e) => e.getBoundingClientRect().right)) };
     });
     expect(sortie.nb).toBeGreaterThan(0);
     expect(sortie.section).toBe(false);
