@@ -14,7 +14,7 @@ Le site comprend aussi un blog et une section Événements, avec vente de pass n
 
 ## Stack
 Next.js (App Router, TypeScript, Server Components par défaut), Tailwind CSS, Supabase (Auth, Postgres avec RLS, Storage, Cron), vidéos de kit sur Bunny Stream (bibliothèque privée), hébergement Hostinger Business Web Hosting (application Node.js 24 reliée au dépôt GitHub jokad312/koma, déploiement automatique à chaque push), paiement : couche commune avec un adaptateur par prestataire. Mobile money via PawaPay et MaishaPay ; carte via MaishaPay pour les paniers avec produit physique et pour les Pass, via Polar pour les paniers 100 % kits. Emails Resend.
-Référence design : `_bmad-output/planning-artifacts/ux-designs/ux-KOMA SHOP-2026-10-16/DESIGN.md` (apparence : thème Sumi & washi, crème par défaut et sombre au choix, un seul rouge #E3261C, Sakura Town pour les grands titres en majuscules sans accents, Barlow pour le texte) et `EXPERIENCE.md` (fonctionnement, états, parcours, accessibilité), dans le même dossier. Les maquettes de `mockups/` sont une inspiration ; en cas de conflit, les deux documents priment. Photos : [DOSSIER OU LIEN DES PHOTOS].
+Référence design : `_bmad-output/planning-artifacts/ux-designs/ux-KOMA SHOP-2026-10-16/DESIGN.md` (apparence : thème Sumi & washi, crème par défaut et sombre au choix, un seul rouge #D7261E, Sakura Town pour les grands titres en majuscules sans accents, Barlow pour le texte) et `EXPERIENCE.md` (fonctionnement, états, parcours, accessibilité), dans le même dossier. Les maquettes de `mockups/` sont une inspiration ; en cas de conflit, les deux documents priment. Photos : [DOSSIER OU LIEN DES PHOTOS].
 
 ## Langues
 Français et anglais, via /fr et /en. Aucun texte visible en dur hors des fichiers de traduction.

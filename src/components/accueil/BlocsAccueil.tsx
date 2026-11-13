@@ -7,6 +7,7 @@ import { BlocMur } from "./BlocMur";
 import { BlocRendezVous } from "./BlocRendezVous";
 import { BlocPorteOuFabrique } from "./BlocPorteOuFabrique";
 import { HerosAccueil } from "./HerosAccueil";
+import { HerosVisiteur } from "./HerosVisiteur";
 import { BlocJonathan } from "./BlocJonathan";
 import { TuilesCategories } from "./TuilesCategories";
 import type { Locale } from "@/i18n/routing";
@@ -18,9 +19,10 @@ function rendreBloc(id: string, locale: Locale, requete: Promise<Record<string, 
   const niveau = variante === "boutique" ? 3 : 2;
   switch (id) {
     case "heros":
-      // Accroche (H1) dans la coque statique ; vedette, photo et vidéo lues à chaque requête.
-      // « Découvrir la boutique » de l'espace personnel (story 9.12) : les mêmes blocs, sans le grand héros.
-      return variante === "boutique" ? null : <HerosAccueil locale={locale} />;
+      // Visiteur (/[l]) : maquette « fusion » ; personne connectée (/[l]/accueil-connecte, servie par le proxy à l'adresse /[l]) : l'ancien héros
+      // (option A du 2026-11-13). « Découvrir la boutique » de l'espace personnel (story 9.12) : les mêmes blocs, sans le grand héros.
+      if (variante === "boutique") return null;
+      return variante === "connecte" ? <HerosAccueil locale={locale} /> : <HerosVisiteur locale={locale} />;
     case "categories":
       return <TuilesCategories niveau={niveau} />;
     case "porteOuFabrique":
@@ -74,7 +76,7 @@ function rendreBloc(id: string, locale: Locale, requete: Promise<Record<string, 
   }
 }
 
-export type VarianteAccueil = "complet" | "boutique";
+export type VarianteAccueil = "visiteur" | "connecte" | "boutique";
 
 // Les blocs de l'accueil, dans l'ordre de src/modules/accueil/blocs.ts. Variante « boutique » (espace personnel) : sans le héros.
 export function BlocsAccueil({ locale, searchParams, variante }: { locale: Locale; searchParams: Promise<Record<string, string | string[] | undefined>>; variante: VarianteAccueil }) {

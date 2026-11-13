@@ -26,7 +26,7 @@ describe("modèles d'email", () => {
     expect(m.texte).toMatch(/Livraison : .*5,00/);
     expect(m.texte).toContain(commande.url);
     expect(m.html).toContain('lang="fr"');
-    expect(m.html).toContain("#E3261C");
+    expect(m.html).toContain("#D7261E");
   });
 
   it("commande payée en anglais", () => {

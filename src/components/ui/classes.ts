@@ -1,4 +1,4 @@
-// Classes partagées par les boutons. Bouton principal : fond rouge #E3261C, texte #FFFFFF (jamais crème).
+// Classes partagées par les boutons. Bouton principal : fond rouge #D7261E, texte #FFFFFF (jamais crème).
 const BASE =
   "t-button inline-flex min-h-touch items-center justify-center gap-2 rounded-full px-5 py-3 text-center no-underline";
 

@@ -154,11 +154,14 @@ describe("proxy : déconnexion après inactivité", () => {
     expect(effacé(r, "koma_session_expiree")).toBe(true);
   });
 
-  it("client connecté (option A) : /fr, /en et « / » affichent l'accueil public, aucune redirection vers l'espace personnel", async () => {
+  it("client connecté (option A) : /fr et /en servent l'ancien accueil à la même adresse, aucune redirection vers l'espace personnel", async () => {
     const actif = { ...cookieSession, koma_activite: String(Date.now() - 1000) };
-    for (const chemin of ["/fr", "/en", "/fr/"]) {
+    for (const [chemin, langue] of [["/fr", "fr"], ["/en", "en"], ["/fr/", "fr"]] as const) {
       const r = await proxy(demande(chemin, actif));
       expect(r.headers.get("location") ?? "").not.toContain("/compte");
+      // L'ancien accueil est servi à la même adresse (réécriture), jamais mis en cache partagé.
+      expect(new URL(r.headers.get("x-middleware-rewrite")!).pathname).toBe(`/${langue}/accueil-connecte`);
+      expect(r.headers.get("cache-control")).toBe("private, no-store");
     }
     const r = await proxy(demande("/", actif, "GET", { "accept-language": "en-US,en;q=0.9" }));
     expect(new URL(r.headers.get("location")!).pathname).toBe("/en");
@@ -201,10 +204,11 @@ describe("proxy : déconnexion après inactivité", () => {
     expect((await proxy(demande("/fr", actif, "POST"))).status).not.toBe(307);
   });
 
-  it("visiteur : l'accueil public n'est jamais redirigé", async () => {
+  it("visiteur : l'accueil public n'est jamais redirigé ni réécrit", async () => {
     etat.session = false;
     const r = await proxy(demande("/fr", {}));
     expect(r.status).not.toBe(307);
+    expect(r.headers.get("x-middleware-rewrite") ?? "").not.toContain("accueil-connecte");
   });
 
   it("session expirée sur l'accueil public : visiteur, pas de redirection vers l'espace personnel", async () => {

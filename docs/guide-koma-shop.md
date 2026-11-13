@@ -189,7 +189,7 @@ Le premier écran doit dire « fait par un otaku, pour les otakus » : tes vraie
 
 **La direction proposée** (à ajuster une fois le dépôt de référence vu) :
 
-- Mode crème par défaut, avec un mode sombre au choix ; un seul rouge vif (#E3261C) pour les boutons et les accents (décision UX du 2026-10-17, voir DESIGN.md).
+- Mode crème par défaut, avec un mode sombre au choix ; un seul rouge vif (#D7261E) pour les boutons et les accents (décision UX du 2026-10-17, voir DESIGN.md).
 - Une police d'affichage expressive pour les titres, une police très lisible pour le texte.
 - Des clins d'œil manga en décor léger (trames, cadres de cases, traits de vitesse), jamais par-dessus une photo produit.
 

@@ -139,6 +139,28 @@
       "pause": "Pause the video",
       "lecture": "Play the video"
     },
+    "herosVisiteur": {
+      "region": "Introduction",
+      "surtitre": "New collection — 2027",
+      "accroche": "Wear your character.\nOr make it.",
+      "motGeant": "Cosplay",
+      "voirCosplays": "See cosplays",
+      "decouvrirKits": "Discover kits",
+      "faitMainTitre": "Handmade in Goma",
+      "faitMainTexte": "Every cosplay is cut, sewn and finished by hand, one piece at a time.",
+      "kitsTitre": "Kits to make",
+      "kitsTexte": "Patterns, files and chaptered video, available anywhere.",
+      "cartes": "Shop selection",
+      "carteCosplay": "Worn cosplay",
+      "carteAccessoire": "Accessory",
+      "carteNom": "{etiquette}: {titre}, {prix}",
+      "kitDuMois": "Kit of the month",
+      "kitPhrase": "PDF patterns + chaptered video. Instant access.",
+      "voirKit": "See the kit",
+      "voirKitNomme": "See the kit: {titre}",
+      "versCatalogue": "See the catalogue",
+      "signature": "Handmade in Goma — 2026"
+    },
     "categories": {
       "titre": "CATEGORIES",
       "cosplays": {

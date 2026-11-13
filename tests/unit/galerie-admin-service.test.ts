@@ -17,7 +17,7 @@ let JPEG_GPS: Uint8Array;
 beforeAll(async () => {
   // Photo avec une position GPS : la copie publique ne doit plus en avoir.
   JPEG_GPS = new Uint8Array(
-    await sharp({ create: { width: 8, height: 8, channels: 3, background: "#E3261C" } })
+    await sharp({ create: { width: 8, height: 8, channels: 3, background: "#D7261E" } })
       .jpeg()
       .withExif({ IFD0: { Artist: "TEST_auteur" }, GPS: { GPSLatitudeRef: "S", GPSLatitude: "1/1 40/1 0/1" } } as never)
       .toBuffer(),

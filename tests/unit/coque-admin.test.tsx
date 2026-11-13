@@ -117,14 +117,14 @@ describe("CoqueAdmin : disposition en L", () => {
     rendre(await coque("x"));
     const nav = screen.getByRole("navigation", { name: "Administration" });
     expect(within(nav).getByText("TEST_Boutique")).toBeTruthy();
-    expect(within(nav).getByRole("link", { name: "Voir le site TEST_Boutique" }).getAttribute("href")).toBe("/?vue=site");
+    expect(within(nav).getByRole("link", { name: "Voir le site TEST_Boutique" }).getAttribute("href")).toBe("/fr?vue=site");
   });
 
   it("encart « Besoin d'aide ? » avec le lien « Voir le site »", async () => {
     rendre(await coque("x"));
     const nav = screen.getByRole("navigation", { name: "Administration" });
     expect(within(nav).getByText("Besoin d'aide ?")).toBeTruthy();
-    expect(within(nav).getByRole("link", { name: "Voir le site" }).getAttribute("href")).toBe("/?vue=site");
+    expect(within(nav).getByRole("link", { name: "Voir le site" }).getAttribute("href")).toBe("/fr?vue=site");
   });
 
   it("bandeau : sur-titre, titre de la section courante, nom et rôle du Compte connecté avec ses initiales", async () => {

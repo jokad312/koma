@@ -104,8 +104,8 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Arrivées selon la connexion (story 9.12, option A du 2026-11-13) : l'accueil public est le même pour tous ; seuls l'admin et l'assistant
-  // (revendication koma_role du jeton) sont envoyés à l'admin depuis « / », /fr, /en et /[l]/compte. Aucune lecture en base ici : sans
+  // Arrivées selon la connexion (story 9.12, option A du 2026-11-13) : l'admin et l'assistant (revendication koma_role du jeton) sont envoyés
+  // à l'admin depuis « / », /fr, /en et /[l]/compte ; toute autre personne connectée reçoit l'ancien accueil sur /fr et /en (réécriture). Aucune lecture en base ici : sans
   // revendication (crochet non activé), aucune redirection. Les pages revérifient les droits côté serveur.
   // Après une expiration de la session, la personne est un visiteur : aucune redirection.
   // « Voir le site » de l'admin (?vue=site) : la personne veut l'accueil public, aucun aiguillage.
@@ -123,6 +123,17 @@ export async function proxy(request: NextRequest) {
       versArrivee.headers.set("Cache-Control", "no-store");
       reponseSession.cookies.getAll().forEach((cookie) => versArrivee.cookies.set(cookie));
       return versArrivee;
+    }
+    // Personne connectée sur l'accueil de sa langue : l'ancien accueil (option A du 2026-11-13), servi à la même adresse par réécriture.
+    // La page /[l] reste ainsi l'accueil du visiteur, préparé à l'avance, sans lecture de session (titre présent même sans JavaScript).
+    if (langueAccueil) {
+      // Nouvelle adresse (pas un clone) : « /fr/ » ne doit pas donner « /fr/accueil-connecte/ ».
+      const cible = new URL(`/${langueAccueil}/accueil-connecte${request.nextUrl.search}`, request.url);
+      const versAccueilConnecte = NextResponse.rewrite(cible);
+      versAccueilConnecte.headers.set("Vary", "Cookie");
+      versAccueilConnecte.headers.set("Cache-Control", "private, no-store");
+      reponseSession.cookies.getAll().forEach((cookie) => versAccueilConnecte.cookies.set(cookie));
+      return versAccueilConnecte;
     }
   }
 

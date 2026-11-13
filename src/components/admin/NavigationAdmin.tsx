@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { BasculeTheme } from "@/components/layout/BasculeTheme";
@@ -9,9 +9,14 @@ import { BoutonDeconnexion } from "@/components/layout/BoutonDeconnexion";
 import { SelecteurLangue } from "@/components/layout/SelecteurLangue";
 import { Dialogue } from "@/components/ui/Dialogue";
 
-// « Voir le site » : accueil public avec ?vue=site, que le proxy n'aiguille pas vers l'admin ni vers l'espace personnel (story 9.12).
-const VOIR_LE_SITE = { pathname: "/", query: { vue: "site" } } as const;
 import { entreesVisibles, estCourante, PRINCIPALES } from "./navigation-entrees";
+
+// « Voir le site » : un vrai lien (rechargement complet), pas une navigation interne. La mise en page de l'admin (9.10) masque l'en-tête du site
+// tant que la coque admin est dans la page ; après une navigation interne, Next.js garde la page admin cachée en mémoire et l'en-tête resterait masqué.
+// Adresse : accueil public avec ?vue=site, que le proxy n'aiguille pas vers l'admin (story 9.12).
+function adresseVoirLeSite(locale: string) {
+  return `/${locale}?vue=site`;
+}
 
 const GLYPHE_MENU = "☰";
 
@@ -24,6 +29,7 @@ const GLYPHE_MENU = "☰";
 // compteurMessages : nombre de messages « nouveau » ; null (lecture impossible) ou 0 : aucun compteur affiché.
 export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = false }: { compteurMessages?: number | null; nomSite: string; estAdmin?: boolean }) {
   const t = useTranslations("Admin.nav");
+  const locale = useLocale();
   const chemin = usePathname();
   const [ouvert, setOuvert] = useState(false);
   const bouton = useRef<HTMLButtonElement>(null);
@@ -82,12 +88,12 @@ export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = f
     >
       {/* Bloc de marque (ordinateur) : logo et nom du site lu dans les réglages ; le logo mène au site. */}
       <div className="hidden border-b border-border px-5 py-4 md:block">
-        <Link href={VOIR_LE_SITE} className="inline-flex min-h-touch items-center" aria-label={t("voirSiteNom", { nom: nomSite })}>
+        <a href={adresseVoirLeSite(locale)} className="inline-flex min-h-touch items-center" aria-label={t("voirSiteNom", { nom: nomSite })}>
           <span className="relative block aspect-[530/124] w-[150px] overflow-hidden">
             <Image src="/logo/logo-principal.svg" alt="" width={630} height={220} unoptimized data-logo="clair" className="logo-clair absolute -left-[9.434%] -top-[37.097%] h-auto w-[118.868%] max-w-none" />
             <Image src="/logo/logo-principal-inverse.svg" alt="" width={630} height={220} unoptimized data-logo="sombre" className="logo-sombre absolute -left-[9.434%] -top-[37.097%] h-auto w-[118.868%] max-w-none" />
           </span>
-        </Link>
+        </a>
         <p className="t-label mt-2 text-text-secondary">{nomSite}</p>
       </div>
 
@@ -138,9 +144,9 @@ export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = f
       <div className="m-3 mt-auto hidden rounded-lg border border-border bg-background p-4 md:block">
         <p className="t-label text-text-primary">{t("aide.titre")}</p>
         <p className="t-small mt-1 text-text-secondary">{t("aide.texte")}</p>
-        <Link href={VOIR_LE_SITE} className="t-small mt-2 inline-flex min-h-touch items-center text-text-primary underline underline-offset-4">
+        <a href={adresseVoirLeSite(locale)} className="t-small mt-2 inline-flex min-h-touch items-center text-text-primary underline underline-offset-4">
           {t("voirSite")}
-        </Link>
+        </a>
       </div>
 
       <Dialogue ouvert={ouvert} onFermer={() => setOuvert(false)} titre={t("plusTitre")} variante="plein" retourFocus={bouton}>
@@ -166,9 +172,9 @@ export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = f
               </li>
             ))}
           <li>
-            <Link href={VOIR_LE_SITE} className="t-body flex min-h-touch items-center border-l-4 border-transparent px-4 text-text-primary underline underline-offset-4">
+            <a href={adresseVoirLeSite(locale)} className="t-body flex min-h-touch items-center border-l-4 border-transparent px-4 text-text-primary underline underline-offset-4">
               {t("voirSite")}
-            </Link>
+            </a>
           </li>
           {/* Réglages du site repris ici sur mobile (le bandeau reste sur une ligne ; l'en-tête du site est masqué dans l'admin). */}
           <li className="flex flex-wrap items-center gap-2 px-4 py-3">

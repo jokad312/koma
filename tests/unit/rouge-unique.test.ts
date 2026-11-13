@@ -12,9 +12,9 @@ function variable(bloc: "creme" | "sombre", nom: string): string | undefined {
 }
 
 describe("rouge unique (DESIGN.md › règle du rouge)", () => {
-  it("le rouge primaire est #E3261C dans les deux thèmes, texte sur rouge #FFFFFF", () => {
+  it("le rouge primaire est #D7261E dans les deux thèmes, texte sur rouge #FFFFFF", () => {
     for (const bloc of ["creme", "sombre"] as const) {
-      expect(variable(bloc, "primary")?.toLowerCase()).toBe("#e3261c");
+      expect(variable(bloc, "primary")?.toLowerCase()).toBe("#d7261e");
       expect(variable(bloc, "on-primary")?.toLowerCase()).toBe("#ffffff");
     }
   });
@@ -27,8 +27,8 @@ describe("rouge unique (DESIGN.md › règle du rouge)", () => {
   });
 
   it("aucun second rouge : toute teinte rouge de la feuille est une valeur de DESIGN.md", () => {
-    // Teintes dont le rouge domine nettement : seuls #E3261C et les extrémités de dégradé / erreur / verre de DESIGN.md sont permis.
-    const permis = new Set(["#e3261c", "#9e1a12", "#7a1a12", "#b01b13", "#f2766b"]);
+    // Teintes dont le rouge domine nettement : seuls #D7261E et les extrémités de dégradé / erreur / verre de DESIGN.md sont permis.
+    const permis = new Set(["#d7261e", "#9e1a12", "#7a1a12", "#b01b13", "#f2766b"]);
     const hex = [...css.matchAll(/#([0-9a-f]{6})(?:[0-9a-f]{2})?\b/gi)].map((m) => m[1].toLowerCase());
     const rouges = hex.filter((h) => {
       const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
@@ -36,6 +36,6 @@ describe("rouge unique (DESIGN.md › règle du rouge)", () => {
     });
     for (const h of rouges) expect(permis.has(`#${h}`)).toBe(true);
     // Le rouge de marque n'est jamais modifié.
-    expect(variable("creme", "brand-red")?.toLowerCase()).toBe("#e3261c");
+    expect(variable("creme", "brand-red")?.toLowerCase()).toBe("#d7261e");
   });
 });

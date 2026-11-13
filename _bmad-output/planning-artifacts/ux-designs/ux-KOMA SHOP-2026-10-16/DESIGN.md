@@ -16,7 +16,7 @@ sources:
   - ./imports/fonts/Sakura Town.otf
 colors:
   # Constantes de marque (tirées des SVG du logo) — jamais modifiées
-  brand-red: '#E3261C'
+  brand-red: '#D7261E'
   brand-ink: '#16130F'
   brand-washi: '#F3EEE4'
   # Thème CRÈME (défaut) — variation « Sumi & washi », .sumi-cream
@@ -27,7 +27,7 @@ colors:
   glass-border: '#16130F24'         # text-primary à 14 %, filet décoratif du verre
   text-primary: '#16130F'
   text-secondary: '#5E554A'
-  primary: '#E3261C'                # rouge unique, boutons et grands textes sur fond uni
+  primary: '#D7261E'                # rouge unique, boutons et grands textes sur fond uni
   on-primary: '#FFFFFF'
   border: '#E0D6C5'                 # décoratif uniquement (1,24:1)
   border-field: '#857A6B'           # contour de tout contrôle interactif : 3,64:1 sur background, 3,97:1 sur surface
@@ -37,7 +37,7 @@ colors:
   qr-background: '#FFFFFF'          # fond du Code QR, identique dans les deux thèmes
   hero-wash-start: '#FBF8F2'
   hero-wash-end: '#EADFCC'
-  tile-red-start: '#E3261C'
+  tile-red-start: '#D7261E'
   tile-red-end: '#9E1A12'
   tile-ink-start: '#5A4C3E'
   tile-ink-end: '#2B241D'
@@ -49,7 +49,7 @@ colors:
   glass-border-dark: '#F3EEE424'    # text-primary-dark à 14 %
   text-primary-dark: '#F3EEE4'
   text-secondary-dark: '#B9AE9E'
-  primary-dark: '#E3261C'
+  primary-dark: '#D7261E'
   on-primary-dark: '#FFFFFF'
   border-dark: '#3A322A'            # décoratif uniquement (1,47:1)
   border-field-dark: '#7A6E5E'      # contour de tout contrôle interactif : 3,72:1 sur background-dark, 3,39:1 sur surface-dark
@@ -59,7 +59,7 @@ colors:
   qr-background-dark: '#FFFFFF'     # le QR reste sur blanc pur en thème sombre
   hero-wash-start-dark: '#2A221B'
   hero-wash-end-dark: '#16130F'
-  tile-red-start-dark: '#E3261C'
+  tile-red-start-dark: '#D7261E'
   tile-red-end-dark: '#7A1A12'
   tile-ink-start-dark: '#4A3D31'
   tile-ink-end-dark: '#211C17'
@@ -499,7 +499,7 @@ Pack complet : `imports/logos/SVG/` et `imports/logos/PNG/` (cinq formes — hor
   - Texte alternatif : « KOMA SHOP » (le katakana コマ n'est pas lu). Le wordmark seul n'est plus utilisé dans l'en-tête.
 - **Hanko** (sceau コマ) : usage de sceau — favicon, filigrane d'en-tête de pass, signature d'email [HYPOTHÈSE, à confirmer].
 - **Zone de protection** : les SVG horizontaux réservent 60 unités autour d'un logotype de 100 unités de haut → marge minimale = 0,6 × hauteur du logotype [HYPOTHÈSE déduite des fichiers]. Taille minimale : non fournie.
-- **Ne jamais** recolorer, étirer, redessiner le logo ni modifier `#E3261C`. Pas d'ombre, pas de verre sur le logo.
+- **Ne jamais** recolorer, étirer, redessiner le logo ni modifier `#D7261E`. Pas d'ombre, pas de verre sur le logo.
 
 ### Photographie (PRD §10, Guide)
 
@@ -522,7 +522,7 @@ Deux thèmes, mêmes rôles. **Crème = défaut**, sombre = bascule mémorisée.
 | Filet du verre | `{colors.glass-border}` encre 14 % | `{colors.glass-border-dark}` washi 14 % | décoratif |
 | Texte | `{colors.text-primary}` #16130F | `{colors.text-primary-dark}` #F3EEE4 | texte courant, petits prix, liens, accroche du héros |
 | Texte secondaire | `{colors.text-secondary}` #5E554A | `{colors.text-secondary-dark}` #B9AE9E | métadonnées, délais, aides |
-| Rouge | `{colors.primary}` #E3261C | `{colors.primary-dark}` #E3261C | boutons principaux, grands titres sur fond uni, soulignés, sélection |
+| Rouge | `{colors.primary}` #D7261E | `{colors.primary-dark}` #D7261E | boutons principaux, grands titres sur fond uni, soulignés, sélection |
 | Sur rouge | `{colors.on-primary}` #FFFFFF | `{colors.on-primary-dark}` #FFFFFF | texte des boutons et tuiles rouges |
 | Filet | `{colors.border}` #E0D6C5 | `{colors.border-dark}` #3A322A | séparateurs **décoratifs** seulement |
 | Contour de contrôle | `{colors.border-field}` #857A6B | `{colors.border-field-dark}` #7A6E5E | champs, boutons secondaires, segments, cartes de paiement, filtres |
@@ -533,9 +533,10 @@ Deux thèmes, mêmes rôles. **Crème = défaut**, sombre = bascule mémorisée.
 
 ### Règle du rouge (décision validée)
 
-- **Un seul rouge, `#E3261C`, partout** (logo et interface). Le rouge ajusté `#C52118` (primary-strong) est **abandonné** ; aucune teinte « primary-text » n'est retenue.
-- **Boutons rouges : texte `#FFFFFF`** (4,61:1, AA). Jamais de texte crème `#F3EEE4` sur rouge (3,98:1, échec).
-- **Rouge en couleur de texte : grands textes seulement** (≥ 24 px, ou ≥ 18,66 px en gras ; seuil 3:1), **et uniquement sur `background` ou `surface` unis**. Contrastes mesurés : rouge sur fond crème 3,98:1 ; sur surface crème 4,34:1 ; sur fond sombre 4,02:1 ; sur surface sombre 3,67:1.
+- **Un seul rouge, `#D7261E`, partout** (logo, interface, admin et emails ; décision de Jonathan : le rouge de la maquette « fusion » `docs/design/maquette-accueil/` devient le rouge unique du site, inscrit le 2026-11-13 ; il remplace `#D7261E`). Le rouge ajusté `#C52118` (primary-strong) est **abandonné** ; aucune teinte « primary-text » n'est retenue.
+- **Boutons rouges : texte `#FFFFFF`** (5,02:1, AA). Jamais de texte crème `#F3EEE4` sur rouge (4,34:1, échec).
+- **Rouge en couleur de texte : grands textes seulement** (≥ 24 px, ou ≥ 18,66 px en gras ; seuil 3:1), **et uniquement sur `background` ou `surface` unis**. Contrastes mesurés (`#D7261E`) : rouge sur fond crème 4,34:1 ; sur surface crème 4,73:1 ; sur fond sombre 3,69:1 ; sur surface sombre 3,37:1.
+- **Exception décidée par Jonathan (2026-11-13)** : dans le héros du visiteur (maquette « fusion »), les petits titres « Fait main à Goma », « Kits à fabriquer » et « Kit du mois » (11 px, capitales espacées) restent en rouge, comme la maquette ; contraste 4,34:1 sur fond crème, 4,73:1 sur la carte Kit claire, 3,69:1 sur fond sombre. Aucune autre exception.
 - **Aucun texte rouge sur dégradé, halo, verre, photo ou vidéo** (décision) : rouge sur halo crème 2,46:1, sur halo sombre 2,60:1, sur verre crème 55 % au-dessus d'une image noire 1,37:1 — tous en échec. L'accroche et le surtitre du héros sont en `{colors.text-primary}` ; le rouge n'y sert qu'au bouton, au sceau ou à un soulignement.
 - **Petits liens et petits prix** : en `{colors.text-primary}`, avec soulignement ou icône rouge.
 - Un trait rouge fin (< 3 px) n'est jamais le seul indicateur d'un état ; la sélection a toujours une coche ou un radio plein en plus.
@@ -776,7 +777,7 @@ Spécifications visuelles ; le comportement est dans `EXPERIENCE.md` § Componen
 
 | À faire | À éviter |
 |---|---|
-| Rouge `#E3261C` unique, texte blanc sur bouton rouge | `#C52118`, un second accent, crème sur rouge |
+| Rouge `#D7261E` unique, texte blanc sur bouton rouge | `#C52118`, un second accent, crème sur rouge |
 | Rouge en texte seulement ≥ 24 px (ou ≥ 18,66 px gras), sur `background` ou `surface` unis | Petits liens ou petits prix en rouge ; **tout texte rouge sur dégradé, halo, verre, photo ou vidéo** |
 | Vraies photos de Jonathan, en grand, même cadrage | Toute image, logo, nom ou couleur officielle d'une franchise (règle 6) |
 | Verre discret (~10 px) sur fond uni ; **verre renforcé ≥ 85 % sous tout texte sur média** ; Panneau ☰ opaque | Verre discret sur vidéo ou photo, verre empilé, verre sur le logo |

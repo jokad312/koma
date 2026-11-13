@@ -1,0 +1,391 @@
+/*
+ * Haut de l'accueil du visiteur : maquette docs/design/maquette-accueil/fusion.hv-html (cadres #m4 clair et #m5 sombre, 1440 x 900).
+ * Module CSS : toutes les classes sont locales à HerosVisiteur.hv-tsx ; aucune règle ne vise l'en-tête, la mise en page commune ou une autre page.
+ * L'en-tête standard du site (environ 64 px) remplace la barre de la maquette (84 px) : les positions verticales de la maquette sont
+ * reprises moins 84 px, dans un cadre de 816 px de haut. Polices : Barlow (texte) et Barlow Condensed (titres), celles du site.
+ */
+
+.hv-pleine {
+  /* Pleine largeur depuis la page : --pleine-largeur est mesurée par PleineLargeur (sans la barre de défilement). */
+  width: var(--pleine-largeur, 100vw);
+  margin-left: calc(50% - var(--pleine-largeur, 100vw) / 2);
+  /* Le haut du héros touche l'en-tête : la page annule ici la marge haute du contenu (py-8 = 2rem). */
+  margin-top: -2rem;
+}
+
+.hv-heros {
+  --hv-surtitre: #6b655c;
+  --hv-geant: #e6dece;
+  --hv-colonnes: #3f3a33;
+  --hv-gris: #6b655c;
+  --hv-encre-fond: #141210;
+  --hv-encre-texte: #ffffff;
+  --hv-papier: #fbf8f2;
+  --hv-kit-bord: transparent;
+  --hv-lueur: radial-gradient(ellipse at 50% 55%, color-mix(in srgb, var(--ks-primary) 18%, transparent), transparent 60%);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--ks-background);
+  color: var(--ks-text-primary);
+  font-family: var(--font-corps);
+  font-size: 1rem;
+}
+
+:root[data-theme="dark"] .hv-heros {
+  --hv-surtitre: #a39c90;
+  --hv-geant: #1f1d1a;
+  --hv-colonnes: #cfc8bb;
+  /* Gris de la maquette éclairci en sombre : contraste suffisant (règle 7). */
+  --hv-gris: #a39c90;
+  --hv-encre-fond: #f3eee3;
+  --hv-encre-texte: #141210;
+  --hv-papier: #1d1b19;
+  --hv-kit-bord: #2c2925;
+  --hv-lueur: radial-gradient(ellipse at 50% 50%, rgba(90, 80, 70, 0.75), rgba(18, 17, 16, 0) 62%);
+}
+
+/* ---------- Une colonne (mobile et tablette) ---------- */
+
+.hv-cadre {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 16px 32px;
+}
+
+.hv-geant {
+  position: absolute;
+  top: 8px;
+  right: -16px;
+  z-index: 0;
+  margin: 0;
+  font-family: var(--font-condensee);
+  font-weight: 700;
+  font-size: clamp(6rem, 29vw, 26.25rem);
+  line-height: 0.8;
+  letter-spacing: 0.067em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--hv-geant);
+  pointer-events: none;
+  user-select: none;
+}
+.hv-geant::before {
+  content: attr(data-mot);
+}
+
+.hv-surtitre {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hv-surtitre);
+}
+
+.hv-points {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  max-width: 14rem;
+}
+.hv-points > span {
+  width: 10px;
+  height: 10px;
+}
+.hv-points > span:not(:last-child) {
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.hv-titre {
+  position: relative;
+  z-index: 3;
+  margin: 0;
+  font-family: var(--font-condensee);
+  font-weight: 700;
+  font-size: clamp(2.5rem, 11vw, 58px);
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+.hv-ligne-titre {
+  display: block;
+}
+
+.hv-colonnes {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--hv-colonnes);
+}
+.hv-colonnes p {
+  margin: 0;
+}
+.hv-colonnes b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ks-primary);
+}
+
+.hv-boutons {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hv-bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-family: var(--font-corps);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+}
+.hv-bouton:focus-visible,
+.hv-carte-lien:focus-visible,
+.hv-rond:focus-visible {
+  outline: 2px solid var(--ks-text-primary);
+  outline-offset: 2px;
+}
+.hv-bouton-encre {
+  background: var(--hv-encre-fond);
+  color: var(--hv-encre-texte);
+}
+.hv-bouton-rouge {
+  background: var(--ks-primary);
+  color: #ffffff;
+}
+
+.hv-media {
+  position: relative;
+  z-index: 2;
+  height: 26rem;
+}
+.hv-lueur {
+  position: absolute;
+  inset: 0;
+  background: var(--hv-lueur);
+}
+.hv-photo {
+  position: absolute;
+  inset: 4% 10% 0;
+  filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.35));
+}
+
+.hv-rangee {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  gap: 14px;
+  margin: 0;
+  padding: 0 0 4px;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+.hv-carte,
+.hv-kit {
+  flex: none;
+  height: 250px;
+  border-radius: 18px;
+  box-shadow: 0 20px 40px rgba(20, 18, 16, 0.12);
+  scroll-snap-align: start;
+}
+.hv-carte {
+  position: relative;
+  width: 200px;
+  overflow: hidden;
+}
+.hv-carte-photo {
+  object-fit: cover;
+}
+.hv-carte-lien {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 18px;
+}
+/* Étiquette blanche avec ombre (lisible sur une vraie photo, écart accepté par Jonathan). */
+.hv-carte-etiquette {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  z-index: 2;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+.hv-kit {
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+  padding: 18px;
+  background: var(--hv-papier);
+  border: 1px solid var(--hv-kit-bord);
+}
+.hv-kit p {
+  margin: 0;
+}
+.hv-kit-etiquette {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ks-primary);
+}
+.hv-kit-titre {
+  max-width: 170px;
+  margin-top: 10px !important;
+  font-family: var(--font-condensee);
+  font-weight: 400;
+  font-size: 28px;
+  line-height: 0.95;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+.hv-kit-phrase {
+  margin-top: 8px !important;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--hv-gris);
+}
+.hv-kit-bouton {
+  position: relative;
+  margin-top: auto;
+  align-self: flex-start;
+  height: 38px;
+}
+/* Zone de touche de 44 px sans changer le rendu de 38 px. */
+.hv-kit-bouton::after {
+  content: "";
+  position: absolute;
+  inset: -3px 0;
+}
+
+.hv-rond {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--ks-primary);
+  color: #ffffff;
+}
+
+.hv-signature {
+  position: relative;
+  z-index: 4;
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hv-gris);
+}
+
+/* ---------- Ordinateur (1280 px et plus) : positions de la maquette ---------- */
+
+@media (min-width: 1280px) {
+  .hv-cadre {
+    display: block;
+    max-width: 1440px;
+    height: 816px;
+    margin: 0 auto;
+    padding: 0;
+  }
+  /* Barlow Condensed est plus étroite que la police de la maquette : corps de 440 px (même hauteur de lettres que la maquette) et
+     espacement de 0,067 em pour que le mot couvre la même largeur (le C sort à gauche, le Y touche le bord droit). */
+  .hv-geant {
+    top: 22px;
+    right: -30px;
+    font-size: 440px;
+    letter-spacing: 0.067em;
+  }
+  .hv-surtitre {
+    position: absolute;
+    left: 56px;
+    top: 66px;
+  }
+  .hv-points {
+    position: absolute;
+    left: 56px;
+    top: 102px;
+    width: 600px;
+    max-width: none;
+    z-index: 2;
+  }
+  .hv-titre {
+    position: absolute;
+    left: 56px;
+    top: 132px;
+    width: 470px;
+    font-size: 58px;
+  }
+  .hv-colonnes {
+    position: absolute;
+    left: 560px;
+    top: 138px;
+    width: 280px;
+  }
+  .hv-boutons {
+    position: absolute;
+    left: 56px;
+    top: 336px;
+  }
+  .hv-media {
+    position: absolute;
+    right: 40px;
+    top: 66px;
+    width: min(560px, calc(100% - 880px));
+    height: 750px;
+  }
+  /* Photo de la maquette : 420 x 630 dans un cadre de 560 x 750, à 70 px du bord gauche et 50 px du haut. */
+  .hv-photo {
+    inset: auto;
+    left: 12.5%;
+    top: 6.67%;
+    width: 75%;
+    height: 84%;
+  }
+  .hv-rangee {
+    position: absolute;
+    left: 56px;
+    bottom: 56px;
+    overflow: visible;
+    padding: 0;
+  }
+  .hv-rond {
+    position: absolute;
+    left: 770px;
+    bottom: 72px;
+  }
+  .hv-signature {
+    position: absolute;
+    left: 56px;
+    bottom: 22px;
+  }
+}

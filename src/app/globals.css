@@ -3,11 +3,11 @@
 /*
  * Thème « Sumi & washi » : valeurs exactes de DESIGN.md (UX-DR1 à UX-DR7).
  * Crème par défaut ; sombre quand <html data-theme="dark"> (posé avant le premier rendu par le script de <head>).
- * Un seul rouge : #E3261C. Texte des boutons rouges : #FFFFFF.
+ * Un seul rouge : #D7261E. Texte des boutons rouges : #FFFFFF.
  */
 
 :root {
-  --ks-brand-red: #e3261c;
+  --ks-brand-red: #d7261e;
   --ks-brand-ink: #16130f;
   --ks-brand-washi: #f3eee4;
 
@@ -18,7 +18,7 @@
   --ks-glass-border: #16130f24;
   --ks-text-primary: #16130f;
   --ks-text-secondary: #5e554a;
-  --ks-primary: #e3261c;
+  --ks-primary: #d7261e;
   --ks-on-primary: #ffffff;
   --ks-border: #e0d6c5;
   --ks-border-field: #857a6b;
@@ -28,7 +28,7 @@
   --ks-qr-background: #ffffff;
   --ks-hero-wash-start: #fbf8f2;
   --ks-hero-wash-end: #eadfcc;
-  --ks-tile-red-start: #e3261c;
+  --ks-tile-red-start: #d7261e;
   --ks-tile-red-end: #9e1a12;
   --ks-tile-ink-start: #5a4c3e;
   --ks-tile-ink-end: #2b241d;
@@ -49,7 +49,7 @@
   --ks-glass-border: #f3eee424;
   --ks-text-primary: #f3eee4;
   --ks-text-secondary: #b9ae9e;
-  --ks-primary: #e3261c;
+  --ks-primary: #d7261e;
   --ks-on-primary: #ffffff;
   --ks-border: #3a322a;
   --ks-border-field: #7a6e5e;
@@ -59,7 +59,7 @@
   --ks-qr-background: #ffffff;
   --ks-hero-wash-start: #2a221b;
   --ks-hero-wash-end: #16130f;
-  --ks-tile-red-start: #e3261c;
+  --ks-tile-red-start: #d7261e;
   --ks-tile-red-end: #7a1a12;
   --ks-tile-ink-start: #4a3d31;
   --ks-tile-ink-end: #211c17;

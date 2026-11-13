@@ -14,7 +14,7 @@ export function echapperHtml(texte: string): string {
   return texte.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
-// Gabarit commun : polices système, fond clair, un bouton rouge à texte blanc (#E3261C), le lien aussi écrit en texte (UX-DR31).
+// Gabarit commun : polices système, fond clair, un bouton rouge à texte blanc (#D7261E), le lien aussi écrit en texte (UX-DR31).
 // Pas de logo : aucun fichier de logo validé n'est encore utilisé dans les emails.
 export function envelopper(args: {
   langue: LangueEmail;
@@ -48,7 +48,7 @@ export function envelopper(args: {
     ...(args.total ? [`<p style="margin:0 0 16px;font-size:16px;font-weight:bold;">${echapperHtml(args.total)}</p>`] : []),
     ...(args.paragrapheFinal ? [p(args.paragrapheFinal)] : []),
     p(args.texteLien),
-    `<p style="margin:0 0 16px;"><a href="${echapperHtml(args.url)}" style="display:inline-block;background:#E3261C;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 20px;font-size:16px;">${echapperHtml(args.libelleBouton)}</a></p>`,
+    `<p style="margin:0 0 16px;"><a href="${echapperHtml(args.url)}" style="display:inline-block;background:#D7261E;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 20px;font-size:16px;">${echapperHtml(args.libelleBouton)}</a></p>`,
     `<p style="margin:0 0 16px;font-size:14px;line-height:1.5;word-break:break-all;">${echapperHtml(remplir(t.commun.lienTexte, { url: args.url }))}</p>`,
     `<p style="margin:24px 0 0;font-size:13px;line-height:1.5;color:#555555;">${echapperHtml(remplir(t.commun.pied, { nomSite: args.nomSite }))}</p>`,
     ...(args.desinscription

@@ -117,7 +117,8 @@ for (const langue of ["fr", "en"] as const) {
 }
 
 // Héros (story 2.6). Les réglages du héros vivent en base : les tests tiennent quelle que soit la configuration de Jonathan.
-const ACCROCHES = { fr: "Deviens ton personnage.", en: "Become your character." } as const;
+// Visiteur : accroche de la maquette « fusion » (deux lignes) ; la personne connectée garde « Deviens ton personnage. » (accueil-connecte).
+const ACCROCHES = { fr: "Porte ton personnage.Ou fabrique-le.", en: "Wear your character.Or make it." } as const;
 
 for (const langue of ["fr", "en"] as const) {
   test(`/${langue} : l'accroche du héros est le H1, en texte réel`, async ({ page }) => {

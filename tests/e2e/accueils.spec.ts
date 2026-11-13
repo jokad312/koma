@@ -71,6 +71,34 @@ test.describe("accueil visiteur à 375 px", () => {
   });
 });
 
+// Retour du 2026-11-13 : un style propre à l'accueil restait appliqué après un clic (page précédente gardée en mémoire par Next.js) et le titre
+// de la connexion passait sous le logo. Le parcours se fait par un vrai clic, à 1440 et 390 px.
+for (const largeur of [1440, 390]) {
+  test(`clic de l'accueil vers la connexion à ${largeur} px : en-tête visible, titre sous le logo, marges conservées`, async ({ page }) => {
+    await page.setViewportSize({ width: largeur, height: 900 });
+    await page.goto("/fr");
+    await page.waitForLoadState("networkidle");
+    const lien = page.locator('a[href="/fr/connexion"]:visible').first();
+    if (await lien.count()) {
+      await lien.click();
+    } else {
+      await page.getByRole("button", { name: "Menu", exact: true }).click();
+      await page.getByRole("dialog").getByRole("link", { name: "Se connecter" }).click();
+    }
+    await expect(page).toHaveURL(/\/fr\/connexion$/);
+    const titre = page.getByRole("heading", { level: 1 });
+    await expect(titre).toBeVisible();
+    const entete = page.locator("header").first();
+    await expect(entete).toBeVisible();
+    const logo = await entete.locator("a").first().boundingBox();
+    const boite = await titre.boundingBox();
+    expect(boite!.y).toBeGreaterThanOrEqual(logo!.y + logo!.height);
+    // Le titre garde la marge du contenu (pas collé au bord gauche).
+    expect(boite!.x).toBeGreaterThanOrEqual(16);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);
+  });
+}
+
 test.describe("arrivées des personnes connectées", () => {
   test.describe.configure({ timeout: 180_000, mode: "serial" });
   const env = lireEnv();
