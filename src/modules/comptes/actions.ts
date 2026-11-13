@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { cookies, headers } from "next/headers";
+import { destinationApresConnexion } from "@/lib/auth/arrivee-serveur";
 import { NOM_COOKIE_PANIER } from "@/lib/panier/cookie";
 import { adresseSite } from "@/lib/seo/url";
 import { COOKIE_RETOUR_GOOGLE, DUREE_RETOUR_GOOGLE_S } from "./google";
@@ -28,16 +29,27 @@ export async function demanderCodeParFormulaire(_etat: EtatEnvoi | null, formDat
   return { ok: true, email: resultat.email, envoyeLe: Date.now() };
 }
 
+// Sans retour précis (accueil de la langue), la connexion mène à l'arrivée par défaut selon le rôle lu en base (story 9.12) :
+// espace personnel, admin, Commandes de l'assistant ou Scan du bénévole. Un retour précis passe toujours avant.
+async function avecArrivee<R extends { ok: boolean }>(resultat: R): Promise<R> {
+  if (!resultat.ok || !("retour" in resultat) || typeof resultat.retour !== "string") return resultat;
+  // Étape suivante de la connexion (âge, questions) : la destination sera choisie à la dernière étape.
+  if ("etape" in resultat && resultat.etape !== "termine") return resultat;
+  // Langue tirée du retour validé (toujours « /fr… » ou « /en… »), pas de l'entrée du navigateur.
+  const locale = resultat.retour.startsWith("/en") ? "en" : "fr";
+  return { ...resultat, retour: await destinationApresConnexion(resultat.retour, locale) };
+}
+
 export async function verifierCode(entree: VerificationCode) {
-  return service.verifierCode(await dependances(), entree);
+  return avecArrivee(await service.verifierCode(await dependances(), entree));
 }
 
 export async function declarerAge(entree: DeclarationAge) {
-  return service.declarerAge(await dependances(), entree);
+  return avecArrivee(await service.declarerAge(await dependances(), entree));
 }
 
 export async function enregistrerQuestionsAccueil(entree: QuestionsAccueil) {
-  return service.enregistrerQuestionsAccueil(await dependances(), entree);
+  return avecArrivee(await service.enregistrerQuestionsAccueil(await dependances(), entree));
 }
 
 export type EtatDeconnexion = { erreur: boolean };

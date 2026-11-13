@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
+import { destinationApresConnexion } from "@/lib/auth/arrivee-serveur";
 import { cheminRetourValide } from "@/lib/auth/retour";
 import { adresseSite } from "@/lib/seo/url";
 import { dependances } from "@/modules/comptes/dependances";
@@ -39,5 +40,6 @@ export async function GET(requete: NextRequest) {
   });
   if (!resultat.ok) return versConnexion({ erreur: "google" });
   if (resultat.etape !== "termine") return versConnexion({});
-  return NextResponse.redirect(new URL(resultat.retour, site));
+  // Sans retour précis : arrivée par défaut selon le rôle lu en base (story 9.12).
+  return NextResponse.redirect(new URL(await destinationApresConnexion(resultat.retour, garde.langue), site));
 }

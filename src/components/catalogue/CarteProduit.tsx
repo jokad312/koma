@@ -13,7 +13,9 @@ const DOSSIER: Record<Donnees["famille"], string> = { cosplay: "/cosplays", acce
 // Carte d'un produit : photo (texte alternatif de la photo), nom en h3 > a étendu à toute la carte, prix en USD, badge de disponibilité
 // (produit physique) ou niveau (Kit, toujours disponible).
 // Utilisable côté serveur et côté client (« Voir plus » ajoute des cartes dans le navigateur).
-export function CarteProduit({ produit }: { produit: Donnees }) {
+// niveau : h3 par défaut, h4 sous un titre de bloc de niveau 3 (espace personnel).
+export function CarteProduit({ produit, niveau = 3 }: { produit: Donnees; niveau?: 3 | 4 }) {
+  const Balise = niveau === 3 ? "h3" : "h4";
   const locale = useLocale() as Locale;
   const href = cheminPublic(locale, `${DOSSIER[produit.famille]}/${produit.slug}`);
   return (
@@ -25,11 +27,11 @@ export function CarteProduit({ produit }: { produit: Donnees }) {
         <Image src={produit.photoUrl} alt={produit.photoAlt} fill sizes="(min-width: 1024px) 25vw, 50vw" className="object-cover" />
       </div>
       <div className="flex flex-1 flex-col gap-1 p-3">
-        <h3 className="t-h3">
+        <Balise className="t-h3">
           <Link href={href} className="text-text-primary no-underline after:absolute after:inset-0 focus-visible:outline-none">
             {produit.titre}
           </Link>
-        </h3>
+        </Balise>
         <p className="t-price-card text-text-primary">{formaterUsd(produit.prixCents, locale)}</p>
         {produit.famille === "kit" ? (produit.niveau ? <BadgeNiveau niveau={produit.niveau} /> : null) : <BadgeDisponibilite etat={produit.disponibilite} />}
       </div>

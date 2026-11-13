@@ -1,5 +1,6 @@
 import "server-only";
 import { creerClientService } from "@/lib/supabase/service";
+import { lienGalerieAffichable } from "./galerie";
 import { statutAffiche } from "./pass-groupes";
 import type { AnnulationPass, PassLu, StatutPass } from "./pass-types";
 
@@ -20,7 +21,7 @@ export async function listerMesPass(compteId: string, locale: "fr" | "en"): Prom
   const { data, error } = await creerClientService()
     .from("pass")
     .select(
-      "id, nom_titulaire, nom_a_saisir, statut, jeton, code_court, rang, cree_le, evenement:evenement_id(id, slug, titre_fr, titre_en, lieu_fr, lieu_en, debut_le, fin_le), ligne:ligne_commande_id(pass_nom_fr, pass_nom_en), commande:commande_id!inner(compte_id, offerte, statut)",
+      "id, nom_titulaire, nom_a_saisir, statut, jeton, code_court, rang, cree_le, evenement:evenement_id(id, slug, titre_fr, titre_en, lieu_fr, lieu_en, debut_le, fin_le, galerie_url), ligne:ligne_commande_id(pass_nom_fr, pass_nom_en), commande:commande_id!inner(compte_id, offerte, statut)",
     )
     .eq("commande.compte_id", compteId)
     .order("cree_le", { ascending: true })
@@ -51,6 +52,8 @@ export async function listerMesPass(compteId: string, locale: "fr" | "en"): Prom
         debutLe: evenement.debut_le,
         finLe: evenement.fin_le,
         lieu: dansLaLangue(locale, evenement.lieu_fr, evenement.lieu_en),
+        // Galerie d'événement (story 7.10) : seulement une fois l'Événement passé, et seulement un lien revérifié (espace personnel, story 9.12).
+        galerieUrl: Date.parse(evenement.fin_le ?? evenement.debut_le ?? "") < Date.now() ? lienGalerieAffichable(evenement.galerie_url) : null,
       },
     });
   }

@@ -2,7 +2,7 @@
 title: 'Story 9.7 : Mesure d''audience maison'
 type: 'feature'
 created: '2026-11-10'
-status: 'draft'
+status: 'done'
 route: 'dispatch'
 ---
 

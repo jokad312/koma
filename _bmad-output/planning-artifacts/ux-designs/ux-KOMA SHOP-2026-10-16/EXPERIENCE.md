@@ -57,7 +57,7 @@ Toutes les pages publiques existent sous `/fr` et `/en` (sauf Articles sans vers
 | **Récapitulatif et paiement** | Étape de commande | Récapitulatif USD, choix du moyen de paiement | FR-14, FR-16 |
 | **Attente de paiement** | Paiement mobile money | « Valide le paiement sur ton téléphone » | FR-17 |
 | **Page de retour après paiement** | Prestataire / attente | État réel lu côté serveur | FR-20 |
-| **Mon compte** | Icône compte | **Navigation du compte** : cinq entrées puis « Se déconnecter » | FR-22, FR-27, FR-34, FR-40, FR-45 ; décision memlog |
+| **Mon compte** (espace personnel, `/compte`) | Icône compte ; arrivée du client connecté sur `/fr`, `/en` et après la connexion | « Bonjour [pseudo] » et initiales, Mes commandes, Mes kits (« Reprendre au chapitre N », « Télécharger les fichiers »), Mes Pass (QR), Mes événements (à venir puis passés, galerie), Accès rapides, puis « Découvrir la boutique » (blocs de l'accueil sans héros). Les sous-pages gardent la **Navigation du compte** | FR-22, FR-27, FR-34, FR-40, FR-45 ; story 9.12 |
 | **Compte › Mes commandes** / **Suivi d'une commande** | Compte | Frise, numéro de suivi, WhatsApp, annulation, réclamation | FR-22, FR-25, FR-26 |
 | **Compte › Ma bibliothèque** / **Kit en bibliothèque** | Compte, email « Kit ouvert » | Fichiers, lecteur à chapitres sous-titré, progression | FR-27 à FR-30 |
 | **Compte › Mes Pass** | Compte, email | Pass et Codes QR, annulation | FR-34, FR-38 |
@@ -90,6 +90,14 @@ Héros → (1) « Porte-le ou fabrique-le » (même costume, deux colonnes) → 
 - Toute requête reçue compte comme activité. Après la durée réglée dans l'admin (Réglages, 1 à 24 h, 4 h par défaut) sans requête, la session est fermée côté serveur ; le panier est conservé.
 - Sur une page publique, aucune redirection : la personne continue en visiteur et voit un bandeau discret (`role="status"`) qui l'invite à se reconnecter.
 - Sur Mon compte, une commande ou son paiement, l'admin ou le scan : redirection vers la connexion avec le message « Ta session a expiré après une longue inactivité. Reconnecte-toi pour continuer. », puis retour à la page quittée.
+
+### Arrivées selon la connexion (story 9.12, décisions de Jonathan du 2026-11-13)
+
+- **Visiteur** sur `/fr` et `/en` : l'accueil de la maquette « fusion » (Barlow et Barlow Condensed seulement), en-tête compris ; à droite du Panier, un **bouton rond « compte »** (icône personne, nom accessible « Se connecter » ou « Mon compte », 44 px) ouvre un petit panneau : Se connecter (ou Mon espace et Se déconnecter), Thème sombre, English ; Échap ferme et rend le focus.
+- **Client connecté** : `/fr`, `/en` et « / » mènent à son espace personnel `/[l]/compte` (redirection du proxy, `no-store`). Chaque bloc est lu côté serveur à chaque requête ; un bloc vide affiche un message et un lien utile ; un bloc en erreur n'affiche que son message.
+- **Admin** (et **assistant**, sur `/[l]/admin/commandes`) : `/fr`, `/en` et `/compte` mènent à l'admin, d'après la revendication `koma_role` du jeton (crochet Supabase « Custom Access Token ») ; sans revendication, traité comme un client. « Voir le site » mène aux pages publiques, sans boucle. Les barrières restent côté serveur.
+- **Connexion sans retour précis** : arrivée selon le rôle lu en base (admin, Commandes de l'assistant, Scan du bénévole qui a un accès valide maintenant, sinon espace personnel). Un retour précis (Panier, Commande, page quittée) passe toujours avant.
+- Une session expirée (9.14) redevient un visiteur : aucune redirection.
 
 → Maquette du haut de page (refonte du 2026-11-12) : `docs/design/maquette-accueil/` (`fusion.html` = mise en page, `fusion-creme.png` clair, `fusion-sombre.png` sombre). Maquette des blocs 1 à 3 : [key-accueil](mockups/key-accueil.html) (son héros est remplacé par la maquette ci-dessus). Structure 1win : voir Inspiration & Anti-patterns.
 

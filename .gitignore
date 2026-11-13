@@ -63,3 +63,6 @@ docs/references/
 
 # Captures d'écran de comparaison de l'admin (jamais commitées)
 docs/captures-admin/
+
+# Captures de comparaison de l'accueil (outil local)
+docs/captures-accueil/

@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { Suspense } from "react";
 import { Squelette } from "@/components/ui/Squelette";
 import { routing, type Locale } from "@/i18n/routing";
+import { destinationApresConnexion } from "@/lib/auth/arrivee-serveur";
 import { cheminRetourValide } from "@/lib/auth/retour";
 import { lireEtatCompte } from "@/lib/auth/compte";
 import { detecterNavigateurIntegre } from "@/lib/navigateur-integre";
@@ -45,7 +46,8 @@ async function FormulaireSelonSession({
   const etat = await lireEtatCompte();
   const { retour, erreur, expiree } = await searchParams;
   if (etat === "complet") {
-    redirect(cheminRetourValide(Array.isArray(retour) ? retour[0] : retour, locale));
+    // Déjà connecté : retour précis, sinon arrivée par défaut selon le rôle (story 9.12).
+    redirect(await destinationApresConnexion(cheminRetourValide(Array.isArray(retour) ? retour[0] : retour, locale), locale));
   }
   const t = await getTranslations("Connexion");
   // Message d'expiration seulement pour une personne qui n'est plus connectée (jamais à un Compte ouvert, même incomplet).

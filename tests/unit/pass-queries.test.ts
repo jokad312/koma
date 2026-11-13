@@ -37,4 +37,16 @@ describe("listerMesPass", () => {
     etat.lignes = [{ ...ligne("x", "payee"), commande: { compte_id: "AUTRE", offerte: false, statut: "payee" } }];
     expect(await listerMesPass("TEST_compte", "fr")).toEqual([]);
   });
+  it("galerie (story 9.12) : lien seulement pour un Événement passé et si le lien est accepté", async () => {
+    const avec = (debut: string, fin: string | null, galerie: string | null) => ({
+      ...ligne("g", "payee"),
+      evenement: { id: "e", slug: "e", titre_fr: "TEST_E", titre_en: null, lieu_fr: null, lieu_en: null, debut_le: debut, fin_le: fin, galerie_url: galerie },
+    });
+    etat.lignes = [avec("2001-01-01T10:00:00Z", "2001-01-02T10:00:00Z", "https://photos.app.goo.gl/TEST")];
+    expect((await listerMesPass("TEST_compte", "fr"))[0].evenement.galerieUrl).toBe("https://photos.app.goo.gl/TEST");
+    etat.lignes = [avec("2099-01-01T10:00:00Z", null, "https://photos.app.goo.gl/TEST")];
+    expect((await listerMesPass("TEST_compte", "fr"))[0].evenement.galerieUrl).toBeNull();
+    etat.lignes = [avec("2001-01-01T10:00:00Z", null, "https://exemple.invalid/TEST")];
+    expect((await listerMesPass("TEST_compte", "fr"))[0].evenement.galerieUrl).toBeNull();
+  });
 });

@@ -8,7 +8,7 @@ import { lireKits } from "@/modules/accueil/kits";
 
 // Bloc 3 « Kits » de l'accueil (FR-2) : les Kits publiés, le Kit gratuit en évidence quand il existe et est publié.
 // Aucun Kit publié : le bloc n'existe pas (aucun titre, aucun texte, aucun espace).
-export async function BlocKits({ locale }: { locale: Locale }) {
+export async function BlocKits({ locale, niveau = 2 }: { locale: Locale; niveau?: 2 | 3 }) {
   const produits = await lireKits(locale);
   const gratuit = produits.find((k) => k.prixCents === 0);
   const aAfficher = gratuit ? [gratuit, ...produits.filter((k) => k.id !== gratuit.id)] : produits;
@@ -17,12 +17,12 @@ export async function BlocKits({ locale }: { locale: Locale }) {
   return (
     <section aria-labelledby="accueil-kits" className="flex flex-col gap-4">
       <div id="accueil-kits">
-        <TitreVitrine niveau={2}>{t("titre")}</TitreVitrine>
+        <TitreVitrine niveau={niveau}>{t("titre")}</TitreVitrine>
       </div>
       <ul className="grid grid-cols-2 gap-ecart-cartes lg:grid-cols-4">
         {aAfficher.map((p) => (
           <li key={p.id}>
-            <CarteProduit produit={p} />
+            <CarteProduit produit={p} niveau={niveau === 2 ? 3 : 4} />
           </li>
         ))}
       </ul>

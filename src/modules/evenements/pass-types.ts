@@ -15,7 +15,8 @@ export type PassLu = {
   // Stand (story 7.11) : le nom de l'aide reste à saisir (nom provisoire affiché) ; « aideNommable » : encore possible (Pass valide, Événement pas commencé).
   nomASaisir?: boolean;
   aideNommable?: boolean;
-  evenement: { id: string; slug: string; titre: string; debutLe: string | null; finLe: string | null; lieu: string | null };
+  // galerieUrl : lien de la Galerie d'événement, seulement pour un Événement passé (absent : pas de galerie).
+  evenement: { id: string; slug: string; titre: string; debutLe: string | null; finLe: string | null; lieu: string | null; galerieUrl?: string | null };
 };
 
 export type GroupePass = { evenement: PassLu["evenement"]; avenir: boolean; pass: PassLu[] };

@@ -11,7 +11,7 @@ const NB_ARTICLES_GUIDES = 3;
 
 // Bloc 7 « Guides » de l'accueil : les trois derniers Articles publiés. Aucun Article ou lecture en erreur : le bloc n'existe pas
 // (aucun titre, aucun espace), jamais une carte inventée. Pas de lien « Voir tous » (décision de la story 8.7).
-export async function BlocGuides({ locale }: { locale: Locale }) {
+export async function BlocGuides({ locale, niveau = 2 }: { locale: Locale; niveau?: 2 | 3 }) {
   // Attend la vraie requête : pendant le prérendu de la coque, Next.js annulerait la lecture et le bloc serait figé « absent ».
   await connection();
   let articles: Donnees[];
@@ -29,12 +29,12 @@ export async function BlocGuides({ locale }: { locale: Locale }) {
   return (
     <section aria-labelledby="accueil-guides" className="flex flex-col gap-4">
       <div id="accueil-guides">
-        <TitreVitrine niveau={2}>{t("titre")}</TitreVitrine>
+        <TitreVitrine niveau={niveau}>{t("titre")}</TitreVitrine>
       </div>
       <ul className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {articles.map((article) => (
           <li key={article.id}>
-            <CarteArticle article={article} niveau={3} />
+            <CarteArticle article={article} niveau={niveau === 2 ? 3 : 4} />
           </li>
         ))}
       </ul>

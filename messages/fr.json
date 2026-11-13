@@ -121,13 +121,17 @@
     "festivalStand": {
       "titre": "Payer mon stand",
       "description": "Paie ton stand accepté avant l'heure limite."
+    },
+    "espace": {
+      "titre": "Mon espace",
+      "description": "Tes commandes, tes kits, tes Pass et tes événements."
     }
   },
   "Accueil": {
     "heros": {
       "region": "Présentation",
       "surtitre": "Nouvelle collection — 2027",
-      "accroche": "Porte ton personnage. Ou fabrique-le.",
+      "accroche": "Porte ton personnage.\nOu fabrique-le.",
       "motGeant": "Cosplay",
       "voirCosplays": "Voir les cosplays",
       "decouvrirKits": "Découvrir les kits",
@@ -136,10 +140,11 @@
       "kitsTitre": "Kits à fabriquer",
       "kitsTexte": "Patrons, fichiers et vidéo en chapitres, accessibles partout.",
       "cartes": "Sélection de la boutique",
-      "carteCosplay": "Cosplay",
+      "carteCosplay": "Cosplay porté",
       "carteAccessoire": "Accessoire",
+      "carteNom": "{etiquette} : {titre}, {prix}",
       "kitDuMois": "Kit du mois",
-      "kitPhrase": "Fichiers et vidéo en chapitres. Accès à vie.",
+      "kitPhrase": "Patrons PDF + vidéo en chapitres. Accès immédiat.",
       "voirKit": "Voir le kit",
       "voirKitNomme": "Voir le kit : {titre}",
       "versCatalogue": "Voir le catalogue",
@@ -221,6 +226,11 @@
     "panier": {
       "lien": "Panier",
       "libelle": "Panier, {count, plural, =0 {aucun article} one {# article} other {# articles}}"
+    },
+    "menuCompte": {
+      "visiteur": "Se connecter",
+      "connecte": "Mon compte",
+      "monEspace": "Mon espace"
     }
   },
   "Menu": {
@@ -3694,7 +3704,8 @@
       "pass": "Mes Pass",
       "preferences": "Préférences",
       "photos": "Envoyer une photo",
-      "realisation": "Envoyer une Réalisation"
+      "realisation": "Envoyer une Réalisation",
+      "espace": "Mon espace"
     },
     "vide": "Aucun kit dans ta bibliothèque.",
     "versCatalogue": "Voir les kits",
@@ -4019,6 +4030,54 @@
         "terminee": "L'opération est terminée pour : {evenements}. Tu peux toujours envoyer une Réalisation.",
         "reglement": "[Texte à fournir]"
       }
+    }
+  },
+  "Espace": {
+    "bonjour": "Bonjour {pseudo}",
+    "bonjourSansNom": "Bonjour",
+    "boutique": "Découvrir la boutique",
+    "commandes": {
+      "titre": "Mes commandes",
+      "vide": "Tu n'as pas encore de commande.",
+      "lienVide": "Voir les cosplays",
+      "erreur": "Tes commandes ne peuvent pas être affichées pour le moment. Réessaie dans un instant.",
+      "toutes": "Voir toutes mes commandes"
+    },
+    "kits": {
+      "titre": "Mes kits",
+      "reprendre": "Reprendre au chapitre {numero}",
+      "reprendreNomme": "Reprendre au chapitre {numero} : {titre}",
+      "ouvrir": "Ouvrir le kit",
+      "ouvrirNomme": "Ouvrir le kit {titre}",
+      "telecharger": "Télécharger les fichiers",
+      "telechargerNomme": "Télécharger les fichiers de {titre}",
+      "vide": "Tu n'as pas encore de kit.",
+      "lienVide": "Voir les kits",
+      "erreur": "Tes kits ne peuvent pas être affichés pour le moment. Réessaie dans un instant.",
+      "tous": "Voir ma bibliothèque"
+    },
+    "pass": {
+      "titre": "Mes Pass",
+      "vide": "Tu n'as pas encore de Pass.",
+      "lienVide": "Voir les événements",
+      "erreur": "Tes Pass ne peuvent pas être affichés pour le moment. Réessaie dans un instant.",
+      "tous": "Voir tous mes Pass"
+    },
+    "evenements": {
+      "titre": "Mes événements",
+      "avenir": "À venir",
+      "passes": "Passés",
+      "galerie": "Voir la galerie",
+      "galerieNommee": "Voir la galerie de {evenement} (nouvel onglet)",
+      "vide": "Aucun événement pour le moment.",
+      "lienVide": "Voir les événements",
+      "erreur": "Tes événements ne peuvent pas être affichés pour le moment. Réessaie dans un instant."
+    },
+    "acces": {
+      "titre": "Accès rapides",
+      "photo": "Envoyer une photo",
+      "preferences": "Préférences",
+      "scan": "Scanner les Pass"
     }
   }
 }

@@ -121,13 +121,17 @@
     "festivalStand": {
       "titre": "Pay for my stand",
       "description": "Pay for your accepted stand before the deadline."
+    },
+    "espace": {
+      "titre": "My space",
+      "description": "Your orders, kits, passes and events."
     }
   },
   "Accueil": {
     "heros": {
       "region": "Introduction",
       "surtitre": "New collection — 2027",
-      "accroche": "Wear your character. Or make it.",
+      "accroche": "Wear your character.\nOr make it.",
       "motGeant": "Cosplay",
       "voirCosplays": "See cosplays",
       "decouvrirKits": "Discover kits",
@@ -136,10 +140,11 @@
       "kitsTitre": "Kits to make",
       "kitsTexte": "Patterns, files and chaptered video, available anywhere.",
       "cartes": "Shop selection",
-      "carteCosplay": "Cosplay",
+      "carteCosplay": "Worn cosplay",
       "carteAccessoire": "Accessory",
+      "carteNom": "{etiquette}: {titre}, {prix}",
       "kitDuMois": "Kit of the month",
-      "kitPhrase": "Files and chaptered video. Lifetime access.",
+      "kitPhrase": "PDF patterns + chaptered video. Instant access.",
       "voirKit": "See the kit",
       "voirKitNomme": "See the kit: {titre}",
       "versCatalogue": "See the catalogue",
@@ -221,6 +226,11 @@
     "panier": {
       "lien": "Cart",
       "libelle": "Cart, {count, plural, =0 {no items} one {# item} other {# items}}"
+    },
+    "menuCompte": {
+      "visiteur": "Sign in",
+      "connecte": "My account",
+      "monEspace": "My space"
     }
   },
   "Menu": {
@@ -3694,7 +3704,8 @@
       "pass": "My Passes",
       "preferences": "Preferences",
       "photos": "Send a photo",
-      "realisation": "Send a Creation"
+      "realisation": "Send a Creation",
+      "espace": "My space"
     },
     "vide": "No kits in your library yet.",
     "versCatalogue": "Browse kits",
@@ -4019,6 +4030,54 @@
         "terminee": "The operation is over for: {evenements}. You can still send a Creation.",
         "reglement": "[Texte à fournir]"
       }
+    }
+  },
+  "Espace": {
+    "bonjour": "Hello {pseudo}",
+    "bonjourSansNom": "Hello",
+    "boutique": "Discover the shop",
+    "commandes": {
+      "titre": "My orders",
+      "vide": "You have no orders yet.",
+      "lienVide": "See the cosplays",
+      "erreur": "Your orders cannot be shown right now. Try again in a moment.",
+      "toutes": "See all my orders"
+    },
+    "kits": {
+      "titre": "My kits",
+      "reprendre": "Resume at chapter {numero}",
+      "reprendreNomme": "Resume at chapter {numero}: {titre}",
+      "ouvrir": "Open the kit",
+      "ouvrirNomme": "Open the kit {titre}",
+      "telecharger": "Download the files",
+      "telechargerNomme": "Download the files of {titre}",
+      "vide": "You have no kits yet.",
+      "lienVide": "See the kits",
+      "erreur": "Your kits cannot be shown right now. Try again in a moment.",
+      "tous": "See my library"
+    },
+    "pass": {
+      "titre": "My passes",
+      "vide": "You have no passes yet.",
+      "lienVide": "See the events",
+      "erreur": "Your passes cannot be shown right now. Try again in a moment.",
+      "tous": "See all my passes"
+    },
+    "evenements": {
+      "titre": "My events",
+      "avenir": "Upcoming",
+      "passes": "Past",
+      "galerie": "See the gallery",
+      "galerieNommee": "See the gallery of {evenement} (new tab)",
+      "vide": "No events yet.",
+      "lienVide": "See the events",
+      "erreur": "Your events cannot be shown right now. Try again in a moment."
+    },
+    "acces": {
+      "titre": "Quick access",
+      "photo": "Send a photo",
+      "preferences": "Preferences",
+      "scan": "Scan passes"
     }
   }
 }

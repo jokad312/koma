@@ -2,7 +2,7 @@
 title: 'Story 8.6 : Écrire et publier un Article'
 type: 'feature'
 created: '2026-11-01'
-status: 'draft'
+status: 'done'
 baseline_commit: 'd9b6294558b7dc5fe7e5c582e241faa7f988415b'
 route: 'dispatch'
 review_loop_iteration: 0

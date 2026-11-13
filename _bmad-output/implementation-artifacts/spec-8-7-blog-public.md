@@ -2,7 +2,7 @@
 title: 'Story 8.7 : Blog public'
 type: 'feature'
 created: '2026-11-02'
-status: 'draft'
+status: 'done'
 baseline_commit: 'f1065cf90866c00cc80368062eb2d669a1537525'
 route: 'dispatch'
 review_loop_iteration: 0

@@ -12,13 +12,13 @@ const CATEGORIES = [
 
 // Trois tuiles de texte (aucune image : règle 6) vers les catalogues. Une colonne sous 360 px, deux au-delà.
 // L'élévation au survol et au focus n'existe qu'en mouvement normal.
-export function TuilesCategories() {
+export function TuilesCategories({ niveau = 2 }: { niveau?: 2 | 3 } = {}) {
   const t = useTranslations("Accueil.categories");
   const locale = useLocale() as Locale;
   return (
     <section aria-labelledby="accueil-categories" className="flex flex-col gap-4">
       <div id="accueil-categories">
-        <TitreVitrine niveau={2}>{t("titre")}</TitreVitrine>
+        <TitreVitrine niveau={niveau}>{t("titre")}</TitreVitrine>
       </div>
       <ul className="grid grid-cols-1 gap-ecart-cartes min-[360px]:grid-cols-2">
         {CATEGORIES.map(({ cle, interne }) => (

@@ -8,6 +8,9 @@ import { BasculeTheme } from "@/components/layout/BasculeTheme";
 import { BoutonDeconnexion } from "@/components/layout/BoutonDeconnexion";
 import { SelecteurLangue } from "@/components/layout/SelecteurLangue";
 import { Dialogue } from "@/components/ui/Dialogue";
+
+// « Voir le site » : accueil public avec ?vue=site, que le proxy n'aiguille pas vers l'admin ni vers l'espace personnel (story 9.12).
+const VOIR_LE_SITE = { pathname: "/", query: { vue: "site" } } as const;
 import { entreesVisibles, estCourante, PRINCIPALES } from "./navigation-entrees";
 
 const GLYPHE_MENU = "☰";
@@ -79,7 +82,7 @@ export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = f
     >
       {/* Bloc de marque (ordinateur) : logo et nom du site lu dans les réglages ; le logo mène au site. */}
       <div className="hidden border-b border-border px-5 py-4 md:block">
-        <Link href="/" className="inline-flex min-h-touch items-center" aria-label={t("voirSiteNom", { nom: nomSite })}>
+        <Link href={VOIR_LE_SITE} className="inline-flex min-h-touch items-center" aria-label={t("voirSiteNom", { nom: nomSite })}>
           <span className="relative block aspect-[530/124] w-[150px] overflow-hidden">
             <Image src="/logo/logo-principal.svg" alt="" width={630} height={220} unoptimized data-logo="clair" className="logo-clair absolute -left-[9.434%] -top-[37.097%] h-auto w-[118.868%] max-w-none" />
             <Image src="/logo/logo-principal-inverse.svg" alt="" width={630} height={220} unoptimized data-logo="sombre" className="logo-sombre absolute -left-[9.434%] -top-[37.097%] h-auto w-[118.868%] max-w-none" />
@@ -135,7 +138,7 @@ export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = f
       <div className="m-3 mt-auto hidden rounded-lg border border-border bg-background p-4 md:block">
         <p className="t-label text-text-primary">{t("aide.titre")}</p>
         <p className="t-small mt-1 text-text-secondary">{t("aide.texte")}</p>
-        <Link href="/" className="t-small mt-2 inline-flex min-h-touch items-center text-text-primary underline underline-offset-4">
+        <Link href={VOIR_LE_SITE} className="t-small mt-2 inline-flex min-h-touch items-center text-text-primary underline underline-offset-4">
           {t("voirSite")}
         </Link>
       </div>
@@ -163,7 +166,7 @@ export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = f
               </li>
             ))}
           <li>
-            <Link href="/" className="t-body flex min-h-touch items-center border-l-4 border-transparent px-4 text-text-primary underline underline-offset-4">
+            <Link href={VOIR_LE_SITE} className="t-body flex min-h-touch items-center border-l-4 border-transparent px-4 text-text-primary underline underline-offset-4">
               {t("voirSite")}
             </Link>
           </li>

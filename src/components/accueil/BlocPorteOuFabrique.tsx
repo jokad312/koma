@@ -9,7 +9,7 @@ import type { VedetteHeros } from "@/modules/accueil/heros-queries";
 
 // Bloc 1 « Porte-le ou fabrique-le » (FR-2) : le Cosplay vedette porté (prix, délai) et le Kit lié fabriqué (prix).
 // Seul si le Cosplay vedette a un Kit lié publié ; un bloc sans contenu reste masqué (aucun titre, aucun texte, aucun espace).
-export async function BlocPorteOuFabrique({ locale }: { locale: Locale }) {
+export async function BlocPorteOuFabrique({ locale, niveau = 2 }: { locale: Locale; niveau?: 2 | 3 }) {
   const heros = await lireHeros(locale);
   const vedette: VedetteHeros | null = heros?.vedette ?? null;
   const aKit = Boolean(vedette && vedette.hrefKit && vedette.titreKit && vedette.prixCentsKit !== null);
@@ -18,7 +18,7 @@ export async function BlocPorteOuFabrique({ locale }: { locale: Locale }) {
   return (
     <section aria-labelledby="accueil-porte-ou-fabrique" className="flex flex-col gap-4">
       <div id="accueil-porte-ou-fabrique">
-        <TitreVitrine niveau={2}>{t("porteOuFabrique.titre")}</TitreVitrine>
+        <TitreVitrine niveau={niveau}>{t("porteOuFabrique.titre")}</TitreVitrine>
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
         <article className="verre-fort relative overflow-hidden rounded-xl border border-border bg-surface p-5">

@@ -107,6 +107,18 @@ describe("proxy : déconnexion après inactivité", () => {
     expect(posés(r).find((c) => c.startsWith("koma_activite="))).toMatch(/max-age=34560000/i);
   });
 
+  it("« Voir le site » (?vue=site) : ni l'admin ni l'espace personnel ; « / » garde le paramètre", async () => {
+    etat.role = "admin";
+    const actif = { ...cookieSession, koma_activite: String(Date.now() - 1000), NEXT_LOCALE: "fr" };
+    expect((await proxy(demande("/fr?vue=site", actif))).status).not.toBe(307);
+    const racine = await proxy(demande("/?vue=site", actif));
+    const cible = new URL(racine.headers.get("location")!);
+    expect(cible.pathname).toBe("/fr");
+    expect(cible.searchParams.get("vue")).toBe("site");
+    etat.role = undefined;
+    expect((await proxy(demande("/en?vue=site", actif))).status).not.toBe(307);
+  });
+
   it("la révocation échoue : les cookies de session sont quand même retirés", async () => {
     etat.signOutEchoue = true;
     vi.spyOn(console, "error").mockImplementation(() => {});
@@ -140,6 +152,52 @@ describe("proxy : déconnexion après inactivité", () => {
   it("reconnecté : le cookie du bandeau est retiré", async () => {
     const r = await proxy(demande("/fr/cosplays", { ...cookieSession, koma_activite: String(Date.now() - 1000), koma_session_expiree: "1" }));
     expect(effacé(r, "koma_session_expiree")).toBe(true);
+  });
+
+  it("client connecté sur l'accueil public : envoyé vers son espace personnel, dans sa langue", async () => {
+    for (const [chemin, cible] of [["/fr", "/fr/compte"], ["/en", "/en/compte"], ["/fr/", "/fr/compte"]] as const) {
+      const r = await proxy(demande(chemin, { ...cookieSession, koma_activite: String(Date.now() - 1000) }));
+      expect(r.status).toBe(307);
+      expect(new URL(r.headers.get("location")!).pathname).toBe(cible);
+      expect(r.headers.get("cache-control")).toBe("no-store");
+    }
+  });
+
+  it("client connecté sur « / » : un seul saut vers l'espace personnel", async () => {
+    const r = await proxy(demande("/", { ...cookieSession, koma_activite: String(Date.now() - 1000) }, "GET", { "accept-language": "en-US,en;q=0.9" }));
+    expect(r.status).toBe(307);
+    expect(new URL(r.headers.get("location")!).pathname).toBe("/en/compte");
+  });
+
+  it("admin (koma_role) : /en, /en/compte et « / » mènent à /en/admin ; les pages publiques restent ouvertes", async () => {
+    etat.role = "admin";
+    const actif = { ...cookieSession, koma_activite: String(Date.now() - 1000), NEXT_LOCALE: "en" };
+    for (const chemin of ["/en", "/en/compte", "/"]) {
+      const r = await proxy(demande(chemin, actif));
+      expect(r.status).toBe(307);
+      expect(new URL(r.headers.get("location")!).pathname).toBe("/en/admin");
+    }
+    expect((await proxy(demande("/fr/cosplays", actif))).status).not.toBe(307);
+    expect((await proxy(demande("/fr/compte/commandes", actif))).status).not.toBe(307);
+    expect((await proxy(demande("/fr/admin", actif))).status).not.toBe(307);
+  });
+
+  it("assistant (koma_role) : /fr et /fr/compte mènent aux Commandes de l'admin", async () => {
+    etat.role = "assistant";
+    const actif = { ...cookieSession, koma_activite: String(Date.now() - 1000) };
+    for (const chemin of ["/fr", "/fr/compte"]) {
+      const r = await proxy(demande(chemin, actif));
+      expect(new URL(r.headers.get("location")!).pathname).toBe("/fr/admin/commandes");
+    }
+  });
+
+  it("jeton sans revendication de rôle (crochet absent) ou valeur inconnue : traité comme un client, /compte reste ouvert", async () => {
+    const actif = { ...cookieSession, koma_activite: String(Date.now() - 1000) };
+    for (const role of [undefined, "benevole", "TEST_inconnu"]) {
+      etat.role = role;
+      expect(new URL((await proxy(demande("/fr", actif))).headers.get("location")!).pathname).toBe("/fr/compte");
+      expect((await proxy(demande("/fr/compte", actif))).status).not.toBe(307);
+    }
   });
 
   it("connectée : les autres pages et les requêtes non GET ne sont pas redirigées", async () => {

@@ -472,3 +472,23 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-refonte-haut-accueil.md`
   summary: Tester les variantes de `MediaHeros` (photo détourée, photo rectangulaire, vidéo) par un test de composant.
   evidence: Aucun test n'importe `MediaHeros` ; la vérification actuelle est visuelle (captures 1440 et 375 px) et les e2e ne couvrent la vidéo que si elle existe en base.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-12-accueils-selon-la-connexion.md`
+  summary: Ajouter un champ « pseudo » au profil, modifiable dans Préférences, et l'utiliser pour « Bonjour [pseudo] » de l'espace personnel.
+  evidence: Décision de Jonathan du 2026-11-13 (question 3 de la 9.12) : en attendant, nom Google sinon début de l'email.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-12-accueils-selon-la-connexion.md`
+  summary: 9.14 — le cookie d'activité peut être supprimé ou forgé dans les outils du navigateur (ou absent pour des cookies de session rejoués) : la limite d'inactivité saute. Piste : cookie signé (HMAC, lié à session_id) et, cookie absent, comparaison à l'heure de connexion (claims amr).
+  evidence: revue sécurité du 2026-11-13 ; l'intent 9.14 prévoit « cookie absent → posé, pas de déconnexion », d'où le report en attendant une décision.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-12-accueils-selon-la-connexion.md`
+  summary: Rôle admin ou assistant retiré en base mais encore dans le jeton (≤ 1 h) : /fr et /compte mènent à /admin qui répond 404. Piste : fermer les sessions du Compte au retrait du rôle.
+  evidence: revue sécurité et Edge Case Hunter du 2026-11-13.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-12-accueils-selon-la-connexion.md`
+  summary: Redirections du proxy construites sur l'hôte reçu (request.nextUrl) ; vérifier derrière le proxy d'Hostinger ou passer par adresseSite() (story 9.9).
+  evidence: revue sécurité du 2026-11-13 ; no-store déjà posé, pas d'exploitation directe.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-12-accueils-selon-la-connexion.md`
+  summary: Accueil visiteur ≥ 1280 px : cadre de 900 px de haut avec overflow hidden, le texte peut être coupé si l'utilisateur augmente l'espacement ou la taille (WCAG 1.4.12).
+  evidence: revue accessibilité du 2026-11-13.

@@ -2642,6 +2642,28 @@ afin que mon Compte ne reste pas ouvert sur un appareil oublié ou partagé.
 **Quand** la personne ouvre Mon compte, une commande ou son paiement, l'admin ou le scan
 **Alors** elle est menée à la connexion avec un message, puis ramenée à la page quittée
 
+### Story 9.12 : Accueils selon la connexion
+
+En tant que visiteur, client ou admin,
+je veux arriver sur la page qui me sert,
+afin de voir la vitrine, retrouver mes achats ou gérer la boutique sans détour.
+
+**Spec :** `_bmad-output/implementation-artifacts/spec-9-12-accueils-selon-la-connexion.md`.
+
+**Critères d'acceptation :**
+
+**Étant donné** un visiteur sur `/fr` ou `/en`
+**Quand** la page s'affiche à 1440 px
+**Alors** elle reproduit la maquette « fusion » (clair et sombre), seules les polices Barlow et les vraies images diffèrent ; à 375 px, une colonne sans défilement horizontal
+
+**Étant donné** un client connecté
+**Quand** il ouvre `/fr`
+**Alors** il arrive sur son espace personnel (commandes, kits, Pass, événements, accès rapides, « Découvrir la boutique ») ; chaque bloc vide affiche un message et un lien
+
+**Étant donné** un admin
+**Quand** il se connecte sans retour précis
+**Alors** il arrive sur `/fr/admin` ; avec le crochet `koma_role` activé, `/fr`, `/en` et `/compte` le mènent aussi à l'admin
+
 ### Story 9.11 : Performance avant mise en ligne
 
 En tant que Jonathan,
@@ -2684,6 +2706,10 @@ afin d'ouvrir les ventes.
 **Étant donné** Supabase
 **Quand** la production est créée
 **Alors** le projet de production (Paris, offre Pro) reçoit les migrations par la Supabase CLI **avant** l'avance de la branche `production` ; `CRON_SECRET` est dans Vault ; les tâches pg_cron pointent vers le domaine (AD-20)
+
+**Étant donné** le crochet de jeton de la story 9.12
+**Quand** la production est créée
+**Alors** Jonathan active dans le tableau de bord Supabase de production : Authentication › Hooks › « Customize Access Token (JWT) Claims » › Postgres › `public.crochet_role_jeton` (migration `20270118100000_crochet_role_jeton.sql` déjà poussée) ; sans cette activation, l'admin arrive sur `/compte` depuis `/fr` (il reste joignable par `/fr/admin`)
 
 **Étant donné** les dépendances de `next-intl` (`@swc/core`, `@parcel/watcher`, qui ont des scripts d'installation)
 **Quand** Jonathan prépare le déploiement sur Hostinger (Node.js 24)

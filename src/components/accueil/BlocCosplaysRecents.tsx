@@ -8,19 +8,19 @@ import { lireCosplaysRecents } from "@/modules/accueil/cosplays-recents";
 
 // Bloc 2 « Fait main à Goma » : les derniers cosplays publiés, lus à chaque requête (badge de disponibilité).
 // Aucun cosplay ou lecture en erreur : le bloc n'existe pas (aucun titre, aucun espace).
-export async function BlocCosplaysRecents({ locale }: { locale: Locale }) {
+export async function BlocCosplaysRecents({ locale, niveau = 2 }: { locale: Locale; niveau?: 2 | 3 }) {
   const produits = await lireCosplaysRecents(locale);
   if (produits.length === 0) return null;
   const t = await getTranslations({ locale, namespace: "Accueil.cosplaysRecents" });
   return (
     <section aria-labelledby="accueil-cosplays-recents" className="flex flex-col gap-4">
       <div id="accueil-cosplays-recents">
-        <TitreVitrine niveau={2}>{t("titre")}</TitreVitrine>
+        <TitreVitrine niveau={niveau}>{t("titre")}</TitreVitrine>
       </div>
       <ul className="grid grid-cols-2 gap-ecart-cartes lg:grid-cols-4">
         {produits.map((p) => (
           <li key={p.id}>
-            <CarteProduit produit={p} />
+            <CarteProduit produit={p} niveau={niveau === 2 ? 3 : 4} />
           </li>
         ))}
       </ul>

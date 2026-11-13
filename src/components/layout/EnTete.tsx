@@ -12,6 +12,7 @@ import { RUBRIQUES, type Rubrique } from "./rubriques";
 import { LienConnexion } from "./LienConnexion";
 import { SelecteurLangue } from "./SelecteurLangue";
 import { ZoneCompte } from "./ZoneCompte";
+import { ZoneCompteRonde, ZoneCompteRondeRepli } from "./ZoneCompteRonde";
 import { LienPanier, ZonePanier } from "./ZonePanier";
 
 type Props = { nomSite: string; rubriques?: readonly Rubrique[]; sansTraduction?: readonly string[] };
@@ -29,7 +30,7 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }:
       <nav aria-label={t("principale")}>
         <ul className="flex flex-col items-start gap-2 lg:flex-row lg:items-center lg:gap-6">
           {rubriques.map((r) => (
-            <li key={r.cle}>
+            <li key={r.cle} data-rubrique={r.cle}>
               <Link href={cheminPublic(locale, r.href)} className="t-h3 inline-flex min-h-touch items-center text-text-primary">
                 {t(`rubriques.${r.cle}`)}
               </Link>
@@ -43,7 +44,7 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }:
     <header className="entete-collant verre-fort sticky top-0 z-30 h-entete rounded-none border-x-0 border-t-0">
       <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between gap-3 px-marge">
         <Link href="/" className="inline-flex min-h-touch items-center">
-          <span className="relative block aspect-[530/124] w-[156px] overflow-hidden lg:w-[190px]">
+          <span className="entete-logo relative block aspect-[530/124] w-[156px] overflow-hidden lg:w-[190px]">
             {/* Deux fichiers d'origine, jamais recolorés : un seul est affiché (display) selon [data-theme], donc un seul est exposé aux technologies d'assistance. */}
             <Image
               src="/logo/logo-principal.svg"
@@ -67,9 +68,9 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }:
             />
           </span>
         </Link>
-        <div className="hidden lg:block">{liens}</div>
+        <div className="entete-liens hidden lg:block">{liens}</div>
         <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-2 lg:flex">
+          <div className="entete-reglages hidden items-center gap-2 lg:flex">
             <BasculeTheme />
             <Suspense fallback={<LangueRepli />}>
               <SelecteurLangue sansTraduction={sansTraduction} />
@@ -81,6 +82,13 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }:
           <Suspense fallback={<LienPanier nombre={null} />}>
             <ZonePanier />
           </Suspense>
+          {/* Bouton rond « compte » de la maquette de l'accueil visiteur (story 9.12) : affiché seulement sur cet accueil, à partir de 1280 px
+              (hero-visiteur.css) ; ailleurs, les réglages et le compte restent dans la barre et dans le Panneau ☰. */}
+          <div className="entete-compte-rond hidden">
+            <Suspense fallback={<ZoneCompteRondeRepli />}>
+              <ZoneCompteRonde sansTraduction={sansTraduction} />
+            </Suspense>
+          </div>
           <div className="lg:hidden">
             <MenuPanneau>
               {liens}

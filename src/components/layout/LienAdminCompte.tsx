@@ -9,7 +9,7 @@ export async function LienAdminCompte() {
   const t = await getTranslations("Admin.nav");
   return (
     <li>
-      <Link href="/admin" className="t-small text-text-secondary underline underline-offset-4">
+      <Link href="/admin" className="t-small inline-flex min-h-touch items-center text-text-secondary underline underline-offset-4">
         {t("libelle")}
       </Link>
     </li>

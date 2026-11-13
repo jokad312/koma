@@ -8,7 +8,7 @@ import { Dialogue } from "@/components/ui/Dialogue";
 const GLYPHE_MENU = "☰";
 
 // Permet à un contrôle du menu (ex. « Se déconnecter », dont la navigation peut rester sur la même page) de le fermer ; sans effet hors du menu.
-const FermerMenuContexte = createContext<() => void>(() => {});
+export const FermerMenuContexte = createContext<() => void>(() => {});
 export function useFermerMenu() {
   return useContext(FermerMenuContexte);
 }

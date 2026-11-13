@@ -47,8 +47,8 @@ describe("RangeeVue (cartes du héros)", () => {
     rendre(<>{await RangeeVue({ locale: "fr", cartes: { cosplay: carte("cosplay", "c1"), accessoire: carte("accessoire", "a1"), kit: carte("kit", "k1") } })}</>);
     const liste = screen.getByRole("list", { name: fr.Accueil.heros.cartes });
     expect(within(liste).getAllByRole("listitem")).toHaveLength(3);
-    expect(within(liste).getByRole("link", { name: "Titre c1" }).getAttribute("href")).toBe("/cosplays/c1");
-    expect(within(liste).getByRole("link", { name: "Titre a1" }).getAttribute("href")).toBe("/accessoires/a1");
+    expect(within(liste).getByRole("link", { name: /^Cosplay porté : Titre c1, / }).getAttribute("href")).toBe("/cosplays/c1");
+    expect(within(liste).getByRole("link", { name: /^Accessoire : Titre a1, / }).getAttribute("href")).toBe("/accessoires/a1");
     expect(within(liste).getByRole("link", { name: "Voir le kit : Titre k1" }).getAttribute("href")).toBe("/kits/k1");
     expect(screen.getByRole("link", { name: fr.Accueil.heros.versCatalogue }).getAttribute("href")).toBe("/cosplays");
   });
@@ -68,7 +68,7 @@ describe("RangeeVue (cartes du héros)", () => {
     faux.messages = en;
     rendre(<>{await RangeeVue({ locale: "en", cartes: { cosplay: null, accessoire: carte("accessoire", "a1"), kit: carte("kit", "k1") } })}</>, "en");
     expect(screen.getByText(en.Accueil.heros.kitDuMois)).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Titre a1" }).getAttribute("href")).toBe("/accessories/a1");
+    expect(screen.getByRole("link", { name: /^Accessory: Titre a1, / }).getAttribute("href")).toBe("/accessories/a1");
     expect(screen.getByRole("link", { name: "See the kit: Titre k1" })).toBeTruthy();
   });
 });
@@ -79,7 +79,7 @@ describe("MediaVue (repère du héros sans photo)", () => {
     const repere = container.querySelector(".sans-media");
     expect(repere).not.toBeNull();
     expect(repere?.hasAttribute("hidden")).toBe(true);
-    expect(container.querySelector(".halo-heros")).toBeNull();
+    expect(container.querySelector(".hv-halo")).toBeNull();
   });
 
   it("avec une photo : pas de repère, halo présent", () => {
@@ -87,7 +87,7 @@ describe("MediaVue (repère du héros sans photo)", () => {
     vi.stubGlobal("matchMedia", () => ({ matches: false, addEventListener: () => undefined, removeEventListener: () => undefined }));
     const { container } = rendre(<MediaVue videoUrl={null} repli={{ url: "https://exemple.test/p.jpg", alt: "Alt", detoure: true }} />);
     expect(container.querySelector(".sans-media")).toBeNull();
-    expect(container.querySelector(".halo-heros")).not.toBeNull();
+    expect(container.querySelector(".hv-halo")).not.toBeNull();
     vi.unstubAllGlobals();
   });
 });

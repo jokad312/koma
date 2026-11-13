@@ -8,7 +8,7 @@ import type { CarteEvenement as Donnees } from "@/modules/evenements/types";
 type Props = {
   evenement: Donnees;
   // Titre de la carte : h3 sous les H2 de la liste, h3 aussi sous le H2 « Rendez-vous otaku » de l'accueil.
-  niveau?: 2 | 3;
+  niveau?: 2 | 3 | 4;
 };
 
 // Carte Événement (DESIGN : photo, date, titre, lieu ; lien sur le titre étendu à la carte). Sans photo, pas de vignette :
@@ -18,7 +18,7 @@ export function CarteEvenement({ evenement, niveau = 3 }: Props) {
   const locale = useLocale() as Locale;
   const t = useTranslations("Festival.prevenir.carte");
   const date = formaterDateBoutique(evenement.debutLe, locale);
-  const Balise = niveau === 2 ? "h2" : "h3";
+  const Balise = niveau === 2 ? "h2" : niveau === 3 ? "h3" : "h4";
 
   return (
     <article

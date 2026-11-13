@@ -2,7 +2,7 @@
 title: 'Story 9.1 : Créer un Code promo'
 type: 'feature'
 created: '2026-11-03'
-status: 'draft'
+status: 'done'
 route: 'dispatch'
 ---
 

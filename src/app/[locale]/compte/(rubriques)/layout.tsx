@@ -6,7 +6,8 @@ import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { LienAdminCompte } from "@/components/layout/LienAdminCompte";
 
-// « Mon compte » : la navigation n'affiche que les entrées qui existent déjà (UX-DR37). Aujourd'hui : Ma bibliothèque.
+// Rubriques de « Mon compte » (bibliothèque, commandes, Pass, photos, Réalisation, préférences) : la navigation n'affiche que les entrées qui
+// existent déjà (UX-DR37) et ramène à l'espace personnel. L'espace personnel (/compte, story 9.12) est hors de ce groupe : son H1 est « Bonjour … ».
 export default async function CompteLayout({ children, params }: { children: ReactNode; params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
@@ -18,32 +19,37 @@ export default async function CompteLayout({ children, params }: { children: Rea
       <nav aria-label={t("compte.navigation")}>
         <ul className="flex flex-wrap gap-4">
           <li>
-            <Link href="/compte/bibliotheque" className="t-small underline underline-offset-4">
+            <Link href="/compte" className="t-small inline-flex min-h-touch items-center underline underline-offset-4">
+              {t("compte.espace")}
+            </Link>
+          </li>
+          <li>
+            <Link href="/compte/bibliotheque" className="t-small inline-flex min-h-touch items-center underline underline-offset-4">
               {t("titre")}
             </Link>
           </li>
           <li>
-            <Link href="/compte/commandes" className="t-small underline underline-offset-4">
+            <Link href="/compte/commandes" className="t-small inline-flex min-h-touch items-center underline underline-offset-4">
               {t("compte.commandes")}
             </Link>
           </li>
           <li>
-            <Link href="/compte/pass" className="t-small underline underline-offset-4">
+            <Link href="/compte/pass" className="t-small inline-flex min-h-touch items-center underline underline-offset-4">
               {t("compte.pass")}
             </Link>
           </li>
           <li>
-            <Link href="/compte/photos" className="t-small underline underline-offset-4">
+            <Link href="/compte/photos" className="t-small inline-flex min-h-touch items-center underline underline-offset-4">
               {t("compte.photos")}
             </Link>
           </li>
           <li>
-            <Link href="/compte/realisation" className="t-small underline underline-offset-4">
+            <Link href="/compte/realisation" className="t-small inline-flex min-h-touch items-center underline underline-offset-4">
               {t("compte.realisation")}
             </Link>
           </li>
           <li>
-            <Link href="/compte/preferences" className="t-small underline underline-offset-4">
+            <Link href="/compte/preferences" className="t-small inline-flex min-h-touch items-center underline underline-offset-4">
               {t("compte.preferences")}
             </Link>
           </li>

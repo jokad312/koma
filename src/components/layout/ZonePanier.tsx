@@ -4,7 +4,7 @@ import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { compterPanier } from "@/modules/panier/queries";
 
-const CLASSES = "t-small relative inline-flex min-h-touch min-w-touch items-center justify-center gap-2 rounded-full border border-border-field bg-surface px-3 text-text-primary no-underline";
+const CLASSES = "lien-panier t-small relative inline-flex min-h-touch min-w-touch items-center justify-center gap-2 rounded-full border border-border-field bg-surface px-3 text-text-primary no-underline";
 
 function IconePanier() {
   return (
@@ -21,7 +21,7 @@ export async function LienPanier({ nombre }: { nombre: number | null }) {
   const t = await getTranslations("Navigation.panier");
   const locale = (await getLocale()) as Locale;
   return (
-    <Link href={cheminPublic(locale, "/panier")} className={CLASSES} aria-label={nombre === null ? t("lien") : t("libelle", { count: nombre })}>
+    <Link href={cheminPublic(locale, "/panier")} className={CLASSES} data-libelle={t("lien")} aria-label={nombre === null ? t("lien") : t("libelle", { count: nombre })}>
       <IconePanier />
       {nombre !== null && nombre > 0 ? <span aria-hidden="true">{nombre}</span> : null}
     </Link>

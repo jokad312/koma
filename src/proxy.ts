@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { lireEnvPublique } from "@/lib/env";
 import { choisirLangue } from "@/i18n/detection";
 import { NOM_COOKIE_LANGUE, routing } from "@/i18n/routing";
+import { arriveeParDefaut, roleDuJeton } from "@/lib/auth/arrivee";
 import { COOKIE_ACTIVITE, COOKIE_SESSION_EXPIREE, estPageProtegee, evaluerActivite, lireDelaiInactiviteMs } from "@/lib/auth/inactivite";
 import { analyserAdresseFiche, ficheExiste } from "@/modules/catalogue/existence";
 import { analyserAdresseArticle, articleExiste } from "@/modules/blog/existence";
@@ -35,10 +36,15 @@ export async function proxy(request: NextRequest) {
   // Seul le nom de l'erreur est journalisé : ni message, ni jeton, ni cookie.
   // aSession reste null quand l'état est inconnu : alors aucune déconnexion et aucun cookie d'activité touché.
   let aSession: boolean | null = null;
+  // Revendication koma_role du jeton (crochet Supabase, story 9.12) : aiguillage seulement, jamais une barrière.
+  let roleJeton: "admin" | "assistant" | null = null;
   try {
     const { data, error } = await supabase.auth.getClaims();
     if (error) console.error(`[proxy] getClaims en erreur : ${error.name}`);
-    else aSession = Boolean(data?.claims);
+    else {
+      aSession = Boolean(data?.claims);
+      roleJeton = roleDuJeton(data?.claims);
+    }
   } catch (e) {
     console.error(`[proxy] getClaims indisponible : ${e instanceof Error ? e.name : "erreur inconnue"}`);
   }
@@ -47,6 +53,7 @@ export async function proxy(request: NextRequest) {
   const optionsCookie = { path: "/", sameSite: "lax" as const, secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 400 };
   // 400 jours (plafond des navigateurs) : le cookie d'activité ne doit pas disparaître avant la session, sinon elle serait « reposée » au lieu d'expirer.
   let redirectionExpiree: NextResponse | null = null;
+  let sessionExpiree = false;
 
   // Déconnexion après inactivité (story 9.14) : toute requête reçue compte comme activité.
   if (aSession !== null) {
@@ -62,6 +69,7 @@ export async function proxy(request: NextRequest) {
     // Reconnectée : le message d'expiration n'a plus lieu d'être.
     if (aSession && request.cookies.has(COOKIE_SESSION_EXPIREE)) reponseSession.cookies.set(COOKIE_SESSION_EXPIREE, "", { ...optionsCookie, maxAge: 0 });
     if (decision === "expire") {
+      sessionExpiree = true;
       try {
         // signOut renvoie son erreur (il ne lève pas toujours) : seul son nom est journalisé.
         const { error } = await supabase.auth.signOut({ scope: "local" });
@@ -93,6 +101,29 @@ export async function proxy(request: NextRequest) {
         // Page publique, action ou route hors langue : pas de redirection forcée, le bandeau discret prévient la personne.
         reponseSession.cookies.set(COOKIE_SESSION_EXPIREE, "1", { ...optionsCookie, maxAge: 60 * 60 * 24 });
       }
+    }
+  }
+
+  // Arrivées selon la connexion (story 9.12) : une personne connectée sur l'accueil public (« / », /fr, /en) va à son espace personnel
+  // (/[l]/compte) ; l'admin et l'assistant (revendication koma_role du jeton) vont à l'admin, aussi depuis /[l]/compte. Aucune lecture en base
+  // ici : sans revendication (crochet non activé), la personne est traitée comme un client. Les pages revérifient les droits côté serveur.
+  // Après une expiration de la session, la personne est un visiteur : aucune redirection.
+  // « Voir le site » de l'admin (?vue=site) : la personne veut l'accueil public, aucun aiguillage.
+  const vueSite = request.nextUrl.searchParams.get("vue") === "site";
+  const sessionOuverte = aSession === true && !sessionExpiree;
+  if (sessionOuverte && request.method === "GET" && !vueSite) {
+    const langueAccueil = routing.locales.find((l) => chemin === `/${l}` || chemin === `/${l}/`);
+    const langueCompte = routing.locales.find((l) => chemin === `/${l}/compte` || chemin === `/${l}/compte/`);
+    const versAdmin = roleJeton !== null;
+    if (chemin === "/" || langueAccueil || (langueCompte && versAdmin)) {
+      const langue = langueAccueil ?? langueCompte ?? choisirLangue(request.cookies.get(NOM_COOKIE_LANGUE)?.value, request.headers.get("accept-language"));
+      // Nouvelle adresse (pas un clone) : « /fr/ » ne doit pas donner « /fr/compte/ ».
+      const cible = new URL(arriveeParDefaut(roleJeton, langue), request.url);
+      const versArrivee = NextResponse.redirect(cible);
+      versArrivee.headers.set("Vary", "Accept-Language, Cookie");
+      versArrivee.headers.set("Cache-Control", "no-store");
+      reponseSession.cookies.getAll().forEach((cookie) => versArrivee.cookies.set(cookie));
+      return versArrivee;
     }
   }
 

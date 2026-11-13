@@ -2,7 +2,7 @@
 title: '9.14 Déconnexion après 4 h d’inactivité'
 type: 'feature'
 created: '2026-11-12'
-status: 'ready-for-dev'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 context: []
@@ -79,6 +79,8 @@ context: []
 - Given un nouvel appareil ou une nouvelle connexion, when l'ancien cookie date de plus de 4 h, then pas de déconnexion immédiate.
 
 ## Implementation Notes
+
+- 2026-11-13 : terminée avec les décisions renégociées (réglage `session_inactivite_heures` 1–24 h, 4 h par défaut ; bandeau sur les pages publiques ; redirection seulement pour /compte, /commande ou /checkout, /admin, /scan). Corrections de la revue commune 9.12/9.14 : adresses anglaises protégées, marge d'une minute, cookie de 400 jours, requête en cours désauthentifiée quand `signOut` échoue, tests du réglage (zod et SQL), du message de connexion et du bandeau. Report : cookie d'activité signé (voir deferred-work.md). Commit 9968574.
 
 ## Spec Change Log
 

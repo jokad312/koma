@@ -10,7 +10,7 @@ import { ListeMurs } from "./ListeMurs";
 // Aucune photo publiée : le bloc n'existe pas (aucun titre, aucun texte, aucun espace).
 // Sans JavaScript, « Voir plus » est un lien /<langue>?curseur=… : la page montre alors les entrées qui suivent ce curseur (lecture sans cache).
 // Une erreur de lecture masque le bloc (jamais une liste vide inventée, jamais une page d'accueil en erreur).
-export async function BlocMur({ locale, requete }: { locale: Locale; requete?: Promise<RequeteBrute> }) {
+export async function BlocMur({ locale, requete, niveau = 2 }: { locale: Locale; requete?: Promise<RequeteBrute>; niveau?: 2 | 3 }) {
   let page;
   try {
     const curseur = requete ? analyserRequeteMurs(await requete) : null;
@@ -25,7 +25,7 @@ export async function BlocMur({ locale, requete }: { locale: Locale; requete?: P
   return (
     <section id="galerie" aria-labelledby="accueil-galerie" className="flex scroll-mt-24 flex-col gap-4">
       <div id="accueil-galerie">
-        <TitreVitrine niveau={2}>{t("titre")}</TitreVitrine>
+        <TitreVitrine niveau={niveau}>{t("titre")}</TitreVitrine>
       </div>
       <ListeMurs cle={`debut|${page.murs[0].id}|${page.suite ?? "fin"}`} murs={page.murs} suite={page.suite} nomSite={nomSite} />
     </section>

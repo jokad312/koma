@@ -1,0 +1,568 @@
+/*
+ * Haut de l'accueil du visiteur : reproduction de docs/design/maquette-accueil/fusion.html (cadre de 1440 x 900, voir fusion-creme.png et
+ * fusion-sombre.png). Valeurs en pixels reprises telles quelles de la maquette, à partir de 1280 px de large ; en dessous, une seule colonne.
+ * Couleurs de la maquette (le rouge #D7261E est celui de la maquette, décision de Jonathan du 2026-11-12). Polices : Barlow et Barlow Condensed
+ * seulement (--font-corps, --font-condensee ; story 9.12), aucune police de la maquette n'entre dans le dépôt. Thèmes : crème par défaut,
+ * sombre sous <html data-theme="dark">.
+ */
+
+.hv {
+  --hv-fond: #f3eee3;
+  --hv-encre: #141210;
+  --hv-texte: #141210;
+  --hv-gris: #6b655c;
+  --hv-rouge: #d7261e;
+  --hv-geant: #e6dece;
+  --hv-kicker: #6b655c;
+  --hv-colonnes: #3f3a33;
+  --hv-liens: #4a453e;
+  --hv-halo: radial-gradient(ellipse at 50% 55%, rgba(215, 38, 30, 0.18), rgba(0, 0, 0, 0) 60%);
+  --hv-bouton1-fond: #141210;
+  --hv-bouton1-texte: #fff;
+  --hv-kit-fond: #fbf8f2;
+  --hv-kit-bord: transparent;
+  --hv-kit-texte: #141210;
+  --hv-ombre-photo: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.35));
+
+  position: relative;
+  isolation: isolate;
+  background: var(--hv-fond);
+  color: var(--hv-texte);
+  font-family: var(--font-corps);
+  font-size: 16px;
+  line-height: normal;
+  overflow: hidden;
+}
+:root[data-theme="dark"] .hv {
+  --hv-fond: #121110;
+  --hv-encre: #f3eee3;
+  --hv-texte: #f3eee3;
+  --hv-geant: #1f1d1a;
+  --hv-kicker: #a39c90;
+  /* Gris éclairci en sombre : signature et phrase du Kit lisibles (règle 7, contraste ≥ 4,5:1). */
+  --hv-gris: #a39c90;
+  --hv-colonnes: #cfc8bb;
+  --hv-liens: #bdb6aa;
+  --hv-halo: radial-gradient(ellipse at 50% 50%, rgba(90, 80, 70, 0.75), rgba(18, 17, 16, 0) 62%);
+  --hv-bouton1-fond: #f3eee3;
+  --hv-bouton1-texte: #141210;
+  --hv-kit-fond: #1d1b19;
+  --hv-kit-bord: #2c2925;
+}
+
+.hv *,
+.hv *::before,
+.hv *::after {
+  box-sizing: border-box;
+}
+.hv p {
+  margin: 0;
+}
+
+/* ---------- Une colonne (mobile, 375 px) ---------- */
+
+.hv-cadre {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px 16px 32px;
+}
+.hv-geant {
+  position: absolute;
+  top: 24px;
+  right: -16px;
+  z-index: 0;
+  font-family: var(--font-condensee);
+  font-weight: 700;
+  font-size: clamp(6rem, 29vw, 26.25rem);
+  line-height: 0.8;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  text-transform: uppercase;
+  color: var(--hv-geant);
+  pointer-events: none;
+  user-select: none;
+}
+.hv-geant::before {
+  content: attr(data-mot);
+}
+.hv-surtitre {
+  position: relative;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hv-kicker);
+}
+.hv-points {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  max-width: 14rem;
+  padding: 4px 0 0 1px;
+}
+.hv-points > span {
+  display: block;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--hv-texte);
+}
+.hv-points > span:last-child {
+  width: 0;
+}
+.hv-titre {
+  position: relative;
+}
+.hv .hv-titre .titre-vitrine {
+  margin: 0;
+  font-family: var(--font-condensee);
+  font-weight: 700;
+  font-size: 38px;
+  line-height: 0.95;
+  letter-spacing: normal;
+  text-transform: uppercase;
+  white-space: pre-line;
+  color: var(--hv-texte);
+}
+.hv-colonnes {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--hv-colonnes);
+}
+.hv-colonnes b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  /* Texte de 11 px : couleur du texte (DESIGN.md : pas de texte rouge sous 24 px) ; le rouge reste aux boutons et aux points. */
+  color: var(--hv-texte);
+}
+.hv-boutons {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.hv-bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.hv-bouton-encre {
+  background: var(--hv-bouton1-fond);
+  color: var(--hv-bouton1-texte);
+}
+.hv-bouton-rouge {
+  background: var(--hv-rouge);
+  color: #fff;
+}
+.hv-media {
+  position: relative;
+  height: 26rem;
+  overflow: hidden;
+}
+.hv-halo {
+  position: absolute;
+  inset: 0;
+  background: var(--hv-halo);
+}
+.hv-photo {
+  position: absolute;
+  inset: 0 10% 0;
+  filter: var(--hv-ombre-photo);
+}
+.hv-rangee {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  margin: 0;
+  padding: 0 0 24px;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+}
+.hv-carte,
+.hv-kit {
+  position: relative;
+  flex: none;
+  height: 250px;
+  border-radius: 18px;
+  scroll-snap-align: start;
+  box-shadow: 0 20px 40px rgba(20, 18, 16, 0.12);
+}
+.hv-carte {
+  width: 200px;
+  overflow: hidden;
+  background: #8c7c62;
+}
+.hv-carte-photo {
+  object-fit: cover;
+}
+.hv-carte-lien {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+}
+.hv-carte-lien:focus-visible,
+.hv-kit:focus-within,
+.hv-bouton:focus-visible,
+.hv-rond:focus-visible {
+  outline: 2px solid var(--hv-texte);
+  outline-offset: 2px;
+}
+.hv-carte-etiquette {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  z-index: 2;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #fff;
+  opacity: 0.9;
+  /* Lisible sur n'importe quelle photo (contraste, règle 7) sans assombrir la carte. */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+}
+.hv-kit {
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+  padding: 18px;
+  background: var(--hv-kit-fond);
+  border: 0;
+  color: var(--hv-kit-texte, inherit);
+}
+:root[data-theme="dark"] .hv-kit {
+  border: 1px solid var(--hv-kit-bord);
+  color: var(--hv-texte);
+}
+.hv-kit-etiquette {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--hv-texte);
+}
+.hv .hv-kit-titre {
+  margin-top: 10px;
+  font-family: var(--font-condensee);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 0.95;
+  /* Largeur de ligne de la maquette (Barlow Condensed est plus étroite que la police de la maquette). */
+  max-width: 170px;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+.hv .hv-kit-phrase {
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--hv-gris);
+}
+.hv-kit-bouton {
+  position: relative;
+  margin-top: auto;
+  align-self: flex-start;
+  height: 38px;
+}
+/* Rendu de 38 px comme la maquette, zone de touche de 44 px. */
+.hv-kit-bouton::after {
+  content: "";
+  position: absolute;
+  inset: -3px 0;
+}
+.hv-rond {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--hv-rouge);
+  color: #fff;
+  text-decoration: none;
+}
+.hv-signature {
+  position: relative;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hv-gris);
+}
+
+/* ---------- Cadre de la maquette (1280 px et plus) ---------- */
+
+@media (min-width: 1280px) {
+  .hv-cadre {
+    display: block;
+    max-width: 1440px;
+    height: 900px;
+    margin: 0 auto;
+    padding: 0;
+  }
+  .hv-cadre > * {
+    position: absolute;
+  }
+  .hv-geant {
+    top: 110px;
+    right: -30px;
+    left: auto;
+    font-size: 420px;
+  }
+  .hv-surtitre {
+    left: 56px;
+    top: 150px;
+  }
+  .hv-points {
+    top: 186px;
+    left: 56px;
+    z-index: 2;
+    width: 600px;
+    max-width: none;
+    padding: 4px 0 0 1px;
+  }
+  .hv-titre {
+    left: 56px;
+    top: 216px;
+    z-index: 3;
+    width: 470px;
+  }
+  .hv .hv-titre .titre-vitrine {
+    font-size: 58px;
+  }
+  .hv-colonnes {
+    left: 560px;
+    top: 222px;
+    z-index: 3;
+    width: 280px;
+  }
+  .hv-boutons {
+    left: 56px;
+    top: 420px;
+    z-index: 3;
+    flex-wrap: nowrap;
+  }
+  .hv-media {
+    right: 40px;
+    top: 150px;
+    z-index: 2;
+    width: 560px;
+    height: 750px;
+  }
+  .hv-photo {
+    inset: auto;
+    left: 70px;
+    top: 50px;
+    width: 420px;
+    height: 630px;
+  }
+  .hv-rangee {
+    left: 56px;
+    bottom: 56px;
+    z-index: 3;
+    padding: 0;
+    overflow: visible;
+  }
+  .hv-rond {
+    left: 770px;
+    bottom: 72px;
+    z-index: 4;
+    align-self: auto;
+  }
+  .hv-signature {
+    left: 56px;
+    bottom: 22px;
+    z-index: 4;
+  }
+
+  /* Aucun Cosplay vedette publié : tout se recentre sur une colonne, sans trou. */
+  .hv-cadre:has(.sans-media) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    height: auto;
+    min-height: 900px;
+    padding: 190px 56px 72px;
+    text-align: center;
+  }
+  .hv-cadre:has(.sans-media) > * {
+    position: relative;
+    left: auto;
+    right: auto;
+    top: auto;
+    bottom: auto;
+  }
+  .hv-cadre:has(.sans-media) > .hv-geant {
+    position: absolute;
+    top: 110px;
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .hv-cadre:has(.sans-media) .hv-points {
+    width: 14rem;
+  }
+  .hv-cadre:has(.sans-media) .hv-titre {
+    width: min(40rem, 100%);
+  }
+  .hv-cadre:has(.sans-media) .hv-colonnes {
+    width: 36rem;
+    max-width: 100%;
+  }
+  .hv-cadre:has(.sans-media) .hv-boutons,
+  .hv-cadre:has(.sans-media) .hv-rangee {
+    justify-content: center;
+  }
+}
+
+/* ---------- En-tête du site sur l'accueil visiteur (même cadre que la maquette) ---------- */
+
+@media (min-width: 1280px) {
+  body:has(.hv) {
+    background: #f3eee3;
+  }
+  :root[data-theme="dark"] body:has(.hv) {
+    background: #121110;
+  }
+  body:has(.hv) main {
+    max-width: none;
+    padding: 0 0 32px;
+  }
+  /* Les blocs sous le héros gardent la largeur et les marges habituelles. */
+  body:has(.hv) main .accueil-visiteur > div:not(:first-child) > * {
+    max-width: 80rem;
+    margin-inline: auto;
+    width: 100%;
+    padding-inline: 16px;
+  }
+  /* Dans le flux (les bandeaux rendus avant lui restent visibles et cliquables), posé sur le héros par une marge basse négative de sa hauteur. */
+  body:has(.hv) .entete-collant {
+    position: relative !important;
+    inset: auto;
+    margin-bottom: -84px;
+    z-index: 5;
+    height: 84px;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+  }
+  /* Règle à part : le flou du verre renforcé (.verre-fort) est retiré ici, l'en-tête est posé sur le fond de la maquette. */
+  body:has(.hv) header.entete-collant {
+    backdrop-filter: none;
+  }
+  body:has(.hv) .entete-collant > div {
+    max-width: 1440px;
+    padding: 0 56px;
+    font-family: var(--font-condensee);
+  }
+  /* Le groupe de droite se dissout : réglages, liens et Panier deviennent des éléments de la même ligne. */
+  body:has(.hv) .entete-collant > div > div:last-child {
+    display: contents;
+  }
+  body:has(.hv) .entete-logo {
+    width: 126px;
+  }
+  /* Thème, langue et connexion passent dans le bouton rond « compte », à droite du Panier (story 9.12, décision 4). */
+  body:has(.hv) .entete-reglages {
+    display: none;
+  }
+  /* Dans la maquette, les liens sont alignés en haut de la même ligne que le bouton Panier (plus haut de quelques pixels). */
+  body:has(.hv) .entete-liens {
+    order: 2;
+    margin-left: auto;
+    transform: translateY(-6px);
+  }
+  body:has(.hv) .entete-compte-rond {
+    display: block;
+    order: 4;
+    color: #4a453e;
+  }
+  :root[data-theme="dark"] body:has(.hv) .entete-compte-rond {
+    color: #bdb6aa;
+  }
+  body:has(.hv) .menu-compte-bouton:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+  /* Le panneau garde la police et les couleurs du site (texte courant, pas les capitales de la barre). */
+  body:has(.hv) .menu-compte-panneau {
+    font-family: var(--font-corps);
+    letter-spacing: normal;
+    text-transform: none;
+  }
+  body:has(.hv) .entete-liens ul {
+    gap: 34px;
+  }
+  body:has(.hv) .entete-liens li[data-rubrique="blog"],
+  body:has(.hv) .entete-liens li[data-rubrique="aPropos"] {
+    display: none;
+  }
+  body:has(.hv) .entete-liens a {
+    position: relative;
+    min-height: 0;
+    font-family: var(--font-condensee);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: normal;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #4a453e;
+  }
+  :root[data-theme="dark"] body:has(.hv) .entete-liens a {
+    color: #bdb6aa;
+  }
+  body:has(.hv) .lien-panier {
+    order: 3;
+    min-height: 0;
+    min-width: 0;
+    margin-left: 22px;
+    padding: 4px 14px;
+    gap: 6px;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    background: transparent;
+    font-family: var(--font-condensee);
+    font-weight: 400;
+    font-size: 13px;
+    line-height: normal;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #4a453e;
+  }
+  :root[data-theme="dark"] body:has(.hv) .lien-panier {
+    color: #bdb6aa;
+  }
+  body:has(.hv) .lien-panier svg {
+    display: none;
+  }
+  body:has(.hv) .lien-panier::before {
+    content: attr(data-libelle);
+  }
+  /* Rendu de la maquette, zone de touche d'au moins 44 px (liens et Panier). */
+  body:has(.hv) .entete-liens a::after,
+  body:has(.hv) .lien-panier::after {
+    content: "";
+    position: absolute;
+    inset: -14px -8px;
+  }
+}

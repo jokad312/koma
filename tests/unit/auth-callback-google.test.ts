@@ -4,7 +4,7 @@ import { creerTestDependances } from "../doubles/TEST_dependances-comptes";
 
 vi.mock("server-only", () => ({}));
 
-const etat = vi.hoisted(() => ({ cookie: undefined as string | undefined, supprimes: [] as unknown[], reglages: undefined as unknown }));
+const etat = vi.hoisted(() => ({ cookie: undefined as string | undefined, supprimes: [] as unknown[], reglages: undefined as unknown, arrivee: "compte" }));
 vi.mock("next/headers", () => ({
   cookies: async () => ({
     get: () => (etat.cookie === undefined ? undefined : { value: etat.cookie }),
@@ -12,6 +12,10 @@ vi.mock("next/headers", () => ({
   }),
 }));
 vi.mock("@/modules/comptes/dependances", () => ({ dependances: async () => etat.reglages }));
+// Arrivée par défaut (story 9.12) : faux rôle de test, le retour précis passe avant.
+vi.mock("@/lib/auth/arrivee-serveur", () => ({
+  destinationApresConnexion: async (retour: string, langue: string) => (retour === `/${langue}` ? `/${langue}/${etat.arrivee}` : retour),
+}));
 
 import { GET } from "@/app/auth/callback/route";
 
@@ -60,13 +64,21 @@ describe("GET /auth/callback", () => {
     expect(r.headers.get("location")).toBe("http://localhost:3000/en/connexion?retour=%2Fen%2Fkits&erreur=google");
   });
 
-  it("cookie absent, illisible ou retour hostile : accueil en français, jamais une adresse externe", async () => {
+  it("cookie absent, illisible ou retour hostile : arrivée par défaut en français, jamais une adresse externe", async () => {
     etat.reglages = creerTestDependances({ complet: true, questionsVues: true }).deps;
     etat.cookie = undefined;
-    expect((await appeler("?code=TEST_code")).headers.get("location")).toBe("http://localhost:3000/fr");
+    expect((await appeler("?code=TEST_code")).headers.get("location")).toBe("http://localhost:3000/fr/compte");
     etat.cookie = "pas du json";
-    expect((await appeler("?code=TEST_code")).headers.get("location")).toBe("http://localhost:3000/fr");
+    expect((await appeler("?code=TEST_code")).headers.get("location")).toBe("http://localhost:3000/fr/compte");
     etat.cookie = JSON.stringify({ langue: "fr", retour: "https://x.fr" });
-    expect((await appeler("?code=TEST_code")).headers.get("location")).toBe("http://localhost:3000/fr");
+    expect((await appeler("?code=TEST_code")).headers.get("location")).toBe("http://localhost:3000/fr/compte");
+  });
+
+  it("sans retour précis : l'admin arrive sur l'admin (story 9.12)", async () => {
+    etat.reglages = creerTestDependances({ complet: true, questionsVues: true }).deps;
+    etat.cookie = JSON.stringify({ langue: "en", retour: "/en" });
+    etat.arrivee = "admin";
+    expect((await appeler("?code=TEST_code")).headers.get("location")).toBe("http://localhost:3000/en/admin");
+    etat.arrivee = "compte";
   });
 });

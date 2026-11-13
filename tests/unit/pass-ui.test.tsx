@@ -36,7 +36,7 @@ vi.mock("@/lib/reglages", () => ({ lireNomSite: faux.nomSite }));
 
 import { CartePass } from "@/components/compte/CartePass";
 import { ListeMesPass } from "@/components/compte/ListeMesPass";
-import { generateMetadata } from "../../src/app/[locale]/compte/pass/page";
+import { generateMetadata } from "../../src/app/[locale]/compte/(rubriques)/pass/page";
 
 const JETON_TEST = "0123456789abcdef0123456789abcdef0123456789abcdef";
 

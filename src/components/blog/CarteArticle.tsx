@@ -8,7 +8,7 @@ import type { CarteArticle as Donnees } from "@/modules/blog/types";
 type Props = {
   article: Donnees;
   // Titre de la carte : h2 dans la liste du Blog, h3 sous le H2 « Guides » de l'accueil.
-  niveau?: 2 | 3;
+  niveau?: 2 | 3 | 4;
 };
 
 // Carte Article (DESIGN : vignette + titre + date, lien étendu à la carte). Sans image, la carte n'a pas de vignette :
@@ -18,7 +18,7 @@ export function CarteArticle({ article, niveau = 2 }: Props) {
   const locale = useLocale() as Locale;
   const date = formaterDateBoutique(article.publieLe, locale);
   const href = `/blog/${article.slug}`;
-  const Balise = niveau === 2 ? "h2" : "h3";
+  const Balise = niveau === 2 ? "h2" : niveau === 3 ? "h3" : "h4";
 
   return (
     <article
