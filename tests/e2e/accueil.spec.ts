@@ -117,7 +117,7 @@ for (const langue of ["fr", "en"] as const) {
 }
 
 // Héros (story 2.6). Les réglages du héros vivent en base : les tests tiennent quelle que soit la configuration de Jonathan.
-const ACCROCHES = { fr: "Porte ton personnage. Ou fabrique-le.", en: "Wear your character. Or make it." } as const;
+const ACCROCHES = { fr: "Deviens ton personnage.", en: "Become your character." } as const;
 
 for (const langue of ["fr", "en"] as const) {
   test(`/${langue} : l'accroche du héros est le H1, en texte réel`, async ({ page }) => {
@@ -146,36 +146,3 @@ test("héros : sous mouvement réduit, la vidéo n'est pas chargée et le bouton
   await expect(page.locator("video")).toHaveCount(0);
   await expect(page.getByRole("button", { name: /vidéo/i })).toHaveCount(0);
 });
-
-// Haut de l'accueil (refonte « fusion ») : mot géant décoratif, deux boutons, signature ; aucun défilement horizontal à 375 px.
-for (const langue of ["fr", "en"] as const) {
-  test(`/${langue} : héros, mot géant décoratif, deux boutons vers les catalogues et signature`, async ({ page }) => {
-    await page.goto(`/${langue}`);
-    const heros = page.locator("main section").first();
-    await expect(heros.locator('p[aria-hidden="true"][data-mot]')).toHaveAttribute("data-mot", "Cosplay");
-    await expect(heros.locator(`a[href="/${langue}/cosplays"]`).first()).toBeVisible();
-    await expect(heros.locator(`a[href="/${langue}/kits"]`).first()).toBeVisible();
-    await expect(heros.getByText(langue === "fr" ? "Fait main à Goma — 2026" : "Handmade in Goma — 2026")).toBeVisible();
-  });
-
-  test(`/${langue} : héros sans défilement horizontal à 375 px, cartes défilant dans leur rangée`, async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 800 });
-    await page.goto(`/${langue}`);
-    await page.waitForLoadState("networkidle");
-    expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);
-    // La section coupe son débordement (overflow-hidden) : on vérifie aussi que le contenu tient dans la fenêtre.
-    const sortie = await page.evaluate(() => {
-      // Le mot géant (un <p>), volontairement rogné par la section, n'entre pas dans la mesure : on mesure la grille du contenu (le <div> enfant).
-      const section = document.querySelector("main section > div");
-      // Les cartes défilent dans leur rangée : seuls les éléments hors de la liste défilante doivent tenir dans la fenêtre.
-      const cibles = [...(section?.querySelectorAll("h1, a") ?? [])].filter((e) => !e.closest("ul"));
-      // Le mot géant (.hv-geant) est volontairement rogné par .hv ; la rangée de cartes défile dans sa liste : les deux sont exclus.
-      const bord = section?.getBoundingClientRect().right ?? 0;
-      const deborde = [...(section?.querySelectorAll("*") ?? [])].some((e) => !e.closest(".hv-geant") && !e.closest("ul") && e.getBoundingClientRect().right > bord + 1);
-      return { nb: cibles.length, section: deborde, droite: Math.max(...cibles.map((e) => e.getBoundingClientRect().right)) };
-    });
-    expect(sortie.nb).toBeGreaterThan(0);
-    expect(sortie.section).toBe(false);
-    expect(sortie.droite).toBeLessThanOrEqual(375);
-  });
-}

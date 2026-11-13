@@ -201,8 +201,8 @@ test.describe("connexion par code email", () => {
     await page.getByRole("button", { name: "Continuer" }).click();
     // « Passer » ne bloque rien : les questions sont facultatives.
     await page.getByRole("button", { name: "Passer" }).click();
-    // Sans retour précis, un client arrive sur son espace personnel (story 9.12).
-    await expect(page).toHaveURL(/\/fr\/compte$/);
+    // Sans retour précis, un client arrive sur l'accueil de sa langue (option A du 2026-11-13).
+    await expect(page).toHaveURL(/\/fr$/);
 
     for (const [chemin, deconnexion] of [["/fr", "Se déconnecter"], ["/en", "Sign out"]] as const) {
       const reponse = await page.goto(chemin);

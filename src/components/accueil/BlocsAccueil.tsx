@@ -18,7 +18,7 @@ function rendreBloc(id: string, locale: Locale, requete: Promise<Record<string, 
   const niveau = variante === "boutique" ? 3 : 2;
   switch (id) {
     case "heros":
-      // Accroche (H1) dans la coque statique ; vedette, photo et vidéo lues à chaque requête. Visiteur : héros de la maquette « fusion ».
+      // Accroche (H1) dans la coque statique ; vedette, photo et vidéo lues à chaque requête.
       // « Découvrir la boutique » de l'espace personnel (story 9.12) : les mêmes blocs, sans le grand héros.
       return variante === "boutique" ? null : <HerosAccueil locale={locale} />;
     case "categories":
@@ -74,12 +74,12 @@ function rendreBloc(id: string, locale: Locale, requete: Promise<Record<string, 
   }
 }
 
-export type VarianteAccueil = "visiteur" | "boutique";
+export type VarianteAccueil = "complet" | "boutique";
 
 // Les blocs de l'accueil, dans l'ordre de src/modules/accueil/blocs.ts. Variante « boutique » (espace personnel) : sans le héros.
 export function BlocsAccueil({ locale, searchParams, variante }: { locale: Locale; searchParams: Promise<Record<string, string | string[] | undefined>>; variante: VarianteAccueil }) {
   return (
-    <div className={variante === "visiteur" ? "accueil-visiteur flex flex-col gap-10" : "flex flex-col gap-10"}>
+    <div className="flex flex-col gap-10">
       {blocsAffiches().map((bloc) => (
         <div key={bloc.id} className="contents">
           {rendreBloc(bloc.id, locale, searchParams, variante)}

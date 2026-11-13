@@ -14,10 +14,10 @@ export async function generateMetadata({ params }: PageProps<"/[locale]">): Prom
   return construireMetadata({ locale, titre: t("titre"), description: t("description"), nomSite: await lireNomSite() });
 }
 
-// Accueil du visiteur non connecté. Le proxy envoie les personnes connectées vers leur espace /[locale]/compte, ou vers l'admin (admin et assistant).
+// Accueil public, le même pour tous (décision de Jonathan du 2026-11-13, option A). Le proxy n'envoie que l'admin et l'assistant vers l'admin.
 export default async function Accueil({ params, searchParams }: PageProps<"/[locale]">) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
-  return <BlocsAccueil locale={locale} searchParams={searchParams} variante="visiteur" />;
+  return <BlocsAccueil locale={locale} searchParams={searchParams} variante="complet" />;
 }

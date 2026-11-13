@@ -5,12 +5,13 @@ import type { Locale } from "@/i18n/routing";
 export type RoleArrivee = "admin" | "assistant" | "benevole" | null;
 
 // Arrivée par défaut d'une personne connectée (story 9.12) : l'admin sur l'admin, l'assistant sur les Commandes, le bénévole qui a un accès
-// de scan valide sur le Scan, tout autre Compte sur son espace personnel. Ce n'est qu'un aiguillage : chaque page revérifie le droit côté serveur.
+// de scan valide sur le Scan, tout autre Compte sur l'accueil de sa langue (option A, décision de Jonathan du 2026-11-13 ; l'espace personnel
+// reste ouvert par « Mon compte »). Ce n'est qu'un aiguillage : chaque page revérifie le droit côté serveur.
 export function arriveeParDefaut(role: RoleArrivee, locale: Locale): string {
   if (role === "admin") return `/${locale}/admin`;
   if (role === "assistant") return `/${locale}/admin/commandes`;
   if (role === "benevole") return `/${locale}/scan`;
-  return `/${locale}/compte`;
+  return `/${locale}`;
 }
 
 // Revendication `koma_role` posée dans le jeton par le crochet Supabase (migration 20270118100000) : admin ou assistant, sinon null

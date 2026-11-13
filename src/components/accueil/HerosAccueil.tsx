@@ -1,22 +1,22 @@
 import Image from "next/image";
-import { cache, Suspense, type ReactNode } from "react";
+import { cache, Suspense } from "react";
 import { getTranslations } from "next-intl/server";
 import { unstable_rethrow } from "next/navigation";
 import { connection } from "next/server";
+import { BadgeDisponibilite } from "@/components/catalogue/BadgeDisponibilite";
+import { CLASSES_PRINCIPAL, CLASSES_SECONDAIRE } from "@/components/ui/classes";
 import { TitreVitrine } from "@/components/ui/TitreVitrine";
 import { cheminPublic } from "@/i18n/adresses";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
-import { lireCartesHeros } from "@/modules/accueil/heros-cartes";
-import type { CartesHeros } from "@/modules/accueil/heros-cartes-choix";
-import { lireHerosPublic, type HerosPublic } from "@/modules/accueil/heros-queries";
-import type { CarteProduit } from "@/modules/catalogue/types";
 import { formaterUsd } from "@/lib/argent";
+import { lireHerosPublic, type Disponibilite, type HerosPublic, type VedetteHeros } from "@/modules/accueil/heros-queries";
 import { MediaHeros } from "./MediaHeros";
-import "./hero-visiteur.css";
 
-// Héros lu à chaque requête (une seule lecture par requête, partagée par le média, les cartes et le bloc « Porte-le ou fabrique-le »)
-// (prix et disponibilité de la vedette : règle 3). Lecture en erreur : le héros reste en texte, jamais un média ni un produit inventé.
+const FOND = { backgroundImage: "linear-gradient(135deg, var(--ks-hero-wash-start), var(--ks-hero-wash-end))" } as const;
+
+// Héros lu à chaque requête (une seule lecture par requête, partagée par le média, le bouton et la tuile) (prix et disponibilité de la vedette : règle 3). Lecture en erreur : le héros reste en texte (accroche seule),
+// jamais un média ni un produit inventé.
 export const lireHeros = cache(async (locale: Locale): Promise<HerosPublic | null> => {
   // Attend la vraie requête : pendant le prérendu de la coque, Next.js annule les lectures non mises en cache.
   await connection();
@@ -29,159 +29,110 @@ export const lireHeros = cache(async (locale: Locale): Promise<HerosPublic | nul
   }
 });
 
-const DOSSIER: Record<CarteProduit["famille"], string> = { cosplay: "/cosplays", accessoire: "/accessoires", kit: "/kits" };
-
-// Haut de l'accueil du visiteur : reproduction de la maquette docs/design/maquette-accueil/fusion.html (1440 px : positions, tailles et
-// couleurs de la maquette, voir hero-visiteur.css ; en dessous de 1280 px, une seule colonne). Les images et les cartes viennent des vraies données.
-
-// Photo détourée du Cosplay vedette (photo de repli réglée dans l'admin), halo derrière. Sans photo de repli : première photo de la
-// vedette ; sans rien : pas de média ni de halo vide (le héros se recentre, voir .hv:has(.sans-media)). La vidéo, si elle existe, vient au même emplacement.
-export function MediaVue({ videoUrl, repli }: { videoUrl: string | null; repli: { url: string; alt: string; detoure: boolean } | null }) {
-  if (!repli && !videoUrl) return <span hidden className="sans-media" />;
-  return (
-    <div className="hv-media">
-      <div aria-hidden="true" className="hv-halo" />
-      <div className="hv-photo">
-        <MediaHeros videoUrl={videoUrl} repli={repli} />
-      </div>
-    </div>
-  );
-}
-
+// Le H1 est dans la coque statique, une seule fois (jamais en double, même sans JavaScript) ; le média, le bouton « Prêt à porter » et la tuile
+// arrivent de la lecture de la requête, chacun dans sa propre limite d'attente, sans repli visible (jamais de squelette sur le héros).
 async function Media({ locale }: { locale: Locale }) {
   const heros = await lireHeros(locale);
-  if (!heros) return <MediaVue videoUrl={null} repli={null} />;
-  const repli = heros.repli ? { ...heros.repli, detoure: true } : heros.vedette ? { url: heros.vedette.photoUrl, alt: heros.vedette.photoAlt, detoure: false } : null;
-  return <MediaVue videoUrl={heros.videoUrl} repli={repli} />;
+  if (!heros || !(heros.repli || heros.videoUrl)) return null;
+  return <MediaHeros videoUrl={heros.videoUrl} repli={heros.repli} />;
 }
 
-function CarteProduitHeros({ produit, etiquette, nom, locale }: { produit: CarteProduit; etiquette: string; nom: string; locale: Locale }) {
-  return (
-    // Seule l'étiquette de la maquette est visible ; le nom accessible la reprend en tête (WCAG 2.5.3), suivie du nom et du prix. Le lien couvre toute la carte.
-    <li className="hv-carte">
-      <Image src={produit.photoUrl} alt={produit.photoAlt} fill sizes="200px" className="hv-carte-photo" />
-      <Link href={cheminPublic(locale, `${DOSSIER[produit.famille]}/${produit.slug}`)} data-mesure="clic_heros" className="hv-carte-lien">
-        <span className="sr-only">
-          {nom}
-        </span>
-      </Link>
-      <span aria-hidden="true" className="hv-carte-etiquette">
-        {etiquette}
-      </span>
-    </li>
-  );
-}
-
-async function RangeeCartes({ locale }: { locale: Locale }) {
+async function BoutonVedette({ locale }: { locale: Locale }) {
   const heros = await lireHeros(locale);
-  const slugVedette = heros?.vedette?.slug ?? null;
-  return <RangeeVue locale={locale} cartes={await lireCartesHeros(locale, slugVedette)} />;
-}
-
-export async function RangeeVue({ locale, cartes }: { locale: Locale; cartes: CartesHeros }) {
-  const { cosplay, accessoire, kit } = cartes;
-  // Aucun produit publié dans les trois familles : la rangée n'existe pas (ni cartes, ni bouton).
-  if (!cosplay && !accessoire && !kit) return null;
+  if (!heros?.vedette) return null;
   const t = await getTranslations({ locale, namespace: "Accueil.heros" });
+  const vedette = heros.vedette;
+  // Option « Prêt à porter » (UX-DR23) : bouton principal, par défaut. Bouton secondaire vers le Kit lié publié (FR-1) : il
+  // n'est rendu que si le Cosplay vedette a un Kit lié publié (sinon la double option n'existe pas). Aucune sélection ne change
+  // de page ni ne déclenche d'action : chaque bouton est un lien vers la fiche concernée.
+  const boutonPrincipal = (
+    <Link href={cheminPublic(locale, vedette.href)} data-mesure="clic_heros" className={`${CLASSES_PRINCIPAL} self-start lg:hidden`}>
+      {t("pretAPorter")}
+    </Link>
+  );
+  const boutonSecondaire = vedette.hrefKit ? (
+    <Link href={cheminPublic(locale, vedette.hrefKit)} data-mesure="clic_heros" className={`${CLASSES_SECONDAIRE} self-start lg:hidden`}>
+      {t("fabriquer")}
+    </Link>
+  ) : null;
   return (
     <>
-      <ul role="list" aria-label={t("cartes")} className="hv-rangee">
-        {cosplay ? (
-          <CarteProduitHeros
-            produit={cosplay}
-            etiquette={t("carteCosplay")}
-            nom={t("carteNom", { etiquette: t("carteCosplay"), titre: cosplay.titre, prix: formaterUsd(cosplay.prixCents, locale) })}
-            locale={locale}
-          />
-        ) : null}
-        {accessoire ? (
-          <CarteProduitHeros
-            produit={accessoire}
-            etiquette={t("carteAccessoire")}
-            nom={t("carteNom", { etiquette: t("carteAccessoire"), titre: accessoire.titre, prix: formaterUsd(accessoire.prixCents, locale) })}
-            locale={locale}
-          />
-        ) : null}
-        {kit ? (
-          <li className="hv-kit">
-            <p className="hv-kit-etiquette">{t("kitDuMois")}</p>
-            <p className="hv-kit-titre">{kit.titre}</p>
-            <p className="hv-kit-phrase">{t("kitPhrase")}</p>
-            <Link href={cheminPublic(locale, `${DOSSIER.kit}/${kit.slug}`)} data-mesure="clic_heros" aria-label={t("voirKitNomme", { titre: kit.titre })} className="hv-bouton hv-bouton-rouge hv-kit-bouton">
-              {t("voirKit")}
-            </Link>
-          </li>
-        ) : null}
-      </ul>
-      <Link href={cheminPublic(locale, cosplay ? DOSSIER.cosplay : accessoire ? DOSSIER.accessoire : DOSSIER.kit)} data-mesure="clic_heros" aria-label={t("versCatalogue")} className="hv-rond">
-        <svg aria-hidden="true" viewBox="0 0 17 14" width="17" height="14" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M1 7h15M10 1l6 6-6 6" />
-        </svg>
-      </Link>
+      {boutonPrincipal}
+      {boutonSecondaire}
     </>
   );
 }
 
-// Le H1 est dans la coque statique, une seule fois (jamais en double, même sans JavaScript) ; le média et la rangée de cartes arrivent de la
-// lecture de la requête, chacun dans sa propre limite d'attente, sans repli visible (jamais de squelette sur le héros).
-// Ordre du DOM = ordre de lecture (texte, colonnes, boutons, photo, cartes, signature) ; sur ordinateur, le CSS place chaque élément comme la maquette.
-export async function HerosAccueil({ locale }: { locale: Locale }) {
+type OptionVedette = {
+  id: "porter" | "fabriquer";
+  href: string;
+  titre: string;
+  prixCents: number;
+  delaiJours: number | null;
+  badge: Disponibilite | null;
+  photoUrl: string | null;
+  photoAlt: string;
+};
+
+async function TuileVedette({ locale }: { locale: Locale }) {
+  const heros = await lireHeros(locale);
+  const vedette: VedetteHeros | null = heros?.vedette ?? null;
+  if (!vedette) return null;
+  const t = await getTranslations({ locale, namespace: "Accueil.heros" });
+  // Double option (UX-DR23) : « Prêt à porter » (photo, prix, délai) puis « Le fabriquer moi-même » (Kit lié, prix). Deux tuiles
+  // verticales à droite du média ; une seule si le Cosplay vedette n'a pas de Kit lié publié.
+  const options: OptionVedette[] = [
+    { id: "porter", href: vedette.href, titre: vedette.titre, prixCents: vedette.prixCents, delaiJours: vedette.delaiJours, badge: vedette.disponibilite, photoUrl: vedette.photoUrl, photoAlt: vedette.photoAlt },
+  ];
+  if (vedette.hrefKit && vedette.titreKit && vedette.prixCentsKit !== null) {
+    options.push({ id: "fabriquer", href: vedette.hrefKit, titre: vedette.titreKit, prixCents: vedette.prixCentsKit, delaiJours: null, badge: null, photoUrl: null, photoAlt: "" });
+  }
   return (
-    <HerosVue
-      locale={locale}
-      media={
-        <Suspense fallback={null}>
-          <Media locale={locale} />
-        </Suspense>
-      }
-      cartes={
-        <Suspense fallback={null}>
-          <RangeeCartes locale={locale} />
-        </Suspense>
-      }
-    />
+    <div className="hidden lg:flex lg:w-1/3 lg:shrink-0 lg:flex-col lg:gap-4">
+      {options.map((o) => (
+        <article key={o.id} className="verre-fort relative overflow-hidden focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-primary">
+          {o.photoUrl ? (
+            <div className="relative aspect-[4/5] w-full bg-background">
+              <Image src={o.photoUrl} alt={o.photoAlt} fill sizes="33vw" className="object-cover" />
+            </div>
+          ) : null}
+          <div className="flex flex-col gap-1 p-4">
+            <p className="t-label text-text-primary">{o.id === "porter" ? t("pretAPorter") : t("fabriquer")}</p>
+            <p className="t-h3">
+              <Link href={cheminPublic(locale, o.href)} data-mesure="clic_heros" className="text-text-primary no-underline after:absolute after:inset-0 focus-visible:outline-none">
+                {o.titre}
+              </Link>
+            </p>
+            <p className="t-price-card text-text-primary">{formaterUsd(o.prixCents, locale)}</p>
+            {o.badge ? <BadgeDisponibilite etat={o.badge} /> : null}
+            {o.delaiJours !== null ? <p className="t-small text-text-primary">{t("delai", { n: o.delaiJours })}</p> : null}
+            {o.id === "fabriquer" ? <p className="t-small text-text-primary">{t("acces")}</p> : null}
+          </div>
+        </article>
+      ))}
+    </div>
   );
 }
 
-// Mise en page seule : les deux emplacements (photo, cartes) reçoivent leur contenu de l'appelant.
-async function HerosVue({ locale, media, cartes }: { locale: Locale; media: ReactNode; cartes: ReactNode }) {
+export async function HerosAccueil({ locale }: { locale: Locale }) {
   const t = await getTranslations({ locale, namespace: "Accueil.heros" });
   return (
-    <section aria-label={t("region")} className="hv">
-      <div className="hv-cadre">
-        {/* Mot géant décoratif : texte généré par CSS (attr), donc ni lu, ni sélectionnable, ni candidat au LCP. */}
-        <p aria-hidden="true" data-mot={t("motGeant")} className="hv-geant" />
-        <p className="hv-surtitre">{t("surtitre")}</p>
-        <span aria-hidden="true" className="hv-points">
-          <span />
-          <span />
-          <span />
-        </span>
-        <div className="hv-titre">
+    <section aria-label={t("region")} className="flex flex-col gap-4 lg:flex-row">
+      <div className="relative flex min-h-[26rem] flex-1 flex-col justify-end overflow-hidden rounded-xl lg:min-h-[32rem]" style={FOND}>
+        <Suspense fallback={null}>
+          <Media locale={locale} />
+        </Suspense>
+        <div className="verre-fort relative z-10 m-3 flex max-w-xl flex-col gap-3 p-5">
+          <p className="t-label text-text-primary">{t("surtitre")}</p>
           <TitreVitrine niveau={1}>{t("accroche")}</TitreVitrine>
+          <Suspense fallback={null}>
+            <BoutonVedette locale={locale} />
+          </Suspense>
         </div>
-        <div className="hv-colonnes">
-          <p>
-            <b>{t("faitMainTitre")}</b>
-            {t("faitMainTexte")}
-          </p>
-          <p>
-            <b>{t("kitsTitre")}</b>
-            {t("kitsTexte")}
-          </p>
-        </div>
-        <div className="hv-boutons">
-          <Link href={cheminPublic(locale, "/cosplays")} data-mesure="clic_heros" className="hv-bouton hv-bouton-encre">
-            {t("voirCosplays")}
-          </Link>
-          <Link href={cheminPublic(locale, "/kits")} data-mesure="clic_heros" className="hv-bouton hv-bouton-rouge">
-            {t("decouvrirKits")}
-          </Link>
-        </div>
-        {media}
-        {cartes}
-        <p className="hv-signature">{t("signature")}</p>
       </div>
+      <Suspense fallback={null}>
+        <TuileVedette locale={locale} />
+      </Suspense>
     </section>
   );
 }

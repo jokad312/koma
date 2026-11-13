@@ -2658,7 +2658,7 @@ afin de voir la vitrine, retrouver mes achats ou gérer la boutique sans détour
 
 **Étant donné** un client connecté
 **Quand** il ouvre `/fr`
-**Alors** il arrive sur son espace personnel (commandes, kits, Pass, événements, accès rapides, « Découvrir la boutique ») ; chaque bloc vide affiche un message et un lien
+**Alors** il voit l'accueil public, comme un visiteur (option A, décision du 2026-11-13) ; son espace personnel `/fr/compte` (commandes, kits, Pass, événements, accès rapides, « Découvrir la boutique ») s'ouvre par « Mon compte » ; chaque bloc vide affiche un message et un lien
 
 **Étant donné** un admin
 **Quand** il se connecte sans retour précis

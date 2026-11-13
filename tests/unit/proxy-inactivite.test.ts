@@ -154,19 +154,14 @@ describe("proxy : déconnexion après inactivité", () => {
     expect(effacé(r, "koma_session_expiree")).toBe(true);
   });
 
-  it("client connecté sur l'accueil public : envoyé vers son espace personnel, dans sa langue", async () => {
-    for (const [chemin, cible] of [["/fr", "/fr/compte"], ["/en", "/en/compte"], ["/fr/", "/fr/compte"]] as const) {
-      const r = await proxy(demande(chemin, { ...cookieSession, koma_activite: String(Date.now() - 1000) }));
-      expect(r.status).toBe(307);
-      expect(new URL(r.headers.get("location")!).pathname).toBe(cible);
-      expect(r.headers.get("cache-control")).toBe("no-store");
+  it("client connecté (option A) : /fr, /en et « / » affichent l'accueil public, aucune redirection vers l'espace personnel", async () => {
+    const actif = { ...cookieSession, koma_activite: String(Date.now() - 1000) };
+    for (const chemin of ["/fr", "/en", "/fr/"]) {
+      const r = await proxy(demande(chemin, actif));
+      expect(r.headers.get("location") ?? "").not.toContain("/compte");
     }
-  });
-
-  it("client connecté sur « / » : un seul saut vers l'espace personnel", async () => {
-    const r = await proxy(demande("/", { ...cookieSession, koma_activite: String(Date.now() - 1000) }, "GET", { "accept-language": "en-US,en;q=0.9" }));
-    expect(r.status).toBe(307);
-    expect(new URL(r.headers.get("location")!).pathname).toBe("/en/compte");
+    const r = await proxy(demande("/", actif, "GET", { "accept-language": "en-US,en;q=0.9" }));
+    expect(new URL(r.headers.get("location")!).pathname).toBe("/en");
   });
 
   it("admin (koma_role) : /en, /en/compte et « / » mènent à /en/admin ; les pages publiques restent ouvertes", async () => {
@@ -191,11 +186,11 @@ describe("proxy : déconnexion après inactivité", () => {
     }
   });
 
-  it("jeton sans revendication de rôle (crochet absent) ou valeur inconnue : traité comme un client, /compte reste ouvert", async () => {
+  it("jeton sans revendication de rôle (crochet absent) ou valeur inconnue : traité comme un client, ni /fr ni /compte ne sont redirigés", async () => {
     const actif = { ...cookieSession, koma_activite: String(Date.now() - 1000) };
     for (const role of [undefined, "benevole", "TEST_inconnu"]) {
       etat.role = role;
-      expect(new URL((await proxy(demande("/fr", actif))).headers.get("location")!).pathname).toBe("/fr/compte");
+      expect((await proxy(demande("/fr", actif))).headers.get("location") ?? "").not.toContain("/compte");
       expect((await proxy(demande("/fr/compte", actif))).status).not.toBe(307);
     }
   });

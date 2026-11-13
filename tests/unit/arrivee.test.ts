@@ -31,7 +31,7 @@ describe("arriveeParDefaut", () => {
     expect(arriveeParDefaut("admin", "fr")).toBe("/fr/admin");
     expect(arriveeParDefaut("assistant", "en")).toBe("/en/admin/commandes");
     expect(arriveeParDefaut("benevole", "fr")).toBe("/fr/scan");
-    expect(arriveeParDefaut(null, "en")).toBe("/en/compte");
+    expect(arriveeParDefaut(null, "en")).toBe("/en");
   });
 });
 
@@ -65,29 +65,29 @@ describe("destinationApresConnexion", () => {
     expect(await destinationApresConnexion("/fr/panier", "fr")).toBe("/fr/panier");
   });
 
-  it("sans retour précis : admin → /admin, assistant → Commandes, client → /compte", async () => {
+  it("sans retour précis : admin → /admin, assistant → Commandes, client → accueil de la langue", async () => {
     faux.role = "admin";
     expect(await destinationApresConnexion("/fr", "fr")).toBe("/fr/admin");
     faux.role = "assistant";
     expect(await destinationApresConnexion("/en", "en")).toBe("/en/admin/commandes");
     faux.role = null;
-    expect(await destinationApresConnexion("/fr", "fr")).toBe("/fr/compte");
+    expect(await destinationApresConnexion("/fr", "fr")).toBe("/fr");
   });
 
-  it("bénévole : Scan seulement avec un accès valide maintenant, sinon espace personnel", async () => {
+  it("bénévole : Scan seulement avec un accès valide maintenant, sinon accueil", async () => {
     faux.role = null;
     faux.acces = [{ valide: false }, { valide: true }];
     expect(await destinationApresConnexion("/fr", "fr")).toBe("/fr/scan");
     faux.acces = [{ valide: false }];
-    expect(await destinationApresConnexion("/fr", "fr")).toBe("/fr/compte");
+    expect(await destinationApresConnexion("/fr", "fr")).toBe("/fr");
     faux.accesErreur = true;
-    expect(await destinationApresConnexion("/fr", "fr")).toBe("/fr/compte");
+    expect(await destinationApresConnexion("/fr", "fr")).toBe("/fr");
   });
 
-  it("lecture du rôle impossible : espace personnel, jamais l'admin", async () => {
+  it("lecture du rôle impossible : accueil, jamais l'admin", async () => {
     faux.roleErreur = true;
     vi.spyOn(console, "error").mockImplementation(() => {});
-    expect(await destinationApresConnexion("/fr", "fr")).toBe("/fr/compte");
+    expect(await destinationApresConnexion("/fr", "fr")).toBe("/fr");
   });
 
   it("sans session vérifiée : le retour tel quel", async () => {

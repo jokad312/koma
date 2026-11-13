@@ -1,16 +1,14 @@
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import { expect, test, type Page } from "@playwright/test";
-
-// Story 9.12 : accueils selon la connexion. Captures 1440 px de l'accueil visiteur (clair et sombre) placées à côté de la maquette
-// (docs/design/maquette-accueil/), espace personnel d'un client TEST_ (1440 et 375 px), arrivée de l'admin à la connexion.
+// Story 9.12 : accueils selon la connexion (option A du 2026-11-13). Accueil public à 375 px, espace personnel d'un client TEST_ (1440 et 375 px),
+// arrivée de l'admin à la connexion.
 // Les captures vont dans docs/captures-accueil/ (outil local, jamais commité). Comptes TEST_ créés par l'API d'administration de Supabase,
 // supprimés à la fin (aucune donnée TEST_ laissée sur la base) ; aucun paiement ni statut simulé (règle 13).
 
 const DOSSIER = join(process.cwd(), "docs", "captures-accueil");
-const MAQUETTE = join(process.cwd(), "docs", "design", "maquette-accueil");
 
 function lireEnv() {
   try {
@@ -22,26 +20,6 @@ function lireEnv() {
   const publique = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   const secrete = process.env.SUPABASE_SECRET_KEY;
   return url && publique && secrete ? { url, publique, secrete } : null;
-}
-
-async function poserTheme(page: Page, theme: "light" | "dark") {
-  await page.addInitScript((t) => {
-    try {
-      localStorage.setItem("ks-theme", t);
-    } catch {
-      // Stockage indisponible : l'attribut suffit.
-    }
-  }, theme);
-}
-
-// Capture et maquette côte à côte, à la même échelle, dans une seule image.
-async function coteACote(page: Page, capture: Buffer, maquette: string, sortie: string) {
-  const enLigne = (b: Buffer) => `data:image/png;base64,${b.toString("base64")}`;
-  await page.setViewportSize({ width: 1440, height: 470 });
-  await page.setContent(
-    `<body style="margin:0;display:flex;gap:8px;background:#888"><img style="width:716px" src="${enLigne(capture)}"><img style="width:716px" src="${enLigne(readFileSync(join(MAQUETTE, maquette)))}"></body>`,
-  );
-  await page.screenshot({ path: join(DOSSIER, sortie) });
 }
 
 // Compte TEST_ réel (créé par l'API d'administration, âge déclaré) et sa session posée dans le navigateur. Rôle facultatif, retiré avec le Compte.
@@ -84,47 +62,6 @@ async function connecterCompteTest(page: Page, env: NonNullable<ReturnType<typeo
   return nettoyer;
 }
 
-test.describe("accueil visiteur : maquette « fusion » à 1440 px", () => {
-  test.use({ viewport: { width: 1440, height: 900 }, isMobile: false, hasTouch: false, deviceScaleFactor: 1 });
-  test.describe.configure({ timeout: 120_000 });
-
-  for (const [theme, maquette] of [
-    ["light", "fusion-creme.png"],
-    ["dark", "fusion-sombre.png"],
-  ] as const) {
-    test(`capture ${theme} à côté de ${maquette}`, async ({ page }) => {
-      mkdirSync(DOSSIER, { recursive: true });
-      await poserTheme(page, theme);
-      const reponse = await page.goto("/fr");
-      expect(reponse?.status()).toBe(200);
-      await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-      await page.waitForLoadState("networkidle");
-      const capture = await page.screenshot();
-      writeFileSync(join(DOSSIER, `visiteur-1440-${theme}.png`), capture);
-      await coteACote(page, capture, maquette, `cote-a-cote-${theme}.png`);
-    });
-  }
-
-  test("bouton rond « compte » : à droite du Panier, clavier, Échap ferme et rend le focus", async ({ page }) => {
-    await page.goto("/fr");
-    const bouton = page.getByRole("button", { name: "Se connecter" });
-    await expect(bouton).toBeVisible();
-    const panier = await page.locator(".lien-panier").boundingBox();
-    const rond = await bouton.boundingBox();
-    expect(rond!.x).toBeGreaterThan(panier!.x);
-    expect(rond!.width).toBeGreaterThanOrEqual(44);
-    await bouton.focus();
-    await page.keyboard.press("Enter");
-    await expect(bouton).toHaveAttribute("aria-expanded", "true");
-    await expect(page.getByRole("link", { name: "Se connecter" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Thème sombre" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "English" })).toBeVisible();
-    await page.keyboard.press("Escape");
-    await expect(bouton).toHaveAttribute("aria-expanded", "false");
-    await expect(bouton).toBeFocused();
-  });
-});
-
 test.describe("accueil visiteur à 375 px", () => {
   test("une colonne, sans défilement horizontal", async ({ page }) => {
     await page.goto("/fr");
@@ -138,12 +75,14 @@ test.describe("arrivées des personnes connectées", () => {
   test.describe.configure({ timeout: 180_000, mode: "serial" });
   const env = lireEnv();
 
-  test("client : /fr mène à son espace personnel ; blocs vides avec message et lien ; captures 1440 et 375", async ({ page }) => {
+  test("client : /fr reste l'accueil public (option A) ; espace personnel ouvert par /compte, blocs vides avec message et lien ; captures 1440 et 375", async ({ page }) => {
     test.skip(!env, "Variables Supabase absentes : aucun Compte TEST_ ne peut être créé.");
     mkdirSync(DOSSIER, { recursive: true });
     const nettoyer = await connecterCompteTest(page, env!);
     try {
       await page.goto("/fr");
+      await expect(page).toHaveURL(/\/fr$/);
+      await page.goto("/fr/compte");
       await expect(page).toHaveURL(/\/fr\/compte$/);
       await expect(page.getByRole("heading", { level: 1, name: "Bonjour TEST Espace" })).toBeVisible();
       for (const titre of ["Mes commandes", "Mes kits", "Mes Pass", "Mes événements", "Accès rapides", "Découvrir la boutique"]) {

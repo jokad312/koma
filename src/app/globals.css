@@ -28,10 +28,6 @@
   --ks-qr-background: #ffffff;
   --ks-hero-wash-start: #fbf8f2;
   --ks-hero-wash-end: #eadfcc;
-  /* Halo rouge doux du héros : 25 % sur crème, 40 % sur sombre (DESIGN.md). */
-  --ks-hero-halo: 25%;
-  /* Mot géant du héros : beige chaud du dégradé (jeton existant) en clair, encre à 5 % en sombre. */
-  --ks-mot-geant: var(--ks-hero-wash-end);
   --ks-tile-red-start: #e3261c;
   --ks-tile-red-end: #9e1a12;
   --ks-tile-ink-start: #5a4c3e;
@@ -63,8 +59,6 @@
   --ks-qr-background: #ffffff;
   --ks-hero-wash-start: #2a221b;
   --ks-hero-wash-end: #16130f;
-  --ks-hero-halo: 40%;
-  --ks-mot-geant: #f3eee40d;
   --ks-tile-red-start: #e3261c;
   --ks-tile-red-end: #7a1a12;
   --ks-tile-ink-start: #4a3d31;
@@ -275,56 +269,6 @@ a {
 }
 @media (min-width: 64rem) {
   .titre-vitrine[data-police="sakura"] { font-size: 64px; }
-}
-
-/* ---------- Haut de l'accueil (spec refonte-haut-accueil) ---------- */
-
-/* Halo lumineux derrière la photo vedette : rouge doux, jamais sous du texte. */
-.halo-heros {
-  background: radial-gradient(ellipse at 50% 55%, color-mix(in srgb, var(--ks-primary) var(--ks-hero-halo), transparent), transparent 62%);
-}
-/* Mot géant en filigrane (décoratif, aria-hidden côté composant) : couleur très proche du fond, en texte. */
-.mot-geant {
-  font-family: var(--font-condensee);
-  font-weight: 800;
-  text-transform: uppercase;
-  line-height: 0.8;
-  letter-spacing: -0.02em;
-  font-size: clamp(6rem, 29vw, 26.25rem);
-  color: var(--ks-mot-geant);
-}
-.mot-geant::before {
-  content: attr(data-mot);
-}
-/* Héros sans photo (aucun Cosplay vedette publié) : tout est centré sur une seule colonne, sans colonne vide.
-   Les déclarations de grille sont en !important : ces règles sont dans la couche components et doivent l'emporter sur les classes
-   de grille de la page (couche utilities). */
-.heros-grille:has(.sans-media) {
-  grid-template-columns: minmax(0, 40rem) !important;
-  grid-template-rows: none !important;
-  justify-content: center;
-  text-align: center;
-}
-.heros-grille:has(.sans-media) > * {
-  grid-column: 1 !important;
-  grid-row: auto !important;
-}
-.heros-grille:has(.sans-media) .heros-boutons {
-  justify-content: center;
-}
-.heros-grille:has(.sans-media) > div:first-child > span[aria-hidden="true"] {
-  align-self: center;
-}
-.heros-grille:has(.sans-media) > div:nth-child(2) .t-label {
-  justify-content: center;
-}
-.heros-grille:has(.sans-media) ul {
-  justify-content: center;
-}
-section:has(.sans-media) > .mot-geant {
-  right: auto !important;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 /* ---------- Verre (UX-DR6) ---------- */

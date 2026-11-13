@@ -104,9 +104,9 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Arrivées selon la connexion (story 9.12) : une personne connectée sur l'accueil public (« / », /fr, /en) va à son espace personnel
-  // (/[l]/compte) ; l'admin et l'assistant (revendication koma_role du jeton) vont à l'admin, aussi depuis /[l]/compte. Aucune lecture en base
-  // ici : sans revendication (crochet non activé), la personne est traitée comme un client. Les pages revérifient les droits côté serveur.
+  // Arrivées selon la connexion (story 9.12, option A du 2026-11-13) : l'accueil public est le même pour tous ; seuls l'admin et l'assistant
+  // (revendication koma_role du jeton) sont envoyés à l'admin depuis « / », /fr, /en et /[l]/compte. Aucune lecture en base ici : sans
+  // revendication (crochet non activé), aucune redirection. Les pages revérifient les droits côté serveur.
   // Après une expiration de la session, la personne est un visiteur : aucune redirection.
   // « Voir le site » de l'admin (?vue=site) : la personne veut l'accueil public, aucun aiguillage.
   const vueSite = request.nextUrl.searchParams.get("vue") === "site";
@@ -114,8 +114,7 @@ export async function proxy(request: NextRequest) {
   if (sessionOuverte && request.method === "GET" && !vueSite) {
     const langueAccueil = routing.locales.find((l) => chemin === `/${l}` || chemin === `/${l}/`);
     const langueCompte = routing.locales.find((l) => chemin === `/${l}/compte` || chemin === `/${l}/compte/`);
-    const versAdmin = roleJeton !== null;
-    if (chemin === "/" || langueAccueil || (langueCompte && versAdmin)) {
+    if (roleJeton !== null && (chemin === "/" || langueAccueil || langueCompte)) {
       const langue = langueAccueil ?? langueCompte ?? choisirLangue(request.cookies.get(NOM_COOKIE_LANGUE)?.value, request.headers.get("accept-language"));
       // Nouvelle adresse (pas un clone) : « /fr/ » ne doit pas donner « /fr/compte/ ».
       const cible = new URL(arriveeParDefaut(roleJeton, langue), request.url);
