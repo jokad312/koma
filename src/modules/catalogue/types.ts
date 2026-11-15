@@ -9,6 +9,13 @@ export const FAMILLES_PHYSIQUES = ["cosplay", "accessoire"] as const;
 export type FamillePhysique = (typeof FAMILLES_PHYSIQUES)[number];
 
 export const FAMILLES_PRODUIT = ["cosplay", "accessoire", "kit"] as const;
+
+// Seule règle « physique ou numérique » (règle 10, décision de Jonathan du 2026-11-15) : le Kit est numérique, TOUTE autre famille est physique,
+// y compris une famille ajoutée plus tard. Jamais une liste de familles physiques, qui pourrait en oublier une (et envoyer un article physique
+// chez Polar).
+export function estFamillePhysique(famille: string): boolean {
+  return famille !== "kit";
+}
 export type FamilleProduit = (typeof FAMILLES_PRODUIT)[number];
 
 // Niveau d'un Kit (Débutant / Intermédiaire / Avancé ; Beginner / Intermediate / Advanced).

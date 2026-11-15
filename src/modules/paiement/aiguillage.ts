@@ -1,3 +1,4 @@
+import { estFamillePhysique } from "@/modules/catalogue/types";
 import type { Achat, CodePrestataire, Couverture, MoyenPaiement } from "./types";
 
 // Raison pour laquelle aucun Prestataire n'est proposé. Aucune substitution : un Prestataire n'est jamais inventé ni remplacé.
@@ -20,7 +21,7 @@ export type EntreeAiguillage = {
 };
 
 // Seule source du choix de Prestataire (AD-6, règles 9 à 11). Fonction pure : les Familles viennent de la base, lues par le service.
-//  - carte + Pass, ou carte + au moins un Produit physique (cosplay, accessoire) : MaishaPay, jamais Polar ;
+//  - carte + Pass, ou carte + au moins un Produit physique (toute famille autre que Kit) : MaishaPay, jamais Polar ;
 //  - carte + Panier 100 % numérique (Kits) : Polar, sinon « carte indisponible » ;
 //  - mobile money : premier Agrégateur actif, non exclu, qui couvre le couple pays-opérateur, dans l'ordre de priorité.
 export function choisirPrestataire(entree: EntreeAiguillage): ChoixPrestataire {
@@ -29,7 +30,7 @@ export function choisirPrestataire(entree: EntreeAiguillage): ChoixPrestataire {
 
   if (moyen === "carte") {
     if (!achat.estPass && achat.familles.length === 0) return { statut: "indisponible", raison: "carte_indisponible" };
-    const physique = achat.familles.some((f) => f === "cosplay" || f === "accessoire");
+    const physique = achat.familles.some((f) => estFamillePhysique(f));
     if (achat.estPass || physique) {
       return actifs.has("maishapay") ? { statut: "ok", prestataire: "maishapay" } : { statut: "indisponible", raison: "carte_indisponible" };
     }

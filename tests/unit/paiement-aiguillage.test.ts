@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { choisirPrestataire, type EntreeAiguillage } from "@/modules/paiement/aiguillage";
 import type { Achat, CodePrestataire, Couverture } from "@/modules/paiement/types";
+import { estFamillePhysique, FAMILLES_PRODUIT } from "@/modules/catalogue/types";
 
 const TOUS: CodePrestataire[] = ["pawapay", "maishapay", "polar"];
 const ORDRE: CodePrestataire[] = ["pawapay", "maishapay"];
@@ -96,5 +97,32 @@ describe("choisirPrestataire : mobile money (règle 9)", () => {
   });
   it("un Pass se paie par mobile money comme un autre achat", () => {
     expect(choisirPrestataire(mm({ achat: pass }))).toEqual({ statut: "ok", prestataire: "pawapay" });
+  });
+});
+
+// Décision de Jonathan du 2026-11-15 (story 9.15) : Kit = numérique, TOUTE autre famille = physique, y compris une famille ajoutée plus tard.
+// Le test parcourt les familles connues ET des familles futures ou inconnues : aucun panier contenant autre chose qu'un Kit ne part chez Polar.
+describe("choisirPrestataire : toutes les familles (règle 10)", () => {
+  const FAMILLES_A_TESTER = [...FAMILLES_PRODUIT, "vetement", "autre", "TEST_famille_future"] as const;
+
+  it("estFamillePhysique : seul le Kit est numérique", () => {
+    for (const f of FAMILLES_A_TESTER) expect(estFamillePhysique(f)).toBe(f !== "kit");
+  });
+
+  for (const famille of FAMILLES_A_TESTER.filter((f) => f !== "kit")) {
+    it(`« ${famille} » seul, ou mêlé à un Kit, ou à un Pass, par carte : MaishaPay, jamais Polar`, () => {
+      for (const familles of [[famille], [famille, "kit"], ["kit", famille]]) {
+        const achat = { familles, estPass: false } as unknown as Achat;
+        expect(choisirPrestataire(entree({ achat }))).toEqual({ statut: "ok", prestataire: "maishapay" });
+        // Même si MaishaPay est inactif, Polar ne le remplace jamais.
+        expect(choisirPrestataire(entree({ achat, prestatairesActifs: ["polar"] }))).toEqual({ statut: "indisponible", raison: "carte_indisponible" });
+      }
+      const avecPass = { familles: [famille], estPass: true } as unknown as Achat;
+      expect(choisirPrestataire(entree({ achat: avecPass }))).toEqual({ statut: "ok", prestataire: "maishapay" });
+    });
+  }
+
+  it("seuls des Kits, par carte : Polar", () => {
+    expect(choisirPrestataire(entree({ achat: { familles: ["kit", "kit"], estPass: false } }))).toEqual({ statut: "ok", prestataire: "polar" });
   });
 });
