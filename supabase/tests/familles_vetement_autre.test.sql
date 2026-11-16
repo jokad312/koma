@@ -113,7 +113,8 @@ select is((public.ajouter_au_panier(pg_temp.vis(), (select b from vpn), null, (s
 select public.fusionner_panier(pg_temp.c2(), '00000000-0000-0000-0000-0000000009a2', (select a from vpn));
 create temp table vr as select public.recapitulatif_commande('00000000-0000-0000-0000-0000000009a2', (select a from vpn), 'goma', 'retrait') as r;
 grant select on vr to public;
-select is((select (r -> 'lignes' -> 0 ->> 'couleur_fr') from vr), 'Noir', 'Récapitulatif : la couleur de la ligne');
+-- Deux lignes ajoutées dans la même transaction (même cree_le) : leur ordre dépend de l'id aléatoire. On lit la ligne du polo par son produit.
+select is((select l ->> 'couleur_fr' from vr, jsonb_array_elements(r -> 'lignes') as l where (l ->> 'produit_id')::uuid = (select polo from vp)), 'Noir', 'Récapitulatif : la couleur de la ligne');
 -- Deux paniers contiennent déjà le dernier M Noir (c2 et c3) : la première Commande le réserve, la seconde est refusée.
 create temp table vpn2 as select public.creer_panier(pg_temp.vis()) as a;
 grant select on vpn2 to public;
