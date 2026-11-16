@@ -12,7 +12,8 @@ const CATEGORIES = [
   { cle: "kits", interne: "/kits" },
 ] as const;
 
-// Tuiles de texte (aucune image : règle 6) vers les cinq catalogues. Une colonne sous 360 px, deux au-delà.
+// Tuiles de texte (aucune image : règle 6) vers les cinq catalogues. Une colonne sous 480 px, deux au-delà (9.16 a : en 16 px,
+// la carte Kits faisait 9 lignes sur deux colonnes à 390 px).
 // L'élévation au survol et au focus n'existe qu'en mouvement normal.
 export function TuilesCategories({ niveau = 2 }: { niveau?: 2 | 3 } = {}) {
   const t = useTranslations("Accueil.categories");
@@ -22,7 +23,7 @@ export function TuilesCategories({ niveau = 2 }: { niveau?: 2 | 3 } = {}) {
       <div id="accueil-categories">
         <TitreVitrine niveau={niveau}>{t("titre")}</TitreVitrine>
       </div>
-      <ul className="grid grid-cols-1 gap-ecart-cartes min-[360px]:grid-cols-2">
+      <ul className="grid grid-cols-1 gap-ecart-cartes min-[480px]:grid-cols-2">
         {CATEGORIES.map(({ cle, interne }) => (
           <li key={cle}>
             <Link

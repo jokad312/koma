@@ -215,7 +215,7 @@ export function EnvoiPhotoClient({ kits }: { kits?: KitPaye[] } = {}) {
         </label>
         {afficherNom ? (
           <div className="flex flex-col gap-1">
-            <label htmlFor={ids.nom} className="t-small font-semibold text-text-primary">
+            <label htmlFor={ids.nom} className="t-small text-text-primary">
               {t("affichage.nom")}
             </label>
             <input
@@ -238,7 +238,7 @@ export function EnvoiPhotoClient({ kits }: { kits?: KitPaye[] } = {}) {
         </label>
         {afficherVille ? (
           <div className="flex flex-col gap-1">
-            <label htmlFor={ids.ville} className="t-small font-semibold text-text-primary">
+            <label htmlFor={ids.ville} className="t-small text-text-primary">
               {t("affichage.ville")}
             </label>
             <input

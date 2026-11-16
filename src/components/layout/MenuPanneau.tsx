@@ -36,11 +36,11 @@ export function MenuPanneau({ children }: { children: ReactNode }) {
     if ((e.target as HTMLElement).closest("a")) setOuvert(false);
   }
 
-  // Le menu est réservé au mobile : il se ferme si la fenêtre passe à lg ou plus.
+  // Le menu sert sous 1280 px (xl, comme EnTete.tsx depuis 9.16 a) : il se ferme si la fenêtre passe à xl ou plus.
   useEffect(() => {
     if (!ouvert) return;
     if (!window.matchMedia) return;
-    const mq = window.matchMedia("(min-width: 64rem)");
+    const mq = window.matchMedia("(min-width: 80rem)");
     const surChangement = () => mq.matches && setOuvert(false);
     surChangement();
     mq.addEventListener("change", surChangement);
@@ -56,7 +56,7 @@ export function MenuPanneau({ children }: { children: ReactNode }) {
         aria-controls={ouvert ? idPanneau : undefined}
         aria-haspopup="dialog"
         onClick={() => setOuvert(true)}
-        className="t-small inline-flex min-h-touch items-center gap-2 rounded-full border border-border-field bg-surface px-4 text-text-primary"
+        className="t-small inline-flex min-h-touch items-center gap-2 rounded-full border border-border-field bg-surface px-4 text-text-primary max-[359px]:gap-1.5 max-[359px]:px-3"
       >
         <span aria-hidden="true">{GLYPHE_MENU}</span>
         <span>{t("ouvrir")}</span>

@@ -42,7 +42,7 @@ export function StatutTaille({ courante }: { courante: TailleFiche | null }) {
   };
   return courante ? (
     <>
-      <p className="font-semibold">{libelleEtat(courante)}</p>
+      <p>{libelleEtat(courante)}</p>
       {courante.etat === "sur_commande" && courante.delaiJours !== null ? <p>{t("delai", { n: courante.delaiJours })}</p> : null}
     </>
   ) : (
@@ -59,7 +59,7 @@ export function SelecteurTaille({ tailles, choisie, onChoisir }: Props) {
 
   return (
     <fieldset className="flex flex-col gap-3">
-      <legend className="t-small mb-2 font-semibold">{t("legende")}</legend>
+      <legend className="t-small mb-2">{t("legende")}</legend>
       <div className="flex flex-wrap gap-2">
         {tailles.map((x) => (
           <label key={x.taille} className={OPTION}>

@@ -56,7 +56,6 @@ Variables utilisées aujourd'hui :
 - `NEXT_PUBLIC_SITE_URL` : adresse publique du site
 - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` : projet Supabase, côté navigateur
 - `SUPABASE_SECRET_KEY` : clé secrète, serveur seulement
-- `NEXT_PUBLIC_TITRES_SAKURA` : option des titres en Sakura Town (éteinte par défaut, licence en attente)
 - `MAILPIT_URL` : tests e2e de connexion seulement
 - `KOMA_VERIFIER_TEXTES` : à poser à `true` (ou `1`, casse ignorée ; toute autre valeur non vide est signalée sur stderr) uniquement dans les variables de l'application Node.js sur Hostinger. Le build (`prebuild`, `scripts/verifier-marqueurs.mjs`) échoue alors en nommant les clés tant qu'un texte « [Texte à fournir] » reste dans une page publique (À propos, FAQ, Contact). Absente de la CI, du développement et du build local : le marqueur reste affiché.
 

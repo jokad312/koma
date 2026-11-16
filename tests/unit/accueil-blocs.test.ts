@@ -1,7 +1,6 @@
 import { readFileSync } from "node:fs";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { cheminPublic } from "@/i18n/adresses";
-import { retirerAccents, sakuraCouvre } from "@/lib/typo/titre";
 import { faqJsonLd } from "@/lib/seo/jsonld";
 import { contientMarqueur, ESPACES_PUBLICS, MARQUEUR_TEXTE, trouverMarqueurs } from "@/lib/vitrine/marqueur";
 import { BLOCS_ACCUEIL, blocsAffiches, NB_COSPLAYS_ACCUEIL, QUESTIONS_FAQ_COURTE } from "@/modules/accueil/blocs";
@@ -91,13 +90,9 @@ describe("textes de l'accueil", () => {
       expect(accueil.jonathan.signature).toBe("— Jonathan");
     });
 
-    it(`${langue} : titres de blocs en majuscules, avec leurs accents (retirés au rendu seulement si Sakura Town est active)`, () => {
+    it(`${langue} : titres de blocs en majuscules, avec leurs accents`, () => {
       const titres = [accueil.categories.titre, accueil.kits.titre, accueil.cosplaysRecents.titre, accueil.jonathan.titre, accueil.bloc7.titre, accueil.faqCourte.titre];
-      for (const titre of titres) {
-        expect(titre).toBe(titre.toUpperCase());
-        // Avec Sakura Town active, le titre sans accents doit rester couvert par la police (sinon il passe en Barlow).
-        expect(sakuraCouvre(retirerAccents(titre))).toBe(true);
-      }
+      for (const titre of titres) expect(titre).toBe(titre.toUpperCase());
       if (langue === "fr") {
         expect(accueil.categories.titre).toBe("CATÉGORIES");
         expect(accueil.faqCourte.titre).toBe("RÉPONSES RAPIDES");

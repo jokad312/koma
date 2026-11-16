@@ -40,7 +40,7 @@ export function DoubleOption({
   return (
     <div className="flex flex-col gap-6">
       <fieldset className="flex flex-col gap-2">
-        <legend className="t-small mb-2 font-semibold">{t("libelle")}</legend>
+        <legend className="t-small mb-2">{t("libelle")}</legend>
         <div className="flex flex-wrap gap-2">
           <label className={OPTION}>
             <input

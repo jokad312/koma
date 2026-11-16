@@ -61,7 +61,7 @@ export function BandeauNavigateurIntegreClient({ plateforme }: { plateforme: Pla
     <section aria-labelledby={idTitre} className="border-b border-border bg-surface">
       <div className="mx-auto flex w-full max-w-7xl items-start gap-3 px-marge py-3">
         <div className="flex flex-1 flex-col items-start gap-3">
-          <p id={idTitre} className="t-small font-semibold">
+          <p id={idTitre} className="t-small">
             {t("nom")}
           </p>
           <p className="t-small">{t("texte")}</p>

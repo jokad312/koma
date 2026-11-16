@@ -79,7 +79,7 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }:
     <header className="entete-collant verre-fort sticky top-0 z-30 h-entete rounded-none border-x-0 border-t-0">
       <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between gap-3 px-marge">
         <Link href="/" className="inline-flex min-h-touch items-center">
-          <span className="relative block aspect-[530/124] w-[156px] overflow-hidden lg:w-[190px]">
+          <span className="relative block aspect-[530/124] w-[156px] overflow-hidden max-[359px]:w-[132px] lg:w-[190px]">
             {/* Deux fichiers d'origine, jamais recolorés : un seul est affiché (display) selon [data-theme], donc un seul est exposé aux technologies d'assistance. */}
             <Image
               src="/logo/logo-principal.svg"
@@ -103,9 +103,11 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }:
             />
           </span>
         </Link>
-        <div className="hidden lg:block">{liensOrdinateur}</div>
+        {/* Liens et réglages dans l'en-tête à partir de 1280 px (xl), menu ☰ en dessous : avec KOMA Chikara et les 16 px (9.16 a), l'en-tête
+            d'une personne connectée débordait à 1024 px (décision de Jonathan du 2026-11-16). */}
+        <div className="hidden xl:block">{liensOrdinateur}</div>
         <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-2 lg:flex">
+          <div className="hidden items-center gap-2 xl:flex">
             <BasculeTheme />
             <Suspense fallback={<LangueRepli />}>
               <SelecteurLangue sansTraduction={sansTraduction} />
@@ -117,7 +119,7 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }:
           <Suspense fallback={<LienPanier nombre={null} />}>
             <ZonePanier />
           </Suspense>
-          <div className="lg:hidden">
+          <div className="xl:hidden">
             <MenuPanneau>
               {liensMobile}
               {murPublie ? (

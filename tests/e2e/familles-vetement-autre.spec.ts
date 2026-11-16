@@ -272,8 +272,18 @@ insert into public.ligne_commande (commande_id, produit_id, variante_id, origine
     await expect(page.getByRole("button", { name: "Ajouter au panier" })).toBeVisible();
   });
 
-  test("menu « Boutique » de l'en-tête à 1024 px : ouverture, cinq liens, Échap ; aucun défilement horizontal", async ({ page }) => {
+  // Depuis 9.16 a, les liens de l'en-tête commencent à 1280 px ; à 1024 px, ils sont dans le menu ☰.
+  test("en-tête à 1024 px : menu ☰, pas de bouton « Boutique » dans la barre, aucun défilement horizontal", async ({ page }) => {
     await page.setViewportSize({ width: 1024, height: 800 });
+    await page.goto("/fr/vetements", { waitUntil: "networkidle" });
+    await expect(page.getByRole("button", { name: "Menu", exact: true })).toBeVisible();
+    // getByRole ignore les éléments cachés : 0 bouton « Boutique » visible tant que le menu ☰ est fermé.
+    await expect(page.locator("header").getByRole("button", { name: "Boutique" })).toHaveCount(0);
+    expect(await sansDefilement(page)).toBe(true);
+  });
+
+  test("menu « Boutique » de l'en-tête à 1280 px : ouverture, cinq liens, Échap ; aucun défilement horizontal", async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto("/fr/vetements", { waitUntil: "networkidle" });
     expect(await sansDefilement(page)).toBe(true);
     const bouton = page.getByRole("button", { name: "Boutique" });

@@ -1,6 +1,47 @@
 @import "tailwindcss";
 
 /*
+ * Replis de KOMA Chikara (9.16 a), avant que le woff2 n'arrive (font-display: swap) : une police installée, élargie (size-adjust)
+ * et recalée en hauteur (ascent/descent-override) pour occuper la même place que KOMA Chikara, afin que la page ne bouge pas à
+ * l'échange. Arial d'abord (Windows, macOS, iPhone), Roboto ensuite (Android, qui n'a pas Arial). Deux réglages, mesurés dans
+ * Chromium sur les textes du site (2026-11-16) : texte courant (largeur KOMA / Arial 1,2029, KOMA / Roboto 1,2156) et majuscules
+ * des titres (1,0273 et 1,1154). Hauteurs : KOMA Chikara a 880 / 144 sur 1 024 (ascent 85,94 %, descent 14,06 %, divisés par size-adjust).
+ * À remesurer si la police change.
+ */
+@font-face {
+  font-family: "KOMA Repli Arial";
+  src: local("Arial"), local("ArialMT");
+  size-adjust: 120.29%;
+  ascent-override: 71.44%;
+  descent-override: 11.69%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "KOMA Repli Roboto";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  size-adjust: 121.56%;
+  ascent-override: 70.70%;
+  descent-override: 11.57%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "KOMA Repli Arial Capitales";
+  src: local("Arial"), local("ArialMT");
+  size-adjust: 102.73%;
+  ascent-override: 83.65%;
+  descent-override: 13.69%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: "KOMA Repli Roboto Capitales";
+  src: local("Roboto"), local("Roboto Regular"), local("Roboto-Regular");
+  size-adjust: 111.54%;
+  ascent-override: 77.05%;
+  descent-override: 12.61%;
+  line-gap-override: 0%;
+}
+
+/*
  * Thème « Sumi & washi » : valeurs exactes de DESIGN.md (UX-DR1 à UX-DR7).
  * Crème par défaut ; sombre quand <html data-theme="dark"> (posé avant le premier rendu par le script de <head>).
  * Un seul rouge : #D7261E. Texte des boutons rouges : #FFFFFF.
@@ -88,8 +129,13 @@
   --color-scan-refuse: var(--ks-scan-refuse);
   --color-scan-texte: var(--ks-scan-texte);
 
-  --font-corps: var(--font-barlow), system-ui, sans-serif;
-  --font-condensee: var(--font-barlow-condensed), "Arial Narrow", system-ui, sans-serif;
+  /* Police unique KOMA Chikara (9.16 a) : les deux noms historiques restent, pour les rôles t-* et font-condensee.
+     La variable de next/font vaut « "komaChikara", KOMA Repli Arial, KOMA Repli Roboto, system-ui, sans-serif » : replis réglés (en
+     haut de ce fichier), puis polices système pour tout caractère absent (japonais, accent rare, emoji). --font-capitales : même police,
+     replis réglés sur les majuscules, pour les rôles et éléments en text-transform: uppercase (« komaChikara » : nom posé par next/font). */
+  --font-corps: var(--font-koma-chikara);
+  --font-condensee: var(--font-koma-chikara);
+  --font-capitales: "komaChikara", "KOMA Repli Arial Capitales", "KOMA Repli Roboto Capitales", system-ui, sans-serif;
 }
 
 @theme {
@@ -127,6 +173,9 @@ body {
   font-size: 16px;
   line-height: 26px;
   overflow-wrap: break-word;
+  /* Un seul poids dessiné : jamais de gras ni d'italique fabriqués par le navigateur. La hiérarchie vient de la taille,
+     de la couleur et des majuscules. Aucun texte sous 16 px (tests/unit/taille-minimale-texte.test.ts). */
+  font-synthesis: none;
 }
 
 ::selection {
@@ -152,10 +201,11 @@ a {
 }
 }
 
-/* ---------- Rôles typographiques (DESIGN.md › typography), mobile 375 px ---------- */
+/* ---------- Rôles typographiques (DESIGN.md › typography), mobile 375 px ----------
+   KOMA Chikara, un seul poids (400) : aucun font-weight ni font-style dans les rôles ; 16 px minimum partout. */
 
 @utility t-display-brush {
-  font-family: var(--font-condensee);
+  font-family: var(--font-capitales);
   font-size: 44px;
   line-height: 1;
   text-transform: uppercase;
@@ -164,9 +214,7 @@ a {
   }
 }
 @utility t-display {
-  font-family: var(--font-condensee);
-  font-weight: 800;
-  font-style: italic;
+  font-family: var(--font-capitales);
   font-size: 52px;
   line-height: 50px;
   letter-spacing: -0.005em;
@@ -177,8 +225,7 @@ a {
   }
 }
 @utility t-h1 {
-  font-family: var(--font-condensee);
-  font-weight: 700;
+  font-family: var(--font-capitales);
   font-size: 38px;
   line-height: 40px;
   text-transform: uppercase;
@@ -188,8 +235,7 @@ a {
   }
 }
 @utility t-h2 {
-  font-family: var(--font-condensee);
-  font-weight: 700;
+  font-family: var(--font-capitales);
   font-size: 30px;
   line-height: 34px;
   letter-spacing: 0.01em;
@@ -201,33 +247,28 @@ a {
 }
 @utility t-h3 {
   font-family: var(--font-condensee);
-  font-weight: 600;
   font-size: 20px;
   line-height: 24px;
 }
 @utility t-body {
   font-family: var(--font-corps);
-  font-weight: 400;
   font-size: 16px;
   line-height: 26px;
 }
 @utility t-small {
   font-family: var(--font-corps);
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 20px;
+  font-size: 16px;
+  line-height: 24px;
 }
 @utility t-label {
-  font-family: var(--font-condensee);
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 18px;
+  font-family: var(--font-capitales);
+  font-size: 16px;
+  line-height: 20px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 @utility t-button {
-  font-family: var(--font-condensee);
-  font-weight: 600;
+  font-family: var(--font-capitales);
   font-size: 18px;
   line-height: 20px;
   letter-spacing: 0.06em;
@@ -235,13 +276,11 @@ a {
 }
 @utility t-price-card {
   font-family: var(--font-condensee);
-  font-weight: 700;
   font-size: 20px;
   line-height: 24px;
 }
 @utility t-price-page {
   font-family: var(--font-condensee);
-  font-weight: 700;
   font-size: 38px;
   line-height: 40px;
   @media (min-width: 64rem) {
@@ -253,24 +292,6 @@ a {
 /* Ordinateur (>= lg) : tailles x 1,25 [HYPOTHÈSE D-2], portées par les utilitaires ci-dessus. */
 
 @layer components {
-/*
- * Grand titre de vitrine (UX-DR4) : Sakura Town seulement si l'option est active ET si le composant TitreVitrine
- * a vérifié côté serveur que tous les caractères existent dans la police (data-police="sakura").
- * Sans fichier de police, la liste de familles retombe sur Barlow Condensed.
- */
-.titre-vitrine[data-police="sakura"] {
-  font-family: "Sakura Town", var(--font-condensee);
-  font-weight: 400;
-  font-style: normal;
-  text-transform: uppercase;
-  font-size: 44px;
-  line-height: 1;
-  letter-spacing: 0;
-}
-@media (min-width: 64rem) {
-  .titre-vitrine[data-police="sakura"] { font-size: 64px; }
-}
-
 /* ---------- Verre (UX-DR6) ---------- */
 
 .verre,

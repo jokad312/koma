@@ -13,7 +13,7 @@ sources:
   - ./mockups/typography-1.html
   - ./mockups/key-*.html
   - ./imports/logos/
-  - ./imports/fonts/Sakura Town.otf
+  - "{project-root}/src/fonts/koma-chikara/"
 colors:
   # Constantes de marque (tirées des SVG du logo) — jamais modifiées
   brand-red: '#D7261E'
@@ -64,74 +64,65 @@ colors:
   tile-ink-start-dark: '#4A3D31'
   tile-ink-end-dark: '#211C17'
 typography:
-  # Échelle « Affiche shōnen » rendue à 375 px (mockups/typography-1.html, duo 5)
-  # Ordinateur (>= lg) : [HYPOTHÈSE] tailles x 1,25, interlignage proportionnel (D-2 ouverte)
+  # Police UNIQUE : KOMA Chikara (dérivée de 851 Chikara Dzuyoku, licence vérifiée : docs/licences/polices.md), story 9.16 a, 2026-11-16.
+  # Un seul poids (400) : aucun fontWeight ni italique (font-synthesis: none) ; hiérarchie par la taille, la couleur et les majuscules.
+  # Règle : aucun texte sous 16 px (test automatique tests/unit/taille-minimale-texte.test.ts).
+  # Repli : komaChikara Fallback (Arial aux métriques ajustées), puis system-ui, sans-serif pour les caractères absents (japonais, emoji).
+  # Ordinateur (>= lg) : tailles x 1,25 [HYPOTHÈSE D-2], portées par les utilitaires t-* de globals.css.
   display-brush:
-    fontFamily: 'Sakura Town'
-    fontSize: 52px                  # [HYPOTHÈSE] ; rendu : 42px accroche mobile, 44px titres de section et nom de produit mobile ; jamais < 40px
+    fontFamily: 'KOMA Chikara'
+    fontSize: 44px                  # ordinateur 60 px
     lineHeight: '1'
     textTransform: uppercase
-    note: 'Police PRINCIPALE des grands titres de vitrine. Fichier local imports/fonts/Sakura Town.otf (pas Google Fonts). Titres rédigés SANS accent, affichés en MAJUSCULES (text-transform), texte HTML réel. Titre saisi par l admin avec accent : bascule ENTIÈRE en Barlow Condensed. Licence webfont requise avant mise en ligne.'
   display:
-    fontFamily: 'Barlow Condensed'
+    fontFamily: 'KOMA Chikara'
     fontSize: 52px
-    fontWeight: '800'
-    fontStyle: italic
     lineHeight: 50px
     letterSpacing: -0.005em
-    note: 'Majuscules par text-transform ; italique réservé à l’accroche du héros'
-  h1:
-    fontFamily: 'Barlow Condensed'
-    fontSize: 38px
-    fontWeight: '700'
-    lineHeight: 40px
     note: 'Majuscules par text-transform'
+  h1:
+    fontFamily: 'KOMA Chikara'
+    fontSize: 38px
+    lineHeight: 40px
+    note: 'Majuscules par text-transform ; avec ses accents'
   h2:
-    fontFamily: 'Barlow Condensed'
+    fontFamily: 'KOMA Chikara'
     fontSize: 30px
-    fontWeight: '700'
     lineHeight: 34px
     letterSpacing: 0.01em
     note: 'Majuscules par text-transform'
   h3:
-    fontFamily: 'Barlow Condensed'
+    fontFamily: 'KOMA Chikara'
     fontSize: 20px
-    fontWeight: '600'
     lineHeight: 24px
   body:
-    fontFamily: 'Barlow'
+    fontFamily: 'KOMA Chikara'
     fontSize: 16px
-    fontWeight: '400'
     lineHeight: 26px
   small:
-    fontFamily: 'Barlow'
-    fontSize: 14px
-    fontWeight: '400'
-    lineHeight: 20px
+    fontFamily: 'KOMA Chikara'
+    fontSize: 16px                  # relevé de 14 à 16 px (9.16 a, règle des 16 px)
+    lineHeight: 24px
   label:
-    fontFamily: 'Barlow Condensed'
-    fontSize: 14px                  # relevé de 13 à 14 px (lisibilité, A11Y-24)
-    fontWeight: '600'
-    lineHeight: 18px
+    fontFamily: 'KOMA Chikara'
+    fontSize: 16px                  # relevé de 14 à 16 px (9.16 a)
+    lineHeight: 20px
     letterSpacing: 0.14em
     note: 'Majuscules par text-transform'
   button:
-    fontFamily: 'Barlow Condensed'
+    fontFamily: 'KOMA Chikara'
     fontSize: 18px
-    fontWeight: '600'
     lineHeight: 20px
     letterSpacing: 0.06em
     note: 'Majuscules par text-transform'
   price-card:
-    fontFamily: 'Barlow Condensed'
+    fontFamily: 'KOMA Chikara'
     fontSize: 20px
-    fontWeight: '700'
     lineHeight: 24px
     note: 'Prix USD sur carte, tuile, ligne de Récapitulatif'
   price-page:
-    fontFamily: 'Barlow Condensed'
+    fontFamily: 'KOMA Chikara'
     fontSize: 38px
-    fontWeight: '700'
     lineHeight: 40px
     note: 'Prix USD sur fiche et total du Récapitulatif'
 rounded:
@@ -197,7 +188,7 @@ components:
   hero:
     background: '{colors.background}, halo radial {colors.primary} 25 % (crème) / 40 % (sombre) derrière la photo vedette'
     radius: '{rounded.xl}'
-    watermark: 'mot géant « COSPLAY », Barlow Condensed 800, {colors.hero-wash-end} (clair) / {colors.text-primary} à 5 % (sombre), décoratif'
+    watermark: 'mot géant « COSPLAY », KOMA Chikara, {colors.hero-wash-end} (clair) / {colors.text-primary} à 5 % (sombre), décoratif'
     headline: '{typography.h1}'
     headline-fallback: '{typography.h1}'
     headline-color: '{colors.text-primary}'
@@ -479,7 +470,7 @@ Toutes les maquettes sont dans `mockups/` ; une copie reste dans `.working/` (pi
 | [key-admin-produits](mockups/key-admin-produits.html) | édition Cosplay et Kit, photos ordonnées, progression d'envoi, sous-titres |
 | [key-admin-reglages](mockups/key-admin-reglages.html) | Prestataires (interrupteurs, ordre), Réglages, Codes promo, Galerie, Événements |
 
-Fichiers d'`imports/` chargés par les maquettes : `imports/fonts/Sakura Town.otf` seulement (chemin `../imports/fonts/Sakura%20Town.otf`, valide depuis `mockups/` et `.working/`). Les logos y sont recopiés en SVG en ligne depuis `imports/logos/SVG/` (`principale logo.svg`, `KOMA_horizontal_inverse.svg`).
+Les maquettes de `mockups/` datent d'avant la police unique : elles montrent les anciennes polices, remplacées par KOMA Chikara (9.16 a) ; en cas de conflit, ce document prime. Les logos y sont recopiés en SVG en ligne depuis `imports/logos/SVG/` (`principale logo.svg`, `KOMA_horizontal_inverse.svg`).
 
 ### Logo
 
@@ -591,30 +582,29 @@ Sous `@media (forced-colors: active)` : le verre est remplacé par `Canvas`, la 
 
 ## Typography
 
-Duo « Affiche shōnen » ([typography-1](mockups/typography-1.html), duo 5) + Sakura Town pour les grands titres de vitrine.
+**Police unique : KOMA Chikara** (story 9.16 a, décision de Jonathan du 2026-11-15/16), sur le site public, l'admin, `/scan` et la connexion. Version dérivée de 851 Chikara Dzuyoku (licence vérifiée, `docs/licences/polices.md`), accents français et signes de l'interface (« » – — … • ‹ › → − ⋯ ·) composés à partir des glyphes de la police (`scripts/polices/creer-koma-chikara.py`).
 
-| Rôle | Police | Mobile 375 px | Règles |
-|---|---|---|---|
-| `{typography.display-brush}` | **Sakura Town** (pinceau) | accroche 42 px, titres de section et nom de produit 44 px (ordinateur 60 à 72 px) ; jamais < 40 px | Grands titres de vitrine (accroche, titres de section de l'accueil, H1 des catalogues, Événements, Blog, Articles et fiches). Règles : voir ci-dessous. |
-| `{typography.display}` | Barlow Condensed 800 italique | 52/50 | repli de l'accroche du héros si elle contient un accent ; seul usage de l'italique |
-| `{typography.h1}` | Barlow Condensed 700 | 38/40 | titre de page (un seul H1) |
-| `{typography.h2}` | Barlow Condensed 700 | 30/34 | titres de section |
-| `{typography.h3}` | Barlow Condensed 600 | 20/24 | nom de produit sur carte |
-| `{typography.body}` | Barlow 400 | 16/26 | texte courant |
-| `{typography.small}` | Barlow 400 | 14/20 | délais, métadonnées, aides |
-| `{typography.label}` | Barlow Condensed 600 | 14/18, +0,14 em | surtitres, badges, « Prêt à porter » en étiquette |
-| `{typography.button}` | Barlow Condensed 600 | 18/20, +0,06 em | boutons |
-| `{typography.price-card}` | Barlow Condensed 700 | 20/24 | prix USD sur carte, tuile, ligne de Récapitulatif |
-| `{typography.price-page}` | Barlow Condensed 700 | 38/40 | prix USD sur fiche, total du Récapitulatif |
+| Rôle | Mobile 375 px | Usage |
+|---|---|---|
+| `{typography.display-brush}` | 44/44 (ordinateur 60) | accroches en pinceau |
+| `{typography.display}` | 52/50 | grands titres d'affiche |
+| `{typography.h1}` | 38/40 | titre de page (un seul H1) |
+| `{typography.h2}` | 30/34 | titres de section |
+| `{typography.h3}` | 20/24 | nom de produit sur carte, titres de bloc |
+| `{typography.body}` | 16/26 | texte courant |
+| `{typography.small}` | 16/24 | délais, métadonnées, aides |
+| `{typography.label}` | 16/20, +0,14 em | surtitres, badges, « Prêt à porter » en étiquette |
+| `{typography.button}` | 18/20, +0,06 em | boutons |
+| `{typography.price-card}` | 20/24 | prix USD sur carte, tuile, ligne de Récapitulatif |
+| `{typography.price-page}` | 38/40 | prix USD sur fiche, total du Récapitulatif |
 
-- **Majuscules uniquement par `text-transform: uppercase`** : les fichiers de traduction restent en casse normale (sinon certains lecteurs d'écran épellent « K-I-T-S »). Jamais plus de 3 lignes de texte en majuscules condensées.
-- **Sakura Town, police principale des grands titres de vitrine** (décision memlog) : fichier local `imports/fonts/Sakura Town.otf` (servi par le site, pas Google Fonts), toujours en **texte HTML réel** (jamais une image ni un SVG de texte), en **MAJUSCULES par `text-transform`**, `font-display: swap` avec repli métrique Barlow Condensed. 98 glyphes : **aucun caractère accentué** (é, è, à, ç, ’, « » absents ; trait d'union et apostrophe droite présents). Les titres fixes de vitrine sont **rédigés avec leurs accents** ; l'accent est retiré au rendu, seulement quand Sakura Town est active et couvre alors tout le titre (sinon Barlow Condensed avec accents ; décision du 2026-11-12). Jamais sur un lien, un bouton, un prix, une étiquette ni une information indispensable.
-- **Bascule entière** : un grand titre saisi par l'admin qui contient un caractère absent de la police (nom de Produit, titre d'Article, nom d'Événement) s'affiche **en entier** en Barlow Condensed, au rôle de son niveau (`{typography.h1}` pour un H1, `{typography.h2}` pour un H2, `{typography.display}` pour l'accroche). **Jamais de mélange de polices dans un mot ni dans un titre.** Le test se fait au rendu côté serveur. Exemples rendus ([key-fiche-cosplay](mockups/key-fiche-cosplay.html), cadre 4) : « Samurai de Kivu » → Sakura Town ; « Guerrière du désert » → Barlow Condensed entier.
-- **Hors vitrine** : panier, étape de commande, paiement, attente, retour, compte, bibliothèque, Scan, légal et admin restent en Barlow Condensed. L'admin n'utilise ni Sakura Town ni motif manga (décision). La page 404 est vitrine : H1 « PAGE INTROUVABLE » en Sakura Town ([key-pages-info](mockups/key-pages-info.html)). Les noms sur carte (`{typography.h3}`), étiquettes et boutons (« Prêt à porter », « Le fabriquer moi-même ») restent en Barlow Condensed.
-- **Licence de Sakura Town** : démo, usage personnel uniquement (`imports/fonts/READ THIS.txt`). Licence commerciale webfont requise **avant la mise en ligne** (D-1), non bloquante pour la conception. Sans licence : `{typography.display}` partout.
-- Barlow et Barlow Condensed : Google Fonts, graisses 400/500/600 et 600/700/800 + 800 italique.
+- **16 px minimum, partout** : aucun rôle, aucune feuille, aucune classe (`text-xs`, `text-sm`, `text-[Npx]` sous 16) ne descend sous 16 px. Test automatique : `tests/unit/taille-minimale-texte.test.ts` ; contrôle à l'écran : `tests/e2e/police.spec.ts`.
+- **Un seul poids** : `font-synthesis: none` ; ni gras ni italique fabriqués par le navigateur. La hiérarchie vient de la taille, de la couleur et des majuscules. Contraste « grand texte » (seuil 3:1) seulement à partir de 24 px (plus de gras).
+- **Majuscules uniquement par `text-transform: uppercase`** : les fichiers de traduction restent en casse normale (sinon certains lecteurs d'écran épellent « K-I-T-S »). Les titres gardent leurs accents. Jamais plus de 3 lignes de texte en majuscules.
+- **Chargement** : `next/font/local` (`src/lib/fonts.ts`), woff2 préchargé, `font-display: swap`, repli « komaChikara Fallback » (Arial aux métriques ajustées) puis `system-ui, sans-serif`. Un caractère absent de la police (japonais d'un nom de produit, accent rare d'un pseudo, emoji, © ®) est dessiné par la police système, jamais par un carré vide (`tests/e2e/police-secours.spec.ts`).
+- **Hors champ** : les emails (polices du client mail) et le filigrane PDF des kits (Barlow TTF, `src/fonts/filigrane/`).
 - Pas de texte sur photo ou vidéo sans `{components.glass-panel-strong}` (Guide + décision verre).
-- Échelle ordinateur : **non rendue** [HYPOTHÈSE : mêmes rôles, tailles × 1,25 à partir de `lg`] — D-2.
+- Échelle ordinateur : [HYPOTHÈSE : mêmes rôles, tailles × 1,25 à partir de `lg`] — D-2.
 
 ## Layout & Spacing
 
@@ -699,7 +689,7 @@ Spécifications visuelles ; le comportement est dans `EXPERIENCE.md` § Componen
 
 | Composant | Anatomie et rendu |
 |---|---|
-| **Héros** (`hero`) | Cadre `{rounded.xl}` sur `{colors.background}`. Mot géant « COSPLAY » (texte, `aria-hidden`, Barlow Condensed 800, `{colors.hero-wash-end}` (clair) / `{colors.text-primary}` à 5 % (sombre)). Surtitre `{typography.label}` en `{colors.text-secondary}` (« Nouvelle collection — 2027 »), deux points décoratifs, accroche H1 `{typography.h1}` (Sakura Town si active : repli Barlow Condensed) en `{colors.text-primary}`, deux boutons : « Voir les cosplays » (fond `{colors.text-primary}`, texte `{colors.background}`) et « Découvrir les kits » (`{components.button-primary}`). Deux colonnes de texte : titre `{typography.label}` précédé d'un repère rouge (jamais de texte rouge : règle du rouge) puis phrase `{typography.small}`. À droite : photo détourée (photo de repli de l'admin, `object-contain`) ou, à défaut, première photo du cosplay vedette dans un cadre arrondi, sur un halo rouge doux ; la vidéo du héros, si elle existe, occupe le même emplacement. Signature `{typography.label}` en pied. Maquette : `docs/design/maquette-accueil/`. |
+| **Héros** (`hero`) | Cadre `{rounded.xl}` sur `{colors.background}`. Mot géant « COSPLAY » (texte, `aria-hidden`, KOMA Chikara, `{colors.hero-wash-end}` (clair) / `{colors.text-primary}` à 5 % (sombre)). Surtitre `{typography.label}` en `{colors.text-secondary}` (« Nouvelle collection — 2027 »), deux points décoratifs, accroche H1 `{typography.h1}` en `{colors.text-primary}`, deux boutons : « Voir les cosplays » (fond `{colors.text-primary}`, texte `{colors.background}`) et « Découvrir les kits » (`{components.button-primary}`). Deux colonnes de texte : titre `{typography.label}` précédé d'un repère rouge (jamais de texte rouge : règle du rouge) puis phrase `{typography.small}`. À droite : photo détourée (photo de repli de l'admin, `object-contain`) ou, à défaut, première photo du cosplay vedette dans un cadre arrondi, sur un halo rouge doux ; la vidéo du héros, si elle existe, occupe le même emplacement. Signature `{typography.label}` en pied. Maquette : `docs/design/maquette-accueil/`. |
 | **Bouton Pause du héros** (`hero-pause-button`) | Pilule ronde 44 × 44 px, fond `{colors.surface}`, contour `{colors.border-field}`, icône pause / lecture, dans un coin du héros, hors du panneau d'accroche. |
 | **Carte du héros** (`hero-card`) | Rangée de trois cartes `{rounded.glass}`, hauteur minimale 248 px (le texte ne la dépasse jamais : titres coupés à 2 lignes, Kit à 3) : un cosplay publié et un accessoire publié (photo, bandeau `{colors.surface-glass-strong}` avec étiquette, nom `{typography.h3}`, prix `{typography.price-card}` ; le nom est un lien étendu à toute la carte) ; la carte « Kit du mois » (surface, repère rouge + étiquette, titre du Kit publié le plus récent, phrase fixe traduite, bouton principal « Voir le kit » 44 px). Une carte sans produit publié est masquée ; sans aucun produit, la rangée et le bouton rond disparaissent. Bouton rond `{colors.primary}`, 52 px, flèche `{colors.on-primary}`, vers le catalogue des cosplays (à défaut, de la première famille ayant un produit publié). Mobile : rangée en défilement horizontal. |
 | **Tuile de catégorie** (`category-tile`) | Dégradé rouge ou encre, titre `{typography.h2}` réduit en `clamp(20px, 6vw, 30px)`, en `{colors.on-primary}`. |
@@ -763,7 +753,7 @@ Spécifications visuelles ; le comportement est dans `EXPERIENCE.md` § Componen
 
 | Composant | Anatomie et rendu |
 |---|---|
-| **Barre latérale admin** (`admin-sidebar`) | Ordinateur : colonne surface, filet droit `{colors.border}`. Logo, rôle « Administration », puis entrées de 44 px `{rounded.md}` : icône 22 px + libellé Barlow Condensed 600. Entrée courante : fond `{colors.background}`, trait rouge 4 px à gauche, texte gras. Compteur d'attente en pilule à contour `{colors.border-field}`. Langue en bas ([key-admin-tableau](mockups/key-admin-tableau.html)). |
+| **Barre latérale admin** (`admin-sidebar`) | Ordinateur : colonne surface, filet droit `{colors.border}`. Logo, rôle « Administration », puis entrées de 44 px `{rounded.md}` : icône 22 px + libellé KOMA Chikara. Entrée courante : fond `{colors.background}`, trait rouge 4 px à gauche, texte gras. Compteur d'attente en pilule à contour `{colors.border-field}`. Langue en bas ([key-admin-tableau](mockups/key-admin-tableau.html)). |
 | **Barre d'onglets admin** (`admin-tab-bar`) | Mobile : 4 onglets égaux en bas, fond surface, filet haut `{colors.border}`, 58 px de haut, icône 22 px + libellé `{typography.small}` (minimum 14 px ; la maquette rend 13 px). Onglet courant : texte `{colors.text-primary}` gras, fond `{colors.background}`, trait rouge 3 px en haut. Compteur : pilule `{colors.text-primary}` à texte `{colors.background}`. |
 | **Carte de tâche admin** | Carte surface `{rounded.lg}`, compteur en `{typography.h1}`, libellé `{typography.label}`. Compteur à zéro : fond `{colors.background}`, chiffre `{colors.text-secondary}`. |
 | **Graphique en barres** (`bar-chart`) | Une ligne par valeur : libellé, piste 16 px `{rounded.full}` (`{colors.background}`, filet `{colors.border}`), remplissage `{colors.text-primary}`, **valeur toujours écrite** (« 9 · 186 USD »). Mobile : libellé et valeur sur une ligne, barre dessous. Sous chaque graphique : « Voir les données en tableau » (Tableau de données). Jamais de rouge seul ni de couleur par série. |
@@ -783,7 +773,7 @@ Spécifications visuelles ; le comportement est dans `EXPERIENCE.md` § Componen
 | Verre discret (~10 px) sur fond uni ; **verre renforcé ≥ 85 % sous tout texte sur média** ; Panneau ☰ opaque | Verre discret sur vidéo ou photo, verre empilé, verre sur le logo |
 | Coins ~20 px, boutons en pilule | Angles vifs, rayons hétérogènes |
 | Motifs manga ≤ 6 % en fond de section | Trames sur photo produit, derrière un petit texte ou un formulaire de paiement |
-| Sakura Town sur les grands titres de vitrine, sans accent, en majuscules, ≥ 40 px, en texte réel ; bascule entière en Barlow Condensed si accent | Sakura Town sur un mot accentué, un mélange de polices dans un titre, du texte courant, un bouton, un écran transactionnel, ou en ligne sans licence |
+| KOMA Chikara partout, un seul poids, 16 px minimum, titres en texte réel avec leurs accents | Texte sous 16 px, gras ou italique fabriqué, seconde police web, police tierce sans licence notée |
 | Masquer un bloc vide | Avis, chiffres, logos, témoignages ou compteurs inventés (règle 5) |
 | Structure 1win (héros + tuiles, rangées, accordéons) | Esthétique casino : néons clignotants, jetons, comptes à rebours, badges « bonus » |
 | Filet décoratif `border` comme séparateur | `border` comme contour d'un contrôle interactif (1,24:1) |
@@ -800,9 +790,9 @@ Spécifications visuelles ; le comportement est dans `EXPERIENCE.md` § Componen
 
 | # | Question | Bloque ? |
 |---|---|---|
-| D-1 | Licence commerciale **webfont** de Sakura Town, requise avant la mise en ligne. | Bloque la **mise en ligne** avec Sakura Town ; pas la conception (repli Barlow Condensed). |
+| D-1 | ~~Licence webfont de l'ancienne police des titres~~ : sans objet depuis 9.16 a) (police unique KOMA Chikara). | Non. |
 | D-2 | Échelle typographique **ordinateur** (seule l'échelle 375 px a été rendue ; × 1,25 proposé). | Non (story front). |
-| D-3 | Taille et interlignage de Sakura Town (≥ 40 px imposé). | Non. |
+| D-3 | ~~Taille de l'ancienne police des titres~~ : sans objet depuis 9.16 a). | Non. |
 | D-6 | Valeurs d'ombre et d'élévation au survol. | Non. |
 | D-7 | Échelle d'espacement, marge mobile, points de rupture (Tailwind par défaut proposé). | Non. |
 | D-8 | Zone de protection (0,6 × hauteur déduite des SVG) et taille minimale du logo ; usage exact des déclinaisons blanc, noir et hanko. | Non. |

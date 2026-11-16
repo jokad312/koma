@@ -276,7 +276,7 @@ export function EcranScan({ evenements, benevole = false, compteId }: { evenemen
       {benevole && evenements.length === 1 ? (
         <div className="flex flex-col gap-1">
           <p className="t-label">{t("evenement.libelle")}</p>
-          <p className="t-body font-bold">{evenements[0].titre}</p>
+          <p className="t-body">{evenements[0].titre}</p>
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -316,7 +316,7 @@ export function EcranScan({ evenements, benevole = false, compteId }: { evenemen
           ) : null}
           {phase === "refusee" ? (
             <div role="alert" className="flex flex-col gap-2 rounded-md border border-border bg-surface p-4">
-              <p className="t-body font-bold">{t("camera.refusee")}</p>
+              <p className="t-body">{t("camera.refusee")}</p>
               <p className="t-small text-text-secondary">{t("camera.refuseeAide")}</p>
             </div>
           ) : null}

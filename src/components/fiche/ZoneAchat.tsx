@@ -85,7 +85,7 @@ export function ZoneAchat({ produitId, locale, tailles, forfaitGoma, forfaitBuka
           ) : null}
         </div>
       ) : null}
-      {achetable && couleurs.length === 1 ? <p className="t-small font-semibold text-text-primary">{tc("une", { couleur: couleurs[0].nom })}</p> : null}
+      {achetable && couleurs.length === 1 ? <p className="t-small text-text-primary">{tc("une", { couleur: couleurs[0].nom })}</p> : null}
       {achetable && avecSelecteurCouleur ? <SelecteurCouleur couleurs={couleurs} choisie={couleurChoisie} onChoisir={setCouleurChoisie} /> : null}
       {achetable ? (
         unique ? (

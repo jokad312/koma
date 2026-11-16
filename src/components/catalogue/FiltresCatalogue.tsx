@@ -17,7 +17,7 @@ type Props = {
 };
 
 const PILULE =
-  "t-small inline-flex min-h-touch items-center rounded-full border px-4 no-underline aria-[current=true]:border-2 aria-[current=true]:border-primary aria-[current=true]:font-semibold border-border-field bg-surface text-text-primary";
+  "t-small inline-flex min-h-touch items-center rounded-full border px-4 no-underline aria-[current=true]:border-2 aria-[current=true]:border-primary border-border-field bg-surface text-text-primary";
 
 type Choix = { cle: string; libelle: string; actif: boolean; href: string };
 

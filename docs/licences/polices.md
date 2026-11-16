@@ -2,13 +2,15 @@
 
 Règle 6 de `CLAUDE.md` : aucune police, image ou fichier tiers n'entre dans le dépôt sans licence vérifiée et notée dans `docs/licences/`.
 
-## Sakura Town
+## Sakura Town (non utilisée depuis la story 9.16 a, 2026-11-16)
+
+Décision de Jonathan du 2026-11-16 : KOMA Chikara sert aussi aux grands titres ; l'option `NEXT_PUBLIC_TITRES_SAKURA` et tout son code sont retirés. Cette fiche reste pour l'historique (le fichier a été commité le 2026-10-17 et reste dans l'historique Git).
 
 | Champ | Valeur |
 | --- | --- |
 | Nom de la police | Sakura Town |
 | Éditeur | Letterhend Studio |
-| Usage dans KOMA SHOP | Grands titres de la vitrine, en majuscules et sans accent (voir `DESIGN.md`) |
+| Usage dans KOMA SHOP | Aucun depuis le 2026-11-16 (autrefois prévue pour les grands titres de la vitrine) |
 | Fichier dans le dépôt | Aucun depuis le 2026-10-21 : `Sakura Town.otf`, `READ THIS.txt` et `Cover.png` ont été retirés de l'index Git (`git rm --cached`) ; la copie locale reste sur le poste de Jonathan dans `_bmad-output/planning-artifacts/ux-designs/ux-KOMA SHOP-2026-10-16/imports/fonts/`, dossier ajouté à `.gitignore`. Le fichier a été commité le 2026-10-17 : il reste dans l'historique Git. |
 | Source du fichier | [À COMPLÉTER : où le fichier a été obtenu, version complète ou démo] |
 | Page officielle de la police | https://www.creativefabrica.com/product/sakura-town/ref/2203/ |
@@ -20,13 +22,15 @@ Règle 6 de `CLAUDE.md` : aucune police, image ou fichier tiers n'entre dans le 
 
 - Le fichier est retiré du dépôt (index seulement) et son dossier est ignoré. L'historique n'est **pas** réécrit pour l'instant : Jonathan attend l'accord écrit de l'éditeur.
 - Si l'éditeur refuse l'usage commercial, l'historique sera nettoyé (branches `main` et `production`) dans une tâche séparée.
-- Les titres restent en Barlow Condensed tant que Q-F1 n'est pas réglée (`NEXT_PUBLIC_TITRES_SAKURA` éteinte).
+- Les titres restaient en Barlow Condensed tant que Q-F1 n'était pas réglée. Depuis 9.16 a), ils sont en KOMA Chikara et l'option n'existe plus.
 
 ### Point à vérifier
 
 Le fichier `READ THIS.txt`, commité à côté de la police, décrit une **version de démonstration** réservée à l'usage personnel (« This demo font is for PERSONAL USE ONLY »). Il faut vérifier que `Sakura Town.otf` est la version complète. Si c'est la version de démonstration, il faut la remplacer par la version complète, puis mettre à jour la ligne « Source du fichier ».
 
-## Barlow et Barlow Condensed
+## Barlow et Barlow Condensed (site : retirées par la story 9.16 a, 2026-11-16)
+
+Les fichiers `.woff2` ci-dessous ont été retirés du dépôt (l'historique Git les garde) : KOMA Chikara les remplace sur le site et l'admin. Seul le TTF du filigrane (section suivante) reste.
 
 | Champ | Valeur |
 | --- | --- |
@@ -34,15 +38,15 @@ Le fichier `READ THIS.txt`, commité à côté de la police, décrit une **versi
 | Auteurs | The Barlow Project Authors |
 | Licence | SIL Open Font License 1.1 (utilisation, copie et redistribution libres, y compris commerciales ; vente de la police seule interdite) |
 | Texte de la licence | `docs/licences/OFL-barlow.txt` (copie du fichier `LICENSE` du paquet npm, avec les mentions de droits d'auteur) |
-| Usage dans KOMA SHOP | Barlow : texte courant. Barlow Condensed : titres, étiquettes, boutons, prix (voir `DESIGN.md`) |
-| Fichiers dans le dépôt | `src/fonts/barlow-latin-{400,500,600}-normal.woff2` et `src/fonts/barlow-condensed-latin-{400,600,700,800}-normal.woff2`, `src/fonts/barlow-condensed-latin-800-italic.woff2` |
+| Usage dans KOMA SHOP | Jusqu'au 2026-11-16 : Barlow pour le texte courant, Barlow Condensed pour les titres, étiquettes, boutons et prix |
+| Fichiers dans le dépôt | Aucun depuis 9.16 a) ; autrefois `src/fonts/barlow-latin-{400,500,600}-normal.woff2` et `src/fonts/barlow-condensed-latin-{400,600,700,800}-normal.woff2`, `src/fonts/barlow-condensed-latin-800-italic.woff2` |
 | Source des fichiers | Paquets npm `@fontsource/barlow` et `@fontsource/barlow-condensed`, version 5.2.8, sous-ensemble « latin » (accents du français compris), licence déclarée `OFL-1.1` dans les deux paquets. Les paquets ne sont pas des dépendances du projet : seuls les fichiers `.woff2` ont été copiés. |
 | Chargement | Auto-hébergé par `next/font/local` (`src/lib/fonts.ts`), `font-display: swap` |
 | Date de vérification | 2026-10-21 |
 
-### Sakura Town : état dans le code (story 1.3)
+### Sakura Town : état dans le code
 
-Le fichier `Sakura Town.otf` n'est pas copié dans `public/` ni dans `src/`. L'option `NEXT_PUBLIC_TITRES_SAKURA` est éteinte par défaut : tous les grands titres sont en Barlow Condensed. Quand Jonathan aura la version complète et l'accord écrit de l'éditeur, il dépose le fichier sous le nom `public/fonts/sakura-town.otf` (dossier ignoré par Git) et passe l'option à `true`. Pour une mise en ligne, il faudra alors décider comment livrer ce fichier sur Hostinger sans l'ajouter au dépôt public.
+Aucun fichier ni aucune ligne de code depuis la story 9.16 a). `public/fonts/` reste ignoré par Git.
 
 ## Barlow Regular (TTF) : filigrane des PDF de kit (story 3.6)
 
@@ -58,3 +62,15 @@ Le fichier `Sakura Town.otf` n'est pas copié dans `public/` ni dans `src/`. L'o
 | Date de vérification | 2026-11-02 |
 
 Dépendances de code ajoutées par la même story : `@cantoo/pdf-lib` 2.11.1 (MIT) et `@pdf-lib/fontkit` 1.1.1 (MIT), versions épinglées, intégrées au bundle serveur ; aucun fichier de ces paquets n'est copié dans le dépôt.
+
+## KOMA Chikara (dérivée de 851 Chikara Dzuyoku) — décision de Jonathan du 2026-11-15
+
+| Champ | Valeur |
+| --- | --- |
+| Police d'origine | 851 Chikara Dzuyoku, fichier `851CHIKARA-DZUYOKU_kanaA_004.ttf`, version 0.04 (copie locale dans `docs/references/polices/`, dossier ignoré par git) |
+| Auteur | 851 (pm85122) |
+| Conditions | https://pm85122.onamae.jp/851fontTerm.html, consultées par Jonathan le 2026-11-15 : usage commercial autorisé, conversion en police web pour son propre site autorisée, modification et redistribution libres, crédit facultatif ; interdit : vendre la police seule ou un fichier modifié sans contacter l'auteur (KOMA SHOP ne la vend pas) |
+| Version dérivée | « KOMA Chikara » : sous-ensemble latin, lettres accentuées françaises et signes (œ æ « » – — …, puis • ‹ › → − ⋯ ajoutés en 9.16 a) composés à partir des glyphes de la police elle-même ; drapeau USE_TYPO_METRICS posé pour que Windows mesure la ligne comme les autres systèmes ; script `scripts/polices/creer-koma-chikara.py` (178 caractères, liste dans `couverture.txt`) |
+| Fichiers dans le dépôt | `src/fonts/koma-chikara/koma-chikara.woff2`, `src/fonts/koma-chikara/LICENCE.txt` et `src/fonts/koma-chikara/couverture.txt` (liste des caractères couverts, lue par `tests/unit/police-unique.test.ts`) |
+| Usage | Police unique du site, de l'admin, de `/scan` et de la connexion depuis la story 9.16 a), après validation de la planche d'essai (`docs/design/admin/essais/planche-koma-chikara.html`) ; jamais sous 16 px. Pas dans les emails (polices du client mail) ni dans le filigrane PDF (Barlow TTF) |
+| Chargement | `next/font/local` (`src/lib/fonts.ts`) : woff2 préchargé, `font-display: swap`, repli « komaChikara Fallback » (Arial aux métriques ajustées), puis `system-ui, sans-serif` pour les caractères absents (japonais, emoji) |

@@ -2,7 +2,7 @@
  * Haut de l'accueil du visiteur : maquette docs/design/maquette-accueil/fusion.hv-html (cadres #m4 clair et #m5 sombre, 1440 x 900).
  * Module CSS : toutes les classes sont locales à HerosVisiteur.hv-tsx ; aucune règle ne vise l'en-tête, la mise en page commune ou une autre page.
  * L'en-tête standard du site (environ 64 px) remplace la barre de la maquette (84 px) : les positions verticales de la maquette sont
- * reprises moins 84 px, dans un cadre de 816 px de haut. Polices : Barlow (texte) et Barlow Condensed (titres), celles du site.
+ * reprises moins 84 px, dans un cadre de 816 px de haut. Police : KOMA Chikara, celle du site (un seul poids, 16 px minimum : 9.16 a).
  */
 
 .hv-pleine {
@@ -55,15 +55,22 @@
   padding: 24px 16px 32px;
 }
 
+/* Mot géant ancré à GAUCHE, à la position où son bord droit dépasse du cadre de --hv-geant-debord (9.16 a) : ancré à droite, son
+   bord gauche bougeait de plusieurs centaines de pixels quand KOMA Chikara remplaçait la police de repli (repli environ 20 % plus
+   large sur ces majuscules espacées), d'où un CLS de 0,16 en 4G lent. 4.9397 = largeur de « Cosplay » en KOMA Chikara, espacement
+   compris, divisée par la taille de police (mesurée de 320 à 1920 px). À remesurer si le mot (motGeant) ou la police change.
+   Tailles × 0,74 (= 3,655 / 4,9397, rapport de l'ancienne police des titres avant 9.16 a) : le mot garde la largeur d'avant et « COSPLAY » se
+   lit encore (décision de Jonathan du 2026-11-16). */
 .hv-geant {
+  --hv-geant-taille: clamp(4.44rem, 21.46vw, 19.42rem);
+  --hv-geant-debord: 16px;
   position: absolute;
   top: 8px;
-  right: -16px;
+  left: calc(100% + var(--hv-geant-debord) - 4.9397 * var(--hv-geant-taille));
   z-index: 0;
   margin: 0;
-  font-family: var(--font-condensee);
-  font-weight: 700;
-  font-size: clamp(6rem, 29vw, 26.25rem);
+  font-family: var(--font-capitales);
+  font-size: var(--hv-geant-taille);
   line-height: 0.8;
   letter-spacing: 0.067em;
   text-transform: uppercase;
@@ -75,12 +82,20 @@
 .hv-geant::before {
   content: attr(data-mot);
 }
+/* Une colonne (sous 1280 px) : le mot passe sous le surtitre. En crème, opacité 0,5 pour que le surtitre garde le contraste AA
+   (#6b655c : 4,31:1 sur le mot plein, 4,64:1 à 0,5 ; 4,99:1 sur le fond seul). En sombre, le mot est déjà très discret (6,18:1). */
+@media (max-width: 1279.98px) {
+  :root:not([data-theme="dark"]) .hv-geant {
+    opacity: 0.5;
+  }
+}
 
 .hv-surtitre {
   position: relative;
   z-index: 1;
   margin: 0;
-  font-size: 12px;
+  font-family: var(--font-capitales);
+  font-size: 16px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--hv-surtitre);
@@ -106,14 +121,25 @@
   position: relative;
   z-index: 3;
   margin: 0;
-  font-family: var(--font-condensee);
-  font-weight: 700;
-  font-size: clamp(2.5rem, 11vw, 58px);
+  font-family: var(--font-capitales);
+  /* Une colonne : « OU FABRIQUE-LE. » (9,12 fois la taille en KOMA Chikara) tient sur une ligne avec 5 % de marge (largeur utile =
+     largeur moins 2 × 16 px) : 30 px à 320 px, 38 px à 390 px, 58 px au plus. Trois lignes de 320 à 700 px, en français et en anglais. */
+  font-size: min(58px, calc((var(--pleine-largeur, 100vw) - 32px) / 9.6));
   line-height: 0.95;
   text-transform: uppercase;
 }
 .hv-ligne-titre {
   display: block;
+}
+/* Mot à trait d'union (« FABRIQUE-LE. ») jamais coupé au trait d'union. */
+.hv-insecable {
+  white-space: nowrap;
+}
+/* Hauteur des trois lignes réservée : si la police de repli coupe autrement avant l'arrivée de KOMA Chikara, la suite ne bouge pas. */
+@media (max-width: 699px) {
+  .hv-titre {
+    min-height: calc(3 * 0.95em);
+  }
 }
 
 .hv-colonnes {
@@ -122,21 +148,22 @@
   display: flex;
   flex-direction: column;
   gap: 22px;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
   color: var(--hv-colonnes);
 }
 .hv-colonnes p {
   margin: 0;
 }
-/* Titres rouges en « grand texte » WCAG (19 px gras, seuil 3:1) : le rouge de la maquette reste, le contraste est conforme
-   (4,34:1 sur crème, 3,69:1 sur fond sombre). Décision de Jonathan du 2026-11-13. */
+/* Titres rouges en « grand texte » WCAG (seuil 3:1) : le rouge de la maquette reste, le contraste est conforme
+   (4,34:1 sur crème, 3,69:1 sur fond sombre). Décision de Jonathan du 2026-11-13. Un seul poids depuis 9.16 a) : sans gras,
+   le grand texte commence à 24 px (au lieu de 19 px gras). */
 .hv-colonnes b {
+  font-family: var(--font-capitales);
   display: block;
   margin-bottom: 6px;
-  font-size: 19px;
-  font-weight: 700;
-  line-height: 1.2;
+  font-size: 24px;
+  line-height: 1.1;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ks-primary);
@@ -158,8 +185,7 @@
   padding: 0 22px;
   border-radius: 999px;
   font-family: var(--font-corps);
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 16px;
   letter-spacing: 0.06em;
   text-decoration: none;
 }
@@ -233,7 +259,7 @@
   left: 14px;
   bottom: 12px;
   z-index: 2;
-  font-size: 11px;
+  font-size: 16px;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: #ffffff;
@@ -252,11 +278,11 @@
 .hv-kit p {
   margin: 0;
 }
-/* Même règle que les titres rouges des colonnes : grand texte gras (3,42:1 sur la carte sombre, 4,73:1 sur la carte claire). */
+/* Même règle que les titres rouges des colonnes : grand texte, 24 px sans gras (3,42:1 sur la carte sombre, 4,73:1 sur la carte claire). */
 .hv-kit-etiquette {
-  font-size: 19px;
-  font-weight: 700;
-  line-height: 1.2;
+  font-family: var(--font-capitales);
+  font-size: 24px;
+  line-height: 1.1;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ks-primary);
@@ -265,7 +291,6 @@
   max-width: 170px;
   margin-top: 10px !important;
   font-family: var(--font-condensee);
-  font-weight: 400;
   font-size: 28px;
   line-height: 0.95;
   letter-spacing: 0.01em;
@@ -273,7 +298,7 @@
 }
 .hv-kit-phrase {
   margin-top: 8px !important;
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.4;
   color: var(--hv-gris);
 }
@@ -305,9 +330,10 @@
 
 .hv-signature {
   position: relative;
+  font-family: var(--font-capitales);
   z-index: 4;
   margin: 0;
-  font-size: 12px;
+  font-size: 16px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--hv-gris);
@@ -323,12 +349,12 @@
     margin: 0 auto;
     padding: 0;
   }
-  /* Barlow Condensed est plus étroite que la police de la maquette : corps de 440 px (même hauteur de lettres que la maquette) et
-     espacement de 0,067 em pour que le mot couvre la même largeur (le C sort à gauche, le Y touche le bord droit). */
+  /* Mot géant : 326 px (440 px de 9.12 × 0,74, même largeur qu'avec l'ancienne police) et espacement de 0,067 em ; le bord droit
+     dépasse de 30 px, comme avant. */
   .hv-geant {
+    --hv-geant-taille: 326px;
+    --hv-geant-debord: 30px;
     top: 22px;
-    right: -30px;
-    font-size: 440px;
     letter-spacing: 0.067em;
   }
   .hv-surtitre {
@@ -349,7 +375,10 @@
     left: 56px;
     top: 132px;
     width: 470px;
-    font-size: 58px;
+    /* KOMA Chikara est plus large que l'ancienne police : à 58 px, « OU FABRIQUE-LE. » passait sur une 4e ligne, sur les boutons (9.16 a). */
+    font-size: 48px;
+    /* Interligne 1,1 : à 0,95, les lignes se touchaient presque (retour de Jonathan du 2026-11-16). */
+    line-height: 1.1;
   }
   .hv-colonnes {
     position: absolute;

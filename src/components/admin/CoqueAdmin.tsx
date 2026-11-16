@@ -40,7 +40,7 @@ async function lireUtilisateurBandeau(): Promise<UtilisateurBandeau | null> {
 }
 
 // Coquille de l'admin (story 9.10) : disposition en « L » sur ordinateur (barre latérale fixe à gauche et bandeau en haut du contenu), barre du bas sur mobile.
-// Ni Sakura Town ni motif manga. Rendue par chaque page seulement après la vérification du droit (le visiteur ou le Compte sans droit ne voit jamais la navigation).
+// Aucun motif manga. Rendue par chaque page seulement après la vérification du droit (le visiteur ou le Compte sans droit ne voit jamais la navigation).
 // L'en-tête et le pied du site sont masqués par le CSS tant que « data-coque-admin » est présent (globals.css). Le compteur de messages à traiter est lu par le client
 // service ; en cas d'erreur, pas de compteur (jamais un faux zéro).
 export async function CoqueAdmin({ children }: { children: ReactNode }) {

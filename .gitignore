@@ -25,7 +25,8 @@ supabase/.branches/
 # (règle 4 : aucune donnée marchande ; règle 6 : aucun fichier tiers sans licence vérifiée)
 docs/references/paiements/
 
-# Sakura Town : jamais dans le dépôt public tant que la licence webfont n'est pas confirmée (Q-F1, règle 6)
+# Sakura Town (non utilisée depuis 9.16 a) : jamais dans le dépôt public (licence webfont non confirmée, Q-F1, règle 6).
+# KOMA Chikara est versionnée sous src/fonts/koma-chikara/ (licence vérifiée, docs/licences/polices.md).
 public/fonts/
 
 # Réglages personnels
@@ -66,3 +67,6 @@ docs/captures-admin/
 
 # Captures de comparaison de l'accueil (outil local)
 docs/captures-accueil/
+
+# Captures avant/après de la story 9.16 a) (revue locale, jamais commitées)
+docs/captures-police/

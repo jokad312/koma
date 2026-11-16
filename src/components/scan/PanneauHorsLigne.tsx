@@ -32,7 +32,7 @@ export function PanneauHorsLigne({ etat }: { etat: Etat }) {
 
       {etat.etat === "autre" && !liste ? (
         <div role="status" className="flex flex-col gap-1">
-          <p className="t-body font-bold">{t("reserve")}</p>
+          <p className="t-body">{t("reserve")}</p>
           <p className="t-small text-text-secondary">{t("reserveAide")}</p>
           {enLigne ? (
             <div>

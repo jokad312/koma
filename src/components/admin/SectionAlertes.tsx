@@ -24,7 +24,7 @@ export async function SectionAlertes({ evenementId, nombres }: Props) {
         {lignes.map(([libelle, nombre]) => (
           <div key={libelle} className="contents">
             <dt className="t-body text-text-primary">{libelle}</dt>
-            <dd className="t-body text-right font-bold text-text-primary">{nombre}</dd>
+            <dd className="t-body text-right text-text-primary">{nombre}</dd>
           </div>
         ))}
       </dl>

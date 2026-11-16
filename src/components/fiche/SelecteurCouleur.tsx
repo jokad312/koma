@@ -20,7 +20,7 @@ export function SelecteurCouleur({ couleurs, choisie, onChoisir }: Props) {
   const nom = useId();
   return (
     <fieldset className="flex flex-col gap-3">
-      <legend className="t-small mb-2 font-semibold">{t("legende")}</legend>
+      <legend className="t-small mb-2">{t("legende")}</legend>
       <div className="flex flex-wrap gap-2">
         {couleurs.map((c) => (
           <label key={c.cle} className={OPTION}>

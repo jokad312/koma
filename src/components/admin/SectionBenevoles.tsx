@@ -133,7 +133,7 @@ export function SectionBenevoles({ evenementId, acces }: { evenementId: string; 
           {acces.map((a) => (
             <li key={a.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
               <div className="flex min-w-0 flex-col">
-                <span className="t-body break-all font-bold">{a.email}</span>
+                <span className="t-body break-all">{a.email}</span>
                 <span className="t-small text-text-secondary">
                   {`${libelleJour(a)} · ${libelleStatut(a)}`}
                 </span>

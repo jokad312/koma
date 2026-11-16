@@ -1,0 +1,20 @@
+KOMA Chikara — version dérivée de « 851 Chikara Dzuyoku » (fichier d'origine : 851CHIKARA-DZUYOKU_kanaA_004.ttf, version 0.04)
+
+Auteur de la police d'origine : 851 (pm85122)
+Conditions d'utilisation : https://pm85122.onamae.jp/851fontTerm.html
+Date de consultation : 2026-11-15 (vérifiée par Jonathan Manduara Tshimpaka, NATHANGROUP SARL)
+
+Résumé des conditions (page officielle de l'auteur) :
+- usage commercial autorisé ;
+- conversion en police web pour son propre site autorisée ;
+- modification et redistribution libres ; mention de l'auteur non obligatoire (elle est faite ici quand même) ;
+- interdit : vendre la police seule, ou vendre un fichier modifié sans contacter l'auteur. KOMA SHOP ne vend pas cette police.
+
+Modifications apportées (script : scripts/polices/creer-koma-chikara.py) :
+- sous-ensemble latin (ASCII et ponctuation utile) ; tables japonaises verticales retirées ;
+- lettres accentuées françaises (à â ä é è ê ë î ï ô ö ù û ü ÿ ç et leurs majuscules, plus á í ó ú ý ã ñ õ) composées à partir des
+  lettres de base de la police et de ses propres signes (` ´ ^ ¨ ~ ,), réduits et placés ; « ı » obtenu en retirant le point du « i » ;
+- œ Œ æ Æ (lettres de la police rapprochées), « » (chevrons de la police), – — (trait d'union allongé), … (trois points de la police
+  sur la ligne de base), espaces insécables U+00A0 et U+202F ;
+- famille renommée « KOMA Chikara ».
+Aucun glyphe n'est dessiné à la main ni repris d'une autre police.

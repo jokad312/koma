@@ -138,7 +138,7 @@ export function DepotPhotoWhatsapp({ aujourdhui, ilYaUnAn }: { aujourdhui: strin
         </label>
         {afficherNom ? (
           <div className="flex flex-col gap-1">
-            <label htmlFor={`${id}-nom`} className="t-small font-semibold text-text-primary">
+            <label htmlFor={`${id}-nom`} className="t-small text-text-primary">
               {t("nom")}
             </label>
             <input id={`${id}-nom`} value={nom} onChange={(e) => setNom(e.target.value)} maxLength={40} disabled={enCours} className={CHAMP} />
@@ -150,7 +150,7 @@ export function DepotPhotoWhatsapp({ aujourdhui, ilYaUnAn }: { aujourdhui: strin
         </label>
         {afficherVille ? (
           <div className="flex flex-col gap-1">
-            <label htmlFor={`${id}-ville`} className="t-small font-semibold text-text-primary">
+            <label htmlFor={`${id}-ville`} className="t-small text-text-primary">
               {t("ville")}
             </label>
             <input id={`${id}-ville`} value={ville} onChange={(e) => setVille(e.target.value)} maxLength={60} disabled={enCours} className={CHAMP} />

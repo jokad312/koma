@@ -11,8 +11,7 @@ import { LienEvitement } from "@/components/layout/LienEvitement";
 import { ScriptTheme } from "@/components/layout/ScriptTheme";
 import { PiedDePage } from "@/components/layout/PiedDePage";
 import { routing } from "@/i18n/routing";
-import { lireEnvPublique } from "@/lib/env";
-import { barlow, barlowCondensed } from "@/lib/fonts";
+import { komaChikara } from "@/lib/fonts";
 import { lireNomSite, lireNumeroWhatsappOuNull } from "@/lib/reglages";
 import { JsonLd } from "@/lib/seo/balise-jsonld";
 import { organisationJsonLd } from "@/lib/seo/jsonld";
@@ -22,9 +21,6 @@ import "../globals.css";
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
-
-// Sakura Town n'est chargée que si l'option est active (Q-F1) : le fichier est déposé par Jonathan dans public/fonts/, jamais commité.
-const FONT_FACE_SAKURA = '@font-face{font-family:"Sakura Town";src:url("/fonts/sakura-town.otf") format("opentype");font-display:swap}';
 
 export default async function LocaleLayout({ children, params }: LayoutProps<"/[locale]">) {
   const { locale } = await params;
@@ -40,14 +36,11 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   } catch {
     console.error("[blog] liste des articles sans version anglaise impossible : sélecteur de langue inchangé");
   }
-  const sakura = lireEnvPublique().NEXT_PUBLIC_TITRES_SAKURA;
-
   return (
-    <html lang={locale} className={`${barlow.variable} ${barlowCondensed.variable}`} suppressHydrationWarning>
+    <html lang={locale} className={komaChikara.variable} suppressHydrationWarning>
       <head>
         {/* Pose le thème avant le premier rendu : pas de flash. */}
         <ScriptTheme />
-        {sakura ? <style dangerouslySetInnerHTML={{ __html: FONT_FACE_SAKURA }} /> : null}
       </head>
       <body>
         {/* Mesure d'audience maison (9.7) : aucun script tiers, aucune requête sur les pages exclues. */}

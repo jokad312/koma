@@ -38,16 +38,16 @@ export function ResultatPlein(props: Props) {
         <svg aria-hidden="true" viewBox="0 0 24 24" className="size-32 shrink-0 fill-none stroke-current" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           {valide ? <path d="M5 12.5l4.5 4.5L19 7.5" /> : <path d="M6 6l12 12M18 6L6 18" />}
         </svg>
-        <p id={idTitre} className="font-condensee text-6xl font-bold leading-none tracking-wide">{valide ? t("resultat.valide") : t("resultat.refuse")}</p>
+        <p id={idTitre} className="font-condensee text-6xl leading-none tracking-wide">{valide ? t("resultat.valide") : t("resultat.refuse")}</p>
         {props.type === "valide" ? (
           <dl className="flex w-full flex-col gap-4">
             <div>
               <dt className="t-small">{t("resultat.type")}</dt>
-              <dd className="font-condensee text-4xl font-bold leading-tight">{props.typePass}</dd>
+              <dd className="font-condensee text-4xl leading-tight">{props.typePass}</dd>
             </div>
             <div>
               <dt className="t-small">{t("resultat.nom")}</dt>
-              <dd className="text-3xl font-bold leading-tight break-words">{props.nom}</dd>
+              <dd className="text-3xl leading-tight break-words">{props.nom}</dd>
             </div>
             <div>
               <dt className="t-small">{t("resultat.evenement")}</dt>
@@ -55,7 +55,7 @@ export function ResultatPlein(props: Props) {
             </div>
           </dl>
         ) : (
-          <p className="text-2xl font-bold leading-snug">
+          <p className="text-2xl leading-snug">
             {props.raison === "deja_scanne"
               ? props.heure
                 ? t("raison.deja_scanne", { heure: props.heure })

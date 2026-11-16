@@ -15,7 +15,7 @@ import "./heros-visiteur.css";
 
 // Haut de l'accueil du visiteur non connecté : maquette docs/design/maquette-accueil/fusion.html (variantes claire et sombre), à 1440 px :
 // titre à gauche, deux blocs « Fait main à Goma » / « Kits à fabriquer » à droite, mot géant en fond qui déborde à gauche, photo détourée du
-// Cosplay vedette avec sa lueur, trois cartes et le bouton rond, signature en bas à gauche. Polices du site (Barlow, Barlow Condensed).
+// Cosplay vedette avec sa lueur, trois cartes et le bouton rond, signature en bas à gauche. Police du site (KOMA Chikara).
 // Tout le style est dans heros-visiteur.css (classes « hv- » propres à ce composant) : rien dans le CSS commun ni dans l'en-tête.
 // Sans produit publié : la disposition reste la même, seules la photo et les cartes (avec le bouton rond) disparaissent.
 
@@ -120,7 +120,16 @@ export async function HerosVisiteur({ locale }: { locale: Locale }) {
           <h1 className="hv-titre">
             {lignes.map((ligne, i) => (
               <span key={i} className="hv-ligne-titre">
-                {ligne}
+                {/* Un mot à trait d'union (« fabrique-le. ») ne se coupe jamais au trait d'union (9.16 a). */}
+                {ligne.split(/(\S+-\S+)/).map((morceau, j) =>
+                  j % 2 === 1 ? (
+                    <span key={j} className="hv-insecable">
+                      {morceau}
+                    </span>
+                  ) : (
+                    morceau
+                  ),
+                )}
               </span>
             ))}
           </h1>

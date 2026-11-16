@@ -39,7 +39,7 @@ export function BandeauAdmin({ utilisateur, estAdmin }: { utilisateur: Utilisate
         {utilisateur ? (
           <div className="flex items-center gap-3">
             <div className="hidden text-right md:block">
-              <p className="t-small font-semibold text-text-primary">{utilisateur.affichage}</p>
+              <p className="t-small text-text-primary">{utilisateur.affichage}</p>
               <p className="t-small text-text-secondary">{utilisateur.role ? t(`bandeau.roles.${utilisateur.role}`) : t("bandeau.roles.aucun")}</p>
             </div>
             <span

@@ -88,7 +88,7 @@ export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function Q
       ) : null}
 
       <div className="flex w-full flex-col gap-2">
-        <label htmlFor={idOrigine} className="t-small font-semibold">
+        <label htmlFor={idOrigine} className="t-small">
           {t("origine.libelle")}
         </label>
         <select
@@ -112,7 +112,7 @@ export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function Q
       </div>
 
       <fieldset className="flex w-full flex-col gap-2" aria-describedby={idAidePreference}>
-        <legend className="t-small mb-2 font-semibold">{t("preference.libelle")}</legend>
+        <legend className="t-small mb-2">{t("preference.libelle")}</legend>
         {PREFERENCES_CREATION.map((valeur) => (
           <label key={valeur} className={OPTION}>
             <input
@@ -136,7 +136,7 @@ export const QuestionsAccueil = forwardRef<HTMLHeadingElement, Props>(function Q
 
       {univers.length > 0 ? (
         <div className="flex w-full flex-col gap-2">
-          <label htmlFor={idUnivers} className="t-small font-semibold">
+          <label htmlFor={idUnivers} className="t-small">
             {t("univers.libelle")}
           </label>
           <select

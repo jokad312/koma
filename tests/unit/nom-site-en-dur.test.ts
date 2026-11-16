@@ -14,7 +14,8 @@ describe("nom du site", () => {
   it("n'est écrit en dur ni dans src/ ni dans messages/", () => {
     const nom = /koma\s*(shop|fest)/i;
     const fautifs = [...fichiers("src"), ...fichiers("messages")]
-      .filter((f) => !f.endsWith(".test.ts") && !f.endsWith("types.ts"))
+      // La licence d'une police (src/fonts/*/LICENCE.txt, 9.16 a) cite le site comme titulaire de la version dérivée : texte de licence, pas du site.
+      .filter((f) => !f.endsWith(".test.ts") && !f.endsWith("types.ts") && !/fonts[\\/][^\\/]+[\\/][^\\/]+\.txt$/i.test(f))
       .filter((f) => nom.test(readFileSync(f, "utf8")));
     expect(fautifs).toEqual([]);
   });

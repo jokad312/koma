@@ -19,7 +19,7 @@ const DOSSIERS_FICHE = DOSSIER_PAR_FAMILLE;
 
 type Props = { article: ArticlePublic; locale: Locale; nomSite: string };
 
-// Un Article complet : fil d'Ariane et JSON-LD, titre en H1 (Sakura Town avec repli), date de publication, texte nettoyé
+// Un Article complet : fil d'Ariane et JSON-LD, titre en H1 (TitreVitrine), date de publication, texte nettoyé
 // par ContenuArticle, galerie des images avec le texte alternatif de la langue, puis lien vers le Produit lié s'il est publié.
 // Colonne de lecture de 720 px sur ordinateur (DESIGN). Aucun auteur, avis, compteur ni durée inventés.
 export async function ArticleComplet({ article, locale, nomSite }: Props) {
@@ -89,7 +89,7 @@ export async function ArticleComplet({ article, locale, nomSite }: Props) {
         <p className="t-body">
           <Link
             href={hrefProduit}
-            className="font-semibold text-text-primary underline decoration-primary decoration-2 underline-offset-2"
+            className="text-text-primary underline decoration-primary decoration-2 underline-offset-2"
           >
             {produitLie.titre}
           </Link>

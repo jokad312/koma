@@ -65,7 +65,7 @@ export async function ListeArticles({ articles }: { articles: readonly ArticleLi
           <tbody>
             {articles.map((a) => (
               <tr key={a.id} className="border-b border-border">
-                <th scope="row" className="px-3 py-2 font-semibold">
+                <th scope="row" className="px-3 py-2">
                   <Link href={`/admin/blog/${a.id}`} className="inline-flex min-h-touch items-center underline">
                     {a.titreFr}
                   </Link>

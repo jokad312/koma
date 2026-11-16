@@ -256,7 +256,7 @@ export function FormulaireConnexion({ etapeInitiale = "email", google = "disponi
         <p>{t("age.texte")}</p>
         {resume}
         <div className="flex w-full flex-col gap-2">
-          <label htmlFor={idAge} className="t-small font-semibold">
+          <label htmlFor={idAge} className="t-small">
             {t("age.libelle")}
           </label>
           <input
@@ -322,7 +322,7 @@ export function FormulaireConnexion({ etapeInitiale = "email", google = "disponi
           {envoi ? <p role="status">{t(envoi.renvoi ? "code.renvoye" : "code.envoye", { email })}</p> : null}
           {resume}
           <div className="flex w-full flex-col gap-2">
-            <label htmlFor={idCode} className="t-small font-semibold">
+            <label htmlFor={idCode} className="t-small">
               {t("code.libelle")}
             </label>
             <input
@@ -356,7 +356,7 @@ export function FormulaireConnexion({ etapeInitiale = "email", google = "disponi
         </form>
         <div className="flex flex-col items-start gap-2">{boutonRenvoi}</div>
         <details className="w-full">
-          <summary className="t-small inline-flex min-h-touch cursor-pointer items-center font-semibold">
+          <summary className="t-small inline-flex min-h-touch cursor-pointer items-center">
             {t("aide.titre")}
           </summary>
           <ul className="t-small mt-2 flex list-disc flex-col gap-2 pl-5">
@@ -381,7 +381,7 @@ export function FormulaireConnexion({ etapeInitiale = "email", google = "disponi
       <p>{t("intro")}</p>
       {resume}
       <div className="flex w-full flex-col gap-2">
-        <label htmlFor={idEmail} className="t-small font-semibold">
+        <label htmlFor={idEmail} className="t-small">
           {t("email.libelle")}
         </label>
         <input
