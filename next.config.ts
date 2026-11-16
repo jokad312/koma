@@ -4,6 +4,7 @@ import { redirectionsAdresses, reecrituresAdresses } from "./src/i18n/adresses";
 import { photosAutorisees } from "./src/lib/supabase/images-distantes";
 import { lireHoteCdnPublic } from "./src/lib/bunny/config";
 import { entetesSecurite, entetesServiceWorker, SOURCE_HORS_SCAN, SOURCE_SCAN, SOURCE_SERVICE_WORKER } from "./src/lib/securite/entetes";
+import { lireOriginesDev } from "./src/lib/securite/origines-dev";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
@@ -13,6 +14,8 @@ const nextConfig: NextConfig = {
   // Identifiant du déploiement, inscrit dans le code du navigateur au build : il change l'adresse d'enregistrement du service worker du Scan (story 7.8).
   env: { NEXT_PUBLIC_BUILD_ID: Date.now().toString(36) },
   partialPrefetching: true,
+  // Développement seulement : téléphone ou autre appareil du réseau local (hôtes lus dans DEV_ORIGINES_AUTORISEES, .env.local).
+  allowedDevOrigins: lireOriginesDev(process.env.DEV_ORIGINES_AUTORISEES),
   images: { remotePatterns: photosAutorisees(process.env.NEXT_PUBLIC_SUPABASE_URL) },
   async headers() {
     const options = {
