@@ -142,7 +142,8 @@ development_status:
   9-15-types-vetement-et-autre-article: done
   # Refonte visuelle de l'admin et police unique (docs/design/admin/INVENTAIRE.md) : étape 1 (police KOMA Chikara, planche validée), étape 2 (9.15)
   # et étape 3 a) (spec-9-16-a : KOMA Chikara partout, 16 px minimum, commits f0fe0e6 et ea13030, CI verte sur main le 2026-11-16) faites ;
-  # étape 3 b) (spec-9-16-b : cadre A, menu du profil, composants communs de src/components/admin/ui/) faite le 2026-11-17 ;
+  # étape 3 b) (spec-9-16-b : cadre A, menu du profil, composants communs de src/components/admin/ui/) : commits b67349f et correctifs de revue
+  # du 2026-11-17, PR #4 ; faite quand la CI de main est verte après la fusion ;
   # prochaine étape = 4 : les 7 pages des maquettes, une spec et un commit par page (page 1 = tableau de bord).
   9-16-refonte-admin-maquette-et-police: in-progress
   9-11-performance-avant-mise-en-ligne: backlog

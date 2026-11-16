@@ -389,13 +389,11 @@ components:
     background: 'admin-menu'
     divider: '1px solid admin-bord'
     tab-min-height: 58px
-    tab-radius: '{rounded.md}'
-    label: '{typography.small}'
+    label: '{typography.label}'
     current-foreground: '{colors.text-primary}'
-    current-background: '{colors.background}'
-    current-marker: '3px {colors.primary} en haut'
-    counter-background: '{colors.text-primary}'
-    counter-foreground: '{colors.background}'
+    current-marker: '4px {colors.primary} en haut'
+    counter-background: '{colors.primary}'
+    counter-foreground: '{colors.on-primary}'
   bar-chart:
     track-background: '{colors.background}'
     track-border: '1px solid {colors.border}'
@@ -766,7 +764,7 @@ Spécifications visuelles ; le comportement est dans `EXPERIENCE.md` § Componen
 
 | Composant | Anatomie et rendu |
 |---|---|
-| **Couleurs de l'admin** (story 9.16 b) | Jetons `--ks-admin-*` de `globals.css`, exposés en classes `bg-admin-*`. Sombre (maquettes `docs/references/maquettes-admin/`, décisions Q5) : fond #16130F, menu et barre #211C17, bord #3A322A, entrée active #16130F, cartes de chiffres #2E2923, grand panneau #322F2B, pastilles et champs #181512, en-tête de tableau et recherche #201E1B, pastille d'info #432322, filtre #861E1B (texte blanc), avatar de liste #762E27 (texte blanc), fenêtre #24211C, bouton Univers #8C514E (texte blanc). Clair (décision 3 du 2026-11-16) : mêmes formes, surfaces #FBF8F2 / #F3EEE4, pastille d'info #EADFCC, filtre #F6D5D2 et avatar #F1CFCB (texte encre), contour #E0D6C5 autour des cartes et panneaux. Un seul rouge #D7261E. |
+| **Couleurs de l'admin** (story 9.16 b) | Jetons `--ks-admin-*` de `globals.css`, exposés en classes `bg-admin-*`. Sombre (maquettes `docs/references/maquettes-admin/`, décisions Q5) : fond #16130F, menu et barre #211C17, bord #3A322A, entrée active #16130F, cartes de chiffres #2E2923, grand panneau #322F2B, pastilles et champs #181512, en-tête de tableau et recherche #201E1B, pastille d'info #432322, filtre #861E1B (texte blanc), avatar de liste #762E27 (texte blanc), fenêtre #24211C, bouton Univers #8C514E (texte blanc). Clair (décision 3 du 2026-11-16) : mêmes formes, surfaces #FBF8F2 / #F3EEE4, pastille d'info #EADFCC, filtre #F6D5D2 et avatar #F1CFCB (texte encre), contour #E0D6C5 autour des cartes et panneaux. Un seul rouge #D7261E. Contraste (WCAG, calculé le 2026-11-17) : sombre, texte #F3EEE4 de 11,5:1 (panneau) à 16,0:1 (fond), texte secondaire #B9AE9E de 6,1:1 (panneau) à 7,7:1 (menu), blanc sur filtre 9,5:1, sur avatar 9,6:1, sur Univers 6,2:1 ; clair, texte #16130F de 12,8:1 (avatar) à 17,5:1 (surfaces), texte secondaire #5E554A 6,3:1 sur #F3EEE4 et 6,9:1 sur #FBF8F2, blanc sur rouge 5,0:1. |
 | **Barre latérale admin** (`admin-sidebar`) | À partir de 1024 px (décision 4 du 2026-11-16) : colonne de 240 px, fond admin-menu, bord droit 4 px admin-bord. Logo (lien vers le site, nom du site comme nom accessible), « ADMINISTRATION » en `{typography.label}`, trait 3 px. Groupes dans l'ordre de la maquette (Q6) ; le premier sans titre visible, « Communauté » et « Réglages » en `{typography.label}` `{colors.text-secondary}`. Entrées de 44 px en `{typography.label}`. Entrée courante (décision 2 du 2026-11-16) : bloc admin-actif collé au bord droit, coins gauches 14 px, texte 18 px, **plus** un trait rouge de 4 px à gauche (repère qui ne dépend pas que de la couleur du fond), `aria-current="page"`. Compteur de messages : pilule `{colors.primary}`. Plus d'encart « Besoin d'aide ? » (Q7). |
 | **Barre du haut admin** (`admin-topbar`) | 68 px, fond admin-menu, filet bas admin-bord. À gauche « ESPACE ADMINISTRATEUR » (une seule ligne, jamais coupé) puis le nom de la page en `{typography.h3}`. À droite : thème (rond clair 44 px, soleil en sombre, lune en clair, `aria-pressed`), langue (rond à contour 44 px, code court de l'autre langue, nom complet pour les lecteurs d'écran), nom et rôle (à partir de 1280 px), avatar rouge 48 px aux initiales. Sans Compte lisible : ni nom ni initiales, l'avatar montre une icône. |
 | **Menu du profil admin** | Ouvert par l'avatar (clic, Entrée, Espace) : menu déroulant fond admin-fenetre, filet admin-bord, coins 14 px, nom et rôle en tête, puis cinq entrées de 44 px avec icône lucide : Mon profil (`/compte`), Paramètres du profil (`/compte/preferences`), Aide (petite fenêtre à l'en-tête des maquettes : titre à gauche, croix « Fermer » à droite, trait dessous ; texte de l'ancien encart et lien WhatsApp des réglages s'il existe), Voir le site, Se déconnecter (sous un filet). Flèches, Début, Fin ; Échap ferme et rend le focus à l'avatar ; clic à l'extérieur ou Tab hors du menu le ferme. |

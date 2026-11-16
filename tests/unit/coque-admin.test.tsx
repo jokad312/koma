@@ -402,7 +402,11 @@ describe("CoqueAdmin : disposition en L", () => {
       chemin.courant = "/admin";
       let surChangement: (() => void) | null = null;
       const mq = { matches: false, addEventListener: (_: string, f: () => void) => (surChangement = f), removeEventListener: () => {} };
-      vi.stubGlobal("matchMedia", () => mq);
+      const requetes: string[] = [];
+      vi.stubGlobal("matchMedia", (requete: string) => {
+        requetes.push(requete);
+        return mq;
+      });
       try {
         const user = userEvent.setup();
         rendre(await coque("x"));
@@ -411,6 +415,8 @@ describe("CoqueAdmin : disposition en L", () => {
         mq.matches = true;
         await act(async () => surChangement?.());
         expect(screen.queryByRole("dialog")).toBeNull();
+        // Seuil du menu latéral (lg, 1024 px) : le panneau « Plus » reste utilisable de 768 à 1023 px.
+        expect(requetes).toContain("(min-width: 64rem)");
       } finally {
         vi.unstubAllGlobals();
       }

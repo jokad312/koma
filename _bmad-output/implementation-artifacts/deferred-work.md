@@ -550,3 +550,9 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-9-16-b-cadre-admin-et-composants.md`
   summary: e2e instable (même famille que les 3 e2e mobiles ci-dessus) — `tests/e2e/catalogue.spec.ts:33` (/fr/cosplays, projet mobile, « un seul H1… aucune erreur serveur ») reçoit une erreur 500 au lieu de 200 pendant la suite complète `npm run test:e2e`, et passe seul.
   evidence: Suite complète locale du 2026-11-17 (9.16 b) : 233 réussis, 16 ignorés, 1 échoué ; relance de `npm run test:e2e -- tests/e2e/catalogue.spec.ts` : 27/27. Page publique non touchée par la 9.16 b. Serveur de dev sous charge (compilation à la demande) ; cause de la 500 non relevée (journal du serveur à capturer à la prochaine occurrence). Mêmes pistes : attendre un état, préchauffer les routes, lancer en série.
+
+## Deferred from: code review of spec-9-16-b-cadre-admin-et-composants (2026-11-17)
+
+- Critères de mise en page de l'admin (surtitre sur une ligne à 1024 px, aucun chevauchement ni défilement à 320 px, menu sans défilement à 1366 × 768) vérifiés seulement par `scripts/captures-admin.mjs` (à la main, hors CI). Ajouter un e2e à 320, 1024 et 1366 px dans un contexte sans `isMobile`, avec la correction du contrôle 320 px déjà notée plus haut.
+- `FenetreFormulaire` : le fond flouté ne couvre que le bloc de contenu et n'a rien à flouter derrière (maquette D1 : page assombrie et floutée en plein écran). À trancher avec la page « Nouveau produit » de l'étape 4, premier usage du composant.
+- `Pagination` affiche « Page X / Y » en casse normale : à comparer aux maquettes B10 et CP9 à l'étape 4.

@@ -28,7 +28,7 @@ export function BasculeTheme({ variante = "pastille" }: { variante?: "pastille" 
         aria-pressed={sombre}
         aria-label={t("sombre")}
         onClick={() => appliquerTheme(sombre ? "light" : "dark")}
-        className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-admin-rond text-admin-sur-rond"
+        className="inline-flex size-11 shrink-0 items-center justify-center rounded-full border border-transparent bg-admin-rond text-admin-sur-rond"
       >
         <Icone aria-hidden="true" className="size-6" strokeWidth={2} />
       </button>

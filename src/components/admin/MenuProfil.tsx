@@ -97,7 +97,7 @@ export function MenuProfil({ profil, lienAide }: { profil: ProfilMenu | null; li
         aria-expanded={ouvert}
         aria-controls={idMenu}
         onClick={() => setOuvert((o) => !o)}
-        className="t-label inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-primary tracking-normal text-on-primary"
+        className="t-label inline-flex size-12 shrink-0 items-center justify-center rounded-full border border-transparent bg-primary tracking-normal text-on-primary"
       >
         {profil ? <span aria-hidden="true">{profil.initiales}</span> : <UserRound aria-hidden="true" className="size-6" />}
       </button>

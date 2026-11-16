@@ -83,3 +83,32 @@ context:
 
 **Manual checks :**
 - Captures 1366 × 768 en sombre des 7 pages des maquettes, côte à côte et superposées à 50 %, avec la liste honnête des écarts (cadre ; contenu noté pour l'étape 4).
+
+### Review Findings
+
+Revue de code du 2026-11-17 (PR #4, commit b67349f) : Blind Hunter, Edge Case Hunter, Verification Gap, Acceptance Auditor (sous-agents Opus 5.5, même modèle que le code : le workflow impose le même niveau de modèle).
+
+- [x] [Review][Patch] Moyen — FenetreFormulaire : Échap dans une fenêtre ouverte au-dessus (Aide, « Plus »), dans un `<select>` natif ou pendant une composition IME ramène aussi à la liste (écouteur du formulaire enregistré avant celui de Dialogue) ; le test d'Échap « déjà traité » ne reproduit pas l'ordre réel [src/components/admin/ui/FenetreFormulaire.tsx:37]
+- [x] [Review][Patch] Moyen — Barre du haut à 320 px : « ESPACE ADMINISTRATEUR » en `whitespace-nowrap` déborde de son bloc et passe sous l'avatar (mesuré : surtitreDeborde=true à 320 px) [src/components/admin/BandeauAdmin.tsx:27]
+- [x] [Review][Patch] Moyen — Tests absents des vraies variantes : BoutonDeconnexion « menu » (data-entree-profil, libellé EN), BasculeTheme « rond » (aria-pressed, bascule), SelecteurLangue « rond » (EN visible, nom « English »), requête matchMedia « (min-width: 64rem) » non vérifiée [tests/unit/composants-layout.test.tsx, tests/unit/coque-admin.test.tsx]
+- [x] [Review][Patch] Faible — FenetreFormulaire : Échap et croix actifs pendant l'enregistrement ; id de titre fixe (useId) — corrigé ; « modifié » volontairement gardé après une soumission (si l'enregistrement échoue, la saisie reste protégée) [src/components/admin/ui/FenetreFormulaire.tsx]
+- [x] [Review][Patch] Faible — EnTeteTableau : coins arrondis invisibles (fond sur le `<tr>`, tableau en border-collapse par le preflight) [src/components/admin/ui/EnTeteTableau.tsx:7]
+- [x] [Review][Patch] Faible — Pagination : page ou total NaN ou décimal affiché tel quel [src/components/admin/ui/Pagination.tsx:14]
+- [x] [Review][Patch] Faible — Couleurs forcées : rond du thème, avatar et entrée active repérés par leur seul fond (ajouter une bordure transparente) [BasculeTheme.tsx, MenuProfil.tsx, NavigationAdmin.tsx]
+- [x] [Review][Patch] Faible — Panneau sans nom accessible (titre non relié par aria-labelledby) [src/components/admin/ui/Panneau.tsx]
+- [x] [Review][Patch] Faible — DESIGN.md : bloc YAML admin-tab-bar contredit le tableau (label small, tab-radius) ; ratios de contraste annoncés par globals.css absents [DESIGN.md]
+- [x] [Review][Patch] Faible — Suivi de sprint : l'étape 3 b est dite « faite » avant la CI verte [sprint-status.yaml:144]
+- [x] [Review][Defer] Critères de mise en page (1024 px, 320 px, menu sans défilement à 768 px de haut) vérifiés seulement par scripts/captures-admin.mjs, hors CI — deferred: un e2e fiable dépend de la correction du contexte Playwright isMobile déjà notée dans deferred-work.md
+- [x] [Review][Defer] FenetreFormulaire : fond flouté limité au bloc de contenu, rien à flouter derrière (D1 : plein écran) — deferred: à trancher avec la page « Nouveau produit » de l'étape 4, premier usage du composant
+- [x] [Review][Defer] Pagination en casse normale (« Page X / Y ») — deferred: à comparer aux maquettes B10 et CP9 à l'étape 4
+
+Rejetés :
+- Écarts de maquette (menu 240 px, rond de langue « EN », rond du thème foncé en clair, nom et rôle à partir de 1280 px, « Mon profil » = /compte?vue=site) : présentés à Jonathan avec les captures le 2026-11-17, validés (seules deux corrections demandées).
+- « e2e mis à jour » coché sans fichier e2e modifié : aucun e2e n'avait à changer (suite complète verte) ; le correctif serait d'éditer la spec.
+- epic-9-context.md périmé : cache recompilé automatiquement (DESIGN.md, plus récent, l'invalide).
+- Lecture du numéro WhatsApp à chaque page : faux, `lireNumeroWhatsapp` est en `use cache` (étiquette reglages).
+- Superposition à 50 % opaque (ensureAlpha) : faux, les captures PNG de Playwright n'ont pas de canal alpha ; superpositions vérifiées à l'œil.
+- captures-admin.mjs (pagination de listUsers au-delà de 1 000 Comptes, erreur de nettoyage qui masque l'erreur d'origine, contrôle de la base visée) : outil local de développement sur koma-dev, cas improbables.
+- Sorties non protégées (retour du navigateur, liens du menu, beforeunload) : hors de la demande (Échap et croix seulement).
+- `h1` imposé et largeur 12ch du titre de FenetreFormulaire : voulu, la fenêtre porte le titre de la page (Q23), titre sur deux lignes comme la maquette.
+- Erreur de déconnexion dans le menu refermé ; ß ou i turc dans AvatarInitiale ; `<span />` vide de Panneau : cas improbables ou cosmétiques.

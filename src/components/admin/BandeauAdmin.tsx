@@ -26,7 +26,8 @@ export function BandeauAdmin({ utilisateur, estAdmin, lienAide = null }: { utili
   return (
     <header className="sticky top-0 z-20 flex min-h-[68px] items-center justify-between gap-4 border-b border-admin-bord bg-admin-menu px-marge py-2 lg:px-3">
       <div className="min-w-0">
-        <p className="t-label whitespace-nowrap text-text-secondary">{t("bandeau.surtitre")}</p>
+        {/* Une seule ligne à partir de 640 px ; en dessous (320 px), le surtitre passe à la ligne entre ses deux mots plutôt que de glisser sous l'avatar. */}
+        <p className="t-label text-text-secondary sm:whitespace-nowrap">{t("bandeau.surtitre")}</p>
         <p className="t-h3 truncate text-text-primary">{courante ? t(courante.cle) : t("libelle")}</p>
       </div>
       <div className="flex shrink-0 items-center gap-3">

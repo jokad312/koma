@@ -10,13 +10,15 @@ const FLECHE_INACTIVE = "inline-flex size-11 items-center justify-center rounded
 
 export function Pagination({ page, total, adresse }: { page: number; total: number; adresse: (page: number) => string }) {
   const t = useTranslations("Admin.ui");
-  if (total <= 1) return null;
-  const courante = Math.min(Math.max(1, Math.trunc(page)), total);
+  // Valeurs lues dans l'adresse : un total ou une page non numériques ou décimaux sont ramenés à des entiers (page 1 par défaut).
+  const totalPages = Number.isFinite(total) ? Math.trunc(total) : 0;
+  if (totalPages <= 1) return null;
+  const courante = Math.min(Math.max(1, Number.isFinite(page) ? Math.trunc(page) : 1), totalPages);
 
   function fleche(sens: "precedente" | "suivante") {
     const cible = sens === "precedente" ? courante - 1 : courante + 1;
     const Icone = sens === "precedente" ? ChevronLeft : ChevronRight;
-    if (cible < 1 || cible > total) {
+    if (cible < 1 || cible > totalPages) {
       return (
         <span role="link" aria-disabled="true" aria-label={t(sens)} className={FLECHE_INACTIVE}>
           <Icone aria-hidden="true" className="size-6" />
@@ -33,7 +35,7 @@ export function Pagination({ page, total, adresse }: { page: number; total: numb
   return (
     <nav aria-label={t("pagination")} className="flex items-center justify-center gap-4 text-text-primary">
       {fleche("precedente")}
-      <p className="t-small">{t("page", { page: courante, total })}</p>
+      <p className="t-small">{t("page", { page: courante, total: totalPages })}</p>
       {fleche("suivante")}
     </nav>
   );

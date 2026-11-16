@@ -2,7 +2,10 @@
 import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { Package } from "lucide-react";
+import { NextIntlClientProvider } from "next-intl";
+import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import fr from "../../messages/fr.json";
 import { rendre } from "./aides-dom";
 
 const routeur = vi.hoisted(() => ({ push: vi.fn() }));
@@ -18,12 +21,13 @@ vi.mock("@/i18n/navigation", () => ({
 import { AvatarInitiale, initiale } from "@/components/admin/ui/AvatarInitiale";
 import { CarteChiffre } from "@/components/admin/ui/CarteChiffre";
 import { ChampRecherche } from "@/components/admin/ui/ChampRecherche";
-import { EnTeteTableau } from "@/components/admin/ui/EnTeteTableau";
+import { CLASSES_TABLEAU_ADMIN, EnTeteTableau } from "@/components/admin/ui/EnTeteTableau";
 import { FenetreFormulaire } from "@/components/admin/ui/FenetreFormulaire";
 import { Pagination } from "@/components/admin/ui/Pagination";
 import { Panneau } from "@/components/admin/ui/Panneau";
 import { Pastille } from "@/components/admin/ui/Pastille";
 import { PastilleFiltre } from "@/components/admin/ui/PastilleFiltre";
+import { Dialogue } from "@/components/ui/Dialogue";
 
 beforeEach(() => routeur.push.mockReset());
 
@@ -102,9 +106,10 @@ describe("composants communs de l'admin (9.16 b)", () => {
     expect(screen.getByRole("link", { name: "Toutes" }).getAttribute("aria-current")).toBeNull();
   });
 
-  it("EnTeteTableau : en-têtes de colonne d'un vrai tableau, barre arrondie aux deux bouts", () => {
+  it("EnTeteTableau : en-têtes de colonne d'un vrai tableau, barre arrondie aux deux bouts (fond sur chaque cellule, bordures séparées)", () => {
+    expect(CLASSES_TABLEAU_ADMIN).toContain("border-separate");
     rendre(
-      <table>
+      <table className={CLASSES_TABLEAU_ADMIN}>
         <EnTeteTableau
           colonnes={[
             { cle: "numero", libelle: "N° commande" },
@@ -120,7 +125,7 @@ describe("composants communs de l'admin (9.16 b)", () => {
     for (const e of entetes) expect(e.getAttribute("scope")).toBe("col");
     expect(entetes[0].className).toContain("rounded-l-[16px]");
     expect(entetes[2].className).toContain("rounded-r-[16px]");
-    expect(entetes[0].closest("tr")?.className).toContain("bg-admin-entete");
+    for (const e of entetes) expect(e.className).toContain("bg-admin-entete");
   });
 
   it("AvatarInitiale : première lettre en majuscule, décoratif ; sans lettre : rien (pas d'initiale inventée)", () => {
@@ -155,6 +160,13 @@ describe("composants communs de l'admin (9.16 b)", () => {
       rendre(<Pagination page={3} total={3} adresse={adresse} />);
       const suivantes = screen.getAllByRole("link", { name: "Page suivante" });
       expect(suivantes[1].getAttribute("aria-disabled")).toBe("true");
+    });
+
+    it("valeurs non numériques ou décimales lues dans l'adresse : ramenées à des entiers", () => {
+      rendre(<Pagination page={Number.NaN} total={3.7} adresse={adresse} />);
+      expect(screen.getByText("Page 1 / 3")).toBeTruthy();
+      const { container } = rendre(<Pagination page={2} total={Number.NaN} adresse={adresse} />);
+      expect(container.firstElementChild).toBeNull();
     });
 
     it("page hors limites ramenée dans [1, total] ; une seule page : rien", () => {
@@ -226,6 +238,53 @@ describe("composants communs de l'admin (9.16 b)", () => {
       expect(screen.getByRole("dialog", { name: "Quitter sans enregistrer ?" })).toBeTruthy();
       await user.keyboard("{Escape}");
       expect(screen.queryByRole("dialog")).toBeNull();
+      expect(routeur.push).not.toHaveBeenCalled();
+    });
+
+    it("une vraie fenêtre ouverte au-dessus (Dialogue, écouteur ajouté après celui du formulaire) : Échap la ferme sans quitter le formulaire", async () => {
+      const user = userEvent.setup();
+      function AvecAide() {
+        const [ouvert, setOuvert] = useState(false);
+        return (
+          <FenetreFormulaire titre="Nouveau produit" retour="/admin/produits" idFormulaire="TEST_formulaire">
+            <button type="button" onClick={() => setOuvert(true)}>
+              {"Ouvrir l'aide"}
+            </button>
+            <Dialogue ouvert={ouvert} onFermer={() => setOuvert(false)} titre="TEST_ aide" entete="fenetre">
+              texte
+            </Dialogue>
+          </FenetreFormulaire>
+        );
+      }
+      rendre(<AvecAide />);
+      await user.click(screen.getByRole("button", { name: "Ouvrir l'aide" }));
+      expect(screen.getByRole("dialog", { name: "TEST_ aide" })).toBeTruthy();
+      await user.keyboard("{Escape}");
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(routeur.push).not.toHaveBeenCalled();
+    });
+
+    it("Échap dans une liste déroulante native ou pendant l'enregistrement : on reste sur la page", async () => {
+      const user = userEvent.setup();
+      const { rerender } = rendre(
+        <FenetreFormulaire titre="Nouveau produit" retour="/admin/produits" idFormulaire="f">
+          <select aria-label="Famille">
+            <option>Cosplay</option>
+          </select>
+        </FenetreFormulaire>,
+      );
+      screen.getByRole("combobox", { name: "Famille" }).focus();
+      await user.keyboard("{Escape}");
+      expect(routeur.push).not.toHaveBeenCalled();
+      rerender(
+        <NextIntlClientProvider locale="fr" messages={fr}>
+          <FenetreFormulaire titre="Nouveau produit" retour="/admin/produits" idFormulaire="f" enregistrementEnCours>
+            x
+          </FenetreFormulaire>
+        </NextIntlClientProvider>,
+      );
+      (document.activeElement as HTMLElement | null)?.blur();
+      await user.keyboard("{Escape}");
       expect(routeur.push).not.toHaveBeenCalled();
     });
 
