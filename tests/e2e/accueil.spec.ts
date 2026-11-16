@@ -82,6 +82,8 @@ for (const langue of ["fr", "en"] as const) {
     const tuiles = page.locator('section[aria-labelledby="accueil-categories"]');
     await expect(tuiles.locator(`a[href="/${langue}/cosplays"]`)).toBeVisible();
     await expect(tuiles.locator(`a[href="/${langue}/${langue === "fr" ? "accessoires" : "accessories"}"]`)).toBeVisible();
+    await expect(tuiles.locator(`a[href="/${langue}/${langue === "fr" ? "vetements" : "clothing"}"]`)).toBeVisible();
+    await expect(tuiles.locator(`a[href="/${langue}/${langue === "fr" ? "autres-articles" : "other-items"}"]`)).toBeVisible();
     await expect(tuiles.locator(`a[href="/${langue}/kits"]`)).toBeVisible();
     await expect(page.locator("main details")).toHaveCount(3);
   });
@@ -90,8 +92,9 @@ for (const langue of ["fr", "en"] as const) {
     await page.setViewportSize({ width: 320, height: 800 });
     await page.goto(`/${langue}`);
     const tuiles = page.locator('section[aria-labelledby="accueil-categories"] ul a');
-    await expect(tuiles).toHaveCount(3);
-    const boites = await Promise.all([tuiles.nth(0).boundingBox(), tuiles.nth(1).boundingBox(), tuiles.nth(2).boundingBox()]);
+    // Cinq catalogues depuis la story 9.15 : cosplays, accessoires, vêtements, autres articles, kits.
+    await expect(tuiles).toHaveCount(5);
+    const boites = await Promise.all([0, 1, 2, 3, 4].map((i) => tuiles.nth(i).boundingBox()));
     for (const boite of boites) expect(boite).not.toBeNull();
     const xs = boites.map((b) => b?.x ?? Number.NaN);
     expect(new Set(xs).size).toBe(1);

@@ -36,14 +36,22 @@ const env = lireEnv();
 test.skip(!env, "variables Supabase absentes");
 
 // SQL exécuté par la Supabase CLI : base liée (koma-dev) en local, base locale en CI (la CI fait déjà `supabase start`).
-function sql(requete: string): string {
+// `--local` n'accepte qu'UNE commande par appel (requête préparée) : chaque écriture est donc un seul bloc `do $$ … $$`,
+// qui reste une seule transaction (auteur journalisé et déclencheur désactivé le temps du bloc). La sortie texte de la CLI
+// n'est jamais lue : les lectures passent par le client Supabase (clé service), identique en local et en CI.
+function sql(requete: string): void {
   const dossier = mkdtempSync(join(tmpdir(), "e2e-915-"));
   const fichier = join(dossier, "requete.sql");
   writeFileSync(fichier, requete);
   const r = spawnSync("npx", ["supabase", "db", "query", process.env.CI ? "--local" : "--linked", "-f", fichier], { encoding: "utf8", shell: true });
   rmSync(dossier, { recursive: true, force: true });
   if (r.status !== 0 || /"error"|ERROR/.test(r.stdout + r.stderr)) throw new Error(`SQL en échec : ${(r.stdout + r.stderr).slice(0, 1200)}`);
-  return r.stdout;
+}
+
+// Un seul bloc PL/pgSQL : une seule commande pour la CLI, une seule transaction pour la base.
+function sqlBloc(corps: string, declarations = ""): void {
+  const declare = declarations ? [`declare`, declarations] : [];
+  sql(["do $bloc$", ...declare, "begin", `perform set_config('ks.auteur', '${AUTEUR}', true);`, corps, "end", "$bloc$;"].join("\n"));
 }
 
 function service(): SupabaseClient {
@@ -69,9 +77,7 @@ async function nettoyer() {
   const comptes = await comptesTest();
   const liste = comptes.length > 0 ? comptes.map((c) => `'${c}'`).join(",") : "null";
   const produits = `'${ID.polo}', '${ID.objet}'`;
-  sql(`begin;
-select set_config('ks.auteur', '${AUTEUR}', true);
-delete from public.reservation where commande_id in (select id from public.commande where compte_id in (${liste}))
+  sqlBloc(`delete from public.reservation where commande_id in (select id from public.commande where compte_id in (${liste}))
   or commande_id in (select commande_id from public.ligne_commande where produit_id in (${produits}));
 delete from public.tentative_paiement where commande_id in (select id from public.commande where compte_id in (${liste}));
 delete from public.ligne_commande where produit_id in (${produits}) or commande_id in (select id from public.commande where compte_id in (${liste}));
@@ -82,8 +88,7 @@ alter table public.produit disable trigger produit_publie_complet;
 delete from public.produit_photo where produit_id in (${produits});
 delete from public.variante where produit_id in (${produits});
 delete from public.produit where id in (${produits}) or slug like 'test-e2e-915-%';
-alter table public.produit enable trigger produit_publie_complet;
-commit;`);
+alter table public.produit enable trigger produit_publie_complet;`);
   await service().storage.from("produits-public").remove(FICHIERS);
   for (const id of comptes) {
     const { error } = await service().auth.admin.deleteUser(id);
@@ -91,20 +96,26 @@ commit;`);
   }
 }
 
-// Contrôle final : aucune donnée TEST_ de ce fichier ne reste.
+// Contrôle final : aucune donnée TEST_ de ce fichier ne reste. Comptes exacts lus par le client Supabase (clé service).
 async function compterRestes(): Promise<Record<string, number>> {
-  const sortie = sql(`select
-  (select count(*) from public.produit where id in ('${ID.polo}', '${ID.objet}') or slug like 'test-e2e-915-%') as produits,
-  (select count(*) from public.variante where produit_id in ('${ID.polo}', '${ID.objet}')) as variantes,
-  (select count(*) from public.produit_photo where produit_id in ('${ID.polo}', '${ID.objet}')) as photos,
-  (select count(*) from public.ligne_panier where produit_id in ('${ID.polo}', '${ID.objet}')) as lignes_panier,
-  (select count(*) from public.ligne_commande where produit_id in ('${ID.polo}', '${ID.objet}')) as lignes_commande,
-  (select count(*) from auth.users where email like '${EMAIL_PREFIXE}%') as comptes;`);
-  const restes: Record<string, number> = {};
-  for (const cle of ["produits", "variantes", "photos", "lignes_panier", "lignes_commande", "comptes"]) restes[cle] = Number(new RegExp(`"${cle}":\\s*"?(\\d+)`).exec(sortie)?.[1] ?? -1);
+  const ids = [ID.polo, ID.objet];
+  const compter = async (table: string, colonne: string, slug = false): Promise<number> => {
+    let requete = service().from(table).select("*", { count: "exact", head: true });
+    requete = slug ? requete.or(`id.in.(${ids.join(",")}),slug.like.test-e2e-915-%`) : requete.in(colonne, ids);
+    const { count, error } = await requete;
+    if (error || count === null) throw new Error(`comptage de ${table} impossible : ${error?.message}`);
+    return count;
+  };
   const { data } = await service().storage.from("produits-public").list("test-e2e-915");
-  restes.fichiers = (data ?? []).length;
-  return restes;
+  return {
+    produits: await compter("produit", "id", true),
+    variantes: await compter("variante", "produit_id"),
+    photos: await compter("produit_photo", "produit_id"),
+    lignes_panier: await compter("ligne_panier", "produit_id"),
+    lignes_commande: await compter("ligne_commande", "produit_id"),
+    comptes: (await comptesTest()).length,
+    fichiers: (data ?? []).length,
+  };
 }
 
 // Vêtement publié : M et L × Noir et Blanc, stock seulement en M Noir (aucune fabrication sur commande) ; Autre article publié, Taille unique.
@@ -113,9 +124,7 @@ async function semer() {
     const { error } = await service().storage.from("produits-public").upload(chemin, contenu, { upsert: true, contentType: "image/jpeg" });
     if (error) throw new Error(`envoi de ${chemin} impossible : ${error.message}`);
   }
-  sql(`begin;
-select set_config('ks.auteur', '${AUTEUR}', true);
-alter table public.produit disable trigger produit_publie_complet;
+  sqlBloc(`alter table public.produit disable trigger produit_publie_complet;
 insert into public.produit (id, famille, slug, titre_fr, titre_en, description_fr, description_en, prix_cents) values
   ('${ID.polo}', 'vetement', '${SLUG.polo}', '${TITRE.polo}', '${TITRE.poloEn}', 'TEST_ description de démonstration', 'TEST_ demo description', 2500),
   ('${ID.objet}', 'autre', '${SLUG.objet}', '${TITRE.objet}', '${TITRE.objetEn}', 'TEST_ description de démonstration', 'TEST_ demo description', 1200);
@@ -129,8 +138,7 @@ insert into public.variante (produit_id, taille, couleur_fr, couleur_en, couleur
   ('${ID.polo}', 'L', 'Blanc', 'White', '#F4EFE6', 0);
 insert into public.variante (produit_id, taille, stock) values ('${ID.objet}', 'unique', 2);
 update public.produit set publie_le = now() - interval '1 hour' where id in ('${ID.polo}', '${ID.objet}');
-alter table public.produit enable trigger produit_publie_complet;
-commit;`);
+alter table public.produit enable trigger produit_publie_complet;`);
 }
 
 // Compte TEST_ réel (API d'administration, âge déclaré, questions d'accueil passées) et sa session posée dans le navigateur.
@@ -230,22 +238,18 @@ test.describe("story 9.15 : Vêtement et Autre article", () => {
 
     // Étape de paiement d'une Commande en attente du Compte TEST_ (créée en base, jamais payée) : la carte ne passe jamais par Polar.
     const [compte] = await comptesTest();
-    sql(`begin;
-select set_config('ks.auteur', '${AUTEUR}', true);
-with c as (
-  insert into public.commande (compte_id, type, statut, sous_total_cents, total_cents, forfait_cents, zone, mode_remise, telephone, expire_le)
+    sqlBloc(
+      `insert into public.commande (compte_id, type, statut, sous_total_cents, total_cents, forfait_cents, zone, mode_remise, telephone, expire_le)
   values ('${compte}', 'produits', 'en_attente', 2500, 2500, 0, 'goma', 'retrait', '+243990000000', now() + interval '30 minutes')
-  returning id
-), l as (
-  insert into public.ligne_commande (commande_id, produit_id, variante_id, origine, nombre, prix_cents)
-  select c.id, '${ID.polo}', v.id, 'stock', 1, 2500 from c, public.variante v where v.produit_id = '${ID.polo}' and v.taille = 'M' and v.couleur_fr = 'Noir'
-  returning commande_id
-)
-select count(*) from l;
-commit;`);
-    const sortie = sql(`select numero from public.commande where compte_id = '${compte}' and statut = 'en_attente';`);
-    const numero = /"numero":\s*"(KS-[0-9]{4}-[0-9]+)"/.exec(sortie)?.[1];
-    expect(numero, sortie.slice(0, 400)).toBeTruthy();
+  returning id into v_commande;
+insert into public.ligne_commande (commande_id, produit_id, variante_id, origine, nombre, prix_cents)
+  select v_commande, '${ID.polo}', v.id, 'stock', 1, 2500 from public.variante v
+  where v.produit_id = '${ID.polo}' and v.taille = 'M' and v.couleur_fr = 'Noir';`,
+      "v_commande uuid;",
+    );
+    const lue = await service().from("commande").select("numero").eq("compte_id", compte).eq("statut", "en_attente").maybeSingle();
+    const numero = lue.data?.numero as string | undefined;
+    expect(numero, lue.error?.message ?? "Commande TEST_ introuvable").toMatch(/^KS-[0-9]{4}-[0-9]+$/);
     await page.goto(`/fr/commande/${numero}`, { waitUntil: "networkidle" });
     const main = page.locator("main");
     await expect(main.getByText("Carte", { exact: true })).toBeVisible();
