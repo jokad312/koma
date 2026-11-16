@@ -1,5 +1,13 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+// React pose ses propriétés internes sur un nœud du DOM quand il l'hydrate (même repère que connexion.spec.ts).
+async function attendreHydratation(page: Page, selecteur: string) {
+  await page.waitForFunction((sel) => {
+    const noeud = document.querySelector(sel);
+    return noeud !== null && Object.keys(noeud).some((cle) => cle.startsWith("__reactProps"));
+  }, selecteur);
+}
 
 // Le clic sur « Continuer avec Google » n'est jamais automatisé (aucune connexion Google simulée) : il est testé à la main.
 const INSTAGRAM_IPHONE =
@@ -25,15 +33,14 @@ test.describe("navigateur intégré", () => {
 
   test("le bandeau se ferme et le choix est mémorisé sur une autre page", async ({ page }) => {
     await page.goto("/fr");
-    // Cause de l'intermittence : un clic parti avant l'hydratation de React tombe sur du HTML sans gestionnaire et ne ferme rien.
-    // On réessaie donc le clic jusqu'à ce que le bandeau soit fermé (le bouton existe encore tant que le clic n'a pas été pris en compte).
+    // Le bandeau est rendu par le serveur ; le fermer et relire le choix mémorisé (localStorage) ne marchent qu'une fois React hydraté.
+    // Attente explicite de l'hydratation à chaque page, au lieu de deviner un délai (cause des échecs au hasard en CI).
     const bandeau = page.getByRole("region", { name: "Ouvrir dans ton navigateur" });
-    await expect(async () => {
-      const fermer = page.getByRole("button", { name: "Fermer l'avis" });
-      if (await fermer.count()) await fermer.click({ timeout: 1000 });
-      await expect(bandeau).toHaveCount(0, { timeout: 1000 });
-    }).toPass({ timeout: 15000 });
+    await attendreHydratation(page, "button[aria-label=\"Fermer l'avis\"]");
+    await page.getByRole("button", { name: "Fermer l'avis" }).click();
+    await expect(bandeau).toHaveCount(0);
     await page.goto("/fr/connexion");
+    await attendreHydratation(page, "input[name=email]");
     await expect(page.getByRole("region", { name: "Ouvrir dans ton navigateur" })).toHaveCount(0);
   });
 });
