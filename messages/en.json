@@ -3202,7 +3202,7 @@
       "surCommande": "Made to order",
       "surMesure": "Made to measure",
       "delai": "Production time: {n, plural, one {# day} other {# days}}",
-      "complet": "Orders are full for now",
+      "complet": "Orders full for now",
       "epuise": "Out of stock for now",
       "unique": "One size"
     },

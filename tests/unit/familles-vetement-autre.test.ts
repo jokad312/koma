@@ -299,6 +299,9 @@ describe("libellés de disponibilité : jamais « Épuisé » (C-4)", () => {
     expect(fr.Catalogue.disponibilite.epuise).toBe("Plus en stock pour le moment");
     expect(en.Catalogue.disponibilite.epuise).toBe("Out of stock for now");
     expect(fr.Catalogue.disponibilite.complet).toBe("Commandes complètes pour le moment");
+    // Capacité atteinte : même libellé sur la carte et sur la fiche, en français comme en anglais.
+    for (const m of [fr, en]) expect(m.Fiche.tailles.complet).toBe(m.Catalogue.disponibilite.complet);
+    expect(en.Fiche.tailles.complet).toBe("Orders full for now");
   });
 });
 
