@@ -11,6 +11,8 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
+  // Mises à jour de Next.js par agent : correctifs de sécurité seulement.
+  experimental: { agentUpgrade: "security" },
   // Identifiant du déploiement, inscrit dans le code du navigateur au build : il change l'adresse d'enregistrement du service worker du Scan (story 7.8).
   env: { NEXT_PUBLIC_BUILD_ID: Date.now().toString(36) },
   partialPrefetching: true,
