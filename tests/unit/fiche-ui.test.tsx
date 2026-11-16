@@ -216,9 +216,10 @@ describe("ZoneAchat : tailles", () => {
     expect(screen.queryByRole("link", { name: "Voir le kit" })).toBeNull();
   });
 
-  it("aucune taille achetable sans capacité atteinte : « Commandes complètes pour le moment », jamais « Épuisé »", () => {
+  it("aucune taille achetable sans capacité atteinte : « Plus en stock pour le moment », jamais « Épuisé »", () => {
     rendre(<ZoneAchat produitId="00000000-0000-4000-8000-0000000000bb" {...props} tailles={[t("M", "epuise")]} />);
-    expect(screen.getByText("Commandes complètes pour le moment")).toBeTruthy();
+    expect(screen.getByText("Plus en stock pour le moment")).toBeTruthy();
+    expect(screen.queryByText("Commandes complètes pour le moment")).toBeNull();
     expect(document.body.textContent).not.toMatch(/Épuisé/i);
     expect(screen.queryByRole("radio")).toBeNull();
   });
@@ -233,7 +234,7 @@ describe("ZoneAchat : tailles", () => {
   });
 
   it("le sélecteur dit l'état exact : complet et épuisé ne s'affichent jamais « Fabrication sur commande », ni « Épuisé »", () => {
-    const cas = [["complet", "Commandes complètes pour le moment"], ["epuise", "Commandes complètes pour le moment"], ["disponible", "En stock"], ["dernieres_pieces", "Dernières pièces"], ["sur_commande", "Fabrication sur commande"]] as const;
+    const cas = [["complet", "Commandes complètes pour le moment"], ["epuise", "Plus en stock pour le moment"], ["disponible", "En stock"], ["dernieres_pieces", "Dernières pièces"], ["sur_commande", "Fabrication sur commande"]] as const;
     for (const [etat, mot] of cas) {
       const { unmount } = rendre(<SelecteurTaille tailles={[t("M", etat)]} choisie="M" onChoisir={() => {}} />);
       expect(screen.getByRole("status").textContent).toBe(mot);

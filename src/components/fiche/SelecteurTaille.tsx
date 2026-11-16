@@ -28,11 +28,12 @@ export function StatutTaille({ courante }: { courante: TailleFiche | null }) {
         return t("dernieresPieces");
       case "sur_commande":
         return x.taille === "sur_mesure" ? t("surMesure") : t("surCommande");
+      // Fabriqué sur commande, capacité atteinte : « Commandes complètes pour le moment ».
       case "complet":
         return t("complet");
-      // Sans stock et sans fabrication : « Commandes complètes pour le moment », jamais « Épuisé » (EXPERIENCE.md, C-4).
+      // En stock seulement, stock à zéro : « Plus en stock pour le moment », jamais « Épuisé » (EXPERIENCE.md, C-4).
       case "epuise":
-        return t("complet");
+        return t("epuise");
       default: {
         const inattendu: never = x.etat;
         return inattendu;

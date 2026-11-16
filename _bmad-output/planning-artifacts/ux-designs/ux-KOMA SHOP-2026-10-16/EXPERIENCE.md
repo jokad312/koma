@@ -178,7 +178,7 @@ Comportement seulement ; l'aspect est dans `DESIGN.md` › Components, sous les 
 | **Tuile de catégorie** | Accueil | Lien vers le catalogue correspondant. |
 | **Carte produit** | Catalogues, accueil | Lien sur le titre (`h3 > a`), étendu à toute la carte par pseudo-élément ; image `alt=""` si le titre la nomme déjà ; prix USD et **Badge de disponibilité** lus après le titre ; s'élève au survol (ordinateur). |
 | **Filtres de catalogue** | Catalogues | Filtres de FR-5 (univers, prix, disponibilité, niveau pour les Kits) en multi-sélection [HYPOTHÈSE], tri nouveauté / prix ; l'URL reflète filtres et tri (lien partageable) [HYPOTHÈSE] ; le nombre de résultats est annoncé (`role="status"`, « 12 produits ») ; aucun rechargement sans prévenir ; « Effacer les filtres » dès qu'un filtre est actif. Univers : genres génériques, aucune liste saisie par défaut (E-29). |
-| **Badge de disponibilité** | Cartes, fiches | « En stock » ; « Fabrication sur commande » + Délai de fabrication ; « Commandes complètes pour le moment » (C-4 tranché ; jamais « Épuisé ») + Kit lié proposé ; « Complet » pour un Événement. Jamais de quantité. |
+| **Badge de disponibilité** | Cartes, fiches | « En stock » ; « Fabrication sur commande » + Délai de fabrication ; « Commandes complètes pour le moment » quand un article fabriqué sur commande a atteint sa capacité (C-4 tranché) + Kit lié proposé ; « Plus en stock pour le moment » (EN : « Out of stock for now ») quand un article en stock seulement n'en a plus (décision du 2026-11-16) ; jamais « Épuisé » ; « Complet » pour un Événement. Jamais de quantité. |
 | **Carte Événement** | Liste, accueil bloc 5 | Lien sur le titre étendu à la carte ; « Complet » si Capacité atteinte ; Événement passé marqué comme tel avec lien de Galerie d'événement. |
 | **Carte Article** | Blog, accueil bloc 7 | Lien sur le titre étendu à la carte. |
 | **Tuile de galerie** | Accueil bloc 4 | Affiche prénom/pseudo et ville seulement si autorisés ; **jamais la ville pour un Compte mineur** (FR-40). Ouverture en grand au toucher ou au clavier dans une **Boîte de dialogue** [HYPOTHÈSE]. |
@@ -277,6 +277,7 @@ Maquettes : [key-fiche-cosplay](mockups/key-fiche-cosplay.html), [key-fiche-kit]
 |---|---|---|
 | **En stock / Fabrication sur commande** | Fiche, carte | Badge + Délai de fabrication avant paiement. |
 | **Commandes complètes** (Plafond atteint) | Fiche, carte | Fabrication sur commande retirée ; « Commandes complètes pour le moment » (EN : « Orders full for now ») [EN : HYPOTHÈSE de traduction] ; **Kit lié proposé** ; articles en stock toujours vendables (FR-10). |
+| **Plus en stock** (stock à zéro, sans fabrication sur commande) | Fiche, carte | « Plus en stock pour le moment » (EN : « Out of stock for now ») ; aucun bouton d'ajout ; jamais « Épuisé » ni « Commandes complètes » (décision du 2026-11-16). Vêtement : même règle pour la couleur choisie (capacité atteinte dans cette couleur : « Commandes complètes pour le moment »). |
 | **Hors zone** | Fiche Produit physique | **Bandeau d'information** avant l'ajout + Kit lié, pour tous (FR-6). |
 | **Kit déjà possédé** | Fiche Kit, Panier | Le bouton devient « Ouvrir dans ma bibliothèque » ; ajout au Panier impossible (FR-9, FR-11). |
 | **Kit déjà possédé après fusion** | Panier, à la connexion | Kit retiré du Panier fusionné, avec message « Tu possèdes déjà ce kit : il est dans ta bibliothèque. » (FR-11). |
@@ -599,7 +600,7 @@ Maquettes : [key-admin-tableau](mockups/key-admin-tableau.html), [key-admin-comm
 | E-5 | Alignement du PRD fermé le 2026-10-20 : le PRD du 2026-10-20 contient les huit alignements demandés (« Prêt à porter », crème par défaut, rouge unique, « Commandes complètes pour le moment », ordre des moyens de paiement, sous-titres français obligatoires et anglais facultatifs selon Q-15, Galerie sans page dédiée, titres sans accent). |
 | E-9 | Délai de paiement : 30 minutes, décision de Jonathan du 2026-10-20 (Q-B4) ; valeur de départ du Réglage, modifiable dans l'admin. Bascule en « en cours de vérification » après 2 min sans état final (AD-10). Compte à rebours : non (texte statique « À payer avant [heure] »). |
 | E-1 | C-13 / Q-11 : le client choisit d'abord son pays ; mobile money en premier si un Agrégateur actif couvre ce pays, sinon carte seule. |
-| E-2 | C-4 : « Commandes complètes pour le moment » ; « Épuisé » n'est jamais utilisé. |
+| E-2 | C-4 : « Commandes complètes pour le moment » pour la capacité atteinte d'un article fabriqué sur commande ; « Plus en stock pour le moment » pour un article en stock épuisé (2026-11-16) ; « Épuisé » n'est jamais utilisé. |
 | E-6 | Nom du Prestataire : « Mobile money » / « Carte » au choix ; « Paiement traité par {Prestataire} » avant validation ; repli « Réessayer avec {Agrégateur suivant} ? » ; noms en texte, aucun logo. |
 | E-13 | Texte de l'écran client d'un Trop-perçu validé (State Patterns › Paiement). |
 | E-18 | Galerie : pas de page dédiée ; les liens pointent vers le bloc 4 (`#galerie`). |

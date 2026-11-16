@@ -286,15 +286,19 @@ describe("annulation (décision 10)", () => {
 });
 
 describe("libellés de disponibilité : jamais « Épuisé » (C-4)", () => {
-  it("aucune clé de disponibilité ne dit « Épuisé » ou « Sold out » ; la clé orpheline de la fiche est retirée", async () => {
+  it("aucune clé de disponibilité ne dit « Épuisé » ou « Sold out » ; stock à zéro et capacité atteinte ont chacun leur libellé (2026-11-16)", async () => {
     const fr = (await import("../../messages/fr.json")).default;
     const en = (await import("../../messages/en.json")).default;
     for (const m of [fr, en]) {
       const textes = [...Object.values(m.Catalogue.disponibilite), ...Object.values(m.Fiche.tailles), ...Object.values(m.Admin.produits.grille.stock)];
       expect(textes.filter((t) => /épuisé|sold out/i.test(String(t)))).toEqual([]);
-      expect("epuise" in m.Fiche.tailles).toBe(false);
+      // Même libellé sur la carte et sur la fiche, distinct de « Commandes complètes ».
+      expect(m.Fiche.tailles.epuise).toBe(m.Catalogue.disponibilite.epuise);
+      expect(m.Catalogue.disponibilite.epuise).not.toBe(m.Catalogue.disponibilite.complet);
     }
-    expect(fr.Catalogue.disponibilite.epuise).toBe(fr.Fiche.tailles.complet);
+    expect(fr.Catalogue.disponibilite.epuise).toBe("Plus en stock pour le moment");
+    expect(en.Catalogue.disponibilite.epuise).toBe("Out of stock for now");
+    expect(fr.Catalogue.disponibilite.complet).toBe("Commandes complètes pour le moment");
   });
 });
 

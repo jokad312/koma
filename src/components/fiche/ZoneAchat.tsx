@@ -47,6 +47,8 @@ export function ZoneAchat({ produitId, locale, tailles, forfaitGoma, forfaitBuka
   const achetable = taillesChoisissables(tailles).length > 0;
   const choix = avecSelecteurCouleur ? taillesPourCouleur(tailles, couleurChoisie) : taillesChoisissables(tailles);
   const complet = capaciteAtteinte(tailles);
+  // Couleur choisie dont une variante est fabriquée sur commande mais à capacité atteinte : « Commandes complètes », pas « Plus en stock ».
+  const couleurPleine = capaciteAtteinte(tailles.filter((x) => x.couleur?.cle === couleurChoisie));
   // Une taille choisie qui n'existe pas dans la couleur choisie ne compte plus : la taille est à rechoisir.
   const tailleEffective = unique ? "unique" : choix.some((x) => x.taille === choisie) ? choisie : null;
   const courante = choix.find((x) => x.taille === tailleEffective) ?? null;
@@ -93,11 +95,13 @@ export function ZoneAchat({ produitId, locale, tailles, forfaitGoma, forfaitBuka
         ) : choix.length > 0 ? (
           <SelecteurTaille tailles={choix} choisie={tailleEffective} onChoisir={setChoisie} />
         ) : (
-          <MessageEtat type="information">{t("complet")}</MessageEtat>
+          // Couleur choisie sans aucune taille achetable : capacité atteinte dans cette couleur, sinon stock à zéro.
+          <MessageEtat type="information">{t(couleurPleine ? "complet" : "epuise")}</MessageEtat>
         )
       ) : complet ? null : (
-        // Aucune variante achetable : « Commandes complètes pour le moment », jamais « Épuisé » (EXPERIENCE.md, C-4).
-        <MessageEtat type="information">{t("complet")}</MessageEtat>
+        // Aucune variante achetable et aucune capacité atteinte : tout est en stock à zéro. « Plus en stock pour le moment »,
+        // jamais « Épuisé » (EXPERIENCE.md, C-4).
+        <MessageEtat type="information">{t("epuise")}</MessageEtat>
       )}
       {achetable ? (
         <div className="flex flex-col items-start gap-3">

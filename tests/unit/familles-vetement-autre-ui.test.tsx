@@ -129,6 +129,24 @@ describe("ZoneAchat : Vêtement en couleurs", () => {
     expect(faux.ajouterAuPanier).toHaveBeenCalledTimes(1);
   });
 
+  it("couleur sans taille achetable : stock à zéro « Plus en stock pour le moment », capacité atteinte « Commandes complètes pour le moment »", async () => {
+    const user = userEvent.setup();
+    const avecRouge: TailleFiche[] = [
+      { taille: "M", etat: "disponible", delaiJours: null, couleur: noir },
+      { taille: "M", etat: "epuise", delaiJours: null, couleur: blanc },
+      { taille: "L", etat: "complet", delaiJours: 7, couleur: { ...blanc, cle: "Rouge", nom: "Rouge" } },
+    ];
+    rendre(<ZoneAchat {...commun} tailles={avecRouge} />);
+    const couleurs = screen.getByRole("group", { name: "Couleur" });
+    await user.click(within(couleurs).getByRole("radio", { name: "Blanc" }));
+    expect(screen.getByText("Plus en stock pour le moment")).toBeTruthy();
+    expect(screen.queryByRole("group", { name: "Taille" })).toBeNull();
+    await user.click(within(couleurs).getByRole("radio", { name: "Rouge" }));
+    expect(screen.getAllByText("Commandes complètes pour le moment").length).toBeGreaterThanOrEqual(1);
+    expect(screen.queryByText("Plus en stock pour le moment")).toBeNull();
+    expect(document.body.textContent).not.toMatch(/Épuisé/i);
+  });
+
   it("une seule couleur : son nom est écrit, sans sélecteur", () => {
     rendre(<ZoneAchat {...commun} tailles={[{ taille: "M", etat: "disponible", delaiJours: null, couleur: noir }]} />);
     expect(screen.getByText("Couleur : Noir")).toBeTruthy();
@@ -146,9 +164,10 @@ describe("ZoneAchat : Autre article", () => {
     expect(faux.ajouterAuPanier).toHaveBeenCalledWith({ produitId: PRODUIT, taille: "unique", nombre: 1 });
   });
 
-  it("variante sans stock ni fabrication : « Commandes complètes pour le moment », jamais « Épuisé », aucun bouton d'ajout", () => {
+  it("variante sans stock ni fabrication : « Plus en stock pour le moment », jamais « Épuisé », aucun bouton d'ajout", () => {
     rendre(<ZoneAchat {...commun} tailles={[{ taille: "unique", etat: "epuise", delaiJours: null, couleur: null }]} />);
-    expect(screen.getByText("Commandes complètes pour le moment")).toBeTruthy();
+    expect(screen.getByText("Plus en stock pour le moment")).toBeTruthy();
+    expect(screen.queryByText("Commandes complètes pour le moment")).toBeNull();
     expect(document.body.textContent).not.toMatch(/Épuisé/i);
     expect(screen.queryByRole("button", { name: "Ajouter au panier" })).toBeNull();
   });

@@ -217,9 +217,9 @@ test.describe("story 9.15 : Vêtement et Autre article", () => {
     const couleurs = page.getByRole("group", { name: "Couleur" });
     await expect(couleurs.getByRole("radio")).toHaveCount(2);
 
-    // Blanc : aucune taille ne s'achète dans cette couleur.
+    // Blanc : aucune taille ne s'achète dans cette couleur (stock à zéro, sans fabrication sur commande).
     await couleurs.getByText("Blanc", { exact: true }).click();
-    await expect(page.getByText("Commandes complètes pour le moment")).toBeVisible();
+    await expect(page.getByText("Plus en stock pour le moment")).toBeVisible();
     await expect(page.getByRole("group", { name: "Taille" })).toHaveCount(0);
     await expect(page.locator("main")).not.toContainText("Épuisé");
 

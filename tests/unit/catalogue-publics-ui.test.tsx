@@ -69,8 +69,8 @@ describe("BadgeDisponibilite", () => {
     dernieres_pieces: "Dernières pièces",
     sur_commande: "Fabrication sur commande",
     complet: "Commandes complètes pour le moment",
-    // C-4 : jamais « Épuisé » (story 9.15) ; sans stock ni fabrication, même libellé que la fiche.
-    epuise: "Commandes complètes pour le moment",
+    // C-4 : jamais « Épuisé ». En stock seulement et stock à zéro : « Plus en stock pour le moment » (décision du 2026-11-16).
+    epuise: "Plus en stock pour le moment",
   };
   it.each(Object.entries(MOTS))("%s : icône + mot, sans quantité ni compteur", (etat, mot) => {
     const { container } = rendre(<BadgeDisponibilite etat={etat as Disponibilite} />);
@@ -91,6 +91,11 @@ describe("BadgeDisponibilite", () => {
   it("anglais", () => {
     rendre(<BadgeDisponibilite etat="complet" />, "en");
     expect(screen.getByText("Orders full for now")).toBeTruthy();
+  });
+
+  it("anglais, stock à zéro : « Out of stock for now »", () => {
+    rendre(<BadgeDisponibilite etat="epuise" />, "en");
+    expect(screen.getByText("Out of stock for now")).toBeTruthy();
   });
 });
 

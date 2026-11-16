@@ -2906,7 +2906,7 @@
       "dernieres_pieces": "Last pieces",
       "sur_commande": "Made to order",
       "complet": "Orders full for now",
-      "epuise": "Orders full for now"
+      "epuise": "Out of stock for now"
     },
     "voirPlus": {
       "libelle": "See more",
@@ -3203,6 +3203,7 @@
       "surMesure": "Made to measure",
       "delai": "Production time: {n, plural, one {# day} other {# days}}",
       "complet": "Orders are full for now",
+      "epuise": "Out of stock for now",
       "unique": "One size"
     },
     "remise": {

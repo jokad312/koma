@@ -2906,7 +2906,7 @@
       "dernieres_pieces": "Dernières pièces",
       "sur_commande": "Fabrication sur commande",
       "complet": "Commandes complètes pour le moment",
-      "epuise": "Commandes complètes pour le moment"
+      "epuise": "Plus en stock pour le moment"
     },
     "voirPlus": {
       "libelle": "Voir plus",
@@ -3203,6 +3203,7 @@
       "surMesure": "Sur mesure",
       "delai": "Délai de fabrication : {n, plural, one {# jour} other {# jours}}",
       "complet": "Commandes complètes pour le moment",
+      "epuise": "Plus en stock pour le moment",
       "unique": "Taille unique"
     },
     "remise": {
