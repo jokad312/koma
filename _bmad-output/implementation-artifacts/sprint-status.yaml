@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 10-21-2026 12:00
-last_updated: 11-11-2026 23:57
+last_updated: 11-16-2026 21:30
 project: KOMA SHOP
 project_key: NOKEY
 tracking_system: file-system
@@ -140,8 +140,9 @@ development_status:
   9-12-accueils-selon-la-connexion: done
   9-14-deconnexion-apres-inactivite: done
   9-15-types-vetement-et-autre-article: done
-  # Refonte visuelle de l'admin et police unique (docs/design/admin/INVENTAIRE.md) : étape 1 (police KOMA Chikara, planche validée) et étape 2 (9.15) faites ;
-  # prochaine étape = 3 : appliquer KOMA Chikara partout, règle des 16 px minimum et son test, cadre A et composants communs.
+  # Refonte visuelle de l'admin et police unique (docs/design/admin/INVENTAIRE.md) : étape 1 (police KOMA Chikara, planche validée), étape 2 (9.15)
+  # et étape 3 a) (spec-9-16-a : KOMA Chikara partout, 16 px minimum, commits f0fe0e6 et ea13030, CI verte sur main le 2026-11-16) faites ;
+  # prochaine étape = 3 b) : cadre A (menu latéral, barre du haut, menu du profil) et composants communs, selon la maquette.
   9-16-refonte-admin-maquette-et-police: in-progress
   9-11-performance-avant-mise-en-ligne: backlog
   9-9-mise-en-ligne: backlog

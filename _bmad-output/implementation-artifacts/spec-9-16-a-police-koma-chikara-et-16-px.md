@@ -2,7 +2,7 @@
 title: '9.16 étape 3 a) — Police unique KOMA Chikara et règle des 16 px'
 type: 'feature'
 created: '2026-11-16'
-status: 'in-review'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
