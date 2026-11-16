@@ -79,6 +79,28 @@
   --ks-scan-refuse: #b01b13;
   --ks-scan-texte: #ffffff;
 
+  /* Admin (story 9.16 b, cadre A des maquettes) : en clair, mêmes formes, valeurs dérivées du thème crème (décision 3 du 2026-11-16).
+     Texte de chaque surface : --ks-text-primary, sauf « sur-filtre » et « sur-univers ». Contraste AA vérifié dans DESIGN.md. */
+  --ks-admin-fond: #f3eee4;
+  --ks-admin-menu: #fbf8f2;
+  --ks-admin-bord: #e0d6c5;
+  --ks-admin-actif: #f3eee4;
+  --ks-admin-carte: #fbf8f2;
+  --ks-admin-panneau: #fbf8f2;
+  --ks-admin-contour: #e0d6c5;
+  --ks-admin-champ: #f3eee4;
+  --ks-admin-entete: #f3eee4;
+  --ks-admin-info: #eadfcc;
+  --ks-admin-filtre: #f6d5d2;
+  --ks-admin-sur-filtre: #16130f;
+  --ks-admin-avatar: #f1cfcb;
+  --ks-admin-sur-avatar: #16130f;
+  --ks-admin-fenetre: #fbf8f2;
+  --ks-admin-univers: #8c514e;
+  --ks-admin-sur-univers: #ffffff;
+  --ks-admin-rond: #16130f;
+  --ks-admin-sur-rond: #f3eee4;
+
   color-scheme: light;
 }
 
@@ -105,6 +127,27 @@
   --ks-tile-ink-start: #4a3d31;
   --ks-tile-ink-end: #211c17;
 
+  /* Admin (story 9.16 b) : couleurs relevées sur les maquettes et décisions Q5 du 2026-11-15. */
+  --ks-admin-fond: #16130f;
+  --ks-admin-menu: #211c17;
+  --ks-admin-bord: #3a322a;
+  --ks-admin-actif: #16130f;
+  --ks-admin-carte: #2e2923;
+  --ks-admin-panneau: #322f2b;
+  --ks-admin-contour: transparent;
+  --ks-admin-champ: #181512;
+  --ks-admin-entete: #201e1b;
+  --ks-admin-info: #432322;
+  --ks-admin-filtre: #861e1b;
+  --ks-admin-sur-filtre: #ffffff;
+  --ks-admin-avatar: #762e27;
+  --ks-admin-sur-avatar: #ffffff;
+  --ks-admin-fenetre: #24211c;
+  --ks-admin-univers: #8c514e;
+  --ks-admin-sur-univers: #ffffff;
+  --ks-admin-rond: #f3eee4;
+  --ks-admin-sur-rond: #16130f;
+
   color-scheme: dark;
 }
 
@@ -128,6 +171,25 @@
   --color-scan-valide: var(--ks-scan-valide);
   --color-scan-refuse: var(--ks-scan-refuse);
   --color-scan-texte: var(--ks-scan-texte);
+  --color-admin-fond: var(--ks-admin-fond);
+  --color-admin-menu: var(--ks-admin-menu);
+  --color-admin-bord: var(--ks-admin-bord);
+  --color-admin-actif: var(--ks-admin-actif);
+  --color-admin-carte: var(--ks-admin-carte);
+  --color-admin-panneau: var(--ks-admin-panneau);
+  --color-admin-contour: var(--ks-admin-contour);
+  --color-admin-champ: var(--ks-admin-champ);
+  --color-admin-entete: var(--ks-admin-entete);
+  --color-admin-info: var(--ks-admin-info);
+  --color-admin-filtre: var(--ks-admin-filtre);
+  --color-admin-sur-filtre: var(--ks-admin-sur-filtre);
+  --color-admin-avatar: var(--ks-admin-avatar);
+  --color-admin-sur-avatar: var(--ks-admin-sur-avatar);
+  --color-admin-fenetre: var(--ks-admin-fenetre);
+  --color-admin-univers: var(--ks-admin-univers);
+  --color-admin-sur-univers: var(--ks-admin-sur-univers);
+  --color-admin-rond: var(--ks-admin-rond);
+  --color-admin-sur-rond: var(--ks-admin-sur-rond);
 
   /* Police unique KOMA Chikara (9.16 a) : les deux noms historiques restent, pour les rôles t-* et font-condensee.
      La variable de next/font vaut « "komaChikara", KOMA Repli Arial, KOMA Repli Roboto, system-ui, sans-serif » : replis réglés (en
@@ -425,7 +487,8 @@ html:has([data-coque-admin]) {
   scroll-padding-top: 5rem;
 }
 
-@media (max-width: 767px) {
+/* Barre du bas de l'admin en dessous de 1024 px (lg) depuis la 9.16 b. */
+@media (max-width: 1023px) {
   body:has([data-barre-admin]) footer {
     padding-bottom: calc(2rem + 58px);
   }

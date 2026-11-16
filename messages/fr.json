@@ -266,6 +266,10 @@
     "nom": {
       "fr": "Français",
       "en": "English"
+    },
+    "court": {
+      "fr": "FR",
+      "en": "EN"
     }
   },
   "Pied": {
@@ -713,6 +717,15 @@
           "benevole": "Bénévole",
           "aucun": "Sans rôle"
         }
+      },
+      "profil": {
+        "bouton": "{initiales}, menu du profil : {nom}, {role}",
+        "boutonSansCompte": "Menu du profil",
+        "monProfil": "Mon profil",
+        "parametres": "Paramètres du profil",
+        "aide": "Aide",
+        "voirSite": "Voir le site",
+        "whatsapp": "Écrire sur WhatsApp"
       }
     },
     "blog": {
@@ -2680,6 +2693,19 @@
           "libelle": "Texte alternatif en anglais",
           "aide": "La même description, en anglais."
         }
+      }
+    },
+    "ui": {
+      "precedente": "Page précédente",
+      "suivante": "Page suivante",
+      "page": "Page {page} / {total}",
+      "pagination": "Pagination",
+      "enregistrer": "Enregistrer",
+      "fermer": "Fermer et revenir à la liste",
+      "quitter": {
+        "titre": "Quitter sans enregistrer ?",
+        "quitter": "Quitter",
+        "continuer": "Continuer la saisie"
       }
     }
   },

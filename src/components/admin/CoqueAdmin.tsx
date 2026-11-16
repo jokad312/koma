@@ -2,7 +2,8 @@ import { getTranslations } from "next-intl/server";
 import type { ReactNode } from "react";
 import { lireSessionVerifiee } from "@/lib/auth/compte";
 import { lireRole } from "@/lib/auth/droits";
-import { lireNomSite } from "@/lib/reglages";
+import { lireNomSite, lireNumeroWhatsappOuNull } from "@/lib/reglages";
+import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
 import { creerClientService } from "@/lib/supabase/service";
 import { compterMessagesNouveaux } from "@/modules/admin/queries";
 import { BandeauAdmin, type UtilisateurBandeau } from "./BandeauAdmin";
@@ -39,16 +40,22 @@ async function lireUtilisateurBandeau(): Promise<UtilisateurBandeau | null> {
   }
 }
 
-// Coquille de l'admin (story 9.10) : disposition en « L » sur ordinateur (barre latérale fixe à gauche et bandeau en haut du contenu), barre du bas sur mobile.
-// Aucun motif manga. Rendue par chaque page seulement après la vérification du droit (le visiteur ou le Compte sans droit ne voit jamais la navigation).
-// L'en-tête et le pied du site sont masqués par le CSS tant que « data-coque-admin » est présent (globals.css). Le compteur de messages à traiter est lu par le client
-// service ; en cas d'erreur, pas de compteur (jamais un faux zéro).
+// Coquille de l'admin (story 9.10, cadre A des maquettes depuis 9.16 b) : disposition en « L » à partir de 1024 px (menu latéral fixe de 240 px à gauche et
+// barre du haut au-dessus du contenu), barre du bas en dessous. Aucun motif manga. Rendue par chaque page seulement après la vérification du droit (le visiteur
+// ou le Compte sans droit ne voit jamais la navigation). L'en-tête et le pied du site sont masqués par le CSS tant que « data-coque-admin » est présent
+// (globals.css). Le compteur de messages à traiter est lu par le client service ; en cas d'erreur, pas de compteur (jamais un faux zéro). Le numéro WhatsApp
+// des réglages (lecture existante, sans erreur bloquante) sert au lien de la fenêtre « Aide » du menu du profil ; sans numéro, pas de lien.
 export async function CoqueAdmin({ children }: { children: ReactNode }) {
-  const [compteurMessages, nomSite, utilisateur] = await Promise.all([compterMessagesNouveaux(), lireNomSite(), lireUtilisateurBandeau()]);
+  const [compteurMessages, nomSite, utilisateur, numeroWhatsapp] = await Promise.all([
+    compterMessagesNouveaux(),
+    lireNomSite(),
+    lireUtilisateurBandeau(),
+    lireNumeroWhatsappOuNull(),
+  ]);
   const estAdmin = utilisateur?.role === "admin";
   const t = await getTranslations("Admin.nav");
   return (
-    <div data-coque-admin="">
+    <div data-coque-admin="" className="min-h-dvh bg-admin-fond">
       {/* Second lien d'évitement : celui du site mène au début du contenu, avant la barre latérale ; celui-ci saute la navigation et le bandeau. */}
       <a
         href="#contenu-admin"
@@ -57,9 +64,9 @@ export async function CoqueAdmin({ children }: { children: ReactNode }) {
         {t("evitement")}
       </a>
       <NavigationAdmin compteurMessages={compteurMessages} nomSite={nomSite} estAdmin={estAdmin} />
-      <div className="min-w-0 md:pl-64">
-        <BandeauAdmin utilisateur={utilisateur} estAdmin={estAdmin} />
-        <div id="contenu-admin" tabIndex={-1} className="px-marge py-6 pb-24 outline-none md:pb-10">
+      <div className="min-w-0 lg:pl-60">
+        <BandeauAdmin utilisateur={utilisateur} estAdmin={estAdmin} lienAide={lienWhatsapp(numeroWhatsapp)} />
+        <div id="contenu-admin" tabIndex={-1} className="px-marge py-6 pb-24 outline-none lg:pb-10">
           {children}
         </div>
       </div>

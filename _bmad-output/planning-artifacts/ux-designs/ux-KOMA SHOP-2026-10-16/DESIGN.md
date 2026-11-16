@@ -365,16 +365,29 @@ components:
     radius: '{rounded.full}'
     value: '{typography.small}'
   admin-sidebar:
-    background: '{colors.surface}'
-    divider: '1px solid {colors.border}'
+    # Cadre A des maquettes (story 9.16 b) : jetons --ks-admin-* de globals.css (sombre / clair).
+    background: 'admin-menu (#211C17 / #FBF8F2)'
+    divider: '4px admin-bord (#3A322A / #E0D6C5) à droite'
+    width: 240px (à partir de 1024 px)
+    brand: 'logo 165 px, « ADMINISTRATION » {typography.label}, trait 3 px admin-bord'
+    item-label: '{typography.label} (majuscules espacées, 16 px)'
     item-min-height: '{spacing.touch-target}'
-    item-radius: '{rounded.md}'
-    item-current-background: '{colors.background}'
+    item-current-background: 'admin-actif (#16130F / #F3EEE4), bloc collé au bord droit, coins gauches 14 px'
+    item-current-label: 18 px
     item-current-marker: '4px {colors.primary} à gauche'
-    counter-border: '1px solid {colors.border-field}'
+    counter-background: '{colors.primary}'
+  admin-topbar:
+    background: 'admin-menu'
+    divider: '1px admin-bord en bas'
+    min-height: 68px
+    overline: '« ESPACE ADMINISTRATEUR » {typography.label} {colors.text-secondary}, une seule ligne'
+    title: '{typography.h3}'
+    theme: 'rond 44 px admin-rond (#F3EEE4 / #16130F), icône soleil ou lune'
+    language: 'rond 44 px à contour {colors.border-field}, code court de l''autre langue'
+    avatar: 'rond 48 px {colors.primary}, initiales {colors.on-primary} ; ouvre le menu du profil'
   admin-tab-bar:
-    background: '{colors.surface}'
-    divider: '1px solid {colors.border}'
+    background: 'admin-menu'
+    divider: '1px solid admin-bord'
     tab-min-height: 58px
     tab-radius: '{rounded.md}'
     label: '{typography.small}'
@@ -753,8 +766,12 @@ Spécifications visuelles ; le comportement est dans `EXPERIENCE.md` § Componen
 
 | Composant | Anatomie et rendu |
 |---|---|
-| **Barre latérale admin** (`admin-sidebar`) | Ordinateur : colonne surface, filet droit `{colors.border}`. Logo, rôle « Administration », puis entrées de 44 px `{rounded.md}` : icône 22 px + libellé KOMA Chikara. Entrée courante : fond `{colors.background}`, trait rouge 4 px à gauche, texte gras. Compteur d'attente en pilule à contour `{colors.border-field}`. Langue en bas ([key-admin-tableau](mockups/key-admin-tableau.html)). |
-| **Barre d'onglets admin** (`admin-tab-bar`) | Mobile : 4 onglets égaux en bas, fond surface, filet haut `{colors.border}`, 58 px de haut, icône 22 px + libellé `{typography.small}` (minimum 14 px ; la maquette rend 13 px). Onglet courant : texte `{colors.text-primary}` gras, fond `{colors.background}`, trait rouge 3 px en haut. Compteur : pilule `{colors.text-primary}` à texte `{colors.background}`. |
+| **Couleurs de l'admin** (story 9.16 b) | Jetons `--ks-admin-*` de `globals.css`, exposés en classes `bg-admin-*`. Sombre (maquettes `docs/references/maquettes-admin/`, décisions Q5) : fond #16130F, menu et barre #211C17, bord #3A322A, entrée active #16130F, cartes de chiffres #2E2923, grand panneau #322F2B, pastilles et champs #181512, en-tête de tableau et recherche #201E1B, pastille d'info #432322, filtre #861E1B (texte blanc), avatar de liste #762E27 (texte blanc), fenêtre #24211C, bouton Univers #8C514E (texte blanc). Clair (décision 3 du 2026-11-16) : mêmes formes, surfaces #FBF8F2 / #F3EEE4, pastille d'info #EADFCC, filtre #F6D5D2 et avatar #F1CFCB (texte encre), contour #E0D6C5 autour des cartes et panneaux. Un seul rouge #D7261E. |
+| **Barre latérale admin** (`admin-sidebar`) | À partir de 1024 px (décision 4 du 2026-11-16) : colonne de 240 px, fond admin-menu, bord droit 4 px admin-bord. Logo (lien vers le site, nom du site comme nom accessible), « ADMINISTRATION » en `{typography.label}`, trait 3 px. Groupes dans l'ordre de la maquette (Q6) ; le premier sans titre visible, « Communauté » et « Réglages » en `{typography.label}` `{colors.text-secondary}`. Entrées de 44 px en `{typography.label}`. Entrée courante (décision 2 du 2026-11-16) : bloc admin-actif collé au bord droit, coins gauches 14 px, texte 18 px, **plus** un trait rouge de 4 px à gauche (repère qui ne dépend pas que de la couleur du fond), `aria-current="page"`. Compteur de messages : pilule `{colors.primary}`. Plus d'encart « Besoin d'aide ? » (Q7). |
+| **Barre du haut admin** (`admin-topbar`) | 68 px, fond admin-menu, filet bas admin-bord. À gauche « ESPACE ADMINISTRATEUR » (une seule ligne, jamais coupé) puis le nom de la page en `{typography.h3}`. À droite : thème (rond clair 44 px, soleil en sombre, lune en clair, `aria-pressed`), langue (rond à contour 44 px, code court de l'autre langue, nom complet pour les lecteurs d'écran), nom et rôle (à partir de 1280 px), avatar rouge 48 px aux initiales. Sans Compte lisible : ni nom ni initiales, l'avatar montre une icône. |
+| **Menu du profil admin** | Ouvert par l'avatar (clic, Entrée, Espace) : menu déroulant fond admin-fenetre, filet admin-bord, coins 14 px, nom et rôle en tête, puis cinq entrées de 44 px avec icône lucide : Mon profil (`/compte`), Paramètres du profil (`/compte/preferences`), Aide (petite fenêtre à l'en-tête des maquettes : titre à gauche, croix « Fermer » à droite, trait dessous ; texte de l'ancien encart et lien WhatsApp des réglages s'il existe), Voir le site, Se déconnecter (sous un filet). Flèches, Début, Fin ; Échap ferme et rend le focus à l'avatar ; clic à l'extérieur ou Tab hors du menu le ferme. |
+| **Barre d'onglets admin** (`admin-tab-bar`) | Sous 1024 px : Tableau de bord, Commandes, Tâches et ☰ « Plus », fond admin-menu, filet haut admin-bord, 58 px de haut, libellé `{typography.label}` (16 px). Onglet courant : trait rouge 4 px en haut. « Plus » ouvre le panneau plein écran (autres pages, Voir le site, thème, langue, déconnexion). |
+| **Composants communs admin** (`src/components/admin/ui/`, story 9.16 b) | Carte de chiffre (admin-carte, coins 20 px, icône lucide, chiffre `{typography.h2}`, libellé `{typography.label}`) ; Panneau (admin-panneau, coins 22 px) ; Champ de recherche (pilule admin-entete, loupe, libellé lu par les lecteurs d'écran) ; Pastille d'info (admin-info) ; Pastille de filtre (active : fond admin-filtre et contour 2 px, inactive : contour fin ; `aria-pressed` ou `aria-current`) ; En-tête de tableau (barre admin-entete, coins 16 px) ; Pagination ‹ › avec « Page X / Y » (flèche du bord inactive) ; Avatar à l'initiale (carré 52 px admin-avatar, décoratif) ; Fenêtre de formulaire (page dessinée en fenêtre admin-fenetre de 670 px sur fond assombri et flouté, titre, Enregistrer rouge, croix ; Échap et croix ramènent à la liste, Q23 ; si un champ a été modifié, ils demandent d'abord « Quitter sans enregistrer ? » : Quitter / Continuer la saisie). |
 | **Carte de tâche admin** | Carte surface `{rounded.lg}`, compteur en `{typography.h1}`, libellé `{typography.label}`. Compteur à zéro : fond `{colors.background}`, chiffre `{colors.text-secondary}`. |
 | **Graphique en barres** (`bar-chart`) | Une ligne par valeur : libellé, piste 16 px `{rounded.full}` (`{colors.background}`, filet `{colors.border}`), remplissage `{colors.text-primary}`, **valeur toujours écrite** (« 9 · 186 USD »). Mobile : libellé et valeur sur une ligne, barre dessous. Sous chaque graphique : « Voir les données en tableau » (Tableau de données). Jamais de rouge seul ni de couleur par série. |
 | **Tableau de données admin** (`data-table`) | En-têtes `{typography.label}` `{colors.text-secondary}`, filet `{colors.border-field}` sous l'en-tête, filets `{colors.border}` entre lignes, cellules `{typography.small}`. Statut en Pastille de statut. Sur mobile, les listes deviennent des cartes ([key-admin-commandes](mockups/key-admin-commandes.html)). |

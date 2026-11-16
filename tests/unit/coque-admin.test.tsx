@@ -14,7 +14,8 @@ const compte = vi.hoisted(() => ({
 }));
 vi.mock("server-only", () => ({}));
 vi.mock("@/modules/admin/queries", () => ({ compterMessagesNouveaux: async () => compteur.valeur }));
-vi.mock("@/lib/reglages", () => ({ lireNomSite: async () => "TEST_Boutique" }));
+const reglage = vi.hoisted(() => ({ whatsapp: null as string | null }));
+vi.mock("@/lib/reglages", () => ({ lireNomSite: async () => "TEST_Boutique", lireNumeroWhatsappOuNull: async () => reglage.whatsapp }));
 vi.mock("next-intl/server", async () => {
   const { createTranslator } = await import("next-intl");
   const messages = (await import("../../messages/fr.json")).default;
@@ -32,7 +33,13 @@ vi.mock("@/lib/supabase/service", () => ({
 }));
 // Commandes du site reprises dans le bandeau : remplacées par des boutons simples (leurs propres tests sont ailleurs).
 vi.mock("@/components/layout/BasculeTheme", () => ({ BasculeTheme: () => <button type="button">Thème</button> }));
-vi.mock("@/components/layout/BoutonDeconnexion", () => ({ BoutonDeconnexion: () => <button type="button">Se déconnecter</button> }));
+vi.mock("@/components/layout/BoutonDeconnexion", () => ({
+  BoutonDeconnexion: ({ variante }: { variante?: string }) => (
+    <button type="button" data-entree-profil={variante === "menu" ? "" : undefined} className={variante === "menu" ? "min-h-touch" : undefined}>
+      Se déconnecter
+    </button>
+  ),
+}));
 vi.mock("@/components/layout/SelecteurLangue", () => ({ SelecteurLangue: () => <button type="button">Langue</button> }));
 vi.mock("@/i18n/navigation", () => ({
   usePathname: () => chemin.courant,
@@ -50,11 +57,16 @@ async function coque(enfants: React.ReactNode) {
   return CoqueAdmin({ children: enfants });
 }
 
-const NOMS_ADMIN = ["Tableau de bord", "Commandes", "Tâches", "Produits", "Univers", "Utilisateurs", "Événements", "Scan", "Galerie", "Blog", "Messages", "Codes promo", "Prestataires", "Réglages"];
+// Ordre des maquettes (décision Q6 du 2026-11-15) : Prestataires avant Codes promo.
+const NOMS_ADMIN = ["Tableau de bord", "Commandes", "Tâches", "Produits", "Univers", "Utilisateurs", "Événements", "Scan", "Galerie", "Blog", "Messages", "Prestataires", "Codes promo", "Réglages"];
+// Droits par rôle (inchangés par la 9.16 b) : l'Assistant voit tout sauf « Utilisateurs » (droit roles.gerer).
+const NOMS_ASSISTANT = NOMS_ADMIN.filter((n) => n !== "Utilisateurs");
+const BOUTON_PROFIL = "AT, menu du profil : Alice Test, Administrateur";
 
 beforeEach(() => {
   chemin.courant = "/admin/reglages";
   compteur.valeur = 0;
+  reglage.whatsapp = null;
   compte.session = { compteId: "TEST_compte" };
   compte.role = "admin";
   compte.utilisateur = { email: "alice.test@example.invalid", user_metadata: { full_name: "Alice Test" } };
@@ -73,32 +85,41 @@ describe("CoqueAdmin : disposition en L", () => {
     expect(liens.find((l) => l.textContent === "Scan")?.getAttribute("href")).toBe("/scan");
     const courante = liens.filter((l) => l.getAttribute("aria-current") === "page");
     expect(courante.map((l) => l.textContent)).toEqual(["Réglages"]);
-    // Barre rouge de 4 px sur l'entrée courante, cible tactile de 44 px.
+    // Entrée courante (décision 2 du 2026-11-16) : bloc de la couleur du fond, collé au bord droit, texte plus grand, trait rouge de 4 px (repère qui ne
+    // dépend pas que de la couleur du fond), cible tactile de 44 px.
     expect(courante[0].className).toContain("border-primary");
     expect(courante[0].className).toContain("border-t-4");
-    expect(courante[0].className).toContain("md:border-l-4");
+    expect(courante[0].className).toContain("lg:border-l-4");
+    expect(courante[0].className).toContain("lg:bg-admin-actif");
+    expect(courante[0].className).toContain("lg:rounded-l-[14px]");
+    expect(courante[0].className).toContain("lg:text-[18px]");
     expect(courante[0].className).toContain("min-h-touch");
     expect(screen.getByRole("heading", { name: "Contenu" })).toBeTruthy();
-    // Titres des groupes.
+    // Titres des groupes (le premier n'est lu que par les lecteurs d'écran, comme sur la maquette).
     for (const titre of ["Navigation", "Communauté", "Réglages"]) expect(within(nav).getAllByText(titre).length).toBeGreaterThan(0);
+    expect(within(nav).getByText("Navigation").className).toBe("sr-only");
   });
 
-  it("barre d'onglets fixe de 58 px sur mobile, barre latérale fixe à gauche sur ordinateur", async () => {
+  it("barre d'onglets fixe de 58 px sous 1024 px, menu latéral fixe à gauche de 240 px à partir de 1024 px (lg)", async () => {
     rendre(await coque("x"));
     const nav = screen.getByRole("navigation", { name: "Administration" });
     expect(nav.className).toContain("fixed");
     expect(nav.className).toContain("h-[58px]");
-    expect(nav.className).toContain("md:inset-y-0");
-    expect(nav.className).toContain("md:left-0");
-    expect(nav.className).toContain("md:w-64");
+    expect(nav.className).toContain("lg:inset-y-0");
+    expect(nav.className).toContain("lg:left-0");
+    expect(nav.className).toContain("lg:w-60");
+    expect(nav.className).toContain("lg:border-r-4");
+    expect(nav.className).toContain("bg-admin-menu");
+    expect(nav.className).not.toMatch(/(^|\s)md:/);
     expect(nav.hasAttribute("data-barre-admin")).toBe(true);
   });
 
-  it("la coquille porte « data-coque-admin » (le CSS retire alors l'en-tête et le pied du site) ; contenu décalé de la largeur de la barre sur ordinateur", async () => {
+  it("la coquille porte « data-coque-admin » (le CSS retire alors l'en-tête et le pied du site) ; contenu décalé de la largeur du menu à partir de lg", async () => {
     const { container } = rendre(await coque(<p>Page</p>));
     const racine = container.querySelector("[data-coque-admin]");
     expect(racine).toBeTruthy();
-    expect(racine?.querySelector(".md\\:pl-64")).toBeTruthy();
+    expect(racine?.className).toContain("bg-admin-fond");
+    expect(racine?.querySelector(".lg\\:pl-60")).toBeTruthy();
   });
 
   it("second lien d'évitement : mène au contenu de la page, après la barre latérale et le bandeau", async () => {
@@ -113,55 +134,161 @@ describe("CoqueAdmin : disposition en L", () => {
     expect(lien.compareDocumentPosition(nav) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("bloc de marque : logo (décoratif, le lien porte le nom) et nom du site lu dans les réglages, lien vers le site", async () => {
+  it("bloc de marque : logo (décoratif, le lien porte le nom du site lu dans les réglages) vers le site, puis « ADMINISTRATION »", async () => {
     rendre(await coque("x"));
     const nav = screen.getByRole("navigation", { name: "Administration" });
-    expect(within(nav).getByText("TEST_Boutique")).toBeTruthy();
     expect(within(nav).getByRole("link", { name: "Voir le site TEST_Boutique" }).getAttribute("href")).toBe("/fr?vue=site");
+    expect(within(nav).getByText("Administration").className).toContain("t-label");
   });
 
-  it("encart « Besoin d'aide ? » avec le lien « Voir le site »", async () => {
+  it("encart « Besoin d'aide ? » retiré du menu (Q7) : l'aide et « Voir le site » sont dans le menu du profil", async () => {
     rendre(await coque("x"));
     const nav = screen.getByRole("navigation", { name: "Administration" });
-    expect(within(nav).getByText("Besoin d'aide ?")).toBeTruthy();
-    expect(within(nav).getByRole("link", { name: "Voir le site" }).getAttribute("href")).toBe("/fr?vue=site");
+    expect(within(nav).queryByText("Besoin d'aide ?")).toBeNull();
   });
 
-  it("bandeau : sur-titre, titre de la section courante, nom et rôle du Compte connecté avec ses initiales", async () => {
+  it("bandeau : sur-titre sur une ligne, titre de la section courante, thème et langue en ronds, nom et rôle, avatar qui ouvre le menu du profil", async () => {
     chemin.courant = "/admin/produits/TEST_id";
     rendre(await coque("x"));
     const bandeau = screen.getByRole("banner");
-    expect(within(bandeau).getByText("Espace administrateur")).toBeTruthy();
+    expect(within(bandeau).getByText("Espace administrateur").className).toContain("whitespace-nowrap");
     expect(within(bandeau).getByText("Produits")).toBeTruthy();
-    expect(within(bandeau).getByText("Alice Test")).toBeTruthy();
-    expect(within(bandeau).getByText("Administrateur")).toBeTruthy();
-    expect(within(bandeau).getByRole("img", { name: "Alice Test, Administrateur" }).textContent).toBe("AT");
-    // Réglages du site repris dans le bandeau (l'en-tête du site est masqué).
-    for (const nom of ["Thème", "Langue", "Se déconnecter"]) expect(within(bandeau).getByRole("button", { name: nom })).toBeTruthy();
+    expect(within(bandeau).getAllByText("Alice Test").length).toBeGreaterThan(0);
+    expect(within(bandeau).getAllByText("Administrateur").length).toBeGreaterThan(0);
+    const avatar = within(bandeau).getByRole("button", { name: BOUTON_PROFIL });
+    expect(avatar.textContent).toBe("AT");
+    expect(avatar.className).toContain("bg-primary");
+    expect(avatar.getAttribute("aria-expanded")).toBe("false");
+    // Thème et langue restent dans la barre (l'en-tête du site est masqué) ; la déconnexion passe dans le menu du profil, fermé au départ.
+    for (const nom of ["Thème", "Langue"]) expect(within(bandeau).getByRole("button", { name: nom })).toBeTruthy();
+    expect(within(bandeau).queryByRole("button", { name: "Se déconnecter" })).toBeNull();
   });
 
   it("sans nom de Compte : l'email partiellement masqué (jamais l'adresse entière)", async () => {
     compte.utilisateur = { email: "alice.test@example.invalid", user_metadata: {} };
     rendre(await coque("x"));
     const bandeau = screen.getByRole("banner");
-    expect(within(bandeau).getByText("al***@example.invalid")).toBeTruthy();
+    expect(within(bandeau).getAllByText("al***@example.invalid").length).toBeGreaterThan(0);
     expect(document.body.textContent).not.toContain("alice.test@example.invalid");
   });
 
-  it("Compte illisible : pas de nom inventé dans le bandeau, la navigation reste là", async () => {
+  it("Compte illisible : ni nom, ni rôle, ni initiales inventés ; le menu du profil reste joignable (déconnexion), la navigation reste là", async () => {
     compte.erreur = true;
+    const user = userEvent.setup();
     rendre(await coque("x"));
-    expect(within(screen.getByRole("banner")).queryByRole("img")).toBeNull();
+    const bandeau = screen.getByRole("banner");
+    const bouton = within(bandeau).getByRole("button", { name: "Menu du profil" });
+    expect(bouton.textContent).toBe("");
+    expect(within(bandeau).queryByText("Administrateur")).toBeNull();
+    await user.click(bouton);
+    expect(within(bandeau).getByRole("button", { name: "Se déconnecter" })).toBeTruthy();
     expect(screen.getByRole("navigation", { name: "Administration" })).toBeTruthy();
   });
 
-  it("« Utilisateurs » : montré à l'Admin seulement (l'Assistant ne le voit pas)", async () => {
+  it("droits par rôle : l'Admin voit les 14 entrées ; l'Assistant les mêmes sauf « Utilisateurs », rien de plus", async () => {
     compte.role = "assistant";
     rendre(await coque("x"));
     const nav = screen.getByRole("navigation", { name: "Administration" });
     expect(within(nav).queryByRole("link", { name: "Utilisateurs" })).toBeNull();
-    expect(within(nav).getByRole("link", { name: "Produits" })).toBeTruthy();
-    expect(within(screen.getByRole("banner")).getByText("Assistant")).toBeTruthy();
+    expect(
+      within(nav)
+        .getAllByRole("link")
+        .map((l) => l.textContent)
+        .filter((n) => NOMS_ADMIN.includes(n ?? "")),
+    ).toEqual(NOMS_ASSISTANT);
+    expect(within(screen.getByRole("banner")).getAllByText("Assistant").length).toBeGreaterThan(0);
+  });
+
+  it("Compte sans rôle d'administration lisible : aucune entrée réservée à l'Admin", async () => {
+    compte.role = null;
+    rendre(await coque("x"));
+    expect(within(screen.getByRole("navigation", { name: "Administration" })).queryByRole("link", { name: "Utilisateurs" })).toBeNull();
+  });
+
+  describe("menu du profil (Q8)", () => {
+    it("Entrée sur l'avatar : 5 entrées dans l'ordre, focus sur la première ; flèches, Échap ferme et rend le focus à l'avatar", async () => {
+      const user = userEvent.setup();
+      rendre(await coque("x"));
+      const bandeau = screen.getByRole("banner");
+      const avatar = within(bandeau).getByRole("button", { name: BOUTON_PROFIL });
+      avatar.focus();
+      await user.keyboard("{Enter}");
+      expect(avatar.getAttribute("aria-expanded")).toBe("true");
+      const menu = document.getElementById(avatar.getAttribute("aria-controls") ?? "");
+      expect(menu?.hidden).toBe(false);
+      const entrees = [...(menu?.querySelectorAll<HTMLElement>("[data-entree-profil]") ?? [])];
+      expect(entrees.map((e) => e.textContent)).toEqual(["Mon profil", "Paramètres du profil", "Aide", "Voir le site", "Se déconnecter"]);
+      for (const e of entrees) expect(e.className).toContain("min-h-touch");
+      expect(entrees[0].getAttribute("href")).toBe("/fr/compte?vue=site");
+      expect(entrees[1].getAttribute("href")).toBe("/fr/compte/preferences");
+      expect(entrees[3].getAttribute("href")).toBe("/fr?vue=site");
+      expect(document.activeElement).toBe(entrees[0]);
+      await user.keyboard("{ArrowDown}");
+      expect(document.activeElement).toBe(entrees[1]);
+      await user.keyboard("{ArrowUp}{ArrowUp}");
+      expect(document.activeElement).toBe(entrees[4]);
+      await user.keyboard("{Home}");
+      expect(document.activeElement).toBe(entrees[0]);
+      await user.keyboard("{Escape}");
+      expect(avatar.getAttribute("aria-expanded")).toBe("false");
+      expect(menu?.hidden).toBe(true);
+      expect(document.activeElement).toBe(avatar);
+    });
+
+    it("un clic à l'extérieur ferme le menu ; un Tab qui sort du menu aussi", async () => {
+      const user = userEvent.setup();
+      rendre(await coque(<button type="button">Ailleurs</button>));
+      const avatar = screen.getByRole("button", { name: BOUTON_PROFIL });
+      await user.click(avatar);
+      expect(avatar.getAttribute("aria-expanded")).toBe("true");
+      await user.click(screen.getByRole("button", { name: "Ailleurs" }));
+      expect(avatar.getAttribute("aria-expanded")).toBe("false");
+      await user.click(avatar);
+      await user.keyboard("{End}");
+      await user.tab();
+      expect(avatar.getAttribute("aria-expanded")).toBe("false");
+    });
+
+    it("« Aide » ouvre une fenêtre avec le texte de l'ancien encart et le lien WhatsApp des réglages ; la fermeture rend le focus à l'avatar", async () => {
+      reglage.whatsapp = "+243000000000";
+      const user = userEvent.setup();
+      rendre(await coque("x"));
+      const avatar = screen.getByRole("button", { name: BOUTON_PROFIL });
+      await user.click(avatar);
+      await user.click(screen.getByRole("button", { name: "Aide" }));
+      const dialogue = screen.getByRole("dialog", { name: "Besoin d'aide ?" });
+      expect(within(dialogue).getByText("Consulte les données et gère ta boutique depuis cet espace.")).toBeTruthy();
+      expect(within(dialogue).getByRole("link", { name: "Écrire sur WhatsApp" }).getAttribute("href")).toBe("https://wa.me/243000000000");
+      // En-tête des fenêtres de la maquette : titre, puis croix « Fermer » en haut à droite, trait dessous ; plus de bouton texte « Fermer » au-dessus du titre.
+      const titre = within(dialogue).getByRole("heading", { name: "Besoin d'aide ?" });
+      const croix = within(dialogue).getByRole("button", { name: "Fermer" });
+      expect(croix.textContent).toBe("");
+      expect(titre.compareDocumentPosition(croix) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(titre.parentElement?.className).toContain("border-b-[3px]");
+      expect(avatar.getAttribute("aria-expanded")).toBe("false");
+      await user.keyboard("{Escape}");
+      expect(screen.queryByRole("dialog")).toBeNull();
+      expect(document.activeElement).toBe(avatar);
+    });
+
+    it("« Aide » sans numéro WhatsApp réglé : le texte seul, aucun lien inventé", async () => {
+      const user = userEvent.setup();
+      rendre(await coque("x"));
+      await user.click(screen.getByRole("button", { name: BOUTON_PROFIL }));
+      await user.click(screen.getByRole("button", { name: "Aide" }));
+      const dialogue = screen.getByRole("dialog", { name: "Besoin d'aide ?" });
+      expect(within(dialogue).queryByRole("link", { name: /WhatsApp/ })).toBeNull();
+    });
+
+    it("en anglais", async () => {
+      const user = userEvent.setup();
+      rendre(await coque("x"), "en");
+      const avatar = screen.getByRole("button", { name: "AT, profile menu: Alice Test, Administrator" });
+      await user.click(avatar);
+      const menu = document.getElementById(avatar.getAttribute("aria-controls") ?? "");
+      expect([...(menu?.querySelectorAll("[data-entree-profil]") ?? [])].map((e) => e.textContent)).toEqual(["My profile", "Profile settings", "Help", "View the site", "Se déconnecter"]);
+      expect(menu?.querySelector("a")?.getAttribute("href")).toBe("/en/compte?vue=site");
+    });
   });
 
   it("hors des pages listées, aucune entrée n'est courante", async () => {
@@ -208,7 +335,7 @@ describe("CoqueAdmin : disposition en L", () => {
       expect(bouton.className).toContain("min-h-touch");
       expect(bouton.getAttribute("aria-haspopup")).toBe("dialog");
       expect(bouton.getAttribute("aria-expanded")).toBe("false");
-      expect(bouton.parentElement?.className).toContain("md:hidden");
+      expect(bouton.parentElement?.className).toContain("lg:hidden");
     });
 
     it("le bouton s'ouvre au clavier : dialogue avec les autres pages et « Voir le site », 44 px, focus dans le panneau, Échap ferme et rend le focus", async () => {

@@ -1,5 +1,6 @@
 "use client";
 
+import { Moon, Sun } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSyncExternalStore } from "react";
 import { appliquerTheme, ATTRIBUT_THEME, themeActuel } from "@/lib/theme/theme";
@@ -14,9 +15,25 @@ const estSombre = () => themeActuel() === "dark";
 // Côté serveur le thème est inconnu : crème, comme sans JavaScript.
 const estSombreServeur = () => false;
 
-export function BasculeTheme() {
+// « rond » (barre du haut de l'admin, 9.16 b) : rond de 44 px, icône seule (soleil en sombre, lune en clair), même nom et même état annoncés.
+export function BasculeTheme({ variante = "pastille" }: { variante?: "pastille" | "rond" }) {
   const t = useTranslations("Theme");
   const sombre = useSyncExternalStore(suivre, estSombre, estSombreServeur);
+
+  if (variante === "rond") {
+    const Icone = sombre ? Sun : Moon;
+    return (
+      <button
+        type="button"
+        aria-pressed={sombre}
+        aria-label={t("sombre")}
+        onClick={() => appliquerTheme(sombre ? "light" : "dark")}
+        className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-admin-rond text-admin-sur-rond"
+      >
+        <Icone aria-hidden="true" className="size-6" strokeWidth={2} />
+      </button>
+    );
+  }
 
   return (
     <button

@@ -20,12 +20,14 @@ function adresseVoirLeSite(locale: string) {
 
 const GLYPHE_MENU = "☰";
 
-// Navigation de l'admin (story 9.10), un seul élément nav mis en forme par le CSS :
-//  - ordinateur (md et plus) : barre latérale fixe à gauche, pleine hauteur : bloc de marque (logo et nom du site), groupes avec titre, page courante surlignée
-//    (fond et barre rouge de 4 px), encart « Besoin d'aide ? » avec « Voir le site » en bas ;
-//  - mobile : barre d'onglets fixe en bas (58 px) avec Tableau de bord, Commandes, Tâches et le bouton ☰ « Plus » (story 9.8b) ; le panneau « Plus » liste le reste
-//    et un lien « Voir le site ».
-// Chaque lien n'existe qu'une fois dans le DOM : les groupes sont aplatis sur mobile (display: contents) et les entrées qui ne sont pas principales y sont masquées.
+// Navigation de l'admin (story 9.10, cadre A des maquettes depuis 9.16 b), un seul élément nav mis en forme par le CSS :
+//  - ordinateur (lg et plus, décision 4 du 2026-11-16) : menu latéral fixe à gauche, pleine hauteur, bord droit de 4 px : logo, « ADMINISTRATION », trait,
+//    puis les groupes (le premier sans titre visible, comme la maquette) ; l'entrée courante est un bloc de la couleur du fond, collé au bord droit, au
+//    texte un peu plus grand, avec un trait rouge de 4 px à gauche (repère qui ne dépend pas que de la couleur, décision 2) ;
+//  - en dessous : barre d'onglets fixe en bas (58 px) avec Tableau de bord, Commandes, Tâches et le bouton ☰ « Plus » (story 9.8b) ; le panneau « Plus » liste le
+//    reste, « Voir le site », le thème, la langue et la déconnexion.
+// Chaque lien n'existe qu'une fois dans le DOM : les groupes sont aplatis en dessous de lg (display: contents) et les entrées qui ne sont pas principales y sont masquées.
+// L'encart « Besoin d'aide ? » est retiré (Q7) : « Aide » et « Voir le site » sont dans le menu du profil (BandeauAdmin).
 // compteurMessages : nombre de messages « nouveau » ; null (lecture impossible) ou 0 : aucun compteur affiché.
 export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = false }: { compteurMessages?: number | null; nomSite: string; estAdmin?: boolean }) {
   const t = useTranslations("Admin.nav");
@@ -43,10 +45,10 @@ export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = f
     setOuvert(false);
   }
 
-  // Le panneau est réservé au mobile : il se ferme si la fenêtre passe à md ou plus (rotation d'une tablette, redimensionnement).
+  // Le panneau est réservé aux petites largeurs : il se ferme si la fenêtre passe à lg ou plus (rotation d'une tablette, redimensionnement).
   useEffect(() => {
     if (!ouvert || !window.matchMedia) return;
-    const mq = window.matchMedia("(min-width: 48rem)");
+    const mq = window.matchMedia("(min-width: 64rem)");
     const surChangement = () => mq.matches && setOuvert(false);
     surChangement();
     mq.addEventListener("change", surChangement);
@@ -70,7 +72,7 @@ export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = f
         {t(cle)}
         {cle === "messages" && compteur ? (
           <>
-            <span aria-hidden="true" className="t-small ml-2 inline-flex min-w-6 items-center justify-center rounded-full bg-primary px-2 text-on-primary">
+            <span aria-hidden="true" className="t-small ml-2 inline-flex min-w-6 items-center justify-center rounded-full bg-primary px-2 tracking-normal text-on-primary">
               {compteur}
             </span>
             <span className="sr-only">{t("messagesNouveaux", { nombre: compteur })}</span>
@@ -84,34 +86,35 @@ export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = f
     <nav
       aria-label={t("libelle")}
       data-barre-admin=""
-      className="fixed inset-x-0 bottom-0 z-30 flex h-[58px] border-t border-border bg-surface md:inset-y-0 md:left-0 md:right-auto md:h-auto md:w-64 md:flex-col md:overflow-y-auto md:border-r md:border-t-0"
+      className="fixed inset-x-0 bottom-0 z-30 flex h-[58px] border-t border-admin-bord bg-admin-menu lg:inset-y-0 lg:left-0 lg:right-auto lg:h-auto lg:w-60 lg:flex-col lg:overflow-y-auto lg:border-r-4 lg:border-t-0"
     >
-      {/* Bloc de marque (ordinateur) : logo et nom du site lu dans les réglages ; le logo mène au site. */}
-      <div className="hidden border-b border-border px-5 py-4 md:block">
+      {/* Bloc de marque (ordinateur) : logo (mène au site ; le lien porte le nom du site lu dans les réglages), « ADMINISTRATION », trait. */}
+      <div className="hidden shrink-0 border-b-[3px] border-admin-bord px-5 pb-2 pt-2 lg:block">
         <a href={adresseVoirLeSite(locale)} className="inline-flex min-h-touch items-center" aria-label={t("voirSiteNom", { nom: nomSite })}>
-          <span className="relative block aspect-[530/124] w-[150px] overflow-hidden">
+          <span className="relative block aspect-[530/124] w-[165px] overflow-hidden">
             <Image src="/logo/logo-principal.svg" alt="" width={630} height={220} unoptimized data-logo="clair" className="logo-clair absolute -left-[9.434%] -top-[37.097%] h-auto w-[118.868%] max-w-none" />
             <Image src="/logo/logo-principal-inverse.svg" alt="" width={630} height={220} unoptimized data-logo="sombre" className="logo-sombre absolute -left-[9.434%] -top-[37.097%] h-auto w-[118.868%] max-w-none" />
           </span>
         </a>
-        <p className="t-label mt-2 text-text-secondary">{nomSite}</p>
+        <p className="t-label mt-1 whitespace-nowrap text-text-primary">{t("libelle")}</p>
       </div>
 
-      {groupes.map((groupe) => (
-        <div key={groupe.cle} className="contents md:mt-3 md:block md:px-3">
-          <p className="t-label hidden px-3 pb-1 text-text-secondary md:block">{t(`groupes.${groupe.cle}`)}</p>
-          <ul role="list" className="contents md:flex md:flex-col">
+      {groupes.map((groupe, rang) => (
+        <div key={groupe.cle} className={`contents lg:block ${rang === 0 ? "lg:pt-1" : ""}`}>
+          {/* Le premier groupe n'a pas de titre visible sur la maquette : son titre reste pour les lecteurs d'écran. */}
+          <p className={rang === 0 ? "sr-only" : "t-label hidden px-4 pt-1 text-text-secondary lg:block"}>{t(`groupes.${groupe.cle}`)}</p>
+          <ul role="list" className="contents lg:flex lg:flex-col">
             {groupe.entrees.map(({ cle, href }) => {
               const courante = estCourante(chemin, href);
-              // Sur mobile, seules les entrées principales sont dans la barre ; les autres restent dans la barre latérale (md et plus).
+              // En dessous de lg, seules les entrées principales sont dans la barre ; les autres restent dans le menu latéral (lg et plus).
               const masqueMobile = !PRINCIPALES.includes(cle);
               return (
-                <li key={cle} className={`flex-1 md:flex-none ${masqueMobile ? "hidden md:block" : ""}`}>
+                <li key={cle} className={`flex-1 lg:flex-none ${masqueMobile ? "hidden lg:block" : ""}`}>
                   <Link
                     href={href}
                     aria-current={courante ? "page" : undefined}
-                    className={`t-label flex min-h-touch flex-wrap items-center justify-center border-t-4 px-1 text-center text-text-primary no-underline md:justify-start md:rounded-md md:border-l-4 md:border-t-0 md:px-3 md:text-left ${
-                      courante ? "border-primary md:bg-background" : "border-transparent hover:md:bg-background"
+                    className={`t-label flex min-h-touch flex-wrap items-center justify-center border-t-4 px-1 text-center text-text-primary no-underline lg:ml-3 lg:justify-start lg:whitespace-nowrap lg:rounded-l-[14px] lg:border-l-4 lg:border-t-0 lg:pl-3 lg:pr-1 lg:text-left lg:tracking-[0.08em] ${
+                      courante ? "border-primary lg:bg-admin-actif lg:text-[18px]" : "border-transparent hover:lg:bg-admin-actif"
                     }`}
                   >
                     {etiquette(cle)}
@@ -123,7 +126,7 @@ export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = f
         </div>
       ))}
 
-      <div className="flex-1 md:hidden">
+      <div className="flex-1 lg:hidden">
         <button
           ref={bouton}
           type="button"
@@ -138,15 +141,6 @@ export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = f
           <span aria-hidden="true">{GLYPHE_MENU}</span>
           <span>{t("plus")}</span>
         </button>
-      </div>
-
-      {/* Encart d'aide (ordinateur). */}
-      <div className="m-3 mt-auto hidden rounded-lg border border-border bg-background p-4 md:block">
-        <p className="t-label text-text-primary">{t("aide.titre")}</p>
-        <p className="t-small mt-1 text-text-secondary">{t("aide.texte")}</p>
-        <a href={adresseVoirLeSite(locale)} className="t-small mt-2 inline-flex min-h-touch items-center text-text-primary underline underline-offset-4">
-          {t("voirSite")}
-        </a>
       </div>
 
       <Dialogue ouvert={ouvert} onFermer={() => setOuvert(false)} titre={t("plusTitre")} variante="plein" retourFocus={bouton}>
@@ -176,7 +170,7 @@ export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = f
               {t("voirSite")}
             </a>
           </li>
-          {/* Réglages du site repris ici sur mobile (le bandeau reste sur une ligne ; l'en-tête du site est masqué dans l'admin). */}
+          {/* Réglages du site repris ici en dessous de lg (la barre du haut reste sur une ligne ; l'en-tête du site est masqué dans l'admin). */}
           <li className="flex flex-wrap items-center gap-2 px-4 py-3">
             <BasculeTheme />
             <Suspense fallback={null}>

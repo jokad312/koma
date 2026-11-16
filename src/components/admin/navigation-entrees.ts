@@ -1,4 +1,4 @@
-// Entrées de la navigation de l'admin (story 9.10) : groupes avec titre, seulement les pages qui existent (chaque story qui crée une page admin ajoute sa ligne ici).
+// Entrées de la navigation de l'admin (story 9.10 ; ordre des maquettes depuis 9.16 b, décision Q6) : groupes avec titre, seulement les pages qui existent (chaque story qui crée une page admin ajoute sa ligne ici).
 // « adminSeulement » : l'entrée n'est montrée qu'à l'Admin (la page refuse de toute façon l'Assistant, droit « roles.gerer »).
 export type EntreeNavigation = { cle: string; href: string; adminSeulement?: boolean };
 export type GroupeNavigation = { cle: "navigation" | "communaute" | "reglages"; entrees: readonly EntreeNavigation[] };
@@ -29,8 +29,8 @@ export const GROUPES: readonly GroupeNavigation[] = [
   {
     cle: "reglages",
     entrees: [
-      { cle: "codesPromo", href: "/admin/codes-promo" },
       { cle: "prestataires", href: "/admin/prestataires" },
+      { cle: "codesPromo", href: "/admin/codes-promo" },
       { cle: "reglages", href: "/admin/reglages" },
     ],
   },

@@ -1,5 +1,6 @@
 "use client";
 
+import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useEffect, useId, useRef, type ReactNode, type RefObject } from "react";
 import { createPortal } from "react-dom";
@@ -23,9 +24,12 @@ type Props = {
   id?: string;
   // Élément qui reprend le focus à la fermeture (par défaut : celui qui l'avait à l'ouverture).
   retourFocus?: RefObject<HTMLElement | null>;
+  // « fenetre » (admin, 9.16 b) : en-tête des fenêtres des maquettes : titre à gauche, croix à droite (nom accessible « Fermer »), trait dessous ;
+  // pas de bouton « Fermer » au-dessus du titre. Variante « centre » seulement.
+  entete?: "bouton" | "fenetre";
 };
 
-export function Dialogue({ ouvert, onFermer, titre, children, variante = "centre", libelleFermer, id, retourFocus }: Props) {
+export function Dialogue({ ouvert, onFermer, titre, children, variante = "centre", libelleFermer, id, retourFocus, entete = "bouton" }: Props) {
   const t = useTranslations("Composants");
   const idTitre = useId();
   const panneau = useRef<HTMLDivElement>(null);
@@ -96,15 +100,28 @@ export function Dialogue({ ouvert, onFermer, titre, children, variante = "centre
             : "max-h-full w-full max-w-lg overflow-y-auto rounded-lg bg-surface p-6 text-text-primary"
         }
       >
-        <div className="flex items-center justify-between gap-3">
-          <button type="button" onClick={onFermer} className={CLASSES_SECONDAIRE}>
-            {libelleFermer ?? t("fermer")}
-          </button>
-        </div>
-        {/* Un titre, jamais un lien : en panneau plein (menu), libellé discret et couleur secondaire pour ne pas ressembler aux liens en t-h3. */}
-        <h2 id={idTitre} className={plein ? "t-label mt-4 text-text-secondary" : "t-h3 mt-4"}>
-          {titre}
-        </h2>
+        {entete === "fenetre" && !plein ? (
+          <div className="flex items-start justify-between gap-3 border-b-[3px] border-text-primary pb-3">
+            <h2 id={idTitre} className="t-h3 pt-2">
+              {titre}
+            </h2>
+            <button type="button" onClick={onFermer} aria-label={libelleFermer ?? t("fermer")} className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-text-primary">
+              <X aria-hidden="true" className="size-6" />
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-center justify-between gap-3">
+              <button type="button" onClick={onFermer} className={CLASSES_SECONDAIRE}>
+                {libelleFermer ?? t("fermer")}
+              </button>
+            </div>
+            {/* Un titre, jamais un lien : en panneau plein (menu), libellé discret et couleur secondaire pour ne pas ressembler aux liens en t-h3. */}
+            <h2 id={idTitre} className={plein ? "t-label mt-4 text-text-secondary" : "t-h3 mt-4"}>
+              {titre}
+            </h2>
+          </>
+        )}
         <div className="mt-4">{children}</div>
       </div>
     </div>,

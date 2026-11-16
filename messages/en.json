@@ -266,6 +266,10 @@
     "nom": {
       "fr": "Français",
       "en": "English"
+    },
+    "court": {
+      "fr": "FR",
+      "en": "EN"
     }
   },
   "Pied": {
@@ -713,6 +717,15 @@
           "benevole": "Volunteer",
           "aucun": "No role"
         }
+      },
+      "profil": {
+        "bouton": "{initiales}, profile menu: {nom}, {role}",
+        "boutonSansCompte": "Profile menu",
+        "monProfil": "My profile",
+        "parametres": "Profile settings",
+        "aide": "Help",
+        "voirSite": "View the site",
+        "whatsapp": "Write on WhatsApp"
       }
     },
     "blog": {
@@ -2680,6 +2693,19 @@
           "libelle": "Alt text in English",
           "aide": "The same description, in English."
         }
+      }
+    },
+    "ui": {
+      "precedente": "Previous page",
+      "suivante": "Next page",
+      "page": "Page {page} / {total}",
+      "pagination": "Pagination",
+      "enregistrer": "Save",
+      "fermer": "Close and go back to the list",
+      "quitter": {
+        "titre": "Leave without saving?",
+        "quitter": "Leave",
+        "continuer": "Keep editing"
       }
     }
   },
