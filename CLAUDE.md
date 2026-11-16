@@ -57,6 +57,7 @@ Le projet suit la méthode BMad v6, installée dans `_bmad/` et `.claude/skills/
 - Documents de planification : `_bmad-output/planning-artifacts/` (brief, PRD, UX, architecture, epics). Documents d'implémentation : `_bmad-output/implementation-artifacts/` (sprint, stories, revues).
 - Une story à la fois, dans une nouvelle session pour chaque workflow. Proposer un plan avant de coder et attendre la validation.
 - Avant de déclarer une story terminée : lint, vérification des types, tests et build sans erreur.
+- Une story n'est « terminée » (done) que quand la CI GitHub de son dernier commit est verte (décision du 2026-11-16). Les e2e lancés en local contre koma-dev (`--linked`) ne suffisent pas : la CI tourne sur une base locale (`--local`), avec ses propres contraintes (par exemple une seule commande SQL par appel de `supabase db query --local`).
 - À la fin : liste des fichiers changés, ce qu'il faut tester à la main, et un message de commit proposé.
 - Ne jamais modifier une migration déjà appliquée : en créer une nouvelle.
 - En cas de doute sur une règle métier, demander plutôt que deviner.

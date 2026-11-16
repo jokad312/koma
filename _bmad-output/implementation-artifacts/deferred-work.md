@@ -508,3 +508,15 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-9-15-types-vetement-et-autre-article.md`
   summary: Photos par couleur pour les Vêtements (la photo change quand on choisit une couleur sur la fiche).
   evidence: Décision de Jonathan du 2026-11-15 (Q-3 de la 9.15) : photos par produit pour l'instant.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-15-types-vetement-et-autre-article.md`
+  summary: Admin, Vêtement : échanger les noms de deux couleurs dans un même enregistrement peut buter sur l'unicité (taille, couleur) au milieu de la mise à jour.
+  evidence: Risque signalé par l'implémentation de la 9.15 (2026-11-16) ; cas rare, contournable en deux enregistrements.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-15-types-vetement-et-autre-article.md`
+  summary: Test unitaire instable : tests/unit/evenements-admin-ui.test.tsx (PublicationEvenement, 2 cas) échoue parfois sous la charge de la suite complète, passe seul.
+  evidence: Constaté le 2026-11-16 (échec puis succès à la relance de npm test, sans changement de code).
+
+- source_spec: none
+  summary: Bandeau « navigateur intégré » : rendu visible par le serveur puis masqué après l'hydratation quand le visiteur l'a déjà fermé (bref affichage inutile) ; mémoriser le choix dans un cookie lu côté serveur.
+  evidence: Échec CI du run 43764987944 (commit 8b67426, 2026-11-15) à la ligne 37 : après `goto("/fr/connexion")`, le bandeau est encore présent au bout de 5 s ; passé au run suivant sans changement de code. Cause probable : le bandeau est rendu visible par le serveur et n'est masqué qu'après l'hydratation, par un `useEffect` qui lit `localStorage` (src/components/layout/BandeauNavigateurIntegreClient.tsx:30) ; si l'hydratation de /fr/connexion dépasse 5 s sur le runner, l'assertion échoue. Piste : mémoriser le choix dans un cookie lu côté serveur (plus de bandeau qui apparaît puis disparaît, aussi pour les vrais visiteurs) ou, à défaut, attendre explicitement l'hydratation dans le test. Test stabilisé le 2026-11-16 (commit fix(e2e) suivant 1006561) : attente explicite de l'hydratation au lieu d'une boucle de réessais ; 10 passages sur 10 en local. Reste le défaut côté visiteur ci-dessus.

@@ -2691,7 +2691,7 @@
     "titre": "Jonathan and his workshop",
     "portrait": {
       "titre": "Portrait",
-      "texte": "Handmade in Goma, for otakus.\n\nEvery cosplay and accessory is handmade by Jonathan in Goma. No factory, no endless stock: carefully crafted pieces, made one by one and delivered by hand.\n\n{nomSite} is run by NATHANGROUP SARL, a Congolese company based in Goma."
+      "texte": "Handmade in Goma, for otakus.\n\nEvery cosplay and accessory is handmade by Jonathan in Goma. No factory, no endless stock: carefully crafted pieces, made one by one and delivered by hand.\n\nThe shop also offers clothing (polos, T-shirts, sweatshirts) and other items.\n\n{nomSite} is run by NATHANGROUP SARL, a Congolese company based in Goma."
     },
     "histoire": {
       "titre": "Story",
@@ -2852,7 +2852,7 @@
     },
     "livraison": {
       "titre": "Delivery and returns",
-      "texte": "We deliver ourselves in Goma and Bukavu, with free pickup in Goma. Fees and lead times are shown before you pay. For made-to-measure items, tap “Send my measurements on WhatsApp” after ordering: making starts when we receive them, and the site does not store them. Report any defect from “My orders” within 48 hours of delivery, with a photo: we offer an alteration, a replacement or a refund. Ready-to-wear items can be returned within [Texte à fournir] (number) days if unworn and complete; made-to-measure items cannot be returned unless defective. Refunds go back to your original payment method.",
+      "texte": "We deliver ourselves in Goma and Bukavu, with free pickup in Goma. Fees and lead times are shown before you pay. For made-to-measure items, tap “Send my measurements on WhatsApp” after ordering: making starts when we receive them, and the site does not store them. Report any defect from “My orders” within 48 hours of delivery, with a photo: we offer an alteration, a replacement or a refund. Ready-to-wear items (in-stock cosplays and accessories, non-personalised clothing, other items) can be returned or exchanged within 7 days of receipt if unworn, unused, complete and in their original packaging; return costs are yours unless the item is defective or not what you ordered. Items made, made to measure or personalised to order cannot be returned unless defective. Refunds go back to your original payment method within 14 days of our approval (for a return: of receiving the item).",
       "version": "[Texte à fournir]"
     },
     "confidentialite": {
