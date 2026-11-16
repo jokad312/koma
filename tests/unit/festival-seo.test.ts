@@ -15,7 +15,7 @@ function cles(objet: unknown, prefixe = ""): string[] {
 
 describe("navigation et messages", () => {
   it("la rubrique « Festival » est dans l'en-tête et le menu ☰ (mêmes liens), entre les Kits et le Blog", () => {
-    expect(RUBRIQUES.map((r) => r.cle)).toEqual(["cosplays", "accessoires", "kits", "festival", "blog", "aPropos"]);
+    expect(RUBRIQUES.map((r) => r.cle)).toEqual(["cosplays", "accessoires", "vetements", "autresArticles", "kits", "festival", "blog", "aPropos"]);
     expect(RUBRIQUES.find((r) => r.cle === "festival")?.href).toBe("/festival");
   });
 

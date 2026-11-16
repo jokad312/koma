@@ -1,8 +1,8 @@
 {
   "Metadata": {
     "accueil": {
-      "titre": "Boutique pour otakus : cosplay, accessoires et kits",
-      "description": "Costumes de cosplay faits main, accessoires et kits à fabriquer soi-même, créés à Goma, en République démocratique du Congo."
+      "titre": "Boutique pour otakus : cosplay, accessoires, vêtements et kits",
+      "description": "Costumes de cosplay et accessoires faits main à Goma, en République démocratique du Congo, vêtements, autres articles et kits à fabriquer soi-même."
     },
     "nonTrouve": {
       "titre": "Page introuvable",
@@ -125,6 +125,14 @@
     "espace": {
       "titre": "Mon espace",
       "description": "Tes commandes, tes kits, tes Pass et tes événements."
+    },
+    "vetements": {
+      "titre": "Vêtements",
+      "description": "Polos, t-shirts et sweats pour otakus, de XS à XXL, livrés à Goma et Bukavu. Filtre par univers, prix et disponibilité."
+    },
+    "autresArticles": {
+      "titre": "Autres articles",
+      "description": "Autres articles pour otakus, livrés à Goma et Bukavu. Filtre par univers, prix et disponibilité."
     }
   },
   "Accueil": {
@@ -174,6 +182,14 @@
       "kits": {
         "nom": "Kits",
         "description": "Kits de cosplay à fabriquer soi-même : patrons PDF, SVG et STL et tutoriel vidéo en chapitres, accès à vie"
+      },
+      "vetements": {
+        "nom": "Vêtements",
+        "description": "Polos, t-shirts et sweats, de XS à XXL"
+      },
+      "autresArticles": {
+        "nom": "Autres articles",
+        "description": "Les autres articles de la boutique"
       }
     },
     "porteOuFabrique": {
@@ -226,12 +242,15 @@
       "kits": "Kits",
       "festival": "Festival",
       "blog": "Blog",
-      "aPropos": "À propos"
+      "aPropos": "À propos",
+      "vetements": "Vêtements",
+      "autresArticles": "Autres articles"
     },
     "panier": {
       "lien": "Panier",
       "libelle": "Panier, {count, plural, =0 {aucun article} one {# article} other {# articles}}"
-    }
+    },
+    "boutique": "Boutique"
   },
   "Menu": {
     "ouvrir": "Menu",
@@ -272,7 +291,8 @@
         "mobile_money": "mobile money",
         "carte": "carte"
       }
-    }
+    },
+    "autresArticles": "Autres articles"
   },
   "Composants": {
     "fermer": "Fermer",
@@ -534,7 +554,9 @@
         "accessoire": "Accessoire",
         "kit": "Kit",
         "pass": "Pass",
-        "livraison": "Livraison"
+        "livraison": "Livraison",
+        "vetement": "Vêtement",
+        "autre": "Autre article"
       },
       "commandes": {
         "titre": "Nouvelles commandes payées",
@@ -1420,7 +1442,7 @@
     },
     "produits": {
       "titre": "Produits",
-      "intro": "Tes cosplays, accessoires et kits. Un produit créé ici reste un brouillon : personne ne le voit sur le site.",
+      "intro": "Tes cosplays, accessoires, vêtements, autres articles et kits. Un produit créé ici reste un brouillon : personne ne le voit sur le site.",
       "nouveau": "Nouveau produit",
       "nombre": "{nombre, plural, =0 {Aucun produit} one {# produit} other {# produits}}",
       "erreurLecture": "Les produits n'ont pas pu être lus. Recharge la page.",
@@ -1438,7 +1460,7 @@
           "numerique": "Numérique",
           "en_stock": "En stock",
           "sur_commande": "Sur commande",
-          "epuise": "Épuisé",
+          "epuise": "Sans stock",
           "sans_variante": "Aucune taille"
         }
       },
@@ -1454,7 +1476,9 @@
       "famille": {
         "cosplay": "Cosplay",
         "accessoire": "Accessoire",
-        "kit": "Kit"
+        "kit": "Kit",
+        "vetement": "Vêtement",
+        "autre": "Autre article"
       },
       "statut": {
         "brouillon": "Brouillon",
@@ -1477,7 +1501,9 @@
           "options": {
             "cosplay": "Cosplay (costume complet)",
             "accessoire": "Accessoire",
-            "kit": "Kit (patrons, fichiers et tutoriel)"
+            "kit": "Kit (patrons, fichiers et tutoriel)",
+            "vetement": "Vêtement",
+            "autre": "Autre article"
           },
           "fixe": "La famille d'un produit existant ne peut plus changer."
         },
@@ -1526,13 +1552,15 @@
             "L": "L",
             "XL": "XL",
             "XXL": "XXL",
-            "sur_mesure": "Sur mesure"
+            "sur_mesure": "Sur mesure",
+            "unique": "Taille unique"
           },
           "stock": "Stock",
           "surCommande": "Fabrication sur commande autorisée",
           "delai": "Délai de cette taille (jours), facultatif",
           "delaiAide": "Remplace le délai du produit pour cette taille.",
-          "surMesure": "Toujours fabriquée sur commande, sans stock."
+          "surMesure": "Toujours fabriquée sur commande, sans stock.",
+          "unique": "Un autre article a une seule variante, « Taille unique » : indique son stock."
         },
         "enregistrer": "Enregistrer",
         "enCours": "Enregistrement…",
@@ -1554,7 +1582,26 @@
           "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
           "generique": "Le produit n'a pas pu être enregistré. Ta saisie est conservée : réessaie.",
           "produit_publie_verrouille": "Ce produit est publié : son adresse et sa famille ne peuvent plus changer. Dépublie-le d'abord si tu dois les modifier.",
-          "publication_incomplete": "Ce produit est publié : il doit rester complet (prix, photo, textes, taille). Dépublie-le d'abord pour retirer cet élément."
+          "publication_incomplete": "Ce produit est publié : il doit rester complet (prix, photo, textes, taille). Dépublie-le d'abord pour retirer cet élément.",
+          "couleur_invalide": "Chaque couleur a un nom français de 1 à 40 caractères, un nom anglais de 40 caractères au plus et une pastille au format #RRGGBB. Deux couleurs ne portent jamais le même nom ; toutes les tailles ont une couleur, ou aucune.",
+          "variante_commandee": "Cette taille ou cette couleur a déjà été commandée : elle ne peut pas être retirée. Garde-la, ou mets son stock à 0."
+        },
+        "couleurs": {
+          "titre": "Couleurs",
+          "aide": "Ajoute les couleurs proposées : aucune, une ou plusieurs. Chaque couleur a ses tailles et son stock. Le nom anglais est obligatoire pour publier ; la pastille est facultative et ne remplace jamais le nom.",
+          "nomFr": "Nom de la couleur en français",
+          "nomFrAide": "De 1 à 40 caractères. Les couleurs déjà utilisées sont proposées.",
+          "nomEn": "Nom de la couleur en anglais",
+          "nomEnAide": "Obligatoire pour publier. 40 caractères au plus.",
+          "hex": "Pastille (code #RRGGBB), facultative",
+          "hexAide": "Par exemple #1B1713.",
+          "ajouter": "Ajouter une couleur",
+          "retirer": "Retirer la couleur {couleur}",
+          "sansNom": "Nouvelle couleur",
+          "groupe": "Tailles et stock : {couleur}",
+          "aucune": "Aucune couleur : les tailles ci-dessous n'ont pas de couleur.",
+          "nomVide": "Donne un nom français à cette couleur, ou retire-la.",
+          "sansTaille": "Coche au moins une taille pour cette couleur, ou retire-la."
         }
       },
       "photos": {
@@ -1650,7 +1697,8 @@
           "fichier": "Au moins un fichier",
           "video": "La vidéo complète",
           "sous_titres_fr": "Les sous-titres en français",
-          "sous_titres_extrait_fr": "Les sous-titres en français de l'extrait (ou la case « Extrait sans parole »)"
+          "sous_titres_extrait_fr": "Les sous-titres en français de l'extrait (ou la case « Extrait sans parole »)",
+          "couleurs": "Le nom anglais de chaque couleur"
         },
         "erreurs": {
           "publication_incomplete": "Il manque des éléments pour publier. Recharge la page.",
@@ -2329,7 +2377,9 @@
       "familles": {
         "cosplay": "Cosplay",
         "accessoire": "Accessoire",
-        "kit": "Kit"
+        "kit": "Kit",
+        "vetement": "Vêtement",
+        "autre": "Autre article"
       },
       "origines": {
         "stock": "Pièce en stock",
@@ -2819,7 +2869,9 @@
     "titre": {
       "cosplay": "Cosplays",
       "accessoire": "Accessoires",
-      "kit": "Kits"
+      "kit": "Kits",
+      "vetement": "Vêtements",
+      "autre": "Autres articles"
     },
     "fil": {
       "navigation": "Fil d'Ariane",
@@ -2854,7 +2906,7 @@
       "dernieres_pieces": "Dernières pièces",
       "sur_commande": "Fabrication sur commande",
       "complet": "Commandes complètes pour le moment",
-      "epuise": "Épuisé"
+      "epuise": "Commandes complètes pour le moment"
     },
     "voirPlus": {
       "libelle": "Voir plus",
@@ -3151,7 +3203,7 @@
       "surMesure": "Sur mesure",
       "delai": "Délai de fabrication : {n, plural, one {# jour} other {# jours}}",
       "complet": "Commandes complètes pour le moment",
-      "epuise": "Épuisé"
+      "unique": "Taille unique"
     },
     "remise": {
       "titre": "Remise de ta commande",
@@ -3187,8 +3239,13 @@
         "deja_possede": "Tu as déjà ce kit.",
         "ligne_unique": "Un kit s'achète en un seul exemplaire.",
         "invalide": "La demande n'est pas valide. Recharge la page et réessaie.",
-        "erreur": "L'article n'a pas pu être ajouté. Réessaie."
-      }
+        "erreur": "L'article n'a pas pu être ajouté. Réessaie.",
+        "combinaison_inconnue": "Cette combinaison de taille et de couleur n'existe pas pour cet article.",
+        "combinaison_indisponible": "Cette combinaison de taille et de couleur n'est plus disponible pour le moment."
+      },
+      "choisirCouleur": "Choisis d'abord une couleur.",
+      "choisirTailleCouleur": "Choisis d'abord une taille et une couleur.",
+      "combinaisonIndisponible": "Cette taille n'est pas disponible dans cette couleur."
     },
     "option": {
       "libelle": "Tu préfères porter ou fabriquer ?",
@@ -3197,6 +3254,10 @@
       "kitTitre": "Kit lié",
       "acces": "Accès immédiat, à vie",
       "voirLeKit": "Voir le kit"
+    },
+    "couleurs": {
+      "legende": "Couleur",
+      "une": "Couleur : {couleur}"
     }
   },
   "Kit": {
@@ -3275,11 +3336,13 @@
   "Panier": {
     "titre": "Ton panier",
     "vide": "Ton panier est vide.",
-    "versCatalogues": "Découvre nos cosplays, nos accessoires et nos kits.",
+    "versCatalogues": "Découvre nos cosplays, accessoires, vêtements, autres articles et kits.",
     "liensCatalogues": {
       "cosplays": "Cosplays",
       "accessoires": "Accessoires",
-      "kits": "Kits"
+      "kits": "Kits",
+      "vetements": "Vêtements",
+      "autresArticles": "Autres articles"
     },
     "liste": "Articles du panier",
     "taille": "Taille : {taille}",
@@ -3307,7 +3370,9 @@
     "passer": "Passer la commande",
     "raisonBloque": "Retire d'abord les articles qui ne sont plus disponibles.",
     "erreurLecture": "Ton panier n'a pas pu être chargé. Réessaie dans un instant.",
-    "kitDejaPossede": "Tu possèdes déjà ce kit : il est dans ta bibliothèque."
+    "kitDejaPossede": "Tu possèdes déjà ce kit : il est dans ta bibliothèque.",
+    "tailleUnique": "Taille unique",
+    "avecCouleur": "{variante} · {couleur}"
   },
   "Commande": {
     "titre": "Passer la commande",
@@ -3335,7 +3400,9 @@
         "retrait": "retrait gratuit à Goma",
         "gomaLivraison": "livraison à Goma en moins d'un jour",
         "bukavu": "livraison à Bukavu en un jour au plus"
-      }
+      },
+      "tailleUnique": "Taille unique",
+      "avecCouleur": "{variante} · {couleur}"
     },
     "contact": {
       "titre": "Pour te joindre",
@@ -3551,7 +3618,12 @@
       "bouton": "Voir ma commande",
       "mesures": "Ta commande contient un cosplay sur mesure : envoie tes mesures sur WhatsApp avec ce lien : {lien} Le délai de fabrication court à partir de leur réception.",
       "mesuresSansNumero": "Ta commande contient un cosplay sur mesure : écris-nous depuis la page Contact pour envoyer tes mesures. Le délai de fabrication court à partir de leur réception.",
-      "messageMesures": "Bonjour, voici mes mesures pour la commande {numero}."
+      "messageMesures": "Bonjour, voici mes mesures pour la commande {numero}.",
+      "taille": "Taille {taille}",
+      "tailleSurMesure": "Taille sur mesure",
+      "tailleUnique": "Taille unique",
+      "avecCouleur": "{variante} · {couleur}",
+      "titreVariante": "{titre} ({variante})"
     },
     "kit_ouvert": {
       "sujet": "Ton kit est ouvert : {titre}",

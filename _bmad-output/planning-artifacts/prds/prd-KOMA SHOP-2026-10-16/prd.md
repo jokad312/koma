@@ -79,7 +79,7 @@ Plus tard, deux Assistants l'aideront avec un rôle restreint (FR-53).
 
 ## 3. Glossaire
 
-- **Famille** — catégorie d'un Produit : `cosplay`, `accessoire` ou `kit`. Le Pass n'est pas une Famille de produit (voir Pass).
+- **Famille** — catégorie d'un Produit : `cosplay`, `accessoire`, `vetement`, `autre` ou `kit` (vêtement et autre article : story 9.15, 2026-11-15). Seul le `kit` est numérique. Le Pass n'est pas une Famille de produit (voir Pass).
 - **Produit physique** — Produit de famille `cosplay` ou `accessoire`. Remis à Goma ou à Bukavu uniquement.
 - **Cosplay** — costume complet fait main. Vendu en taille standard (XS à XXL) ou en Sur-mesure, en stock ou en Fabrication sur commande. Peut être lié à un Kit.
 - **Accessoire** — perruque, arme factice, masque, armure, bijou ou objet de scène, fait main.
@@ -293,9 +293,9 @@ L'Admin fait passer une Commande par ses Statuts de commande, saisit à la main 
 - Aucun statut ne revient en arrière : une erreur se corrige avec le client hors du site (WhatsApp) et la correction est journalisée (NFR-9).
 - Pour un retrait à Goma, le client voit « Prête à retirer » quand la Commande est `expédiée`.
 
-#### FR-25 : Annulation d'une Commande de Cosplay
-Le client demande l'annulation d'une Commande de Cosplay tant qu'elle n'est pas `en fabrication` ; l'Admin valide, la Commande passe `annulée`, et le stock et la place dans le Plafond de fabrication sont libérés. Elle passe `remboursée` seulement quand l'Admin confirme que l'argent a été rendu, avec la preuve (référence du Prestataire ou du virement manuel). Après le début de la fabrication, l'annulation n'est plus proposée.
-- Commande mixte : toutes les pièces physiques de la Commande (Cosplay et Accessoires) sont annulées ensemble ; le Kit reste dans la Bibliothèque et n'est pas remboursé ; le montant rendu correspond aux pièces physiques et au Forfait de livraison. L'annulation partielle n'existe pas au lancement.
+#### FR-25 : Annulation d'une Commande de Cosplay ou d'un article fabriqué sur commande
+Le client demande l'annulation d'une Commande qui contient un Cosplay, ou au moins un article physique fabriqué sur commande (Accessoire, Vêtement ou Autre article), tant qu'elle n'est pas `en fabrication` (décision de Jonathan du 2026-11-15, story 9.15) ; l'Admin valide, la Commande passe `annulée`, et le stock et la place dans le Plafond de fabrication sont libérés. Elle passe `remboursée` seulement quand l'Admin confirme que l'argent a été rendu, avec la preuve (référence du Prestataire ou du virement manuel). Après le début de la fabrication, l'annulation n'est plus proposée.
+- Commande mixte : toutes les pièces physiques de la Commande (Cosplay, Accessoires, Vêtements, Autres articles) sont annulées ensemble ; le Kit reste dans la Bibliothèque et n'est pas remboursé ; le montant rendu correspond aux pièces physiques et au Forfait de livraison. L'annulation partielle n'existe pas au lancement.
 - Le mécanisme de remboursement dépend du Prestataire (Q-4) ; le PRD ne suppose rien.
 
 #### FR-26 : Réclamation et remplacement

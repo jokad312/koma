@@ -14,16 +14,15 @@ import { construireMetadata } from "@/lib/seo/metadata";
 import { urlLocalisee } from "@/lib/seo/url";
 import { aFiltreOuTri, analyserRequeteFamille, encoderCurseur, sansCurseur, serialiserRequete, type RequeteBrute } from "@/modules/catalogue/adresse";
 import { listerCatalogue, lireTranchesPrix, lireUniversPublics } from "@/modules/catalogue/queries";
-import type { FamilleProduit } from "@/modules/catalogue/types";
+import { DOSSIER_PAR_FAMILLE, type FamilleProduit } from "@/modules/catalogue/types";
 import { FiltresCatalogue } from "./FiltresCatalogue";
 import { GrilleProduits } from "./GrilleProduits";
 
 // Dossier interne de chaque catalogue (l'adresse de chaque langue vient de src/i18n/adresses.ts) et clé des textes de métadonnées.
-const CATALOGUES: Record<FamilleProduit, { chemin: string; cleMeta: "cosplays" | "accessoires" | "kits" }> = {
-  cosplay: { chemin: "/cosplays", cleMeta: "cosplays" },
-  accessoire: { chemin: "/accessoires", cleMeta: "accessoires" },
-  kit: { chemin: "/kits", cleMeta: "kits" },
-};
+const CLES_META = { cosplay: "cosplays", accessoire: "accessoires", vetement: "vetements", autre: "autresArticles", kit: "kits" } as const;
+const CATALOGUES = Object.fromEntries(
+  (Object.keys(CLES_META) as FamilleProduit[]).map((f) => [f, { chemin: DOSSIER_PAR_FAMILLE[f], cleMeta: CLES_META[f] }]),
+) as { [F in FamilleProduit]: { chemin: string; cleMeta: (typeof CLES_META)[F] } };
 
 const SEPARATEUR_FIL = "›";
 

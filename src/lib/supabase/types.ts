@@ -2269,6 +2269,9 @@ export type Database = {
       }
       variante: {
         Row: {
+          couleur_en: string | null
+          couleur_fr: string | null
+          couleur_hex: string | null
           cree_le: string
           delai_fabrication_jours: number | null
           fabrication_sur_commande: boolean
@@ -2278,6 +2281,9 @@ export type Database = {
           taille: string
         }
         Insert: {
+          couleur_en?: string | null
+          couleur_fr?: string | null
+          couleur_hex?: string | null
           cree_le?: string
           delai_fabrication_jours?: number | null
           fabrication_sur_commande?: boolean
@@ -2287,6 +2293,9 @@ export type Database = {
           taille: string
         }
         Update: {
+          couleur_en?: string | null
+          couleur_fr?: string | null
+          couleur_hex?: string | null
           cree_le?: string
           delai_fabrication_jours?: number | null
           fabrication_sur_commande?: boolean
@@ -2563,6 +2572,7 @@ export type Database = {
         Args: {
           p_auteur: Json
           p_compte: string
+          p_couleur?: string
           p_nombre: number
           p_panier: string
           p_produit: string
@@ -2749,6 +2759,10 @@ export type Database = {
         }
         Returns: Json
       }
+      commande_contenu_annulable: {
+        Args: { p_commande: string }
+        Returns: boolean
+      }
       commande_pass_calculer: {
         Args: {
           p_code: string
@@ -2820,6 +2834,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      couleurs_utilisees: {
+        Args: never
+        Returns: {
+          couleur_en: string
+          couleur_fr: string
+          couleur_hex: string
+        }[]
+      }
       creer_code_promo: {
         Args: {
           p_actif: boolean
@@ -2882,6 +2904,7 @@ export type Database = {
         Args: { p_auteur: Json; p_nom_en: string; p_nom_fr: string }
         Returns: string
       }
+      crochet_role_jeton: { Args: { event: Json }; Returns: Json }
       declarer_age: {
         Args: { p_age: number; p_auteur: Json; p_compte: string }
         Returns: undefined
@@ -2996,6 +3019,9 @@ export type Database = {
       disponibilite_variantes: {
         Args: { p_produit: string }
         Returns: {
+          couleur_en: string
+          couleur_fr: string
+          couleur_hex: string
           delai_jours: number
           etat: string
           taille: string
@@ -3267,6 +3293,8 @@ export type Database = {
       lire_panier: {
         Args: { p_panier: string }
         Returns: {
+          couleur_en: string
+          couleur_fr: string
           delai_jours: number
           etat: string
           famille: string

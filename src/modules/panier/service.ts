@@ -1,5 +1,6 @@
 import { AUTEUR_VISITEUR, construireAuteur, type Auteur } from "@/lib/auth/auteur";
 import { lirePanierSigne, signerPanier } from "@/lib/panier/cookie";
+import { estFamilleProduit } from "@/modules/catalogue/types";
 import { ajoutSchema, modificationSchema, retraitSchema } from "./schemas";
 import type { EntreeAjout } from "./schemas";
 import type { CodeErreurPanier, DependancesPanier, EtatLigne, LigneBrute, LignePanier, PanierLu, ResultatPanier } from "./types";
@@ -84,7 +85,7 @@ export async function ajouter(deps: DependancesPanier, entree: EntreeAjout): Pro
       neuf = true;
     }
     const essai = (id: string) =>
-      deps.ajouter({ auteur, panierId: id, compteId, produitId: lu.data.produitId, taille: lu.data.taille ?? null, nombre: lu.data.nombre });
+      deps.ajouter({ auteur, panierId: id, compteId, produitId: lu.data.produitId, taille: lu.data.taille ?? null, couleur: lu.data.couleur ?? null, nombre: lu.data.nombre });
     let r = await essai(panierId);
     let utilise = panierId;
     if (r.erreur?.includes("KS_PANIER_INTROUVABLE") && !neuf) {
@@ -96,6 +97,9 @@ export async function ajouter(deps: DependancesPanier, entree: EntreeAjout): Pro
     if (r.erreur) {
       const erreur = codeDeLaBase(r.erreur);
       if (erreur === "erreur") journaliser("ajouter_au_panier : échec");
+      // Une couleur est en jeu : le message parle de la combinaison taille × couleur, pas de la seule taille.
+      if (lu.data.couleur && erreur === "taille") return { ok: false, erreur: "combinaison_inconnue" };
+      if (lu.data.couleur && erreur === "indisponible") return { ok: false, erreur: "combinaison_indisponible" };
       return { ok: false, erreur };
     }
     const compte = await deps.compter(utilise);
@@ -149,7 +153,7 @@ export async function retirer(deps: DependancesPanier, entree: { ligneId: string
 
 function enLigne(b: LigneBrute, langue: "fr" | "en"): LignePanier | null {
   const etat = ETATS.find((e) => e === b.etat);
-  const famille = b.famille === "cosplay" || b.famille === "accessoire" || b.famille === "kit" ? b.famille : null;
+  const famille = estFamilleProduit(b.famille) ? b.famille : null;
   if (!etat || !famille) return null;
   return {
     id: b.ligne_id,
@@ -158,6 +162,7 @@ function enLigne(b: LigneBrute, langue: "fr" | "en"): LignePanier | null {
     slug: b.slug,
     titre: langue === "en" && b.titre_en ? b.titre_en : b.titre_fr,
     taille: b.taille,
+    couleur: b.couleur_fr ? (langue === "en" && b.couleur_en ? b.couleur_en : b.couleur_fr) : null,
     nombre: b.nombre,
     prixCents: b.prix_cents ?? 0,
     etat,

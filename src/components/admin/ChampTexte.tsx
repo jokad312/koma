@@ -16,12 +16,14 @@ type Props = {
   name: string;
   multiligne?: boolean;
   inputMode?: "decimal" | "numeric";
+  // Identifiant d'une <datalist> de suggestions (autocomplétion), champ d'une ligne seulement.
+  liste?: string;
   // Contenu placé sous le message d'erreur (par exemple le bouton « Utiliser cette adresse »).
   sousLeChamp?: ReactNode;
 };
 
 // Champ de formulaire admin : libellé visible, aide, erreur sous le champ liée par aria-describedby, saisie contrôlée (jamais perdue).
-export function ChampTexte({ id, libelle, aide, erreur, valeur, onChange, name, multiligne = false, inputMode, sousLeChamp }: Props) {
+export function ChampTexte({ id, libelle, aide, erreur, valeur, onChange, name, multiligne = false, inputMode, liste, sousLeChamp }: Props) {
   const idAide = `${id}-aide`;
   const idErreur = `${id}-erreur`;
   const decrit = [aide ? idAide : null, erreur ? idErreur : null].filter(Boolean).join(" ") || undefined;
@@ -47,7 +49,7 @@ export function ChampTexte({ id, libelle, aide, erreur, valeur, onChange, name, 
       {multiligne ? (
         <textarea {...commun} rows={5} onChange={(e) => onChange(e.target.value)} />
       ) : (
-        <input {...commun} type="text" inputMode={inputMode} onChange={(e) => onChange(e.target.value)} />
+        <input {...commun} type="text" inputMode={inputMode} list={liste} onChange={(e) => onChange(e.target.value)} />
       )}
       {erreur ? (
         <p id={idErreur} className="t-small text-danger">

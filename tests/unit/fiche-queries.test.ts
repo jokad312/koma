@@ -112,8 +112,8 @@ describe("lireFicheProduit", () => {
       "http://127.0.0.1:54321/storage/v1/object/public/produits-public/p1/b.jpg",
     ]);
     expect(fiche?.tailles).toEqual([
-      { taille: "M", etat: "disponible", delaiJours: 14 },
-      { taille: "L", etat: "sur_commande", delaiJours: 21 },
+      { taille: "M", etat: "disponible", delaiJours: 14, couleur: null },
+      { taille: "L", etat: "sur_commande", delaiJours: 21, couleur: null },
     ]);
   });
 
@@ -202,6 +202,26 @@ describe("lireFicheProduit", () => {
   });
 });
 
+describe("lireFicheProduit : couleurs d'un Vêtement (story 9.15)", () => {
+  it("en : nom anglais de la couleur, clé = nom français ; repli sur le français si couleur_en est nul", async () => {
+    faux.produit = { data: { ...PRODUIT, famille: "vetement" }, error: null };
+    faux.dispo = {
+      data: [
+        { taille: "M", etat: "disponible", delai_jours: null, couleur_fr: "Noir", couleur_en: "Black", couleur_hex: "#1B1713" },
+        { taille: "M", etat: "disponible", delai_jours: null, couleur_fr: "Blanc", couleur_en: null, couleur_hex: null },
+      ],
+      error: null,
+    };
+    const en = await lireFicheProduit("vetement", "test-produit", "en");
+    expect(en?.tailles.map((t) => t.couleur)).toEqual([
+      { cle: "Noir", nom: "Black", hex: "#1B1713" },
+      { cle: "Blanc", nom: "Blanc", hex: null },
+    ]);
+    const fr = await lireFicheProduit("vetement", "test-produit", "fr");
+    expect(fr?.tailles[0].couleur).toEqual({ cle: "Noir", nom: "Noir", hex: "#1B1713" });
+  });
+});
+
 describe("lireSlugsPublies", () => {
   it("famille et adresse de chaque produit publié avec photo et prix, par le client public", async () => {
     faux.publies = [{ data: [{ famille: "cosplay", slug: "a" }, { famille: "accessoire", slug: "b" }], error: null }];
@@ -213,7 +233,8 @@ describe("lireSlugsPublies", () => {
     expect(faux.selections[0]).toContain("produit_photo!inner");
     expect(faux.filtres).toContainEqual(["prix_cents", "is", null]);
     // Story 3.3 : les Kits publiés ont leur fiche, ils sont lus pour le plan du site.
-    expect(faux.dans).toContainEqual(["famille", ["cosplay", "accessoire", "kit"]]);
+    // Story 9.15 : Vêtements et Autres articles aussi.
+    expect(faux.dans).toContainEqual(["famille", ["cosplay", "accessoire", "vetement", "autre", "kit"]]);
   });
 
   it("pagine par range() jusqu'à épuisement", async () => {

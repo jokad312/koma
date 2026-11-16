@@ -47,7 +47,7 @@ select is(
 select is((select count(*)::int from pg_policies where schemaname = 'public' and tablename in ('panier', 'ligne_panier')), 0, 'aucune politique');
 select is(
   (select count(*)::int from unnest(array[
-    'public.creer_panier(jsonb)', 'public.ajouter_au_panier(jsonb, uuid, uuid, uuid, text, integer)', 'public.modifier_ligne_panier(jsonb, uuid, uuid, integer)',
+    'public.creer_panier(jsonb)', 'public.ajouter_au_panier(jsonb, uuid, uuid, uuid, text, integer, text)', 'public.modifier_ligne_panier(jsonb, uuid, uuid, integer)',
     'public.retirer_ligne_panier(jsonb, uuid, uuid)', 'public.lire_panier(uuid)', 'public.compter_panier(uuid)'
   ]) f where not has_function_privilege('anon', f, 'execute') and not has_function_privilege('authenticated', f, 'execute') and has_function_privilege('service_role', f, 'execute')),
   6,

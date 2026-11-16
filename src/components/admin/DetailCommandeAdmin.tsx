@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { LibelleVariante } from "@/components/commande/LibelleVariante";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Link } from "@/i18n/navigation";
 import { formaterUsd } from "@/lib/argent";
@@ -102,7 +103,7 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
           {commande.lignes.map((l, i) => (
             <li key={`${l.titre}-${i}`} className="flex flex-col gap-1">
               <p className="t-label text-text-primary">{l.titre}</p>
-              {l.famille !== "kit" ? <p className="t-small text-text-secondary">{l.taille === "sur_mesure" ? tr("tailleSurMesure") : tr("taille", { taille: l.taille ?? "" })}</p> : null}
+              {l.famille !== "kit" ? <p className="t-small text-text-secondary"><LibelleVariante espace="Commande.recap" taille={l.taille} couleur={l.couleur} /></p> : null}
               <p className="t-body text-text-primary">{tr("quantitePrix", { nombre: l.nombre, prix: formaterUsd(l.prixCents, locale) })}</p>
               {l.origine ? <p className="t-small text-text-secondary">{t(`origines.${l.origine === "fabrication" ? "fabrication" : "stock"}`)}</p> : null}
               {l.taille === "sur_mesure" ? (

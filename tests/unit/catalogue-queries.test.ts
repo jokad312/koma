@@ -166,7 +166,7 @@ describe("lireProduitAdmin", () => {
   it("produit et variantes : correspondance des colonnes, variantes filtrées par produit_id", async () => {
     faux.parTable = {
       produit: { data: ligne, error: null },
-      variante: { data: [{ taille: "M", stock: 2, fabrication_sur_commande: true, delai_fabrication_jours: 20 }], error: null },
+      variante: { data: [{ id: "TEST_v", taille: "M", stock: 2, fabrication_sur_commande: true, delai_fabrication_jours: 20 }], error: null },
       produit_photo: { data: [{ id: "TEST_ph", fichier: "TEST_p/a.jpg", alt_fr: "Face", alt_en: "Front", position: 1 }], error: null },
       fichier_kit: { data: [], error: null },
     };
@@ -182,7 +182,7 @@ describe("lireProduitAdmin", () => {
       prixCents: 4990,
       delaiFabricationJours: 14,
       publieLe: null,
-      variantes: [{ taille: "M", stock: 2, fabricationSurCommande: true, delaiFabricationJours: 20 }],
+      variantes: [{ id: "TEST_v", taille: "M", stock: 2, fabricationSurCommande: true, delaiFabricationJours: 20, couleur: null }],
       photos: [{ id: "TEST_ph", fichier: "TEST_p/a.jpg", altFr: "Face", altEn: "Front", position: 1 }],
       materielFr: null,
       materielEn: null,

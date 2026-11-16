@@ -1,3 +1,4 @@
+import type { FamilleProduit } from "@/modules/catalogue/types";
 import type { Auteur } from "@/lib/auth/auteur";
 import type { ModeRemise, ZoneRemise } from "./schemas";
 
@@ -33,10 +34,12 @@ export type CompteVerifie = { compteId: string; auteur: Auteur };
 export type LigneRecap = {
   ligneId: string;
   produitId: string;
-  famille: "cosplay" | "accessoire" | "kit";
+  famille: FamilleProduit;
   slug: string;
   titre: string;
   taille: string | null;
+  // Couleur d'une variante de Vêtement, dans la langue de la page ; null sinon.
+  couleur?: string | null;
   nombre: number;
   prixCents: number;
   etat: "disponible" | "sur_commande" | "epuise";
@@ -77,6 +80,8 @@ export type RecapBrut = {
     titre_fr: string;
     titre_en: string | null;
     taille: string | null;
+    couleur_fr?: string | null;
+    couleur_en?: string | null;
     nombre: number;
     prix_cents: number | null;
     etat: string;

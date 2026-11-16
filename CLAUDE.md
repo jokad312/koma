@@ -5,10 +5,13 @@ Langue : réponds toujours en français à Jonathan, quel que soit le modèle ut
 ## Le produit
 Boutique en ligne pour otakus, tenue par un seul créateur : Jonathan Manduara Tshimpaka, NATHANGROUP SARL, Goma, RDC.
 Domaine : pas encore acheté (Q-D1) ; l'adresse du site est lue dans NEXT_PUBLIC_SITE_URL, jamais écrite en dur. Développement et tests en local d'abord. Cible : d'abord les otakus africains, l'international ensuite.
-Trois familles de produits :
+Cinq familles de produits (vêtement et autre article ajoutés le 2026-11-15, story 9.15) :
 - cosplay : costume complet fait main, physique, en stock ou sur commande (tailles XS à XXL ou sur mesure)
 - accessoire : perruque, arme factice, masque, armure, bijou ; physique
+- vetement : polo, t-shirt, sweat, imprimé ou personnalisé ; physique ; tailles XS à XXL et couleurs (stock par taille et couleur)
+- autre : autre article ; physique ; une seule variante « Taille unique »
 - kit : numérique = fichiers (PDF A4 et US Letter, SVG, STL) + tutoriel vidéo en chapitres, accès à vie
+Seul le kit est numérique : toute autre famille est physique, y compris une famille ajoutée plus tard.
 Un cosplay peut être lié à son kit : la fiche propose « Prêt à porter » et « Le fabriquer moi-même ».
 Le site comprend aussi un blog et une section Événements, avec vente de pass nominatifs à code QR.
 
@@ -37,7 +40,7 @@ Les kits n'ont pas de livraison et se vendent dans tous les pays.
 
 ## Paiement : qui encaisse quoi (règle stricte)
 9. Mobile money : deux agrégateurs en parallèle (PawaPay et MaishaPay ; GeniusPay abandonné le 2026-10-31, K-Pay abandonné le 2026-11-03), chacun branché par son propre adaptateur. Le client choisit son pays et son opérateur ; le serveur choisit l'agrégateur actif qui couvre ce couple, selon l'ordre de priorité réglé dans l'admin. Si l'agrégateur prioritaire échoue ou est désactivé, il propose le suivant qui couvre le même couple. La couverture pays-opérateur de chaque agrégateur vient de sa documentation officielle et des contrats marchands : ne jamais la supposer.
-10. Carte : un panier qui contient au moins un produit physique (cosplay ou accessoire) se paie par carte via MaishaPay, jamais via Polar. Polar sert uniquement aux paniers 100 % numériques (kits) : dès qu'un produit physique entre dans le panier, Polar disparaît des choix. Ne jamais créer de produit Polar pour un article physique ni présenter un produit physique comme numérique. MaishaPay accepte la carte (CyberSource, USD et EURO) : c'est lui qui l'encaisse pour les paniers avec produit physique et pour les Pass (K-Pay abandonné le 2026-11-03). Les pass d'événement se paient par mobile money (PawaPay ou MaishaPay) ou par carte via MaishaPay, jamais via Polar sans accord écrit de Polar.
+10. Carte : un panier qui contient au moins un produit physique (toute famille autre que kit : cosplay, accessoire, vêtement, autre article) se paie par carte via MaishaPay, jamais via Polar. Polar sert uniquement aux paniers 100 % numériques (kits) : dès qu'un produit physique entre dans le panier, Polar disparaît des choix. Ne jamais créer de produit Polar pour un article physique ni présenter un produit physique comme numérique. MaishaPay accepte la carte (CyberSource, USD et EURO) : c'est lui qui l'encaisse pour les paniers avec produit physique et pour les Pass (K-Pay abandonné le 2026-11-03). Les pass d'événement se paient par mobile money (PawaPay ou MaishaPay) ou par carte via MaishaPay, jamais via Polar sans accord écrit de Polar.
 11. La route serveur qui choisit le prestataire vérifie en base la famille de chaque article, ainsi que le moyen de paiement, le pays et l'opérateur choisis. Des tests automatiques prouvent qu'un panier mixte ne part jamais chez Polar, qu'un pass ne part jamais chez Polar, que le repli passe bien à l'agrégateur suivant et qu'une référence déjà utilisée est refusée.
 
 ## Livraison

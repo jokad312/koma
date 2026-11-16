@@ -32,7 +32,7 @@ export function dependances(): DependancesPanier {
       const { data, error } = await base().rpc("creer_panier", { p_auteur: auteur as never });
       return error || typeof data !== "string" ? { erreur: error?.message ?? "creer_panier" } : { id: data };
     },
-    ajouter: async ({ auteur, panierId, compteId, produitId, taille, nombre }) => {
+    ajouter: async ({ auteur, panierId, compteId, produitId, taille, couleur, nombre }) => {
       const { error } = await base().rpc("ajouter_au_panier", {
         p_auteur: auteur as never,
         p_panier: panierId,
@@ -40,6 +40,8 @@ export function dependances(): DependancesPanier {
         p_produit: produitId,
         p_taille: taille as never,
         p_nombre: nombre,
+        // Sans couleur : paramètre omis (la base prend « sans couleur »), comme avant la story 9.15.
+        ...(couleur ? { p_couleur: couleur } : {}),
       });
       return { erreur: error ? error.message : null };
     },

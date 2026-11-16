@@ -8,8 +8,8 @@ import { JsonLd } from "@/lib/seo/balise-jsonld";
 import { filArianeJsonLd, produitJsonLd } from "@/lib/seo/jsonld";
 import { urlLocalisee } from "@/lib/seo/url";
 import { contientMarqueur } from "@/lib/vitrine/marqueur";
-import { disponibiliteSchema, tronquerDescription } from "@/modules/catalogue/fiche";
-import type { FicheProduit as Donnees } from "@/modules/catalogue/types";
+import { couleursDistinctes, disponibiliteSchema, tronquerDescription } from "@/modules/catalogue/fiche";
+import { DOSSIER_PAR_FAMILLE, type FicheProduit as Donnees } from "@/modules/catalogue/types";
 import { BandeauZone } from "./BandeauZone";
 import { BoutonPartager } from "./BoutonPartager";
 import { GaleriePhotos } from "./GaleriePhotos";
@@ -17,7 +17,7 @@ import { DoubleOption } from "./DoubleOption";
 import { ZoneAchat } from "./ZoneAchat";
 
 // Dossier interne de chaque famille (l'adresse de chaque langue vient de src/i18n/adresses.ts).
-export const DOSSIERS_FICHE: Record<Donnees["famille"], string> = { cosplay: "/cosplays", accessoire: "/accessoires" };
+export const DOSSIERS_FICHE: Record<Donnees["famille"], string> = DOSSIER_PAR_FAMILLE;
 
 const SEPARATEUR_FIL = "›";
 
@@ -57,6 +57,7 @@ export async function FicheProduit({ fiche, locale, forfaitGoma, forfaitBukavu, 
           langue: locale,
           prixCents: fiche.prixCents,
           disponibilite: disponibiliteSchema(fiche.tailles),
+          couleurs: couleursDistinctes(fiche.tailles).map((c) => c.nom),
         })}
       />
       <nav aria-label={t("navigation")}>

@@ -5,7 +5,7 @@ import { joursFenetre } from "@/modules/tableau-de-bord/periode";
 import type { DelaiMesures, DonneesTableau, Zone } from "@/modules/tableau-de-bord/queries";
 
 const PRESTATAIRES = ["pawapay", "maishapay", "polar"] as const;
-const FAMILLES = ["cosplay", "accessoire", "kit", "pass", "livraison"] as const;
+const FAMILLES = ["cosplay", "accessoire", "vetement", "autre", "kit", "pass", "livraison"] as const;
 
 // Une valeur affichée : du texte, « aucune donnée » (zone lue mais vide) ou « illisible » (lecture en échec).
 type Valeur = { texte: string } | { aucune: true } | { illisible: true };

@@ -2620,6 +2620,28 @@ afin de faire l'essentiel avant d'ouvrir l'atelier.
 **Et** sans donnée : « Aucune nouvelle commande payée aujourd'hui. », « Aucune tâche en attente. », « Aucun paiement vérifié aujourd'hui. » avec un lien vers les 7 derniers jours (UX-DR44)
 **Et** une carte de tâche à zéro reste affichée, en ton atténué
 
+### Story 9.15 : Types d'article « Vêtement » et « Autre article »
+
+En tant que Jonathan,
+je veux vendre des vêtements (polos, t-shirts, sweats) et d'autres articles,
+afin de proposer plus que des cosplays, des accessoires et des kits.
+
+**Spec :** `_bmad-output/implementation-artifacts/spec-9-15-types-vetement-et-autre-article.md`.
+
+**Critères d'acceptation :**
+
+**Étant donné** un Vêtement en tailles XS à XXL et en couleurs, avec un stock par taille et couleur
+**Quand** un visiteur choisit une couleur puis une taille
+**Alors** seules les tailles de cette couleur sont proposées, et une combinaison sans stock affiche « Commandes complètes pour le moment »
+
+**Étant donné** un panier qui contient un Vêtement ou un Autre article
+**Quand** on paie par carte
+**Alors** seul MaishaPay est proposé, jamais Polar (seul le Kit est numérique)
+
+**Étant donné** une Commande payée qui contient un Cosplay ou un article fabriqué sur commande
+**Quand** la fabrication n'a pas commencé
+**Alors** le client peut en demander l'annulation (FR-25 élargie)
+
 ### Story 9.14 : Déconnexion après inactivité
 
 En tant que client ou admin,

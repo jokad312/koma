@@ -1,9 +1,10 @@
 import "server-only";
+import { DOSSIER_PAR_FAMILLE, estFamilleProduit } from "@/modules/catalogue/types";
 import { Resend } from "resend";
 import { lireEnvPublique } from "@/lib/env";
 import { creerClientService } from "@/lib/supabase/service";
 import { rendreCommandePayee } from "./modeles/commande-payee";
-import { TEXTES } from "./modeles/commun";
+import { remplir, TEXTES } from "./modeles/commun";
 import { rendreKitOuvert } from "./modeles/kit-ouvert";
 import { rendrePassEmis } from "./modeles/pass-emis";
 import { rendrePassAnnule, rendrePassRembourse } from "./modeles/pass-statut";
@@ -26,6 +27,17 @@ const STATUTS_PAYES = ["payee", "en_fabrication", "expediee", "livree"];
 const STATUTS_KIT = ["offerte", "livree", "payee"];
 
 const titreSelonLangue = (p: { titre_fr: string; titre_en: string | null }, langue: LangueEmail) => (langue === "en" && p.titre_en ? p.titre_en : p.titre_fr);
+
+// Libellé d'une ligne physique dans l'email : « Titre (Taille M · Noir) » ; une ligne sans variante (Kit) garde son seul titre.
+export function avecVariante(titre: string, v: { taille: string; couleur_fr?: string | null; couleur_en?: string | null } | null, langue: LangueEmail): string {
+  if (!v) return titre;
+  const t = TEXTES[langue].commande_payee;
+  // remplir : une seule passe, remplacement par fonction (aucun motif spécial « $& », un « {variante » d'un titre reste tel quel).
+  const base = v.taille === "sur_mesure" ? t.tailleSurMesure : v.taille === "unique" ? t.tailleUnique : remplir(t.taille, { taille: v.taille });
+  const couleur = v.couleur_fr ? (langue === "en" && v.couleur_en ? v.couleur_en : v.couleur_fr) : null;
+  const variante = couleur ? remplir(t.avecCouleur, { variante: base, couleur }) : base;
+  return remplir(t.titreVariante, { titre, variante });
+}
 
 // Emails commerciaux ciblés (story 9.6) : jamais envoyés si leur sujet n'est plus vrai (Panier vidé ou payé, Kit terminé, Produit dépublié).
 const MODELES_CIBLES = ["panier_abandonne", "rappel_kit", "nouveau_produit", "relance"] as const;
@@ -99,7 +111,7 @@ async function rendreCommercial(client: ClientService, envoi: EnvoiLie, destinat
     if (!produit.publie_le || Date.parse(produit.publie_le) > Date.now()) return { statut: "ignorer", raison: "produit non publié" };
     const univers = Array.isArray(produit.univers) ? produit.univers[0] : produit.univers;
     if (!univers) return { statut: "ignorer", raison: "produit sans univers" };
-    const dossier = produit.famille === "kit" ? "/kits" : produit.famille === "accessoire" ? "/accessoires" : "/cosplays";
+    const dossier = estFamilleProduit(produit.famille) ? DOSSIER_PAR_FAMILLE[produit.famille] : DOSSIER_PAR_FAMILLE.cosplay;
     const url = `${site}/${langue}${cheminPublic(langue, dossier)}/${encodeURIComponent(produit.slug)}`;
     const nomUnivers = langue === "en" ? univers.nom_en : univers.nom_fr;
     return { statut: "pret", destinataire, message: { ...rendreNouveauProduit(langue, { ...commun, url, produit: titre, univers: nomUnivers }), entetes } };
@@ -174,7 +186,7 @@ async function rendreRelance(
     if (!produit || !produit.publie_le || Date.parse(produit.publie_le) > Date.now()) return { statut: "ignorer", raison: "produit non publié" };
     const univers = Array.isArray(produit.univers) ? produit.univers[0] : produit.univers;
     if (!univers) return { statut: "ignorer", raison: "produit sans univers" };
-    const dossier = produit.famille === "kit" ? "/kits" : produit.famille === "accessoire" ? "/accessoires" : "/cosplays";
+    const dossier = estFamilleProduit(produit.famille) ? DOSSIER_PAR_FAMILLE[produit.famille] : DOSSIER_PAR_FAMILLE.cosplay;
     const url = `${site}/${langue}${cheminPublic(langue, dossier)}/${encodeURIComponent(produit.slug)}`;
     const nomUnivers = langue === "en" ? univers.nom_en : univers.nom_fr;
     return { statut: "pret", destinataire, message: { ...rendreRelanceNouveaute(langue, { ...base, url, produit: titreSelonLangue(produit, langue), univers: nomUnivers }), entetes } };
@@ -280,7 +292,7 @@ async function rendre(client: ClientService, brut: EnvoiReserve): Promise<Result
     if (!STATUTS_PAYES.includes(commande.statut)) return { statut: "ignorer", raison: "commande non payée" };
     const { data: lignes, error } = await client
       .from("ligne_commande")
-      .select("nombre, prix_cents, reduction_cents, produit:produit_id(titre_fr, titre_en), variante:variante_id(taille)")
+      .select("nombre, prix_cents, reduction_cents, produit:produit_id(titre_fr, titre_en), variante:variante_id(taille, couleur_fr, couleur_en)")
       .eq("commande_id", commande.id)
       .order("cree_le", { ascending: true });
     if (error) return { statut: "reessayer", raison: "lecture des lignes impossible" };
@@ -295,7 +307,11 @@ async function rendre(client: ClientService, brut: EnvoiReserve): Promise<Result
     const message = rendreCommandePayee(envoi.langue, {
       nomSite,
       numero: commande.numero,
-      lignes: lignes.map((l) => ({ titre: l.produit ? titreSelonLangue(l.produit, envoi.langue) : "—", nombre: l.nombre, prixCents: l.prix_cents })),
+      lignes: lignes.map((l) => {
+        const variante = Array.isArray(l.variante) ? l.variante[0] : l.variante;
+        const titre = l.produit ? titreSelonLangue(l.produit, envoi.langue) : "—";
+        return { titre: avecVariante(titre, variante ?? null, envoi.langue), nombre: l.nombre, prixCents: l.prix_cents };
+      }),
       reductionCents: lignes.reduce((s, l) => s + (l.reduction_cents ?? 0), 0),
       livraisonCents: commande.forfait_cents,
       totalCents: commande.total_cents,

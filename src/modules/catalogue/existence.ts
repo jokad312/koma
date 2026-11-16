@@ -1,14 +1,15 @@
 import { createClient } from "@supabase/supabase-js";
 import { ADRESSES } from "@/i18n/adresses";
 import { lireEnvPublique } from "@/lib/env";
-import type { FamilleProduit } from "./types";
+import { DOSSIER_PAR_FAMILLE, FAMILLES_PRODUIT, type FamilleProduit } from "./types";
 
 export type AdresseFiche = { locale: "fr" | "en"; famille: FamilleProduit; slug: string };
 
-const FAMILLE_PAR_INTERNE: Record<string, FamilleProduit> = { "/cosplays": "cosplay", "/accessoires": "accessoire", "/kits": "kit" };
+// Famille de chaque dossier interne, tirée de la seule table DOSSIER_PAR_FAMILLE.
+const FAMILLE_PAR_INTERNE: Record<string, FamilleProduit> = Object.fromEntries(FAMILLES_PRODUIT.map((f) => [DOSSIER_PAR_FAMILLE[f], f]));
 const FORME_SLUG = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
-// Reconnaît l'adresse propre d'une fiche (« /fr/cosplays/x », « /en/accessories/x », « /fr/kits/x ») ; toute autre forme donne null.
+// Reconnaît l'adresse propre d'une fiche (« /fr/cosplays/x », « /en/accessories/x », « /en/clothing/x », « /fr/kits/x ») ; toute autre forme donne null.
 export function analyserAdresseFiche(chemin: string): { locale: "fr" | "en"; famille: FamilleProduit; segment: string } | null {
   const morceaux = chemin.split("/");
   if (morceaux.length !== 4 || morceaux[0] !== "") return null;

@@ -8,10 +8,11 @@ import { useRouter } from "@/i18n/navigation";
 import { prixPourSaisie } from "@/lib/argent";
 import { enregistrerProduit, type EtatProduit } from "@/modules/catalogue/actions";
 import { proposerSlug } from "@/modules/catalogue/slug";
-import { TAILLES } from "@/modules/catalogue/types";
-import type { ChampProduit, ProduitAdmin, ProduitLiable, Taille, UniversAdmin } from "@/modules/catalogue/types";
+import { TAILLES, taillesDeLaFamille } from "@/modules/catalogue/types";
+import type { ChampProduit, CouleurVariante, EntreeVariante, ProduitAdmin, ProduitLiable, Taille, UniversAdmin } from "@/modules/catalogue/types";
 import { ChampTexte, CLASSE_CHAMP } from "./ChampTexte";
 import { ChoixFamille } from "./ChoixFamille";
+import { EditeurCouleurs, erreursDesCouleurs, type ErreurCouleurLocale, type EtatCouleur } from "./EditeurCouleurs";
 import { EditeurVariantes, VARIANTES_VIDES, type EtatVariante, type EtatVariantes } from "./EditeurVariantes";
 import { FormulaireKit } from "./FormulaireKit";
 
@@ -21,24 +22,50 @@ type Props = {
   liables?: readonly ProduitLiable[];
   // Produit à modifier ; absent : création d'un brouillon. La famille d'un produit existant ne change plus.
   produit?: ProduitAdmin | null;
+  // Couleurs déjà utilisées (autocomplétion des couleurs d'un Vêtement).
+  couleursUtilisees?: readonly CouleurVariante[];
 };
 
+function etatDepuis(v: ProduitAdmin["variantes"][number]): EtatVariante {
+  return { id: v.id, actif: true, stock: String(v.stock), surCommande: v.fabricationSurCommande, delai: v.delaiFabricationJours === null ? "" : String(v.delaiFabricationJours) };
+}
+
+// Variantes sans couleur (cosplay, accessoire, autre article, vêtement sans couleur).
 function variantesDepuis(produit: ProduitAdmin | null | undefined): EtatVariantes {
   const etat = { ...VARIANTES_VIDES } as EtatVariantes;
-  for (const v of produit?.variantes ?? []) {
-    etat[v.taille] = {
-      actif: true,
-      stock: String(v.stock),
-      surCommande: v.fabricationSurCommande,
-      delai: v.delaiFabricationJours === null ? "" : String(v.delaiFabricationJours),
-    };
-  }
+  for (const v of produit?.variantes ?? []) if (!v.couleur) etat[v.taille] = etatDepuis(v);
   return etat;
+}
+
+// Couleurs d'un Vêtement, dans l'ordre de leur nom français, chacune avec ses tailles.
+function couleursDepuis(produit: ProduitAdmin | null | undefined): EtatCouleur[] {
+  const parNom = new Map<string, EtatCouleur>();
+  for (const v of produit?.variantes ?? []) {
+    if (!v.couleur) continue;
+    const cle = v.couleur.fr.toLowerCase();
+    const c = parNom.get(cle) ?? { cle: `c${parNom.size}`, fr: v.couleur.fr, en: v.couleur.en ?? "", hex: v.couleur.hex ?? "", variantes: { ...VARIANTES_VIDES } };
+    c.variantes = { ...c.variantes, [v.taille]: etatDepuis(v) };
+    parNom.set(cle, c);
+  }
+  return [...parNom.values()].sort((a, b) => a.fr.localeCompare(b.fr));
+}
+
+// Ce qui part au serveur pour un groupe de tailles : seules les tailles cochées et proposées par la famille (« Taille unique » toujours).
+function entreesDepuis(famille: string, etat: EtatVariantes, couleur: EtatCouleur | null): EntreeVariante[] {
+  return TAILLES.filter((taille) => taillesDeLaFamille(famille).includes(taille) && (taille === "unique" || etat[taille].actif)).map((taille) => ({
+    // Variante déjà enregistrée : son identifiant, pour une mise à jour sur place (renommer une couleur garde commandes et paniers).
+    ...(etat[taille].id ? { id: etat[taille].id } : {}),
+    taille,
+    stock: etat[taille].stock,
+    surCommande: etat[taille].surCommande,
+    delai: etat[taille].delai,
+    ...(couleur ? { couleurFr: couleur.fr, couleurEn: couleur.en, couleurHex: couleur.hex } : {}),
+  }));
 }
 
 // Création et modification d'un brouillon de produit physique. Le succès n'apparaît qu'après la réponse de l'action serveur,
 // la saisie est conservée après un échec (champs contrôlés, jamais remontés), aucun choix ne déclenche d'action.
-export function FormulaireProduit({ univers, liables = [], produit = null }: Props) {
+export function FormulaireProduit({ univers, liables = [], produit = null, couleursUtilisees = [] }: Props) {
   const t = useTranslations("Admin.produits.formulaire");
   const locale = useLocale();
   const router = useRouter();
@@ -56,6 +83,13 @@ export function FormulaireProduit({ univers, liables = [], produit = null }: Pro
   const [prix, setPrix] = useState(prixPourSaisie(produit?.prixCents ?? null));
   const [delai, setDelai] = useState(produit?.delaiFabricationJours != null ? String(produit.delaiFabricationJours) : "");
   const [variantes, setVariantes] = useState<EtatVariantes>(() => variantesDepuis(produit));
+  const [couleurs, setCouleurs] = useState<EtatCouleur[]>(() => couleursDepuis(produit));
+  // Numéro de la prochaine couleur ajoutée (clé locale, jamais envoyée au serveur).
+  const [prochaine, setProchaine] = useState(0);
+  // Erreurs relevées avant l'envoi, par couleur (clé locale).
+  const [erreursCouleurs, setErreursCouleurs] = useState<Record<string, ErreurCouleurLocale>>({});
+  // Vêtement avec au moins une couleur : la grille tailles × couleurs remplace les tailles sans couleur.
+  const avecCouleurs = famille === "vetement" && couleurs.length > 0;
 
   const [etat, setEtat] = useState<EtatProduit | null>(null);
   const [enCours, demarrer] = useTransition();
@@ -78,9 +112,30 @@ export function FormulaireProduit({ univers, liables = [], produit = null }: Pro
     setVariantes((avant) => ({ ...avant, [taille]: { ...avant[taille], ...partiel } }));
   }
 
+  function ajouterCouleur() {
+    setCouleurs((avant) => [...avant, { cle: `n${prochaine}`, fr: "", en: "", hex: "", variantes: { ...VARIANTES_VIDES } }]);
+    setProchaine((n) => n + 1);
+  }
+
+  function changerCouleur(cle: string, partiel: Partial<Pick<EtatCouleur, "fr" | "en" | "hex">>) {
+    setCouleurs((avant) => avant.map((c) => (c.cle === cle ? { ...c, ...partiel } : c)));
+  }
+
+  function changerVarianteCouleur(cle: string, taille: Taille, partiel: Partial<EtatVariante>) {
+    setCouleurs((avant) => avant.map((c) => (c.cle === cle ? { ...c, variantes: { ...c.variantes, [taille]: { ...c.variantes[taille], ...partiel } } } : c)));
+  }
+
   function surEnvoi(e: FormEvent) {
     e.preventDefault();
     if (enVol.current) return;
+    // Vêtement : une couleur sans nom français ou sans aucune taille cochée n'est jamais jetée en silence ; l'envoi est refusé et
+    // l'erreur s'affiche sur la couleur concernée.
+    const locales = avecCouleurs ? erreursDesCouleurs(couleurs) : {};
+    setErreursCouleurs(locales);
+    if (Object.keys(locales).length > 0) {
+      setEtat({ statut: "erreur", erreur: "couleur_invalide" });
+      return;
+    }
     enVol.current = true;
     setEtat(null);
     demarrer(async () => {
@@ -97,13 +152,9 @@ export function FormulaireProduit({ univers, liables = [], produit = null }: Pro
           universId,
           prix,
           delai,
-          // Seules les tailles cochées partent ; « Sur mesure » n'existe que pour un cosplay.
-          variantes: TAILLES.filter((taille) => variantes[taille].actif && (taille !== "sur_mesure" || famille === "cosplay")).map((taille) => ({
-            taille,
-            stock: variantes[taille].stock,
-            surCommande: variantes[taille].surCommande,
-            delai: variantes[taille].delai,
-          })),
+          // Seules les tailles cochées et proposées par la famille partent (« Sur mesure » : cosplay ; « Taille unique » : autre article).
+          // Vêtement en couleurs : chaque couleur envoie ses tailles avec son nom et sa pastille.
+          variantes: avecCouleurs ? couleurs.flatMap((c) => entreesDepuis(famille, c.variantes, c)) : entreesDepuis(famille, variantes, null),
         });
         if (resultat.statut === "succes" && resultat.cree) {
           // Création : redirection vers la fiche d'édition, qui affiche la confirmation. Le bouton reste en cours jusque-là.
@@ -130,7 +181,7 @@ export function FormulaireProduit({ univers, liables = [], produit = null }: Pro
     if (erreur.erreur === "slug_pris") return erreur.slugPropose ? t("erreurs.slug_pris_propose", { adresse: erreur.slugPropose }) : t("erreurs.slug_pris");
     return t(`erreurs.${erreur.erreur}`);
   };
-  const erreurDeVariantes = erreur?.champ === "variantes" ? { code: erreur.erreur, taille: erreur.taille } : null;
+  const erreurDeVariantes = erreur?.champ === "variantes" ? { code: erreur.erreur, taille: erreur.taille, couleur: erreur.couleur } : null;
   const erreurGlobale = erreur && !erreur.champ ? erreur.erreur : null;
   const nomUnivers = (u: UniversAdmin) => (locale === "en" ? u.nomEn : u.nomFr);
 
@@ -282,7 +333,21 @@ export function FormulaireProduit({ univers, liables = [], produit = null }: Pro
         erreur={erreurDe("delai")}
       />
 
-      <EditeurVariantes famille={famille} valeur={variantes} onChange={changerVariante} erreur={erreurDeVariantes} />
+      {famille === "vetement" ? (
+        <EditeurCouleurs
+          couleurs={couleurs}
+          suggestions={couleursUtilisees}
+          onAjouter={ajouterCouleur}
+          onRetirer={(cle) => setCouleurs((avant) => avant.filter((c) => c.cle !== cle))}
+          onChangerCouleur={changerCouleur}
+          onChangerVariante={changerVarianteCouleur}
+          erreur={erreurDeVariantes}
+          erreursLocales={erreursCouleurs}
+        />
+      ) : null}
+      {avecCouleurs ? null : (
+        <EditeurVariantes famille={famille} valeur={variantes} onChange={changerVariante} erreur={erreurDeVariantes && !erreurDeVariantes.couleur ? erreurDeVariantes : null} />
+      )}
 
       <div className="flex flex-wrap items-center gap-3">
         <Bouton type="submit" enCours={enCours || redirige}>

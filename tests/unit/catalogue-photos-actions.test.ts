@@ -184,6 +184,7 @@ describe("câblage réel de modules/catalogue pour les photos", () => {
       videoPrete: false,
       sousTitresFr: false,
       extraitSansSousTitresFr: false,
+      nbCouleursSansAnglais: 0,
     });
     // Kit : fichiers, vidéo et sous-titres français comptés en base (faux : 2 lignes partout).
     faux.produit = {

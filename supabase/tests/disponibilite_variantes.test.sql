@@ -44,7 +44,7 @@ select is((select delai_jours from public.disponibilite_variantes('00000000-0000
 select is(
   (select array_agg(c order by c) from (
      select unnest(proargnames[(pronargs + 1):]) as c from pg_proc where oid = 'public.disponibilite_variantes(uuid)'::regprocedure) x),
-  array['delai_jours', 'etat', 'taille'],
+  array['couleur_en', 'couleur_fr', 'couleur_hex', 'delai_jours', 'etat', 'taille'],
   'la fonction ne renvoie que taille, état et délai : aucune quantité');
 
 select is((select count(*)::int from public.disponibilite_variantes('00000000-0000-0000-0000-00000000d002')), 0, 'un brouillon est invisible');

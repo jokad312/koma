@@ -47,8 +47,8 @@ select is(
   (select array_agg(a.attname::text order by a.attname) from pg_attribute a
    where a.attrelid = 'public.variante'::regclass and a.attnum > 0 and not a.attisdropped
      and has_column_privilege('anon', a.attrelid, a.attnum, 'select')),
-  array['cree_le', 'delai_fabrication_jours', 'fabrication_sur_commande', 'id', 'produit_id', 'taille'],
-  'anon lit exactement les six colonnes autorisées');
+  array['couleur_en', 'couleur_fr', 'couleur_hex', 'cree_le', 'delai_fabrication_jours', 'fabrication_sur_commande', 'id', 'produit_id', 'taille'],
+  'anon lit exactement les neuf colonnes autorisées (couleur comprise, story 9.15)');
 select ok(
   not has_function_privilege('anon', 'public.stock_disponible(uuid)', 'execute')
   and not has_function_privilege('authenticated', 'public.stock_disponible(uuid)', 'execute')
@@ -185,7 +185,7 @@ reset role;
 select is(
   (select array_agg(c order by c) from (
      select unnest(proargnames[(pronargs + 1):]) as c from pg_proc where oid = 'public.disponibilite_variantes(uuid)'::regprocedure) x),
-  array['delai_jours', 'etat', 'taille'],
+  array['couleur_en', 'couleur_fr', 'couleur_hex', 'delai_jours', 'etat', 'taille'],
   'disponibilite_variantes ne renvoie que taille, état et délai');
 select is(
   (select count(*)::int from pg_proc p, unnest(coalesce(p.proargnames, '{}')) as nom

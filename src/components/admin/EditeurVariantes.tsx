@@ -2,10 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import { useId } from "react";
-import { TAILLES, type CodeErreurCatalogue, type Taille } from "@/modules/catalogue/types";
+import { TAILLES, taillesDeLaFamille, type CodeErreurCatalogue, type Taille } from "@/modules/catalogue/types";
 import { ChampTexte } from "./ChampTexte";
 
-export type EtatVariante = { actif: boolean; stock: string; surCommande: boolean; delai: string };
+// id : variante déjà enregistrée (mise à jour sur place par la base) ; absent pour une taille encore jamais enregistrée.
+export type EtatVariante = { id?: string; actif: boolean; stock: string; surCommande: boolean; delai: string };
 export type EtatVariantes = Record<Taille, EtatVariante>;
 
 export const VARIANTES_VIDES: EtatVariantes = Object.fromEntries(
@@ -22,6 +23,10 @@ type Props = {
   onChange: (taille: Taille, partiel: Partial<EtatVariante>) => void;
   // Erreur de variante renvoyée par le serveur : rattachée à une taille quand elle est connue.
   erreur: { code: CodeErreurCatalogue; taille?: Taille } | null;
+  // Titre du groupe (Vêtement en couleurs : « Tailles et stock : Noir ») ; absent : titre général des tailles.
+  titre?: string;
+  // Vêtement en couleurs : titre de second niveau (la grille des couleurs porte déjà le titre principal).
+  imbrique?: boolean;
 };
 
 function Coche() {
@@ -32,20 +37,22 @@ function Coche() {
   );
 }
 
-// Tailles XS à XXL, plus « Sur mesure » pour un cosplay seulement (choix de taille : les mesures viendront plus tard).
-// Chaque taille proposée a son stock, sa fabrication sur commande et un délai facultatif. Rien n'est envoyé avant « Enregistrer ».
-export function EditeurVariantes({ famille, valeur, onChange, erreur }: Props) {
+// Tailles de la famille (taillesDeLaFamille) : XS à XXL, plus « Sur mesure » pour un cosplay seulement ; un Autre article n'a que sa ligne
+// « Taille unique », toujours proposée (aucune case à cocher). Chaque taille proposée a son stock, sa fabrication sur commande et un délai
+// facultatif. Rien n'est envoyé avant « Enregistrer ».
+export function EditeurVariantes({ famille, valeur, onChange, erreur, titre, imbrique = false }: Props) {
   const t = useTranslations("Admin.produits.formulaire");
   const base = useId();
-  const tailles = TAILLES.filter((taille) => taille !== "sur_mesure" || famille === "cosplay");
+  const tailles = TAILLES.filter((taille) => taillesDeLaFamille(famille).includes(taille));
+  const unique = famille === "autre";
   const erreurGlobale = erreur && !erreur.taille ? erreur.code : null;
   const idErreurGlobale = `${base}-erreur`;
 
   return (
     <fieldset className="flex flex-col gap-3" aria-describedby={`${base}-aide${erreurGlobale ? ` ${idErreurGlobale}` : ""}`}>
-      <legend className="t-h2 mb-2">{t("variantes.titre")}</legend>
+      <legend className={imbrique ? "t-h3 mb-2" : "t-h2 mb-2"}>{titre ?? t("variantes.titre")}</legend>
       <p id={`${base}-aide`} className="t-small text-text-secondary">
-        {t("variantes.aide")}
+        {unique ? t("variantes.unique") : t("variantes.aide")}
       </p>
       {erreurGlobale ? (
         <p id={idErreurGlobale} className="t-small text-danger">
@@ -53,27 +60,30 @@ export function EditeurVariantes({ famille, valeur, onChange, erreur }: Props) {
         </p>
       ) : null}
       {tailles.map((taille) => {
-        const etat = valeur[taille];
+        // « Taille unique » : toujours proposée.
+        const etat = taille === "unique" ? { ...valeur[taille], actif: true } : valeur[taille];
         const idTaille = `${base}-${taille}`;
         const surMesure = taille === "sur_mesure";
         const delaiErreur = erreur?.taille === taille && (erreur.code === "delai_invalide" || erreur.code === "delai_manquant") ? erreur.code : null;
         const stockErreur = erreur?.taille === taille && erreur.code === "stock_invalide" ? erreur.code : null;
-        const tailleErreur = erreur?.taille === taille && erreur.code === "taille_invalide" ? erreur.code : null;
+        const tailleErreur = erreur?.taille === taille && (erreur.code === "taille_invalide" || erreur.code === "couleur_invalide") ? erreur.code : null;
         return (
           <fieldset key={taille} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
             <legend className="t-label px-1 text-text-primary">{t(`variantes.tailles.${taille}`)}</legend>
-            <label className={OPTION}>
-              <input
-                type="checkbox"
-                name={`taille_${taille}`}
-                checked={etat.actif}
-                onChange={(e) => onChange(taille, { actif: e.target.checked })}
-                className="peer sr-only"
-                aria-describedby={tailleErreur ? `${idTaille}-erreur` : undefined}
-              />
-              <Coche />
-              {t("variantes.proposer", { taille: t(`variantes.tailles.${taille}`) })}
-            </label>
+            {taille === "unique" ? null : (
+              <label className={OPTION}>
+                <input
+                  type="checkbox"
+                  name={`taille_${taille}`}
+                  checked={etat.actif}
+                  onChange={(e) => onChange(taille, { actif: e.target.checked })}
+                  className="peer sr-only"
+                  aria-describedby={tailleErreur ? `${idTaille}-erreur` : undefined}
+                />
+                <Coche />
+                {t("variantes.proposer", { taille: t(`variantes.tailles.${taille}`) })}
+              </label>
+            )}
             {tailleErreur ? (
               <p id={`${idTaille}-erreur`} className="t-small text-danger">
                 {t(`erreurs.${tailleErreur}`)}

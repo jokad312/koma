@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { analyserMontantUsd, analyserPrixUsd, PRIX_MAX_CENTS } from "@/lib/argent";
 import { SLUG_MAX, SLUG_REGEX } from "./slug";
-import { FAMILLES_PHYSIQUES, FORMATS_PHOTO, NIVEAUX_KIT, PHOTO_TAILLE_MAX, TAILLES } from "./types";
+import { COULEUR_HEX_REGEX, COULEUR_MAX, estPhysique, FORMATS_PHOTO, NIVEAUX_KIT, PHOTO_TAILLE_MAX, TAILLES, taillesDeLaFamille } from "./types";
 import type { ChampProduit, ChampUnivers, CodeErreurCatalogue, EntreeKit, EntreeProduit, EntreeUnivers, ErreurCatalogue, KitEcrit, ProduitEcrit, Taille, VarianteEcrite } from "./types";
 
 export const idSchema = z.uuid();
@@ -32,7 +32,8 @@ function lireDelai(texte: string): { ok: true; valeur: number | null } | { ok: f
   return valeur >= 1 && valeur <= 365 ? { ok: true, valeur } : { ok: false };
 }
 
-const echec = (erreur: CodeErreurCatalogue, champ?: ChampProduit, taille?: Taille): ErreurCatalogue => ({ ok: false, erreur, champ, taille });
+const echec = (erreur: CodeErreurCatalogue, champ?: ChampProduit, taille?: Taille, couleur?: string): ErreurCatalogue =>
+  couleur === undefined ? { ok: false, erreur, champ, taille } : { ok: false, erreur, champ, taille, couleur };
 
 // Valide ce que le formulaire envoie et le convertit en ce que la base recevra (la base revalide tout : AD-13).
 // Un brouillon peut être incomplet : seuls la famille, le titre français et l'adresse sont obligatoires.
@@ -40,8 +41,8 @@ const echec = (erreur: CodeErreurCatalogue, champ?: ChampProduit, taille?: Taill
 export function lireProduit(
   entree: EntreeProduit,
 ): { ok: true; id: string | null; produit: ProduitEcrit; variantes: VarianteEcrite[] } | ErreurCatalogue {
-  const famille = z.enum(FAMILLES_PHYSIQUES).safeParse(entree.famille);
-  if (!famille.success) return echec("famille_invalide", "famille");
+  if (!estPhysique(entree.famille)) return echec("famille_invalide", "famille");
+  const famille = { data: entree.famille };
 
   const titreFr = titreSchema.safeParse(entree.titreFr);
   if (!titreFr.success) return echec("titre_invalide", "titre_fr");
@@ -80,28 +81,73 @@ export function lireProduit(
 
   const variantes: VarianteEcrite[] = [];
   const vues = new Set<string>();
+  const tailles = taillesDeLaFamille(famille.data);
+  // Une couleur garde le même nom anglais et la même pastille sur toutes ses tailles (clé : nom français sans tenir compte de la casse).
+  const couleurs = new Map<string, string>();
+  let avecCouleur = 0;
   for (const v of entree.variantes) {
     const taille = z.enum(TAILLES).safeParse(v.taille);
     if (!taille.success) return echec("taille_invalide", "variantes");
-    // Sur-mesure : cosplay seulement. Une seule ligne par taille.
-    if (taille.data === "sur_mesure" && famille.data !== "cosplay") return echec("taille_invalide", "variantes", taille.data);
-    if (vues.has(taille.data)) return echec("taille_invalide", "variantes", taille.data);
-    vues.add(taille.data);
+    // Sur-mesure : cosplay seulement ; « unique » : Autre article seulement ; Vêtement et Accessoire : XS à XXL.
+    if (!tailles.includes(taille.data)) return echec("taille_invalide", "variantes", taille.data);
+
+    const couleurFr = (v.couleurFr ?? "").trim();
+    const couleurEn = (v.couleurEn ?? "").trim();
+    const couleurHex = (v.couleurHex ?? "").trim().toUpperCase();
+    if (couleurFr === "" && (couleurEn !== "" || couleurHex !== "")) return echec("couleur_invalide", "variantes", taille.data);
+    if (couleurFr !== "") {
+      if (famille.data !== "vetement" || couleurFr.length > COULEUR_MAX || couleurEn.length > COULEUR_MAX || (couleurHex !== "" && !COULEUR_HEX_REGEX.test(couleurHex))) {
+        return echec("couleur_invalide", "variantes", taille.data, couleurFr);
+      }
+      // Nom anglais et pastille joints avec un séparateur (« Black » + « #1B1713 » ne se confond jamais avec « Black#1B1713 »).
+      const signature = [couleurFr, couleurEn, couleurHex].join("\u001f");
+      const deja = couleurs.get(couleurFr.toLowerCase());
+      if (deja !== undefined && deja !== signature) return echec("couleur_invalide", "variantes", taille.data, couleurFr);
+      couleurs.set(couleurFr.toLowerCase(), signature);
+      avecCouleur += 1;
+    }
+
+    // Une seule ligne par couple (taille, couleur).
+    const cle = `${taille.data}${couleurFr.toLowerCase()}`;
+    if (vues.has(cle)) return echec("taille_invalide", "variantes", taille.data, couleurFr || undefined);
+    vues.add(cle);
+
+    let idVariante: string | undefined;
+    if ((v.id ?? "").trim() !== "") {
+      const lu = idSchema.safeParse((v.id ?? "").trim());
+      if (!lu.success) return echec("taille_invalide", "variantes", taille.data, couleurFr || undefined);
+      idVariante = lu.data;
+    }
 
     const delaiVariante = lireDelai(v.delai);
-    if (!delaiVariante.ok) return echec("delai_invalide", "variantes", taille.data);
+    if (!delaiVariante.ok) return echec("delai_invalide", "variantes", taille.data, couleurFr || undefined);
 
     // Sur-mesure : toujours fabriqué, stock 0 (AD-26).
     const surMesure = taille.data === "sur_mesure";
     let stock = 0;
     if (!surMesure) {
-      if (!stockSchema.safeParse(v.stock).success) return echec("stock_invalide", "variantes", taille.data);
+      if (!stockSchema.safeParse(v.stock).success) return echec("stock_invalide", "variantes", taille.data, couleurFr || undefined);
       stock = Number(v.stock.trim());
     }
     const fabrication = surMesure || v.surCommande;
     // Fabrication sur commande : un délai est exigé (celui de la variante, sinon celui du produit).
-    if (fabrication && (delaiVariante.valeur ?? delai.valeur) === null) return echec("delai_manquant", "variantes", taille.data);
-    variantes.push({ taille: taille.data, stock, fabrication_sur_commande: fabrication, delai_fabrication_jours: delaiVariante.valeur });
+    if (fabrication && (delaiVariante.valeur ?? delai.valeur) === null) return echec("delai_manquant", "variantes", taille.data, couleurFr || undefined);
+    variantes.push({
+      ...(idVariante ? { id: idVariante } : {}),
+      taille: taille.data,
+      couleur_fr: couleurFr || null,
+      couleur_en: couleurFr && couleurEn ? couleurEn : null,
+      couleur_hex: couleurFr && couleurHex ? couleurHex : null,
+      stock,
+      fabrication_sur_commande: fabrication,
+      delai_fabrication_jours: delaiVariante.valeur,
+    });
+  }
+  // Vêtement : toutes les variantes ont une couleur, ou aucune.
+  if (avecCouleur > 0 && avecCouleur < variantes.length) return echec("couleur_invalide", "variantes");
+  // Autre article : sa variante « Taille unique » existe toujours (la base la crée aussi d'office).
+  if (famille.data === "autre" && variantes.length === 0) {
+    variantes.push({ taille: "unique", couleur_fr: null, couleur_en: null, couleur_hex: null, stock: 0, fabrication_sur_commande: false, delai_fabrication_jours: null });
   }
 
   return {

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Suspense } from "react";
+import { Suspense, useId, type ReactNode } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { cheminPublic } from "@/i18n/adresses";
 import { Link } from "@/i18n/navigation";
@@ -8,11 +8,27 @@ import { lireMurPublie } from "@/modules/communaute/queries";
 import { BasculeTheme } from "./BasculeTheme";
 import { LangueRepli } from "./LangueRepli";
 import { MenuPanneau } from "./MenuPanneau";
-import { RUBRIQUES, type Rubrique } from "./rubriques";
+import { MenuBoutique } from "./MenuBoutique";
+import { RUBRIQUES, RUBRIQUES_BOUTIQUE, RUBRIQUES_DIRECTES, type Rubrique } from "./rubriques";
 import { LienConnexion } from "./LienConnexion";
 import { SelecteurLangue } from "./SelecteurLangue";
 import { ZoneCompte } from "./ZoneCompte";
 import { LienPanier, ZonePanier } from "./ZonePanier";
+
+// Groupe « Boutique » du panneau ☰ : texte de groupe (pas un titre, pour ne sauter aucun niveau) qui nomme la liste, identifiant unique.
+function GroupeBoutique({ titre, children }: { titre: string; children: ReactNode }) {
+  const id = useId();
+  return (
+    <div className="flex flex-col items-start gap-2">
+      <p id={id} className="t-label text-text-secondary">
+        {titre}
+      </p>
+      <ul aria-labelledby={id} className="flex flex-col items-start gap-2">
+        {children}
+      </ul>
+    </div>
+  );
+}
 
 type Props = { nomSite: string; rubriques?: readonly Rubrique[]; sansTraduction?: readonly string[] };
 
@@ -24,18 +40,38 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }:
   const locale = (await getLocale()) as Locale;
   // L'entrée secondaire « Galerie » n'existe que si une photo a été publiée (FR-2).
   const murPublie = await lireMurPublie();
-  const liens =
+  const visibles = (groupe: readonly Rubrique[]) => groupe.filter((r) => rubriques.some((x) => x.cle === r.cle));
+  const boutique = visibles(RUBRIQUES_BOUTIQUE);
+  const directes = visibles(RUBRIQUES_DIRECTES);
+  const lien = (r: Rubrique) => (
+    <li key={r.cle}>
+      <Link href={cheminPublic(locale, r.href)} className="t-h3 inline-flex min-h-touch items-center text-text-primary">
+        {t(`rubriques.${r.cle}`)}
+      </Link>
+    </li>
+  );
+  // Ordinateur (option C, story 9.15) : une seule entrée « Boutique » (bouton + panneau des cinq catalogues), puis les liens directs.
+  const liensOrdinateur =
     rubriques.length > 0 ? (
       <nav aria-label={t("principale")}>
-        <ul className="flex flex-col items-start gap-2 lg:flex-row lg:items-center lg:gap-6">
-          {rubriques.map((r) => (
-            <li key={r.cle}>
-              <Link href={cheminPublic(locale, r.href)} className="t-h3 inline-flex min-h-touch items-center text-text-primary">
-                {t(`rubriques.${r.cle}`)}
-              </Link>
+        <ul className="flex items-center gap-6">
+          {boutique.length > 0 ? (
+            <li>
+              <MenuBoutique libelle={t("boutique")} liens={boutique.map((r) => ({ href: cheminPublic(locale, r.href), libelle: t(`rubriques.${r.cle}`) }))} />
             </li>
-          ))}
+          ) : null}
+          {directes.map(lien)}
         </ul>
+      </nav>
+    ) : null;
+  // Mobile (panneau ☰) : les cinq catalogues restent listés, sous le titre « Boutique », puis les liens directs.
+  const liensMobile =
+    rubriques.length > 0 ? (
+      <nav aria-label={t("principale")} className="flex flex-col items-start gap-4">
+        {boutique.length > 0 ? (
+          <GroupeBoutique titre={t("boutique")}>{boutique.map(lien)}</GroupeBoutique>
+        ) : null}
+        {directes.length > 0 ? <ul className="flex flex-col items-start gap-2">{directes.map(lien)}</ul> : null}
       </nav>
     ) : null;
 
@@ -67,7 +103,7 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }:
             />
           </span>
         </Link>
-        <div className="hidden lg:block">{liens}</div>
+        <div className="hidden lg:block">{liensOrdinateur}</div>
         <div className="flex items-center gap-2">
           <div className="hidden items-center gap-2 lg:flex">
             <BasculeTheme />
@@ -83,7 +119,7 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }:
           </Suspense>
           <div className="lg:hidden">
             <MenuPanneau>
-              {liens}
+              {liensMobile}
               {murPublie ? (
                 <ul className="flex flex-col items-start gap-2">
                   <li>

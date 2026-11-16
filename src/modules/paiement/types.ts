@@ -4,7 +4,9 @@ export const CODES_PRESTATAIRE = ["pawapay", "maishapay", "polar"] as const;
 export type CodePrestataire = (typeof CODES_PRESTATAIRE)[number];
 
 export type MoyenPaiement = "mobile_money" | "carte";
-export type FamilleProduit = "cosplay" | "accessoire" | "kit";
+// Dérivée de FAMILLES_PRODUIT (src/modules/catalogue/types.ts, import de type seulement) ; seul le Kit est numérique (estFamillePhysique).
+export type { FamilleProduit } from "@/modules/catalogue/types";
+import type { FamilleProduit } from "@/modules/catalogue/types";
 
 // Un Prestataire tel que la base le décrit. Les moyens qu'il propose sont fixes (règle 10) ; seuls « actif » et l'ordre se règlent.
 export type Prestataire = {

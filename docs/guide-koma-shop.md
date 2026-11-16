@@ -69,7 +69,7 @@ La fonctionnalité cœur : trouver un costume, choisir « prêt à porter » ou 
 | Entité | Champs principaux |
 | --- | --- |
 | Utilisateur | Nom, email, téléphone, pays, langue, univers préférés, rôle (client ou admin) |
-| Produit | Famille (cosplay, accessoire, kit), titre, slug, description, univers, photos, prix en USD, kit lié (pour un cosplay), statut (brouillon ou publié) |
+| Produit | Famille (cosplay, accessoire, vêtement, autre article, kit), titre, slug, description, univers, photos, prix en USD, kit lié (pour un cosplay), statut (brouillon ou publié) |
 | Variante | Produit, taille (XS à XXL ou « sur mesure »), stock, mode (en stock ou sur commande), délai de fabrication en jours |
 | Mesures | Client, commande, tour de poitrine, taille, hanches, hauteur, notes (pour le sur-mesure) |
 | Fichier de kit | Produit, nom, format (PDF, SVG, STL), chemin dans le stockage privé, taille |
@@ -278,10 +278,13 @@ Claude Code travaille dans ton dépôt GitHub. Il lit d'abord le fichier CLAUDE.
 ## Le produit
 Boutique en ligne pour otakus, tenue par un seul créateur : Jonathan Manduara Tshimpaka, NATHANGROUP SARL, Goma, RDC.
 Domaine : komashop.com. Cible : d'abord les otakus africains, l'international ensuite.
-Trois familles de produits :
+Cinq familles de produits (vêtement et autre article ajoutés le 2026-11-15, story 9.15) :
 - cosplay : costume complet fait main, physique, en stock ou sur commande (tailles XS à XXL ou sur mesure)
 - accessoire : perruque, arme factice, masque, armure, bijou ; physique
+- vetement : polo, t-shirt, sweat, imprimé ou personnalisé ; physique ; tailles XS à XXL et couleurs (stock par taille et couleur)
+- autre : autre article ; physique ; une seule variante « Taille unique »
 - kit : numérique = fichiers (PDF A4 et US Letter, SVG, STL) + tutoriel vidéo en chapitres, accès à vie
+Seul le kit est numérique : toute autre famille est physique, y compris une famille ajoutée plus tard.
 Un cosplay peut être lié à son kit : la fiche propose « Prêt à porter » et « Le fabriquer moi-même ».
 
 ## Stack

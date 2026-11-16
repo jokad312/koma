@@ -64,7 +64,7 @@ describe("câblage réel de modules/catalogue", () => {
       prix_cents: 4990,
       delai_fabrication_jours: null,
     };
-    const variantes = [{ taille: "M" as const, stock: 2, fabrication_sur_commande: false, delai_fabrication_jours: null }];
+    const variantes = [{ taille: "M" as const, couleur_fr: null, couleur_en: null, couleur_hex: null, stock: 2, fabrication_sur_commande: false, delai_fabrication_jours: null }];
     expect(await dependances().ecrireProduit({ auteur: AUTEUR, id: null, produit, variantes })).toEqual({ erreur: null, id: "TEST_produit" });
     expect(faux.rpc).toHaveBeenCalledWith("enregistrer_produit", { p_auteur: AUTEUR, p_id: null, p_produit: produit, p_variantes: variantes });
   });

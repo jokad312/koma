@@ -70,10 +70,12 @@ type DonneesProduit = {
   prixCents: number;
   // URL schema.org de ItemAvailability, calculée à la requête.
   disponibilite: string;
+  // Couleurs d'un Vêtement, dans la langue de la page (story 9.15) : color n'est émis que pour une seule couleur (une liste n'est pas une couleur).
+  couleurs?: readonly string[];
 };
 
 // Product + Offer d'une fiche : prix USD lu en base, jamais de note, d'avis ni d'aggregateRating.
-export function produitJsonLd({ nom, description, images, url, langue, prixCents, disponibilite }: DonneesProduit) {
+export function produitJsonLd({ nom, description, images, url, langue, prixCents, disponibilite, couleurs = [] }: DonneesProduit) {
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -82,6 +84,7 @@ export function produitJsonLd({ nom, description, images, url, langue, prixCents
     image: images,
     url,
     inLanguage: langue,
+    ...(couleurs.length === 1 ? { color: couleurs[0] } : {}),
     offers: {
       "@type": "Offer",
       url,

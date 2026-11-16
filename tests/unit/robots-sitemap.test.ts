@@ -40,6 +40,10 @@ describe("sitemap", () => {
       "http://localhost:3000/en/cosplays",
       "http://localhost:3000/fr/accessoires",
       "http://localhost:3000/en/accessories",
+      "http://localhost:3000/fr/vetements",
+      "http://localhost:3000/en/clothing",
+      "http://localhost:3000/fr/autres-articles",
+      "http://localhost:3000/en/other-items",
       "http://localhost:3000/fr/kits",
       "http://localhost:3000/en/kits",
       "http://localhost:3000/fr/blog",
@@ -106,7 +110,7 @@ describe("sitemap", () => {
     expect(urls).toContain("http://localhost:3000/fr/cosplays");
     expect(urls).toContain("http://localhost:3000/en/accessories");
     expect(urls).toContain("http://localhost:3000/fr/blog");
-    expect(urls).toHaveLength(26);
+    expect(urls).toHaveLength(30);
     expect(erreur).toHaveBeenCalled();
     erreur.mockRestore();
   });

@@ -1,11 +1,34 @@
 import { contientMarqueur } from "@/lib/vitrine/marqueur";
-import type { TailleFiche } from "./types";
+import { DISPONIBILITES, type CouleurFiche, type TailleFiche } from "./types";
 
 // Fonctions pures de la fiche d'un produit (serveur et navigateur).
 
 // Tailles proposées au choix : seulement celles qu'on peut acheter (disponibles, dernières pièces, ou fabriquées sur commande tant que la capacité le permet).
 export function taillesChoisissables(tailles: readonly TailleFiche[]): TailleFiche[] {
   return tailles.filter((t) => t.etat === "disponible" || t.etat === "dernieres_pieces" || t.etat === "sur_commande");
+}
+
+// Couleurs d'un Vêtement, sans doublon, dans l'ordre de la base (taille puis nom français) ; vide hors Vêtement en couleurs.
+export function couleursDistinctes(tailles: readonly TailleFiche[]): CouleurFiche[] {
+  const vues = new Map<string, CouleurFiche>();
+  for (const t of tailles) if (t.couleur && !vues.has(t.couleur.cle)) vues.set(t.couleur.cle, t.couleur);
+  return [...vues.values()];
+}
+
+// Choix proposés pour un Vêtement en plusieurs couleurs. Avec une couleur choisie : seulement les tailles qui existent et s'achètent dans
+// cette couleur, avec l'état et le délai de leur variante. Sans couleur choisie : chaque taille achetable dans au moins une couleur, une
+// seule fois, avec son meilleur état. Jamais une quantité.
+export function taillesPourCouleur(tailles: readonly TailleFiche[], couleur: string | null): TailleFiche[] {
+  const achetables = taillesChoisissables(tailles);
+  const ordre: TailleFiche["taille"][] = [];
+  for (const t of achetables) if (!ordre.includes(t.taille)) ordre.push(t.taille);
+  return ordre.map((taille) => {
+    if (couleur === null) {
+      const rang = (t: TailleFiche) => DISPONIBILITES.indexOf(t.etat);
+      return achetables.filter((t) => t.taille === taille).reduce((a, b) => (rang(b) < rang(a) ? b : a));
+    }
+    return achetables.find((t) => t.taille === taille && t.couleur?.cle === couleur) ?? null;
+  }).filter((t): t is TailleFiche => t !== null);
 }
 
 // Le Plafond de fabrication est atteint dès qu'une taille n'est plus que « complet » (fabrication possible mais capacité atteinte).

@@ -17,46 +17,51 @@ type Props = {
   produitId: string;
   // Produit physique : la taille choisie (null tant qu'elle n'est pas choisie). Kit : undefined, aucune taille.
   taille?: Taille | null;
+  // Vêtement en couleurs : la couleur choisie (nom français), envoyée au serveur qui choisit la variante ; null sinon.
+  couleur?: string | null;
+  // Raison pour laquelle l'ajout n'est pas encore possible (couleur à choisir, variante indisponible), affichée à côté du bouton.
+  raison?: string | null;
 };
 
-// Résultat du dernier essai, avec la taille pour laquelle il a été fait : choisir une autre taille le rend sans objet.
-type Resultat = { pour: Taille | null | undefined; erreur: CodeErreurPanier | null };
+// Résultat du dernier essai, avec la variante pour laquelle il a été fait : choisir une autre taille ou couleur le rend sans objet.
+type Resultat = { pour: string; erreur: CodeErreurPanier | null };
 
 // « Ajouter au panier » (UX-DR10) : « Ajouté au panier » est annoncé dans une zone de statut toujours présente, sans déplacer le focus.
 // Le succès n'est annoncé qu'après la réponse réelle du serveur (règle 13) ; l'en-tête se relit ensuite pour son compteur.
-export function BoutonAjouterPanier({ produitId, taille }: Props) {
+export function BoutonAjouterPanier({ produitId, taille, couleur = null, raison = null }: Props) {
   const t = useTranslations("Fiche.panier");
   const locale = useLocale() as Locale;
   const router = useRouter();
   const [enCours, demarrer] = useTransition();
   const [resultat, setResultat] = useState<Resultat | null>(null);
   const physique = taille !== undefined;
-  const courant = resultat && resultat.pour === taille ? resultat : null;
+  const pour = `${taille ?? ""}|${couleur ?? ""}`;
+  const courant = resultat && resultat.pour === pour ? resultat : null;
   const ajoute = courant !== null && courant.erreur === null;
 
   function ajouter() {
     setResultat(null);
     demarrer(async () => {
       try {
-        const r = await ajouterAuPanier({ produitId, taille: physique ? taille : null, nombre: 1 });
+        const r = await ajouterAuPanier({ produitId, taille: physique ? taille : null, ...(physique && couleur ? { couleur } : {}), nombre: 1 });
         if (r.ok) {
-          setResultat({ pour: taille, erreur: null });
+          setResultat({ pour, erreur: null });
           // Mesure seulement après le succès réel du serveur (règle 13) : aucune donnée du panier n'est transmise.
           mesurer("ajout_panier");
           router.refresh();
         } else {
-          setResultat({ pour: taille, erreur: r.erreur });
+          setResultat({ pour, erreur: r.erreur });
         }
       } catch {
-        setResultat({ pour: taille, erreur: "erreur" });
+        setResultat({ pour, erreur: "erreur" });
       }
     });
   }
 
   return (
     <div className="flex flex-col items-start gap-3">
-      {physique && taille === null ? (
-        <Bouton desactive raison={t("choisirTaille")}>
+      {physique && (taille === null || raison) ? (
+        <Bouton desactive raison={raison ?? t("choisirTaille")}>
           {t("ajouter")}
         </Bouton>
       ) : (

@@ -1,8 +1,8 @@
 {
   "Metadata": {
     "accueil": {
-      "titre": "Shop for otaku: cosplay, accessories and kits",
-      "description": "Handmade cosplay costumes, accessories and do-it-yourself kits, made in Goma, Democratic Republic of the Congo."
+      "titre": "Shop for otaku: cosplay, accessories, clothing and kits",
+      "description": "Cosplay costumes and accessories handmade in Goma, Democratic Republic of the Congo, clothing, other items and do-it-yourself kits."
     },
     "nonTrouve": {
       "titre": "Page not found",
@@ -125,6 +125,14 @@
     "espace": {
       "titre": "My space",
       "description": "Your orders, kits, passes and events."
+    },
+    "vetements": {
+      "titre": "Clothing",
+      "description": "Polo shirts, t-shirts and sweatshirts for otaku fans, sizes XS to XXL, delivered in Goma and Bukavu. Filter by universe, price and availability."
+    },
+    "autresArticles": {
+      "titre": "Other items",
+      "description": "Other items for otaku fans, delivered in Goma and Bukavu. Filter by universe, price and availability."
     }
   },
   "Accueil": {
@@ -174,6 +182,14 @@
       "kits": {
         "nom": "Kits",
         "description": "DIY cosplay kits: PDF, SVG and STL patterns and a video tutorial in chapters, lifetime access"
+      },
+      "vetements": {
+        "nom": "Clothing",
+        "description": "Polo shirts, t-shirts and sweatshirts, XS to XXL"
+      },
+      "autresArticles": {
+        "nom": "Other items",
+        "description": "Everything else in the shop"
       }
     },
     "porteOuFabrique": {
@@ -226,12 +242,15 @@
       "kits": "Kits",
       "festival": "Festival",
       "blog": "Blog",
-      "aPropos": "About"
+      "aPropos": "About",
+      "vetements": "Clothing",
+      "autresArticles": "Other items"
     },
     "panier": {
       "lien": "Cart",
       "libelle": "Cart, {count, plural, =0 {no items} one {# item} other {# items}}"
-    }
+    },
+    "boutique": "Shop"
   },
   "Menu": {
     "ouvrir": "Menu",
@@ -272,7 +291,8 @@
         "mobile_money": "mobile money",
         "carte": "card"
       }
-    }
+    },
+    "autresArticles": "Other items"
   },
   "Composants": {
     "fermer": "Close",
@@ -534,7 +554,9 @@
         "accessoire": "Accessory",
         "kit": "Kit",
         "pass": "Pass",
-        "livraison": "Delivery"
+        "livraison": "Delivery",
+        "vetement": "Clothing",
+        "autre": "Other item"
       },
       "commandes": {
         "titre": "New paid orders",
@@ -1420,7 +1442,7 @@
     },
     "produits": {
       "titre": "Products",
-      "intro": "Your cosplays, accessories and kits. A product created here stays a draft: nobody sees it on the site.",
+      "intro": "Your cosplays, accessories, clothing, other items and kits. A product created here stays a draft: nobody sees it on the site.",
       "nouveau": "New product",
       "nombre": "{nombre, plural, =0 {No products} one {# product} other {# products}}",
       "erreurLecture": "The products could not be loaded. Reload the page.",
@@ -1438,7 +1460,7 @@
           "numerique": "Digital",
           "en_stock": "In stock",
           "sur_commande": "Made to order",
-          "epuise": "Sold out",
+          "epuise": "No stock",
           "sans_variante": "No size"
         }
       },
@@ -1454,7 +1476,9 @@
       "famille": {
         "cosplay": "Cosplay",
         "accessoire": "Accessory",
-        "kit": "Kit"
+        "kit": "Kit",
+        "vetement": "Clothing",
+        "autre": "Other item"
       },
       "statut": {
         "brouillon": "Draft",
@@ -1477,7 +1501,9 @@
           "options": {
             "cosplay": "Cosplay (full costume)",
             "accessoire": "Accessory",
-            "kit": "Kit (patterns, files and tutorial)"
+            "kit": "Kit (patterns, files and tutorial)",
+            "vetement": "Clothing",
+            "autre": "Other item"
           },
           "fixe": "The category of an existing product can no longer change."
         },
@@ -1526,13 +1552,15 @@
             "L": "L",
             "XL": "XL",
             "XXL": "XXL",
-            "sur_mesure": "Made to measure"
+            "sur_mesure": "Made to measure",
+            "unique": "One size"
           },
           "stock": "Stock",
           "surCommande": "Made-to-order allowed",
           "delai": "Making time for this size (days), optional",
           "delaiAide": "Replaces the product making time for this size.",
-          "surMesure": "Always made to order, with no stock."
+          "surMesure": "Always made to order, with no stock.",
+          "unique": "An other item has a single variant, “One size”: enter its stock."
         },
         "enregistrer": "Save",
         "enCours": "Saving…",
@@ -1554,7 +1582,26 @@
           "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
           "generique": "The product could not be saved. Your input is kept: try again.",
           "produit_publie_verrouille": "This product is published: its address and family can no longer change. Unpublish it first if you need to change them.",
-          "publication_incomplete": "This product is published: it must stay complete (price, photo, texts, size). Unpublish it first to remove this item."
+          "publication_incomplete": "This product is published: it must stay complete (price, photo, texts, size). Unpublish it first to remove this item.",
+          "couleur_invalide": "Each colour has a French name of 1 to 40 characters, an English name of 40 characters at most and a swatch in #RRGGBB format. Two colours never share a name; either every size has a colour, or none does.",
+          "variante_commandee": "This size or colour has already been ordered: it cannot be removed. Keep it, or set its stock to 0."
+        },
+        "couleurs": {
+          "titre": "Colours",
+          "aide": "Add the colours you offer: none, one or several. Each colour has its own sizes and stock. The English name is required to publish; the swatch is optional and never replaces the name.",
+          "nomFr": "Colour name in French",
+          "nomFrAide": "1 to 40 characters. Colours already in use are suggested.",
+          "nomEn": "Colour name in English",
+          "nomEnAide": "Required to publish. 40 characters at most.",
+          "hex": "Swatch (#RRGGBB code), optional",
+          "hexAide": "For example #1B1713.",
+          "ajouter": "Add a colour",
+          "retirer": "Remove colour {couleur}",
+          "sansNom": "New colour",
+          "groupe": "Sizes and stock: {couleur}",
+          "aucune": "No colour: the sizes below have no colour.",
+          "nomVide": "Give this colour a French name, or remove it.",
+          "sansTaille": "Tick at least one size for this colour, or remove it."
         }
       },
       "photos": {
@@ -1650,7 +1697,8 @@
           "fichier": "At least one file",
           "video": "The full video",
           "sous_titres_fr": "The French subtitles",
-          "sous_titres_extrait_fr": "The preview's French subtitles (or the “Preview without speech” box)"
+          "sous_titres_extrait_fr": "The preview's French subtitles (or the “Preview without speech” box)",
+          "couleurs": "The English name of each colour"
         },
         "erreurs": {
           "publication_incomplete": "Some items are missing to publish. Reload the page.",
@@ -2329,7 +2377,9 @@
       "familles": {
         "cosplay": "Cosplay",
         "accessoire": "Accessory",
-        "kit": "Kit"
+        "kit": "Kit",
+        "vetement": "Clothing",
+        "autre": "Other item"
       },
       "origines": {
         "stock": "In-stock piece",
@@ -2819,7 +2869,9 @@
     "titre": {
       "cosplay": "Cosplays",
       "accessoire": "Accessories",
-      "kit": "Kits"
+      "kit": "Kits",
+      "vetement": "Clothing",
+      "autre": "Other items"
     },
     "fil": {
       "navigation": "Breadcrumb",
@@ -2854,7 +2906,7 @@
       "dernieres_pieces": "Last pieces",
       "sur_commande": "Made to order",
       "complet": "Orders full for now",
-      "epuise": "Sold out"
+      "epuise": "Orders full for now"
     },
     "voirPlus": {
       "libelle": "See more",
@@ -3151,7 +3203,7 @@
       "surMesure": "Made to measure",
       "delai": "Production time: {n, plural, one {# day} other {# days}}",
       "complet": "Orders are full for now",
-      "epuise": "Sold out"
+      "unique": "One size"
     },
     "remise": {
       "titre": "Getting your order",
@@ -3187,8 +3239,13 @@
         "deja_possede": "You already have this kit.",
         "ligne_unique": "A kit is bought as a single copy.",
         "invalide": "The request is not valid. Reload the page and try again.",
-        "erreur": "The item could not be added. Try again."
-      }
+        "erreur": "The item could not be added. Try again.",
+        "combinaison_inconnue": "This size and colour combination does not exist for this item.",
+        "combinaison_indisponible": "This size and colour combination is no longer available for now."
+      },
+      "choisirCouleur": "Pick a colour first.",
+      "choisirTailleCouleur": "Pick a size and a colour first.",
+      "combinaisonIndisponible": "This size is not available in this colour."
     },
     "option": {
       "libelle": "Do you prefer wearing or making?",
@@ -3197,6 +3254,10 @@
       "kitTitre": "Linked kit",
       "acces": "Immediate access, for life",
       "voirLeKit": "See the kit"
+    },
+    "couleurs": {
+      "legende": "Colour",
+      "une": "Colour: {couleur}"
     }
   },
   "Kit": {
@@ -3275,11 +3336,13 @@
   "Panier": {
     "titre": "Your cart",
     "vide": "Your cart is empty.",
-    "versCatalogues": "Browse our cosplays, accessories and kits.",
+    "versCatalogues": "Browse our cosplays, accessories, clothing, other items and kits.",
     "liensCatalogues": {
       "cosplays": "Cosplays",
       "accessoires": "Accessories",
-      "kits": "Kits"
+      "kits": "Kits",
+      "vetements": "Clothing",
+      "autresArticles": "Other items"
     },
     "liste": "Cart items",
     "taille": "Size: {taille}",
@@ -3307,7 +3370,9 @@
     "passer": "Place order",
     "raisonBloque": "Remove the items that are no longer available first.",
     "erreurLecture": "Your cart could not be loaded. Try again in a moment.",
-    "kitDejaPossede": "You already own this kit: it is in your library."
+    "kitDejaPossede": "You already own this kit: it is in your library.",
+    "tailleUnique": "One size",
+    "avecCouleur": "{variante} · {couleur}"
   },
   "Commande": {
     "titre": "Checkout",
@@ -3335,7 +3400,9 @@
         "retrait": "free pickup in Goma",
         "gomaLivraison": "delivery in Goma in under a day",
         "bukavu": "delivery in Bukavu in one day at most"
-      }
+      },
+      "tailleUnique": "One size",
+      "avecCouleur": "{variante} · {couleur}"
     },
     "contact": {
       "titre": "How to reach you",
@@ -3551,7 +3618,12 @@
       "bouton": "View my order",
       "mesures": "Your order contains a made-to-measure cosplay: send your measurements on WhatsApp with this link: {lien} The making time starts when we receive them.",
       "mesuresSansNumero": "Your order contains a made-to-measure cosplay: write to us from the Contact page to send your measurements. The making time starts when we receive them.",
-      "messageMesures": "Hello, here are my measurements for order {numero}."
+      "messageMesures": "Hello, here are my measurements for order {numero}.",
+      "taille": "Size {taille}",
+      "tailleSurMesure": "Made to measure",
+      "tailleUnique": "One size",
+      "avecCouleur": "{variante} · {couleur}",
+      "titreVariante": "{titre} ({variante})"
     },
     "kit_ouvert": {
       "sujet": "Your kit is open: {titre}",

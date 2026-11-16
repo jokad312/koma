@@ -1,3 +1,4 @@
+import { estFamilleProduit } from "@/modules/catalogue/types";
 import {
   creerCommandeSchema,
   obtenirKitGratuitSchema,
@@ -107,7 +108,7 @@ function enRecap(b: RecapBrut, langue: "fr" | "en"): Recapitulatif {
   const lignes = b.lignes
     .map((l): LigneRecap | null => {
       const etat = ETATS_RECAP.find((e) => e === l.etat);
-      const famille = l.famille === "cosplay" || l.famille === "accessoire" || l.famille === "kit" ? l.famille : null;
+      const famille = estFamilleProduit(l.famille) ? l.famille : null;
       if (!etat || !famille) return null;
       return {
         ligneId: l.ligne_id,
@@ -116,6 +117,7 @@ function enRecap(b: RecapBrut, langue: "fr" | "en"): Recapitulatif {
         slug: l.slug,
         titre: langue === "en" && l.titre_en ? l.titre_en : l.titre_fr,
         taille: l.taille,
+        couleur: l.couleur_fr ? (langue === "en" && l.couleur_en ? l.couleur_en : l.couleur_fr) : null,
         nombre: l.nombre,
         prixCents: l.prix_cents ?? 0,
         etat,

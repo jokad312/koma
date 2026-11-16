@@ -7,9 +7,9 @@ import { urlPhotoPublique } from "@/lib/supabase/stockage";
 import { encoderCurseur, pourFamille } from "./adresse";
 import { contientMarqueur } from "@/lib/vitrine/marqueur";
 import { choisirSlugLibre, SLUG_REGEX } from "./slug";
-import { CUMUL_MAX_CATALOGUE, DISPONIBILITES, LANGUES_SOUS_TITRES, NIVEAUX_KIT, TAILLE_PAGE_CATALOGUE, TAILLES } from "./types";
+import { CUMUL_MAX_CATALOGUE, DISPONIBILITES, FAMILLES_PRODUIT, LANGUES_SOUS_TITRES, NIVEAUX_KIT, TAILLE_PAGE_CATALOGUE, TAILLES } from "./types";
 import { FORMATS_FICHIER_KIT, type FormatFichierKit } from "./fichiers-kit";
-import type { EtatStockListe, FicheKit, CarteProduit, ChapitreAdmin, Disponibilite, LangueSousTitres, SousTitreAdmin, FamillePhysique, FamilleProduit, FichierKitAdmin, FicheProduit, KitLieFiche, NiveauKit, ProduitLiable, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
+import type { CouleurVariante, EtatStockListe, FicheKit, CarteProduit, ChapitreAdmin, Disponibilite, LangueSousTitres, SousTitreAdmin, FamillePhysique, FamilleProduit, FichierKitAdmin, FicheProduit, KitLieFiche, NiveauKit, ProduitLiable, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
 
 // Lectures admin par le client service (après le droit vérifié par la page) : une erreur de lecture est relancée,
 // jamais une liste vide inventée. Aucune valeur de repli (règle 15).
@@ -67,7 +67,7 @@ export async function lireProduitAdmin(id: string): Promise<ProduitAdmin | null>
   if (!data) return null;
   const variantes = await client
     .from("variante")
-    .select("taille, stock, fabrication_sur_commande, delai_fabrication_jours")
+    .select("id, taille, couleur_fr, couleur_en, couleur_hex, stock, fabrication_sur_commande, delai_fabrication_jours")
     .eq("produit_id", id);
   if (variantes.error) throw new Error("Lecture des variantes impossible.");
   const photos = await client.from("produit_photo").select("id, fichier, alt_fr, alt_en, position").eq("produit_id", id).order("position", { ascending: true });
@@ -116,15 +116,25 @@ export async function lireProduitAdmin(id: string): Promise<ProduitAdmin | null>
       (f): FichierKitAdmin => ({ id: f.id, nomFr: f.nom_fr, nomEn: f.nom_en, format: f.format as FormatFichierKit, tailleOctets: Number(f.taille_octets), ordre: f.ordre, version: f.version }),
     ),
     variantes: (variantes.data ?? []).map((v) => ({
+      id: v.id,
       taille: v.taille as Taille,
       stock: v.stock,
       fabricationSurCommande: v.fabrication_sur_commande,
       delaiFabricationJours: v.delai_fabrication_jours,
+      couleur: v.couleur_fr ? { fr: v.couleur_fr, en: v.couleur_en, hex: v.couleur_hex } : null,
     })),
     photos: (photos.data ?? []).map(
       (ph): PhotoAdmin => ({ id: ph.id, fichier: ph.fichier, altFr: ph.alt_fr, altEn: ph.alt_en, position: ph.position }),
     ),
   };
+}
+
+// Couleurs déjà utilisées par les variantes (autocomplétion de l'admin, décision 2 de la story 9.15) : dédoublonnées par la base
+// (fonction couleurs_utilisees, admin seulement), jamais tronquées. Une erreur est relancée.
+export async function lireCouleursUtilisees(): Promise<CouleurVariante[]> {
+  const { data, error } = await creerClientService().rpc("couleurs_utilisees");
+  if (error || !Array.isArray(data)) throw new Error("Lecture des couleurs impossible.");
+  return data.filter((c) => c.couleur_fr).map((c) => ({ fr: c.couleur_fr, en: c.couleur_en ?? null, hex: c.couleur_hex ?? null }));
 }
 
 // Cosplays et accessoires qu'un Kit peut lier : ceux qui n'ont pas de Kit, plus celui du Kit édité (kitId). Une erreur est relancée.
@@ -136,7 +146,7 @@ export async function lireProduitsLiables(kitId: string | null): Promise<Produit
   ]);
   if (cibles.error || kits.error) throw new Error("Lecture des produits à lier impossible.");
   const pris = new Set((kits.data ?? []).filter((k) => k.id !== kitId).map((k) => k.produit_lie_id));
-  return (cibles.data ?? []).filter((c) => !pris.has(c.id)).map((c) => ({ id: c.id, titreFr: c.titre_fr, famille: c.famille as FamillePhysique }));
+  return (cibles.data ?? []).filter((c) => !pris.has(c.id)).map((c) => ({ id: c.id, titreFr: c.titre_fr, famille: c.famille as ProduitLiable["famille"] }));
 }
 
 // Famille d'un produit (null si inconnu) ; une erreur de lecture est relancée.
@@ -169,6 +179,18 @@ export async function lireProduitPourPublication(id: string): Promise<ProduitPou
     client.from("variante").select("id", { count: "exact", head: true }).eq("produit_id", id),
   ]);
   if (photos.error || variantes.error || photos.count === null || variantes.count === null) throw new Error("Lecture du produit impossible.");
+  // Story 9.15 : variantes d'un Vêtement dont la couleur n'a pas de nom anglais (même contrôle que manques_publication).
+  let nbCouleursSansAnglais = 0;
+  if (data.famille === "vetement") {
+    const sansAnglais = await client
+      .from("variante")
+      .select("id", { count: "exact", head: true })
+      .eq("produit_id", id)
+      .not("couleur_fr", "is", null)
+      .is("couleur_en", null);
+    if (sansAnglais.error || sansAnglais.count === null) throw new Error("Lecture du produit impossible.");
+    nbCouleursSansAnglais = sansAnglais.count;
+  }
   const famille = data.famille as FamilleProduit;
   let nbFichiers = 0;
   let videoPrete = false;
@@ -206,6 +228,7 @@ export async function lireProduitPourPublication(id: string): Promise<ProduitPou
     videoPrete,
     sousTitresFr,
     extraitSansSousTitresFr,
+    nbCouleursSansAnglais,
   };
 }
 
@@ -396,7 +419,9 @@ export async function lireFicheProduit(famille: FamillePhysique, slug: string, l
 
   const tailles: TailleFiche[] = dispo.data.map((d) => {
     if (!TAILLES_CONNUES.includes(d.taille) || !DISPONIBILITES_CONNUES.includes(d.etat)) throw new Error("Lecture de la fiche impossible.");
-    return { taille: d.taille as Taille, etat: d.etat as Disponibilite, delaiJours: d.delai_jours };
+    // Couleur d'un Vêtement : clé = nom français (ce que l'ajout au panier envoie), nom dans la langue de la page (repli sur le français).
+    const couleur = d.couleur_fr ? { cle: d.couleur_fr, nom: (langue === "en" ? d.couleur_en?.trim() : "") || d.couleur_fr, hex: d.couleur_hex ?? null } : null;
+    return { taille: d.taille as Taille, etat: d.etat as Disponibilite, delaiJours: d.delai_jours, couleur };
   });
   const en = langue === "en";
   return {
@@ -426,7 +451,7 @@ export async function lireSlugsPublies(): Promise<ProduitPublie[]> {
     const { data, error } = await creerClientPublic()
       .from("produit")
       .select("famille, slug, produit_photo!inner(id)")
-      .in("famille", ["cosplay", "accessoire", "kit"])
+      .in("famille", [...FAMILLES_PRODUIT])
       .not("prix_cents", "is", null)
       .order("publie_le", { ascending: false })
       .order("id", { ascending: true })

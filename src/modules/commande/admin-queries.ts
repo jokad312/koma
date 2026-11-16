@@ -1,4 +1,5 @@
 import "server-only";
+import { FAMILLES_PRODUIT } from "@/modules/catalogue/types";
 import { creerClientService } from "@/lib/supabase/service";
 import { statutEffectif, type StatutAffiche } from "./queries";
 
@@ -6,7 +7,7 @@ import { statutEffectif, type StatutAffiche } from "./queries";
 export const TAILLE_PAGE_ADMIN = 12;
 
 export const STATUTS_FILTRE = ["en_attente", "echouee", "expiree", "payee", "en_fabrication", "expediee", "livree", "annulee", "remboursee", "offerte"] as const;
-export const FAMILLES_FILTRE = ["cosplay", "accessoire", "kit"] as const;
+export const FAMILLES_FILTRE = FAMILLES_PRODUIT;
 export const PRESTATAIRES_FILTRE = ["pawapay", "maishapay", "polar"] as const;
 export const ZONES_FILTRE = ["goma", "bukavu"] as const;
 
@@ -79,7 +80,7 @@ export type CommandeAdminDetail = {
   annulationsPass: { demandeId: string; statut: string; passId: string; nomTitulaire: string; remboursement: { montantCents: number; devise: string; valide: boolean } | null }[];
   reclamations: { id: string; statut: string; description: string; ligneTitre: string; ligneNombre: number }[];
   tropPercus: { id: string; montantRecu: number; devise: string; motif: string }[];
-  lignes: { id: string; titre: string; famille: string; taille: string | null; nombre: number; prixCents: number; origine: string | null; mesuresRecuesLe: string | null }[];
+  lignes: { id: string; titre: string; famille: string; taille: string | null; couleur?: string | null; nombre: number; prixCents: number; origine: string | null; mesuresRecuesLe: string | null }[];
   // Code promo figé avec la Commande (story 9.2) ; les taux sont ceux du jour de la commande.
   codePromo: { code: string; reductionCents: number; reductionPct: number; commissionPct: number } | null;
 };
@@ -90,7 +91,7 @@ export async function lireCommandeAdmin(numero: string): Promise<CommandeAdminDe
   const { data, error } = await client
     .from("commande")
     .select(
-      "id, numero, statut, expire_le, cree_le, sous_total_cents, forfait_cents, total_cents, devise, offerte, zone, mode_remise, telephone, adresse, numero_suivi, prestataire, reference_transaction, paye_le, ligne_commande(id, prix_cents, nombre, origine, mesures_recues_le, pass_nom_fr, produit(famille, titre_fr), variante(taille))",
+      "id, numero, statut, expire_le, cree_le, sous_total_cents, forfait_cents, total_cents, devise, offerte, zone, mode_remise, telephone, adresse, numero_suivi, prestataire, reference_transaction, paye_le, ligne_commande(id, prix_cents, nombre, origine, mesures_recues_le, pass_nom_fr, produit(famille, titre_fr), variante(taille, couleur_fr))",
     )
     .eq("numero", numero)
     .maybeSingle();
@@ -155,7 +156,7 @@ export async function lireCommandeAdmin(numero: string): Promise<CommandeAdminDe
     lignes: (data.ligne_commande ?? []).map((l) => {
       const produit = Array.isArray(l.produit) ? l.produit[0] : l.produit;
       const variante = Array.isArray(l.variante) ? l.variante[0] : l.variante;
-      return { id: l.id, titre: produit?.titre_fr ?? l.pass_nom_fr ?? "", famille: produit?.famille ?? "", taille: variante?.taille ?? null, nombre: l.nombre, prixCents: l.prix_cents, origine: l.origine, mesuresRecuesLe: l.mesures_recues_le };
+      return { id: l.id, titre: produit?.titre_fr ?? l.pass_nom_fr ?? "", famille: produit?.famille ?? "", taille: variante?.taille ?? null, couleur: variante?.couleur_fr ?? null, nombre: l.nombre, prixCents: l.prix_cents, origine: l.origine, mesuresRecuesLe: l.mesures_recues_le };
     }),
   };
 }

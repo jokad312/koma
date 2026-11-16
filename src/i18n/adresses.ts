@@ -9,6 +9,8 @@ export type AdresseLocalisee = { interne: string; fr: string; en: string };
 export const ADRESSES: readonly AdresseLocalisee[] = [
   { interne: "/cosplays", fr: "/cosplays", en: "/cosplays" },
   { interne: "/accessoires", fr: "/accessoires", en: "/accessories" },
+  { interne: "/vetements", fr: "/vetements", en: "/clothing" },
+  { interne: "/autres-articles", fr: "/autres-articles", en: "/other-items" },
   { interne: "/kits", fr: "/kits", en: "/kits" },
   { interne: "/panier", fr: "/panier", en: "/cart" },
   { interne: "/commande", fr: "/commande", en: "/checkout" },

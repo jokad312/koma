@@ -1,4 +1,5 @@
 import "server-only";
+import { estFamilleProduit } from "@/modules/catalogue/types";
 import { cacheTag } from "next/cache";
 import { ETIQUETTES } from "@/lib/cache/etiquettes";
 import { creerClientService } from "@/lib/supabase/service";
@@ -51,7 +52,7 @@ export async function lireAchat(commandeId: string, compteId: string): Promise<A
   if (familles.error || commande.error) throw new Error("Lecture de l'achat impossible.");
   if (!familles.data || !commande.data) return null;
   // Une Famille inconnue fait échouer la lecture : jamais écartée en silence (un panier physique pourrait sinon partir chez Polar, règle 10).
-  if (!familles.data.every((f) => f === "cosplay" || f === "accessoire" || f === "kit")) throw new Error("Famille inconnue dans la Commande.");
+  if (!familles.data.every((f) => estFamilleProduit(f))) throw new Error("Famille inconnue dans la Commande.");
   return {
     familles: familles.data as FamilleProduit[],
     estPass: commande.data.type === "pass",

@@ -1,5 +1,6 @@
 "use client";
 
+import { LibelleVariante } from "@/components/commande/LibelleVariante";
 import { useTranslations } from "next-intl";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import type { Locale } from "@/i18n/routing";
@@ -29,7 +30,7 @@ export function RecapCommande({ recap, zone, mode, locale }: Props) {
         {recap.lignes.map((l) => (
           <li key={l.ligneId} className="flex flex-col gap-1 border-b border-border pb-3 last:border-b-0 last:pb-0">
             <p className="t-label text-text-primary">{l.titre}</p>
-            {l.famille !== "kit" ? <p className="t-small text-text-secondary">{l.taille === "sur_mesure" ? t("tailleSurMesure") : t("taille", { taille: l.taille ?? "" })}</p> : null}
+            {l.famille !== "kit" ? <p className="t-small text-text-secondary"><LibelleVariante espace="Commande.recap" taille={l.taille} couleur={l.couleur} /></p> : null}
             {l.etat === "epuise" ? (
               <>
                 <p className="t-small text-text-primary">{t("plusDisponible")}</p>

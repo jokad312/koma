@@ -118,6 +118,16 @@ describe("lireAchat : le type de la Commande vient de la base", () => {
     expect(await lireAchat("c", "compte")).toEqual({ familles: ["cosplay"], estPass: false });
   });
 
+  it("story 9.15 : Vêtement, Autre article et Kit sont des familles connues ; une famille inconnue fait échouer la lecture", async () => {
+    faux.type.mockResolvedValue({ data: { type: "produits" }, error: null });
+    faux.rpc.mockResolvedValue({ data: ["vetement", "kit"], error: null });
+    expect(await lireAchat("c", "compte")).toEqual({ familles: ["vetement", "kit"], estPass: false });
+    faux.rpc.mockResolvedValue({ data: ["autre"], error: null });
+    expect(await lireAchat("c", "compte")).toEqual({ familles: ["autre"], estPass: false });
+    faux.rpc.mockResolvedValue({ data: ["TEST_inconnue"], error: null });
+    await expect(lireAchat("c", "compte")).rejects.toThrow();
+  });
+
   it("Commande d'un autre Compte : null (jamais d'achat inventé)", async () => {
     faux.rpc.mockResolvedValue({ data: null, error: null });
     faux.type.mockResolvedValue({ data: null, error: null });

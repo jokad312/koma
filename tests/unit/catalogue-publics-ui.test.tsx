@@ -69,7 +69,8 @@ describe("BadgeDisponibilite", () => {
     dernieres_pieces: "Dernières pièces",
     sur_commande: "Fabrication sur commande",
     complet: "Commandes complètes pour le moment",
-    epuise: "Épuisé",
+    // C-4 : jamais « Épuisé » (story 9.15) ; sans stock ni fabrication, même libellé que la fiche.
+    epuise: "Commandes complètes pour le moment",
   };
   it.each(Object.entries(MOTS))("%s : icône + mot, sans quantité ni compteur", (etat, mot) => {
     const { container } = rendre(<BadgeDisponibilite etat={etat as Disponibilite} />);
@@ -79,8 +80,8 @@ describe("BadgeDisponibilite", () => {
     expect(container.textContent).not.toMatch(/plus que|only .* left/i);
   });
 
-  it("seul l'état « épuisé » dit « Épuisé » ; le Plafond atteint dit « Commandes complètes »", () => {
-    for (const etat of ["disponible", "dernieres_pieces", "sur_commande", "complet"] as const) {
+  it("aucun état ne dit « Épuisé » ; le Plafond atteint dit « Commandes complètes »", () => {
+    for (const etat of ["disponible", "dernieres_pieces", "sur_commande", "complet", "epuise"] as const) {
       const { container, unmount } = rendre(<BadgeDisponibilite etat={etat} />);
       expect(container.textContent).not.toMatch(/épuisé/i);
       unmount();

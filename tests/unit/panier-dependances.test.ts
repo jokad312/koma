@@ -32,6 +32,13 @@ describe("arguments des appels RPC du Panier", () => {
     expect(args.p_taille).toBeNull();
     expect(Object.values(args).every((v) => v !== undefined)).toBe(true);
   });
+  it("story 9.15 : avec une couleur, p_couleur est envoyé ; sans couleur, la clé est absente (valeur par défaut de la base)", async () => {
+    await dependances().ajouter({ auteur: { type: "visiteur" }, panierId: ID, compteId: null, produitId: ID, taille: "M", couleur: "Noir", nombre: 1 });
+    expect(etat.appels[0].args.p_couleur).toBe("Noir");
+    await dependances().ajouter({ auteur: { type: "visiteur" }, panierId: ID, compteId: null, produitId: ID, taille: "M", couleur: null, nombre: 1 });
+    expect("p_couleur" in etat.appels[1].args).toBe(false);
+    expect(Object.values(etat.appels[1].args).every((v) => v !== undefined)).toBe(true);
+  });
   it("les autres appels n'envoient aucune valeur indéfinie", async () => {
     const d = dependances();
     await d.creerPanier({ type: "visiteur" });

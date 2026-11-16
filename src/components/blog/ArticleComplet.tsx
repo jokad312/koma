@@ -10,11 +10,12 @@ import { articleJsonLd, filArianeJsonLd } from "@/lib/seo/jsonld";
 import { urlLocalisee } from "@/lib/seo/url";
 import { extraireTexte } from "@/modules/blog/texte";
 import type { ArticlePublic } from "@/modules/blog/types";
+import { DOSSIER_PAR_FAMILLE } from "@/modules/catalogue/types";
 
 const SEPARATEUR_FIL = "›";
 
 // Dossier interne de la fiche du Produit lié (l'adresse de la langue est calculée par Link).
-const DOSSIERS_FICHE = { cosplay: "/cosplays", accessoire: "/accessoires", kit: "/kits" } as const;
+const DOSSIERS_FICHE = DOSSIER_PAR_FAMILLE;
 
 type Props = { article: ArticlePublic; locale: Locale; nomSite: string };
 

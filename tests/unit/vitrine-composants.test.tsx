@@ -26,7 +26,7 @@ vi.mock("@/modules/paiement/queries", () => ({ lireMoyensPaiementActifs: () => m
 vi.mock("next-intl/server", async () => {
   const { createTranslator } = await import("next-intl");
   const messages = (await import("../../messages/fr.json")).default;
-  return { getTranslations: async (namespace: string) => createTranslator({ locale: "fr", messages, namespace: namespace as never }) };
+  return { getTranslations: async (namespace: string) => createTranslator({ locale: "fr", messages, namespace: namespace as never }), getLocale: async () => "fr" };
 });
 
 import { BoutonWhatsApp } from "@/components/vitrine/BoutonWhatsApp";

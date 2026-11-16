@@ -4,11 +4,11 @@ import { cheminPublic } from "@/i18n/adresses";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { formaterUsd } from "@/lib/argent";
-import type { CarteProduit as Donnees } from "@/modules/catalogue/types";
+import { DOSSIER_PAR_FAMILLE, type CarteProduit as Donnees } from "@/modules/catalogue/types";
 import { BadgeDisponibilite } from "./BadgeDisponibilite";
 import { BadgeNiveau } from "./BadgeNiveau";
 
-const DOSSIER: Record<Donnees["famille"], string> = { cosplay: "/cosplays", accessoire: "/accessoires", kit: "/kits" };
+const DOSSIER = DOSSIER_PAR_FAMILLE;
 
 // Carte d'un produit : photo (texte alternatif de la photo), nom en h3 > a étendu à toute la carte, prix en USD, badge de disponibilité
 // (produit physique) ou niveau (Kit, toujours disponible).

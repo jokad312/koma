@@ -135,9 +135,9 @@ describe("enregistrerProduit", () => {
           delai_fabrication_jours: 14,
         },
         variantes: [
-          { taille: "M", stock: 2, fabrication_sur_commande: false, delai_fabrication_jours: null },
+          { taille: "M", couleur_fr: null, couleur_en: null, couleur_hex: null, stock: 2, fabrication_sur_commande: false, delai_fabrication_jours: null },
           // Sur-mesure : toujours fabriqué, stock 0, quoi que le navigateur envoie.
-          { taille: "sur_mesure", stock: 0, fabrication_sur_commande: true, delai_fabrication_jours: null },
+          { taille: "sur_mesure", couleur_fr: null, couleur_en: null, couleur_hex: null, stock: 0, fabrication_sur_commande: true, delai_fabrication_jours: null },
         ],
       },
     ]);
@@ -238,7 +238,7 @@ describe("enregistrerProduit", () => {
     const { deps, appels } = creerTestDependancesCatalogue();
     expect((await enregistrerProduit(deps, entree({ delai: "10", variantes: [{ taille: "L", stock: "0", surCommande: true, delai: "" }] }))).ok).toBe(true);
     expect((await enregistrerProduit(deps, entree({ variantes: [{ taille: "L", stock: "0", surCommande: true, delai: "20" }] }))).ok).toBe(true);
-    expect(appels.produits[1].variantes).toEqual([{ taille: "L", stock: 0, fabrication_sur_commande: true, delai_fabrication_jours: 20 }]);
+    expect(appels.produits[1].variantes).toEqual([{ taille: "L", couleur_fr: null, couleur_en: null, couleur_hex: null, stock: 0, fabrication_sur_commande: true, delai_fabrication_jours: 20 }]);
   });
 
   it("Sur-mesure sans aucun délai : refusé (toujours en fabrication)", async () => {

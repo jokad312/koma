@@ -99,7 +99,7 @@ describe("FormulaireProduit : famille Kit", () => {
   it("la famille propose cosplay, accessoire et kit ; avec kit, tailles, délai et stock disparaissent", async () => {
     const user = userEvent.setup();
     rendre(<FormulaireProduit univers={UNIVERS} liables={LIABLES} />);
-    expect(screen.getAllByRole("radio").map((r) => (r as HTMLInputElement).value)).toEqual(["cosplay", "accessoire", "kit"]);
+    expect(screen.getAllByRole("radio").map((r) => (r as HTMLInputElement).value)).toEqual(["cosplay", "accessoire", "vetement", "autre", "kit"]);
     await user.click(screen.getByRole("radio", { name: /^Cosplay/ }));
     expect(screen.getByLabelText("Délai de fabrication du produit (jours)")).toBeTruthy();
     await user.click(screen.getByRole("radio", { name: /^Kit/ }));

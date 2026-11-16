@@ -7,7 +7,7 @@ import type { Locale } from "@/i18n/routing";
 import { formaterUsd } from "@/lib/argent";
 import { lireCartesHeros } from "@/modules/accueil/heros-cartes";
 import type { CartesHeros } from "@/modules/accueil/heros-cartes-choix";
-import type { CarteProduit } from "@/modules/catalogue/types";
+import { DOSSIER_PAR_FAMILLE, type CarteProduit } from "@/modules/catalogue/types";
 import { lireHeros } from "./HerosAccueil";
 import { MediaHeros } from "./MediaHeros";
 import { PleineLargeur } from "./PleineLargeur";
@@ -19,7 +19,7 @@ import "./heros-visiteur.css";
 // Tout le style est dans heros-visiteur.css (classes « hv- » propres à ce composant) : rien dans le CSS commun ni dans l'en-tête.
 // Sans produit publié : la disposition reste la même, seules la photo et les cartes (avec le bouton rond) disparaissent.
 
-const DOSSIER: Record<CarteProduit["famille"], string> = { cosplay: "/cosplays", accessoire: "/accessoires", kit: "/kits" };
+const DOSSIER = DOSSIER_PAR_FAMILLE;
 
 async function Media({ locale }: { locale: Locale }) {
   const heros = await lireHeros(locale);

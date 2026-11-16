@@ -81,7 +81,7 @@ describe("ListeProduits (grille de cartes)", () => {
     expect(within(deux).getByText("Pas de photo")).toBeTruthy();
     expect(within(deux).getByText("Prix à fixer")).toBeTruthy();
     expect(within(deux).getByText("Publié")).toBeTruthy();
-    expect(within(deux).getByText("Épuisé")).toBeTruthy();
+    expect(within(deux).getByText("Sans stock")).toBeTruthy();
     expect(within(deux).getByRole("button", { name: /Dépublier/ })).toBeTruthy();
     expect(within(un).getByRole("button", { name: /^Publier/ })).toBeTruthy();
   });
@@ -209,7 +209,7 @@ describe("FormulaireProduit", () => {
     prixCents: 4990,
     delaiFabricationJours: 14,
     publieLe: null,
-    variantes: [{ taille: "M", stock: 2, fabricationSurCommande: false, delaiFabricationJours: null }],
+    variantes: [{ id: "00000000-0000-4000-8000-00000000a001", taille: "M", stock: 2, fabricationSurCommande: false, delaiFabricationJours: null, couleur: null }],
     photos: [],
     materielFr: null,
     materielEn: null,
@@ -246,7 +246,7 @@ describe("FormulaireProduit", () => {
     const user = userEvent.setup();
     rendre(<FormulaireProduit univers={UNIVERS} />);
     const radios = screen.getAllByRole("radio");
-    expect(radios.map((r) => (r as HTMLInputElement).value)).toEqual(["cosplay", "accessoire", "kit"]);
+    expect(radios.map((r) => (r as HTMLInputElement).value)).toEqual(["cosplay", "accessoire", "vetement", "autre", "kit"]);
     // Aucune famille choisie par défaut.
     expect(radios.some((r) => (r as HTMLInputElement).checked)).toBe(false);
     await user.click(screen.getByRole("radio", { name: /Cosplay/ }));

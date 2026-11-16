@@ -7,7 +7,7 @@ import type { CommandePayee, Zone } from "@/modules/tableau-de-bord/queries";
 const PRESTATAIRES = ["pawapay", "maishapay", "polar"] as const;
 // Plafond de tableau_commandes_payees (limit 200 dans la fonction SQL).
 const PLAFOND_COMMANDES = 200;
-const FAMILLES = ["cosplay", "accessoire", "kit", "pass", "livraison"] as const;
+const FAMILLES = ["cosplay", "accessoire", "vetement", "autre", "kit", "pass", "livraison"] as const;
 
 // Nouvelles Commandes payées : numéro, montant en USD, Prestataire, Familles. Aucune donnée de client. Lecture impossible : message
 // d'erreur (jamais « aucune commande »). Sans commande : phrase d'état vide avec le lien vers les 7 derniers jours (UX-DR44).

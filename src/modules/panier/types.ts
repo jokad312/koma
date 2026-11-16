@@ -1,9 +1,12 @@
+import type { FamilleProduit } from "@/modules/catalogue/types";
 import type { Auteur } from "@/lib/auth/auteur";
 
 export type CodeErreurPanier =
   | "introuvable" // produit absent, dépublié ou sans prix
   | "indisponible" // taille épuisée ou Plafond atteint
-  | "taille" // taille inconnue pour ce produit, ou taille donnée à un Kit
+  | "taille" // taille inconnue pour ce produit, ou donnée à un Kit
+  | "combinaison_inconnue" // Vêtement : couple taille × couleur inconnu
+  | "combinaison_indisponible" // Vêtement : couple taille × couleur plus disponible
   | "quantite" // nombre hors de 1 à 10, ou cumul au-delà de 10
   | "gratuit" // Kit gratuit : seule offrir_commande l'ouvre
   | "deja_possede" // Kit déjà possédé par le Compte connecté
@@ -19,10 +22,12 @@ export type EtatLigne = "disponible" | "dernieres_pieces" | "sur_commande" | "co
 export type LignePanier = {
   id: string;
   produitId: string;
-  famille: "cosplay" | "accessoire" | "kit";
+  famille: FamilleProduit;
   slug: string;
   titre: string;
   taille: string | null;
+  // Couleur d'une variante de Vêtement, dans la langue de la page ; null sinon.
+  couleur?: string | null;
   nombre: number;
   prixCents: number;
   etat: EtatLigne;
@@ -52,6 +57,8 @@ export type LigneBrute = {
   prix_cents: number | null;
   etat: string;
   delai_jours: number | null;
+  couleur_fr?: string | null;
+  couleur_en?: string | null;
 };
 
 // Ce que le service attend de l'extérieur (en test, des faux nommés TEST_ les remplacent).
@@ -67,7 +74,7 @@ export type DependancesPanier = {
   // Le Panier est-il sans Compte, ou lié au Compte donné (nul pour un visiteur sans session) ?
   accessible: (panierId: string, compteId: string | null) => Promise<{ accessible: boolean } | { erreur: string }>;
   creerPanier: (auteur: Auteur) => Promise<{ id: string } | { erreur: string }>;
-  ajouter: (e: { auteur: Auteur; panierId: string; compteId: string | null; produitId: string; taille: string | null; nombre: number }) => Promise<{ erreur: string | null }>;
+  ajouter: (e: { auteur: Auteur; panierId: string; compteId: string | null; produitId: string; taille: string | null; couleur?: string | null; nombre: number }) => Promise<{ erreur: string | null }>;
   modifier: (e: { auteur: Auteur; panierId: string; ligneId: string; nombre: number }) => Promise<{ erreur: string | null }>;
   retirer: (e: { auteur: Auteur; panierId: string; ligneId: string }) => Promise<{ erreur: string | null }>;
   lire: (panierId: string) => Promise<{ lignes: LigneBrute[] } | { erreur: string }>;

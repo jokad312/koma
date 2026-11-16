@@ -4,11 +4,11 @@ import type { Reseau } from "@/lib/bunny/api";
 import type { ConfigBunny } from "@/lib/bunny/config";
 import type { FormatFichierKit } from "./fichiers-kit";
 
-// Familles de produits physiques (cosplay, accessoire) ; la famille « kit » (numérique) est gérée par ses propres fonctions.
-export const FAMILLES_PHYSIQUES = ["cosplay", "accessoire"] as const;
-export type FamillePhysique = (typeof FAMILLES_PHYSIQUES)[number];
-
-export const FAMILLES_PRODUIT = ["cosplay", "accessoire", "kit"] as const;
+// Familles de produits (story 9.15 : Vêtement et Autre article). La famille « kit » (numérique) est gérée par ses propres fonctions ;
+// toutes les autres sont physiques.
+export const FAMILLES_PRODUIT = ["cosplay", "accessoire", "vetement", "autre", "kit"] as const;
+export type FamilleProduit = (typeof FAMILLES_PRODUIT)[number];
+export type FamillePhysique = Exclude<FamilleProduit, "kit">;
 
 // Seule règle « physique ou numérique » (règle 10, décision de Jonathan du 2026-11-15) : le Kit est numérique, TOUTE autre famille est physique,
 // y compris une famille ajoutée plus tard. Jamais une liste de familles physiques, qui pourrait en oublier une (et envoyer un article physique
@@ -16,14 +16,48 @@ export const FAMILLES_PRODUIT = ["cosplay", "accessoire", "kit"] as const;
 export function estFamillePhysique(famille: string): boolean {
   return famille !== "kit";
 }
-export type FamilleProduit = (typeof FAMILLES_PRODUIT)[number];
+
+export function estFamilleProduit(famille: unknown): famille is FamilleProduit {
+  return typeof famille === "string" && (FAMILLES_PRODUIT as readonly string[]).includes(famille);
+}
+
+// Famille connue et physique (toute famille connue autre que « kit »).
+export function estPhysique(famille: unknown): famille is FamillePhysique {
+  return estFamilleProduit(famille) && estFamillePhysique(famille);
+}
+
+// Familles physiques, dérivées de la règle ci-dessus (jamais écrites à la main).
+export const FAMILLES_PHYSIQUES = FAMILLES_PRODUIT.filter((f): f is FamillePhysique => estFamillePhysique(f));
+
+// Seule table des dossiers internes des catalogues et fiches (l'adresse de chaque langue vient de src/i18n/adresses.ts).
+export const DOSSIER_PAR_FAMILLE: Record<FamilleProduit, string> = {
+  cosplay: "/cosplays",
+  accessoire: "/accessoires",
+  vetement: "/vetements",
+  autre: "/autres-articles",
+  kit: "/kits",
+};
 
 // Niveau d'un Kit (Débutant / Intermédiaire / Avancé ; Beginner / Intermediate / Advanced).
 export const NIVEAUX_KIT = ["debutant", "intermediaire", "avance"] as const;
 export type NiveauKit = (typeof NIVEAUX_KIT)[number];
 
-export const TAILLES = ["XS", "S", "M", "L", "XL", "XXL", "sur_mesure"] as const;
+// « unique » : seule taille d'un Autre article (story 9.15).
+export const TAILLES = ["XS", "S", "M", "L", "XL", "XXL", "sur_mesure", "unique"] as const;
 export type Taille = (typeof TAILLES)[number];
+export const TAILLES_STANDARD = ["XS", "S", "M", "L", "XL", "XXL"] as const;
+
+// Tailles qu'une famille propose : sur-mesure pour un cosplay seulement, « unique » pour un Autre article seulement, aucune pour un Kit.
+export function taillesDeLaFamille(famille: string): readonly Taille[] {
+  if (famille === "cosplay") return [...TAILLES_STANDARD, "sur_mesure"];
+  if (famille === "accessoire" || famille === "vetement") return TAILLES_STANDARD;
+  if (famille === "autre") return ["unique"];
+  return [];
+}
+
+// Couleur d'une variante de Vêtement : nom français et anglais (1 à 40 caractères), pastille facultative (#RRGGBB).
+export const COULEUR_MAX = 40;
+export const COULEUR_HEX_REGEX = /^#[0-9A-Fa-f]{6}$/;
 
 // Codes d'erreur renvoyés par les actions : le texte vient de messages/*.json, côté interface.
 export type CodeErreurCatalogue =
@@ -75,6 +109,8 @@ export type CodeErreurCatalogue =
   | "langue_invalide"
   | "sous_titres_introuvables"
   | "extrait_absent"
+  | "couleur_invalide"
+  | "variante_commandee"
   | "generique";
 
 // Champ du formulaire de produit auquel une erreur se rattache (absent : erreur du formulaire entier).
@@ -112,6 +148,7 @@ export const MANQUES_PUBLICATION = [
   "video",
   "sous_titres_fr",
   "sous_titres_extrait_fr",
+  "couleurs",
 ] as const;
 export type ManquePublication = (typeof MANQUES_PUBLICATION)[number];
 
@@ -141,6 +178,8 @@ export type ErreurCatalogue = {
   champ?: ChampProduit | ChampUnivers;
   // Taille concernée (erreur d'une variante).
   taille?: Taille;
+  // Couleur concernée (nom français, erreur d'une variante de Vêtement).
+  couleur?: string;
   // Première adresse libre, proposée quand l'adresse choisie est déjà prise.
   slugPropose?: string;
   // Publication refusée : ce qui manque.
@@ -153,7 +192,9 @@ export type ErreurCatalogue = {
 export type ResultatCatalogue<T extends object = object> = ({ ok: true } & T) | ErreurCatalogue;
 
 // Variante telle que le formulaire l'envoie : toutes les valeurs arrivent en texte (jamais un nombre déjà « deviné »).
-export type EntreeVariante = { taille: string; stock: string; surCommande: boolean; delai: string };
+// Couleur : Vêtement seulement (absente ou vide sinon).
+// id : variante existante, mise à jour sur place (un renommage de couleur garde la même ligne) ; absent pour une nouvelle variante.
+export type EntreeVariante = { id?: string; taille: string; stock: string; surCommande: boolean; delai: string; couleurFr?: string; couleurEn?: string; couleurHex?: string };
 
 export type EntreeProduit = {
   id: string;
@@ -217,7 +258,12 @@ export type KitEcrit = {
 };
 
 export type VarianteEcrite = {
+  // Variante existante (mise à jour sur place) ; absent pour une nouvelle variante.
+  id?: string;
   taille: Taille;
+  couleur_fr: string | null;
+  couleur_en: string | null;
+  couleur_hex: string | null;
   stock: number;
   fabrication_sur_commande: boolean;
   delai_fabrication_jours: number | null;
@@ -304,6 +350,8 @@ export type ProduitPourPublication = {
   sousTitresFr: boolean;
   // Story 3.3 : un extrait existe, n'est pas « sans parole » et n'a pas de sous-titres français.
   extraitSansSousTitresFr: boolean;
+  // Story 9.15 : variantes dont la couleur n'a pas de nom anglais (0 hors Vêtement).
+  nbCouleursSansAnglais?: number;
 };
 
 export type PhotoAdmin = { id: string; fichier: string; altFr: string; altEn: string; position: number };
@@ -328,13 +376,23 @@ export type ProduitListe = {
   stock: EtatStockListe;
 };
 
-export type VarianteAdmin = { taille: Taille; stock: number; fabricationSurCommande: boolean; delaiFabricationJours: number | null };
+export type CouleurVariante = { fr: string; en: string | null; hex: string | null };
+
+export type VarianteAdmin = {
+  id: string;
+  taille: Taille;
+  stock: number;
+  fabricationSurCommande: boolean;
+  delaiFabricationJours: number | null;
+  // Vêtement seulement ; null sinon.
+  couleur: CouleurVariante | null;
+};
 
 // Fichier d'un Kit pour l'admin : jamais le chemin de stockage.
 export type FichierKitAdmin = { id: string; nomFr: string; nomEn: string; format: FormatFichierKit; tailleOctets: number; ordre: number; version: number };
 
-// Cosplay ou accessoire qu'un Kit peut lier (sans Kit, ou déjà lié au Kit édité).
-export type ProduitLiable = { id: string; titreFr: string; famille: FamillePhysique };
+// Cosplay ou accessoire qu'un Kit peut lier (sans Kit, ou déjà lié au Kit édité) : jamais un Vêtement ni un Autre article.
+export type ProduitLiable = { id: string; titreFr: string; famille: "cosplay" | "accessoire" };
 
 export type ProduitAdmin = {
   id: string;
@@ -507,8 +565,12 @@ export type KitLieFiche = { slug: string; titre: string; prixCents: number; nive
 
 export type PhotoFiche = { url: string; alt: string };
 
-// Une taille de la fiche : état et délai de fabrication effectif calculés par la base (disponibilite_variantes) ; jamais de quantité.
-export type TailleFiche = { taille: Taille; etat: Disponibilite; delaiJours: number | null };
+// Couleur d'une variante sur la fiche : cle = nom français (ce que le serveur reçoit à l'ajout), nom dans la langue de la page, pastille.
+export type CouleurFiche = { cle: string; nom: string; hex: string | null };
+
+// Une variante de la fiche : état et délai de fabrication effectif calculés par la base (disponibilite_variantes) ; jamais de quantité.
+// couleur : Vêtement en couleurs seulement (null sinon).
+export type TailleFiche = { taille: Taille; etat: Disponibilite; delaiJours: number | null; couleur?: CouleurFiche | null };
 
 export type FicheProduit = {
   id: string;

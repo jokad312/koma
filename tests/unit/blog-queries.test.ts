@@ -216,8 +216,12 @@ describe("lireArticlePublie", () => {
     faux.parTable.produit = [{ data: null, error: null }];
     expect((await lireArticlePublie("fr", "article-1"))?.produitLie).toBeNull();
 
-    faux.parTable.produit = [{ data: { titre_fr: "Test", titre_en: null, slug: "test", famille: "autre" }, error: null }];
+    faux.parTable.produit = [{ data: { titre_fr: "Test", titre_en: null, slug: "test", famille: "inconnue" }, error: null }];
     expect(await lireProduitLie("P1", "fr")).toBeNull();
+
+    // Story 9.15 : un Vêtement ou un Autre article publié est une famille connue, le lien s'affiche.
+    faux.parTable.produit = [{ data: { titre_fr: "Polo", titre_en: null, slug: "polo", famille: "vetement" }, error: null }];
+    expect(await lireProduitLie("P1", "fr")).toEqual({ titre: "Polo", famille: "vetement", slug: "polo" });
   });
 
   it("lecture en erreur : relancée, jamais une page inventée", async () => {

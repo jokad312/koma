@@ -4,14 +4,14 @@ import { alternatives, urlLocalisee } from "@/lib/seo/url";
 import { PAGES_LEGALES } from "@/lib/vitrine/pages-legales";
 import { lireSlugsArticlesPublies } from "@/modules/blog/queries";
 import { lireSlugsPublies } from "@/modules/catalogue/queries";
-import type { FamilleProduit } from "@/modules/catalogue/types";
+import { DOSSIER_PAR_FAMILLE, FAMILLES_PRODUIT } from "@/modules/catalogue/types";
 
 // Pages publiques existantes, en deux langues. Admin, compte et /api n'y figurent jamais.
 // Les catalogues sont donnés par leur dossier interne : l'adresse de chaque langue vient de src/i18n/adresses.ts.
-const PAGES_PUBLIQUES = ["", "/cosplays", "/accessoires", "/kits", "/blog", "/a-propos", "/faq", "/contact", ...PAGES_LEGALES.map((p) => p.chemin)];
+const PAGES_PUBLIQUES = ["", ...FAMILLES_PRODUIT.map((f) => DOSSIER_PAR_FAMILLE[f]), "/blog", "/a-propos", "/faq", "/contact", ...PAGES_LEGALES.map((p) => p.chemin)];
 
-// Fiches des produits publiés : cosplays, accessoires et Kits (story 3.3).
-const DOSSIER_FICHE: Record<FamilleProduit, string> = { cosplay: "/cosplays", accessoire: "/accessoires", kit: "/kits" };
+// Fiches des produits publiés : toutes les familles (story 3.3, story 9.15), dossiers de DOSSIER_PAR_FAMILLE.
+const DOSSIER_FICHE = DOSSIER_PAR_FAMILLE;
 
 function entrees(chemins: readonly string[]): MetadataRoute.Sitemap {
   return chemins.flatMap((chemin) =>

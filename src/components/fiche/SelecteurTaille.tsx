@@ -15,9 +15,9 @@ type Props = {
   onChoisir: (taille: Taille) => void;
 };
 
-// Radios natifs en groupe nommé (UX-DR23) : flèches du clavier, aucune sélection ne change de page ni ne déclenche d'action.
-// L'état et le délai de la taille choisie se mettent à jour sur place, jamais avec une quantité.
-export function SelecteurTaille({ tailles, choisie, onChoisir }: Props) {
+// État et délai d'une variante, en texte (jamais une quantité) : contenu de la zone de statut du sélecteur, et de la fiche d'un Autre
+// article (une seule variante, sans sélecteur).
+export function StatutTaille({ courante }: { courante: TailleFiche | null }) {
   const t = useTranslations("Fiche.tailles");
   // Exhaustif : un état ajouté plus tard sans libellé ne compile pas (et complet ou epuise ne s'affiche jamais « Fabrication sur commande »).
   const libelleEtat = (x: TailleFiche): string => {
@@ -30,14 +30,29 @@ export function SelecteurTaille({ tailles, choisie, onChoisir }: Props) {
         return x.taille === "sur_mesure" ? t("surMesure") : t("surCommande");
       case "complet":
         return t("complet");
+      // Sans stock et sans fabrication : « Commandes complètes pour le moment », jamais « Épuisé » (EXPERIENCE.md, C-4).
       case "epuise":
-        return t("epuise");
+        return t("complet");
       default: {
         const inattendu: never = x.etat;
         return inattendu;
       }
     }
   };
+  return courante ? (
+    <>
+      <p className="font-semibold">{libelleEtat(courante)}</p>
+      {courante.etat === "sur_commande" && courante.delaiJours !== null ? <p>{t("delai", { n: courante.delaiJours })}</p> : null}
+    </>
+  ) : (
+    <p className="text-text-secondary">{t("invite")}</p>
+  );
+}
+
+// Radios natifs en groupe nommé (UX-DR23) : flèches du clavier, aucune sélection ne change de page ni ne déclenche d'action.
+// L'état et le délai de la taille choisie se mettent à jour sur place, jamais avec une quantité.
+export function SelecteurTaille({ tailles, choisie, onChoisir }: Props) {
+  const t = useTranslations("Fiche.tailles");
   const nom = useId();
   const courante = tailles.find((x) => x.taille === choisie) ?? null;
 
@@ -58,21 +73,12 @@ export function SelecteurTaille({ tailles, choisie, onChoisir }: Props) {
             <svg aria-hidden="true" viewBox="0 0 16 16" className="hidden size-4 shrink-0 fill-none stroke-primary stroke-2 peer-checked:block">
               <path d="M3 8.5 6.5 12 13 4.5" />
             </svg>
-            <span className="t-button">{x.taille === "sur_mesure" ? t("sur_mesure") : x.taille}</span>
+            <span className="t-button">{x.taille === "sur_mesure" ? t("sur_mesure") : x.taille === "unique" ? t("unique") : x.taille}</span>
           </label>
         ))}
       </div>
       <div role="status" className="t-small flex flex-col gap-1 text-text-primary">
-        {courante ? (
-          <>
-            <p className="font-semibold">
-              {libelleEtat(courante)}
-            </p>
-            {courante.etat === "sur_commande" && courante.delaiJours !== null ? <p>{t("delai", { n: courante.delaiJours })}</p> : null}
-          </>
-        ) : (
-          <p className="text-text-secondary">{t("invite")}</p>
-        )}
+        <StatutTaille courante={courante} />
       </div>
     </fieldset>
   );

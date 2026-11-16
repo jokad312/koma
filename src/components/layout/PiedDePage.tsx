@@ -1,4 +1,6 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { cheminPublic } from "@/i18n/adresses";
+import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { PAGES_LEGALES } from "@/lib/vitrine/pages-legales";
 import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
@@ -12,6 +14,7 @@ const LIEN = "t-small inline-flex min-h-touch items-center text-text-primary und
 export async function PiedDePage({ nomSite, numeroWhatsapp = null }: { nomSite: string; numeroWhatsapp?: string | null }) {
   const t = await getTranslations("Pied");
   const tw = await getTranslations("Whatsapp");
+  const locale = (await getLocale()) as Locale;
   const whatsapp = lienWhatsapp(numeroWhatsapp);
   // Le lien vers le mur « Ils le portent » n'existe qu'une fois une photo publiée (FR-2) ; une erreur de lecture le masque.
   const murPublie = await lireMurPublie();
@@ -25,6 +28,12 @@ export async function PiedDePage({ nomSite, numeroWhatsapp = null }: { nomSite: 
             {nomSite}
           </h2>
           <p className="t-small mt-2 text-text-secondary">{t("identite")}</p>
+          {/* Story 9.15, option C : « Autres articles » est sous « Boutique » dans l'en-tête, et aussi atteint ici et par les tuiles de l'accueil. */}
+          <p className="mt-2">
+            <Link href={cheminPublic(locale, "/autres-articles")} className={LIEN}>
+              {t("autresArticles")}
+            </Link>
+          </p>
         </section>
         <section aria-labelledby="pied-aide" className="rounded-lg border border-border bg-surface p-5">
           <h2 id="pied-aide" className="t-label text-text-primary">

@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { LibelleVariante } from "@/components/commande/LibelleVariante";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { DOSSIERS_FICHE } from "@/components/fiche/FicheProduit";
@@ -43,6 +44,16 @@ export async function PagePanier({ locale }: { locale: Locale }) {
             </Link>
           </li>
           <li>
+            <Link href={cheminPublic(locale, "/vetements")} className={CLASSES_LIEN}>
+              {t("liensCatalogues.vetements")}
+            </Link>
+          </li>
+          <li>
+            <Link href={cheminPublic(locale, "/autres-articles")} className={CLASSES_LIEN}>
+              {t("liensCatalogues.autresArticles")}
+            </Link>
+          </li>
+          <li>
             <Link href={cheminPublic(locale, "/kits")} className={CLASSES_LIEN}>
               {t("liensCatalogues.kits")}
             </Link>
@@ -73,7 +84,7 @@ export async function PagePanier({ locale }: { locale: Locale }) {
               {l.famille === "kit" ? (
                 <p className="t-small text-text-secondary">{t("kitUnExemplaire")}</p>
               ) : (
-                <p className="t-small text-text-secondary">{l.taille === "sur_mesure" ? t("tailleSurMesure") : t("taille", { taille: l.taille ?? "" })}</p>
+                <p className="t-small text-text-secondary"><LibelleVariante espace="Panier" taille={l.taille} couleur={l.couleur} /></p>
               )}
               {hors ? (
                 <>

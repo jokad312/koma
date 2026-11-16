@@ -38,6 +38,8 @@ const ERREURS_PRODUIT: ReadonlyArray<readonly [string, CodeErreurCatalogue, Cham
   ["KS_TAILLE_INVALIDE", "taille_invalide", "variantes"],
   ["KS_STOCK_INVALIDE", "stock_invalide", "variantes"],
   ["KS_DELAI_MANQUANT", "delai_manquant", "variantes"],
+  ["KS_COULEUR_INVALIDE", "couleur_invalide", "variantes"],
+  ["KS_VARIANTE_COMMANDEE", "variante_commandee", "variantes"],
   ["KS_NIVEAU_INVALIDE", "niveau_invalide", "niveau"],
   ["KS_KIT_LIE_INVALIDE", "kit_lie_invalide", "kit_lie"],
   ["KS_PRODUIT_INTROUVABLE", "produit_introuvable", undefined],

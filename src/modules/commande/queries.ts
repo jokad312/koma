@@ -1,5 +1,6 @@
 import "server-only";
 import { creerClientService } from "@/lib/supabase/service";
+import { contenuAnnulable } from "./annulable";
 import type { ModeRemise, ZoneRemise } from "./schemas";
 
 export type StatutAffiche = "en_attente" | "expiree" | "echouee" | "payee" | "en_fabrication" | "expediee" | "livree" | "annulee" | "remboursee" | "offerte";
@@ -10,6 +11,8 @@ export type LigneCommandeLue = {
   slug: string;
   famille: string;
   taille: string | null;
+  // Couleur d'une variante de Vêtement, dans la langue de la page ; null sinon.
+  couleur?: string | null;
   nombre: number;
   prixCents: number;
   origine: string | null;
@@ -66,7 +69,7 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
   const { data, error } = await creerClientService()
     .from("commande")
     .select(
-      "id, numero, type, statut, sous_total_cents, forfait_cents, total_cents, expire_le, zone, mode_remise, offerte, cree_le, paye_le, fabrication_le, expediee_le, livree_le, numero_suivi, ligne_commande(id, prix_cents, nombre, origine, delai_fabrication_jours, mesures_recues_le, titulaires, pass_nom_fr, pass_nom_en, produit(slug, famille, titre_fr, titre_en), variante(taille), type_pass(evenement(titre_fr, titre_en)))",
+      "id, numero, type, statut, sous_total_cents, forfait_cents, total_cents, expire_le, zone, mode_remise, offerte, cree_le, paye_le, fabrication_le, expediee_le, livree_le, numero_suivi, ligne_commande(id, prix_cents, nombre, origine, delai_fabrication_jours, mesures_recues_le, titulaires, pass_nom_fr, pass_nom_en, produit(slug, famille, titre_fr, titre_en), variante(taille, couleur_fr, couleur_en), type_pass(evenement(titre_fr, titre_en)))",
     )
     .eq("compte_id", compteId)
     .eq("numero", numero)
@@ -109,6 +112,7 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
           }
         : null,
       taille: variante?.taille ?? null,
+      couleur: variante?.couleur_fr ? (langue === "en" && variante.couleur_en ? variante.couleur_en : variante.couleur_fr) : null,
       nombre: l.nombre,
       prixCents: l.prix_cents,
       origine: l.origine,
@@ -132,7 +136,7 @@ export async function lireCommande(compteId: string, numero: string, langue: "fr
     creeLe: data.cree_le,
     dates: { payee: data.paye_le, en_fabrication: data.fabrication_le, expediee: data.expediee_le, livree: data.livree_le },
     numeroSuivi: data.numero_suivi,
-    annulable: statut === "payee" && !data.offerte && lignes.some((l) => l.famille === "cosplay") && (demandeAnnulation === null || demandeAnnulation === "refusee"),
+    annulable: statut === "payee" && !data.offerte && contenuAnnulable(lignes) && (demandeAnnulation === null || demandeAnnulation === "refusee"),
     demandeAnnulation,
     lignesReclamables: (reclamables.data ?? []).map((r) => r.ligne_id),
     reclamations: (reclamations.data ?? []).flatMap((r) => (r.ligne_id ? [{ ligneId: r.ligne_id, statut: r.statut }] : [])),

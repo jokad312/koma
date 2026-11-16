@@ -5,12 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import { cheminPublic } from "@/i18n/adresses";
 import type { Locale } from "@/i18n/routing";
 import { adresseAvecRequete, requeteAvecCurseur } from "@/modules/catalogue/adresse";
-import type { CarteProduit as Donnees, FamilleProduit } from "@/modules/catalogue/types";
+import { DOSSIER_PAR_FAMILLE, type CarteProduit as Donnees, type FamilleProduit } from "@/modules/catalogue/types";
 import { chargerPlusProduits } from "@/modules/catalogue/voir-plus";
 import { CarteProduit } from "./CarteProduit";
 import { VoirPlus } from "./VoirPlus";
 
-const DOSSIER: Record<FamilleProduit, string> = { cosplay: "/cosplays", accessoire: "/accessoires", kit: "/kits" };
+const DOSSIER = DOSSIER_PAR_FAMILLE;
 
 type Props = {
   famille: FamilleProduit;

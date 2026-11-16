@@ -22,9 +22,9 @@ import { exigerAdminPage } from "@/lib/auth/droits";
 import { bunnyConfigure } from "@/lib/bunny/config";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
-import { lireProduitAdmin, lireProduitsLiables, lireUniversAdmin } from "@/modules/catalogue/queries";
+import { lireCouleursUtilisees, lireProduitAdmin, lireProduitsLiables, lireUniversAdmin } from "@/modules/catalogue/queries";
 import { idSchema } from "@/modules/catalogue/schemas";
-import type { ProduitAdmin, ProduitLiable, UniversAdmin } from "@/modules/catalogue/types";
+import type { CouleurVariante, ProduitAdmin, ProduitLiable, UniversAdmin } from "@/modules/catalogue/types";
 
 // Page d'administration rendue à la demande : l'identifiant est une donnée de requête, jamais indexée.
 export const instant = false;
@@ -65,9 +65,17 @@ async function ProduitSelonDroit({
   let produit: ProduitAdmin | null = null;
   let univers: UniversAdmin[] | null = null;
   let liables: ProduitLiable[] = [];
+  let couleurs: CouleurVariante[] = [];
   let lecture = true;
   try {
     [produit, univers] = await Promise.all([lireProduitAdmin(id), lireUniversAdmin()]);
+    // Un Vêtement propose en autocomplétion les couleurs déjà utilisées (story 9.15) ; un échec ne bloque pas la page (liste vide).
+    if (produit?.famille === "vetement") {
+      couleurs = await lireCouleursUtilisees().catch(() => {
+        console.error("[catalogue] lecture des couleurs impossible");
+        return [];
+      });
+    }
     // Un Kit propose les cosplays et accessoires sans Kit, plus celui qu'il lie déjà.
     if (produit?.famille === "kit") liables = await lireProduitsLiables(produit.id);
   } catch {
@@ -128,7 +136,7 @@ async function ProduitSelonDroit({
         ) : produit && univers ? (
           <>
             <PublicationProduit produitId={produit.id} publie={produit.publieLe !== null} />
-            <FormulaireProduit univers={univers} produit={produit} />
+            <FormulaireProduit univers={univers} produit={produit} couleursUtilisees={couleurs} />
             <section aria-labelledby="photos-titre" className="flex max-w-2xl flex-col gap-4">
               <h2 id="photos-titre" className="t-h2">
                 {tp("titre")}

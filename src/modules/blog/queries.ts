@@ -1,4 +1,5 @@
 import "server-only";
+import { estFamilleProduit } from "@/modules/catalogue/types";
 import { cacheTag } from "next/cache";
 import { ETIQUETTES } from "@/lib/cache/etiquettes";
 import { creerClientPublic } from "@/lib/supabase/public";
@@ -204,7 +205,7 @@ export async function lireProduitLie(id: string, locale: "fr" | "en"): Promise<P
   cacheTag(ETIQUETTES.articles, ETIQUETTES.catalogue);
   const { data, error } = await creerClientPublic().from("produit").select("titre_fr, titre_en, slug, famille").eq("id", id).maybeSingle();
   if (error) throw new Error("Lecture du produit lié impossible.");
-  if (!data || (data.famille !== "cosplay" && data.famille !== "accessoire" && data.famille !== "kit")) return null;
+  if (!data || !estFamilleProduit(data.famille)) return null;
   return { titre: (locale === "en" ? data.titre_en?.trim() : "") || data.titre_fr, famille: data.famille, slug: data.slug };
 }
 

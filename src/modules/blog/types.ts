@@ -1,3 +1,4 @@
+import type { FamilleProduit } from "@/modules/catalogue/types";
 import type { AuteurCompte } from "@/lib/auth/auteur";
 import type { Droit } from "@/lib/auth/matrice-droits";
 
@@ -61,7 +62,7 @@ export type CarteArticle = {
 
 export type ArticleImagePublique = { url: string; alt: string };
 
-export type ProduitLie = { titre: string; famille: "cosplay" | "accessoire" | "kit"; slug: string };
+export type ProduitLie = { titre: string; famille: FamilleProduit; slug: string };
 
 export type ArticlePublic = {
   id: string;

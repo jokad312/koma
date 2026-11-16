@@ -500,3 +500,11 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-9-12-accueils-selon-la-connexion.md`
   summary: Résolu le 2026-11-13 — le « Voir le site » de l'admin laissait l'en-tête du site masqué après une navigation interne (règle body:has([data-coque-admin]) de la 9.10, page admin gardée en mémoire par Next.js) ; les liens rechargent maintenant la page. À surveiller : tout autre lien interne de l'admin vers le site public aurait le même effet.
   evidence: captures au clic du 2026-11-13 (docs/captures-accueil/journal-tout.txt).
+
+- source_spec: `docs/design/admin/INVENTAIRE.md`
+  summary: Story future « Profil » : changement de pseudo, changement d'email et suppression de compte depuis « Paramètres du profil » (menu du profil de l'admin et espace client).
+  evidence: Décision de Jonathan du 2026-11-15 (Q8 de l'inventaire de la maquette admin) : ces fonctions n'existent pas dans le code et ne sont pas ajoutées pendant la refonte visuelle.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-15-types-vetement-et-autre-article.md`
+  summary: Photos par couleur pour les Vêtements (la photo change quand on choisit une couleur sur la fiche).
+  evidence: Décision de Jonathan du 2026-11-15 (Q-3 de la 9.15) : photos par produit pour l'instant.

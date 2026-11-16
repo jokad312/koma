@@ -21,7 +21,7 @@ import { lireTableauDeBord } from "@/modules/tableau-de-bord/queries";
 
 const CHEMIN = "/admin";
 const PRESTATAIRES = ["pawapay", "maishapay", "polar"] as const;
-const FAMILLES = ["cosplay", "accessoire", "kit", "pass", "livraison"] as const;
+const FAMILLES = ["cosplay", "accessoire", "vetement", "autre", "kit", "pass", "livraison"] as const;
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin">): Promise<Metadata> {
   const { locale } = await params;

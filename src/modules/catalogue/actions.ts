@@ -15,7 +15,7 @@ export type EtatUnivers =
 
 export type EtatProduit =
   | { statut: "succes"; id: string; cree: boolean }
-  | { statut: "erreur"; erreur: CodeErreurCatalogue; champ?: ChampProduit; taille?: Taille; slugPropose?: string };
+  | { statut: "erreur"; erreur: CodeErreurCatalogue; champ?: ChampProduit; taille?: Taille; couleur?: string; slugPropose?: string };
 
 export async function creerUnivers(entree: EntreeUnivers): Promise<EtatUnivers> {
   try {
@@ -33,7 +33,7 @@ export async function enregistrerProduit(entree: EntreeProduit): Promise<EtatPro
   try {
     const resultat = await service.enregistrerProduit(dependances(), entree);
     if (!resultat.ok) {
-      return { statut: "erreur", erreur: resultat.erreur, champ: resultat.champ as ChampProduit | undefined, taille: resultat.taille, slugPropose: resultat.slugPropose };
+      return { statut: "erreur", erreur: resultat.erreur, champ: resultat.champ as ChampProduit | undefined, taille: resultat.taille, ...(resultat.couleur ? { couleur: resultat.couleur } : {}), slugPropose: resultat.slugPropose };
     }
     return { statut: "succes", id: resultat.id, cree: resultat.cree };
   } catch {

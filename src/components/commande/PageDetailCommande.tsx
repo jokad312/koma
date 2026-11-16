@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { LibelleVariante } from "@/components/commande/LibelleVariante";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { BoutonWhatsApp } from "@/components/vitrine/BoutonWhatsApp";
@@ -141,7 +142,7 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
                   <p className="t-small text-text-secondary">{t("recap.titulaires", { noms: l.pass.titulaires.join(", ") })}</p>
                 </>
               ) : null}
-              {l.famille !== "kit" && !l.pass ? <p className="t-small text-text-secondary">{l.taille === "sur_mesure" ? t("recap.tailleSurMesure") : t("recap.taille", { taille: l.taille ?? "" })}</p> : null}
+              {l.famille !== "kit" && !l.pass ? <p className="t-small text-text-secondary"><LibelleVariante espace="Commande.recap" taille={l.taille} couleur={l.couleur} /></p> : null}
               <p className="t-body text-text-primary">{t("recap.quantitePrix", { nombre: l.nombre, prix: formaterUsd(l.prixCents, locale) })}</p>
               {l.origine === "fabrication" && l.delaiFabricationJours !== null ? (
                 <p className="t-small text-text-secondary">

@@ -2,7 +2,7 @@ import { MANQUES_PUBLICATION } from "./types";
 import type { ManquePublication, ProduitPourPublication } from "./types";
 
 type ChampsPhysiques = "prixCents" | "titreEn" | "descriptionFr" | "descriptionEn" | "nbPhotos" | "nbVariantes";
-type ChampsKit = "famille" | "titreFr" | "materielFr" | "materielEn" | "niveau" | "nbFichiers" | "videoPrete" | "sousTitresFr" | "extraitSansSousTitresFr";
+type ChampsKit = "famille" | "titreFr" | "materielFr" | "materielEn" | "niveau" | "nbFichiers" | "videoPrete" | "sousTitresFr" | "extraitSansSousTitresFr" | "nbCouleursSansAnglais";
 
 // Ce qui manque à un produit pour être publié (la base fait le même contrôle : manques_publication).
 // Produit physique : le titre français est déjà obligatoire ; le texte alternatif de chaque photo l'est à l'ajout.
@@ -27,6 +27,8 @@ export function manquesPublication(p: Pick<ProduitPourPublication, ChampsPhysiqu
     video: kit && !p.videoPrete,
     sous_titres_fr: kit && !p.sousTitresFr,
     sous_titres_extrait_fr: kit && Boolean(p.extraitSansSousTitresFr),
+    // Story 9.15 : chaque couleur d'un Vêtement est nommée en français et en anglais.
+    couleurs: !kit && (p.nbCouleursSansAnglais ?? 0) > 0,
   };
   return MANQUES_PUBLICATION.filter((m) => manque[m]);
 }
