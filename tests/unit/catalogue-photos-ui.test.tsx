@@ -10,6 +10,7 @@ const faux = vi.hoisted(() => ({
   modifierAltPhoto: vi.fn(),
   publierProduit: vi.fn(),
   depublierProduit: vi.fn(),
+  restaurerProduit: vi.fn(),
   demanderEnvoiPhoto: vi.fn(),
   finaliserPhoto: vi.fn(),
   annulerEnvoiPhoto: vi.fn(),
@@ -23,6 +24,7 @@ vi.mock("@/modules/catalogue/actions", () => ({
   modifierAltPhoto: (...a: unknown[]) => faux.modifierAltPhoto(...a),
   publierProduit: (...a: unknown[]) => faux.publierProduit(...a),
   depublierProduit: (...a: unknown[]) => faux.depublierProduit(...a),
+  restaurerProduit: (...a: unknown[]) => faux.restaurerProduit(...a),
   demanderEnvoiPhoto: (...a: unknown[]) => faux.demanderEnvoiPhoto(...a),
   finaliserPhoto: (...a: unknown[]) => faux.finaliserPhoto(...a),
   annulerEnvoiPhoto: (...a: unknown[]) => faux.annulerEnvoiPhoto(...a),
@@ -169,6 +171,29 @@ describe("PublicationProduit", () => {
     await user.click(screen.getByRole("button", { name: "Publier" }));
     expect(await screen.findByRole("alert")).toBeTruthy();
     expect(screen.queryByText("Produit publié.")).toBeNull();
+  });
+
+  // Story 9.16 e) : produit archivé.
+  it("refus « produit archivé » de la base : message dédié, pas le message générique", async () => {
+    faux.publierProduit.mockResolvedValueOnce({ statut: "erreur", erreur: "produit_archive" });
+    const user = userEvent.setup();
+    rendre(<PublicationProduit produitId={PRODUIT} publie={false} />);
+    await user.click(screen.getByRole("button", { name: "Publier" }));
+    expect((await screen.findByRole("alert")).textContent).toContain("restaure-le avant de le publier");
+  });
+
+  it("archivé : statut « Archivé », « Restaurer » à la place de Publier ; restaurer appelle l'action puis relit", async () => {
+    faux.restaurerProduit.mockResolvedValueOnce({ statut: "succes" });
+    const user = userEvent.setup();
+    rendre(<PublicationProduit produitId={PRODUIT} publie={false} archive />);
+    expect(screen.getByText("Archivé")).toBeTruthy();
+    expect(screen.queryByText("Brouillon")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Publier" })).toBeNull();
+    await user.click(screen.getByRole("button", { name: "Restaurer" }));
+    expect(await screen.findByText(/Produit restauré/)).toBeTruthy();
+    expect(faux.restaurerProduit).toHaveBeenCalledWith({ id: PRODUIT });
+    expect(faux.publierProduit).not.toHaveBeenCalled();
+    expect(faux.refresh).toHaveBeenCalled();
   });
 });
 

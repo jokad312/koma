@@ -1493,7 +1493,7 @@
     "produits": {
       "titre": "Produits",
       "intro": "Tes cosplays, accessoires, vêtements, autres articles et kits. Un produit créé ici reste un brouillon : personne ne le voit sur le site.",
-      "nouveau": "Nouveau produit",
+      "nouveauPlus": "+ Nouveau produit",
       "nombre": "{nombre, plural, =0 {Aucun produit} one {# produit} other {# produits}}",
       "erreurLecture": "Les produits n'ont pas pu être lus. Recharge la page.",
       "vide": {
@@ -1505,23 +1505,29 @@
         "recherchePlaceholder": "Rechercher un produit…",
         "aucunResultat": "Aucun produit ne correspond à ta recherche.",
         "photoAbsente": "Pas de photo",
-        "modifier": "Modifier",
         "stock": {
           "numerique": "Numérique",
           "en_stock": "En stock",
           "sur_commande": "Sur commande",
           "epuise": "Sans stock",
           "sans_variante": "Aucune taille"
-        }
-      },
-      "liste": {
-        "legende": "Liste des produits",
-        "colonnes": {
-          "titre": "Titre",
-          "famille": "Famille",
-          "statut": "Statut",
-          "prix": "Prix"
-        }
+        },
+        "univers": "Univers",
+        "filtres": "Afficher les produits",
+        "liste": "Liste des produits",
+        "vue": {
+          "actifs": "Tous",
+          "archives": "Archivés"
+        },
+        "aucunActif": "Aucun produit hors archives. Les produits archivés sont sous « Archivés ».",
+        "aucunArchive": "Aucun produit archivé.",
+        "prix": "Prix : {valeur}",
+        "gratuit": "Gratuit",
+        "telechargements": "Téléchargements : {nombre}",
+        "vendus": "Vendus : {nombre}",
+        "universPastille": "Univers : {nom}",
+        "universAucun": "aucun",
+        "modifierSur": "Modifier {titre}"
       },
       "famille": {
         "cosplay": "Cosplay",
@@ -1532,7 +1538,8 @@
       },
       "statut": {
         "brouillon": "Brouillon",
-        "publie": "Publié"
+        "publie": "Publié",
+        "archive": "Archivé"
       },
       "prixAFixer": "Prix à fixer",
       "pageNouveau": {
@@ -1724,14 +1731,18 @@
         "titre": "Publication",
         "statutBrouillon": "Brouillon",
         "statutPublie": "Publié",
+        "statutArchive": "Archivé",
         "aideBrouillon": "Ce produit est un brouillon : personne ne le voit sur le site.",
         "aidePublie": "Ce produit est publié : il est visible sur le site. Son adresse et sa famille ne peuvent plus changer.",
+        "aideArchive": "Ce produit est archivé : il n'est visible ni sur le site ni dans la liste par défaut. Restaure-le pour le remettre en brouillon.",
         "actionSur": "{action} : {titre}",
         "publier": "Publier",
         "depublier": "Dépublier",
+        "restaurer": "Restaurer",
         "enCours": "Un instant…",
         "publieOk": "Produit publié.",
         "depublieOk": "Produit dépublié : il n'est plus visible sur le site.",
+        "restaureOk": "Produit restauré : il est revenu en brouillon.",
         "incomplet": "Il manque encore des éléments pour publier :",
         "manques": {
           "prix": "Le prix",
@@ -1755,8 +1766,26 @@
           "produit_publie_verrouille": "Un produit publié ne peut pas changer d'adresse ni de famille.",
           "produit_introuvable": "Ce produit n'existe plus. Retourne à la liste des produits.",
           "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
-          "generique": "Le changement n'a pas pu être enregistré. Réessaie."
+          "generique": "Le changement n'a pas pu être enregistré. Réessaie.",
+          "produit_archive": "Ce produit est archivé : restaure-le avant de le publier."
         }
+      },
+      "archivage": {
+        "archiverSur": "Archiver {titre}",
+        "titre": "Archiver « {titre} » ?",
+        "texte": "Le produit est dépublié et retiré de la boutique et de la liste. Rien n'est supprimé : commandes, accès aux kits, photos et fichiers restent intacts. Tu le retrouves sous « Archivés », d'où tu peux le restaurer (il revient en brouillon).",
+        "confirmer": "Archiver",
+        "annuler": "Annuler",
+        "enCours": "Un instant…",
+        "restaurer": "Restaurer",
+        "restaurerSur": "Restaurer {titre}",
+        "erreurs": {
+          "produit_introuvable": "Ce produit n'existe plus. Recharge la page.",
+          "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
+          "generique": "Le changement n'a pas pu être enregistré. Réessaie."
+        },
+        "archiveOk": "Produit archivé.",
+        "restaureOk": "Produit restauré : il est revenu en brouillon."
       }
     },
     "univers": {

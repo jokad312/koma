@@ -13,6 +13,8 @@ const faux = vi.hoisted(() => ({
   suite: {} as Record<string, Array<{ data: unknown; error: unknown }>>,
   in: [] as Array<[string, string, unknown]>,
   not: [] as Array<[string, string, string, unknown]>,
+  rpc: { data: null as unknown, error: null as unknown },
+  rpcs: [] as Array<[string, unknown]>,
 }));
 const requete = {
   select: (colonnes: string) => {
@@ -27,6 +29,10 @@ const requete = {
 vi.mock("@/lib/supabase/public", () => ({ creerClientPublic: () => ({ from: () => requete }) }));
 vi.mock("@/lib/supabase/service", () => ({
   creerClientService: () => ({
+    rpc: (nom: string, args: unknown) => {
+      faux.rpcs.push([nom, args]);
+      return Promise.resolve(faux.rpc);
+    },
     from: (table: string) => {
       const b: Record<string, unknown> = {
         select: () => b,
@@ -51,7 +57,7 @@ vi.mock("@/lib/supabase/service", () => ({
   }),
 }));
 
-import { lireProduitAdmin, lireProduitsAdmin, lireProduitsLiables, lireUniversAdmin, lireUniversPublics } from "@/modules/catalogue/queries";
+import { lireProduitAdmin, lireProduitsAdmin, lireProduitsAdminAvecCompteurs, lireProduitsLiables, lireUniversAdmin, lireUniversPublics } from "@/modules/catalogue/queries";
 
 beforeEach(() => {
   faux.resultat = { data: null, error: null };
@@ -182,6 +188,7 @@ describe("lireProduitAdmin", () => {
       prixCents: 4990,
       delaiFabricationJours: 14,
       publieLe: null,
+      archiveLe: null,
       variantes: [{ id: "TEST_v", taille: "M", stock: 2, fabricationSurCommande: true, delaiFabricationJours: 20, couleur: null }],
       photos: [{ id: "TEST_ph", fichier: "TEST_p/a.jpg", altFr: "Face", altEn: "Front", position: 1 }],
       materielFr: null,
@@ -301,5 +308,37 @@ describe("lireProduitAdmin", () => {
     await expect(lireProduitAdmin("TEST_p")).rejects.toThrow();
     faux.parTable = { produit: { data: ligne, error: null }, variante: { data: [], error: null }, produit_photo: { data: null, error: { message: "TEST" } } };
     await expect(lireProduitAdmin("TEST_p")).rejects.toThrow();
+  });
+});
+
+// Story 9.16 e) : compteurs des cartes (Q20) par produits_admin_compteurs, avec l'auteur ; Kit = accès, physique = vendus ; erreur relancée.
+describe("lireProduitsAdminAvecCompteurs", () => {
+  it("Kit : accès ; physique : vendus ; produit sans ligne de compteur : 0 ; archive_le lu", async () => {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "https://supabase.example.invalid";
+    faux.parTable = {
+      produit: {
+        data: [
+          { id: "TEST_k", famille: "kit", titre_fr: "K", slug: "k", prix_cents: 0, publie_le: null, archive_le: null, univers: null },
+          { id: "TEST_c", famille: "cosplay", titre_fr: "C", slug: "c", prix_cents: 100, publie_le: null, archive_le: "2026-11-10T00:00:00Z", univers: null },
+          { id: "TEST_n", famille: "autre", titre_fr: "N", slug: "n", prix_cents: 100, publie_le: null, archive_le: null, univers: null },
+        ],
+        error: null,
+      },
+      produit_photo: { data: [], error: null },
+      variante: { data: [], error: null },
+    };
+    faux.rpc = { data: [{ produit_id: "TEST_k", acces: 2, vendus: 1 }, { produit_id: "TEST_c", acces: 0, vendus: 3 }], error: null };
+    faux.rpcs = [];
+    const auteur = { type: "compte" as const, id: "TEST_admin", role: "admin" as const };
+    const liste = await lireProduitsAdminAvecCompteurs(auteur as never);
+    expect(faux.rpcs).toEqual([["produits_admin_compteurs", { p_auteur: auteur }]]);
+    expect(liste.map((p) => [p.id, p.compteur, p.archiveLe])).toEqual([
+      ["TEST_k", 2, null],
+      ["TEST_c", 3, "2026-11-10T00:00:00Z"],
+      ["TEST_n", 0, null],
+    ]);
+    faux.rpc = { data: null, error: { message: "KS_DROIT_REFUSE" } };
+    await expect(lireProduitsAdminAvecCompteurs(auteur as never)).rejects.toThrow();
+    faux.rpc = { data: null, error: null };
   });
 });

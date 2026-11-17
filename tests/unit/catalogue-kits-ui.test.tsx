@@ -90,7 +90,7 @@ const kitExistant: ProduitAdmin = {
 
 describe("ListeProduits", () => {
   it("la famille « Kit » s'affiche dans la liste, avec « Numérique » comme état de stock", async () => {
-    rendre(<ListeProduits produits={[{ id: "TEST_k", famille: "kit", titreFr: "TEST_Kit", slug: "test-kit", prixCents: 0, publieLe: null, universFr: null, photo: null, stock: "numerique" }]} />);
+    rendre(<ListeProduits produits={[{ id: "TEST_k", famille: "kit", titreFr: "TEST_Kit", slug: "test-kit", prixCents: 0, publieLe: null, universFr: null, photo: null, stock: "numerique", archiveLe: null, compteur: 0 }]} />);
     expect(screen.getAllByText("Kit").length).toBeGreaterThan(0);
   });
 });

@@ -121,6 +121,7 @@ const ERREURS_PHOTO: ReadonlyArray<readonly [string, CodeErreurCatalogue]> = [
   ["KS_FICHIER_INVALIDE", "format_invalide"],
   ["KS_ALT_INVALIDE", "alt_invalide"],
   ["KS_PRODUIT_PUBLIE_VERROUILLE", "produit_publie_verrouille"],
+  ["KS_PRODUIT_ARCHIVE", "produit_archive"],
   ["KS_PUBLICATION_INCOMPLETE", "publication_incomplete"],
   ["KS_DROIT_REFUSE", "non_autorise"],
   ["KS_AUTEUR_MANQUANT", "non_autorise"],
@@ -329,6 +330,8 @@ export async function publierProduit(deps: DependancesCatalogue, entree: { id: s
   try {
     const produit = await deps.lireProduitComplet(id.data);
     if (!produit) return { ok: false, erreur: "produit_introuvable" };
+    // Story 9.16 e) : un produit archivé n'est jamais publié (la base le refuse aussi, KS_PRODUIT_ARCHIVE) ; il faut d'abord le restaurer.
+    if (produit.archive) return { ok: false, erreur: "produit_archive" };
     // Produit physique ou Kit : la liste des manques dépend de la famille lue en base (story 3.2 pour le Kit).
     const manques = manquesPublication(produit);
     if (manques.length > 0) return { ok: false, erreur: "publication_incomplete", manques };
@@ -369,6 +372,35 @@ export async function depublierProduit(deps: DependancesCatalogue, entree: { id:
     journaliser("dépublication", e);
     return { ok: false, erreur: "generique" };
   }
+}
+
+// Story 9.16 e) (Q22) : la corbeille archive, jamais de suppression. Archiver dépublie et marque archivé ; restaurer ramène en brouillon.
+// Commandes, accès aux Kits, photos et fichiers ne sont jamais touchés. Droit revérifié ici puis en base ; journal par la base.
+async function changerArchivage(deps: DependancesCatalogue, entree: { id: string }, archiver: boolean): Promise<ResultatCatalogue> {
+  const droit = await verifierDroit(deps);
+  if ("erreur" in droit) return { ok: false, erreur: droit.erreur };
+  const id = idSchema.safeParse(entree.id);
+  if (!id.success) return { ok: false, erreur: "produit_introuvable" };
+  try {
+    const { erreur } = await deps.changerArchivage({ auteur: droit.auteur, id: id.data, archiver });
+    if (erreur) {
+      journaliser(archiver ? "archivage refusé" : "restauration refusée", erreur);
+      return { ok: false, erreur: erreurPhoto(erreur) };
+    }
+    await invalider(deps);
+    return { ok: true };
+  } catch (e) {
+    journaliser(archiver ? "archivage" : "restauration", e);
+    return { ok: false, erreur: "generique" };
+  }
+}
+
+export async function archiverProduit(deps: DependancesCatalogue, entree: { id: string }): Promise<ResultatCatalogue> {
+  return changerArchivage(deps, entree, true);
+}
+
+export async function restaurerProduit(deps: DependancesCatalogue, entree: { id: string }): Promise<ResultatCatalogue> {
+  return changerArchivage(deps, entree, false);
 }
 
 // ---- Kits et leurs fichiers (story 3.1) ----

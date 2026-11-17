@@ -9,7 +9,7 @@ import type { ManquePublication } from "@/modules/catalogue/types";
 
 type Retour = { type: "erreur"; erreur: string; manques?: ManquePublication[] };
 
-const ERREURS_CONNUES = ["publication_incomplete", "produit_publie_verrouille", "produit_introuvable", "non_autorise"];
+const ERREURS_CONNUES = ["publication_incomplete", "produit_publie_verrouille", "produit_archive", "produit_introuvable", "non_autorise"];
 
 // Bouton Publier / Dépublier d'une carte de produit (story 9.10) : mêmes actions que le panneau de la fiche (publierProduit, depublierProduit), qui revérifient le droit
 // et la complétude. Le statut affiché vient de la base (router.refresh), jamais d'une supposition locale ; un refus liste ce qui manque.

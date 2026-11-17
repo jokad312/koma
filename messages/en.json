@@ -1493,7 +1493,7 @@
     "produits": {
       "titre": "Products",
       "intro": "Your cosplays, accessories, clothing, other items and kits. A product created here stays a draft: nobody sees it on the site.",
-      "nouveau": "New product",
+      "nouveauPlus": "+ New product",
       "nombre": "{nombre, plural, =0 {No products} one {# product} other {# products}}",
       "erreurLecture": "The products could not be loaded. Reload the page.",
       "vide": {
@@ -1505,23 +1505,29 @@
         "recherchePlaceholder": "Search for a product…",
         "aucunResultat": "No product matches your search.",
         "photoAbsente": "No photo",
-        "modifier": "Edit",
         "stock": {
           "numerique": "Digital",
           "en_stock": "In stock",
           "sur_commande": "Made to order",
           "epuise": "No stock",
           "sans_variante": "No size"
-        }
-      },
-      "liste": {
-        "legende": "Product list",
-        "colonnes": {
-          "titre": "Title",
-          "famille": "Category",
-          "statut": "Status",
-          "prix": "Price"
-        }
+        },
+        "univers": "Universes",
+        "filtres": "Show products",
+        "liste": "Product list",
+        "vue": {
+          "actifs": "All",
+          "archives": "Archived"
+        },
+        "aucunActif": "No product outside the archive. Archived products are under “Archived”.",
+        "aucunArchive": "No archived product.",
+        "prix": "Price: {valeur}",
+        "gratuit": "Free",
+        "telechargements": "Downloads: {nombre}",
+        "vendus": "Sold: {nombre}",
+        "universPastille": "Universe: {nom}",
+        "universAucun": "none",
+        "modifierSur": "Edit {titre}"
       },
       "famille": {
         "cosplay": "Cosplay",
@@ -1532,7 +1538,8 @@
       },
       "statut": {
         "brouillon": "Draft",
-        "publie": "Published"
+        "publie": "Published",
+        "archive": "Archived"
       },
       "prixAFixer": "Price to set",
       "pageNouveau": {
@@ -1724,14 +1731,18 @@
         "titre": "Publication",
         "statutBrouillon": "Draft",
         "statutPublie": "Published",
+        "statutArchive": "Archived",
         "aideBrouillon": "This product is a draft: nobody can see it on the site.",
         "aidePublie": "This product is published: it is visible on the site. Its address and family can no longer change.",
+        "aideArchive": "This product is archived: it is visible neither on the site nor in the default list. Restore it to make it a draft again.",
         "actionSur": "{action}: {titre}",
         "publier": "Publish",
         "depublier": "Unpublish",
+        "restaurer": "Restore",
         "enCours": "One moment…",
         "publieOk": "Product published.",
         "depublieOk": "Product unpublished: it is no longer visible on the site.",
+        "restaureOk": "Product restored: it is back to draft.",
         "incomplet": "Some items are still missing before you can publish:",
         "manques": {
           "prix": "The price",
@@ -1755,8 +1766,26 @@
           "produit_publie_verrouille": "A published product cannot change its address or family.",
           "produit_introuvable": "This product no longer exists. Go back to the product list.",
           "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
-          "generique": "The change could not be saved. Try again."
+          "generique": "The change could not be saved. Try again.",
+          "produit_archive": "This product is archived: restore it before publishing it."
         }
+      },
+      "archivage": {
+        "archiverSur": "Archive {titre}",
+        "titre": "Archive “{titre}”?",
+        "texte": "The product is unpublished and removed from the shop and from the list. Nothing is deleted: orders, kit access, photos and files stay intact. You will find it under “Archived”, where you can restore it (it goes back to draft).",
+        "confirmer": "Archive",
+        "annuler": "Cancel",
+        "enCours": "One moment…",
+        "restaurer": "Restore",
+        "restaurerSur": "Restore {titre}",
+        "erreurs": {
+          "produit_introuvable": "This product no longer exists. Reload the page.",
+          "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
+          "generique": "The change could not be saved. Try again."
+        },
+        "archiveOk": "Product archived.",
+        "restaureOk": "Product restored: it is back to draft."
       }
     },
     "univers": {

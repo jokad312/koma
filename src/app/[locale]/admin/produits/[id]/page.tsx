@@ -131,11 +131,11 @@ async function ProduitSelonDroit({
             <ChapitresKit produitId={produit.id} chapitres={produit.chapitres} dureeSecondes={produit.video?.dureeSecondes ?? null} />
             <SousTitresKit produitId={produit.id} sousTitres={produit.sousTitres} />
             {/* Publication en dernier : la liste des manques couvre toutes les sections ci-dessus. */}
-            <PublicationProduit produitId={produit.id} publie={produit.publieLe !== null} />
+            <PublicationProduit produitId={produit.id} publie={produit.publieLe !== null} archive={Boolean(produit.archiveLe)} />
           </>
         ) : produit && univers ? (
           <>
-            <PublicationProduit produitId={produit.id} publie={produit.publieLe !== null} />
+            <PublicationProduit produitId={produit.id} publie={produit.publieLe !== null} archive={Boolean(produit.archiveLe)} />
             <FormulaireProduit univers={univers} produit={produit} couleursUtilisees={couleurs} />
             <section aria-labelledby="photos-titre" className="flex max-w-2xl flex-col gap-4">
               <h2 id="photos-titre" className="t-h2">

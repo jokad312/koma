@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-import { annulerEnvoiPhoto, demanderEnvoiPhoto, depublierProduit, deplacerPhoto, finaliserPhoto, publierProduit } from "@/modules/catalogue/service";
+import { annulerEnvoiPhoto, archiverProduit, demanderEnvoiPhoto, depublierProduit, deplacerPhoto, finaliserPhoto, publierProduit, restaurerProduit } from "@/modules/catalogue/service";
 import { creerTestDependancesCatalogue, TEST_ADMIN_ID, TEST_PRODUIT_COMPLET } from "../doubles/TEST_dependances-catalogue";
 
 const PRODUIT = "00000000-0000-4000-8000-0000000000bb";
@@ -319,5 +319,47 @@ describe("depublierProduit", () => {
     expect(await depublierProduit(a.deps, { id: PRODUIT })).toEqual({ ok: false, erreur: "produit_introuvable" });
     expect(a.appels.invalidations).toBe(0);
     expect(await depublierProduit(creerTestDependancesCatalogue({ droit: "KS_DROIT_REFUSE" }).deps, { id: PRODUIT })).toEqual({ ok: false, erreur: "non_autorise" });
+  });
+});
+
+// Story 9.16 e) : corbeille = archivage (Q22), restauration, garde « archivé non publiable ».
+describe("archiverProduit et restaurerProduit", () => {
+  it("archiver : droit, écriture, puis étiquette invalidée, dans cet ordre", async () => {
+    const { deps, appels } = creerTestDependancesCatalogue();
+    expect(await archiverProduit(deps, { id: PRODUIT })).toEqual({ ok: true });
+    expect(appels.ordre).toEqual(["droit", "archivage", "invalidation"]);
+    expect(appels.archivages).toEqual([{ auteur: AUTEUR, id: PRODUIT, archiver: true }]);
+    expect(appels.droits).toEqual(["produits.modifier"]);
+  });
+
+  it("restaurer : même chemin, archiver à faux", async () => {
+    const { deps, appels } = creerTestDependancesCatalogue();
+    expect(await restaurerProduit(deps, { id: PRODUIT })).toEqual({ ok: true });
+    expect(appels.archivages).toEqual([{ auteur: AUTEUR, id: PRODUIT, archiver: false }]);
+  });
+
+  it("refus de la base, identifiant invalide, sans droit : jamais de succès ni d'invalidation", async () => {
+    const a = creerTestDependancesCatalogue({ erreurArchivage: "KS_PRODUIT_INTROUVABLE" });
+    expect(await archiverProduit(a.deps, { id: PRODUIT })).toEqual({ ok: false, erreur: "produit_introuvable" });
+    expect(a.appels.invalidations).toBe(0);
+    const b = creerTestDependancesCatalogue({ erreurArchivage: "TEST_panne" });
+    expect(await restaurerProduit(b.deps, { id: PRODUIT })).toEqual({ ok: false, erreur: "generique" });
+    const c = creerTestDependancesCatalogue();
+    expect(await archiverProduit(c.deps, { id: "../x" })).toEqual({ ok: false, erreur: "produit_introuvable" });
+    expect(c.appels.archivages).toEqual([]);
+    const d = creerTestDependancesCatalogue({ droit: "KS_DROIT_REFUSE" });
+    expect(await archiverProduit(d.deps, { id: PRODUIT })).toEqual({ ok: false, erreur: "non_autorise" });
+    expect(d.appels.archivages).toEqual([]);
+  });
+
+  it("publier un produit archivé : refusé (produit_archive) avant toute écriture, même complet", async () => {
+    const { deps, appels } = creerTestDependancesCatalogue({ produitComplet: { ...TEST_PRODUIT_COMPLET, archive: true } });
+    expect(await publierProduit(deps, { id: PRODUIT })).toEqual({ ok: false, erreur: "produit_archive" });
+    expect(appels.publications).toEqual([]);
+  });
+
+  it("la base refuse la publication d'un archivé (KS_PRODUIT_ARCHIVE) : produit_archive", async () => {
+    const { deps } = creerTestDependancesCatalogue({ erreurPublication: "KS_PRODUIT_ARCHIVE" });
+    expect(await publierProduit(deps, { id: PRODUIT })).toEqual({ ok: false, erreur: "produit_archive" });
   });
 });

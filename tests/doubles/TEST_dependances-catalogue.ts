@@ -32,6 +32,7 @@ type Reglages = {
   levePhoto?: boolean;
   erreurDeplacer?: string | null;
   erreurPublication?: string | null;
+  erreurArchivage?: string | null;
   erreurSupprimerPhoto?: string | null;
   erreurAlt?: string | null;
   invalidationEnEchec?: boolean;
@@ -124,6 +125,7 @@ export function creerTestDependancesCatalogue(r: Reglages = {}) {
     suppressionsPhoto: [] as Array<Parameters<DependancesCatalogue["supprimerPhoto"]>[0]>,
     alts: [] as Array<Parameters<DependancesCatalogue["modifierAltPhoto"]>[0]>,
     publications: [] as Array<Parameters<DependancesCatalogue["changerPublication"]>[0]>,
+    archivages: [] as Array<Parameters<DependancesCatalogue["changerArchivage"]>[0]>,
     invalidations: 0,
     tranches: [] as Array<Parameters<DependancesCatalogue["ecrireTranches"]>[0]>,
     invalidationsReglages: 0,
@@ -203,6 +205,11 @@ export function creerTestDependancesCatalogue(r: Reglages = {}) {
       appels.ordre.push("publication");
       appels.publications.push(args);
       return { erreur: r.erreurPublication ?? null };
+    }),
+    changerArchivage: vi.fn(async (args) => {
+      appels.ordre.push("archivage");
+      appels.archivages.push(args);
+      return { erreur: r.erreurArchivage ?? null };
     }),
     ecrireTranches: vi.fn(async (args) => {
       appels.ordre.push("tranches");

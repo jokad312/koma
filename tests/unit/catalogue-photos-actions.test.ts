@@ -152,6 +152,17 @@ describe("câblage réel de modules/catalogue pour les photos", () => {
     expect(faux.rpc.mock.calls[2][1]).toEqual({ p_auteur: AUTEUR, p_id: PRODUIT });
   });
 
+  it("archivage (9.16 e) : archiver_produit puis restaurer_produit, avec l'auteur ; erreur rendue", async () => {
+    const deps = await charger();
+    faux.rpc.mockResolvedValue({ data: null, error: null });
+    await deps.changerArchivage({ auteur: AUTEUR, id: PRODUIT, archiver: true });
+    await deps.changerArchivage({ auteur: AUTEUR, id: PRODUIT, archiver: false });
+    expect(faux.rpc.mock.calls.map((c) => c[0])).toEqual(["archiver_produit", "restaurer_produit"]);
+    expect(faux.rpc.mock.calls[0][1]).toEqual({ p_auteur: AUTEUR, p_id: PRODUIT });
+    faux.rpc.mockResolvedValueOnce({ data: null, error: { message: "KS_DROIT_REFUSE" } });
+    expect(await deps.changerArchivage({ auteur: AUTEUR, id: PRODUIT, archiver: true })).toEqual({ erreur: "KS_DROIT_REFUSE" });
+  });
+
   it("erreur Postgres rendue ; invalidation de l'étiquette « catalogue »", async () => {
     const deps = await charger();
     faux.rpc.mockResolvedValueOnce({ data: null, error: { message: "KS_PUBLICATION_INCOMPLETE" } });
@@ -185,7 +196,14 @@ describe("câblage réel de modules/catalogue pour les photos", () => {
       sousTitresFr: false,
       extraitSansSousTitresFr: false,
       nbCouleursSansAnglais: 0,
+      archive: false,
     });
+    // Story 9.16 e) : un produit archivé est signalé (la publication le refuse).
+    faux.produit = {
+      data: { famille: "cosplay", prix_cents: 100, titre_fr: "T", titre_en: "t", description_fr: "d", description_en: "e", publie_le: null, archive_le: "2026-11-10T00:00:00Z", materiel_fr: null, materiel_en: null, niveau: null },
+      error: null,
+    };
+    expect(await deps.lireProduitComplet(PRODUIT)).toMatchObject({ archive: true });
     // Kit : fichiers, vidéo et sous-titres français comptés en base (faux : 2 lignes partout).
     faux.produit = {
       data: { famille: "kit", prix_cents: 0, titre_fr: "K", titre_en: "K", description_fr: "d", description_en: "e", publie_le: null, materiel_fr: "m", materiel_en: "m", niveau: "avance" },

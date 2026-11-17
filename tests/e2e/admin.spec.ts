@@ -1,5 +1,5 @@
 import { expect, test, type APIRequestContext } from "@playwright/test";
-import { connecterCompteTest, lireEnv } from "./police-outils";
+import { connecterCompteTest, lireEnv, restesProduit, retirerProduit, semerProduit, service, type ProduitTest } from "./police-outils";
 
 // Zone admin : un visiteur est envoyé vers la connexion avec le chemin de retour ; un Compte sans rôle voit la 404.
 // Le test d'un admin connecté demande un Compte réel avec le rôle admin : il se fait à la main (README, « Premier admin »),
@@ -197,6 +197,94 @@ test.describe("liste des commandes (9.16 d)", () => {
       await expect(page.getByRole("searchbox", { name: "Rechercher par numéro ou client" })).toBeVisible();
     } finally {
       await supprimer();
+    }
+  });
+});
+
+// Story 9.16 e) : liste des produits selon la maquette, corbeille = archivage (Q22). Produit TEST_ publié (Vêtement, photo dessinée par le test) et
+// Compte TEST_ admin réels ; archiver puis restaurer par l'écran ; TOUT est supprimé à la fin puis compté (0 attendu). Aucun paiement simulé.
+test.describe("liste des produits et archivage (9.16 e)", () => {
+  test.describe.configure({ timeout: 180_000 });
+  const PRODUIT: ProduitTest = {
+    id: "00000000-0000-4000-8916-0000000000e1",
+    slug: "test-e2e-916e-polo",
+    titre: "TEST_ Polo archivage 916e",
+    titreEn: "TEST_ Polo archive 916e",
+    fichier: "test-e2e-916e/polo.jpg",
+  };
+
+  test("l'Admin archive un produit publié (confirmation), le retrouve sous « Archivés », puis le restaure en brouillon", async ({ page }) => {
+    test.skip(!env, "variables Supabase absentes");
+    await retirerProduit(env!, PRODUIT);
+    await semerProduit(env!, PRODUIT);
+    const supprimer = await connecterCompteTest(page, env!, "test-e2e-916e-admin-", "admin");
+    try {
+      const base = service(env!);
+      const lignesJournal = async () => {
+        const { count, error } = await base.from("journal_audit").select("id", { count: "exact", head: true }).eq("cible_table", "produit").eq("cible_id", PRODUIT.id);
+        if (error || count === null) throw new Error(`journal : ${error?.message}`);
+        return count;
+      };
+      // Publié : visible dans la boutique.
+      await page.goto("/fr/vetements", { waitUntil: "networkidle" });
+      await expect(page.getByRole("heading", { level: 3, name: PRODUIT.titre })).toBeVisible();
+
+      await page.setViewportSize({ width: 1366, height: 768 });
+      await page.goto("/fr/admin/produits");
+      await expect(page.getByRole("heading", { level: 1, name: "Produits" })).toBeVisible();
+      await expect(page.locator("#contenu-admin").getByRole("link", { name: "Univers", exact: true })).toHaveAttribute("href", "/fr/admin/univers");
+      await expect(page.getByRole("link", { name: "+ Nouveau produit" })).toHaveAttribute("href", "/fr/admin/produits/nouveau");
+      const carte = page.getByRole("listitem").filter({ has: page.getByRole("heading", { level: 2, name: PRODUIT.titre }) });
+      await expect(carte.getByText("Vendus : 0")).toBeVisible();
+      await expect(carte.getByText("Vêtement", { exact: true })).toBeVisible();
+      await expect(carte.getByText("Publié", { exact: true })).toBeVisible();
+      await expect(carte.getByRole("link", { name: `Modifier ${PRODUIT.titre}` })).toHaveAttribute("href", `/fr/admin/produits/${PRODUIT.id}`);
+
+      // Archiver : confirmation d'abord.
+      const avant = await lignesJournal();
+      await carte.getByRole("button", { name: `Archiver ${PRODUIT.titre}` }).click();
+      const dialogue = page.getByRole("dialog", { name: `Archiver « ${PRODUIT.titre} » ?` });
+      await expect(dialogue).toBeVisible();
+      await dialogue.getByRole("button", { name: "Archiver", exact: true }).click();
+      await expect(page.getByRole("heading", { level: 2, name: PRODUIT.titre })).toHaveCount(0);
+      const { data: lu, error } = await base.from("produit").select("publie_le, archive_le").eq("id", PRODUIT.id).single();
+      expect(error).toBeNull();
+      expect(lu?.publie_le).toBeNull();
+      expect(lu?.archive_le).not.toBeNull();
+      expect(await lignesJournal()).toBe(avant + 1);
+
+      // Sous « Archivés » : statut Archivé, Restaurer, aucun Publier.
+      await page.getByRole("button", { name: "Archivés", exact: true }).click();
+      const archivee = page.getByRole("listitem").filter({ has: page.getByRole("heading", { level: 2, name: PRODUIT.titre }) });
+      await expect(archivee.getByText("Archivé", { exact: true })).toBeVisible();
+      await expect(archivee.getByRole("button", { name: /Publier/ })).toHaveCount(0);
+
+      // Retiré de la boutique.
+      const boutique = await page.context().newPage();
+      await boutique.goto("/fr/vetements", { waitUntil: "networkidle" });
+      await expect(boutique.getByRole("heading", { level: 3, name: PRODUIT.titre })).toHaveCount(0);
+      await boutique.close();
+
+      // Restaurer : retour en brouillon, dans la liste par défaut.
+      await archivee.getByRole("button", { name: `Restaurer ${PRODUIT.titre}` }).click();
+      await expect(page.getByRole("heading", { level: 2, name: PRODUIT.titre })).toHaveCount(0);
+      await page.getByRole("button", { name: "Tous", exact: true }).click();
+      const restauree = page.getByRole("listitem").filter({ has: page.getByRole("heading", { level: 2, name: PRODUIT.titre }) });
+      await expect(restauree.getByText("Brouillon", { exact: true })).toBeVisible();
+      const { data: relu } = await base.from("produit").select("publie_le, archive_le").eq("id", PRODUIT.id).single();
+      expect(relu).toEqual({ publie_le: null, archive_le: null });
+
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto("/fr/admin/produits");
+      await expect(page.getByRole("heading", { level: 2, name: PRODUIT.titre })).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    } finally {
+      try {
+        await supprimer();
+      } finally {
+        await retirerProduit(env!, PRODUIT);
+        expect(await restesProduit(env!, PRODUIT)).toEqual({ produits: 0, variantes: 0, photos: 0, fichiers: 0 });
+      }
     }
   });
 });

@@ -555,4 +555,9 @@
 
 - Critères de mise en page de l'admin (surtitre sur une ligne à 1024 px, aucun chevauchement ni défilement à 320 px, menu sans défilement à 1366 × 768) vérifiés seulement par `scripts/captures-admin.mjs` (à la main, hors CI). Ajouter un e2e à 320, 1024 et 1366 px dans un contexte sans `isMobile`, avec la correction du contrôle 320 px déjà notée plus haut.
 - `FenetreFormulaire` : le fond flouté ne couvre que le bloc de contenu et n'a rien à flouter derrière (maquette D1 : page assombrie et floutée en plein écran). À trancher avec la page « Nouveau produit » de l'étape 4, premier usage du composant.
-- `Pagination` affiche « Page X / Y » en casse normale : à comparer aux maquettes B10 et CP9 à l'étape 4.
+- `Pagination` affiche « Page X / Y » en casse normale : à comparer aux maquettes B10 et CP9 à l'étape 4.- source_spec: `_bmad-output/implementation-artifacts/spec-9-16-e-produits.md`
+  summary: Archiver un produit présent dans des commandes en attente ou en fabrication (ou un Kit lié à des cosplays publiés) ne déclenche ni alerte ni refus.
+  evidence: Revue 9.16 e ; la commande reste valide et doit être honorée, mais l'Admin n'est pas prévenu. Décision produit à prendre par Jonathan.
+- source_spec: `_bmad-output/implementation-artifacts/spec-9-16-e-produits.md`
+  summary: La carte produit de l'admin en anglais affiche le titre, l'univers et le texte alternatif en français.
+  evidence: Revue 9.16 e ; défaut antérieur à la refonte (grille 9.10).

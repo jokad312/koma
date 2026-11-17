@@ -1,4 +1,5 @@
 import "server-only";
+import type { AuteurCompte } from "@/lib/auth/auteur";
 import { cacheTag } from "next/cache";
 import { ETIQUETTES } from "@/lib/cache/etiquettes";
 import { creerClientPublic } from "@/lib/supabase/public";
@@ -9,7 +10,7 @@ import { contientMarqueur } from "@/lib/vitrine/marqueur";
 import { choisirSlugLibre, SLUG_REGEX } from "./slug";
 import { CUMUL_MAX_CATALOGUE, DISPONIBILITES, FAMILLES_PRODUIT, LANGUES_SOUS_TITRES, NIVEAUX_KIT, TAILLE_PAGE_CATALOGUE, TAILLES } from "./types";
 import { FORMATS_FICHIER_KIT, type FormatFichierKit } from "./fichiers-kit";
-import type { CouleurVariante, EtatStockListe, FicheKit, CarteProduit, ChapitreAdmin, Disponibilite, LangueSousTitres, SousTitreAdmin, FamillePhysique, FamilleProduit, FichierKitAdmin, FicheProduit, KitLieFiche, NiveauKit, ProduitLiable, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
+import type { CouleurVariante, EtatStockListe, FicheKit, CarteProduit, ChapitreAdmin, Disponibilite, LangueSousTitres, SousTitreAdmin, FamillePhysique, FamilleProduit, FichierKitAdmin, FicheProduit, KitLieFiche, NiveauKit, ProduitLiable, ProduitPublie, TailleFiche, PageCatalogue, ParamsCatalogue, PhotoAdmin, ProduitAdmin, ProduitListe, ProduitListeBase, ProduitPourPublication, Taille, TranchePrix, UniversAdmin, UniversChoix } from "./types";
 
 // Lectures admin par le client service (après le droit vérifié par la page) : une erreur de lecture est relancée,
 // jamais une liste vide inventée. Aucune valeur de repli (règle 15).
@@ -19,10 +20,12 @@ export async function lireUniversAdmin(): Promise<UniversAdmin[]> {
   return (data ?? []).map((u) => ({ id: u.id, nomFr: u.nom_fr, nomEn: u.nom_en }));
 }
 
-export async function lireProduitsAdmin(): Promise<ProduitListe[]> {
+// Liste admin des produits (archivés compris, avec leur date d'archivage) : la page des produits choisit ce qu'elle montre (liste par défaut ou
+// filtre « Archivés », story 9.16 e) ; le blog n'en lit que l'identifiant et le titre.
+export async function lireProduitsAdmin(): Promise<ProduitListeBase[]> {
   const client = creerClientService();
   const [produits, photos, variantes] = await Promise.all([
-    client.from("produit").select("id, famille, titre_fr, slug, prix_cents, publie_le, univers:univers_id(nom_fr)").order("cree_le", { ascending: false }),
+    client.from("produit").select("id, famille, titre_fr, slug, prix_cents, publie_le, archive_le, univers:univers_id(nom_fr)").order("cree_le", { ascending: false }),
     client.from("produit_photo").select("produit_id, fichier, alt_fr, position").order("position", { ascending: true }),
     client.from("variante").select("produit_id, stock, fabrication_sur_commande"),
   ]);
@@ -49,7 +52,21 @@ export async function lireProduitsAdmin(): Promise<ProduitListe[]> {
       universFr: univers?.nom_fr ?? null,
       photo: premiere ? { url: urlPhotoPublique(premiere.fichier), alt: premiere.alt } : null,
       stock,
+      archiveLe: p.archive_le ?? null,
     };
+  });
+}
+
+// Story 9.16 e) (Q20) : liste de la page des produits avec le compteur de chaque carte, lu par produits_admin_compteurs (droit Admin revérifié
+// en base) : Kit = Comptes qui ont l'accès ; article physique = pièces vendues dans des Commandes payées. Une erreur est relancée.
+export async function lireProduitsAdminAvecCompteurs(auteur: AuteurCompte): Promise<ProduitListe[]> {
+  const [produits, compteurs] = await Promise.all([lireProduitsAdmin(), creerClientService().rpc("produits_admin_compteurs", { p_auteur: auteur as never })]);
+  if (compteurs.error || !Array.isArray(compteurs.data)) throw new Error("Lecture des compteurs impossible.");
+  const parProduit = new Map(compteurs.data.map((c) => [c.produit_id, { acces: Number(c.acces), vendus: Number(c.vendus) }]));
+  // Produit créé entre les deux lectures : aucun compteur lu ; il ne peut encore avoir ni accès ni vente.
+  return produits.map((p) => {
+    const compte = parProduit.get(p.id) ?? { acces: 0, vendus: 0 };
+    return { ...p, compteur: p.famille === "kit" ? compte.acces : compte.vendus };
   });
 }
 
@@ -59,7 +76,7 @@ export async function lireProduitAdmin(id: string): Promise<ProduitAdmin | null>
   const { data, error } = await client
     .from("produit")
     .select(
-      "id, famille, slug, titre_fr, titre_en, description_fr, description_en, univers_id, prix_cents, delai_fabrication_jours, publie_le, materiel_fr, materiel_en, niveau, produit_lie_id",
+      "id, famille, slug, titre_fr, titre_en, description_fr, description_en, univers_id, prix_cents, delai_fabrication_jours, publie_le, archive_le, materiel_fr, materiel_en, niveau, produit_lie_id",
     )
     .eq("id", id)
     .maybeSingle();
@@ -94,6 +111,7 @@ export async function lireProduitAdmin(id: string): Promise<ProduitAdmin | null>
     prixCents: data.prix_cents,
     delaiFabricationJours: data.delai_fabrication_jours,
     publieLe: data.publie_le,
+    archiveLe: data.archive_le ?? null,
     materielFr: data.materiel_fr,
     materielEn: data.materiel_en,
     niveau: data.niveau as NiveauKit | null,
@@ -169,7 +187,7 @@ export async function lireProduitPourPublication(id: string): Promise<ProduitPou
   const client = creerClientService();
   const { data, error } = await client
     .from("produit")
-    .select("famille, prix_cents, titre_fr, titre_en, description_fr, description_en, publie_le, materiel_fr, materiel_en, niveau")
+    .select("famille, prix_cents, titre_fr, titre_en, description_fr, description_en, publie_le, archive_le, materiel_fr, materiel_en, niveau")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error("Lecture du produit impossible.");
@@ -229,6 +247,7 @@ export async function lireProduitPourPublication(id: string): Promise<ProduitPou
     sousTitresFr,
     extraitSansSousTitresFr,
     nbCouleursSansAnglais,
+    archive: Boolean(data.archive_le),
   };
 }
 

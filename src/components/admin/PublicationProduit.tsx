@@ -1,19 +1,21 @@
 "use client";
 
+import { Archive } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRef, useState, useTransition } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { useRouter } from "@/i18n/navigation";
-import { depublierProduit, publierProduit, type EtatPhoto } from "@/modules/catalogue/actions";
+import { depublierProduit, publierProduit, restaurerProduit, type EtatPhoto } from "@/modules/catalogue/actions";
 import type { ManquePublication } from "@/modules/catalogue/types";
 import { PastilleStatut } from "./PastilleStatut";
 
-type Resultat = { type: "publie" | "depublie" } | { type: "erreur"; erreur: string; manques?: ManquePublication[] };
+type Resultat = { type: "publie" | "depublie" | "restaure" } | { type: "erreur"; erreur: string; manques?: ManquePublication[] };
 
 // Panneau de publication : statut (icône + mot), bouton Publier / Dépublier. Le succès n'apparaît qu'après la réponse réelle du serveur ;
 // un refus liste ce qui manque. Le statut affiché vient de la base (router.refresh), jamais d'une supposition locale.
-export function PublicationProduit({ produitId, publie }: { produitId: string; publie: boolean }) {
+// Story 9.16 e) : un produit archivé affiche « Archivé » et « Restaurer » (retour en brouillon) à la place de Publier.
+export function PublicationProduit({ produitId, publie, archive = false }: { produitId: string; publie: boolean; archive?: boolean }) {
   const t = useTranslations("Admin.produits.publication");
   const router = useRouter();
   const [resultat, setResultat] = useState<Resultat | null>(null);
@@ -26,9 +28,13 @@ export function PublicationProduit({ produitId, publie }: { produitId: string; p
     setResultat(null);
     demarrer(async () => {
       try {
-        const etat: EtatPhoto = publie ? await depublierProduit({ id: produitId }) : await publierProduit({ id: produitId });
+        const etat: EtatPhoto = archive
+          ? await restaurerProduit({ id: produitId })
+          : publie
+            ? await depublierProduit({ id: produitId })
+            : await publierProduit({ id: produitId });
         if (etat.statut === "succes") {
-          setResultat({ type: publie ? "depublie" : "publie" });
+          setResultat({ type: archive ? "restaure" : publie ? "depublie" : "publie" });
           router.refresh();
         } else {
           setResultat({ type: "erreur", erreur: etat.erreur, manques: etat.manques });
@@ -49,16 +55,24 @@ export function PublicationProduit({ produitId, publie }: { produitId: string; p
       <h2 id="publication-titre" className="t-h2">
         {t("titre")}
       </h2>
-      <PastilleStatut publie={publie} libelle={t(publie ? "statutPublie" : "statutBrouillon")} />
-      <p className="t-body text-text-secondary">{t(publie ? "aidePublie" : "aideBrouillon")}</p>
-      <Bouton variante={publie ? "secondaire" : "principal"} onClick={changer} enCours={enCours}>
-        {enCours ? t("enCours") : t(publie ? "depublier" : "publier")}
+      {archive ? (
+        <span className="t-small inline-flex items-center gap-2 rounded-full border border-border-field px-3 py-1 text-text-primary">
+          <Archive aria-hidden="true" className="size-4 shrink-0" />
+          {t("statutArchive")}
+        </span>
+      ) : (
+        <PastilleStatut publie={publie} libelle={t(publie ? "statutPublie" : "statutBrouillon")} />
+      )}
+      <p className="t-body text-text-secondary">{t(archive ? "aideArchive" : publie ? "aidePublie" : "aideBrouillon")}</p>
+      <Bouton variante={publie || archive ? "secondaire" : "principal"} onClick={changer} enCours={enCours}>
+        {enCours ? t("enCours") : t(archive ? "restaurer" : publie ? "depublier" : "publier")}
       </Bouton>
 
       {/* Le résultat réel est annoncé en statut ; un refus est annoncé en alerte. */}
       <div role="status">
         {resultat?.type === "publie" ? <p className="t-small text-text-primary">{t("publieOk")}</p> : null}
         {resultat?.type === "depublie" ? <p className="t-small text-text-primary">{t("depublieOk")}</p> : null}
+        {resultat?.type === "restaure" ? <p className="t-small text-text-primary">{t("restaureOk")}</p> : null}
       </div>
       {liste ? (
         <div role="alert" className="t-small flex flex-col gap-2 rounded-md border border-border bg-surface p-4 text-text-primary">
@@ -78,5 +92,5 @@ export function PublicationProduit({ produitId, publie }: { produitId: string; p
 }
 
 function erreurConnue(code: string): string {
-  return ["publication_incomplete", "produit_publie_verrouille", "produit_introuvable", "non_autorise"].includes(code) ? code : "generique";
+  return ["publication_incomplete", "produit_publie_verrouille", "produit_archive", "produit_introuvable", "non_autorise"].includes(code) ? code : "generique";
 }

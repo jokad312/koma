@@ -86,6 +86,8 @@
   --ks-admin-bord: #e0d6c5;
   --ks-admin-actif: #f3eee4;
   --ks-admin-carte: #fbf8f2;
+  /* Carte de grille des produits (9.16 e, maquette C6) : distincte du panneau qui la porte. */
+  --ks-admin-grille: #f3eee4;
   --ks-admin-panneau: #fbf8f2;
   --ks-admin-contour: #e0d6c5;
   --ks-admin-champ: #f3eee4;
@@ -136,6 +138,7 @@
   --ks-admin-bord: #3a322a;
   --ks-admin-actif: #16130f;
   --ks-admin-carte: #2e2923;
+  --ks-admin-grille: #1d1b1a;
   --ks-admin-panneau: #322f2b;
   --ks-admin-contour: transparent;
   --ks-admin-champ: #181512;
@@ -181,6 +184,7 @@
   --color-admin-bord: var(--ks-admin-bord);
   --color-admin-actif: var(--ks-admin-actif);
   --color-admin-carte: var(--ks-admin-carte);
+  --color-admin-grille: var(--ks-admin-grille);
   --color-admin-panneau: var(--ks-admin-panneau);
   --color-admin-contour: var(--ks-admin-contour);
   --color-admin-champ: var(--ks-admin-champ);

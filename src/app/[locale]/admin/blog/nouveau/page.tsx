@@ -12,6 +12,7 @@ import { routing, type Locale } from "@/i18n/routing";
 import { exigerAdminPage } from "@/lib/auth/droits";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
+import { produitsPourLien } from "@/modules/blog/produits-lien";
 import type { ProduitLien } from "@/modules/blog/types";
 import { lireProduitsAdmin } from "@/modules/catalogue/queries";
 
@@ -38,7 +39,7 @@ async function NouvelArticleSelonDroit({ locale }: { locale: Locale }) {
   const t = await getTranslations("Admin.blog");
   let produits: ProduitLien[] | null = null;
   try {
-    produits = (await lireProduitsAdmin()).map((p) => ({ id: p.id, titreFr: p.titreFr }));
+    produits = produitsPourLien(await lireProduitsAdmin());
   } catch {
     console.error("[blog] lecture des produits impossible");
   }

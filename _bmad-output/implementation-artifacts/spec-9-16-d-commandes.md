@@ -2,7 +2,7 @@
 title: '9.16 d) — Étape 4, page 2 : liste des commandes selon la maquette'
 type: 'feature'
 created: '2026-11-17'
-status: 'in-review'
+status: 'done'
 baseline_commit: '047cf767a2d2980bd41b2e4a3cbbcf33710c03da'
 route: 'dispatch'
 review_loop_iteration: 0

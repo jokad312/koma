@@ -22,6 +22,8 @@ Consigne de Jonathan (2026-11-17) : enchaîner toutes les pages de la refonte ad
 | Tableau de bord (9.16 c), correctif de revue | `20270120110000_tableau_chiffres_publie.sql` | `tableau_chiffres` : « Produits publiés » exclut la publication programmée (`publie_le <= now()`) | appliquée le 2026-11-17 |
 | Commandes (9.16 d) | `20270121100000_commandes_admin_liste.sql` | `commandes_admin_liste(p_auteur, statut, famille, prestataire, zone, recherche, page, taille)` : liste filtrée, recherchée et paginée avec le client (nom, email masqué en base), total et chiffres des cartes sans revenu (lecture seule, Admin et Assistant, service_role) | appliquée le 2026-11-17 |
 | Commandes (9.16 d), correctifs de revue | `20270121110000_commandes_admin_liste_correctifs.sql` | `commandes_admin_liste` : email cherché seulement en entier, email d'un caractère masqué, nom repris de `name` si `full_name` est vide, en attente sans échéance = non expirée | appliquée le 2026-11-17 |
+| Produits (9.16 e) | `20270122100000_produits_archivage.sql` | Colonne `produit.archive_le` ; déclencheur `produit_archive_non_publie` (archivé jamais publié, KS_PRODUIT_ARCHIVE) ; `publier_produit` recréée (refus d'un archivé avant la complétude) ; `archiver_produit` / `restaurer_produit(p_auteur, p_id)` (Admin, journal, service_role) ; `produits_admin_compteurs(p_auteur)` (lecture seule, Admin, service_role) | appliquée le 2026-11-17 (test SQL 30/30 sur koma-dev avant, transaction annulée) |
+| Produits (9.16 e), correctifs de revue | `20270122110000_produits_archivage_correctifs.sql` | `produits_admin_compteurs` : TÉLÉCHARGEMENTS ne compte que les accès dont la Commande d'origine est payée (non offerte) ; mêmes droits | appliquée le 2026-11-17 (test SQL 34/34 sur koma-dev avant, transaction annulée) |
 
 ## Décisions
 
@@ -43,6 +45,16 @@ Consigne de Jonathan (2026-11-17) : enchaîner toutes les pages de la refonte ad
 | Commandes | Recherche par email (revue) | Email trouvé seulement s'il est saisi en entier (sans casse) ; numéro et nom restent en recherche partielle | Une recherche partielle permettait de reconstituer caractère par caractère une adresse que l'écran masque |
 | Produits | Archivage (Q22) | Archiver = dépublier + marquer archivé ; filtre « Archivés » ; « Restaurer » ramène en brouillon ; un produit archivé ne peut pas être publié | Q22 : retiré de la boutique et des listes, récupérable ; aucune lecture publique à changer |
 | Produits | VENDUS : N | Nombre d'articles (quantités) dans les commandes payées, hors lignes annulées et commandes annulées ou remboursées | Même règle d'argent que SM-1 |
+| Produits | TÉLÉCHARGEMENTS : N | Nombre d'acheteurs du Kit : accès (`acces_kit`) dont la Commande d'origine est payée ; un Kit offert (Commande offerte) n'est pas compté | Q20 : « acheteurs qui ont l'accès » (correctif de revue ; la première version comptait aussi les Kits offerts) |
+| Produits | Bouton « Catégories » (C3) | « UNIVERS » (#8C514E, jeton `admin-univers`) vers `/admin/univers` ; le menu latéral a aussi « Univers » (même destination) | Q19 |
+| Produits | Filtre « Archivés » | Deux pastilles TOUS / ARCHIVÉS (boutons `aria-pressed`, état local) ; « Tous » = tous les non archivés | La liste entière est déjà lue (recherche locale de la 9.10) : aucune nouvelle requête |
+| Produits | Carte de grille (C6 #1D1B1A) | Nouveau jeton `admin-grille` (#1D1B1A sombre, #F3EEE4 clair) ; vignette et nom sur `admin-champ` | Aucun jeton existant ne valait #1D1B1A ; le panneau #322F2B porte les cartes |
+| Produits | Statut (C16) | `Pastille` avec icône (coche, crayon, archive) + mot PUBLIÉ / BROUILLON / ARCHIVÉ | Jamais la couleur seule ; « Archivé » n'existait pas dans `PastilleStatut` |
+| Produits | Clic sur la carte | Plus de carte entièrement cliquable : le crayon « Modifier X » est le lien vers la fiche | La maquette porte des actions distinctes (crayon, corbeille, Publier) ; un lien étendu les aurait recouvertes |
+| Produits | « Restaurer » | Sans confirmation (action sans perte, réversible par l'archivage) | Q22 n'exige la confirmation que pour la corbeille |
+| Produits | Après archivage ou restauration | Annonce en statut (« Produit archivé. » / « Produit restauré… ») et focus sur le compteur « N PRODUITS » | La carte quitte la vue : le focus ne doit pas tomber sur la page entière |
+| Produits | Liens de produit du blog | Le sélecteur « produit lié » (nouvel article, modification) ne propose plus les produits archivés, sauf celui déjà lié à l'article | Correctif de revue : un archivé est retiré des listes ; la valeur actuelle d'un article n'est jamais cassée |
+| Produits | Fiche d'un produit archivé (page 4) | Le panneau Publication affiche « Archivé » et « Restaurer » (sans confirmation, comme la carte) à la place de Publier ; refus `produit_archive` avec son message dédié ; le formulaire lui-même n'est pas changé | Correctif de revue : la fiche ne doit pas présenter un archivé comme un brouillon publiable |
 | Formulaire produit | Fond de la fenêtre (D1) | Plein écran assombri et flouté, sans la liste derrière | Q23 option (a) ; note de revue 9.16 b |
 | Formulaire produit | Photos et fichiers à la création | Disponibles après le premier enregistrement, comme aujourd'hui, avec un texte qui le dit | Ne rien changer au stockage ; Q23 garde les routes |
 | Blog | Extrait sur la carte avant la page 6 | 160 premiers caractères du contenu sans Markdown ; le champ Extrait (page 6) prend le dessus quand il est rempli | Q28 |
@@ -67,3 +79,4 @@ Consigne de Jonathan (2026-11-17) : enchaîner toutes les pages de la refonte ad
 | Page | Commit | Résultat | Remarque |
 |---|---|---|---|
 | Tableau de bord | 047cf76 | verte (run 43985989411) | — |
+| Commandes | e9103ee | verte (run 43992273472) | — |

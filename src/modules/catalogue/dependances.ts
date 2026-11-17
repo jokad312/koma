@@ -119,6 +119,12 @@ export function dependances(): DependancesCatalogue {
         : await admin.rpc("depublier_produit", { p_auteur: auteur as never, p_id: id });
       return { erreur: error ? error.message : null };
     },
+    changerArchivage: async ({ auteur, id, archiver }) => {
+      const { error } = archiver
+        ? await admin.rpc("archiver_produit", { p_auteur: auteur as never, p_id: id })
+        : await admin.rpc("restaurer_produit", { p_auteur: auteur as never, p_id: id });
+      return { erreur: error ? error.message : null };
+    },
     ecrireTranches: async ({ auteur, tranches }) => {
       const { error } = await admin.rpc("enregistrer_tranches_prix", { p_auteur: auteur as never, p_tranches: tranches as never });
       return { erreur: error ? error.message : null };

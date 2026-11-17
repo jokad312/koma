@@ -101,6 +101,8 @@ export type CodeErreurCatalogue =
   | "video_absente"
   | "duree_invalide"
   | "chapitres_hors_duree"
+  // Story 9.16 e) : un produit archivé ne peut pas être publié (KS_PRODUIT_ARCHIVE).
+  | "produit_archive"
   | "chapitre_invalide"
   | "instant_invalide"
   | "chapitre_debut_pris"
@@ -293,6 +295,8 @@ export type DependancesCatalogue = {
   supprimerPhoto(args: { auteur: AuteurCompte; photoId: string }): Promise<{ erreur: string | null; fichier: string | null }>;
   modifierAltPhoto(args: { auteur: AuteurCompte; photoId: string; altFr: string; altEn: string }): Promise<{ erreur: string | null }>;
   changerPublication(args: { auteur: AuteurCompte; id: string; publier: boolean }): Promise<{ erreur: string | null }>;
+  // Story 9.16 e) : archive (dépublie et marque archivé) ou restaure (retour en brouillon) un produit ; jamais de suppression.
+  changerArchivage(args: { auteur: AuteurCompte; id: string; archiver: boolean }): Promise<{ erreur: string | null }>;
   // Remplace l'ensemble des tranches de prix (droit « reglages.modifier »).
   ecrireTranches(args: { auteur: AuteurCompte; tranches: TrancheEcrite[] }): Promise<{ erreur: string | null }>;
   // Vide l'étiquette de cache « reglages » (les tranches sont lues avec elle) : appelé seulement après la réponse réelle de la base.
@@ -352,6 +356,8 @@ export type ProduitPourPublication = {
   extraitSansSousTitresFr: boolean;
   // Story 9.15 : variantes dont la couleur n'a pas de nom anglais (0 hors Vêtement).
   nbCouleursSansAnglais?: number;
+  // Story 9.16 e) : produit archivé (jamais publiable tant qu'il n'est pas restauré).
+  archive?: boolean;
 };
 
 export type PhotoAdmin = { id: string; fichier: string; altFr: string; altEn: string; position: number };
@@ -374,7 +380,14 @@ export type ProduitListe = {
   // Première photo (adresse publique et texte alternatif français) ; null tant qu'aucune photo n'est ajoutée (jamais une image inventée).
   photo: { url: string; alt: string } | null;
   stock: EtatStockListe;
+  // Story 9.16 e) : date d'archivage ; null si le produit n'est pas archivé.
+  archiveLe: string | null;
+  // Story 9.16 e) (Q20) : Kit = Comptes qui ont l'accès (TÉLÉCHARGEMENTS) ; article physique = pièces vendues dans des Commandes payées (VENDUS).
+  compteur: number;
 };
+
+// Produit de la liste admin sans son compteur (lecture partagée avec le blog).
+export type ProduitListeBase = Omit<ProduitListe, "compteur">;
 
 export type CouleurVariante = { fr: string; en: string | null; hex: string | null };
 
@@ -406,6 +419,8 @@ export type ProduitAdmin = {
   prixCents: number | null;
   delaiFabricationJours: number | null;
   publieLe: string | null;
+  // Story 9.16 e) : date d'archivage (facultative pour les lectures antérieures) ; un produit archivé n'est pas publiable.
+  archiveLe?: string | null;
   variantes: VarianteAdmin[];
   photos: PhotoAdmin[];
   // Kit seulement (null / vide sinon).

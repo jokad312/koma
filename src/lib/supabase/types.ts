@@ -1547,6 +1547,7 @@ export type Database = {
       }
       produit: {
         Row: {
+          archive_le: string | null
           cree_le: string
           delai_fabrication_jours: number | null
           description_en: string | null
@@ -1567,6 +1568,7 @@ export type Database = {
           univers_id: string | null
         }
         Insert: {
+          archive_le?: string | null
           cree_le?: string
           delai_fabrication_jours?: number | null
           description_en?: string | null
@@ -1587,6 +1589,7 @@ export type Database = {
           univers_id?: string | null
         }
         Update: {
+          archive_le?: string | null
           cree_le?: string
           delai_fabrication_jours?: number | null
           description_en?: string | null
@@ -2633,6 +2636,10 @@ export type Database = {
         Args: { p_auteur: Json; p_pass: string }
         Returns: number
       }
+      archiver_produit: {
+        Args: { p_auteur: Json; p_id: string }
+        Returns: undefined
+      }
       assurer_profil: {
         Args: { p_auteur: Json; p_compte: string; p_langue: string }
         Returns: undefined
@@ -3496,6 +3503,14 @@ export type Database = {
         Args: { p_appareil: string; p_auteur: Json; p_evenement: string }
         Returns: Json
       }
+      produits_admin_compteurs: {
+        Args: { p_auteur: Json }
+        Returns: {
+          acces: number
+          produit_id: string
+          vendus: number
+        }[]
+      }
       publier_article: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
@@ -3564,6 +3579,10 @@ export type Database = {
           p_taille: number
         }
         Returns: string
+      }
+      restaurer_produit: {
+        Args: { p_auteur: Json; p_id: string }
+        Returns: undefined
       }
       retirer_acces_benevole: {
         Args: { p_acces: string; p_auteur: Json; p_evenement: string }

@@ -93,6 +93,15 @@ export async function depublierProduit(entree: { id: string }) {
   return envelopper<object>("dépublication", () => service.depublierProduit(dependances(), entree));
 }
 
+// Story 9.16 e) : corbeille = archivage (jamais de suppression) ; « Restaurer » ramène en brouillon.
+export async function archiverProduit(entree: { id: string }) {
+  return envelopper<object>("archivage", () => service.archiverProduit(dependances(), entree));
+}
+
+export async function restaurerProduit(entree: { id: string }) {
+  return envelopper<object>("restauration", () => service.restaurerProduit(dependances(), entree));
+}
+
 // Résultat rendu à l'éditeur de tranches : le succès n'existe qu'après la réponse réelle de la base ; la saisie reste côté formulaire.
 export type EtatTranches =
   | { statut: "succes" }

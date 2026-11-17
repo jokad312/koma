@@ -13,6 +13,7 @@ import { routing, type Locale } from "@/i18n/routing";
 import { exigerAdminPage } from "@/lib/auth/droits";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
+import { produitsPourLien } from "@/modules/blog/produits-lien";
 import { lireArticleAdmin } from "@/modules/blog/queries";
 import type { Article, ProduitLien } from "@/modules/blog/types";
 import { lireProduitsAdmin } from "@/modules/catalogue/queries";
@@ -57,7 +58,7 @@ async function ArticleSelonDroit({
   try {
     const [lu, liste] = await Promise.all([lireArticleAdmin(id), lireProduitsAdmin()]);
     article = lu;
-    produits = liste.map((p) => ({ id: p.id, titreFr: p.titreFr }));
+    produits = produitsPourLien(liste, lu?.lienProduitId ?? null);
   } catch {
     lecture = false;
     console.error("[blog] lecture de l'article impossible");

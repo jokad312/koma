@@ -5,14 +5,13 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { ListeProduits } from "@/components/admin/ListeProduits";
-import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
 import { routing, type Locale } from "@/i18n/routing";
 import { exigerAdminPage } from "@/lib/auth/droits";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
-import { lireProduitsAdmin } from "@/modules/catalogue/queries";
+import { lireProduitsAdminAvecCompteurs } from "@/modules/catalogue/queries";
 import type { ProduitListe } from "@/modules/catalogue/types";
 
 const CHEMIN = "/admin/produits";
@@ -32,26 +31,22 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/admin/pr
   });
 }
 
-// Droit vérifié sur la page elle-même (le layout ne suffit pas), puis lecture par le client service.
+// Droit vérifié sur la page elle-même (le layout ne suffit pas), puis lecture par le client service ; les compteurs des cartes passent par
+// produits_admin_compteurs (droit Admin revérifié en base).
 async function ProduitsSelonDroit({ locale }: { locale: Locale }) {
-  await exigerAdminPage(locale, CHEMIN, "produits.modifier");
+  const { auteur } = await exigerAdminPage(locale, CHEMIN, "produits.modifier");
   const t = await getTranslations("Admin.produits");
   let produits: ProduitListe[] | null = null;
   try {
-    produits = await lireProduitsAdmin();
+    produits = await lireProduitsAdminAvecCompteurs(auteur);
   } catch {
     console.error("[catalogue] lecture des produits impossible");
   }
   return (
     <CoqueAdmin>
       <div className="flex flex-col gap-6">
-        <h1 className="t-h1">{t("titre")}</h1>
+        <h1 className="t-h1 uppercase">{t("titre")}</h1>
         <p className="t-body text-text-secondary">{t("intro")}</p>
-        {produits && produits.length > 0 ? (
-          <div>
-            <Bouton href="/admin/produits/nouveau">{t("nouveau")}</Bouton>
-          </div>
-        ) : null}
         {produits ? <ListeProduits produits={produits} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
       </div>
     </CoqueAdmin>

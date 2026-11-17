@@ -5,7 +5,9 @@
 // Maquettes lues dans docs/references/maquettes-admin/ (ignoré par Git).
 // Deux Comptes TEST_ réels sur la base de .env.local (koma-dev) : un Admin et un Assistant, créés au début et TOUS supprimés à la fin, même en cas d'échec,
 // puis comptés (0 attendu). Aucune donnée de boutique n'est créée ; aucun paiement, aucune notification ni aucun statut simulé (règle 13).
-import { mkdirSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { chromium } from "@playwright/test";
 import { createServerClient } from "@supabase/ssr";
@@ -57,6 +59,62 @@ async function nettoyer() {
     const { error } = await service.auth.admin.deleteUser(id);
     if (error && !/not found/i.test(error.message)) throw new Error(`suppression du Compte TEST_ impossible : ${error.message}`);
   }
+}
+
+// Story 9.16 e) : vue « produits » remplie de 4 produits TEST_ (cosplay publié avec photo dessinée ici, Kit gratuit, Vêtement sans prix, Autre
+// article archivé), créés par la Supabase CLI sur la base liée (auteur « systeme » journalisé) et TOUS supprimés à la fin, puis comptés (0 attendu).
+const PRODUITS_TEST = {
+  cosplay: "00000000-0000-4000-8916-00000000ca01",
+  kit: "00000000-0000-4000-8916-00000000ca02",
+  vetement: "00000000-0000-4000-8916-00000000ca03",
+  autre: "00000000-0000-4000-8916-00000000ca04",
+};
+const PHOTO_TEST = "test-captures-916e/cosplay.jpg";
+const avecProduits = () => VUES.some(([cle]) => cle === "produits");
+
+function sqlBloc(corps) {
+  const dossier = mkdtempSync(join(tmpdir(), "captures-916e-"));
+  const fichier = join(dossier, "requete.sql");
+  writeFileSync(fichier, ["do $bloc$", "begin", `perform set_config('ks.auteur', '${JSON.stringify(AUTEUR)}', true);`, corps, "end", "$bloc$;"].join("\n"));
+  const r = spawnSync("npx", ["supabase", "db", "query", "--linked", "-f", fichier], { encoding: "utf8", shell: true });
+  rmSync(dossier, { recursive: true, force: true });
+  if (r.status !== 0 || /"error"|ERROR/.test(r.stdout + r.stderr)) throw new Error(`SQL en échec : ${(r.stdout + r.stderr).slice(0, 800)}`);
+}
+
+const listeProduitsTest = () => Object.values(PRODUITS_TEST).map((id) => `'${id}'`).join(",");
+
+async function retirerProduitsTest() {
+  sqlBloc(`alter table public.produit disable trigger produit_publie_complet;
+delete from public.produit_photo where produit_id in (${listeProduitsTest()});
+delete from public.variante where produit_id in (${listeProduitsTest()});
+delete from public.produit where id in (${listeProduitsTest()});
+alter table public.produit enable trigger produit_publie_complet;`);
+  await service.storage.from("produits-public").remove([PHOTO_TEST]);
+}
+
+async function semerProduitsTest() {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><rect width="400" height="400" fill="#5a4a40"/><circle cx="200" cy="170" r="80" fill="#8c514e"/></svg>`;
+  const envoi = await service.storage.from("produits-public").upload(PHOTO_TEST, await sharp(Buffer.from(svg)).jpeg().toBuffer(), { upsert: true, contentType: "image/jpeg" });
+  if (envoi.error) throw new Error(`photo TEST_ : ${envoi.error.message}`);
+  const p = PRODUITS_TEST;
+  sqlBloc(`alter table public.produit disable trigger produit_publie_complet;
+insert into public.produit (id, famille, slug, titre_fr, titre_en, description_fr, description_en, prix_cents, niveau) values
+  ('${p.cosplay}', 'cosplay', 'test-captures-916e-cosplay', 'TEST_ Cosplay démonstration', 'TEST_ Demo cosplay', 'TEST_ d', 'TEST_ d', 4500, null),
+  ('${p.kit}', 'kit', 'test-captures-916e-kit', 'TEST_ Kit démonstration', 'TEST_ Demo kit', 'TEST_ d', 'TEST_ d', 0, 'debutant'),
+  ('${p.vetement}', 'vetement', 'test-captures-916e-polo', 'TEST_ Polo démonstration', 'TEST_ Demo polo', null, null, null, null),
+  ('${p.autre}', 'autre', 'test-captures-916e-autre', 'TEST_ Objet archivé', 'TEST_ Archived item', null, null, 1000, null);
+insert into public.produit_photo (produit_id, fichier, position, alt_fr, alt_en) values ('${p.cosplay}', '${PHOTO_TEST}', 1, 'TEST_ photo de démonstration', 'TEST_ demo photo');
+insert into public.variante (produit_id, taille, stock) values ('${p.cosplay}', 'M', 2), ('${p.autre}', 'unique', 1);
+update public.produit set publie_le = now() - interval '1 hour' where id = '${p.cosplay}';
+update public.produit set archive_le = now() where id = '${p.autre}';
+alter table public.produit enable trigger produit_publie_complet;`);
+}
+
+async function compterProduitsTest() {
+  const { count, error } = await service.from("produit").select("id", { count: "exact", head: true }).in("id", Object.values(PRODUITS_TEST));
+  if (error || count === null) throw new Error(`comptage des produits TEST_ : ${error?.message}`);
+  const { data } = await service.storage.from("produits-public").list("test-captures-916e");
+  return count + (data ?? []).length;
 }
 
 // Compte TEST_ réel avec le rôle demandé ; renvoie les cookies de session à poser dans le navigateur.
@@ -161,6 +219,10 @@ async function principal() {
   const rapport = { vues: {}, largeurs: {}, assistant: null, admin: null };
   try {
     await nettoyer();
+    if (avecProduits()) {
+      await retirerProduitsTest();
+      await semerProduitsTest();
+    }
     const admin = await sessionTest("admin");
     const assistant = await sessionTest("assistant");
 
@@ -229,6 +291,12 @@ async function principal() {
     await navigateur.close();
     try {
       await nettoyer();
+      if (avecProduits()) {
+        await retirerProduitsTest();
+        const restesProduits = await compterProduitsTest();
+        console.log(`Produits et photos TEST_ restants : ${restesProduits}`);
+        if (restesProduits !== 0) process.exitCode = 1;
+      }
     } finally {
       const restes = (await comptesTest()).length;
       console.log(`Comptes TEST_ restants : ${restes}`);
