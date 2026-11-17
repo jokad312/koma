@@ -2,14 +2,14 @@ import { getTranslations } from "next-intl/server";
 
 export type Barre = { libelle: string; valeur: number; texteValeur: string };
 
-// Graphique en barres (UX-DR43) : la valeur est écrite sur chaque barre, une seule teinte (aucune couleur par série), et
+// Graphique en barres (UX-DR43 ; habillé comme le Panneau de l'admin depuis 9.16 c) : la valeur est écrite sur chaque barre, une seule teinte (aucune couleur par série), et
 // « Voir les données en tableau » donne les mêmes chiffres en tableau. Aucune barre n'est inventée : sans donnée, un message.
 export async function GraphiqueBarres({ id, titre, barres, total, vide }: { id: string; titre: string; barres: readonly Barre[]; total?: string; vide?: string }) {
   const t = await getTranslations("Admin.tableau.graphiques");
   const max = Math.max(0, ...barres.map((b) => b.valeur));
   return (
-    <section aria-labelledby={id} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
-      <h3 id={id} className="t-h2">
+    <section aria-labelledby={id} className="flex flex-col gap-3 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
+      <h3 id={id} className="t-label text-[18px] leading-6">
         {titre}
       </h3>
       {total ? <p className="t-label text-text-primary">{total}</p> : null}
@@ -21,8 +21,8 @@ export async function GraphiqueBarres({ id, titre, barres, total, vide }: { id: 
             {barres.map((b) => (
               <li key={b.libelle} className="grid grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-2 sm:grid-cols-[9rem_minmax(0,1fr)]">
                 <span className="t-small text-text-secondary">{b.libelle}</span>
-                <span className="relative flex h-8 items-center overflow-hidden rounded bg-background">
-                  <span aria-hidden="true" className="absolute inset-y-0 left-0 rounded border border-text-secondary/40 bg-border" style={{ width: `${max > 0 ? Math.max(2, Math.round((b.valeur / max) * 100)) : 0}%` }} />
+                <span className="relative flex h-8 items-center overflow-hidden rounded bg-admin-champ">
+                  <span aria-hidden="true" className="absolute inset-y-0 left-0 rounded border border-text-secondary/40 bg-admin-info" style={{ width: `${max > 0 ? Math.max(2, Math.round((b.valeur / max) * 100)) : 0}%` }} />
                   <span className="t-label relative px-2 text-text-primary">{b.texteValeur}</span>
                 </span>
               </li>
@@ -34,10 +34,10 @@ export async function GraphiqueBarres({ id, titre, barres, total, vide }: { id: 
               <caption className="sr-only">{titre}</caption>
               <thead>
                 <tr>
-                  <th scope="col" className="t-label border-b border-border py-2 pr-2">
+                  <th scope="col" className="t-label border-b border-admin-axe py-2 pr-2">
                     {t("colonneLibelle")}
                   </th>
-                  <th scope="col" className="t-label border-b border-border py-2 text-right">
+                  <th scope="col" className="t-label border-b border-admin-axe py-2 text-right">
                     {t("colonneMontant")}
                   </th>
                 </tr>
@@ -45,10 +45,10 @@ export async function GraphiqueBarres({ id, titre, barres, total, vide }: { id: 
               <tbody>
                 {barres.map((b) => (
                   <tr key={b.libelle}>
-                    <th scope="row" className="t-body border-b border-border py-2 pr-2 font-normal">
+                    <th scope="row" className="t-body border-b border-admin-axe py-2 pr-2 font-normal">
                       {b.libelle}
                     </th>
-                    <td className="t-body border-b border-border py-2 text-right">{b.texteValeur}</td>
+                    <td className="t-body border-b border-admin-axe py-2 text-right">{b.texteValeur}</td>
                   </tr>
                 ))}
               </tbody>

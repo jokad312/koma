@@ -6,7 +6,7 @@ import { lireMesuresARecevoir, lireTachesRemboursement } from "@/modules/command
 import type { LigneEchec, LignePaiement } from "./calculs";
 import { joursFenetre, minuitGoma } from "./periode";
 
-// Lecture du tableau de bord (story 9.8, partie 2). Seules sources : les cinq fonctions d'agrégats de la partie 1, les vues de
+// Lecture du tableau de bord (story 9.8, partie 2 ; tableau_chiffres depuis 9.16 c). Seules sources : les fonctions d'agrégats tableau_*, les vues de
 // la story 9.7 et les compteurs de tâches déjà existants. Jamais une table de Commande, de Compte ou de client. Toutes les
 // lectures passent par le client service, côté serveur ; chaque zone échoue seule (null) : jamais un zéro inventé.
 export type Zone<T> = T | null;
@@ -20,6 +20,17 @@ export type LigneOrigine = { jour: string | null; origine: string | null; comman
 export type VenteCode = { code: string; commandesPayees: number; reductionCents: number; montantPayeCents: number };
 export type DeuxiemesAchats = { clientsPayants: number; clientsDeuxAchats: number };
 export type CarteTache = { cle: CleTache; nombre: number | null; href: string };
+// Cartes de chiffres et « Événements et Pass vendus » (story 9.16 c, tableau_chiffres) : depuis le début, sauf les Pass (7 et 30 jours).
+export type Chiffres = {
+  produitsPublies: number;
+  commandesPayees: number;
+  revenuCents: number;
+  tentativesReussies: number;
+  tentativesTerminees: number;
+  evenementsAVenir: number;
+  pass7: number;
+  pass30: number;
+};
 export type CleTache =
   | "mesures"
   | "annulations"
@@ -48,6 +59,9 @@ export type DonneesTableau = {
   deuxiemesAchats: Zone<DeuxiemesAchats>;
   desinscriptions: Zone<{ jour: string | null; desinscriptions: number | null }[]>;
   taches: CarteTache[];
+  chiffres: Zone<Chiffres>;
+  // Commandes payées aujourd'hui à Goma (Performance du jour), lues même quand la liste montre 7 jours.
+  ventesJour: Zone<CommandePayee[]>;
 };
 
 // Exécute une lecture : en cas d'erreur, journal sans donnée et zone vide (null).
@@ -92,19 +106,25 @@ export async function lireTableauDeBord(args: { auteur: AuteurCompte; maintenant
   // Premier jour de la plus grande fenêtre utile aux vues (30 jours pleins).
   const premierJour = joursFenetre(30, maintenant)[0];
 
+  const lireCommandesPayees = (p_depuis: string) =>
+    lire("commandes payées", async () => {
+      const { data, error } = await admin.rpc("tableau_commandes_payees", { p_auteur, p_depuis });
+      if (error) throw new Error(error.message);
+      return (data ?? []).map((c) => ({ numero: c.numero, totalCents: entier(c.total_cents), prestataire: c.prestataire, familles: c.familles }));
+    });
+  const lectureCommandes = lireCommandesPayees(depuisCommandes);
+  // Sans ?periode=7, la liste est déjà celle d'aujourd'hui : une seule lecture.
+  const lectureVentesJour = args.commandesSurSeptJours ? lireCommandesPayees(minuitGoma(0, maintenant).toISOString()) : lectureCommandes;
+
   const lectureTropPercus = lire("trop-perçus", async () => {
     const { data, error } = await admin.rpc("tableau_trop_percus", { p_auteur });
     if (error) throw new Error(error.message);
     return (data ?? []).map((t) => ({ motif: t.motif, aRembourser: entier(t.a_rembourser), plusAncienLe: t.plus_ancien_le }));
   });
 
-  const [commandesPayees, paiements, tropPercus, echecs7, echecs30, delai7, delai30, visites, entonnoir, origines, ventesCodes, deuxiemesAchats, desinscriptions, taches] =
+  const [commandesPayees, paiements, tropPercus, echecs7, echecs30, delai7, delai30, visites, entonnoir, origines, ventesCodes, deuxiemesAchats, desinscriptions, taches, chiffres, ventesJour] =
     await Promise.all([
-      lire("commandes payées", async () => {
-        const { data, error } = await admin.rpc("tableau_commandes_payees", { p_auteur, p_depuis: depuisCommandes });
-        if (error) throw new Error(error.message);
-        return (data ?? []).map((c) => ({ numero: c.numero, totalCents: entier(c.total_cents), prestataire: c.prestataire, familles: c.familles }));
-      }),
+      lectureCommandes,
       lire("paiements", async () => {
         const { data, error } = await admin.rpc("tableau_paiements", { p_auteur, p_depuis: depuis30 });
         if (error) throw new Error(error.message);
@@ -148,9 +168,25 @@ export async function lireTableauDeBord(args: { auteur: AuteurCompte; maintenant
         return data ?? [];
       }),
       lireCartesTaches(admin, lectureTropPercus),
+      lire("chiffres", async () => {
+        const { data, error } = await admin.rpc("tableau_chiffres", { p_auteur });
+        const ligne = data?.[0];
+        if (error || !ligne) throw new Error(error?.message ?? "vide");
+        return {
+          produitsPublies: entier(ligne.produits_publies),
+          commandesPayees: entier(ligne.commandes_payees),
+          revenuCents: entier(ligne.revenu_cents),
+          tentativesReussies: entier(ligne.tentatives_reussies),
+          tentativesTerminees: entier(ligne.tentatives_terminees),
+          evenementsAVenir: entier(ligne.evenements_a_venir),
+          pass7: entier(ligne.pass_7),
+          pass30: entier(ligne.pass_30),
+        };
+      }),
+      lectureVentesJour,
     ]);
 
-  return { commandesPayees, paiements, tropPercus, echecs7, echecs30, delai7, delai30, visites, entonnoir, origines, ventesCodes, deuxiemesAchats, desinscriptions, taches };
+  return { commandesPayees, paiements, tropPercus, echecs7, echecs30, delai7, delai30, visites, entonnoir, origines, ventesCodes, deuxiemesAchats, desinscriptions, taches, chiffres, ventesJour };
 }
 
 type ClientService = ReturnType<typeof creerClientService>;

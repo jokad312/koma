@@ -81,7 +81,7 @@ export async function restesProduit(env: Env, p: ProduitTest): Promise<Record<st
 }
 
 // Compte TEST_ réel (API d'administration), rôle admin facultatif, session posée dans le navigateur. Renvoie la suppression du Compte.
-export async function connecterCompteTest(page: Page, env: Env, prefixe: string, role?: "admin"): Promise<() => Promise<void>> {
+export async function connecterCompteTest(page: Page, env: Env, prefixe: string, role?: "admin" | "assistant"): Promise<() => Promise<void>> {
   const admin = service(env);
   const email = `${prefixe}${Date.now()}-${Math.floor(Math.random() * 1e6)}@example.invalid`;
   const cree = await admin.auth.admin.createUser({ email, email_confirm: true, user_metadata: { full_name: "TEST Police" } });

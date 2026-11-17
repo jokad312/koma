@@ -1,5 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { commandesParFamille, echecsParPrestataire, formaterUsd, pourcentage, serieParJour, sommeMontants, sommeVue, totalPar, type LignePaiement } from "./calculs";
+import {
+  cartesChiffres,
+  commandesParFamille,
+  echecsParPrestataire,
+  formaterUsd,
+  formaterUsdCompact,
+  graduations,
+  indicesDates,
+  pourcentage,
+  serieParJour,
+  sommeMontants,
+  sommeVue,
+  tauxReussite,
+  totalPar,
+  ventesDuJour,
+  type LignePaiement,
+} from "./calculs";
 import { jourGoma, joursFenetre, lirePeriode, minuitGoma } from "./periode";
 
 // Données de test, nommées TEST_ : jamais utilisées hors des tests.
@@ -88,5 +104,81 @@ describe("taux et formats", () => {
   });
   it("formaterUsd : toujours en USD", () => {
     expect(formaterUsd(12500, "en")).toBe("$125.00");
+  });
+});
+
+describe("graphique des 30 jours et Performance du jour (story 9.16 c)", () => {
+  it("graduations : de 0 à une borne ronde qui couvre le maximum, pas rond", () => {
+    expect(graduations(7_000_000)).toEqual([0, 2_000_000, 4_000_000, 6_000_000, 8_000_000]);
+    expect(graduations(5000)).toEqual([0, 1000, 2000, 3000, 4000, 5000]);
+    const g = graduations(12_345);
+    expect(g[0]).toBe(0);
+    expect(g[g.length - 1]).toBeGreaterThanOrEqual(12_345);
+    expect(g.length).toBeGreaterThanOrEqual(3);
+  });
+  it("graduations : sans montant, une échelle de 0 à 5 $ (jamais négative ni NaN)", () => {
+    expect(graduations(0)).toEqual([0, 100, 200, 300, 400, 500]);
+    expect(graduations(Number.NaN)).toEqual([0, 100, 200, 300, 400, 500]);
+    expect(graduations(-50)).toEqual([0, 100, 200, 300, 400, 500]);
+  });
+  it("graduations : le pas ne descend jamais sous un dollar", () => {
+    expect(graduations(150)).toEqual([0, 100, 200]);
+  });
+  it("indicesDates : une date tous les 5 jours, le dernier jour toujours daté", () => {
+    expect(indicesDates(30)).toEqual([4, 9, 14, 19, 24, 29]);
+    expect(indicesDates(7)).toEqual([1, 6]);
+    expect(indicesDates(0)).toEqual([]);
+  });
+  it("serieParJour sur 30 jours : 30 points, jours sans vente à 0", () => {
+    const jours = joursFenetre(30, new Date("2026-11-10T15:30:00Z"));
+    const serie = serieParJour(TEST_LIGNES, jours);
+    expect(serie).toHaveLength(30);
+    expect(serie.filter((p) => p.montantCents > 0).map((p) => p.jour)).toEqual(["2026-11-08", "2026-11-10"]);
+    expect(serie.find((p) => p.jour === "2026-11-09")?.montantCents).toBe(0);
+  });
+  it("ventesDuJour : nombre et montant ; au plafond, ce sont des minimums", () => {
+    expect(ventesDuJour([{ totalCents: 5500 }, { totalCents: 1000 }], 200)).toEqual({ nombre: 2, montantCents: 6500, auMoins: false });
+    expect(ventesDuJour([], 200)).toEqual({ nombre: 0, montantCents: 0, auMoins: false });
+    expect(ventesDuJour([{ totalCents: 1 }, { totalCents: 1 }], 2).auMoins).toBe(true);
+  });
+  it("formaterUsdCompact : montant court en USD", () => {
+    expect(formaterUsdCompact(7_000_000, "en")).toBe("$70K");
+    expect(formaterUsdCompact(0, "en")).toBe("$0");
+  });
+});
+
+describe("cartes de chiffres (story 9.16 c)", () => {
+  const TEST_TEXTES = { usd: (c: number) => formaterUsd(c, "fr"), taux: (n: number) => `${n} %`, aucuneDonnee: "Aucune donnée" };
+  const TEST_CHIFFRES = { produitsPublies: 4, commandesPayees: 7, revenuCents: 12345, tentativesReussies: 3, tentativesTerminees: 4 };
+
+  it("tauxReussite : réussies / terminées, arrondi à l'inférieur, jamais 100 % avec un échec", () => {
+    expect(tauxReussite(3, 4)).toBe(75);
+    expect(tauxReussite(199, 200)).toBe(99);
+    expect(tauxReussite(2, 3)).toBe(66);
+    expect(tauxReussite(5, 5)).toBe(100);
+    expect(tauxReussite(0, 4)).toBe(0);
+    expect(tauxReussite(0, 0)).toBeNull();
+  });
+
+  it("les 4 cartes, dans l'ordre de la maquette, chaque valeur dans la bonne carte", () => {
+    const cartes = cartesChiffres(TEST_CHIFFRES, TEST_TEXTES);
+    expect(cartes.map((c) => c.cle)).toEqual(["produitsPublies", "commandesTotal", "revenuTotal", "paiementsReussis"]);
+    expect(cartes[0]).toEqual({ cle: "produitsPublies", chiffre: "4", texte: false });
+    expect(cartes[1]).toEqual({ cle: "commandesTotal", chiffre: "7", texte: false });
+    expect(cartes[2].chiffre).toBe(formaterUsd(12345, "fr"));
+    expect(cartes[2].texte).toBe(false);
+    expect(cartes[3]).toEqual({ cle: "paiementsReussis", chiffre: "75 %", texte: false });
+  });
+
+  it("aucune tentative terminée : « Aucune donnée », écrit plus petit (jamais 0 %)", () => {
+    expect(cartesChiffres({ ...TEST_CHIFFRES, tentativesReussies: 0, tentativesTerminees: 0 }, TEST_TEXTES)[3]).toEqual({ cle: "paiementsReussis", chiffre: "Aucune donnée", texte: true });
+  });
+
+  it("revenu : écrit plus petit à partir de 1 000 USD, selon la valeur et non la longueur du texte", () => {
+    expect(cartesChiffres({ ...TEST_CHIFFRES, revenuCents: 99_999 }, TEST_TEXTES)[2].texte).toBe(false);
+    expect(cartesChiffres({ ...TEST_CHIFFRES, revenuCents: 100_000 }, TEST_TEXTES)[2].texte).toBe(true);
+    const appels: number[] = [];
+    cartesChiffres(TEST_CHIFFRES, { ...TEST_TEXTES, usd: (c) => (appels.push(c), "x") });
+    expect(appels).toEqual([12345]);
   });
 });

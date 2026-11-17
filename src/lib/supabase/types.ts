@@ -3649,6 +3649,19 @@ export type Database = {
         }
         Returns: Json
       }
+      tableau_chiffres: {
+        Args: { p_auteur: Json }
+        Returns: {
+          commandes_payees: number
+          evenements_a_venir: number
+          pass_30: number
+          pass_7: number
+          produits_publies: number
+          revenu_cents: number
+          tentatives_reussies: number
+          tentatives_terminees: number
+        }[]
+      }
       tableau_commandes_payees: {
         Args: { p_auteur: Json; p_depuis: string }
         Returns: {

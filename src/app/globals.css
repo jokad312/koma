@@ -100,6 +100,9 @@
   --ks-admin-sur-univers: #ffffff;
   --ks-admin-rond: #16130f;
   --ks-admin-sur-rond: #f3eee4;
+  /* Graphique du tableau de bord (story 9.16 c, Q10) : barres du seul rouge, lignes de graduation discrètes. */
+  --ks-admin-barre: #d7261e;
+  --ks-admin-axe: #d8ccb8;
 
   color-scheme: light;
 }
@@ -147,6 +150,8 @@
   --ks-admin-sur-univers: #ffffff;
   --ks-admin-rond: #f3eee4;
   --ks-admin-sur-rond: #16130f;
+  --ks-admin-barre: #d7261e;
+  --ks-admin-axe: #4a433b;
 
   color-scheme: dark;
 }
@@ -190,6 +195,8 @@
   --color-admin-sur-univers: var(--ks-admin-sur-univers);
   --color-admin-rond: var(--ks-admin-rond);
   --color-admin-sur-rond: var(--ks-admin-sur-rond);
+  --color-admin-barre: var(--ks-admin-barre);
+  --color-admin-axe: var(--ks-admin-axe);
 
   /* Police unique KOMA Chikara (9.16 a) : les deux noms historiques restent, pour les rôles t-* et font-condensee.
      La variable de next/font vaut « "komaChikara", KOMA Repli Arial, KOMA Repli Roboto, system-ui, sans-serif » : replis réglés (en

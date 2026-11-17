@@ -1,5 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { MessageEtat } from "@/components/ui/MessageEtat";
+import { VoirPlus } from "./CartesTaches";
 import { commandesParFamille, echecsParPrestataire, formaterUsd, pourcentage, sommeMontants, sommeVue, totalPar, type LigneEchec, type LignePaiement } from "@/modules/tableau-de-bord/calculs";
 import { joursFenetre } from "@/modules/tableau-de-bord/periode";
 import type { DelaiMesures, DonneesTableau, Zone } from "@/modules/tableau-de-bord/queries";
@@ -11,7 +12,7 @@ const FAMILLES = ["cosplay", "accessoire", "vetement", "autre", "kit", "pass", "
 type Valeur = { texte: string } | { aucune: true } | { illisible: true };
 type Ligne = { cle: string; titre: string; valeurs?: [Valeur, Valeur]; cumul?: Valeur; raison?: string; note?: string };
 
-// Indicateurs SM-1 à SM-10 et SM-C1 à SM-C7 (PRD §7) sur 7 et 30 jours. Un indicateur sans source est écrit « Pas encore mesuré »
+// Tous les indicateurs (ancre #indicateurs, cible du « Voir plus » de la maquette, Q12) : SM-1 à SM-10 et SM-C1 à SM-C7 (PRD §7) sur 7 et 30 jours. Un indicateur sans source est écrit « Pas encore mesuré »
 // avec sa raison, jamais remplacé par un zéro (règle 13). Aucune donnée personnelle : que des agrégats.
 export async function Indicateurs({ donnees, maintenant }: { donnees: DonneesTableau; maintenant: Date }) {
   const t = await getTranslations("Admin.tableau.indicateurs");
@@ -125,6 +126,10 @@ export async function Indicateurs({ donnees, maintenant }: { donnees: DonneesTab
     return { texte: t("valeurSmc3", { heures: zone.delaiMoyenHeures, recues: zone.lignesRecues, attente: zone.lignesEnAttente }) };
   };
 
+  // SM-4 (décision 2 du 2026-11-17) : mêmes chiffres que la carte « Événements et Pass vendus » (tableau_chiffres).
+  const sm4 = (chiffres: DonneesTableau["chiffres"]) =>
+    deux((n) => (chiffres ? { texte: t("valeurSm4", { evenements: chiffres.evenementsAVenir, pass: n === 7 ? chiffres.pass7 : chiffres.pass30 }) } : ILLISIBLE));
+
   const desinscriptions = donnees.desinscriptions;
   const smc5 = deux((n) => (desinscriptions ? { texte: t("valeurNombre", { nombre: sommeVue(desinscriptions, (l) => l.desinscriptions, fenetres[n]) }) } : ILLISIBLE));
 
@@ -132,7 +137,7 @@ export async function Indicateurs({ donnees, maintenant }: { donnees: DonneesTab
     { cle: "sm1", titre: t("sm1"), valeurs: sm1(donnees.paiements) },
     { cle: "sm2", titre: t("sm2"), valeurs: sm2 },
     { cle: "sm3", titre: t("sm3"), valeurs: nombreAction("partage_fiche") },
-    { cle: "sm4", titre: t("sm4"), raison: t("raisonSm4") },
+    { cle: "sm4", titre: t("sm4"), valeurs: sm4(donnees.chiffres), note: t("raisonSm4Alertes") },
     { cle: "sm5", titre: t("sm5"), raison: t("raisonSm5") },
     { cle: "sm6", titre: t("sm6"), valeurs: nombreAction("kit_gratuit_recupere"), note: t("raisonSm6Passage") },
     { cle: "sm7origine", titre: t("sm7origine"), valeurs: sm7origine },
@@ -151,14 +156,15 @@ export async function Indicateurs({ donnees, maintenant }: { donnees: DonneesTab
 
   const afficher = (v: Valeur) => ("texte" in v ? v.texte : "aucune" in v ? t("aucuneDonnee") : te("erreurLecture"));
   return (
-    <section aria-labelledby="tableau-indicateurs" className="flex flex-col gap-3">
-      <h2 id="tableau-indicateurs" className="t-h2">
-        {t("titre")}
+    // tabIndex -1 : après « Voir plus » (#indicateurs), le focus clavier arrive sur la section, pas seulement le défilement.
+    <section id="indicateurs" tabIndex={-1} aria-labelledby="tableau-indicateurs" className="scroll-mt-24 flex flex-col gap-3 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
+      <h2 id="tableau-indicateurs" className="t-label text-[24px] leading-8">
+        {t("tous")}
       </h2>
       <p className="t-small text-text-secondary">{t("aide")}</p>
       <ul className="flex flex-col gap-ecart-cartes">
         {lignes.map((l) => (
-          <li key={l.cle} className="flex flex-col gap-1 rounded-lg border border-border bg-surface p-4">
+          <li key={l.cle} className="flex flex-col gap-1 rounded-[20px] border border-admin-contour bg-admin-carte p-4 text-text-primary">
             <h3 className="t-label text-text-primary">{l.titre}</h3>
             {l.valeurs ? (
               <dl className="flex flex-col gap-1">
@@ -186,6 +192,61 @@ export async function Indicateurs({ donnees, maintenant }: { donnees: DonneesTab
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+// « Indicateurs » de la maquette (E12 à E15) : Ventes payées (SM-1, total sur 7 et 30 jours, Q13) et Événements et Pass vendus (SM-4),
+// puis « Voir plus » vers la liste complète (#indicateurs). Zone illisible : elle le dit, jamais un faux zéro.
+export async function ApercuIndicateurs({ donnees, maintenant }: { donnees: DonneesTableau; maintenant: Date }) {
+  const t = await getTranslations("Admin.tableau.indicateurs");
+  const ta = await getTranslations("Admin.tableau.apercu");
+  const te = await getTranslations("Admin.tableau");
+  const locale = await getLocale();
+  const paiements = donnees.paiements;
+  const chiffres = donnees.chiffres;
+  const sm1 = (n: 7 | 30) => {
+    if (!paiements) return null;
+    const jours = new Set(joursFenetre(n, maintenant));
+    if (!paiements.some((l) => jours.has(l.jour))) return t("aucuneDonnee");
+    return formaterUsd(sommeMontants(paiements, jours), locale);
+  };
+  const carte = "flex flex-col gap-2 rounded-[20px] border border-admin-contour bg-admin-carte p-4 text-text-primary";
+  return (
+    <section aria-labelledby="tableau-apercu-indicateurs" className="flex flex-col gap-3">
+      <h2 id="tableau-apercu-indicateurs" className="t-label text-[24px] leading-8">
+        {t("titre")}
+      </h2>
+      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <li className={carte}>
+          <h3 className="t-label">{ta("sm1")}</h3>
+          {paiements === null ? (
+            <MessageEtat type="erreur">{te("erreurLecture")}</MessageEtat>
+          ) : (
+            <dl className="flex flex-col gap-1">
+              {([7, 30] as const).map((n) => (
+                <div key={n} className="flex flex-col">
+                  <dt className="t-small text-text-secondary">{n === 7 ? t("sept") : t("trente")}</dt>
+                  <dd className="t-body pl-3">{sm1(n)}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+        </li>
+        <li className={carte}>
+          <h3 className="t-label">{ta("evenementsPass")}</h3>
+          {chiffres === null ? (
+            <MessageEtat type="erreur">{te("erreurLecture")}</MessageEtat>
+          ) : (
+            <ul className="t-body flex flex-col gap-1">
+              <li>{ta("evenements", { nombre: chiffres.evenementsAVenir })}</li>
+              <li>{ta("pass7", { nombre: chiffres.pass7 })}</li>
+              <li>{ta("pass30", { nombre: chiffres.pass30 })}</li>
+            </ul>
+          )}
+        </li>
+      </ul>
+      <VoirPlus href="#indicateurs" texte={ta("voirPlus")} precision={ta("voirPlusIndicateurs")} />
     </section>
   );
 }

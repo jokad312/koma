@@ -66,7 +66,7 @@ select is(
 );
 select is(
   (select count(*)::int from pg_proc where proname like 'tableau\_%' and pronamespace = 'public'::regnamespace and prosecdef and proconfig @> array['search_path=""']),
-  5, 'SECURITY DEFINER, search_path fixé'
+  6, 'SECURITY DEFINER, search_path fixé (les 5 fonctions de la 9.8 et tableau_chiffres de la 9.16 c)'
 );
 set local role anon;
 select throws_ok($$select * from public.tableau_paiements('{"type":"compte","id":"00000000-0000-0000-0000-0000000000f1"}'::jsonb, null)$$, '42501', null, 'anon ne peut rien exécuter');

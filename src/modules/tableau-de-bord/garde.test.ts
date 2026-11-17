@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 // Garde de la story 9.8 : le tableau de bord ne lit que les fonctions d'agrégats de la partie 1, les vues de la story 9.7 et les
-// compteurs de tâches existants. Jamais une table de Commande, de Compte ou de client, et aucune donnée personnelle.
+// compteurs de tâches existants (et tableau_chiffres, story 9.16 c). Jamais une table de Commande, de Compte ou de client, et aucune donnée personnelle.
 const RACINE = process.cwd();
 const DOSSIERS = [join(RACINE, "src/modules/tableau-de-bord"), join(RACINE, "src/components/admin/tableau")];
 const SOURCES = [
@@ -12,7 +12,7 @@ const SOURCES = [
 ];
 
 const VUES_PERMISES = ["vue_visites_jour", "vue_entonnoir_jour", "vue_ventes_origine", "vue_ventes_code_promo", "vue_deuxiemes_achats", "vue_desinscriptions_jour"];
-const FONCTIONS_PERMISES = ["tableau_commandes_payees", "tableau_paiements", "tableau_echecs_paiement", "tableau_delai_mesures", "tableau_trop_percus", "compter_photos_a_traiter"];
+const FONCTIONS_PERMISES = ["tableau_commandes_payees", "tableau_paiements", "tableau_echecs_paiement", "tableau_delai_mesures", "tableau_trop_percus", "tableau_chiffres", "compter_photos_a_traiter"];
 // Seuls ces compteurs de tâches existants sont importés ; la page n'en lit que des nombres.
 const HELPERS_PERMIS = ["lireTachesAdmin", "compterMessagesNouveaux", "lireMesuresARecevoir", "lireTachesRemboursement"];
 

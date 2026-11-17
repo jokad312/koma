@@ -577,7 +577,6 @@
         "titre": "Paiements vérifiés",
         "parPrestataire": "Par prestataire",
         "parFamille": "Par famille",
-        "parJour": "Par jour",
         "vide": "Aucun paiement vérifié sur cette période.",
         "lienSept": "Voir les 7 derniers jours",
         "donnees": "Voir les données en tableau",
@@ -601,7 +600,8 @@
         "retraits": "Retraits de photo demandés",
         "realisations": "Réalisations à valider",
         "messages": "Messages de contact",
-        "anomalies": "Anomalies"
+        "anomalies": "Anomalies",
+        "toutes": "Toutes les tâches"
       },
       "indicateurs": {
         "titre": "Indicateurs",
@@ -644,14 +644,51 @@
         "valeurSmc2": "{prestataire} : {taux} % ({echouees, plural, one {# échec} other {# échecs}} sur {terminees})",
         "valeurSmc3": "{heures} h en moyenne ({recues, plural, one {# reçue} other {# reçues}}, {attente} en attente)",
         "valeurSmc3Aucune": "Aucune mesure reçue ({attente} en attente)",
-        "raisonSm4": "Les Pass relèvent de l'epic 7, pas encore construit.",
         "raisonSm5": "Pas de comptage agrégé des photos et Réalisations pour l'instant.",
         "raisonSm6Passage": "Le passage à un Kit payant n'est pas encore mesuré.",
         "raisonSm8": "La lecture d'une Vidéo de kit se passe dans l'espace Compte, que la mesure d'audience exclut.",
         "raisonSmc1": "Aucun délai promis n'est stocké par Commande.",
-        "raisonSmc4": "Les Pass relèvent de l'epic 7, pas encore construit.",
+        "raisonSmc4": "Pas de comptage agrégé des remboursements de Pass pour l'instant.",
         "raisonSmc6": "La durée de chargement du héros n'est pas enregistrée.",
-        "raisonSmc7": "La création de compte à l'étape de paiement n'est pas mesurée."
+        "raisonSmc7": "La création de compte à l'étape de paiement n'est pas mesurée.",
+        "tous": "Tous les indicateurs",
+        "valeurSm4": "{evenements, plural, one {# événement à venir} other {# événements à venir}}, {pass, plural, one {# Pass vendu} other {# Pass vendus}}",
+        "raisonSm4Alertes": "Les inscriptions aux alertes événement ne sont pas encore comptées."
+      },
+      "chiffres": {
+        "libelle": "Chiffres depuis le début",
+        "produitsPublies": "Produits publiés",
+        "commandesTotal": "Commandes au total",
+        "revenuTotal": "Revenu total",
+        "paiementsReussis": "Paiements réussis",
+        "taux": "{taux} %",
+        "aucuneDonnee": "Aucune donnée"
+      },
+      "ventes": {
+        "titre": "Performance des ventes",
+        "periode": "30 derniers jours",
+        "legende": "Revenus",
+        "resume": "Graphique en barres des ventes payées par jour sur les 30 derniers jours, en USD. Les mêmes chiffres sont dans « {donnees} ».",
+        "tableau": "Ventes payées par jour, 30 derniers jours",
+        "colonneJour": "Jour",
+        "vide": "Aucune vente payée sur les 30 derniers jours."
+      },
+      "jour": {
+        "titre": "Performance du jour",
+        "date": "Ventes du {date} :",
+        "nombre": "Nombre de ventes :",
+        "montant": "Montant :",
+        "auMoins": "au moins {valeur}"
+      },
+      "apercu": {
+        "voirPlus": "Voir plus",
+        "voirPlusTaches": "(toutes les tâches)",
+        "voirPlusIndicateurs": "(tous les indicateurs)",
+        "sm1": "Ventes payées (SM-1)",
+        "evenementsPass": "Événements et Pass vendus",
+        "evenements": "Événements à venir : {nombre}",
+        "pass7": "Pass vendus (7 jours) : {nombre}",
+        "pass30": "Pass vendus (30 jours) : {nombre}"
       }
     },
     "utilisateurs": {

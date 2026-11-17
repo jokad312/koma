@@ -1,6 +1,7 @@
 // Story 9.16 b) : captures du cadre A de l'admin comparées aux maquettes, et contrôles de mise en page.
 // Usage : contre un build de production lancé par `npm start -- -p 3200` (adresse modifiable par CAPTURES_URL) : `node scripts/captures-admin.mjs`.
-// Sortie : docs/captures-admin/9-16-b/ (ignoré par Git, jamais commité) et index.html pour la revue.
+// Sortie : docs/captures-admin/9-16-b/ (ignoré par Git, jamais commité) et index.html pour la revue. Pages de l'étape 4 (9.16 c et suivantes) :
+// CAPTURES_SORTIE (dossier, par exemple docs/captures-admin/9-16-c) et CAPTURES_VUES (clés séparées par des virgules, par exemple « tableau »).
 // Maquettes lues dans docs/references/maquettes-admin/ (ignoré par Git).
 // Deux Comptes TEST_ réels sur la base de .env.local (koma-dev) : un Admin et un Assistant, créés au début et TOUS supprimés à la fin, même en cas d'échec,
 // puis comptés (0 attendu). Aucune donnée de boutique n'est créée ; aucun paiement, aucune notification ni aucun statut simulé (règle 13).
@@ -11,14 +12,14 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient } from "@supabase/supabase-js";
 import sharp from "sharp";
 
-const RACINE = "docs/captures-admin/9-16-b";
+const RACINE = process.env.CAPTURES_SORTIE ?? "docs/captures-admin/9-16-b";
 const MAQUETTES = "docs/references/maquettes-admin";
 const BASE = (process.env.CAPTURES_URL ?? "http://localhost:3200").replace(/\/+$/, "");
 const EMAIL_PREFIXE = "test-captures-916b-";
 const AUTEUR = { type: "systeme", nom: "captures 9.16 b TEST" };
 
 // Les 7 vues des maquettes : [clé, libellé, chemin, maquette].
-const VUES = [
+const TOUTES_LES_VUES = [
   ["tableau", "Tableau de bord", "/fr/admin", "Admin · Tableau de bord.png"],
   ["commandes", "Commandes", "/fr/admin/commandes", "02-commandes.png"],
   ["produits", "Produits", "/fr/admin/produits", "03-produits.png"],
@@ -27,6 +28,8 @@ const VUES = [
   ["nouvel-article", "Nouvel article", "/fr/admin/blog/nouveau", "06-nouvel-article.png"],
   ["codes-promo", "Codes promo", "/fr/admin/codes-promo", "07-codes-promo.png"],
 ];
+const FILTRE = process.env.CAPTURES_VUES?.split(",").map((v) => v.trim()).filter(Boolean);
+const VUES = FILTRE?.length ? TOUTES_LES_VUES.filter(([cle]) => FILTRE.includes(cle)) : TOUTES_LES_VUES;
 
 function lireEnv() {
   try {
@@ -168,11 +171,12 @@ async function principal() {
       await ouvrir(page, chemin);
       const fichier = join(RACINE, `${cle}-sombre-1366.png`);
       await page.screenshot({ path: fichier });
+      await page.screenshot({ path: join(RACINE, `${cle}-sombre-1366-entiere.png`), fullPage: true });
       await comparer(cle, maquette, fichier);
       rapport.vues[cle] = await mesures(page);
       process.stdout.write(".");
     }
-    rapport.admin = rapport.vues.tableau.entrees;
+    rapport.admin = rapport.vues.tableau?.entrees ?? null;
 
     // 2. Menu du profil ouvert, puis la fenêtre « Aide ».
     await ouvrir(page, "/fr/admin");
@@ -188,13 +192,15 @@ async function principal() {
     // 3. Tableau de bord en clair (1366) et à 390 px (barre du bas), sombre et clair.
     for (const [nom, largeur, hauteur, theme] of [
       ["tableau-clair-1366", 1366, 768, "light"],
+      ["tableau-clair-1366-entiere", 1366, 768, "light"],
       ["tableau-clair-390", 390, 844, "light"],
       ["tableau-sombre-390", 390, 844, "dark"],
     ]) {
       const c = await contexte(navigateur, admin, { largeur, hauteur, theme });
       const p = await c.newPage();
       await ouvrir(p, "/fr/admin");
-      await p.screenshot({ path: join(RACINE, `${nom}.png`) });
+      await p.screenshot({ path: join(RACINE, `${nom}.png`), fullPage: nom.endsWith("-entiere") || largeur < 1024 });
+      rapport.largeurs[`tableau-${nom}`] = await mesures(p);
       await c.close();
     }
 
@@ -235,12 +241,13 @@ function ecrirePage() {
   const img = (f, alt) => `<a href="${f}"><img loading="lazy" src="${f}" alt="${alt}"></a>`;
   const sections = VUES.map(
     ([cle, libelle]) =>
-      `<section id="${cle}"><h2>${libelle} · sombre · 1366 × 768</h2><p>Maquette à gauche, rendu à droite.</p>${img(`${cle}-cote-a-cote.jpg`, `${libelle} : maquette et rendu côte à côte`)}<p>Superposition à 50 % (rendu sur la maquette).</p>${img(`${cle}-superpose.jpg`, `${libelle} : superposition à 50 %`)}</section>`,
+      `<section id="${cle}"><h2>${libelle} · sombre · 1366 × 768</h2><p>Maquette à gauche, rendu à droite.</p>${img(`${cle}-cote-a-cote.jpg`, `${libelle} : maquette et rendu côte à côte`)}<p>Superposition à 50 % (rendu sur la maquette).</p>${img(`${cle}-superpose.jpg`, `${libelle} : superposition à 50 %`)}<p>Page entière (sombre).</p>${img(`${cle}-sombre-1366-entiere.png`, `${libelle} : page entière`)}</section>`,
   );
   const autres = [
     ["menu-profil-sombre-1366.png", "Menu du profil ouvert (sombre, 1366)"],
     ["aide-sombre-1366.png", "Fenêtre « Aide » (sombre, 1366)"],
     ["tableau-clair-1366.png", "Tableau de bord en clair (1366)"],
+    ["tableau-clair-1366-entiere.png", "Tableau de bord en clair, page entière (1366)"],
     ["tableau-clair-390.png", "Tableau de bord en clair à 390 px (barre du bas)"],
     ["tableau-sombre-390.png", "Tableau de bord en sombre à 390 px (barre du bas)"],
     ["reglages-sombre-1024.png", "Réglages à 1024 px (surtitre sur une ligne)"],

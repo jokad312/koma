@@ -97,3 +97,66 @@ export function echecsParPrestataire(lignes: readonly LigneEchec[]): { prestatai
 export function formaterUsd(centimes: number, locale: string): string {
   return new Intl.NumberFormat(locale, { style: "currency", currency: "USD" }).format(centimes / 100);
 }
+
+// Graduations de l'axe des montants (story 9.16 c) : de 0 à une borne ronde au moins égale au maximum, 4 à 6 intervalles d'un pas
+// « rond » (1, 2 ou 5 × une puissance de 10), jamais moins d'un dollar. Sans montant (tout à zéro), l'axe va de 0 à 5 $ : c'est une échelle,
+// pas une donnée (les barres restent à zéro).
+export function graduations(maxCents: number): number[] {
+  const max = Number.isFinite(maxCents) && maxCents > 0 ? maxCents : 0;
+  const brut = Math.max(100, max / 5);
+  const puissance = 10 ** Math.floor(Math.log10(brut));
+  const normalise = brut / puissance;
+  const pas = (normalise <= 1 ? 1 : normalise <= 2 ? 2 : normalise <= 5 ? 5 : 10) * puissance;
+  const haut = max === 0 ? 5 * pas : Math.ceil(max / pas) * pas;
+  const valeurs: number[] = [];
+  for (let v = 0; v <= haut + pas / 2; v += pas) valeurs.push(Math.round(v));
+  return valeurs;
+}
+
+// Indices des barres dont la date est écrite sous l'axe : une tous les `pas` jours, en partant du dernier jour (aujourd'hui toujours daté).
+export function indicesDates(nombre: number, pas = 5): number[] {
+  const indices: number[] = [];
+  for (let i = nombre - 1; i >= 0; i -= pas) indices.unshift(i);
+  return indices;
+}
+
+// Ventes du jour (Performance du jour) : nombre et montant des Commandes payées lues ; `auMoins` quand la lecture a atteint son plafond
+// (les chiffres sont alors des minimums, jamais présentés comme exacts).
+export function ventesDuJour(commandes: readonly { totalCents: number }[], plafond: number): { nombre: number; montantCents: number; auMoins: boolean } {
+  return { nombre: commandes.length, montantCents: commandes.reduce((s, c) => s + c.totalCents, 0), auMoins: commandes.length >= plafond };
+}
+
+// Montant compact pour l'axe (« 70 k $US », « $70K » selon la langue).
+export function formaterUsdCompact(centimes: number, locale: string): string {
+  return new Intl.NumberFormat(locale, { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(centimes / 100);
+}
+
+// Plafond de tableau_commandes_payees (limit 200 dans la fonction SQL).
+export const PLAFOND_COMMANDES_PAYEES = 200;
+
+// Taux de paiements réussis (carte « Paiements réussis ») : arrondi à l'inférieur, pour ne jamais afficher 100 % quand une tentative a échoué
+// ou a été abandonnée. null quand aucune tentative n'est terminée (jamais un pourcentage inventé).
+export function tauxReussite(reussies: number, terminees: number): number | null {
+  if (!(terminees > 0)) return null;
+  return Math.floor((reussies / terminees) * 100);
+}
+
+// Au-delà de ce revenu (1 000 USD), le montant est écrit plus petit pour rester dans la carte (jamais arrondi ni abrégé).
+export const SEUIL_REVENU_PETIT_CENTS = 100_000;
+
+export type CleChiffre = "produitsPublies" | "commandesTotal" | "revenuTotal" | "paiementsReussis";
+export type CarteChiffreDonnee = { cle: CleChiffre; chiffre: string; texte: boolean };
+
+// Les 4 cartes de chiffres du tableau de bord (maquette E1 à E4), dans l'ordre de la maquette. Les textes viennent de la page (traductions).
+export function cartesChiffres(
+  c: { produitsPublies: number; commandesPayees: number; revenuCents: number; tentativesReussies: number; tentativesTerminees: number },
+  textes: { usd: (centimes: number) => string; taux: (taux: number) => string; aucuneDonnee: string },
+): CarteChiffreDonnee[] {
+  const taux = tauxReussite(c.tentativesReussies, c.tentativesTerminees);
+  return [
+    { cle: "produitsPublies", chiffre: String(c.produitsPublies), texte: false },
+    { cle: "commandesTotal", chiffre: String(c.commandesPayees), texte: false },
+    { cle: "revenuTotal", chiffre: textes.usd(c.revenuCents), texte: c.revenuCents >= SEUIL_REVENU_PETIT_CENTS },
+    { cle: "paiementsReussis", chiffre: taux === null ? textes.aucuneDonnee : textes.taux(taux), texte: taux === null },
+  ];
+}

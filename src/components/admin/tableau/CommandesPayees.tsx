@@ -1,12 +1,10 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Link } from "@/i18n/navigation";
-import { formaterUsd } from "@/modules/tableau-de-bord/calculs";
+import { formaterUsd, PLAFOND_COMMANDES_PAYEES as PLAFOND_COMMANDES } from "@/modules/tableau-de-bord/calculs";
 import type { CommandePayee, Zone } from "@/modules/tableau-de-bord/queries";
 
 const PRESTATAIRES = ["pawapay", "maishapay", "polar"] as const;
-// Plafond de tableau_commandes_payees (limit 200 dans la fonction SQL).
-const PLAFOND_COMMANDES = 200;
 const FAMILLES = ["cosplay", "accessoire", "vetement", "autre", "kit", "pass", "livraison"] as const;
 
 // Nouvelles Commandes payées : numéro, montant en USD, Prestataire, Familles. Aucune donnée de client. Lecture impossible : message
@@ -17,17 +15,17 @@ export async function CommandesPayees({ commandes, septJours }: { commandes: Zon
   const locale = await getLocale();
   return (
     <section aria-labelledby="tableau-commandes" className="flex flex-col gap-3">
-      <h2 id="tableau-commandes" className="t-h2">
+      <h2 id="tableau-commandes" className="t-label text-[24px] leading-8">
         {septJours ? t("titreSept") : t("titre")}
       </h2>
       {commandes === null ? (
         <MessageEtat type="erreur">{te("erreurLecture")}</MessageEtat>
       ) : commandes.length === 0 ? (
-        <p className="t-body rounded-lg border border-border bg-surface p-5 text-text-secondary">{septJours ? t("videSept") : t("vide")}</p>
+        <p className="t-body rounded-[20px] border border-admin-contour bg-admin-carte p-5 text-text-secondary">{septJours ? t("videSept") : t("vide")}</p>
       ) : (
         <ul className="flex flex-col gap-ecart-cartes">
           {commandes.map((c) => (
-            <li key={c.numero} className="flex flex-col gap-1 rounded-lg border border-border bg-surface p-4">
+            <li key={c.numero} className="flex flex-col gap-1 rounded-[20px] border border-admin-contour bg-admin-carte p-4">
               <Link href={`/admin/commandes/${c.numero}`} className="t-label inline-flex min-h-touch items-center text-text-primary underline">
                 {t("ouvrir", { numero: c.numero })}
               </Link>

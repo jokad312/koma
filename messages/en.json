@@ -577,7 +577,6 @@
         "titre": "Verified payments",
         "parPrestataire": "By provider",
         "parFamille": "By family",
-        "parJour": "By day",
         "vide": "No verified payments in this period.",
         "lienSept": "See the last 7 days",
         "donnees": "See the data as a table",
@@ -601,7 +600,8 @@
         "retraits": "Photo removals requested",
         "realisations": "Creations to approve",
         "messages": "Contact messages",
-        "anomalies": "Anomalies"
+        "anomalies": "Anomalies",
+        "toutes": "All tasks"
       },
       "indicateurs": {
         "titre": "Indicators",
@@ -644,14 +644,51 @@
         "valeurSmc2": "{prestataire}: {taux}% ({echouees, plural, one {# failure} other {# failures}} of {terminees})",
         "valeurSmc3": "{heures} h on average ({recues, plural, one {# received} other {# received}}, {attente} waiting)",
         "valeurSmc3Aucune": "No measurements received ({attente} waiting)",
-        "raisonSm4": "Passes belong to epic 7, not built yet.",
         "raisonSm5": "There is no aggregated count of photos and Creations yet.",
         "raisonSm6Passage": "Moving on to a paid Kit is not measured yet.",
         "raisonSm8": "Watching a Kit video happens in the Account area, which audience measurement excludes.",
         "raisonSmc1": "No promised lead time is stored per Order.",
-        "raisonSmc4": "Passes belong to epic 7, not built yet.",
+        "raisonSmc4": "Pass refunds are not counted in aggregate yet.",
         "raisonSmc6": "The hero loading time is not recorded.",
-        "raisonSmc7": "Account creation at the payment step is not measured."
+        "raisonSmc7": "Account creation at the payment step is not measured.",
+        "tous": "All indicators",
+        "valeurSm4": "{evenements, plural, one {# upcoming event} other {# upcoming events}}, {pass, plural, one {# Pass sold} other {# Passes sold}}",
+        "raisonSm4Alertes": "Event alert sign-ups are not counted yet."
+      },
+      "chiffres": {
+        "libelle": "Figures since the start",
+        "produitsPublies": "Published products",
+        "commandesTotal": "Total orders",
+        "revenuTotal": "Total revenue",
+        "paiementsReussis": "Successful payments",
+        "taux": "{taux}%",
+        "aucuneDonnee": "No data"
+      },
+      "ventes": {
+        "titre": "Sales performance",
+        "periode": "Last 30 days",
+        "legende": "Revenue",
+        "resume": "Bar chart of paid sales per day over the last 30 days, in USD. The same figures are in “{donnees}”.",
+        "tableau": "Paid sales per day, last 30 days",
+        "colonneJour": "Day",
+        "vide": "No paid sales in the last 30 days."
+      },
+      "jour": {
+        "titre": "Today's performance",
+        "date": "Sales on {date}:",
+        "nombre": "Number of sales:",
+        "montant": "Amount:",
+        "auMoins": "at least {valeur}"
+      },
+      "apercu": {
+        "voirPlus": "See more",
+        "voirPlusTaches": "(all tasks)",
+        "voirPlusIndicateurs": "(all indicators)",
+        "sm1": "Paid sales (SM-1)",
+        "evenementsPass": "Events and Passes sold",
+        "evenements": "Upcoming events: {nombre}",
+        "pass7": "Passes sold (7 days): {nombre}",
+        "pass30": "Passes sold (30 days): {nombre}"
       }
     },
     "utilisateurs": {
