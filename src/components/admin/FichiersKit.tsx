@@ -1,5 +1,6 @@
 "use client";
 
+import { useClassesChamp } from "./ChampTexte";
 import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { Bouton } from "@/components/ui/Bouton";
@@ -20,7 +21,9 @@ const PARAMS_TAILLE = { max: TAILLE_MAX_FICHIER_KIT / MO, maxTranscription: TAIL
 
 // Section « Fichiers » d'un Kit : liste (format, taille lisible, version), envoi avec progression et annulation, « Remplacer » et
 // « Supprimer » (avec confirmation). L'état affiché vient de la base (router.refresh) ; le résultat réel est annoncé en statut.
-export function FichiersKit({ produitId, fichiers }: { produitId: string; fichiers: readonly FichierKitAdmin[] }) {
+// ajout = false (story 9.16 f) : la zone d'ajout est affichée ailleurs (en tête de la fenêtre, maquette D12) ; ici, seulement la liste.
+export function FichiersKit({ produitId, fichiers, ajout = true }: { produitId: string; fichiers: readonly FichierKitAdmin[]; ajout?: boolean }) {
+  const classes = useClassesChamp();
   const t = useTranslations("Admin.kits.fichiers");
   const locale = useLocale() as "fr" | "en";
   const router = useRouter();
@@ -92,7 +95,7 @@ export function FichiersKit({ produitId, fichiers }: { produitId: string; fichie
       {fichiers.length > 0 ? (
         <ol aria-label={t("legende")} className="flex flex-col gap-3">
           {fichiers.map((f) => (
-            <li key={f.id} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-3">
+            <li key={f.id} className={`flex flex-col gap-3 ${classes.bloc} p-3`}>
               <div className="flex flex-wrap items-center gap-4">
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <p className="t-label break-words">{nomDe(f)}</p>
@@ -149,7 +152,7 @@ export function FichiersKit({ produitId, fichiers }: { produitId: string; fichie
       </div>
       {erreur ? <MessageEtat type="erreur">{erreur}</MessageEtat> : null}
 
-      <EnvoiFichierKit produitId={produitId} />
+      {ajout ? <EnvoiFichierKit produitId={produitId} /> : null}
 
       <Dialogue
         ouvert={aSupprimer !== null}

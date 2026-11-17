@@ -1548,7 +1548,6 @@
       },
       "pageEdition": {
         "titre": "Edit product",
-        "retour": "Back to products",
         "cree": "Product created. It stays a draft: it does not appear on the site."
       },
       "formulaire": {
@@ -1659,7 +1658,8 @@
           "aucune": "No colour: the sizes below have no colour.",
           "nomVide": "Give this colour a French name, or remove it.",
           "sansTaille": "Tick at least one size for this colour, or remove it."
-        }
+        },
+        "suite": "Other product fields"
       },
       "photos": {
         "titre": "Photos",
@@ -1694,8 +1694,9 @@
         "ajout": {
           "titre": "Add a photo",
           "fichier": {
-            "libelle": "Photo file",
-            "aide": "JPEG, PNG or WebP, 15 MB at most."
+            "libelle": "Choose an image",
+            "aide": "JPG/PNG/WEBP — {max} MB max",
+            "choisi": "Chosen image: {nom}"
           },
           "altFr": {
             "libelle": "Alternative text in French",
@@ -1728,7 +1729,7 @@
         }
       },
       "publication": {
-        "titre": "Publication",
+        "titre": "Status",
         "statutBrouillon": "Draft",
         "statutPublie": "Published",
         "statutArchive": "Archived",
@@ -1768,7 +1769,11 @@
           "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
           "generique": "The change could not be saved. Try again.",
           "produit_archive": "This product is archived: restore it before publishing it."
-        }
+        },
+        "statutSur": "Status:",
+        "publieIndisponible": "(restore the product first)",
+        "aideCreation": "A new product is saved as a draft. The status can be changed after the first save.",
+        "statutBouton": "Status: {statut}"
       },
       "archivage": {
         "archiverSur": "Archive {titre}",
@@ -1786,6 +1791,12 @@
         },
         "archiveOk": "Product archived.",
         "restaureOk": "Product restored: it is back to draft."
+      },
+      "zones": {
+        "fichiers": "Kit digital file",
+        "fichiersApres": "Kit files (A4 and US Letter PDF, SVG, STL) can be added after the first save.",
+        "image": "Image",
+        "photosApres": "Photos (JPG/PNG/WEBP — {max} MB max) can be added after the first save."
       }
     },
     "univers": {
@@ -1896,6 +1907,13 @@
           "produit_introuvable": "This Kit no longer exists. Go back to the product list.",
           "non_autorise": "You no longer have the right to edit products. Reload the page or sign in again.",
           "generique": "The Kit could not be saved. Your input is kept: try again."
+        },
+        "suite": "Other Kit fields",
+        "typeFichier": {
+          "libelle": "File type",
+          "aucun": "No file attached yet.",
+          "aide": "Taken from the attached files and the video: nothing to enter here.",
+          "video": "Video"
         }
       },
       "fichiers": {
@@ -1984,6 +2002,11 @@
           "contenu_actif": "This SVG contains active content (script, event handler, javascript: link, embedded object or external reference). Export it again without these elements.",
           "entete_illisible": "The header of this SVG is not readable: it must be UTF-8 text starting with a tag. Export it again as UTF-8.",
           "publication_incomplete": "A published Kit keeps at least one file. Unpublish it first to remove its last file."
+        },
+        "zone": {
+          "texte": "Click or drag your file here",
+          "choisi": "Chosen file: {nom}",
+          "televerser": "Upload"
         }
       },
       "video": {

@@ -2,7 +2,7 @@
 title: '9.16 e) — Étape 4, page 3 : liste des produits selon la maquette, archivage'
 type: 'feature'
 created: '2026-11-17'
-status: 'in-review'
+status: 'done'
 baseline_commit: 'e9103ee378179a14e683561c729ac61a78d8e199'
 route: 'dispatch'
 review_loop_iteration: 0

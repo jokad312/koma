@@ -1,10 +1,12 @@
 "use client";
 
+import { CloudUpload, FileText } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useId, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useId, useRef, useState, type ChangeEvent, type DragEvent, type FormEvent } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { useRouter } from "@/i18n/navigation";
+import { useDansFenetre, useEnregistrementFenetre } from "./ui/FenetreFormulaire";
 import { lireEnvPublique } from "@/lib/env";
 import { demarrerEnvoiTus, type EnvoiTus } from "@/lib/supabase/envoi-tus";
 import { BUCKET_KITS } from "@/lib/supabase/stockage";
@@ -20,8 +22,7 @@ import {
 } from "@/modules/catalogue/fichiers-kit";
 import type { FormatFichierKit } from "@/modules/catalogue/fichiers-kit";
 import type { FichierKitAdmin } from "@/modules/catalogue/types";
-import { ChampTexte, CLASSE_CHAMP } from "./ChampTexte";
-import { OPTION_RADIO } from "./ChoixFamille";
+import { ChampTexte, useClassesChamp } from "./ChampTexte";
 
 type Phase = "repos" | "envoi" | "traitement";
 type ErreurEnvoi = { code: string; champ: "fichier" | "nom_fr" | "nom_en" | null };
@@ -49,8 +50,13 @@ export function EnvoiFichierKit({ produitId, fichier, onSucces, onFermer }: Prop
   const t = useTranslations("Admin.kits.fichiers");
   const locale = useLocale();
   const router = useRouter();
+  // Dans la fenêtre (9.16 f), un titre plus petit sous l'étiquette de la zone.
+  const dansFenetre = useDansFenetre();
   const base = useId();
   const remplacement = fichier !== undefined;
+  const classes = useClassesChamp();
+  // Nom du fichier choisi, affiché dans la zone de dépôt (le champ natif y est invisible).
+  const [nomChoisi, setNomChoisi] = useState<string | null>(null);
   const refFichier = useRef<HTMLInputElement>(null);
   const [formatPdf, setFormatPdf] = useState<"pdf_a4" | "pdf_letter">("pdf_a4");
   const [choisi, setChoisi] = useState<FormatFichierKit | null>(null);
@@ -82,6 +88,7 @@ export function EnvoiFichierKit({ produitId, fichier, onSucces, onFermer }: Prop
   function surChoix(e: ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     setErreur(null);
+    setNomChoisi(f?.name ?? null);
     if (!f) {
       setChoisi(null);
       return;
@@ -173,7 +180,9 @@ export function EnvoiFichierKit({ produitId, fichier, onSucces, onFermer }: Prop
       setNomFr("");
       setNomEn("");
       setChoisi(null);
+      setNomChoisi(null);
       if (refFichier.current) refFichier.current.value = "";
+      enregistre();
       router.refresh();
       onSucces?.(succes);
     } catch {
@@ -221,6 +230,12 @@ export function EnvoiFichierKit({ produitId, fichier, onSucces, onFermer }: Prop
   }
 
   const occupe = phase !== "repos";
+  // Dans la fenêtre (9.16 f) : un envoi en cours empêche de quitter ; un envoi réussi rend sa saisie « enregistrée ».
+  const { enregistre, source } = useEnregistrementFenetre(occupe);
+  // Champ désactivé pendant l'envoi : un fichier glissé n'est pas ouvert par le navigateur (on ne quitte pas la page).
+  const bloquerDepot = (e: DragEvent<HTMLDivElement>) => {
+    if (occupe) e.preventDefault();
+  };
   const idFichier = `${base}-fichier`;
   const erreurFichier = erreurDe("fichier");
   const erreurGenerale = erreur && erreur.champ === null ? texteErreur(erreur.code) : null;
@@ -230,31 +245,45 @@ export function EnvoiFichierKit({ produitId, fichier, onSucces, onFermer }: Prop
   const pdfChoisi = !remplacement && choisi === "pdf_a4";
 
   return (
-    <form onSubmit={surEnvoi} noValidate className="flex max-w-2xl flex-col gap-4" aria-labelledby={`${base}-titre`}>
-      <h3 id={`${base}-titre`} className="t-h2">
+    <form onSubmit={surEnvoi} noValidate className="flex max-w-2xl flex-col gap-4" aria-labelledby={`${base}-titre`} {...source}>
+      <h3 id={`${base}-titre`} className={dansFenetre ? "t-h3" : "t-h2"}>
         {remplacement ? t("remplacement.titre", { nom: nomAffiche }) : t("ajout.titre")}
       </h3>
       {erreurGenerale ? <MessageEtat type="erreur">{erreurGenerale}</MessageEtat> : null}
 
       <div className="flex w-full flex-col gap-2">
-        <label htmlFor={idFichier} className="t-label text-text-primary">
+        <label htmlFor={idFichier} className={classes.etiquette}>
           {remplacement ? t("remplacement.fichier.libelle") : t("ajout.fichier.libelle")}
         </label>
         <p id={`${idFichier}-aide`} className="t-small text-text-secondary">
           {fichier ? t("remplacement.fichier.aide", { format: nomFormat(fichier.format) }) : t("ajout.fichier.aide", PARAMS_TAILLE)}
         </p>
-        <input
-          ref={refFichier}
-          id={idFichier}
-          name="fichier"
-          type="file"
-          accept={accept}
-          disabled={occupe}
-          onChange={surChoix}
-          aria-invalid={erreurFichier ? true : undefined}
-          aria-describedby={`${idFichier}-aide${erreurFichier ? ` ${idFichier}-erreur` : ""}`}
-          className={CLASSE_CHAMP}
-        />
+        {/* Zone de dépôt (story 9.16 f, maquette D12) : le champ natif, invisible, la couvre entièrement ; un clic ouvre le choix du fichier et un
+            fichier glissé y est déposé. Le focus du clavier est montré sur toute la zone. */}
+        <div onDragOver={bloquerDepot} onDrop={bloquerDepot} className="relative flex min-h-[105px] flex-wrap items-center justify-between gap-4 rounded-2xl border-2 border-dashed border-border-field bg-admin-champ px-4 py-4 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary has-[:disabled]:opacity-70">
+          <span className="flex min-w-0 items-center gap-3">
+            <FileText aria-hidden="true" className="size-8 shrink-0" strokeWidth={1.5} />
+            <span id={`${idFichier}-zone`} className="t-body min-w-0 break-all text-text-primary">
+              {nomChoisi ? t("zone.choisi", { nom: nomChoisi }) : t("zone.texte")}
+            </span>
+          </span>
+          <span aria-hidden="true" className="t-button inline-flex min-h-touch items-center gap-2 rounded-full bg-admin-filtre px-5 py-2 uppercase text-admin-sur-filtre">
+            <CloudUpload className="size-5" />
+            {t("zone.televerser")}
+          </span>
+          <input
+            ref={refFichier}
+            id={idFichier}
+            name="fichier"
+            type="file"
+            accept={accept}
+            disabled={occupe}
+            onChange={surChoix}
+            aria-invalid={erreurFichier ? true : undefined}
+            aria-describedby={`${idFichier}-aide ${idFichier}-zone${erreurFichier ? ` ${idFichier}-erreur` : ""}`}
+            className="absolute inset-0 size-full cursor-pointer opacity-0 disabled:cursor-not-allowed"
+          />
+        </div>
         {erreurFichier ? (
           <p id={`${idFichier}-erreur`} className="t-small text-danger">
             {erreurFichier}
@@ -264,10 +293,10 @@ export function EnvoiFichierKit({ produitId, fichier, onSucces, onFermer }: Prop
 
       {pdfChoisi ? (
         <fieldset className="flex flex-col gap-2" disabled={occupe}>
-          <legend className="t-label mb-2 text-text-primary">{t("ajout.format.libelle")}</legend>
+          <legend className={`${classes.etiquette} mb-2`}>{t("ajout.format.libelle")}</legend>
           <p className="t-small text-text-secondary">{t("ajout.format.aide")}</p>
           {(["pdf_a4", "pdf_letter"] as const).map((valeur) => (
-            <label key={valeur} className={OPTION_RADIO}>
+            <label key={valeur} className={classes.option}>
               <input type="radio" name={`${base}-format`} value={valeur} checked={formatPdf === valeur} onChange={() => setFormatPdf(valeur)} className="peer sr-only" />
               <svg aria-hidden="true" viewBox="0 0 16 16" className="invisible size-4 shrink-0 fill-none stroke-primary stroke-2 peer-checked:visible">
                 <path d="M3 8.5 6.5 12 13 4.5" />

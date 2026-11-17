@@ -29,7 +29,23 @@ const TOUTES_LES_VUES = [
   ["blog", "Blog", "/fr/admin/blog", "05-blog.png"],
   ["nouvel-article", "Nouvel article", "/fr/admin/blog/nouveau", "06-nouvel-article.png"],
   ["codes-promo", "Codes promo", "/fr/admin/codes-promo", "07-codes-promo.png"],
+  // Story 9.16 f : la fenêtre du formulaire pour un Vêtement et un Kit, en création (saisie à l'écran, rien n'est enregistré) et en modification
+  // (produits TEST_ semés ci-dessous). Le 5e élément est l'action faite après l'ouverture de la page.
+  ["nouveau-vetement", "Nouveau produit : Vêtement", "/fr/admin/produits/nouveau", "04-nouveau-produit.png", (p) => remplirCreation(p, /^Vêtement/, "TEST_ Polo")],
+  ["nouveau-kit", "Nouveau produit : Kit", "/fr/admin/produits/nouveau", "04-nouveau-produit.png", (p) => remplirCreation(p, /^Kit/, "TEST_ Kit patron")],
+  ["modifier-vetement", "Modifier un Vêtement TEST_", "/fr/admin/produits/00000000-0000-4000-8916-00000000ca03", "04-nouveau-produit.png"],
+  ["modifier-kit", "Modifier un Kit TEST_", "/fr/admin/produits/00000000-0000-4000-8916-00000000ca02", "04-nouveau-produit.png"],
 ];
+
+// Création d'un produit : nom, description, prix, puis la famille (placée après les champs de la maquette). Rien n'est envoyé.
+async function remplirCreation(page, famille, titre) {
+  await page.getByLabel("Titre en français").fill(titre);
+  await page.getByLabel("Description en français").fill("TEST_ description de démonstration");
+  await page.getByLabel("Prix en dollars US (USD)").fill("25");
+  await page.getByRole("radio", { name: famille }).check({ force: true });
+  await page.waitForTimeout(200);
+  await page.locator("[data-defilement-fenetre]").evaluate((e) => e.scrollTo(0, 0));
+}
 const FILTRE = process.env.CAPTURES_VUES?.split(",").map((v) => v.trim()).filter(Boolean);
 const VUES = FILTRE?.length ? TOUTES_LES_VUES.filter(([cle]) => FILTRE.includes(cle)) : TOUTES_LES_VUES;
 
@@ -70,7 +86,7 @@ const PRODUITS_TEST = {
   autre: "00000000-0000-4000-8916-00000000ca04",
 };
 const PHOTO_TEST = "test-captures-916e/cosplay.jpg";
-const avecProduits = () => VUES.some(([cle]) => cle === "produits");
+const avecProduits = () => VUES.some(([cle]) => cle === "produits" || cle.startsWith("modifier-"));
 
 function sqlBloc(corps) {
   const dossier = mkdtempSync(join(tmpdir(), "captures-916e-"));
@@ -229,12 +245,28 @@ async function principal() {
     // 1. Les 7 vues à 1366 × 768 en sombre, comparées aux maquettes.
     const ctx = await contexte(navigateur, admin, { largeur: 1366, hauteur: 768, theme: "dark" });
     const page = await ctx.newPage();
-    for (const [cle, , chemin, maquette] of VUES) {
+    for (const [cle, , chemin, maquette, action] of VUES) {
       await ouvrir(page, chemin);
+      await action?.(page);
       const fichier = join(RACINE, `${cle}-sombre-1366.png`);
       await page.screenshot({ path: fichier });
       await page.screenshot({ path: join(RACINE, `${cle}-sombre-1366-entiere.png`), fullPage: true });
       await comparer(cle, maquette, fichier);
+      // Fenêtre de formulaire (9.16 f) : le contenu défile à l'intérieur ; suite de la fenêtre, écran par écran (4 au plus).
+      const defile = page.locator("[data-defilement-fenetre]");
+      if (await defile.count()) {
+        for (let n = 1; n <= 4; n++) {
+          const avance = await defile.evaluate((e, i) => {
+            const avant = e.scrollTop;
+            e.scrollTo(0, e.clientHeight * i);
+            return e.scrollTop > avant;
+          }, n);
+          if (!avance) break;
+          await page.waitForTimeout(150);
+          await page.screenshot({ path: join(RACINE, `${cle}-sombre-1366-suite-${n}.png`) });
+        }
+        await defile.evaluate((e) => e.scrollTo(0, 0));
+      }
       rapport.vues[cle] = await mesures(page);
       process.stdout.write(".");
     }
@@ -252,7 +284,7 @@ async function principal() {
     await ctx.close();
 
     // 3. Chaque vue choisie en clair (1366) et à 390 px (barre du bas), sombre et clair.
-    for (const [cle, , chemin] of VUES) {
+    for (const [cle, , chemin, , action] of VUES) {
       for (const [suffixe, largeur, hauteur, theme] of [
         ["clair-1366", 1366, 768, "light"],
         ["clair-1366-entiere", 1366, 768, "light"],
@@ -263,6 +295,7 @@ async function principal() {
         const c = await contexte(navigateur, admin, { largeur, hauteur, theme });
         const p = await c.newPage();
         await ouvrir(p, chemin);
+        await action?.(p);
         await p.screenshot({ path: join(RACINE, `${nom}.png`), fullPage: nom.endsWith("-entiere") || largeur < 1024 });
         rapport.largeurs[nom] = await mesures(p);
         await c.close();

@@ -1548,7 +1548,6 @@
       },
       "pageEdition": {
         "titre": "Modifier le produit",
-        "retour": "Retour aux produits",
         "cree": "Produit créé. Il reste un brouillon : il n'apparaît pas sur le site."
       },
       "formulaire": {
@@ -1659,7 +1658,8 @@
           "aucune": "Aucune couleur : les tailles ci-dessous n'ont pas de couleur.",
           "nomVide": "Donne un nom français à cette couleur, ou retire-la.",
           "sansTaille": "Coche au moins une taille pour cette couleur, ou retire-la."
-        }
+        },
+        "suite": "Autres champs du produit"
       },
       "photos": {
         "titre": "Photos",
@@ -1694,8 +1694,9 @@
         "ajout": {
           "titre": "Ajouter une photo",
           "fichier": {
-            "libelle": "Fichier de la photo",
-            "aide": "JPEG, PNG ou WebP, 15 Mo au plus."
+            "libelle": "Choisir une image",
+            "aide": "JPG/PNG/WEBP — {max} Mo max",
+            "choisi": "Image choisie : {nom}"
           },
           "altFr": {
             "libelle": "Texte alternatif en français",
@@ -1728,7 +1729,7 @@
         }
       },
       "publication": {
-        "titre": "Publication",
+        "titre": "Statut",
         "statutBrouillon": "Brouillon",
         "statutPublie": "Publié",
         "statutArchive": "Archivé",
@@ -1768,7 +1769,11 @@
           "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
           "generique": "Le changement n'a pas pu être enregistré. Réessaie.",
           "produit_archive": "Ce produit est archivé : restaure-le avant de le publier."
-        }
+        },
+        "statutSur": "Statut :",
+        "publieIndisponible": "(restaure d'abord le produit)",
+        "aideCreation": "Un nouveau produit est enregistré en brouillon. Le statut se change après le premier enregistrement.",
+        "statutBouton": "Statut : {statut}"
       },
       "archivage": {
         "archiverSur": "Archiver {titre}",
@@ -1786,6 +1791,12 @@
         },
         "archiveOk": "Produit archivé.",
         "restaureOk": "Produit restauré : il est revenu en brouillon."
+      },
+      "zones": {
+        "fichiers": "Fichier numérique du Kit",
+        "fichiersApres": "Les fichiers du Kit (PDF A4 et US Letter, SVG, STL) s'ajoutent après le premier enregistrement.",
+        "image": "Image",
+        "photosApres": "Les photos (JPG/PNG/WEBP — {max} Mo max) s'ajoutent après le premier enregistrement."
       }
     },
     "univers": {
@@ -1896,6 +1907,13 @@
           "produit_introuvable": "Ce Kit n'existe plus. Retourne à la liste des produits.",
           "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
           "generique": "Le Kit n'a pas pu être enregistré. Ta saisie est conservée : réessaie."
+        },
+        "suite": "Autres champs du Kit",
+        "typeFichier": {
+          "libelle": "Type de fichier",
+          "aucun": "Aucun fichier joint pour le moment.",
+          "aide": "Déduit des fichiers joints et de la vidéo : rien à saisir ici.",
+          "video": "Vidéo"
         }
       },
       "fichiers": {
@@ -1984,6 +2002,11 @@
           "contenu_actif": "Ce SVG contient du contenu actif (script, gestionnaire d'événement, lien javascript:, objet embarqué ou référence externe). Exporte-le à nouveau sans ces éléments.",
           "entete_illisible": "L'en-tête de ce SVG n'est pas lisible : il doit être en texte UTF-8 et commencer par une balise. Exporte-le à nouveau en UTF-8.",
           "publication_incomplete": "Un Kit publié garde au moins un fichier. Dépublie-le d'abord pour retirer son dernier fichier."
+        },
+        "zone": {
+          "texte": "Clique ou glisse ton fichier ici",
+          "choisi": "Fichier choisi : {nom}",
+          "televerser": "Téléverser"
         }
       },
       "video": {

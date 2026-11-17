@@ -14,13 +14,14 @@ import { annulerEnvoiSousTitres, demanderEnvoiSousTitres, finaliserSousTitres, s
 import { tailleLisible } from "@/modules/catalogue/fichiers-kit";
 import { LANGUES_SOUS_TITRES, SOUS_TITRES_TAILLE_MAX } from "@/modules/catalogue/types";
 import type { LangueSousTitres, SousTitreAdmin } from "@/modules/catalogue/types";
-import { CLASSE_CHAMP } from "./ChampTexte";
+import { useClassesChamp } from "./ChampTexte";
 
 type Phase = "repos" | "envoi" | "traitement";
 
 // Sous-titres d'une langue : état (version, taille), envoi signé vers kits-private (progression, reprise, « Annuler l'envoi »), vérification
 // du contenu WebVTT côté serveur, suppression avec confirmation. Le succès n'est affiché qu'après la réponse réelle du serveur.
 function SousTitresLangue({ produitId, langue, sousTitre }: { produitId: string; langue: LangueSousTitres; sousTitre: SousTitreAdmin | null }) {
+  const classes = useClassesChamp();
   const t = useTranslations("Admin.kits.sousTitres");
   const locale = useLocale() as "fr" | "en";
   const router = useRouter();
@@ -181,7 +182,7 @@ function SousTitresLangue({ produitId, langue, sousTitre }: { produitId: string;
   const idFichier = `${base}-fichier`;
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
+    <div className={`flex flex-col gap-3 ${classes.bloc} p-4`}>
       <h3 className="t-h3">{t(`langues.${langue}`)}</h3>
       <p className="t-small text-text-secondary">{t(langue === "fr" ? "obligatoire" : "facultatif")}</p>
       <p className="t-body text-text-primary">{sousTitre ? t("presents", { version: sousTitre.version, taille: taille(sousTitre.tailleOctets) }) : t("absents")}</p>
@@ -193,7 +194,7 @@ function SousTitresLangue({ produitId, langue, sousTitre }: { produitId: string;
         </div>
       ) : null}
       <form onSubmit={surEnvoi} noValidate className="flex flex-col gap-3">
-        <label htmlFor={idFichier} className="t-label text-text-primary">
+        <label htmlFor={idFichier} className={classes.etiquette}>
           {t("fichier.libelle", { langue: nomLangue })}
         </label>
         <p id={`${idFichier}-aide`} className="t-small text-text-secondary">
@@ -207,7 +208,7 @@ function SousTitresLangue({ produitId, langue, sousTitre }: { produitId: string;
           accept=".vtt,text/vtt"
           disabled={occupe}
           aria-describedby={`${idFichier}-aide`}
-          className={CLASSE_CHAMP}
+          className={classes.champ}
         />
         {erreur ? <MessageEtat type="erreur">{erreur}</MessageEtat> : null}
         <div className="flex flex-wrap items-center gap-3">

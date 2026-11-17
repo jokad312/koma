@@ -11,7 +11,7 @@ import { ajouterChapitreKit, deplacerChapitreKit, modifierChapitreKit, supprimer
 import { formaterInstant, lireInstant } from "@/modules/catalogue/sous-titres";
 import { CHAPITRES_MAX } from "@/modules/catalogue/types";
 import type { ChampChapitre, ChapitreAdmin } from "@/modules/catalogue/types";
-import { ChampTexte } from "./ChampTexte";
+import { ChampTexte, useClassesChamp } from "./ChampTexte";
 
 const BOUTON =
   "inline-flex min-h-touch min-w-touch items-center justify-center rounded-full border border-border-field bg-surface px-3 text-text-primary aria-disabled:cursor-not-allowed aria-disabled:text-text-secondary";
@@ -129,6 +129,7 @@ function FormulaireChapitre({
 // Chapitres d'un Kit : liste ordonnée (instant, titres), Monter / Descendre (44 px, nom complet, aria-disabled en bout de liste), Modifier,
 // Supprimer (avec confirmation), formulaire d'ajout. Sans vidéo complète prête, aucun chapitre ne peut être ajouté (la base refuse aussi).
 export function ChapitresKit({ produitId, chapitres, dureeSecondes }: { produitId: string; chapitres: readonly ChapitreAdmin[]; dureeSecondes: number | null }) {
+  const classes = useClassesChamp();
   const t = useTranslations("Admin.kits.chapitres");
   const locale = useLocale();
   const router = useRouter();
@@ -199,7 +200,7 @@ export function ChapitresKit({ produitId, chapitres, dureeSecondes }: { produitI
             const dernier = i === chapitres.length - 1;
             const titre = titreDe(c);
             return (
-              <li key={c.id} className="flex flex-wrap items-center gap-4 rounded-lg border border-border bg-surface p-3">
+              <li key={c.id} className={`flex flex-wrap items-center gap-4 ${classes.bloc} p-3`}>
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <p className="t-label break-words">{t("ligne", { numero, debut: formaterInstant(c.debutSecondes), titre })}</p>
                   <p className="t-small break-words text-text-secondary">{locale === "en" ? t("titreFrLigne", { titre: c.titreFr }) : t("titreEnLigne", { titre: c.titreEn })}</p>

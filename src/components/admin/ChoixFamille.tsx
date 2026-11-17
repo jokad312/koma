@@ -3,9 +3,10 @@
 import { useTranslations } from "next-intl";
 import { FAMILLES_PRODUIT } from "@/modules/catalogue/types";
 import type { FamilleProduit } from "@/modules/catalogue/types";
+import { CLASSE_OPTION, useClassesChamp } from "./ChampTexte";
 
-export const OPTION_RADIO =
-  "relative flex min-h-touch cursor-pointer items-center gap-3 rounded-md border border-border-field bg-surface px-4 py-3 has-[:checked]:border-2 has-[:checked]:border-primary has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2";
+// Option dessinée d'une page ordinaire (gardée pour les formulaires hors fenêtre).
+export const OPTION_RADIO = CLASSE_OPTION;
 
 type Props = {
   base: string;
@@ -14,16 +15,19 @@ type Props = {
   onChange?: (famille: FamilleProduit) => void;
   // Message d'erreur déjà traduit (création seulement).
   erreur?: string | null;
+  // Vrai pendant un enregistrement : la famille ne change pas en plein envoi (story 9.16 f).
+  desactive?: boolean;
 };
 
 // Choix de la famille d'un nouveau produit (cosplay, accessoire ou kit) ; pour un produit existant, la famille est affichée mais ne change plus.
-export function ChoixFamille({ base, famille, onChange, erreur = null }: Props) {
+export function ChoixFamille({ base, famille, onChange, erreur = null, desactive = false }: Props) {
   const t = useTranslations("Admin.produits.formulaire");
+  const classes = useClassesChamp();
 
   if (!onChange) {
     return (
       <div className="flex flex-col gap-1">
-        <p className="t-label text-text-primary">{t("famille.libelle")}</p>
+        <p className={classes.etiquette}>{t("famille.libelle")}</p>
         <p className="t-body text-text-primary">{famille ? t(`famille.options.${famille as FamilleProduit}`) : ""}</p>
         <p className="t-small text-text-secondary">{t("famille.fixe")}</p>
       </div>
@@ -31,10 +35,10 @@ export function ChoixFamille({ base, famille, onChange, erreur = null }: Props) 
   }
 
   return (
-    <fieldset className="flex flex-col gap-2">
-      <legend className="t-label mb-2 text-text-primary">{t("famille.libelle")}</legend>
+    <fieldset disabled={desactive} className="flex flex-col gap-2">
+      <legend className={`${classes.etiquette} mb-2`}>{t("famille.libelle")}</legend>
       {FAMILLES_PRODUIT.map((valeur) => (
-        <label key={valeur} className={OPTION_RADIO}>
+        <label key={valeur} className={classes.option}>
           <input
             type="radio"
             name="famille"

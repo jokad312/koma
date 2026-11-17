@@ -12,7 +12,7 @@ import { urlPhotoPublique } from "@/lib/supabase/stockage";
 import { deplacerPhoto, modifierAltPhoto, supprimerPhoto } from "@/modules/catalogue/actions";
 import { PHOTOS_MAX } from "@/modules/catalogue/types";
 import type { PhotoAdmin } from "@/modules/catalogue/types";
-import { ChampTexte } from "./ChampTexte";
+import { ChampTexte, useClassesChamp } from "./ChampTexte";
 
 const BOUTON =
   "inline-flex min-h-touch min-w-touch items-center justify-center rounded-full border border-border-field bg-surface px-3 text-text-primary aria-disabled:cursor-not-allowed aria-disabled:text-text-secondary";
@@ -86,6 +86,7 @@ function FormulaireAlt({ photo, numero, onSucces }: { photo: PhotoAdmin; numero:
 // Liste ordonnée des photos : miniature, textes alternatifs, Monter / Descendre (44 px, nom complet, aria-disabled en bout de liste).
 // L'ordre affiché vient de la base (router.refresh) ; le résultat réel est annoncé en statut.
 export function GaleriePhotos({ photos }: { photos: readonly PhotoAdmin[] }) {
+  const classes = useClassesChamp();
   const t = useTranslations("Admin.produits.photos");
   const locale = useLocale();
   const router = useRouter();
@@ -175,7 +176,7 @@ export function GaleriePhotos({ photos }: { photos: readonly PhotoAdmin[] }) {
             const premiere = i === 0;
             const derniere = i === photos.length - 1;
             return (
-              <li key={p.id} className="flex flex-wrap items-center gap-4 rounded-lg border border-border bg-surface p-3">
+              <li key={p.id} className={`flex flex-wrap items-center gap-4 ${classes.bloc} p-3`}>
                 <Image src={urlPhotoPublique(p.fichier)} alt={texte} width={96} height={96} sizes="96px" className="size-24 shrink-0 rounded-md object-cover" />
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <p

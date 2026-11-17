@@ -72,7 +72,8 @@ describe("PublicationProduit d'un Kit", () => {
   it("refus : la liste traduite des manques du Kit s'affiche", async () => {
     faux.publierProduit.mockResolvedValue({ statut: "erreur", erreur: "publication_incomplete", manques: ["video", "sous_titres_fr", "materiel_en"] });
     rendre(<PublicationProduit produitId={KIT} publie={false} />);
-    await userEvent.click(screen.getByRole("button", { name: "Publier" }));
+    await userEvent.click(screen.getByRole("button", { name: "Statut : Brouillon" }));
+    await userEvent.click(screen.getByRole("button", { name: "Publié" }));
     const alerte = await screen.findByRole("alert");
     expect(within(alerte).getByText("La vidéo complète")).toBeTruthy();
     expect(within(alerte).getByText("Les sous-titres en français")).toBeTruthy();
@@ -82,7 +83,8 @@ describe("PublicationProduit d'un Kit", () => {
   it("succès affiché seulement après la réponse réelle", async () => {
     faux.publierProduit.mockResolvedValue({ statut: "succes" });
     rendre(<PublicationProduit produitId={KIT} publie={false} />);
-    await userEvent.click(screen.getByRole("button", { name: "Publier" }));
+    await userEvent.click(screen.getByRole("button", { name: "Statut : Brouillon" }));
+    await userEvent.click(screen.getByRole("button", { name: "Publié" }));
     expect(await screen.findByText("Produit publié.")).toBeTruthy();
     expect(faux.refresh).toHaveBeenCalled();
   });

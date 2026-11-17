@@ -10,7 +10,7 @@ import { useRouter } from "@/i18n/navigation";
 import { definirExtraitSansParole, deposerSousTitresExtrait, supprimerSousTitresExtrait } from "@/modules/catalogue/actions";
 import { LANGUES_SOUS_TITRES, SOUS_TITRES_EXTRAIT_TAILLE_MAX } from "@/modules/catalogue/types";
 import type { LangueSousTitres } from "@/modules/catalogue/types";
-import { CLASSE_CHAMP } from "./ChampTexte";
+import { useClassesChamp } from "./ChampTexte";
 
 type Props = { produitId: string; sansParole: boolean; langues: readonly LangueSousTitres[] };
 
@@ -22,6 +22,7 @@ function useTexteErreur() {
 // Sous-titres d'une langue de l'extrait : fichier .vtt envoyé au serveur (Server Action, 512 Ko au plus), vérifié puis déposé chez Bunny ;
 // suppression avec confirmation. Le succès n'est affiché qu'après la réponse réelle du serveur.
 function SousTitresExtraitLangue({ produitId, langue, present }: { produitId: string; langue: LangueSousTitres; present: boolean }) {
+  const classes = useClassesChamp();
   const t = useTranslations("Admin.kits.sousTitresExtrait");
   const texteErreur = useTexteErreur();
   const router = useRouter();
@@ -85,7 +86,7 @@ function SousTitresExtraitLangue({ produitId, langue, present }: { produitId: st
   }
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
+    <div className={`flex flex-col gap-3 ${classes.bloc} p-4`}>
       <h3 className="t-h3">{t(`langues.${langue}`)}</h3>
       <p className="t-small text-text-secondary">{t(langue === "fr" ? "obligatoire" : "facultatif")}</p>
       <p className="t-body text-text-primary">{present ? t("presents") : t("absents")}</p>
@@ -97,7 +98,7 @@ function SousTitresExtraitLangue({ produitId, langue, present }: { produitId: st
         </div>
       ) : null}
       <form onSubmit={surEnvoi} noValidate className="flex flex-col gap-3">
-        <label htmlFor={idFichier} className="t-label text-text-primary">
+        <label htmlFor={idFichier} className={classes.etiquette}>
           {t("fichier.libelle", { langue: nomLangue })}
         </label>
         <p id={`${idFichier}-aide`} className="t-small text-text-secondary">
@@ -111,7 +112,7 @@ function SousTitresExtraitLangue({ produitId, langue, present }: { produitId: st
           accept=".vtt,text/vtt"
           disabled={enCours}
           aria-describedby={`${idFichier}-aide`}
-          className={CLASSE_CHAMP}
+          className={classes.champ}
         />
         {erreur ? <MessageEtat type="erreur">{erreur}</MessageEtat> : null}
         <div>
@@ -145,6 +146,7 @@ function SousTitresExtraitLangue({ produitId, langue, present }: { produitId: st
 // Section placée sous l'extrait : case « Extrait sans parole » (décochée par défaut) puis sous-titres FR et EN de l'extrait. Cochée, aucun
 // sous-titre d'extrait n'est exigé pour publier ; décochée, le français l'est (décision de Jonathan du 2026-10-31).
 export function SousTitresExtraitKit({ produitId, sansParole, langues }: Props) {
+  const classes = useClassesChamp();
   const t = useTranslations("Admin.kits.sousTitresExtrait");
   const texteErreur = useTexteErreur();
   const router = useRouter();
@@ -200,7 +202,7 @@ export function SousTitresExtraitKit({ produitId, sansParole, langues }: Props) 
             aria-describedby={`${idCase}-aide`}
             className="size-5"
           />
-          <label htmlFor={idCase} className="t-label text-text-primary">
+          <label htmlFor={idCase} className={classes.etiquette}>
             {t("sansParole.libelle")}
           </label>
         </div>

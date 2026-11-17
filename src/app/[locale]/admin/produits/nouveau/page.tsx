@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { FormulaireProduit } from "@/components/admin/FormulaireProduit";
+import { FenetreFormulaire } from "@/components/admin/ui/FenetreFormulaire";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
 import { routing, type Locale } from "@/i18n/routing";
@@ -15,6 +16,8 @@ import { lireCouleursUtilisees, lireProduitsLiables, lireUniversAdmin } from "@/
 import type { CouleurVariante, ProduitLiable, UniversAdmin } from "@/modules/catalogue/types";
 
 const CHEMIN = "/admin/produits/nouveau";
+// Formulaire principal, soumis par « Enregistrer » de la fenêtre.
+const ID_FORMULAIRE = "formulaire-produit";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/produits/nouveau">): Promise<Metadata> {
   const { locale } = await params;
@@ -51,12 +54,19 @@ async function NouveauSelonDroit({ locale }: { locale: Locale }) {
   }
   return (
     <CoqueAdmin>
-      <div className="flex flex-col gap-6">
-        <h1 className="t-h1">{t("pageNouveau.titre")}</h1>
-        <p className="t-body text-text-secondary">{t("pageNouveau.intro")}</p>
-        {/* Sans lecture des univers, le formulaire n'est pas montré : il prétendrait qu'aucun univers n'existe. */}
-        {univers && liables ? <FormulaireProduit univers={univers} liables={liables} couleursUtilisees={couleurs} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
-      </div>
+      {/* Story 9.16 f (Q23) : la page reste sur sa route, dessinée en fenêtre ; Échap et la croix ramènent à la liste. */}
+      {/* Sans formulaire rendu (lecture impossible), pas de bouton « Enregistrer » dans l'en-tête. */}
+      <FenetreFormulaire titre={t("pageNouveau.titre")} retour="/admin/produits" idFormulaire={univers && liables ? ID_FORMULAIRE : undefined}>
+        <div className="flex flex-col gap-6">
+          <p className="t-body text-text-secondary">{t("pageNouveau.intro")}</p>
+          {/* Sans lecture des univers, le formulaire n'est pas montré : il prétendrait qu'aucun univers n'existe. */}
+          {univers && liables ? (
+            <FormulaireProduit univers={univers} liables={liables} couleursUtilisees={couleurs} idFormulaire={ID_FORMULAIRE} />
+          ) : (
+            <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>
+          )}
+        </div>
+      </FenetreFormulaire>
     </CoqueAdmin>
   );
 }

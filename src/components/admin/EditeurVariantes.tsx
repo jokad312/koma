@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { TAILLES, taillesDeLaFamille, type CodeErreurCatalogue, type Taille } from "@/modules/catalogue/types";
-import { ChampTexte } from "./ChampTexte";
+import { ChampTexte, useClassesChamp } from "./ChampTexte";
 
 // id : variante déjà enregistrée (mise à jour sur place par la base) ; absent pour une taille encore jamais enregistrée.
 export type EtatVariante = { id?: string; actif: boolean; stock: string; surCommande: boolean; delai: string };
@@ -12,10 +12,6 @@ export type EtatVariantes = Record<Taille, EtatVariante>;
 export const VARIANTES_VIDES: EtatVariantes = Object.fromEntries(
   TAILLES.map((taille) => [taille, { actif: false, stock: "0", surCommande: false, delai: "" }]),
 ) as EtatVariantes;
-
-// Choix sélectionné : bordure rouge 2 px et coche (jamais la couleur seule). Case native, aucune action au choix.
-const OPTION =
-  "relative flex min-h-touch cursor-pointer items-center gap-3 rounded-md border border-border-field bg-surface px-4 py-3 has-[:checked]:border-2 has-[:checked]:border-primary has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2";
 
 type Props = {
   famille: string;
@@ -42,6 +38,7 @@ function Coche() {
 // facultatif. Rien n'est envoyé avant « Enregistrer ».
 export function EditeurVariantes({ famille, valeur, onChange, erreur, titre, imbrique = false }: Props) {
   const t = useTranslations("Admin.produits.formulaire");
+  const classes = useClassesChamp();
   const base = useId();
   const tailles = TAILLES.filter((taille) => taillesDeLaFamille(famille).includes(taille));
   const unique = famille === "autre";
@@ -68,10 +65,10 @@ export function EditeurVariantes({ famille, valeur, onChange, erreur, titre, imb
         const stockErreur = erreur?.taille === taille && erreur.code === "stock_invalide" ? erreur.code : null;
         const tailleErreur = erreur?.taille === taille && (erreur.code === "taille_invalide" || erreur.code === "couleur_invalide") ? erreur.code : null;
         return (
-          <fieldset key={taille} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
+          <fieldset key={taille} className={`flex flex-col gap-3 ${classes.bloc} p-4`}>
             <legend className="t-label px-1 text-text-primary">{t(`variantes.tailles.${taille}`)}</legend>
             {taille === "unique" ? null : (
-              <label className={OPTION}>
+              <label className={classes.option}>
                 <input
                   type="checkbox"
                   name={`taille_${taille}`}
@@ -104,7 +101,7 @@ export function EditeurVariantes({ famille, valeur, onChange, erreur, titre, imb
                       erreur={stockErreur ? t(`erreurs.${stockErreur}`) : null}
                       onChange={(v) => onChange(taille, { stock: v })}
                     />
-                    <label className={OPTION}>
+                    <label className={classes.option}>
                       <input
                         type="checkbox"
                         name={`commande_${taille}`}

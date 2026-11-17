@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, screen, waitFor } from "@testing-library/react";
+import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { rendre } from "./aides-dom";
@@ -11,6 +11,7 @@ const faux = vi.hoisted(() => ({
   publierProduit: vi.fn(),
   depublierProduit: vi.fn(),
   restaurerProduit: vi.fn(),
+  archiverProduit: vi.fn(),
   demanderEnvoiPhoto: vi.fn(),
   finaliserPhoto: vi.fn(),
   annulerEnvoiPhoto: vi.fn(),
@@ -25,6 +26,7 @@ vi.mock("@/modules/catalogue/actions", () => ({
   publierProduit: (...a: unknown[]) => faux.publierProduit(...a),
   depublierProduit: (...a: unknown[]) => faux.depublierProduit(...a),
   restaurerProduit: (...a: unknown[]) => faux.restaurerProduit(...a),
+  archiverProduit: (...a: unknown[]) => faux.archiverProduit(...a),
   demanderEnvoiPhoto: (...a: unknown[]) => faux.demanderEnvoiPhoto(...a),
   finaliserPhoto: (...a: unknown[]) => faux.finaliserPhoto(...a),
   annulerEnvoiPhoto: (...a: unknown[]) => faux.annulerEnvoiPhoto(...a),
@@ -117,37 +119,61 @@ describe("GaleriePhotos", () => {
   });
 });
 
-describe("PublicationProduit", () => {
-  it("brouillon : pastille Brouillon et bouton Publier", () => {
+// Story 9.16 f (maquette D14, Q26) : menu STATUT Brouillon / Publié / Archivé ; chaque choix déclenche l'action existante.
+async function choisirStatut(user: ReturnType<typeof userEvent.setup>, statut: "Brouillon" | "Publié" | "Archivé") {
+  await user.click(screen.getByRole("button", { name: /^Statut :/ }));
+  await user.click(screen.getByRole("button", { name: new RegExp(`^${statut}`) }));
+}
+
+describe("PublicationProduit (menu STATUT)", () => {
+  it("brouillon : le bouton du menu dit « Statut : Brouillon » ; la liste s'ouvre avec les 3 statuts, l'actuel marqué", async () => {
+    const user = userEvent.setup();
     rendre(<PublicationProduit produitId={PRODUIT} publie={false} />);
-    expect(screen.getByText("Brouillon")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Publier" })).toBeTruthy();
+    const menu = screen.getByRole("button", { name: "Statut : Brouillon" });
+    expect(menu.getAttribute("aria-expanded")).toBe("false");
+    expect(screen.getByRole("heading", { level: 2, name: "Statut" })).toBeTruthy();
+    await user.click(menu);
+    expect(menu.getAttribute("aria-expanded")).toBe("true");
+    const liste = document.getElementById(menu.getAttribute("aria-controls") ?? "")!;
+    const choix = within(liste).getAllByRole("button");
+    expect(choix.map((b) => b.textContent)).toEqual(["Brouillon", "Publié", "Archivé"]);
+    expect(choix[0].getAttribute("aria-current")).toBe("true");
   });
 
-  it("publié : pastille Publié et bouton Dépublier", () => {
+  it("Échap referme la liste sans quitter, le focus revient sur le bouton", async () => {
+    const user = userEvent.setup();
+    rendre(<PublicationProduit produitId={PRODUIT} publie={false} />);
+    const menu = screen.getByRole("button", { name: "Statut : Brouillon" });
+    await user.click(menu);
+    await user.keyboard("{Escape}");
+    expect(menu.getAttribute("aria-expanded")).toBe("false");
+    expect(document.activeElement).toBe(menu);
+  });
+
+  it("publié : « Statut : Publié »", () => {
     rendre(<PublicationProduit produitId={PRODUIT} publie />);
-    expect(screen.getByText("Publié")).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Dépublier" })).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Statut : Publié" })).toBeTruthy();
   });
 
-  it("refus : la liste des manques s'affiche en alerte, aucun succès", async () => {
+  it("produit incomplet, STATUT → Publié : refus avec la liste des manques, le statut reste Brouillon, aucun succès", async () => {
     faux.publierProduit.mockResolvedValueOnce({ statut: "erreur", erreur: "publication_incomplete", manques: ["prix", "photo"] });
     const user = userEvent.setup();
     rendre(<PublicationProduit produitId={PRODUIT} publie={false} />);
-    await user.click(screen.getByRole("button", { name: "Publier" }));
+    await choisirStatut(user, "Publié");
     const alerte = await screen.findByRole("alert");
     expect(alerte.textContent).toContain("Le prix");
     expect(alerte.textContent).toContain("Au moins une photo");
+    expect(screen.getByRole("button", { name: "Statut : Brouillon" })).toBeTruthy();
     expect(screen.queryByText("Produit publié.")).toBeNull();
     expect(faux.refresh).not.toHaveBeenCalled();
   });
 
-  it("succès : annoncé seulement après la réponse réelle, puis relecture", async () => {
+  it("STATUT → Publié : succès annoncé seulement après la réponse réelle, puis relecture", async () => {
     let finir: (v: unknown) => void = () => {};
     faux.publierProduit.mockReturnValueOnce(new Promise((r) => (finir = r)));
     const user = userEvent.setup();
     rendre(<PublicationProduit produitId={PRODUIT} publie={false} />);
-    await user.click(screen.getByRole("button", { name: "Publier" }));
+    await choisirStatut(user, "Publié");
     expect(screen.queryByText("Produit publié.")).toBeNull();
     await act(async () => finir({ statut: "succes" }));
     expect(await screen.findByText("Produit publié.")).toBeTruthy();
@@ -155,20 +181,28 @@ describe("PublicationProduit", () => {
     expect(faux.refresh).toHaveBeenCalled();
   });
 
-  it("dépublier : appelle l'action de dépublication", async () => {
+  it("publié, STATUT → Brouillon : appelle la dépublication", async () => {
     faux.depublierProduit.mockResolvedValueOnce({ statut: "succes" });
     const user = userEvent.setup();
     rendre(<PublicationProduit produitId={PRODUIT} publie />);
-    await user.click(screen.getByRole("button", { name: "Dépublier" }));
+    await choisirStatut(user, "Brouillon");
     expect(await screen.findByText(/Produit dépublié/)).toBeTruthy();
     expect(faux.publierProduit).not.toHaveBeenCalled();
+  });
+
+  it("choisir le statut actuel : aucune action", async () => {
+    const user = userEvent.setup();
+    rendre(<PublicationProduit produitId={PRODUIT} publie={false} />);
+    await choisirStatut(user, "Brouillon");
+    expect(faux.publierProduit).not.toHaveBeenCalled();
+    expect(faux.depublierProduit).not.toHaveBeenCalled();
   });
 
   it("exception réseau : erreur générique, jamais un succès", async () => {
     faux.publierProduit.mockRejectedValueOnce(new Error("TEST_reseau"));
     const user = userEvent.setup();
     rendre(<PublicationProduit produitId={PRODUIT} publie={false} />);
-    await user.click(screen.getByRole("button", { name: "Publier" }));
+    await choisirStatut(user, "Publié");
     expect(await screen.findByRole("alert")).toBeTruthy();
     expect(screen.queryByText("Produit publié.")).toBeNull();
   });
@@ -178,27 +212,46 @@ describe("PublicationProduit", () => {
     faux.publierProduit.mockResolvedValueOnce({ statut: "erreur", erreur: "produit_archive" });
     const user = userEvent.setup();
     rendre(<PublicationProduit produitId={PRODUIT} publie={false} />);
-    await user.click(screen.getByRole("button", { name: "Publier" }));
+    await choisirStatut(user, "Publié");
     expect((await screen.findByRole("alert")).textContent).toContain("restaure-le avant de le publier");
   });
 
-  it("archivé : statut « Archivé », « Restaurer » à la place de Publier ; restaurer appelle l'action puis relit", async () => {
+  it("STATUT → Archivé : confirmation d'abord (Annuler : rien), puis archivage par l'action de la page 3 et relecture", async () => {
+    faux.archiverProduit.mockResolvedValueOnce({ statut: "succes" });
+    const user = userEvent.setup();
+    rendre(<PublicationProduit produitId={PRODUIT} publie titre="TEST_ Polo" />);
+    await choisirStatut(user, "Archivé");
+    let confirmation = screen.getByRole("dialog", { name: "Archiver « TEST_ Polo » ?" });
+    await user.click(within(confirmation).getByRole("button", { name: "Annuler" }));
+    expect(faux.archiverProduit).not.toHaveBeenCalled();
+    await choisirStatut(user, "Archivé");
+    confirmation = screen.getByRole("dialog", { name: "Archiver « TEST_ Polo » ?" });
+    await user.click(within(confirmation).getByRole("button", { name: "Archiver" }));
+    expect(await screen.findByText("Produit archivé.")).toBeTruthy();
+    expect(faux.archiverProduit).toHaveBeenCalledWith({ id: PRODUIT });
+    expect(faux.refresh).toHaveBeenCalled();
+  });
+
+  it("archivé : « Statut : Archivé » ; Publié indisponible sans appel au serveur ; Brouillon restaure puis relit", async () => {
     faux.restaurerProduit.mockResolvedValueOnce({ statut: "succes" });
     const user = userEvent.setup();
     rendre(<PublicationProduit produitId={PRODUIT} publie={false} archive />);
-    expect(screen.getByText("Archivé")).toBeTruthy();
-    expect(screen.queryByText("Brouillon")).toBeNull();
-    expect(screen.queryByRole("button", { name: "Publier" })).toBeNull();
-    await user.click(screen.getByRole("button", { name: "Restaurer" }));
+    expect(screen.getByRole("button", { name: "Statut : Archivé" })).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: /^Statut :/ }));
+    const publier = screen.getByRole("button", { name: /^Publié/ });
+    expect(publier.getAttribute("aria-disabled")).toBe("true");
+    await user.click(publier);
+    expect((await screen.findByRole("alert")).textContent).toContain("restaure-le avant de le publier");
+    expect(faux.publierProduit).not.toHaveBeenCalled();
+    await choisirStatut(user, "Brouillon");
     expect(await screen.findByText(/Produit restauré/)).toBeTruthy();
     expect(faux.restaurerProduit).toHaveBeenCalledWith({ id: PRODUIT });
-    expect(faux.publierProduit).not.toHaveBeenCalled();
     expect(faux.refresh).toHaveBeenCalled();
   });
 });
 
 describe("EnvoiPhoto", () => {
-  const choisir = async (user: ReturnType<typeof userEvent.setup>, fichier: File) => user.upload(screen.getByLabelText("Fichier de la photo"), fichier);
+  const choisir = async (user: ReturnType<typeof userEvent.setup>, fichier: File) => user.upload(screen.getByLabelText("Choisir une image"), fichier);
   const remplirAlt = async (user: ReturnType<typeof userEvent.setup>) => {
     await user.type(screen.getByLabelText("Texte alternatif en français"), "Face");
     await user.type(screen.getByLabelText("Texte alternatif en anglais"), "Front");
@@ -213,7 +266,7 @@ describe("EnvoiPhoto", () => {
       await choisir(user, new File(["x"], nom, { type }));
       await envoyer(user);
       expect((await screen.findByText(/Formats acceptés : JPEG, PNG ou WebP, 15 Mo au plus/)).textContent).toContain("Formats acceptés");
-      expect(screen.getByLabelText("Fichier de la photo").getAttribute("aria-describedby")).toContain("erreur");
+      expect(screen.getByLabelText("Choisir une image").getAttribute("aria-describedby")).toContain("erreur");
     }
     expect(faux.demanderEnvoiPhoto).not.toHaveBeenCalled();
   });

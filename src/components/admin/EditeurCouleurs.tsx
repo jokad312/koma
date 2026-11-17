@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useId } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { COULEUR_HEX_REGEX, TAILLES_STANDARD, type CodeErreurCatalogue, type CouleurVariante, type Taille } from "@/modules/catalogue/types";
-import { ChampTexte } from "./ChampTexte";
+import { ChampTexte, useClassesChamp } from "./ChampTexte";
 import { EditeurVariantes, type EtatVariante, type EtatVariantes } from "./EditeurVariantes";
 
 // Une couleur du Vêtement en cours de saisie : cle locale (stable pendant la saisie), noms FR et EN, pastille, et ses tailles.
@@ -40,6 +40,7 @@ type Props = {
 // (stock, fabrication sur commande et délai par case). Ajouter ou retirer une couleur ne change rien tant que « Enregistrer » n'est pas
 // touché. La pastille n'est qu'un repère : le nom de la couleur est toujours écrit.
 export function EditeurCouleurs({ couleurs, suggestions, onAjouter, onRetirer, onChangerCouleur, onChangerVariante, erreur, erreursLocales = {} }: Props) {
+  const classes = useClassesChamp();
   const t = useTranslations("Admin.produits.formulaire");
   const base = useId();
   const idListe = `${base}-suggestions`;
@@ -75,7 +76,7 @@ export function EditeurCouleurs({ couleurs, suggestions, onAjouter, onRetirer, o
         const erreurCouleur = locale === "nomVide" ? t("couleurs.nomVide") : concernee && erreur?.code === "couleur_invalide" && !erreur.taille ? t("erreurs.couleur_invalide") : null;
         const hexValide = COULEUR_HEX_REGEX.test(c.hex.trim());
         return (
-          <section key={c.cle} aria-labelledby={`${base}-${c.cle}-titre`} className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-4">
+          <section key={c.cle} aria-labelledby={`${base}-${c.cle}-titre`} className={`flex flex-col gap-4 ${classes.bloc} p-4`}>
             <h3 id={`${base}-${c.cle}-titre`} className="t-h3 flex items-center gap-2">
               {hexValide ? <span aria-hidden="true" className="inline-block size-5 shrink-0 rounded-full border border-border-field" style={{ backgroundColor: c.hex.trim() }} /> : null}
               {nom}

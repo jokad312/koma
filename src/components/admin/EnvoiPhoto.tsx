@@ -1,15 +1,20 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { ImageIcon } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import Image from "next/image";
 import { useId, useRef, useState, type FormEvent } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { useRouter } from "@/i18n/navigation";
+import { useDansFenetre, useEnregistrementFenetre } from "./ui/FenetreFormulaire";
 import { lireEnvPublique } from "@/lib/env";
 import { demarrerEnvoiTus, type EnvoiTus } from "@/lib/supabase/envoi-tus";
+import { urlPhotoPublique } from "@/lib/supabase/stockage";
 import { annulerEnvoiPhoto, demanderEnvoiPhoto, finaliserPhoto } from "@/modules/catalogue/actions";
 import { FORMATS_PHOTO, PHOTO_TAILLE_MAX } from "@/modules/catalogue/types";
-import { ChampTexte, CLASSE_CHAMP } from "./ChampTexte";
+import type { PhotoAdmin } from "@/modules/catalogue/types";
+import { ChampTexte } from "./ChampTexte";
 
 type Phase = "repos" | "envoi" | "traitement";
 type ErreurEnvoi = { code: string; champ: "fichier" | "alt_fr" | "alt_en" | null };
@@ -17,9 +22,14 @@ type ErreurEnvoi = { code: string; champ: "fichier" | "alt_fr" | "alt_en" | null
 // Ajout d'une photo : contrôles avant tout envoi (type, taille, textes alternatifs), autorisation signée par le serveur, envoi TUS direct
 // du navigateur (progression en texte, reprise après coupure, annulation), puis finalisation côté serveur. Le succès n'est affiché qu'après
 // la réponse réelle de la finalisation.
-export function EnvoiPhoto({ produitId }: { produitId: string }) {
+// Story 9.16 f (maquette D13) : vignette (photo principale, sinon une icône : jamais une image inventée), « Choisir une image » et la limite réelle (Q25).
+export function EnvoiPhoto({ produitId, vignette = null }: { produitId: string; vignette?: PhotoAdmin | null }) {
   const t = useTranslations("Admin.produits.photos");
+  const locale = useLocale();
+  const [nomChoisi, setNomChoisi] = useState<string | null>(null);
   const router = useRouter();
+  // Dans la fenêtre (9.16 f), un titre plus petit sous l'étiquette de la zone.
+  const dansFenetre = useDansFenetre();
   const base = useId();
   const refFichier = useRef<HTMLInputElement>(null);
   const [altFr, setAltFr] = useState("");
@@ -96,6 +106,8 @@ export function EnvoiPhoto({ produitId }: { produitId: string }) {
       setAltFr("");
       setAltEn("");
       if (refFichier.current) refFichier.current.value = "";
+      setNomChoisi(null);
+      enregistre();
       router.refresh();
     } catch {
       setErreur({ code: "generique", champ: null });
@@ -140,35 +152,65 @@ export function EnvoiPhoto({ produitId }: { produitId: string }) {
   }
 
   const occupe = phase !== "repos";
+  // Dans la fenêtre (9.16 f) : un envoi en cours empêche de quitter ; un envoi réussi rend sa saisie « enregistrée ».
+  const { enregistre, source } = useEnregistrementFenetre(occupe);
   const idFichier = `${base}-fichier`;
   const erreurFichier = erreurDe("fichier");
   const erreurGenerale = erreur && erreur.champ === null ? t(`erreurs.${code(erreur.code)}`) : null;
 
   return (
-    <form onSubmit={surEnvoi} noValidate className="flex max-w-2xl flex-col gap-4">
-      <h3 className="t-h2">{t("ajout.titre")}</h3>
+    <form onSubmit={surEnvoi} noValidate className="flex max-w-2xl flex-col gap-4" {...source}>
+      <h3 className={dansFenetre ? "t-h3" : "t-h2"}>{t("ajout.titre")}</h3>
       {erreurGenerale ? <MessageEtat type="erreur">{erreurGenerale}</MessageEtat> : null}
 
-      <div className="flex w-full flex-col gap-2">
-        <label htmlFor={idFichier} className="t-label text-text-primary">
-          {t("ajout.fichier.libelle")}
-        </label>
-        <p id={`${idFichier}-aide`} className="t-small text-text-secondary">
-          {t("ajout.fichier.aide")}
-        </p>
-        <input
-          ref={refFichier}
-          id={idFichier}
-          name="fichier"
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          disabled={occupe}
-          aria-invalid={erreurFichier ? true : undefined}
-          aria-describedby={`${idFichier}-aide${erreurFichier ? ` ${idFichier}-erreur` : ""}`}
-          className={CLASSE_CHAMP}
-        />
+      <div className="flex w-full flex-wrap items-center gap-4">
+        <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-admin-champ text-text-secondary">
+          {vignette ? (
+            <Image
+              src={urlPhotoPublique(vignette.fichier)}
+              alt={locale === "en" ? vignette.altEn : vignette.altFr}
+              width={80}
+              height={80}
+              sizes="80px"
+              className="size-20 object-cover"
+            />
+          ) : (
+            <ImageIcon aria-hidden="true" className="size-10" strokeWidth={1.5} />
+          )}
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
+          {/* Le libellé est le bouton visible « Choisir une image » ; le champ natif reste au clavier (focus montré sur la pastille). */}
+          <div className="relative rounded-full has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary">
+            <label
+              htmlFor={idFichier}
+              className="t-button inline-flex min-h-touch cursor-pointer items-center justify-center rounded-full bg-admin-filtre px-5 py-3 uppercase text-admin-sur-filtre"
+            >
+              {t("ajout.fichier.libelle")}
+            </label>
+            <input
+              ref={refFichier}
+              id={idFichier}
+              name="fichier"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              disabled={occupe}
+              onChange={(e) => setNomChoisi(e.target.files?.[0]?.name ?? null)}
+              aria-invalid={erreurFichier ? true : undefined}
+              aria-describedby={`${idFichier}-aide${nomChoisi ? ` ${idFichier}-choisi` : ""}${erreurFichier ? ` ${idFichier}-erreur` : ""}`}
+              className="sr-only"
+            />
+          </div>
+          <p id={`${idFichier}-aide`} className="t-small text-text-secondary">
+            {t("ajout.fichier.aide", { max: PHOTO_TAILLE_MAX / (1024 * 1024) })}
+          </p>
+          {nomChoisi ? (
+            <p id={`${idFichier}-choisi`} className="t-small break-all text-text-primary">
+              {t("ajout.fichier.choisi", { nom: nomChoisi })}
+            </p>
+          ) : null}
+        </div>
         {erreurFichier ? (
-          <p id={`${idFichier}-erreur`} className="t-small text-danger">
+          <p id={`${idFichier}-erreur`} className="t-small w-full text-danger">
             {erreurFichier}
           </p>
         ) : null}

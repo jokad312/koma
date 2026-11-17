@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useId, useRef, useState, useTransition, type FormEvent } from "react";
+import { useCallback, useEffect, useId, useRef, useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { useRouter } from "@/i18n/navigation";
@@ -10,11 +10,13 @@ import { enregistrerProduit, type EtatProduit } from "@/modules/catalogue/action
 import { proposerSlug } from "@/modules/catalogue/slug";
 import { TAILLES, taillesDeLaFamille } from "@/modules/catalogue/types";
 import type { ChampProduit, CouleurVariante, EntreeVariante, ProduitAdmin, ProduitLiable, Taille, UniversAdmin } from "@/modules/catalogue/types";
-import { ChampTexte, CLASSE_CHAMP } from "./ChampTexte";
+import { ChampTexte, useClassesChamp } from "./ChampTexte";
 import { ChoixFamille } from "./ChoixFamille";
 import { EditeurCouleurs, erreursDesCouleurs, type ErreurCouleurLocale, type EtatCouleur } from "./EditeurCouleurs";
 import { EditeurVariantes, VARIANTES_VIDES, type EtatVariante, type EtatVariantes } from "./EditeurVariantes";
-import { FormulaireKit } from "./FormulaireKit";
+import { FormulaireKit, type ValeursCommunes } from "./FormulaireKit";
+import { useEnregistrementFenetre } from "./ui/FenetreFormulaire";
+import { ZonesEnTete } from "./ZonesEnTete";
 
 type Props = {
   univers: readonly UniversAdmin[];
@@ -24,6 +26,10 @@ type Props = {
   produit?: ProduitAdmin | null;
   // Couleurs déjà utilisées (autocomplétion des couleurs d'un Vêtement).
   couleursUtilisees?: readonly CouleurVariante[];
+  // Story 9.16 f : identifiant du formulaire principal (soumis par « Enregistrer » de la fenêtre) et zones de la maquette placées entre les champs du
+  // haut et le reste (image, statut). Absentes à la création : zones « après le premier enregistrement ».
+  idFormulaire?: string;
+  milieu?: ReactNode;
 };
 
 function etatDepuis(v: ProduitAdmin["variantes"][number]): EtatVariante {
@@ -65,11 +71,13 @@ function entreesDepuis(famille: string, etat: EtatVariantes, couleur: EtatCouleu
 
 // Création et modification d'un brouillon de produit physique. Le succès n'apparaît qu'après la réponse de l'action serveur,
 // la saisie est conservée après un échec (champs contrôlés, jamais remontés), aucun choix ne déclenche d'action.
-export function FormulaireProduit({ univers, liables = [], produit = null, couleursUtilisees = [] }: Props) {
+export function FormulaireProduit({ univers, liables = [], produit = null, couleursUtilisees = [], idFormulaire, milieu }: Props) {
   const t = useTranslations("Admin.produits.formulaire");
   const locale = useLocale();
   const router = useRouter();
   const base = useId();
+  const classes = useClassesChamp();
+  const idForm = idFormulaire ?? `${base}-formulaire`;
 
   const [famille, setFamille] = useState<string>(produit?.famille ?? "");
   const [titreFr, setTitreFr] = useState(produit?.titreFr ?? "");
@@ -97,6 +105,18 @@ export function FormulaireProduit({ univers, liables = [], produit = null, coule
   // Après une création réussie, le bouton reste occupé jusqu'à la redirection : pas de second envoi.
   const [redirige, setRedirige] = useState(false);
   const refResume = useRef<HTMLDivElement>(null);
+  const { enregistre, source } = useEnregistrementFenetre(enCours || redirige);
+  // Saisie commune rendue par le formulaire du Kit (création), pour le retour vers une autre famille.
+  const changerCommun = useCallback((v: Partial<ValeursCommunes>) => {
+    if (v.titreFr !== undefined) setTitreFr(v.titreFr);
+    if (v.titreEn !== undefined) setTitreEn(v.titreEn);
+    if (v.slug !== undefined) setSlug(v.slug);
+    if (v.slugModifie !== undefined) setSlugModifie(v.slugModifie);
+    if (v.descriptionFr !== undefined) setDescriptionFr(v.descriptionFr);
+    if (v.descriptionEn !== undefined) setDescriptionEn(v.descriptionEn);
+    if (v.universId !== undefined) setUniversId(v.universId);
+    if (v.prix !== undefined) setPrix(v.prix);
+  }, []);
 
   // Après un échec, le focus va au résumé d'erreur (annoncé en alerte).
   useEffect(() => {
@@ -164,7 +184,11 @@ export function FormulaireProduit({ univers, liables = [], produit = null, coule
           return;
         }
         setEtat(resultat);
-        if (resultat.statut === "succes") router.refresh();
+        if (resultat.statut === "succes") {
+          // Saisie enregistrée : la fenêtre ne demande plus « Quitter sans enregistrer ? ».
+          enregistre();
+          router.refresh();
+        }
       } catch {
         // Réseau coupé : jamais un faux succès, la saisie est conservée.
         setEtat({ statut: "erreur", erreur: "generique" });
@@ -185,175 +209,190 @@ export function FormulaireProduit({ univers, liables = [], produit = null, coule
   const erreurGlobale = erreur && !erreur.champ ? erreur.erreur : null;
   const nomUnivers = (u: UniversAdmin) => (locale === "en" ? u.nomEn : u.nomFr);
 
-  // Famille « kit » (création) : le formulaire du Kit prend la suite, le choix de la famille reste en tête.
+  // Famille « kit » (création) : le formulaire du Kit prend la suite, avec le choix de la famille et la saisie commune déjà faite (titres, descriptions,
+  // adresse, univers, prix), reprise à l'aller et rendue au retour vers une autre famille. Ce qui est propre au Kit (matériel, niveau, Kit lié) est
+  // perdu si l'on quitte la famille Kit avant d'enregistrer.
   if (famille === "kit" && produit === null) {
     return (
       <FormulaireKit
         univers={univers}
         liables={liables}
+        idFormulaire={idForm}
+        initial={{ titreFr, titreEn, slug, slugModifie, descriptionFr, descriptionEn, universId, prix }}
+        onCommun={changerCommun}
         choixFamille={<ChoixFamille base={base} famille={famille} onChange={setFamille} />}
       />
     );
   }
 
+  const effacerSucces = () => setEtat((avant) => (avant?.statut === "succes" ? null : avant));
+
+  // Ordre de la maquette (story 9.16 f) : nom, description, prix, univers ; puis les zones de la maquette (image, statut) ; puis tous les autres champs.
+  // Deux formulaires, une seule saisie : le premier porte l'identifiant soumis par « Enregistrer » de la fenêtre ; le second (après les zones, qui ont
+  // leurs propres formulaires et ne peuvent pas y être imbriquées) se soumet aussi par la touche Entrée ou son bouton. Les deux envoient toute la saisie.
   return (
-    <form
-      onSubmit={surEnvoi}
-      // Le succès ne vaut que pour la saisie envoyée : dès qu'un champ change, il disparaît.
-      onChange={() => setEtat((avant) => (avant?.statut === "succes" ? null : avant))}
-      noValidate className="flex max-w-2xl flex-col gap-6">
-      {erreur ? (
-        <div ref={refResume} tabIndex={-1} className="outline-none">
-          <MessageEtat type="erreur">{erreurGlobale ? t(`erreurs.${erreurGlobale}`) : t("resume")}</MessageEtat>
+    // Le succès ne vaut que pour la saisie envoyée : dès qu'un champ des formulaires du produit change, il disparaît (pas ceux des zones).
+    <div className="flex max-w-2xl flex-col gap-6">
+      <form id={idForm} onSubmit={surEnvoi} onChange={effacerSucces} noValidate className="flex flex-col gap-6" {...source}>
+        {erreur ? (
+          <div ref={refResume} tabIndex={-1} className="outline-none">
+            <MessageEtat type="erreur">{erreurGlobale ? t(`erreurs.${erreurGlobale}`) : t("resume")}</MessageEtat>
+          </div>
+        ) : null}
+        {etat?.statut === "succes" ? <MessageEtat type="succes">{t("succes")}</MessageEtat> : null}
+
+        <ChampTexte
+          id={`${base}-titre-fr`}
+          name="titre_fr"
+          libelle={t("titreFr.libelle")}
+          valeur={titreFr}
+          onChange={changerTitreFr}
+          erreur={erreurDe("titre_fr")}
+        />
+        <ChampTexte
+          id={`${base}-titre-en`}
+          name="titre_en"
+          libelle={t("titreEn.libelle")}
+          aide={t("titreEn.aide")}
+          valeur={titreEn}
+          onChange={setTitreEn}
+          erreur={erreurDe("titre_en")}
+        />
+        <ChampTexte
+          id={`${base}-description-fr`}
+          name="description_fr"
+          libelle={t("descriptionFr.libelle")}
+          aide={t("descriptionFr.aide")}
+          valeur={descriptionFr}
+          onChange={setDescriptionFr}
+          multiligne
+          erreur={erreurDe("description_fr")}
+        />
+        <ChampTexte
+          id={`${base}-description-en`}
+          name="description_en"
+          libelle={t("descriptionEn.libelle")}
+          aide={t("descriptionEn.aide")}
+          valeur={descriptionEn}
+          onChange={setDescriptionEn}
+          multiligne
+          erreur={erreurDe("description_en")}
+        />
+
+        <div className="grid gap-6 sm:grid-cols-2">
+          <ChampTexte
+            id={`${base}-prix`}
+            name="prix"
+            libelle={t("prix.libelle")}
+            aide={t("prix.aide")}
+            valeur={prix}
+            inputMode="decimal"
+            onChange={setPrix}
+            erreur={erreurDe("prix")}
+          />
         </div>
-      ) : null}
-      {etat?.statut === "succes" ? <MessageEtat type="succes">{t("succes")}</MessageEtat> : null}
-
-      <ChoixFamille base={base} famille={famille} onChange={produit ? undefined : setFamille} erreur={erreurDe("famille")} />
-
-      <ChampTexte
-        id={`${base}-titre-fr`}
-        name="titre_fr"
-        libelle={t("titreFr.libelle")}
-        valeur={titreFr}
-        onChange={changerTitreFr}
-        erreur={erreurDe("titre_fr")}
-      />
-      <ChampTexte
-        id={`${base}-titre-en`}
-        name="titre_en"
-        libelle={t("titreEn.libelle")}
-        aide={t("titreEn.aide")}
-        valeur={titreEn}
-        onChange={setTitreEn}
-        erreur={erreurDe("titre_en")}
-      />
-      <ChampTexte
-        id={`${base}-slug`}
-        name="slug"
-        libelle={t("slug.libelle")}
-        aide={t("slug.aide")}
-        valeur={slug}
-        onChange={(v) => {
-          setSlugModifie(true);
-          setSlug(v);
-        }}
-        erreur={erreurDe("slug")}
-        sousLeChamp={
-          erreur?.erreur === "slug_pris" && erreur.slugPropose ? (
-            <Bouton
-              variante="secondaire"
-              onClick={() => {
-                setSlugModifie(true);
-                setSlug(erreur.slugPropose ?? "");
-                setEtat(null);
-              }}
-            >
-              {t("slug.utiliser", { adresse: erreur.slugPropose })}
+        {univers.length === 0 ? (
+          <div className="flex flex-col items-start gap-2">
+            <p className={classes.etiquette}>{t("univers.libelle")}</p>
+            <MessageEtat type="information">{t("univers.vide")}</MessageEtat>
+            <Bouton variante="secondaire" href="/admin/univers">
+              {t("univers.lienVide")}
             </Bouton>
-          ) : null
-        }
-      />
-      <ChampTexte
-        id={`${base}-description-fr`}
-        name="description_fr"
-        libelle={t("descriptionFr.libelle")}
-        aide={t("descriptionFr.aide")}
-        valeur={descriptionFr}
-        onChange={setDescriptionFr}
-        multiligne
-        erreur={erreurDe("description_fr")}
-      />
-      <ChampTexte
-        id={`${base}-description-en`}
-        name="description_en"
-        libelle={t("descriptionEn.libelle")}
-        aide={t("descriptionEn.aide")}
-        valeur={descriptionEn}
-        onChange={setDescriptionEn}
-        multiligne
-        erreur={erreurDe("description_en")}
-      />
+          </div>
+        ) : (
+          <div className="flex w-full flex-col gap-2">
+            <label htmlFor={`${base}-univers`} className={classes.etiquette}>
+              {t("univers.libelle")}
+            </label>
+            <select
+              id={`${base}-univers`}
+              name="univers"
+              value={universId}
+              onChange={(e) => setUniversId(e.target.value)}
+              aria-invalid={erreurDe("univers") ? true : undefined}
+              aria-describedby={erreurDe("univers") ? `${base}-univers-erreur` : undefined}
+              className={classes.champ}
+            >
+              <option value="">{t("univers.aucun")}</option>
+              {univers.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {nomUnivers(u)}
+                </option>
+              ))}
+            </select>
+            {erreurDe("univers") ? (
+              <p id={`${base}-univers-erreur`} className="t-small text-danger">
+                {erreurDe("univers")}
+              </p>
+            ) : null}
+          </div>
+        )}
 
-      {univers.length === 0 ? (
-        <div className="flex flex-col items-start gap-2">
-          <p className="t-label text-text-primary">{t("univers.libelle")}</p>
-          <MessageEtat type="information">{t("univers.vide")}</MessageEtat>
-          <Bouton variante="secondaire" href="/admin/univers">
-            {t("univers.lienVide")}
+      </form>
+
+      {milieu ?? <ZonesEnTete produit={null} kit={false} />}
+
+      <form onSubmit={surEnvoi} onChange={effacerSucces} noValidate aria-label={t("suite")} className="flex flex-col gap-6" {...source}>
+        <ChoixFamille base={base} famille={famille} onChange={produit ? undefined : setFamille} erreur={erreurDe("famille")} desactive={enCours || redirige} />
+        <ChampTexte
+          id={`${base}-slug`}
+          name="slug"
+          libelle={t("slug.libelle")}
+          aide={t("slug.aide")}
+          valeur={slug}
+          onChange={(v) => {
+            setSlugModifie(true);
+            setSlug(v);
+          }}
+          erreur={erreurDe("slug")}
+          sousLeChamp={
+            erreur?.erreur === "slug_pris" && erreur.slugPropose ? (
+              <Bouton
+                variante="secondaire"
+                onClick={() => {
+                  setSlugModifie(true);
+                  setSlug(erreur.slugPropose ?? "");
+                  setEtat(null);
+                }}
+              >
+                {t("slug.utiliser", { adresse: erreur.slugPropose })}
+              </Bouton>
+            ) : null
+          }
+        />
+        <ChampTexte
+          id={`${base}-delai`}
+          name="delai"
+          libelle={t("delai.libelle")}
+          aide={t("delai.aide")}
+          valeur={delai}
+          inputMode="numeric"
+          onChange={setDelai}
+          erreur={erreurDe("delai")}
+        />
+
+        {famille === "vetement" ? (
+          <EditeurCouleurs
+            couleurs={couleurs}
+            suggestions={couleursUtilisees}
+            onAjouter={ajouterCouleur}
+            onRetirer={(cle) => setCouleurs((avant) => avant.filter((c) => c.cle !== cle))}
+            onChangerCouleur={changerCouleur}
+            onChangerVariante={changerVarianteCouleur}
+            erreur={erreurDeVariantes}
+            erreursLocales={erreursCouleurs}
+          />
+        ) : null}
+        {avecCouleurs ? null : (
+          <EditeurVariantes famille={famille} valeur={variantes} onChange={changerVariante} erreur={erreurDeVariantes && !erreurDeVariantes.couleur ? erreurDeVariantes : null} />
+        )}
+
+        <div className="flex flex-wrap items-center gap-3">
+          <Bouton type="submit" enCours={enCours || redirige}>
+            {enCours || redirige ? t("enCours") : t("enregistrer")}
           </Bouton>
         </div>
-      ) : (
-        <div className="flex w-full flex-col gap-2">
-          <label htmlFor={`${base}-univers`} className="t-label text-text-primary">
-            {t("univers.libelle")}
-          </label>
-          <select
-            id={`${base}-univers`}
-            name="univers"
-            value={universId}
-            onChange={(e) => setUniversId(e.target.value)}
-            aria-invalid={erreurDe("univers") ? true : undefined}
-            aria-describedby={erreurDe("univers") ? `${base}-univers-erreur` : undefined}
-            className={CLASSE_CHAMP}
-          >
-            <option value="">{t("univers.aucun")}</option>
-            {univers.map((u) => (
-              <option key={u.id} value={u.id}>
-                {nomUnivers(u)}
-              </option>
-            ))}
-          </select>
-          {erreurDe("univers") ? (
-            <p id={`${base}-univers-erreur`} className="t-small text-danger">
-              {erreurDe("univers")}
-            </p>
-          ) : null}
-        </div>
-      )}
-
-      <ChampTexte
-        id={`${base}-prix`}
-        name="prix"
-        libelle={t("prix.libelle")}
-        aide={t("prix.aide")}
-        valeur={prix}
-        inputMode="decimal"
-        onChange={setPrix}
-        erreur={erreurDe("prix")}
-      />
-      <ChampTexte
-        id={`${base}-delai`}
-        name="delai"
-        libelle={t("delai.libelle")}
-        aide={t("delai.aide")}
-        valeur={delai}
-        inputMode="numeric"
-        onChange={setDelai}
-        erreur={erreurDe("delai")}
-      />
-
-      {famille === "vetement" ? (
-        <EditeurCouleurs
-          couleurs={couleurs}
-          suggestions={couleursUtilisees}
-          onAjouter={ajouterCouleur}
-          onRetirer={(cle) => setCouleurs((avant) => avant.filter((c) => c.cle !== cle))}
-          onChangerCouleur={changerCouleur}
-          onChangerVariante={changerVarianteCouleur}
-          erreur={erreurDeVariantes}
-          erreursLocales={erreursCouleurs}
-        />
-      ) : null}
-      {avecCouleurs ? null : (
-        <EditeurVariantes famille={famille} valeur={variantes} onChange={changerVariante} erreur={erreurDeVariantes && !erreurDeVariantes.couleur ? erreurDeVariantes : null} />
-      )}
-
-      <div className="flex flex-wrap items-center gap-3">
-        <Bouton type="submit" enCours={enCours || redirige}>
-          {enCours || redirige ? t("enCours") : t("enregistrer")}
-        </Bouton>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }

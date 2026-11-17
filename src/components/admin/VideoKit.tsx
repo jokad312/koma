@@ -13,7 +13,7 @@ import { annulerEnvoiVideoKit, demanderEnvoiVideoKit, retirerExtraitKit, supprim
 import { formaterInstant } from "@/modules/catalogue/sous-titres";
 import { EXTRAIT_KIT_TAILLE_MAX, TYPES_VIDEO_KIT, VIDEO_KIT_TAILLE_MAX } from "@/modules/catalogue/types";
 import type { GenreVideoKit } from "@/modules/catalogue/types";
-import { CLASSE_CHAMP } from "./ChampTexte";
+import { useClassesChamp } from "./ChampTexte";
 
 type Phase = "repos" | "envoi" | "encodage";
 
@@ -46,6 +46,7 @@ type Props = {
 // envoi TUS direct (progression en texte, reprise, « Annuler l'envoi »), puis vérification de l'encodage chez Bunny par le serveur. La vidéo
 // n'est enregistrée qu'à l'encodage terminé : l'état affiché vient toujours de la réponse réelle du serveur, jamais d'une supposition.
 export function VideoKit({ produitId, genre, dureeSecondes, extraitPresent, bunnyConfigure }: Props) {
+  const classes = useClassesChamp();
   const t = useTranslations(genre === "complete" ? "Admin.kits.video" : "Admin.kits.extrait");
   const te = useTranslations("Admin.kits.videoErreurs");
   const router = useRouter();
@@ -276,7 +277,7 @@ export function VideoKit({ produitId, genre, dureeSecondes, extraitPresent, bunn
 
       {indisponible ? null : (
         <form onSubmit={surEnvoi} noValidate className="flex flex-col gap-3">
-          <label htmlFor={idFichier} className="t-label text-text-primary">
+          <label htmlFor={idFichier} className={classes.etiquette}>
             {t("fichier.libelle")}
           </label>
           <p id={`${idFichier}-aide`} className="t-small text-text-secondary">
@@ -290,7 +291,7 @@ export function VideoKit({ produitId, genre, dureeSecondes, extraitPresent, bunn
             accept={TYPES_VIDEO_KIT.join(",")}
             disabled={occupe}
             aria-describedby={`${idFichier}-aide`}
-            className={CLASSE_CHAMP}
+            className={classes.champ}
           />
           {erreur ? <MessageEtat type="erreur">{erreur}</MessageEtat> : null}
           <div className="flex flex-wrap items-center gap-3">

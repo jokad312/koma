@@ -269,6 +269,12 @@ const FICHIERS: FichierKitAdmin[] = [
 ];
 
 describe("FichiersKit", () => {
+  it("ajout={false} (fiche dans la fenêtre, 9.16 f) : la liste sans la zone d'ajout", () => {
+    rendre(<FichiersKit produitId={KIT} fichiers={[]} ajout={false} />);
+    expect(screen.queryByRole("button", { name: "Ajouter le fichier" })).toBeNull();
+    expect(screen.queryByLabelText("Fichier à envoyer")).toBeNull();
+  });
+
   it("formats acceptés et taille maximale affichés ; état vide", () => {
     rendre(<FichiersKit produitId={KIT} fichiers={[]} />);
     expect(screen.getByText(/PDF \(A4 ou US Letter\), SVG, STL et transcription texte \(\.txt\)\. 50 Mo au plus par fichier, 1 Mo pour une transcription/)).toBeTruthy();
