@@ -158,7 +158,9 @@ test.describe("connexion par code email", () => {
       // Après la déconnexion, le menu est fermé ; rouvert, il propose « Sign in ».
       await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
       await expect((await ouvrirMenu(page)).getByRole("link", { name: "Sign in" })).toBeVisible();
-    }, { timeout: 25_000 });
+      // 45 s : deux ouvertures du menu (15 s chacune au plus) et deux contrôles d'adresse. À 25 s, le délai de l'étape coupait
+      // avant le message d'erreur détaillé d'ouvrirMenu (échecs intermittents en CI des 16 et 17 novembre 2026, cause non vue).
+    }, { timeout: 45_000 });
   });
 
   test("adresse tapée avant l'hydratation : conservée quand React prend la main, et le code part", async ({ page, request }) => {
