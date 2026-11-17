@@ -189,19 +189,22 @@ async function principal() {
     await page.screenshot({ path: join(RACINE, "aide-sombre-1366.png") });
     await ctx.close();
 
-    // 3. Tableau de bord en clair (1366) et à 390 px (barre du bas), sombre et clair.
-    for (const [nom, largeur, hauteur, theme] of [
-      ["tableau-clair-1366", 1366, 768, "light"],
-      ["tableau-clair-1366-entiere", 1366, 768, "light"],
-      ["tableau-clair-390", 390, 844, "light"],
-      ["tableau-sombre-390", 390, 844, "dark"],
-    ]) {
-      const c = await contexte(navigateur, admin, { largeur, hauteur, theme });
-      const p = await c.newPage();
-      await ouvrir(p, "/fr/admin");
-      await p.screenshot({ path: join(RACINE, `${nom}.png`), fullPage: nom.endsWith("-entiere") || largeur < 1024 });
-      rapport.largeurs[`tableau-${nom}`] = await mesures(p);
-      await c.close();
+    // 3. Chaque vue choisie en clair (1366) et à 390 px (barre du bas), sombre et clair.
+    for (const [cle, , chemin] of VUES) {
+      for (const [suffixe, largeur, hauteur, theme] of [
+        ["clair-1366", 1366, 768, "light"],
+        ["clair-1366-entiere", 1366, 768, "light"],
+        ["clair-390", 390, 844, "light"],
+        ["sombre-390", 390, 844, "dark"],
+      ]) {
+        const nom = `${cle}-${suffixe}`;
+        const c = await contexte(navigateur, admin, { largeur, hauteur, theme });
+        const p = await c.newPage();
+        await ouvrir(p, chemin);
+        await p.screenshot({ path: join(RACINE, `${nom}.png`), fullPage: nom.endsWith("-entiere") || largeur < 1024 });
+        rapport.largeurs[nom] = await mesures(p);
+        await c.close();
+      }
     }
 
     // 4. Largeurs de 320 à 1440 px : débordement, surtitre sur une ligne, entrées coupées, menu sans défilement.
@@ -246,10 +249,12 @@ function ecrirePage() {
   const autres = [
     ["menu-profil-sombre-1366.png", "Menu du profil ouvert (sombre, 1366)"],
     ["aide-sombre-1366.png", "Fenêtre « Aide » (sombre, 1366)"],
-    ["tableau-clair-1366.png", "Tableau de bord en clair (1366)"],
-    ["tableau-clair-1366-entiere.png", "Tableau de bord en clair, page entière (1366)"],
-    ["tableau-clair-390.png", "Tableau de bord en clair à 390 px (barre du bas)"],
-    ["tableau-sombre-390.png", "Tableau de bord en sombre à 390 px (barre du bas)"],
+    ...VUES.flatMap(([cle, libelle]) => [
+      [`${cle}-clair-1366.png`, `${libelle} en clair (1366)`],
+      [`${cle}-clair-1366-entiere.png`, `${libelle} en clair, page entière (1366)`],
+      [`${cle}-clair-390.png`, `${libelle} en clair à 390 px (barre du bas)`],
+      [`${cle}-sombre-390.png`, `${libelle} en sombre à 390 px (barre du bas)`],
+    ]),
     ["reglages-sombre-1024.png", "Réglages à 1024 px (surtitre sur une ligne)"],
     ["assistant-commandes-sombre-1366.png", "Assistant : menu sans « Utilisateurs »"],
   ].map(([f, l]) => `<section><h2>${l}</h2>${img(f, l)}</section>`);

@@ -8,10 +8,22 @@ import { ListeCommandesAdmin } from "@/components/admin/ListeCommandesAdmin";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
 import { routing, type Locale } from "@/i18n/routing";
-import { exigerAdminPage } from "@/lib/auth/droits";
+import { droitAutorise, exigerAdminPage } from "@/lib/auth/droits";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
-import { FAMILLES_FILTRE, filtreValide, listerCommandesAdmin, PRESTATAIRES_FILTRE, STATUTS_FILTRE, TAILLE_PAGE_ADMIN, ZONES_FILTRE, type FiltresCommandes } from "@/modules/commande/admin-queries";
+import {
+  FAMILLES_FILTRE,
+  filtreValide,
+  lireRevenuPaye,
+  listerCommandesAdmin,
+  pageValide,
+  PRESTATAIRES_FILTRE,
+  rechercheValide,
+  STATUTS_FILTRE,
+  ZONES_FILTRE,
+  type FiltresCommandes,
+  type PageCommandesAdmin,
+} from "@/modules/commande/admin-queries";
 
 const CHEMIN = "/admin/commandes";
 
@@ -25,10 +37,11 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/admin/co
   return construireMetadata({ locale, chemin: CHEMIN, titre: t("titre"), description: t("description"), nomSite: await lireNomSite(), indexable: false });
 }
 
-// Droit vérifié sur la page elle-même (le layout ne suffit pas), puis lecture par le client service. Filtres et pagination lus dans l'adresse,
-// chacun contre une liste fermée (jamais une valeur libre transmise à la base).
+// Droit vérifié sur la page elle-même (le layout ne suffit pas), puis lecture par la fonction commandes_admin_liste (droit revérifié en base).
+// Filtres, recherche et page lus dans l'adresse, chacun contrôlé (listes fermées, texte borné, entier borné). La carte REVENU PAYÉ n'est lue et
+// rendue que pour qui a le droit chiffre_affaires.voir (l'Admin) ; l'Assistant voit les trois autres cartes et la même liste.
 async function CommandesSelonDroit({ locale, searchParams }: { locale: Locale; searchParams: PageProps<"/[locale]/admin/commandes">["searchParams"] }) {
-  await exigerAdminPage(locale, CHEMIN, "commandes.voir");
+  const { auteur } = await exigerAdminPage(locale, CHEMIN, "commandes.voir");
   const t = await getTranslations("Admin.commandes");
   const q = await searchParams;
   const filtres: FiltresCommandes = {
@@ -36,20 +49,21 @@ async function CommandesSelonDroit({ locale, searchParams }: { locale: Locale; s
     famille: filtreValide(q.famille, FAMILLES_FILTRE),
     prestataire: filtreValide(q.prestataire, PRESTATAIRES_FILTRE),
     zone: filtreValide(q.zone, ZONES_FILTRE),
+    q: rechercheValide(q.q),
   };
-  const brut = Number(Array.isArray(q.n) ? q.n[0] : q.n);
-  const nombre = Number.isInteger(brut) && brut >= TAILLE_PAGE_ADMIN && brut <= 240 && brut % TAILLE_PAGE_ADMIN === 0 ? brut : TAILLE_PAGE_ADMIN;
-  let lue = null;
+  const voitRevenu = droitAutorise(auteur.role, "chiffre_affaires.voir");
+  let lue: PageCommandesAdmin | null = null;
+  let revenu: number | null | undefined;
   try {
-    lue = await listerCommandesAdmin(filtres, nombre);
+    [lue, revenu] = await Promise.all([listerCommandesAdmin(auteur, filtres, pageValide(q.page)), voitRevenu ? lireRevenuPaye(auteur).catch(() => null) : Promise.resolve(undefined)]);
   } catch {
     console.error("[commande] lecture admin impossible");
   }
   return (
     <CoqueAdmin>
       <div className="flex flex-col gap-6">
-        <h1 className="t-h1">{t("titre")}</h1>
-        {lue ? <ListeCommandesAdmin commandes={lue.commandes} total={lue.total} filtres={filtres} nombre={nombre} locale={locale} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
+        <h1 className="t-h1 uppercase">{t("titre")}</h1>
+        {lue ? <ListeCommandesAdmin liste={lue} filtres={filtres} revenu={revenu} locale={locale} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
       </div>
     </CoqueAdmin>
   );

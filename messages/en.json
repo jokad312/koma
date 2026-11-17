@@ -2409,8 +2409,7 @@
       "appliquer": "Filter",
       "effacer": "Clear filters",
       "resultats": "{nombre, plural, =0 {No orders} one {# order} other {# orders}}",
-      "vide": "No order matches these filters.",
-      "voirPlus": "Show more",
+      "vide": "No order matches these filters or this search.",
       "retour": "Back to orders",
       "offerte": "Free",
       "aucun": "None",
@@ -2436,12 +2435,13 @@
         "fabrication": "Made to order"
       },
       "colonnes": {
-        "numero": "Number",
+        "numero": "Order no.",
+        "client": "Customer",
         "date": "Date",
+        "paiement": "Payment",
+        "montant": "Amount",
         "statut": "Status",
-        "remise": "Delivery",
-        "prestataire": "Provider",
-        "total": "Total"
+        "remise": "Delivery"
       },
       "detail": {
         "titre": "Order {numero}",
@@ -2596,6 +2596,27 @@
           "demande_introuvable": "This claim cannot be found.",
           "generique": "The step could not be saved. Try again."
         }
+      },
+      "clientAbsent": "Customer not provided",
+      "recherche": {
+        "libelle": "Search by number or customer",
+        "indication": "Search by number or customer"
+      },
+      "pastilles": {
+        "libelle": "Filter by status",
+        "toutes": "All",
+        "payee": "Paid",
+        "echouee": "Failed",
+        "en_attente": "Pending",
+        "remboursee": "Refunded"
+      },
+      "chiffres": {
+        "libelle": "Order figures, all time",
+        "revenuPaye": "Paid revenue",
+        "commandesTotal": "Total orders",
+        "paiementsAboutis": "Successful payments",
+        "enAttente": "Pending",
+        "illisible": "Unreadable"
       }
     },
     "galerie": {

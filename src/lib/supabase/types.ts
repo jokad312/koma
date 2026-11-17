@@ -2782,6 +2782,19 @@ export type Database = {
         }
         Returns: Json
       }
+      commandes_admin_liste: {
+        Args: {
+          p_auteur: Json
+          p_famille?: string
+          p_page?: number
+          p_prestataire?: string
+          p_recherche?: string
+          p_statut?: string
+          p_taille?: number
+          p_zone?: string
+        }
+        Returns: Json
+      }
       compte_complet: { Args: { p_compte: string }; Returns: boolean }
       compter_alertes_evenement: {
         Args: { p_auteur: Json; p_evenement: string }

@@ -2409,8 +2409,7 @@
       "appliquer": "Filtrer",
       "effacer": "Effacer les filtres",
       "resultats": "{nombre, plural, =0 {Aucune commande} one {# commande} other {# commandes}}",
-      "vide": "Aucune commande ne correspond à ces filtres.",
-      "voirPlus": "Voir plus",
+      "vide": "Aucune commande ne correspond à ces filtres ou à cette recherche.",
       "retour": "Retour aux commandes",
       "offerte": "Offerte",
       "aucun": "Aucun",
@@ -2436,12 +2435,13 @@
         "fabrication": "Fabriquée à la demande"
       },
       "colonnes": {
-        "numero": "Numéro",
+        "numero": "N° commande",
+        "client": "Client",
         "date": "Date",
+        "paiement": "Paiement",
+        "montant": "Montant",
         "statut": "Statut",
-        "remise": "Remise",
-        "prestataire": "Prestataire",
-        "total": "Total"
+        "remise": "Remise"
       },
       "detail": {
         "titre": "Commande {numero}",
@@ -2596,6 +2596,27 @@
           "demande_introuvable": "Cette réclamation est introuvable.",
           "generique": "L'étape n'a pas pu être enregistrée. Réessaie."
         }
+      },
+      "clientAbsent": "Client non renseigné",
+      "recherche": {
+        "libelle": "Rechercher par numéro ou client",
+        "indication": "Rechercher par numéro ou client"
+      },
+      "pastilles": {
+        "libelle": "Filtrer par statut",
+        "toutes": "Toutes",
+        "payee": "Payées",
+        "echouee": "Échouées",
+        "en_attente": "En attente",
+        "remboursee": "Remboursées"
+      },
+      "chiffres": {
+        "libelle": "Chiffres des commandes, depuis le début",
+        "revenuPaye": "Revenu payé",
+        "commandesTotal": "Commandes au total",
+        "paiementsAboutis": "Paiements aboutis",
+        "enAttente": "En attente",
+        "illisible": "Illisible"
       }
     },
     "galerie": {

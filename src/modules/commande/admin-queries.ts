@@ -1,22 +1,48 @@
 import "server-only";
 import { FAMILLES_PRODUIT } from "@/modules/catalogue/types";
+import type { AuteurCompte } from "@/lib/auth/auteur";
 import { creerClientService } from "@/lib/supabase/service";
+import type { Json } from "@/lib/supabase/types";
 import { statutEffectif, type StatutAffiche } from "./queries";
 
-// Lectures de l'admin pour les Commandes (story 6.2). Le droit est vérifié par la page avant tout appel ; la lecture passe par le client service.
-export const TAILLE_PAGE_ADMIN = 12;
+// Lectures de l'admin pour les Commandes (story 6.2, liste refaite en 9.16 d). Le droit est vérifié par la page avant tout appel ; la liste passe par
+// la fonction commandes_admin_liste (personnel revérifié en base, email masqué en base), le reste par le client service.
+export const TAILLE_PAGE_ADMIN = 20;
+export const LONGUEUR_RECHERCHE_MAX = 100;
+const PAGE_MAX = 100_000;
 
 export const STATUTS_FILTRE = ["en_attente", "echouee", "expiree", "payee", "en_fabrication", "expediee", "livree", "annulee", "remboursee", "offerte"] as const;
+// Pastilles de la maquette (B5) : TOUTES (aucun statut), puis ces quatre statuts ; les autres restent dans la liste déroulante.
+export const STATUTS_PASTILLES = ["payee", "echouee", "en_attente", "remboursee"] as const;
 export const FAMILLES_FILTRE = FAMILLES_PRODUIT;
 export const PRESTATAIRES_FILTRE = ["pawapay", "maishapay", "polar"] as const;
 export const ZONES_FILTRE = ["goma", "bukavu"] as const;
 
-export type FiltresCommandes = { statut?: string; famille?: string; prestataire?: string; zone?: string };
+export type FiltresCommandes = { statut?: string; famille?: string; prestataire?: string; zone?: string; q?: string };
 
 export function filtreValide<T extends string>(valeur: unknown, permises: readonly T[]): T | undefined {
   const v = Array.isArray(valeur) ? valeur[0] : valeur;
   return typeof v === "string" ? permises.find((p) => p === v) : undefined;
 }
+
+// Recherche lue dans l'adresse : texte libre, espaces retirés aux bords, coupé à 100 caractères (par caractère : jamais un emoji coupé en deux) ;
+// vide → aucune recherche. La base l'échappe (jokers compris) et la compare au numéro et au nom (partiel), et à l'email (adresse entière seulement).
+export function rechercheValide(valeur: unknown): string | undefined {
+  const v = Array.isArray(valeur) ? valeur[0] : valeur;
+  if (typeof v !== "string") return undefined;
+  const texte = Array.from(v.trim()).slice(0, LONGUEUR_RECHERCHE_MAX).join("").trim();
+  return texte === "" ? undefined : texte;
+}
+
+// Numéro de page lu dans l'adresse : entier de 1 à 100 000, sinon 1.
+export function pageValide(valeur: unknown): number {
+  const v = Array.isArray(valeur) ? valeur[0] : valeur;
+  if (typeof v !== "string" || !/^[0-9]{1,6}$/.test(v)) return 1;
+  const n = Number(v);
+  return n >= 1 && n <= PAGE_MAX ? n : 1;
+}
+
+export type ClientCommande = { nom: string | null; emailMasque: string | null };
 
 export type CommandeAdminResume = {
   numero: string;
@@ -27,32 +53,102 @@ export type CommandeAdminResume = {
   prestataire: string | null;
   zone: string | null;
   modeRemise: string | null;
+  client: ClientCommande;
 };
 
-// Commandes filtrées, plus récentes d'abord. Le nombre total correspond aux filtres ; « reste » dit s'il y a une page de plus.
-export async function listerCommandesAdmin(filtres: FiltresCommandes, nombre: number): Promise<{ commandes: CommandeAdminResume[]; total: number }> {
-  const famille = filtres.famille ? "ligne_commande!inner(produit!inner(famille))" : "id";
-  let q = creerClientService()
-    .from("commande")
-    .select(`numero, cree_le, statut, expire_le, total_cents, offerte, prestataire, zone, mode_remise, ${famille}`, { count: "exact" })
-    .order("cree_le", { ascending: false })
-    .limit(nombre);
-  if (filtres.statut === "expiree") q = q.or(`statut.eq.expiree,and(statut.in.(en_attente,echouee),expire_le.lte.${new Date().toISOString()})`);
-  else if (filtres.statut === "en_attente" || filtres.statut === "echouee") q = q.eq("statut", filtres.statut).gt("expire_le", new Date().toISOString());
-  else if (filtres.statut === "offerte") q = q.eq("offerte", true);
-  else if (filtres.statut) q = q.eq("statut", filtres.statut);
-  if (filtres.prestataire) q = q.eq("prestataire", filtres.prestataire);
-  if (filtres.zone) q = q.eq("zone", filtres.zone);
-  if (filtres.famille) q = q.eq("ligne_commande.produit.famille", filtres.famille);
-  const { data, error, count } = await q;
-  if (error) throw new Error("lecture des commandes impossible");
-  const maintenant = Date.now();
-  const commandes = (data ?? []).flatMap((c) => {
-    const ligne = c as unknown as { numero: string; cree_le: string; statut: string; expire_le: string | null; total_cents: number; offerte: boolean; prestataire: string | null; zone: string | null; mode_remise: string | null };
-    const statut = statutEffectif(ligne.statut, ligne.expire_le, maintenant);
-    return statut ? [{ numero: ligne.numero, creeLe: ligne.cree_le, statut, totalCents: ligne.total_cents, offerte: ligne.offerte, prestataire: ligne.prestataire, zone: ligne.zone, modeRemise: ligne.mode_remise }] : [];
+// Cartes de la page (B2), « depuis le début » ; le revenu est lu à part (lireRevenuPaye), seulement pour qui a le droit de le voir.
+export type ChiffresCommandes = { commandesPayees: number; tentativesReussies: number; enAttente: number };
+
+export type PageCommandesAdmin = { commandes: CommandeAdminResume[]; total: number; page: number; pages: number; chiffres: ChiffresCommandes };
+
+type LigneListe = {
+  numero: string;
+  cree_le: string;
+  statut: string;
+  expire_le: string | null;
+  total_cents: number;
+  offerte: boolean;
+  prestataire: string | null;
+  zone: string | null;
+  mode_remise: string | null;
+  client_nom: string | null;
+  client_email_masque: string | null;
+};
+type ReponseListe = { total: number; commandes: LigneListe[]; chiffres: { commandes_payees: number; tentatives_reussies: number; en_attente: number } };
+
+function entier(v: unknown): number {
+  if (typeof v !== "number" || !Number.isInteger(v) || v < 0) throw new Error("lecture des commandes impossible");
+  return v;
+}
+
+async function lirePage(auteur: AuteurCompte, filtres: FiltresCommandes, page: number): Promise<ReponseListe> {
+  const { data, error } = await creerClientService().rpc("commandes_admin_liste", {
+    p_auteur: auteur as unknown as Json,
+    p_statut: filtres.statut,
+    p_famille: filtres.famille,
+    p_prestataire: filtres.prestataire,
+    p_zone: filtres.zone,
+    p_recherche: filtres.q,
+    p_page: page,
+    p_taille: TAILLE_PAGE_ADMIN,
   });
-  return { commandes, total: count ?? commandes.length };
+  if (error || !data || typeof data !== "object" || Array.isArray(data)) throw new Error("lecture des commandes impossible");
+  const r = data as unknown as ReponseListe;
+  if (!Array.isArray(r.commandes) || !r.chiffres) throw new Error("lecture des commandes impossible");
+  return r;
+}
+
+// Commandes filtrées et recherchées, plus récentes d'abord, par pages de 20. Une page au-delà de la dernière (adresse modifiée, Commandes
+// disparues entre deux clics) affiche la dernière page. Une lecture impossible lève une erreur (jamais une liste vide inventée).
+export async function listerCommandesAdmin(auteur: AuteurCompte, filtres: FiltresCommandes, page: number): Promise<PageCommandesAdmin> {
+  const nombrePages = (total: number) => Math.max(1, Math.ceil(total / TAILLE_PAGE_ADMIN));
+  let r = await lirePage(auteur, filtres, page);
+  let courante = page;
+  if (r.commandes.length === 0 && entier(r.total) > 0 && page > nombrePages(entier(r.total))) {
+    courante = nombrePages(entier(r.total));
+    r = await lirePage(auteur, filtres, courante);
+  }
+  const total = entier(r.total);
+  const pages = nombrePages(total);
+  const maintenant = Date.now();
+  const commandes = r.commandes.flatMap((c) => {
+    const statut = statutEffectif(c.statut, c.expire_le, maintenant);
+    return statut
+      ? [
+          {
+            numero: c.numero,
+            creeLe: c.cree_le,
+            statut,
+            totalCents: c.total_cents,
+            offerte: c.offerte,
+            prestataire: c.prestataire,
+            zone: c.zone,
+            modeRemise: c.mode_remise,
+            client: { nom: c.client_nom, emailMasque: c.client_email_masque },
+          },
+        ]
+      : [];
+  });
+  return {
+    commandes,
+    total,
+    page: Math.min(courante, pages),
+    pages,
+    chiffres: { commandesPayees: entier(r.chiffres.commandes_payees), tentativesReussies: entier(r.chiffres.tentatives_reussies), enAttente: entier(r.chiffres.en_attente) },
+  };
+}
+
+// Carte REVENU PAYÉ : même chiffre que REVENU TOTAL du tableau de bord (tableau_chiffres, Admin seulement, revérifié en base). À n'appeler que
+// pour qui a le droit chiffre_affaires.voir. Lecture impossible : null (la carte le dit, jamais un faux zéro).
+export async function lireRevenuPaye(auteur: AuteurCompte): Promise<number | null> {
+  const { data, error } = await creerClientService().rpc("tableau_chiffres", { p_auteur: auteur as unknown as Json });
+  const ligne = Array.isArray(data) ? data[0] : null;
+  const revenu = Number(ligne?.revenu_cents);
+  if (error || !ligne || !Number.isSafeInteger(revenu) || revenu < 0) {
+    console.error("[commande] revenu payé illisible");
+    return null;
+  }
+  return revenu;
 }
 
 export type CommandeAdminDetail = {

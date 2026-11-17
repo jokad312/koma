@@ -2,7 +2,7 @@
 title: '9.16 c) — Étape 4, page 1 : tableau de bord selon la maquette'
 type: 'feature'
 created: '2026-11-17'
-status: 'in-review'
+status: 'done'
 baseline_commit: 'a0a45f6bb6b1a1941150ded5e146cb97f45f7886'
 route: 'dispatch'
 review_loop_iteration: 0

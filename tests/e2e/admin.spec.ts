@@ -23,6 +23,7 @@ test.describe("accès admin", () => {
     ["/fr/admin/produits/00000000-0000-4000-8000-000000000000", "%2Ffr%2Fadmin%2Fproduits%2F00000000-0000-4000-8000-000000000000"],
     ["/fr/admin/univers", "%2Ffr%2Fadmin%2Funivers"],
     ["/en/admin/univers", "%2Fen%2Fadmin%2Funivers"],
+    ["/fr/admin/commandes", "%2Ffr%2Fadmin%2Fcommandes"],
   ] as const) {
     test(`visiteur sur ${chemin} : envoyé vers la connexion avec retour`, async ({ page }) => {
       await page.goto(chemin);
@@ -135,6 +136,65 @@ test.describe("tableau de bord (9.16 c)", () => {
       await page.goto("/fr/admin");
       await expect(page.getByRole("heading", { level: 1 })).toHaveText(/Page introuvable/);
       await expect(page.getByText("Produits publiés", { exact: true })).toHaveCount(0);
+    } finally {
+      await supprimer();
+    }
+  });
+});
+
+// Story 9.16 d) : liste des Commandes selon la maquette. Comptes TEST_ réels, supprimés à la fin ; aucune Commande créée (la recherche et la
+// pagination sur des Commandes sont prouvées par supabase/tests/commandes_admin_liste.test.sql et les tests unitaires).
+test.describe("liste des commandes (9.16 d)", () => {
+  test.describe.configure({ timeout: 120_000 });
+  const CARTES = ["Revenu payé", "Commandes au total", "Paiements aboutis", "En attente"];
+
+  test("l'Admin voit les 4 cartes, la recherche, les pastilles ; la recherche passe dans l'adresse ; rien ne déborde à 390 px", async ({ page }) => {
+    test.skip(!env, "variables Supabase absentes");
+    const supprimer = await connecterCompteTest(page, env!, "test-e2e-916d-admin-", "admin");
+    try {
+      await page.setViewportSize({ width: 1366, height: 768 });
+      await page.goto("/fr/admin/commandes");
+      await expect(page.getByRole("heading", { level: 1, name: "Commandes" })).toBeVisible();
+      const chiffres = page.getByRole("region", { name: "Chiffres des commandes, depuis le début" });
+      for (const libelle of CARTES) await expect(chiffres.getByText(libelle, { exact: true })).toBeVisible();
+      // La carte du revenu montre un montant, jamais « Illisible ».
+      await expect(chiffres.getByRole("listitem").filter({ hasText: "Revenu payé" })).toContainText("$US");
+      const groupe = page.getByRole("list", { name: "Filtrer par statut" });
+      const pastilles = groupe.getByRole("link");
+      await expect(pastilles).toHaveText(["Toutes", "Payées", "Échouées", "En attente", "Remboursées"]);
+      await expect(groupe.getByRole("link", { name: "Toutes", exact: true })).toHaveAttribute("aria-current", "true");
+      await groupe.getByRole("link", { name: "Payées", exact: true }).click();
+      await expect(page).toHaveURL(/\/fr\/admin\/commandes\?statut=payee$/);
+      await expect(groupe.getByRole("link", { name: "Payées", exact: true })).toHaveAttribute("aria-current", "true");
+      const recherche = page.getByRole("searchbox", { name: "Rechercher par numéro ou client" });
+      await recherche.fill("TEST_aucune_commande_916d");
+      await recherche.press("Enter");
+      await expect(page).toHaveURL(/[?&]q=TEST_aucune_commande_916d/);
+      await expect(page).toHaveURL(/[?&]statut=payee/);
+      await expect(page.getByText("Aucune commande ne correspond à ces filtres ou à cette recherche.")).toBeVisible();
+      // La page lit q et page dans l'adresse : recherche pré-remplie ; page au-delà de la dernière ramenée (aucune « Page 2 »).
+      await page.goto("/fr/admin/commandes?q=KS-TEST&page=2");
+      await expect(recherche).toHaveValue("KS-TEST");
+      await expect(page.getByText("Aucune commande ne correspond à ces filtres ou à cette recherche.")).toBeVisible();
+      await expect(page.getByText(/^Page 2 \//)).toHaveCount(0);
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto("/fr/admin/commandes");
+      await expect(chiffres.getByText("En attente", { exact: true })).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    } finally {
+      await supprimer();
+    }
+  });
+
+  test("un Assistant voit la même liste et 3 cartes, sans le revenu", async ({ page }) => {
+    test.skip(!env, "variables Supabase absentes");
+    const supprimer = await connecterCompteTest(page, env!, "test-e2e-916d-assistant-", "assistant");
+    try {
+      await page.goto("/fr/admin/commandes");
+      const chiffres = page.getByRole("region", { name: "Chiffres des commandes, depuis le début" });
+      for (const libelle of CARTES.slice(1)) await expect(chiffres.getByText(libelle, { exact: true })).toBeVisible();
+      await expect(page.getByText("Revenu payé", { exact: true })).toHaveCount(0);
+      await expect(page.getByRole("searchbox", { name: "Rechercher par numéro ou client" })).toBeVisible();
     } finally {
       await supprimer();
     }
