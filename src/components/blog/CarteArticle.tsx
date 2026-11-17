@@ -9,12 +9,14 @@ type Props = {
   article: Donnees;
   // Titre de la carte : h2 dans la liste du Blog, h3 sous le H2 « Guides » de l'accueil.
   niveau?: 2 | 3 | 4;
+  // Story 9.16 h) : extrait sous la date (liste du Blog) ; l'accueil garde sa carte courte.
+  avecExtrait?: boolean;
 };
 
 // Carte Article (DESIGN : vignette + titre + date, lien étendu à la carte). Sans image, la carte n'a pas de vignette :
 // aucune image inventée. La date est affichée à l'heure de la boutique, dans la langue de la page.
 // Utilisable côté serveur et côté client (« Voir plus » ajoute des cartes dans le navigateur).
-export function CarteArticle({ article, niveau = 2 }: Props) {
+export function CarteArticle({ article, niveau = 2, avecExtrait = false }: Props) {
   const locale = useLocale() as Locale;
   const date = formaterDateBoutique(article.publieLe, locale);
   const href = `/blog/${article.slug}`;
@@ -47,6 +49,7 @@ export function CarteArticle({ article, niveau = 2 }: Props) {
             {date}
           </time>
         ) : null}
+        {avecExtrait && article.extrait ? <p className="t-body text-text-secondary [overflow-wrap:anywhere]">{article.extrait}</p> : null}
       </div>
     </article>
   );

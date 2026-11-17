@@ -2,7 +2,7 @@
 title: '9.16 g) — Étape 4, page 5 : liste du blog selon la maquette, archivage'
 type: 'feature'
 created: '2026-11-17'
-status: 'in-review'
+status: 'done'
 baseline_commit: '462f603a7d610e81bfdf1d9b2d56f1be84bd7947'
 route: 'dispatch'
 review_loop_iteration: 0

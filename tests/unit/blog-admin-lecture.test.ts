@@ -100,6 +100,22 @@ describe("lireArticlesAdmin (9.16 g)", () => {
     faux.reponse = { data: null, error: { message: "TEST_panne" } };
     await expect(lireArticlesAdmin()).rejects.toThrow();
   });
+
+  // Story 9.16 h) : l'extrait saisi est utilisé tel quel ; vide, les 160 premiers caractères du texte.
+  it("extrait rempli : utilisé tel quel sur la carte ; vide : début du texte", async () => {
+    const base = { titre_fr: "TEST_", slug: null, publie_le: null, modifie_le: "2026-11-10T00:00:00Z", archive_le: null, images: [], texte_fr: MARKDOWN };
+    faux.reponse = {
+      data: [
+        { ...base, id: "TEST_e1", extrait_fr: "  TEST_ résumé saisi  " },
+        { ...base, id: "TEST_e2", extrait_fr: null },
+      ],
+      error: null,
+    };
+    const [avec, sans] = await lireArticlesAdmin();
+    expect(faux.select).toContain("extrait_fr");
+    expect(avec.extrait).toBe("TEST_ résumé saisi");
+    expect(sans.extrait).toBe(extraitCarte(MARKDOWN));
+  });
 });
 
 describe("lireArticleAdmin (9.16 g)", () => {

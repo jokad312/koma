@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CHEMIN_IMAGE_ARTICLE, type CodeErreurBlog } from "./types";
+import { CHEMIN_IMAGE_ARTICLE, EXTRAIT_ARTICLE_MAX, type CodeErreurBlog } from "./types";
 
 // Une image d'article vient du circuit d'envoi : chemin public contrôlé, textes alternatifs FR et EN obligatoires.
 const imageSchema = z.object({
@@ -18,6 +18,9 @@ export const schemaArticle = z.object({
   texteFr: z.string().max(5000, "texte_invalide"),
   titreEn: z.preprocess(videEnNull, z.string().trim().max(120, "titre_invalide").nullish()),
   texteEn: z.preprocess(videEnNull, z.string().max(5000, "texte_invalide").nullish()),
+  // Story 9.16 h) : extrait facultatif (vide = null), 300 caractères au plus, comptés en caractères réels comme en base.
+  extraitFr: z.preprocess(videEnNull, z.string().trim().refine((v) => Array.from(v).length <= EXTRAIT_ARTICLE_MAX, "extrait_invalide").nullish()),
+  extraitEn: z.preprocess(videEnNull, z.string().trim().refine((v) => Array.from(v).length <= EXTRAIT_ARTICLE_MAX, "extrait_invalide").nullish()),
   slug: z.preprocess(
     videEnNull,
     z
@@ -38,6 +41,7 @@ const CODES_VALIDATION: ReadonlySet<string> = new Set<CodeErreurBlog>([
   "article_invalide",
   "titre_invalide",
   "texte_invalide",
+  "extrait_invalide",
   "slug_invalide",
   "produit_inexistant",
   "article_introuvable",

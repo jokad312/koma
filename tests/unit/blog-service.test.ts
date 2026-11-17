@@ -9,7 +9,7 @@ import { creerTestDependancesBlog } from "../doubles/TEST_dependances-blog";
 
 const UUID = "11111111-1111-4111-8111-111111111111";
 const OBJET = `articles/${UUID}.jpg`;
-const ARTICLE = { titreFr: "Titre de test", texteFr: "Texte de test", titreEn: null, texteEn: null, slug: null, lienProduitId: null, images: [] as ArticleImage[] };
+const ARTICLE = { titreFr: "Titre de test", texteFr: "Texte de test", titreEn: null, texteEn: null, extraitFr: null as string | null, extraitEn: null as string | null, slug: null, lienProduitId: null, images: [] as ArticleImage[] };
 
 beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
@@ -91,6 +91,33 @@ describe("enregistrerArticle", () => {
     const { deps, appels } = creerTestDependancesBlog({ droit: "KS_DROIT_REFUSE" });
     await expect(enregistrerArticle(deps, { id: null, article: ARTICLE })).rejects.toThrow("KS_DROIT_REFUSE");
     expect(appels.articles).toEqual([]);
+  });
+});
+
+// Story 9.16 h) : extrait (résumé court) facultatif, 300 caractères au plus, validé côté serveur avant toute écriture.
+describe("enregistrerArticle : extrait", () => {
+  it("extraits FR et EN envoyés à la base (espaces retirés) ; vides ou absents : null", async () => {
+    const { deps, appels } = creerTestDependancesBlog();
+    await enregistrerArticle(deps, { id: null, article: { ...ARTICLE, extraitFr: "  Résumé court  ", extraitEn: "Short summary" } });
+    expect(appels.articles[0].article).toMatchObject({ extrait_fr: "Résumé court", extrait_en: "Short summary" });
+    await enregistrerArticle(deps, { id: null, article: { ...ARTICLE, extraitFr: "   ", extraitEn: null } });
+    expect(appels.articles[1].article).toMatchObject({ extrait_fr: null, extrait_en: null });
+    await enregistrerArticle(deps, { id: null, article: ARTICLE });
+    expect(appels.articles[2].article).toMatchObject({ extrait_fr: null, extrait_en: null });
+  });
+
+  it("300 caractères acceptés (un emoji compte pour un) ; 301 refusés en FR comme en EN, rien n'est écrit", async () => {
+    const { deps, appels } = creerTestDependancesBlog();
+    expect(await enregistrerArticle(deps, { id: null, article: { ...ARTICLE, extraitFr: "🔥".repeat(300) } })).toMatchObject({ ok: true });
+    expect(appels.articles).toHaveLength(1);
+    expect(await enregistrerArticle(deps, { id: null, article: { ...ARTICLE, extraitFr: "a".repeat(301) } })).toEqual({ ok: false, erreur: "extrait_invalide" });
+    expect(await enregistrerArticle(deps, { id: null, article: { ...ARTICLE, extraitEn: "b".repeat(301) } })).toEqual({ ok: false, erreur: "extrait_invalide" });
+    expect(appels.articles).toHaveLength(1);
+  });
+
+  it("refus de la base KS_EXTRAIT_INVALIDE : extrait_invalide", async () => {
+    const { deps } = creerTestDependancesBlog({ erreurArticle: "KS_EXTRAIT_INVALIDE" });
+    expect(await enregistrerArticle(deps, { id: null, article: { ...ARTICLE, extraitFr: "Résumé" } })).toEqual({ ok: false, erreur: "extrait_invalide" });
   });
 });
 

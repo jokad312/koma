@@ -33,6 +33,7 @@ function article(n: number, surcharge: Partial<CarteArticle> = {}): CarteArticle
     id: `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`,
     slug: `test-article-${n}`,
     titre: `TEST_Titre ${n}`,
+    extrait: null,
     publieLe: DATE,
     vignetteUrl: null,
     vignetteAlt: null,

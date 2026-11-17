@@ -8,7 +8,7 @@ import { urlPhotoPublique } from "@/lib/supabase/stockage";
 import { contientMarqueur, MARQUEUR_TEXTE } from "@/lib/vitrine/marqueur";
 import type { Tables } from "@/lib/supabase/types";
 import { encoderCurseurArticles } from "./adresse";
-import { extraitCarte } from "./texte";
+import { extraitArticle } from "./texte";
 import { CUMUL_MAX_ARTICLES, TAILLE_PAGE_ARTICLES } from "./types";
 import type {
   Article,
@@ -24,7 +24,7 @@ import type {
 // Colonnes lues par l'admin, d'après les types générés (src/lib/supabase/types.ts).
 type LigneArticle = Pick<
   Tables<"article">,
-  "id" | "auteur_id" | "titre_fr" | "titre_en" | "texte_fr" | "texte_en" | "slug" | "lien_produit_id" | "images" | "publie_le" | "cree_le" | "modifie_le" | "archive_le"
+  "id" | "auteur_id" | "titre_fr" | "titre_en" | "texte_fr" | "texte_en" | "extrait_fr" | "extrait_en" | "slug" | "lien_produit_id" | "images" | "publie_le" | "cree_le" | "modifie_le" | "archive_le"
 >;
 
 function client() {
@@ -52,6 +52,8 @@ function versArticle(ligne: LigneArticle): Article {
     titreEn: ligne.titre_en,
     texteFr: ligne.texte_fr ?? "",
     texteEn: ligne.texte_en,
+    extraitFr: ligne.extrait_fr,
+    extraitEn: ligne.extrait_en,
     slug: ligne.slug,
     lienProduitId: ligne.lien_produit_id,
     images: lireImages(ligne.images),
@@ -76,7 +78,7 @@ function premiereImage(brut: unknown): { fichier: string; altFr: string } | null
 export async function lireArticlesAdmin(): Promise<ArticleListe[]> {
   const { data, error } = await client()
     .from("article")
-    .select("id, titre_fr, slug, publie_le, modifie_le, archive_le, images, texte_fr")
+    .select("id, titre_fr, slug, publie_le, modifie_le, archive_le, images, texte_fr, extrait_fr")
     .order("modifie_le", { ascending: false });
   if (error) throw new Error("Lecture des articles impossible.");
   return (data ?? []).map((a) => {
@@ -90,7 +92,8 @@ export async function lireArticlesAdmin(): Promise<ArticleListe[]> {
       archiveLe: a.archive_le,
       // Texte alternatif : celui de l'image s'il est rempli (un brouillon peut ne pas l'avoir encore), sinon le titre de l'article.
       vignette: premiere ? { url: urlPhotoPublique(premiere.fichier), alt: premiere.altFr || a.titre_fr } : null,
-      extrait: extraitCarte(a.texte_fr),
+      // Story 9.16 h) : l'extrait saisi est utilisé tel quel ; vide, les 160 premiers caractères du texte (Q28).
+      extrait: extraitArticle(a.extrait_fr, a.texte_fr),
     };
   });
 }
@@ -99,7 +102,7 @@ export async function lireArticlesAdmin(): Promise<ArticleListe[]> {
 export async function lireArticleAdmin(id: string): Promise<Article | null> {
   const { data, error } = await client()
     .from("article")
-    .select("id, auteur_id, titre_fr, titre_en, texte_fr, texte_en, slug, lien_produit_id, images, publie_le, cree_le, modifie_le, archive_le")
+    .select("id, auteur_id, titre_fr, titre_en, texte_fr, texte_en, extrait_fr, extrait_en, slug, lien_produit_id, images, publie_le, cree_le, modifie_le, archive_le")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error("Lecture de l'article impossible.");
@@ -111,7 +114,7 @@ export async function lireArticleAdmin(id: string): Promise<Article | null> {
 // Colonnes lues par les pages publiques, d'après les types générés.
 type LignePublique = Pick<
   Tables<"article">,
-  "id" | "slug" | "titre_fr" | "titre_en" | "texte_fr" | "texte_en" | "publie_le" | "modifie_le" | "images" | "lien_produit_id"
+  "id" | "slug" | "titre_fr" | "titre_en" | "texte_fr" | "texte_en" | "extrait_fr" | "extrait_en" | "publie_le" | "modifie_le" | "images" | "lien_produit_id"
 >;
 
 function clientPublic() {
@@ -153,13 +156,37 @@ function altDeLaLangue(locale: "fr" | "en", image: ArticleImage): string {
   return locale === "en" ? image.altEn.trim() || image.altFr : image.altFr;
 }
 
-function versCarte(locale: "fr" | "en", ligne: Pick<LignePublique, "id" | "slug" | "titre_fr" | "titre_en" | "texte_en" | "publie_le" | "images">): CarteArticle | null {
+// Story 9.16 h) : extrait saisi dans la langue servie, null s'il est vide (jamais celui de l'autre langue sous /en : la page est en anglais).
+// Un extrait qui contient le marqueur « [Texte à fournir] » n'est jamais montré au public (même règle que la version anglaise).
+function extraitDeLaLangue(locale: "fr" | "en", ligne: { extrait_fr: string | null; extrait_en: string | null }): string | null {
+  const brut = (locale === "en" ? ligne.extrait_en : ligne.extrait_fr)?.trim() ?? "";
+  return brut !== "" && !contientMarqueur(brut) ? brut : null;
+}
+
+// Texte servi dans la langue : sous /en, le texte anglais (la liste /en n'a que des articles avec version anglaise), sinon le français.
+function texteDeLaLangue(locale: "fr" | "en", ligne: { texte_fr: string | null; texte_en: string | null }): string {
+  return (locale === "en" ? ligne.texte_en?.trim() : "") || ligne.texte_fr || "";
+}
+
+// Sans les colonnes de texte et d'extrait (carte courte de l'accueil), la carte n'a pas d'extrait : le texte n'est pas lu pour rien.
+type LigneCarte = Pick<LignePublique, "id" | "slug" | "titre_fr" | "titre_en" | "publie_le" | "images"> &
+  Partial<Pick<LignePublique, "texte_fr" | "texte_en" | "extrait_fr" | "extrait_en">>;
+
+function versCarte(locale: "fr" | "en", ligne: LigneCarte, avecExtrait = true): CarteArticle | null {
   if (!ligne.slug || !ligne.publie_le) return null;
   const premiere = lireImages(ligne.images)[0];
   return {
     id: ligne.id,
     slug: ligne.slug,
     titre: titreDeLaLangue(locale, ligne),
+    // Story 9.16 h) : extrait saisi, sinon les 160 premiers caractères du texte de la langue ; le texte entier n'est pas renvoyé.
+    extrait:
+      !avecExtrait
+        ? null
+        : extraitArticle(
+            extraitDeLaLangue(locale, { extrait_fr: ligne.extrait_fr ?? null, extrait_en: ligne.extrait_en ?? null }),
+            texteDeLaLangue(locale, { texte_fr: ligne.texte_fr ?? null, texte_en: ligne.texte_en ?? null }),
+          ),
     publieLe: ligne.publie_le,
     vignetteUrl: premiere ? urlPhotoPublique(premiere.fichier) : null,
     vignetteAlt: premiere ? altDeLaLangue(locale, premiere) : null,
@@ -183,7 +210,7 @@ export async function listerArticlesPublies(
   const taille = TAILLE_PAGE_ARTICLES + (cumul ? dejaVus : 0);
   let requete = clientPublic()
     .from("article")
-    .select("id, slug, titre_fr, titre_en, texte_en, publie_le, images")
+    .select("id, slug, titre_fr, titre_en, texte_fr, texte_en, extrait_fr, extrait_en, publie_le, images")
     .not("slug", "is", null)
     .order("publie_le", { ascending: false })
     .order("id", { ascending: false });
@@ -213,14 +240,14 @@ export async function lireDerniersArticles(locale: "fr" | "en", limite = 3): Pro
   const maximum = Math.max(1, Math.min(limite, TAILLE_PAGE_ARTICLES));
   let requete = clientPublic()
     .from("article")
-    .select("id, slug, titre_fr, titre_en, texte_en, publie_le, images")
+    .select("id, slug, titre_fr, titre_en, publie_le, images")
     .not("slug", "is", null)
     .order("publie_le", { ascending: false })
     .order("id", { ascending: false });
   requete = filtrerVersionAnglaise(requete, locale);
   const { data, error } = await requete.limit(maximum);
   if (error || !data) throw new Error("Lecture du blog impossible.");
-  return data.map((l) => versCarte(locale, l)).filter((a): a is CarteArticle => a !== null);
+  return data.map((l) => versCarte(locale, l, false)).filter((a): a is CarteArticle => a !== null);
 }
 
 // Un Produit lié, seulement s'il est publié (la RLS cache les brouillons et les retirés) : null sinon, aucun lien affiché.
@@ -241,7 +268,7 @@ export async function lireArticlePublie(locale: "fr" | "en", slug: string): Prom
   cacheTag(ETIQUETTES.articles, ETIQUETTES.catalogue);
   const { data, error } = await clientPublic()
     .from("article")
-    .select("id, slug, titre_fr, titre_en, texte_fr, texte_en, publie_le, modifie_le, images, lien_produit_id")
+    .select("id, slug, titre_fr, titre_en, texte_fr, texte_en, extrait_fr, extrait_en, publie_le, modifie_le, images, lien_produit_id")
     .eq("slug", slug)
     .maybeSingle();
   if (error) throw new Error("Lecture de l'article impossible.");
@@ -253,7 +280,8 @@ export async function lireArticlePublie(locale: "fr" | "en", slug: string): Prom
     id: data.id,
     slug: data.slug,
     titre: titreDeLaLangue(locale, data),
-    texte: (locale === "en" ? data.texte_en?.trim() : "") || data.texte_fr || "",
+    texte: texteDeLaLangue(locale, data),
+    extrait: extraitDeLaLangue(locale, data),
     publieLe: data.publie_le,
     modifieLe: data.modifie_le,
     images: images.map((image) => ({ url: urlPhotoPublique(image.fichier), alt: altDeLaLangue(locale, image) })),

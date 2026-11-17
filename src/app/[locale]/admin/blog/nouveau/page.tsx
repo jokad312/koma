@@ -5,9 +5,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { FormulaireArticle } from "@/components/admin/FormulaireArticle";
+import { FenetreFormulaire } from "@/components/admin/ui/FenetreFormulaire";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
-import { Link } from "@/i18n/navigation";
 import { routing, type Locale } from "@/i18n/routing";
 import { exigerAdminPage } from "@/lib/auth/droits";
 import { lireNomSite } from "@/lib/reglages";
@@ -17,6 +17,7 @@ import type { ProduitLien } from "@/modules/blog/types";
 import { lireProduitsAdmin } from "@/modules/catalogue/queries";
 
 const CHEMIN = "/admin/blog/nouveau";
+const ID_FORMULAIRE = "formulaire-article";
 
 export async function generateMetadata({ params }: PageProps<"/[locale]/admin/blog/nouveau">): Promise<Metadata> {
   const { locale } = await params;
@@ -45,16 +46,16 @@ async function NouvelArticleSelonDroit({ locale }: { locale: Locale }) {
   }
   return (
     <CoqueAdmin>
-      <div className="flex flex-col gap-6">
-        <h1 className="t-h1">{t("pageNouveau.titre")}</h1>
-        <p>
-          <Link href="/admin/blog" className="t-label inline-flex min-h-touch items-center underline">
-            {t("pageNouveau.retour")}
-          </Link>
-        </p>
+      {/* Story 9.16 h (Q23) : la page reste sur sa route, dessinée en fenêtre (maquette 06) ; Échap et la croix ramènent à la liste. */}
+      {/* Sans formulaire rendu (lecture impossible), pas de bouton « Enregistrer » dans l'en-tête. */}
+      <FenetreFormulaire titre={t("pageNouveau.titre")} retour="/admin/blog" idFormulaire={produits ? ID_FORMULAIRE : undefined}>
         {/* Sans lecture des produits, le formulaire n'est pas montré : le lien Produit prétendrait qu'aucun produit n'existe. */}
-        {produits ? <FormulaireArticle article={null} produits={produits} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
-      </div>
+        {produits ? (
+          <FormulaireArticle article={null} produits={produits} idFormulaire={ID_FORMULAIRE} />
+        ) : (
+          <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>
+        )}
+      </FenetreFormulaire>
     </CoqueAdmin>
   );
 }

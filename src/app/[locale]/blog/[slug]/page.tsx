@@ -19,7 +19,7 @@ export const instant = false;
 // Une seule lecture par requête, partagée par les métadonnées et la page.
 const lireArticle = cache(lireArticlePublie);
 
-// Titre, description (extrait du texte), première image en Open Graph, hreflang limité aux versions réellement servies.
+// Titre, description (extrait saisi, sinon début du texte), première image en Open Graph, hreflang limité aux versions réellement servies.
 // Article inconnu, en brouillon, dépublié ou sans version anglaise sous /en : 404. Lecture impossible : page non indexée.
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -37,7 +37,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     locale,
     chemin: `/blog/${slug}`,
     titre: article.titre,
-    description: extraireTexte(article.texte) ?? article.titre,
+    // Story 9.16 h) : l'extrait saisi remplace la description tirée du texte quand il existe.
+    description: article.extrait ?? extraireTexte(article.texte) ?? article.titre,
     nomSite: await lireNomSite(),
     languesDisponibles: article.versionAnglaise ? ["fr", "en"] : ["fr"],
     ...(premiere ? { image: { url: premiere.url, alt: premiere.alt } } : {}),

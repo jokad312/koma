@@ -1,8 +1,9 @@
 "use client";
 
+import { ImageIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { lireEnvPublique } from "@/lib/env";
@@ -10,7 +11,7 @@ import { demarrerEnvoiTus, type EnvoiTus } from "@/lib/supabase/envoi-tus";
 import { urlPhotoPublique } from "@/lib/supabase/stockage";
 import { annulerEnvoiImageArticle, demanderEnvoiImageArticle, finaliserImageArticle } from "@/modules/blog/actions";
 import { FORMATS_IMAGE_ARTICLE, IMAGE_ARTICLE_TAILLE_MAX, IMAGES_ARTICLE_MAX, type ArticleImage, type CodeErreurBlog } from "@/modules/blog/types";
-import { ChampTexte, CLASSE_CHAMP } from "./ChampTexte";
+import { ChampTexte } from "./ChampTexte";
 
 type Phase = "repos" | "envoi" | "traitement";
 type ErreurEnvoi = { code: CodeErreurBlog; champ: "fichier" | "alt_fr" | "alt_en" | null };
@@ -18,14 +19,22 @@ type ErreurEnvoi = { code: CodeErreurBlog; champ: "fichier" | "alt_fr" | "alt_en
 // Images de l'article : mêmes règles que les photos de produit (type, taille, textes alternatifs FR et EN obligatoires,
 // envoi TUS direct, contenu nettoyé côté serveur). La liste vit dans le formulaire et n'est enregistrée qu'à la sauvegarde ;
 // un retrait retire l'entrée de la liste, le fichier public est effacé par le serveur après la sauvegarde si plus personne ne le cite.
+// Story 9.16 h) (maquette DA5) : `partie` sépare la zone d'ajout (vignette = première image de l'article, pastille « Choisir une image »,
+// « JPG/PNG/WEBP — 15 Mo max », textes alternatifs FR et EN, « Ajouter l'image »), placée en tête de la fenêtre, de la liste des images
+// (plusieurs images, textes alternatifs, retrait), placée plus bas. Les deux parties partagent la même liste, tenue par le formulaire.
 export function ImagesArticle({
   images,
   onChange,
   desactive = false,
+  partie = "tout",
+  onEnvoi,
 }: {
   images: ArticleImage[];
   onChange: (images: ArticleImage[]) => void;
   desactive?: boolean;
+  partie?: "tout" | "ajout" | "liste";
+  // Story 9.16 h : signale au formulaire un envoi en cours (Enregistrer, Retirer et la sortie de la fenêtre sont bloqués pendant l'envoi).
+  onEnvoi?: (enCours: boolean) => void;
 }) {
   const t = useTranslations("Admin.blog.images");
   const base = useId();
@@ -37,9 +46,15 @@ export function ImagesArticle({
   const [reprise, setReprise] = useState(false);
   const [erreur, setErreur] = useState<ErreurEnvoi | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [nomChoisi, setNomChoisi] = useState<string | null>(null);
   const envoi = useRef<EnvoiTus | null>(null);
   const objetEnCours = useRef<string | null>(null);
   const annule = useRef(false);
+  // Liste à jour à la fin d'un envoi : l'ajout et la liste sont deux parties distinctes (9.16 h), une image retirée pendant l'envoi ne revient pas.
+  const imagesActuelles = useRef(images);
+  useEffect(() => {
+    imagesActuelles.current = images;
+  }, [images]);
   const enVol = useRef(false);
 
   const code = (c: string) => (c in t.raw("erreurs") ? c : "generique");
@@ -100,10 +115,11 @@ export function ImagesArticle({
         return;
       }
       // Réponse réelle reçue : l'image entre dans la liste du formulaire (pas encore en base).
-      onChange([...images, fini.image]);
+      onChange([...imagesActuelles.current, fini.image]);
       setMessage(t("ajout.succes"));
       setAltFr("");
       setAltEn("");
+      setNomChoisi(null);
       if (refFichier.current) refFichier.current.value = "";
     } catch {
       setErreur({ code: "generique", champ: null });
@@ -148,18 +164,26 @@ export function ImagesArticle({
   }
 
   const occupe = phase !== "repos" || desactive;
+  const envoiEnCours = phase !== "repos";
+  useEffect(() => {
+    onEnvoi?.(envoiEnCours);
+  }, [envoiEnCours, onEnvoi]);
+  useEffect(() => () => onEnvoi?.(false), [onEnvoi]);
+  const vignette = images[0] ?? null;
+  const avecListe = partie !== "ajout";
+  const avecAjout = partie !== "liste";
   const idFichier = `${base}-fichier`;
   const erreurFichier = erreurDe("fichier");
   const erreurGenerale = erreur && erreur.champ === null ? t(`erreurs.${code(erreur.code)}`) : null;
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="t-small text-text-secondary">{t("nombre", { nombre: images.length, max: IMAGES_ARTICLE_MAX })}</p>
-      {images.length === 0 ? <p className="t-body text-text-secondary">{t("vide")}</p> : null}
-      {images.length > 0 ? (
+      {avecListe ? <p className="t-small text-text-secondary">{t("nombre", { nombre: images.length, max: IMAGES_ARTICLE_MAX })}</p> : null}
+      {avecListe && images.length === 0 ? <p className="t-body text-text-secondary">{t("vide")}</p> : null}
+      {avecListe && images.length > 0 ? (
         <ol aria-label={t("legende")} className="flex flex-col gap-3">
           {images.map((image, i) => (
-            <li key={image.fichier} className="flex flex-wrap items-center gap-4 rounded-lg border border-border bg-surface p-3">
+            <li key={image.fichier} className="flex flex-wrap items-center gap-4 rounded-2xl border border-border p-3">
               <Image
                 src={urlPhotoPublique(image.fichier)}
                 alt={image.altFr}
@@ -175,7 +199,7 @@ export function ImagesArticle({
               </div>
               <button
                 type="button"
-                className="inline-flex min-h-touch items-center rounded-full border border-border-field bg-surface px-3 text-danger"
+                className="inline-flex min-h-touch items-center rounded-full border border-border-field bg-admin-champ px-3 text-danger"
                 onClick={() => onChange(images.filter((autre) => autre.fichier !== image.fichier))}
                 disabled={desactive || phase !== "repos"}
               >
@@ -186,7 +210,7 @@ export function ImagesArticle({
         </ol>
       ) : null}
 
-      {complet ? (
+      {!avecAjout ? null : complet ? (
         <p className="t-small text-text-secondary">{t("erreurs.images_limite")}</p>
       ) : (
         <div
@@ -205,26 +229,49 @@ export function ImagesArticle({
             {t("ajout.titre")}
           </h3>
           {erreurGenerale ? <MessageEtat type="erreur">{erreurGenerale}</MessageEtat> : null}
-          <div className="flex w-full flex-col gap-2">
-            <label htmlFor={idFichier} className="t-label text-text-primary">
-              {t("ajout.fichier.libelle")}
-            </label>
-            <p id={`${idFichier}-aide`} className="t-small text-text-secondary">
-              {t("ajout.fichier.aide")}
-            </p>
-            <input
-              ref={refFichier}
-              id={idFichier}
-              name="fichier"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              disabled={occupe}
-              aria-invalid={erreurFichier ? true : undefined}
-              aria-describedby={`${idFichier}-aide${erreurFichier ? ` ${idFichier}-erreur` : ""}`}
-              className={CLASSE_CHAMP}
-            />
+          <div className="flex w-full flex-wrap items-center gap-4">
+            {/* Vignette = première image de l'article (jamais une image inventée) ; sans image, une icône. */}
+            <div className="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-admin-champ text-text-secondary">
+              {vignette ? (
+                // Repère visuel : la même image est décrite dans la liste plus bas, elle n'est pas annoncée deux fois.
+                <Image src={urlPhotoPublique(vignette.fichier)} alt="" width={80} height={80} sizes="80px" className="size-20 object-cover" />
+              ) : (
+                <ImageIcon aria-hidden="true" className="size-10" strokeWidth={1.5} />
+              )}
+            </div>
+            <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
+              {/* Le libellé est la pastille visible « Choisir une image » ; le champ natif reste au clavier (focus montré sur la pastille). */}
+              <div className="relative rounded-full has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary">
+                <label
+                  htmlFor={idFichier}
+                  className="t-button inline-flex min-h-touch cursor-pointer items-center justify-center rounded-full bg-admin-filtre px-5 py-3 uppercase text-admin-sur-filtre"
+                >
+                  {t("ajout.fichier.libelle")}
+                </label>
+                <input
+                  ref={refFichier}
+                  id={idFichier}
+                  name="fichier"
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  disabled={occupe}
+                  onChange={(e) => setNomChoisi(e.target.files?.[0]?.name ?? null)}
+                  aria-invalid={erreurFichier ? true : undefined}
+                  aria-describedby={`${idFichier}-aide${nomChoisi ? ` ${idFichier}-choisi` : ""}${erreurFichier ? ` ${idFichier}-erreur` : ""}`}
+                  className="sr-only"
+                />
+              </div>
+              <p id={`${idFichier}-aide`} className="t-small text-text-secondary">
+                {t("ajout.fichier.aide", { max: IMAGE_ARTICLE_TAILLE_MAX / (1024 * 1024) })}
+              </p>
+              {nomChoisi ? (
+                <p id={`${idFichier}-choisi`} className="t-small break-all text-text-primary">
+                  {t("ajout.fichier.choisi", { nom: nomChoisi })}
+                </p>
+              ) : null}
+            </div>
             {erreurFichier ? (
-              <p id={`${idFichier}-erreur`} className="t-small text-danger">
+              <p id={`${idFichier}-erreur`} className="t-small w-full text-danger">
                 {erreurFichier}
               </p>
             ) : null}

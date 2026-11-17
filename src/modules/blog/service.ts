@@ -16,6 +16,7 @@ const ERREURS_ARTICLE: ReadonlyArray<readonly [string, CodeErreurBlog]> = [
   ["KS_ARTICLE_INVALIDE", "article_invalide"],
   ["KS_TITRE_INVALIDE", "titre_invalide"],
   ["KS_TEXTE_INVALIDE", "texte_invalide"],
+  ["KS_EXTRAIT_INVALIDE", "extrait_invalide"],
   ["KS_SLUG_INVALIDE", "slug_invalide"],
   ["KS_SLUG_PRIS", "slug_pris"],
   ["KS_SLUG_PUBLIE", "slug_publie"],
@@ -39,7 +40,7 @@ function identifiantValide(valeur: string): boolean {
 // Crée (id vide) ou modifie un brouillon d'article : droit, validation, une seule écriture atomique.
 export async function enregistrerArticle(
   deps: DependancesBlog,
-  entree: { id: string | null; article: { titreFr: string; texteFr: string; titreEn: string | null; texteEn: string | null; slug: string | null; lienProduitId: string | null; images: Article["images"] } },
+  entree: { id: string | null; article: { titreFr: string; texteFr: string; titreEn: string | null; texteEn: string | null; extraitFr: string | null; extraitEn: string | null; slug: string | null; lienProduitId: string | null; images: Article["images"] } },
 ): Promise<ResultatBlog<{ id: string; cree: boolean }>> {
   const droit = await deps.exigerDroit("blog.gerer");
   if (entree.id !== null && !identifiantValide(entree.id)) return { ok: false, erreur: "article_introuvable" };
@@ -58,6 +59,8 @@ export async function enregistrerArticle(
     texte_fr: lu.data.texteFr,
     titre_en: lu.data.titreEn ?? null,
     texte_en: lu.data.texteEn ?? null,
+    extrait_fr: lu.data.extraitFr ?? null,
+    extrait_en: lu.data.extraitEn ?? null,
     slug,
     lien_produit_id: lu.data.lienProduitId ?? null,
   };

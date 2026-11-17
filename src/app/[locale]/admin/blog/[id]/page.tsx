@@ -5,10 +5,9 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { FormulaireArticle } from "@/components/admin/FormulaireArticle";
-import { PublicationArticle } from "@/components/admin/PublicationArticle";
+import { FenetreFormulaire } from "@/components/admin/ui/FenetreFormulaire";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
-import { Link } from "@/i18n/navigation";
 import { routing, type Locale } from "@/i18n/routing";
 import { exigerAdminPage } from "@/lib/auth/droits";
 import { lireNomSite } from "@/lib/reglages";
@@ -17,6 +16,8 @@ import { produitsPourLien } from "@/modules/blog/produits-lien";
 import { lireArticleAdmin } from "@/modules/blog/queries";
 import type { Article, ProduitLien } from "@/modules/blog/types";
 import { lireProduitsAdmin } from "@/modules/catalogue/queries";
+
+const ID_FORMULAIRE = "formulaire-article";
 
 // Page d'administration rendue à la demande : l'identifiant est une donnée de requête, jamais indexée.
 export const instant = false;
@@ -47,7 +48,9 @@ async function ArticleSelonDroit({
   id: string;
   searchParams: PageProps<"/[locale]/admin/blog/[id]">["searchParams"];
 }) {
-  await exigerAdminPage(locale, `/admin/blog/${id}`, "blog.gerer");
+  const { auteur } = await exigerAdminPage(locale, `/admin/blog/${id}`, "blog.gerer");
+  // Publier, dépublier, archiver et restaurer sont réservés à l'Admin en base : rôle relu côté serveur (même règle que la page 5).
+  const peutPublier = auteur.role === "admin";
   const { cree: crees } = await searchParams;
   const cree = (Array.isArray(crees) ? crees[0] : crees) === "1";
   const t = await getTranslations("Admin.blog");
@@ -66,23 +69,28 @@ async function ArticleSelonDroit({
   if (lecture && !article) notFound();
   return (
     <CoqueAdmin>
-      <div className="flex flex-col gap-6">
-        <h1 className="t-h1">{t("pageEdition.titre")}</h1>
-        <p>
-          <Link href="/admin/blog" className="t-label inline-flex min-h-touch items-center underline">
-            {t("pageEdition.retour")}
-          </Link>
-        </p>
-        {cree ? <MessageEtat type="succes">{t("pageEdition.cree")}</MessageEtat> : null}
-        {article && produits ? (
-          <>
-            <FormulaireArticle article={article} produits={produits} />
-            <PublicationArticle articleId={article.id} publie={article.publieLe !== null} archive={article.archiveLe !== null} />
-          </>
-        ) : (
-          <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>
-        )}
-      </div>
+      {/* Story 9.16 h (Q23) : la page reste sur sa route, dessinée en fenêtre (maquette 06) ; Échap et la croix ramènent à la liste. */}
+      {/* Le menu STATUT (publication, dépublication, archivage, restauration) est dans la fenêtre, après l'image (DA6). */}
+      <FenetreFormulaire titre={t("pageEdition.titre")} retour="/admin/blog" idFormulaire={article && produits ? ID_FORMULAIRE : undefined}>
+        <div className="flex flex-col gap-6">
+          {cree ? <MessageEtat type="succes">{t("pageEdition.cree")}</MessageEtat> : null}
+          {article && produits ? (
+            <FormulaireArticle
+              article={article}
+              produits={produits}
+              idFormulaire={ID_FORMULAIRE}
+              statut={{
+                publie: article.publieLe !== null,
+                archive: article.archiveLe !== null,
+                titre: (locale === "en" ? article.titreEn : null) || article.titreFr,
+                peutPublier,
+              }}
+            />
+          ) : (
+            <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>
+          )}
+        </div>
+      </FenetreFormulaire>
     </CoqueAdmin>
   );
 }

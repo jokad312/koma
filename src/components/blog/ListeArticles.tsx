@@ -76,7 +76,7 @@ export function ListeArticles({ articles, suite, cle }: Props) {
       <ul ref={grille} className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {liste.map((article) => (
           <li key={article.id}>
-            <CarteArticle article={article} />
+            <CarteArticle article={article} avecExtrait />
           </li>
         ))}
       </ul>

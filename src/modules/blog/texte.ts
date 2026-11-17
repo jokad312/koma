@@ -26,3 +26,11 @@ export function extraitCarte(markdown: string | null, max = LONGUEUR_EXTRAIT_CAR
   if (caracteres.length <= max) return propre;
   return `${caracteres.slice(0, max).join("").trimEnd()}…`;
 }
+
+// Story 9.16 h) (Q28) : extrait d'un article pour les cartes (admin et blog public). Un extrait saisi est utilisé tel quel (espaces retirés) ;
+// vide, les 160 premiers caractères du texte sans Markdown (extraitCarte). Aucun texte inventé : ni extrait ni texte donne null.
+export function extraitArticle(extrait: string | null | undefined, markdown: string | null): string | null {
+  const saisi = extrait?.trim();
+  if (saisi) return saisi;
+  return extraitCarte(markdown);
+}

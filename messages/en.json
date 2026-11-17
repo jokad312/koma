@@ -781,12 +781,10 @@
         "archive": "Archived"
       },
       "pageNouveau": {
-        "titre": "Write an article",
-        "retour": "Back to articles"
+        "titre": "New article"
       },
       "pageEdition": {
         "titre": "Edit the article",
-        "retour": "Back to articles",
         "cree": "Article created. You can now add images and publish it."
       },
       "formulaire": {
@@ -801,6 +799,18 @@
         "titreEn": {
           "libelle": "Title in English",
           "aide": "Optional. Without an English version, the article does not appear under /en."
+        },
+        "extraitFr": {
+          "libelle": "Excerpt (short summary) in French",
+          "aide": "Optional, {max} characters at most. Shown on the blog list card and as the page description. Empty: the start of the text."
+        },
+        "extraitEn": {
+          "libelle": "Excerpt (short summary) in English",
+          "aide": "Optional, {max} characters at most. Shown under /en on the blog list card and as the page description. Empty: the start of the English text."
+        },
+        "extrait": {
+          "compteur": "{nombre} of {max} characters",
+          "trop": "{nombre} of {max} characters: too long, shorten the excerpt."
         },
         "texteEn": {
           "libelle": "Text in English",
@@ -832,6 +842,7 @@
           "article_invalide": "The article could not be saved: one value is invalid.",
           "titre_invalide": "The title must be 1 to 120 characters long.",
           "texte_invalide": "The text must not exceed 5000 characters.",
+          "extrait_invalide": "The excerpt must not exceed {max} characters.",
           "slug_invalide": "The address must use lowercase letters, digits and hyphens only.",
           "slug_pris": "This address is already used by another article. Choose another one.",
           "slug_publie": "The address of a published article cannot change. Unpublish it first, or keep the current address.",
@@ -841,6 +852,10 @@
           "publication_incomplete": "This article is published: its title, French text and image alternative texts are required. Unpublish it first to empty it.",
           "generique": "The article could not be saved. Try again."
         }
+      },
+      "zones": {
+        "image": "Image",
+        "imagesApres": "Images (JPG/PNG/WEBP — {max} MB max) can be added after the first save."
       },
       "images": {
         "nombre": "{nombre} of {max} images.",
@@ -853,8 +868,9 @@
         "ajout": {
           "titre": "Add an image",
           "fichier": {
-            "libelle": "File",
-            "aide": "JPEG, PNG or WebP, 15 MB at most."
+            "libelle": "Choose an image",
+            "aide": "JPG/PNG/WEBP — {max} MB max",
+            "choisi": "Chosen image: {nom}"
           },
           "altFr": {
             "libelle": "Alt text in French",
@@ -882,13 +898,11 @@
         }
       },
       "publication": {
-        "titre": "Publication",
+        "titre": "Status",
         "statutBrouillon": "Draft",
         "statutPublie": "Published",
         "aideBrouillon": "This article is a draft: nobody sees it on the site.",
         "aidePublie": "This article is published: it is visible on the site.",
-        "publier": "Publish",
-        "depublier": "Unpublish",
         "enCours": "One moment…",
         "publieOk": "Article published.",
         "depublieOk": "Article unpublished: it is no longer visible on the site.",
@@ -907,8 +921,12 @@
         },
         "statutArchive": "Archived",
         "aideArchive": "This article is archived: nobody sees it on the site. Restore it (it goes back to draft) to be able to publish it.",
-        "restaurer": "Restore",
-        "restaureOk": "Article restored: it is back to draft."
+        "restaureOk": "Article restored: it is back to draft.",
+        "statutBouton": "Status: {statut}",
+        "statutSur": "Status:",
+        "publieIndisponible": "(restore the article first)",
+        "aideCreation": "A new article is saved as a draft. The status can be changed after the first save.",
+        "reserveAdmin": "Publishing, unpublishing, archiving and restoring are reserved for the administrator."
       },
       "filtres": {
         "libelle": "Show articles",

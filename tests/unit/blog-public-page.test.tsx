@@ -47,6 +47,7 @@ function carte(n: number, surcharge: Partial<CarteArticle> = {}): CarteArticle {
     id: `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`,
     slug: `test-article-${n}`,
     titre: `TEST_Titre ${n}`,
+    extrait: null,
     publieLe: DATE,
     vignetteUrl: n % 2 === 0 ? `http://127.0.0.1:54321/storage/v1/object/public/produits-public/${n}.jpg` : null,
     vignetteAlt: n % 2 === 0 ? `TEST_Alt ${n}` : null,
@@ -64,6 +65,7 @@ function articlePublic(surcharge: Partial<ArticlePublic> = {}): ArticlePublic {
     slug: "test-article",
     titre: "TEST_Titre article",
     texte: "# Sous-titre\n\nUn **texte** de test avec [un lien](/blog) et une image ![Alt](https://exemple.test/a.jpg).",
+    extrait: null,
     publieLe: DATE,
     modifieLe: DATE,
     images: [],
@@ -112,6 +114,14 @@ describe("page /blog", () => {
     expect(page).toContain('href="/fr/blog/test-article-2"');
     expect(page).toContain('alt="TEST_Alt 2"');
     expect(page).toContain("26 octobre 2026");
+  });
+
+  // Story 9.16 h) : la carte du blog affiche l'extrait (saisi, ou début du texte) sous la date.
+  it("carte : extrait affiché quand il existe, rien sinon", async () => {
+    faux.lister.mockResolvedValue(pageArticles({ articles: [carte(1, { extrait: "TEST_ résumé de l'article" }), carte(2)] }));
+    const page = await html(await Blog({ params: params("fr") as never, searchParams: recherche() as never }));
+    expect(page).toContain("TEST_ résumé de l&#x27;article");
+    expect((page.match(/TEST_ résumé/g) ?? []).length).toBe(1);
   });
 
   it("aucun Article : message sobre et retour à l'accueil, jamais de liste vide sans explication", async () => {
@@ -209,6 +219,33 @@ describe("page /blog/[slug]", () => {
       fr: "http://localhost:3000/fr/blog/test-article",
       "x-default": "http://localhost:3000/fr/blog/test-article",
     });
+  });
+
+  // Story 9.16 h) : l'extrait saisi remplace la description tirée du texte (métadonnées et JSON-LD).
+  it("extrait saisi : description des métadonnées et du JSON-LD", async () => {
+    faux.article.mockResolvedValue(articlePublic({ extrait: "TEST_ résumé court" }));
+    const meta = await metadataArticle(propsArticle("fr"));
+    expect(meta.description).toBe("TEST_ résumé court");
+    expect(meta.openGraph?.description).toBe("TEST_ résumé court");
+    const page = await html(await Article(propsArticle("fr")));
+    expect(page).toContain('"description":"TEST_ résumé court"');
+  });
+
+  it("sous /en : l'extrait anglais sert de description (métadonnées, Open Graph, JSON-LD) ; sans lui, le texte anglais", async () => {
+    faux.article.mockResolvedValue(articlePublic({ extrait: "TEST_ English summary", texte: "English body text for the article." }));
+    const meta = await metadataArticle(propsArticle("en"));
+    expect(meta.description).toBe("TEST_ English summary");
+    expect(meta.openGraph?.description).toBe("TEST_ English summary");
+    const page = await html(await Article(propsArticle("en")), "en");
+    expect(page).toContain('"description":"TEST_ English summary"');
+
+    // Sans extrait anglais (la lecture renvoie null sous /en, jamais l'extrait français) : début du texte anglais.
+    faux.article.mockResolvedValue(articlePublic({ extrait: null, texte: "English body text for the article." }));
+    const sans = await metadataArticle(propsArticle("en"));
+    expect(sans.description).toBe("English body text for the article.");
+    expect(sans.openGraph?.description).toBe("English body text for the article.");
+    const pageSans = await html(await Article(propsArticle("en")), "en");
+    expect(pageSans).toContain('"description":"English body text for the article."');
   });
 
   it("lecture impossible : page non indexée, puis message d'erreur sans contenu inventé", async () => {

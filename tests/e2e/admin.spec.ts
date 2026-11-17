@@ -404,3 +404,71 @@ test.describe("liste du blog et archivage (9.16 g)", () => {
     }
   });
 });
+
+// Story 9.16 h) : fenêtre de l'article et extrait (Q28). Article TEST_ publié et Compte Admin TEST_ réels : un extrait de 301 caractères est refusé
+// par le serveur (erreur reliée au champ) ; un extrait valide est enregistré puis affiché sur la carte admin et sur la carte du blog public.
+// TOUT est supprimé à la fin puis compté (0 attendu). Aucun paiement simulé.
+test.describe("fenêtre de l'article et extrait (9.16 h)", () => {
+  test.describe.configure({ mode: "serial", timeout: 180_000 });
+  const ARTICLE = { id: "00000000-0000-4000-8916-0000000000f2", slug: "test-e2e-916h-article", titre: "TEST_ Article extrait 916h" };
+  const EXTRAIT = "TEST_ Résumé court saisi pour la carte 916h.";
+  const retirer = () => sqlBloc(`delete from public.article where id = '${ARTICLE.id}' or slug = '${ARTICLE.slug}';`);
+  const restes = async () => {
+    const { count } = await service(env!).from("article").select("id", { count: "exact", head: true }).or(`id.eq.${ARTICLE.id},slug.eq.${ARTICLE.slug}`);
+    return count;
+  };
+
+  test("extrait de 301 caractères refusé par le serveur ; extrait valide affiché sur la carte admin et sur le blog public", async ({ page }) => {
+    test.skip(!env, "variables Supabase absentes");
+    retirer();
+    sqlBloc(`insert into public.article (id, auteur_id, titre_fr, texte_fr, slug, images, publie_le) values
+  ('${ARTICLE.id}', '00000000-0000-4000-8916-0000000000a0', '${ARTICLE.titre}', 'TEST_ texte de démonstration du blog.', '${ARTICLE.slug}', '[]'::jsonb, now() - interval '1 hour');`);
+    const supprimer = await connecterCompteTest(page, env!, "test-e2e-916h-admin-", "admin");
+    try {
+      await page.setViewportSize({ width: 1366, height: 768 });
+      await page.goto(`/fr/admin/blog/${ARTICLE.id}`);
+      const fenetre = page.locator("[data-fenetre-formulaire]");
+      await expect(fenetre.getByRole("heading", { level: 1, name: "Modifier l'article" })).toBeVisible();
+      await expect(fenetre.getByRole("button", { name: "Statut : Publié" })).toBeVisible();
+
+      const champ = fenetre.getByLabel("Extrait (résumé court) en français");
+      await champ.fill("a".repeat(301));
+      await expect(fenetre.getByText("301 sur 300 caractères : trop long, raccourcis l'extrait.")).toBeVisible();
+      await fenetre.getByRole("button", { name: "Enregistrer" }).first().click();
+      const erreur = fenetre.getByText("L'extrait ne doit pas dépasser 300 caractères.");
+      await expect(erreur).toBeVisible();
+      await expect(champ).toHaveAttribute("aria-invalid", "true");
+      const { data: avant } = await service(env!).from("article").select("extrait_fr").eq("id", ARTICLE.id).single();
+      expect(avant?.extrait_fr).toBeNull();
+
+      await champ.fill(EXTRAIT);
+      await fenetre.getByRole("button", { name: "Enregistrer" }).first().click();
+      await expect(fenetre.getByText("Article enregistré.")).toBeVisible();
+      const { data: apres } = await service(env!).from("article").select("extrait_fr").eq("id", ARTICLE.id).single();
+      expect(apres?.extrait_fr).toBe(EXTRAIT);
+
+      // Carte admin : l'extrait saisi, tel quel.
+      await page.goto("/fr/admin/blog");
+      const carte = page.getByRole("listitem").filter({ has: page.getByRole("heading", { level: 2, name: ARTICLE.titre }) });
+      await expect(carte.getByText(EXTRAIT, { exact: true })).toBeVisible();
+
+      // Carte du blog public.
+      await page.goto("/fr/blog", { waitUntil: "networkidle" });
+      const publique = page.locator("article").filter({ has: page.getByRole("link", { name: ARTICLE.titre }) });
+      await expect(publique.getByText(EXTRAIT, { exact: true })).toBeVisible();
+
+      // À 390 px : la fenêtre occupe la largeur, sans défilement horizontal.
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto(`/fr/admin/blog/${ARTICLE.id}`);
+      await expect(page.locator("[data-fenetre-formulaire]").getByLabel("Extrait (résumé court) en français")).toHaveValue(EXTRAIT);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    } finally {
+      try {
+        await supprimer();
+      } finally {
+        retirer();
+        expect(await restes()).toBe(0);
+      }
+    }
+  });
+});

@@ -213,6 +213,8 @@ export type Database = {
           archive_le: string | null
           auteur_id: string
           cree_le: string
+          extrait_en: string | null
+          extrait_fr: string | null
           id: string
           images: Json
           lien_produit_id: string | null
@@ -228,6 +230,8 @@ export type Database = {
           archive_le?: string | null
           auteur_id: string
           cree_le?: string
+          extrait_en?: string | null
+          extrait_fr?: string | null
           id?: string
           images?: Json
           lien_produit_id?: string | null
@@ -243,6 +247,8 @@ export type Database = {
           archive_le?: string | null
           auteur_id?: string
           cree_le?: string
+          extrait_en?: string | null
+          extrait_fr?: string | null
           id?: string
           images?: Json
           lien_produit_id?: string | null

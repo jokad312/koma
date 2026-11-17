@@ -21,6 +21,8 @@ export async function enregistrerArticleAction(entree: {
     texteFr: string;
     titreEn: string | null;
     texteEn: string | null;
+    extraitFr: string | null;
+    extraitEn: string | null;
     slug: string | null;
     lienProduitId: string | null;
     images: ArticleImage[];

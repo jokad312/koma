@@ -35,7 +35,20 @@ const TOUTES_LES_VUES = [
   ["nouveau-kit", "Nouveau produit : Kit", "/fr/admin/produits/nouveau", "04-nouveau-produit.png", (p) => remplirCreation(p, /^Kit/, "TEST_ Kit patron")],
   ["modifier-vetement", "Modifier un Vêtement TEST_", "/fr/admin/produits/00000000-0000-4000-8916-00000000ca03", "04-nouveau-produit.png"],
   ["modifier-kit", "Modifier un Kit TEST_", "/fr/admin/produits/00000000-0000-4000-8916-00000000ca02", "04-nouveau-produit.png"],
+  // Story 9.16 h : la fenêtre de l'article en création (saisie à l'écran, rien n'est enregistré) et en modification (article TEST_ semé ci-dessous,
+  // avec image et extrait).
+  ["nouvel-article-saisi", "Nouvel article : saisie", "/fr/admin/blog/nouveau", "06-nouvel-article.png", (p) => remplirArticle(p)],
+  ["modifier-article", "Modifier un article TEST_", "/fr/admin/blog/00000000-0000-4000-8916-00000000ab01", "06-nouvel-article.png"],
 ];
+
+// Création d'un article : titre, extrait et contenu. Rien n'est envoyé.
+async function remplirArticle(page) {
+  await page.getByLabel("Titre en français").fill("TEST_ Guide de l'armure en mousse");
+  await page.getByLabel("Extrait (résumé court) en français").fill("TEST_ Découpe, chauffe et assemble une armure légère en mousse EVA.");
+  await page.getByLabel("Texte en français").fill("## Matériel\n\n**TEST_** mousse EVA, colle contact, pistolet à chaleur.");
+  await page.waitForTimeout(200);
+  await page.locator("[data-defilement-fenetre]").evaluate((e) => e.scrollTo(0, 0));
+}
 
 // Création d'un produit : nom, description, prix, puis la famille (placée après les champs de la maquette). Rien n'est envoyé.
 async function remplirCreation(page, famille, titre) {
@@ -137,7 +150,7 @@ async function compterProduitsTest() {
 // à la fin, puis comptés (0 attendu).
 const ARTICLES_TEST = ["00000000-0000-4000-8916-00000000ab01", "00000000-0000-4000-8916-00000000ab02", "00000000-0000-4000-8916-00000000ab03", "00000000-0000-4000-8916-00000000ab04"];
 const IMAGE_ARTICLE_TEST = "test-captures-916g/article.jpg";
-const avecArticles = () => VUES.some(([cle]) => cle === "blog");
+const avecArticles = () => VUES.some(([cle]) => cle === "blog" || cle === "modifier-article");
 const listeArticlesTest = () => ARTICLES_TEST.map((id) => `'${id}'`).join(",");
 
 async function retirerArticlesTest() {
@@ -155,7 +168,9 @@ async function semerArticlesTest() {
   ('${a}', '${a}', 'TEST_ Guide de l''armure en mousse', ${texte}, 'test-captures-916g-a', '[{"fichier":"${IMAGE_ARTICLE_TEST}","alt_fr":"TEST_ image de démonstration","alt_en":"TEST_ demo image"}]'::jsonb, now() - interval '3 days', null),
   ('${b}', '${a}', 'TEST_ Annonce du prochain atelier', ${texte}, 'test-captures-916g-b', '[]'::jsonb, now() - interval '1 day', null),
   ('${c}', '${a}', 'TEST_ Brouillon de perruque', null, 'test-captures-916g-c', '[]'::jsonb, null, null),
-  ('${d}', '${a}', 'TEST_ Article archivé', ${texte}, 'test-captures-916g-d', '[]'::jsonb, null, now());`);
+  ('${d}', '${a}', 'TEST_ Article archivé', ${texte}, 'test-captures-916g-d', '[]'::jsonb, null, now());
+-- Story 9.16 h : extrait saisi sur le premier article (carte de la liste et fenêtre de modification).
+update public.article set extrait_fr = 'TEST_ Découpe, chauffe et assemble une armure légère en mousse EVA.' where id = '${a}';`);
 }
 
 async function compterArticlesTest() {

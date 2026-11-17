@@ -41,7 +41,8 @@ export async function ArticleComplet({ article, locale, nomSite }: Props) {
       <JsonLd
         donnees={articleJsonLd({
           titre: article.titre,
-          description: extraireTexte(article.texte),
+          // Story 9.16 h) : l'extrait saisi remplace la description tirée du texte quand il existe.
+          description: article.extrait ?? extraireTexte(article.texte),
           images: article.images.map((image) => image.url),
           url,
           langue: locale,

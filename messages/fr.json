@@ -781,12 +781,10 @@
         "archive": "Archivé"
       },
       "pageNouveau": {
-        "titre": "Écrire un article",
-        "retour": "Retour aux articles"
+        "titre": "Nouvel article"
       },
       "pageEdition": {
         "titre": "Modifier l'article",
-        "retour": "Retour aux articles",
         "cree": "Article créé. Tu peux ajouter des images et le publier."
       },
       "formulaire": {
@@ -801,6 +799,18 @@
         "titreEn": {
           "libelle": "Titre en anglais",
           "aide": "Facultatif. Sans version anglaise, l'article n'apparaît pas sous /en."
+        },
+        "extraitFr": {
+          "libelle": "Extrait (résumé court) en français",
+          "aide": "Facultatif, {max} caractères au plus. Affiché sur la carte de la liste du blog et en description de la page. Vide : début du texte."
+        },
+        "extraitEn": {
+          "libelle": "Extrait (résumé court) en anglais",
+          "aide": "Facultatif, {max} caractères au plus. Affiché sous /en sur la carte de la liste du blog et en description de la page. Vide : début du texte anglais."
+        },
+        "extrait": {
+          "compteur": "{nombre} sur {max} caractères",
+          "trop": "{nombre} sur {max} caractères : trop long, raccourcis l'extrait."
         },
         "texteEn": {
           "libelle": "Texte en anglais",
@@ -832,6 +842,7 @@
           "article_invalide": "L'article n'a pas pu être enregistré : une information est invalide.",
           "titre_invalide": "Le titre doit avoir de 1 à 120 caractères.",
           "texte_invalide": "Le texte ne doit pas dépasser 5000 caractères.",
+          "extrait_invalide": "L'extrait ne doit pas dépasser {max} caractères.",
           "slug_invalide": "L'adresse doit être en minuscules, avec des chiffres et des tirets seulement.",
           "slug_pris": "Cette adresse est déjà utilisée par un autre article. Choisis-en une autre.",
           "slug_publie": "L'adresse d'un article publié ne peut pas changer. Dépublie-le d'abord, ou garde l'adresse actuelle.",
@@ -841,6 +852,10 @@
           "publication_incomplete": "Cet article est publié : son titre, son texte français et les textes alternatifs de ses images sont obligatoires. Dépublie-le d'abord pour le vider.",
           "generique": "L'article n'a pas pu être enregistré. Réessaie."
         }
+      },
+      "zones": {
+        "image": "Image",
+        "imagesApres": "Les images (JPG/PNG/WEBP — {max} Mo max) s'ajoutent après le premier enregistrement."
       },
       "images": {
         "nombre": "{nombre} sur {max} images.",
@@ -853,8 +868,9 @@
         "ajout": {
           "titre": "Ajouter une image",
           "fichier": {
-            "libelle": "Fichier",
-            "aide": "JPEG, PNG ou WebP, 15 Mo au plus."
+            "libelle": "Choisir une image",
+            "aide": "JPG/PNG/WEBP — {max} Mo max",
+            "choisi": "Image choisie : {nom}"
           },
           "altFr": {
             "libelle": "Texte alternatif en français",
@@ -882,13 +898,11 @@
         }
       },
       "publication": {
-        "titre": "Publication",
+        "titre": "Statut",
         "statutBrouillon": "Brouillon",
         "statutPublie": "Publié",
         "aideBrouillon": "Cet article est un brouillon : personne ne le voit sur le site.",
         "aidePublie": "Cet article est publié : il est visible sur le site.",
-        "publier": "Publier",
-        "depublier": "Dépublier",
         "enCours": "Un instant…",
         "publieOk": "Article publié.",
         "depublieOk": "Article dépublié : il n'est plus visible sur le site.",
@@ -907,8 +921,12 @@
         },
         "statutArchive": "Archivé",
         "aideArchive": "Cet article est archivé : personne ne le voit sur le site. Restaure-le (il revient en brouillon) pour pouvoir le publier.",
-        "restaurer": "Restaurer",
-        "restaureOk": "Article restauré : il est revenu en brouillon."
+        "restaureOk": "Article restauré : il est revenu en brouillon.",
+        "statutBouton": "Statut : {statut}",
+        "statutSur": "Statut :",
+        "publieIndisponible": "(restaure d'abord l'article)",
+        "aideCreation": "Un nouvel article est enregistré en brouillon. Le statut se change après le premier enregistrement.",
+        "reserveAdmin": "Publier, dépublier, archiver et restaurer sont réservés à l'administrateur."
       },
       "filtres": {
         "libelle": "Afficher les articles",

@@ -13,6 +13,8 @@ import { Link, useRouter } from "@/i18n/navigation";
 type ContexteFenetre = {
   signalerEnregistrement: (source: string, enCours: boolean) => void;
   marquerEnregistre: (source: string) => void;
+  // Story 9.16 h : une saisie faite sans événement de champ (liste d'images changée par un bouton) marque sa source « modifiée ».
+  marquerModifie: (source: string) => void;
 };
 
 // Attribut qui rattache une saisie à sa source (formulaire principal, zone d'image, zone de fichiers…).
@@ -30,18 +32,20 @@ export function useDansFenetre(): boolean {
 
 // Une source de saisie de la fenêtre (formulaire principal, zone d'envoi) signale son envoi en cours ; enregistre() remet SA saisie à « non modifiée »
 // (jamais celle des autres sources). `source` est à poser sur l'élément racine de la source (ses formulaires). Hors fenêtre : sans effet.
-export function useEnregistrementFenetre(enCours: boolean): { enregistre: () => void; source: { [ATTRIBUT_SOURCE]: string } } {
+export function useEnregistrementFenetre(enCours: boolean): { enregistre: () => void; modifie: () => void; source: { [ATTRIBUT_SOURCE]: string } } {
   const ctx = useContext(Contexte);
   const cle = useId();
   const signaler = ctx?.signalerEnregistrement;
   const marquer = ctx?.marquerEnregistre;
+  const marquerModifie = ctx?.marquerModifie;
   useEffect(() => {
     if (!signaler) return;
     signaler(cle, enCours);
     return () => signaler(cle, false);
   }, [cle, enCours, signaler]);
   const enregistre = useCallback(() => marquer?.(cle), [marquer, cle]);
-  return { enregistre: marquer ? enregistre : SANS_EFFET, source: { [ATTRIBUT_SOURCE]: cle } };
+  const modifie = useCallback(() => marquerModifie?.(cle), [marquerModifie, cle]);
+  return { enregistre: marquer ? enregistre : SANS_EFFET, modifie: marquerModifie ? modifie : SANS_EFFET, source: { [ATTRIBUT_SOURCE]: cle } };
 }
 
 // Rend inertes (clavier, lecteurs d'écran) les éléments du cadre admin que le fond plein écran recouvre : menu latéral, barre du haut, lien d'évitement.
@@ -157,7 +161,10 @@ export function FenetreFormulaire({
   const marquerEnregistre = useCallback((source: string) => {
     modifiees.current.delete(source);
   }, []);
-  const contexte = useMemo(() => ({ signalerEnregistrement, marquerEnregistre }), [signalerEnregistrement, marquerEnregistre]);
+  const marquerModifie = useCallback((source: string) => {
+    modifiees.current.add(source);
+  }, []);
+  const contexte = useMemo(() => ({ signalerEnregistrement, marquerEnregistre, marquerModifie }), [signalerEnregistrement, marquerEnregistre, marquerModifie]);
 
   return (
     <div ref={racine} data-fenetre-formulaire="" className="fixed inset-0 z-40 flex items-stretch justify-center md:items-start md:p-6">

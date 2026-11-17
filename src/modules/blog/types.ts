@@ -7,6 +7,8 @@ export type CodeErreurBlog =
   | "article_invalide"
   | "titre_invalide"
   | "texte_invalide"
+  // Story 9.16 h) : extrait (résumé court) de plus de 300 caractères (KS_EXTRAIT_INVALIDE).
+  | "extrait_invalide"
   | "slug_invalide"
   | "slug_pris"
   | "slug_publie"
@@ -33,6 +35,9 @@ export type Article = {
   titreEn: string | null;
   texteFr: string;
   texteEn: string | null;
+  // Story 9.16 h) (Q28) : résumé court facultatif, 300 caractères au plus ; null = la carte reprend le début du texte.
+  extraitFr: string | null;
+  extraitEn: string | null;
   slug: string | null;
   lienProduitId: string | null;
   images: ArticleImage[];
@@ -44,7 +49,7 @@ export type Article = {
 };
 
 // Carte de la liste admin (story 9.16 g, CB5 à CB10) : vignette (première image de l'article, jamais une image inventée), statut, date,
-// titre et extrait (160 premiers caractères du texte français sans Markdown, Q28). Le texte entier n'est jamais envoyé au navigateur.
+// titre et extrait (champ Extrait français s'il est rempli, story 9.16 h ; sinon 160 premiers caractères du texte français sans Markdown, Q28). Le texte entier n'est jamais envoyé au navigateur.
 export type ArticleListe = {
   id: string;
   titreFr: string;
@@ -62,11 +67,13 @@ export type FiltreArticles = (typeof FILTRES_ARTICLES)[number];
 
 // ---- Lecture publique (story 8.7) ----
 
-// Carte de la liste publique : vignette (première image, ou aucune), titre et date de la langue.
+// Carte de la liste publique : vignette (première image, ou aucune), titre, date et extrait de la langue
+// (story 9.16 h : champ Extrait s'il est rempli, sinon 160 premiers caractères du texte sans Markdown ; null si aucun texte).
 export type CarteArticle = {
   id: string;
   slug: string;
   titre: string;
+  extrait: string | null;
   publieLe: string;
   vignetteUrl: string | null;
   vignetteAlt: string | null;
@@ -81,6 +88,8 @@ export type ArticlePublic = {
   slug: string;
   titre: string;
   texte: string;
+  // Story 9.16 h) : extrait saisi dans la langue servie (null s'il est vide) : il remplace la description tirée du texte.
+  extrait: string | null;
   publieLe: string;
   modifieLe: string;
   images: ArticleImagePublique[];
@@ -100,6 +109,9 @@ export const CUMUL_MAX_ARTICLES = 1200;
 
 // Choix de lien vers un Produit : seuls le titre et l'identifiant servent au formulaire.
 export type ProduitLien = { id: string; titreFr: string };
+
+// Story 9.16 h) : longueur maximale de l'extrait (résumé court), FR et EN ; revérifiée par le serveur et par la base.
+export const EXTRAIT_ARTICLE_MAX = 300;
 
 // Règles d'images de l'article : mêmes limites et mêmes formats que les photos de produit (story 2.2).
 export const IMAGES_ARTICLE_MAX = 10;

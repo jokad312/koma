@@ -99,16 +99,46 @@ describe("listerArticlesPublies", () => {
         id: "1",
         slug: "article-1",
         titre: "Titre FR 1",
+        extrait: "Texte français 1",
         publieLe: DATE,
         vignetteUrl: "http://127.0.0.1:54321/storage/v1/object/public/produits-public/blog/a%20b.jpg",
         vignetteAlt: "Alt FR",
       },
-      { id: "2", slug: "article-2", titre: "Titre FR 2", publieLe: DATE, vignetteUrl: null, vignetteAlt: null },
+      { id: "2", slug: "article-2", titre: "Titre FR 2", extrait: "Texte français 2", publieLe: DATE, vignetteUrl: null, vignetteAlt: null },
     ]);
     expect(page.suite).toBeNull();
     // Tri fixe : du plus récent au plus ancien, identifiant en second.
     expect(etapes("article").filter((e) => e.nom === "order").map((e) => e.args[0])).toEqual(["publie_le", "id"]);
     expect(noms("article")).not.toContain("or");
+  });
+
+  // Story 9.16 h) : carte du blog public = extrait saisi de la langue, sinon 160 premiers caractères du texte de la langue.
+  it("cartes : extrait saisi de la langue, sinon début du texte sans Markdown", async () => {
+    faux.parTable.article = [
+      {
+        data: [
+          ligne("1", { extrait_fr: "TEST_ résumé FR", extrait_en: "TEST_ summary EN" }),
+          ligne("2", { texte_fr: "## Titre\n\n**Gras** " + "otaku ".repeat(40), texte_en: "**Bold** " + "otaku ".repeat(40) }),
+        ],
+        error: null,
+      },
+      {
+        data: [
+          ligne("1", { extrait_fr: "TEST_ résumé FR", extrait_en: "TEST_ summary EN" }),
+          ligne("2", { extrait_fr: "TEST_ résumé FR seul", texte_en: "**Bold** " + "otaku ".repeat(40) }),
+        ],
+        error: null,
+      },
+    ];
+    const fr = await listerArticlesPublies("fr", null);
+    expect(fr.articles[0].extrait).toBe("TEST_ résumé FR");
+    expect(fr.articles[1].extrait).toMatch(/^Titre Gras otaku/);
+    expect(fr.articles[1].extrait!.endsWith("…")).toBe(true);
+    expect(fr.articles[1].extrait).not.toContain("**");
+    const en = await listerArticlesPublies("en", null);
+    expect(en.articles[0].extrait).toBe("TEST_ summary EN");
+    // Sous /en, sans extrait anglais : le début du texte anglais, jamais l'extrait français.
+    expect(en.articles[1].extrait).toMatch(/^Bold otaku/);
   });
 
   it("sous /en, la version anglaise est exigée en base et le titre anglais est servi", async () => {
@@ -193,6 +223,29 @@ describe("lireArticlePublie", () => {
     expect(faux.appels.some((a) => a.table === "produit")).toBe(false);
   });
 
+  // Story 9.16 h) : extrait saisi de la langue servie (il remplace la description tirée du texte) ; vide : null.
+  it("extrait de la langue : FR sous /fr, EN sous /en, jamais celui de l'autre langue", async () => {
+    faux.parTable.article = [
+      { data: ligne("1", { extrait_fr: "Résumé FR", extrait_en: null }), error: null },
+      { data: ligne("1", { extrait_fr: "Résumé FR", extrait_en: null }), error: null },
+    ];
+    expect((await lireArticlePublie("fr", "article-1"))?.extrait).toBe("Résumé FR");
+    expect((await lireArticlePublie("en", "article-1"))?.extrait).toBeNull();
+    expect(noms("article")).toContain("select");
+    expect(JSON.stringify(etapes("article"))).toContain("extrait_en");
+  });
+
+  it("extrait contenant le marqueur « [Texte à fournir] » : jamais montré (carte et page)", async () => {
+    faux.parTable.article = [
+      { data: ligne("1", { extrait_fr: "Résumé [Texte à fournir]" }), error: null },
+      { data: [ligne("1", { extrait_fr: "[Texte à fournir]" })], error: null },
+    ];
+    expect((await lireArticlePublie("fr", "article-1"))?.extrait).toBeNull();
+    const page = await listerArticlesPublies("fr", null);
+    // Repli sur le début du texte, jamais le marqueur.
+    expect(page.articles[0].extrait).toBe("Texte français 1");
+  });
+
   it("vue anglaise : titre, texte et texte alternatif anglais", async () => {
     faux.parTable.article = [
       { data: ligne("1", { images: [{ fichier: "a.jpg", alt_fr: "Alt FR", alt_en: "Alt EN" }] }), error: null },
@@ -242,5 +295,16 @@ describe("plan du site", () => {
   it("articles français sans version anglaise, pour le sélecteur de langue", async () => {
     faux.parTable.article = [{ data: [ligne("1"), ligne("2", { texte_en: "" })], error: null }];
     expect(await lireSlugsSansVersionAnglaise()).toEqual(["article-2"]);
+  });
+});
+
+// Story 9.16 h) (revue) : la carte courte de l'accueil n'a pas d'extrait ; le texte n'y est pas lu.
+describe("lireDerniersArticles : sans texte", () => {
+  it("ne lit ni le texte ni l'extrait ; carte sans extrait", async () => {
+    faux.parTable.article = [{ data: [ligne("1")], error: null }];
+    const cartes = await lireDerniersArticles("fr");
+    const select = etapes("article").find((e) => e.nom === "select");
+    expect(String(select?.args[0])).not.toMatch(/texte_|extrait_/);
+    expect(cartes[0].extrait).toBeNull();
   });
 });
