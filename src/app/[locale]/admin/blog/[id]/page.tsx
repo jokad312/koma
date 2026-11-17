@@ -77,7 +77,7 @@ async function ArticleSelonDroit({
         {article && produits ? (
           <>
             <FormulaireArticle article={article} produits={produits} />
-            <PublicationArticle articleId={article.id} publie={article.publieLe !== null} />
+            <PublicationArticle articleId={article.id} publie={article.publieLe !== null} archive={article.archiveLe !== null} />
           </>
         ) : (
           <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>

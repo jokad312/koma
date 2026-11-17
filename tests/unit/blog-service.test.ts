@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-import { annulerEnvoiImage, changerPublication, demanderEnvoiImage, enregistrerArticle, finaliserImage } from "@/modules/blog/service";
+import { annulerEnvoiImage, archiverArticle, changerPublication, demanderEnvoiImage, enregistrerArticle, finaliserImage, restaurerArticle } from "@/modules/blog/service";
 import type { ArticleImage } from "@/modules/blog/types";
 import { creerTestDependancesBlog } from "../doubles/TEST_dependances-blog";
 
@@ -112,6 +112,42 @@ describe("changerPublication", () => {
     const { deps, appels } = creerTestDependancesBlog();
     expect(await changerPublication(deps, { id: "../article", publier: true })).toEqual({ ok: false, erreur: "article_introuvable" });
     expect(appels.publications).toEqual([]);
+  });
+});
+
+// Story 9.16 g) : corbeille = archivage (jamais de suppression), restauration en brouillon, garde de publication.
+describe("archiverArticle / restaurerArticle", () => {
+  const ID = "00000000-0000-4000-8000-0000000000a2";
+
+  it("archiver : droit blog.gerer, écriture puis invalidation du cache", async () => {
+    const { deps, appels } = creerTestDependancesBlog();
+    expect(await archiverArticle(deps, { id: ID })).toEqual({ ok: true, id: ID });
+    expect(appels.droits).toEqual(["blog.gerer"]);
+    expect(appels.ordre).toEqual(["droit", "archivage", "invalidation"]);
+    expect(appels.archivages[0]).toMatchObject({ id: ID, archiver: true });
+  });
+
+  it("restaurer : archiver = false", async () => {
+    const { deps, appels } = creerTestDependancesBlog();
+    expect(await restaurerArticle(deps, { id: ID })).toEqual({ ok: true, id: ID });
+    expect(appels.archivages[0]).toMatchObject({ id: ID, archiver: false });
+  });
+
+  it("refus de la base : code d'interface, cache non vidé", async () => {
+    const { deps, appels } = creerTestDependancesBlog({ erreurArchivage: "KS_DROIT_REFUSE" });
+    expect(await archiverArticle(deps, { id: ID })).toEqual({ ok: false, erreur: "non_autorise" });
+    expect(appels.invalidations).toBe(0);
+  });
+
+  it("identifiant mal formé : article_introuvable, aucun appel", async () => {
+    const { deps, appels } = creerTestDependancesBlog();
+    expect(await restaurerArticle(deps, { id: "../x" })).toEqual({ ok: false, erreur: "article_introuvable" });
+    expect(appels.archivages).toEqual([]);
+  });
+
+  it("publier un article archivé : refus article_archive", async () => {
+    const { deps } = creerTestDependancesBlog({ erreurPublication: "KS_ARTICLE_ARCHIVE" });
+    expect(await changerPublication(deps, { id: ID, publier: true })).toEqual({ ok: false, erreur: "article_archive" });
   });
 });
 

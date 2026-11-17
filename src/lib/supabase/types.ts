@@ -210,6 +210,7 @@ export type Database = {
       }
       article: {
         Row: {
+          archive_le: string | null
           auteur_id: string
           cree_le: string
           id: string
@@ -224,6 +225,7 @@ export type Database = {
           titre_fr: string
         }
         Insert: {
+          archive_le?: string | null
           auteur_id: string
           cree_le?: string
           id?: string
@@ -238,6 +240,7 @@ export type Database = {
           titre_fr: string
         }
         Update: {
+          archive_le?: string | null
           auteur_id?: string
           cree_le?: string
           id?: string
@@ -2636,6 +2639,10 @@ export type Database = {
         Args: { p_auteur: Json; p_pass: string }
         Returns: number
       }
+      archiver_article: {
+        Args: { p_auteur: Json; p_id: string }
+        Returns: undefined
+      }
       archiver_produit: {
         Args: { p_auteur: Json; p_id: string }
         Returns: undefined
@@ -3579,6 +3586,10 @@ export type Database = {
           p_taille: number
         }
         Returns: string
+      }
+      restaurer_article: {
+        Args: { p_auteur: Json; p_id: string }
+        Returns: undefined
       }
       restaurer_produit: {
         Args: { p_auteur: Json; p_id: string }

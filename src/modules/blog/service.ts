@@ -22,6 +22,7 @@ const ERREURS_ARTICLE: ReadonlyArray<readonly [string, CodeErreurBlog]> = [
   ["KS_PRODUIT_INEXISTANT", "produit_inexistant"],
   ["KS_ARTICLE_INTROUVABLE", "article_introuvable"],
   ["KS_PUBLICATION_INCOMPLETE", "publication_incomplete"],
+  ["KS_ARTICLE_ARCHIVE", "article_archive"],
   ["KS_DROIT_REFUSE", "non_autorise"],
   ["KS_AUTEUR_MANQUANT", "non_autorise"],
 ];
@@ -101,6 +102,33 @@ export async function changerPublication(deps: DependancesBlog, entree: { id: st
     journaliser("article", e);
     return { ok: false, erreur: "generique" };
   }
+}
+
+// Story 9.16 g) (Q22) : la corbeille archive, jamais de suppression. Archiver dépublie et marque archivé ; restaurer ramène en brouillon.
+// Même droit que le reste du blog (blog.gerer : Admin et Assistant), revérifié en base ; « ok » seulement après la réponse réelle de la base.
+async function changerArchivage(deps: DependancesBlog, entree: { id: string }, archiver: boolean): Promise<ResultatBlog<{ id: string }>> {
+  const droit = await deps.exigerDroit("blog.gerer");
+  if (!identifiantValide(entree.id)) return { ok: false, erreur: "article_introuvable" };
+  try {
+    const { erreur } = await deps.changerArchivage({ auteur: droit.auteur, id: entree.id, archiver });
+    if (erreur) {
+      journaliser(archiver ? "archivage refusé" : "restauration refusée", erreur);
+      return { ok: false, erreur: erreurArticle(erreur) };
+    }
+    await deps.invaliderArticles();
+    return { ok: true, id: entree.id };
+  } catch (e) {
+    journaliser(archiver ? "archivage" : "restauration", e);
+    return { ok: false, erreur: "generique" };
+  }
+}
+
+export async function archiverArticle(deps: DependancesBlog, entree: { id: string }): Promise<ResultatBlog<{ id: string }>> {
+  return changerArchivage(deps, entree, true);
+}
+
+export async function restaurerArticle(deps: DependancesBlog, entree: { id: string }): Promise<ResultatBlog<{ id: string }>> {
+  return changerArchivage(deps, entree, false);
 }
 
 // Contrôle du format et de la taille annoncés avant tout envoi ; le contenu réel est revérifié à la finalisation.

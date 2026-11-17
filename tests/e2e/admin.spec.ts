@@ -1,5 +1,5 @@
 import { expect, test, type APIRequestContext } from "@playwright/test";
-import { connecterCompteTest, lireEnv, restesProduit, retirerProduit, semerProduit, service, type ProduitTest } from "./police-outils";
+import { connecterCompteTest, lireEnv, restesProduit, retirerProduit, semerProduit, service, sqlBloc, type ProduitTest } from "./police-outils";
 
 // Zone admin : un visiteur est envoyé vers la connexion avec le chemin de retour ; un Compte sans rôle voit la 404.
 // Le test d'un admin connecté demande un Compte réel avec le rôle admin : il se fait à la main (README, « Premier admin »),
@@ -284,6 +284,122 @@ test.describe("liste des produits et archivage (9.16 e)", () => {
       } finally {
         await retirerProduit(env!, PRODUIT);
         expect(await restesProduit(env!, PRODUIT)).toEqual({ produits: 0, variantes: 0, photos: 0, fichiers: 0 });
+      }
+    }
+  });
+});
+
+// Story 9.16 g) : liste du blog selon la maquette, corbeille = archivage (Q22). Article TEST_ publié (sans image) et Comptes TEST_ réels :
+// l'Admin archive puis restaure par l'écran ; l'Assistant (droit blog.gerer) voit la liste sans Publier, Dépublier, Archiver ni Restaurer
+// (réservés à l'Admin en base, comme la publication) ; TOUT est supprimé à la fin puis compté (0 attendu). Aucun paiement simulé.
+test.describe("liste du blog et archivage (9.16 g)", () => {
+  test.describe.configure({ mode: "serial", timeout: 180_000 });
+  const ARTICLE = { id: "00000000-0000-4000-8916-0000000000f1", slug: "test-e2e-916g-article", titre: "TEST_ Article archivage 916g" };
+  const retirer = () => sqlBloc(`delete from public.article where id = '${ARTICLE.id}' or slug = '${ARTICLE.slug}';`);
+  const restes = async () => {
+    const { count } = await service(env!).from("article").select("id", { count: "exact", head: true }).or(`id.eq.${ARTICLE.id},slug.eq.${ARTICLE.slug}`);
+    return count;
+  };
+  const semer = () =>
+    sqlBloc(`insert into public.article (id, auteur_id, titre_fr, texte_fr, slug, images, publie_le) values
+  ('${ARTICLE.id}', '00000000-0000-4000-8916-0000000000a0', '${ARTICLE.titre}', '# Titre
+
+**TEST_** texte de démonstration du blog, ' || repeat('otaku ', 60), '${ARTICLE.slug}', '[]'::jsonb, now() - interval '1 hour');`);
+
+  test("l'Assistant voit la liste et le crayon, sans Publier, Dépublier, Archiver ni Restaurer", async ({ page }) => {
+    test.skip(!env, "variables Supabase absentes");
+    retirer();
+    semer();
+    const supprimer = await connecterCompteTest(page, env!, "test-e2e-916g-assistant-", "assistant");
+    try {
+      await page.goto("/fr/admin/blog");
+      const carte = page.getByRole("listitem").filter({ has: page.getByRole("heading", { level: 2, name: ARTICLE.titre }) });
+      await expect(carte.getByRole("link", { name: `Modifier ${ARTICLE.titre}` })).toBeVisible();
+      await expect(carte.getByRole("button")).toHaveCount(0);
+    } finally {
+      try {
+        await supprimer();
+      } finally {
+        retirer();
+        expect(await restes()).toBe(0);
+      }
+    }
+  });
+
+  test("l'Admin archive un article publié (confirmation), le retrouve sous « Archivés », puis le restaure", async ({ page }) => {
+    test.skip(!env, "variables Supabase absentes");
+    retirer();
+    semer();
+    const supprimer = await connecterCompteTest(page, env!, "test-e2e-916g-admin-", "admin");
+    try {
+      const base = service(env!);
+      const lignesJournal = async () => {
+        const { count, error } = await base.from("journal_audit").select("id", { count: "exact", head: true }).eq("cible_table", "article").eq("cible_id", ARTICLE.id);
+        if (error || count === null) throw new Error(`journal : ${error?.message}`);
+        return count;
+      };
+      await page.goto("/fr/blog", { waitUntil: "networkidle" });
+      await expect(page.getByText(ARTICLE.titre)).toBeVisible();
+
+      await page.setViewportSize({ width: 1366, height: 768 });
+      await page.goto("/fr/admin/blog");
+      await expect(page.getByRole("heading", { level: 1, name: "Blog" })).toBeVisible();
+      await expect(page.getByRole("link", { name: "Écrire un article" })).toHaveAttribute("href", "/fr/admin/blog/nouveau");
+      await expect(page.getByRole("button", { name: "Tous", exact: true })).toHaveAttribute("aria-pressed", "true");
+      const carte = page.getByRole("listitem").filter({ has: page.getByRole("heading", { level: 2, name: ARTICLE.titre }) });
+      await expect(carte.getByText("Publié", { exact: true })).toBeVisible();
+      await expect(carte.getByText(/^Titre TEST texte de démonstration du blog, otaku/)).toBeVisible();
+      await expect(carte.getByText("Pas d'image")).toBeVisible();
+      await expect(carte.getByRole("link", { name: `Modifier ${ARTICLE.titre}` })).toHaveAttribute("href", `/fr/admin/blog/${ARTICLE.id}`);
+      await expect(carte.getByRole("button", { name: `Dépublier ${ARTICLE.titre}` })).toBeVisible();
+
+      // Archiver : confirmation d'abord.
+      const avant = await lignesJournal();
+      await carte.getByRole("button", { name: `Archiver ${ARTICLE.titre}` }).click();
+      const dialogue = page.getByRole("dialog", { name: `Archiver « ${ARTICLE.titre} » ?` });
+      await expect(dialogue).toBeVisible();
+      await dialogue.getByRole("button", { name: "Archiver", exact: true }).click();
+      await expect(page.getByText("Article archivé.")).toBeVisible();
+      await expect(page.getByRole("heading", { level: 2, name: ARTICLE.titre })).toHaveCount(0);
+      const { data: lu, error } = await base.from("article").select("publie_le, archive_le").eq("id", ARTICLE.id).single();
+      expect(error).toBeNull();
+      expect(lu?.publie_le).toBeNull();
+      expect(lu?.archive_le).not.toBeNull();
+      expect(await lignesJournal()).toBe(avant + 1);
+
+      // Sous « Archivés » (filtre dans l'adresse) : statut Archivé, Restaurer, aucun Publier.
+      await page.getByRole("button", { name: "Archivés", exact: true }).click();
+      await expect(page).toHaveURL(/\?filtre=archives$/);
+      const archivee = page.getByRole("listitem").filter({ has: page.getByRole("heading", { level: 2, name: ARTICLE.titre }) });
+      await expect(archivee.getByText("Archivé", { exact: true })).toBeVisible();
+      await expect(archivee.getByRole("button", { name: /Publier/ })).toHaveCount(0);
+
+      // Retiré du blog public.
+      const blog = await page.context().newPage();
+      await blog.goto("/fr/blog", { waitUntil: "networkidle" });
+      await expect(blog.getByText(ARTICLE.titre)).toHaveCount(0);
+      await blog.close();
+
+      // Restaurer : retour en brouillon, sous « Brouillons ».
+      await archivee.getByRole("button", { name: `Restaurer ${ARTICLE.titre}` }).click();
+      await expect(page.getByText("Article restauré : il est revenu en brouillon.")).toBeVisible();
+      await page.getByRole("button", { name: "Brouillons", exact: true }).click();
+      const restauree = page.getByRole("listitem").filter({ has: page.getByRole("heading", { level: 2, name: ARTICLE.titre }) });
+      await expect(restauree.getByText("Brouillon", { exact: true })).toBeVisible();
+      const { data: relu } = await base.from("article").select("publie_le, archive_le").eq("id", ARTICLE.id).single();
+      expect(relu).toEqual({ publie_le: null, archive_le: null });
+
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto("/fr/admin/blog?filtre=brouillons");
+      await expect(page.getByRole("button", { name: "Brouillons", exact: true })).toHaveAttribute("aria-pressed", "true");
+      await expect(page.getByRole("heading", { level: 2, name: ARTICLE.titre })).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    } finally {
+      try {
+        await supprimer();
+      } finally {
+        retirer();
+        expect(await restes()).toBe(0);
       }
     }
   });

@@ -15,6 +15,7 @@ type Reglages = {
   erreurArticle?: string | null;
   idArticle?: string | null;
   erreurPublication?: string | null;
+  erreurArchivage?: string | null;
   erreurSigner?: string | null;
   octetsAttente?: Uint8Array | null;
   erreurLectureAttente?: string | null;
@@ -31,6 +32,7 @@ export function creerTestDependancesBlog(r: Reglages = {}) {
     droits: [] as string[],
     articles: [] as Array<Parameters<DependancesBlog["enregistrerArticle"]>[0]>,
     publications: [] as Array<Parameters<DependancesBlog["changerPublication"]>[0]>,
+    archivages: [] as Array<Parameters<DependancesBlog["changerArchivage"]>[0]>,
     signatures: [] as string[],
     ecritsPublics: [] as Array<{ objet: string; octets: Uint8Array; contentType: string }>,
     suppressions: [] as Array<{ bucket: string; objet: string }>,
@@ -56,6 +58,11 @@ export function creerTestDependancesBlog(r: Reglages = {}) {
       appels.ordre.push("publication");
       appels.publications.push(args);
       return { erreur: r.erreurPublication ?? null };
+    }),
+    changerArchivage: vi.fn(async (args) => {
+      appels.ordre.push("archivage");
+      appels.archivages.push(args);
+      return { erreur: r.erreurArchivage ?? null };
     }),
     signerEnvoiImage: vi.fn(async ({ objet }) => {
       appels.ordre.push("signer");

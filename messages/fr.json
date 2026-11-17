@@ -777,16 +777,8 @@
       },
       "statut": {
         "brouillon": "Brouillon",
-        "publie": "Publié"
-      },
-      "liste": {
-        "legende": "Articles du blog",
-        "modifieLe": "Modifié le {date}",
-        "colonnes": {
-          "titre": "Titre",
-          "statut": "Statut",
-          "modifieLe": "Dernière modification"
-        }
+        "publie": "Publié",
+        "archive": "Archivé"
       },
       "pageNouveau": {
         "titre": "Écrire un article",
@@ -910,6 +902,56 @@
           "publication_incomplete": "Il manque des éléments pour publier. Vérifie le titre, le texte et les textes alternatifs des images.",
           "article_introuvable": "Cet article n'existe plus. Retourne à la liste des articles.",
           "non_autorise": "Tu n'as plus le droit de gérer le blog. Recharge la page ou reconnecte-toi.",
+          "generique": "Le changement n'a pas pu être enregistré. Réessaie.",
+          "article_archive": "Cet article est archivé : restaure-le avant de le publier."
+        },
+        "statutArchive": "Archivé",
+        "aideArchive": "Cet article est archivé : personne ne le voit sur le site. Restaure-le (il revient en brouillon) pour pouvoir le publier.",
+        "restaurer": "Restaurer",
+        "restaureOk": "Article restauré : il est revenu en brouillon."
+      },
+      "filtres": {
+        "libelle": "Afficher les articles",
+        "tous": "Tous",
+        "publies": "Publiés",
+        "brouillons": "Brouillons",
+        "archives": "Archivés"
+      },
+      "grille": {
+        "liste": "Liste des articles",
+        "imageAbsente": "Pas d'image",
+        "publieLe": "Publié le",
+        "modifieLe": "Modifié le",
+        "aucun": {
+          "tous": "Aucun article hors archives. Les articles archivés sont sous « Archivés ».",
+          "publies": "Aucun article publié.",
+          "brouillons": "Aucun brouillon.",
+          "archives": "Aucun article archivé."
+        },
+        "modifierSur": "Modifier {titre}",
+        "depublierSur": "Dépublier {titre}",
+        "publierSur": "Publier {titre}",
+        "publier": "Publier",
+        "completer": "Compléter « {titre} »"
+      },
+      "archivage": {
+        "archiverSur": "Archiver {titre}",
+        "titre": "Archiver « {titre} » ?",
+        "texte": "L'article est dépublié et retiré du blog et de la liste. Rien n'est supprimé : son texte et ses images restent intacts. Tu le retrouves sous « Archivés », d'où tu peux le restaurer (il revient en brouillon).",
+        "confirmer": "Archiver",
+        "annuler": "Annuler",
+        "enCours": "Un instant…",
+        "restaurer": "Restaurer",
+        "restaurerSur": "Restaurer {titre}",
+        "archiveOk": "Article archivé.",
+        "restaureOk": "Article restauré : il est revenu en brouillon.",
+        "publieOk": "Article publié.",
+        "depublieOk": "Article dépublié : il n'est plus visible sur le site.",
+        "erreurs": {
+          "article_introuvable": "Cet article n'existe plus. Recharge la page.",
+          "non_autorise": "Tu n'as plus le droit de gérer le blog. Recharge la page ou reconnecte-toi.",
+          "publication_incomplete": "Il manque des éléments pour publier : le titre, le texte et les textes alternatifs des images.",
+          "article_archive": "Cet article est archivé : restaure-le avant de le publier.",
           "generique": "Le changement n'a pas pu être enregistré. Réessaie."
         }
       }

@@ -5,14 +5,15 @@ import { useRef, useState, useTransition } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { useRouter } from "@/i18n/navigation";
-import { publierArticleAction, type EtatArticle } from "@/modules/blog/actions";
+import { publierArticleAction, restaurerArticleAction, type EtatAction, type EtatArticle } from "@/modules/blog/actions";
 import { PastilleStatut } from "./PastilleStatut";
 
-type Resultat = { type: "publie" | "depublie" } | { type: "erreur"; erreur: string };
+type Resultat = { type: "publie" | "depublie" | "restaure" } | { type: "erreur"; erreur: string };
 
 // Panneau de publication d'un article : statut (icône + mot), bouton Publier / Dépublier. Le succès n'apparaît qu'après la
 // réponse réelle du serveur ; un refus explique ce qui manque. Le statut affiché vient de la base (router.refresh).
-export function PublicationArticle({ articleId, publie }: { articleId: string; publie: boolean }) {
+// Story 9.16 g) : un article archivé affiche « Archivé » et « Restaurer » (retour en brouillon, sans confirmation) à la place de Publier.
+export function PublicationArticle({ articleId, publie, archive = false }: { articleId: string; publie: boolean; archive?: boolean }) {
   const t = useTranslations("Admin.blog.publication");
   const router = useRouter();
   const [resultat, setResultat] = useState<Resultat | null>(null);
@@ -26,9 +27,11 @@ export function PublicationArticle({ articleId, publie }: { articleId: string; p
     setResultat(null);
     demarrer(async () => {
       try {
-        const etat: EtatArticle = await publierArticleAction({ id: articleId, publier: !publie });
+        const etat: EtatArticle | EtatAction = archive
+          ? await restaurerArticleAction({ id: articleId })
+          : await publierArticleAction({ id: articleId, publier: !publie });
         if (etat.statut === "succes") {
-          setResultat({ type: publie ? "depublie" : "publie" });
+          setResultat({ type: archive ? "restaure" : publie ? "depublie" : "publie" });
           router.refresh();
         } else {
           setResultat({ type: "erreur", erreur: etat.erreur });
@@ -50,10 +53,11 @@ export function PublicationArticle({ articleId, publie }: { articleId: string; p
       <h2 id="publication-titre" className="t-h2">
         {t("titre")}
       </h2>
-      <PastilleStatut publie={publie} libelle={t(publie ? "statutPublie" : "statutBrouillon")} />
-      <p className="t-body text-text-secondary">{t(publie ? "aidePublie" : "aideBrouillon")}</p>
+      <PastilleStatut publie={publie && !archive} archive={archive} libelle={t(archive ? "statutArchive" : publie ? "statutPublie" : "statutBrouillon")} />
+      <p className="t-body text-text-secondary">{t(archive ? "aideArchive" : publie ? "aidePublie" : "aideBrouillon")}</p>
       {resultat?.type === "publie" ? <MessageEtat type="succes">{t("publieOk")}</MessageEtat> : null}
       {resultat?.type === "depublie" ? <MessageEtat type="succes">{t("depublieOk")}</MessageEtat> : null}
+      {resultat?.type === "restaure" ? <MessageEtat type="succes">{t("restaureOk")}</MessageEtat> : null}
       {messageErreur ? (
         <div ref={refResume} tabIndex={-1} className="outline-none">
           <MessageEtat type="erreur">{messageErreur}</MessageEtat>
@@ -70,8 +74,8 @@ export function PublicationArticle({ articleId, publie }: { articleId: string; p
         </div>
       ) : null}
       <div>
-        <Bouton variante={publie ? "secondaire" : "principal"} enCours={enCours} onClick={changer}>
-          {enCours ? t("enCours") : t(publie ? "depublier" : "publier")}
+        <Bouton variante={publie || archive ? "secondaire" : "principal"} enCours={enCours} onClick={changer}>
+          {enCours ? t("enCours") : t(archive ? "restaurer" : publie ? "depublier" : "publier")}
         </Bouton>
       </div>
     </section>

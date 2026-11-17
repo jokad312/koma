@@ -47,6 +47,29 @@ export async function publierArticleAction(entree: { id: string; publier: boolea
   }
 }
 
+// Story 9.16 g) : corbeille = archivage (jamais de suppression) ; « Restaurer » ramène en brouillon.
+export async function archiverArticleAction(entree: { id: string }): Promise<EtatAction> {
+  try {
+    const resultat = await service.archiverArticle(dependances(), entree);
+    if (!resultat.ok) return { statut: "erreur", erreur: resultat.erreur };
+    return { statut: "succes" };
+  } catch {
+    console.error("[blog] archivage : exception inattendue");
+    return { statut: "erreur", erreur: "generique" };
+  }
+}
+
+export async function restaurerArticleAction(entree: { id: string }): Promise<EtatAction> {
+  try {
+    const resultat = await service.restaurerArticle(dependances(), entree);
+    if (!resultat.ok) return { statut: "erreur", erreur: resultat.erreur };
+    return { statut: "succes" };
+  } catch {
+    console.error("[blog] restauration : exception inattendue");
+    return { statut: "erreur", erreur: "generique" };
+  }
+}
+
 export async function demanderEnvoiImageArticle(entree: { type: string; taille: number }): Promise<EtatAutorisationImage> {
   try {
     const resultat = await service.demanderEnvoiImage(dependances(), entree);

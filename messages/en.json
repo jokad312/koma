@@ -777,16 +777,8 @@
       },
       "statut": {
         "brouillon": "Draft",
-        "publie": "Published"
-      },
-      "liste": {
-        "legende": "Blog articles",
-        "modifieLe": "Edited {date}",
-        "colonnes": {
-          "titre": "Title",
-          "statut": "Status",
-          "modifieLe": "Last edit"
-        }
+        "publie": "Published",
+        "archive": "Archived"
       },
       "pageNouveau": {
         "titre": "Write an article",
@@ -910,6 +902,56 @@
           "publication_incomplete": "Some elements are missing to publish. Check the title, the text and the images' alt text.",
           "article_introuvable": "This article no longer exists. Go back to the article list.",
           "non_autorise": "You no longer have the right to manage the blog. Reload the page or sign in again.",
+          "generique": "The change could not be saved. Try again.",
+          "article_archive": "This article is archived: restore it before publishing it."
+        },
+        "statutArchive": "Archived",
+        "aideArchive": "This article is archived: nobody sees it on the site. Restore it (it goes back to draft) to be able to publish it.",
+        "restaurer": "Restore",
+        "restaureOk": "Article restored: it is back to draft."
+      },
+      "filtres": {
+        "libelle": "Show articles",
+        "tous": "All",
+        "publies": "Published",
+        "brouillons": "Drafts",
+        "archives": "Archived"
+      },
+      "grille": {
+        "liste": "Article list",
+        "imageAbsente": "No image",
+        "publieLe": "Published on",
+        "modifieLe": "Edited on",
+        "aucun": {
+          "tous": "No article outside the archive. Archived articles are under “Archived”.",
+          "publies": "No published article.",
+          "brouillons": "No draft.",
+          "archives": "No archived article."
+        },
+        "modifierSur": "Edit {titre}",
+        "depublierSur": "Unpublish {titre}",
+        "publierSur": "Publish {titre}",
+        "publier": "Publish",
+        "completer": "Complete “{titre}”"
+      },
+      "archivage": {
+        "archiverSur": "Archive {titre}",
+        "titre": "Archive “{titre}”?",
+        "texte": "The article is unpublished and removed from the blog and the list. Nothing is deleted: its text and images stay intact. You will find it under “Archived”, where you can restore it (it goes back to draft).",
+        "confirmer": "Archive",
+        "annuler": "Cancel",
+        "enCours": "One moment…",
+        "restaurer": "Restore",
+        "restaurerSur": "Restore {titre}",
+        "archiveOk": "Article archived.",
+        "restaureOk": "Article restored: it is back to draft.",
+        "publieOk": "Article published.",
+        "depublieOk": "Article unpublished: it is no longer visible on the site.",
+        "erreurs": {
+          "article_introuvable": "This article no longer exists. Reload the page.",
+          "non_autorise": "You no longer have the right to manage the blog. Reload the page or sign in again.",
+          "publication_incomplete": "Some items are missing to publish: the title, the text and the alt texts of the images.",
+          "article_archive": "This article is archived: restore it before publishing it.",
           "generique": "The change could not be saved. Try again."
         }
       }

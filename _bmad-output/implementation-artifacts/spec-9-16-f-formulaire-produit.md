@@ -2,7 +2,7 @@
 title: '9.16 f) — Étape 4, page 4 : nouveau et modifier produit en fenêtre'
 type: 'feature'
 created: '2026-11-17'
-status: 'in-review'
+status: 'done'
 baseline_commit: 'fac8d61372baae257a32c7bd43d8a91aae3e4283'
 route: 'dispatch'
 review_loop_iteration: 0

@@ -13,6 +13,8 @@ export type CodeErreurBlog =
   | "produit_inexistant"
   | "article_introuvable"
   | "publication_incomplete"
+  // Story 9.16 g) : un article archivé ne peut pas être publié (KS_ARTICLE_ARCHIVE) ; il faut d'abord le restaurer.
+  | "article_archive"
   | "non_autorise"
   | "format_invalide"
   | "fichier_trop_lourd"
@@ -37,16 +39,26 @@ export type Article = {
   publieLe: string | null;
   creeLe: string;
   modifieLe: string;
+  // Story 9.16 g) : date d'archivage ; null si l'article n'est pas archivé. Un article archivé n'est pas publiable.
+  archiveLe: string | null;
 };
 
-// Ligne de la liste admin : de quoi choisir l'article à ouvrir, sans lire les textes.
+// Carte de la liste admin (story 9.16 g, CB5 à CB10) : vignette (première image de l'article, jamais une image inventée), statut, date,
+// titre et extrait (160 premiers caractères du texte français sans Markdown, Q28). Le texte entier n'est jamais envoyé au navigateur.
 export type ArticleListe = {
   id: string;
   titreFr: string;
   slug: string | null;
   publieLe: string | null;
   modifieLe: string;
+  archiveLe: string | null;
+  vignette: { url: string; alt: string } | null;
+  extrait: string | null;
 };
+
+// Filtres de la liste admin (Q26/Q27) : « tous » = tous les articles non archivés.
+export const FILTRES_ARTICLES = ["tous", "publies", "brouillons", "archives"] as const;
+export type FiltreArticles = (typeof FILTRES_ARTICLES)[number];
 
 // ---- Lecture publique (story 8.7) ----
 
@@ -104,6 +116,8 @@ export type DependancesBlog = {
   exigerDroit(droit: Droit): Promise<{ auteur: AuteurCompte }>;
   enregistrerArticle(args: { auteur: AuteurCompte; id: string | null; article: object; images: object }): Promise<{ erreur: string | null; id: string | null }>;
   changerPublication(args: { auteur: AuteurCompte; id: string; publier: boolean }): Promise<{ erreur: string | null }>;
+  // Story 9.16 g) : archive (dépublie et marque archivé) ou restaure (retour en brouillon) un article ; jamais de suppression.
+  changerArchivage(args: { auteur: AuteurCompte; id: string; archiver: boolean }): Promise<{ erreur: string | null }>;
   // Images déjà enregistrées sur l'article (avant écriture) : celles retirées du formulaire seront effacées après la sauvegarde.
   lireImagesArticle(id: string): Promise<ArticleImage[]>;
   signerEnvoiImage(args: { objet: string }): Promise<{ erreur: string | null; jeton: string | null }>;

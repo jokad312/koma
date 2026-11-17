@@ -8,6 +8,7 @@ import { urlPhotoPublique } from "@/lib/supabase/stockage";
 import { contientMarqueur, MARQUEUR_TEXTE } from "@/lib/vitrine/marqueur";
 import type { Tables } from "@/lib/supabase/types";
 import { encoderCurseurArticles } from "./adresse";
+import { extraitCarte } from "./texte";
 import { CUMUL_MAX_ARTICLES, TAILLE_PAGE_ARTICLES } from "./types";
 import type {
   Article,
@@ -23,7 +24,7 @@ import type {
 // Colonnes lues par l'admin, d'après les types générés (src/lib/supabase/types.ts).
 type LigneArticle = Pick<
   Tables<"article">,
-  "id" | "auteur_id" | "titre_fr" | "titre_en" | "texte_fr" | "texte_en" | "slug" | "lien_produit_id" | "images" | "publie_le" | "cree_le" | "modifie_le"
+  "id" | "auteur_id" | "titre_fr" | "titre_en" | "texte_fr" | "texte_en" | "slug" | "lien_produit_id" | "images" | "publie_le" | "cree_le" | "modifie_le" | "archive_le"
 >;
 
 function client() {
@@ -57,24 +58,48 @@ function versArticle(ligne: LigneArticle): Article {
     publieLe: ligne.publie_le,
     creeLe: ligne.cree_le,
     modifieLe: ligne.modifie_le,
+    archiveLe: ligne.archive_le,
   };
 }
 
 // Liste admin (droit vérifié par la page) : une erreur de lecture est relancée, jamais une liste vide inventée.
+// Première image réellement enregistrée sur l'article (même sans texte alternatif : un brouillon peut ne pas l'avoir encore) ; jamais inventée.
+function premiereImage(brut: unknown): { fichier: string; altFr: string } | null {
+  if (!Array.isArray(brut) || brut.length === 0) return null;
+  const o = brut[0] as Record<string, unknown> | null;
+  if (typeof o !== "object" || o === null || typeof o.fichier !== "string" || o.fichier === "") return null;
+  return { fichier: o.fichier, altFr: typeof o.alt_fr === "string" ? o.alt_fr.trim() : "" };
+}
+
+// Story 9.16 g) : la carte reçoit la première image (adresse publique, texte alternatif français ou titre) et l'extrait calculé ici ;
+// le texte entier ne quitte jamais le serveur. Archivés compris : le filtre de la page les sépare.
 export async function lireArticlesAdmin(): Promise<ArticleListe[]> {
   const { data, error } = await client()
     .from("article")
-    .select("id, titre_fr, slug, publie_le, modifie_le")
+    .select("id, titre_fr, slug, publie_le, modifie_le, archive_le, images, texte_fr")
     .order("modifie_le", { ascending: false });
   if (error) throw new Error("Lecture des articles impossible.");
-  return (data ?? []).map((a) => ({ id: a.id, titreFr: a.titre_fr, slug: a.slug, publieLe: a.publie_le, modifieLe: a.modifie_le }));
+  return (data ?? []).map((a) => {
+    const premiere = premiereImage(a.images);
+    return {
+      id: a.id,
+      titreFr: a.titre_fr,
+      slug: a.slug,
+      publieLe: a.publie_le,
+      modifieLe: a.modifie_le,
+      archiveLe: a.archive_le,
+      // Texte alternatif : celui de l'image s'il est rempli (un brouillon peut ne pas l'avoir encore), sinon le titre de l'article.
+      vignette: premiere ? { url: urlPhotoPublique(premiere.fichier), alt: premiere.altFr || a.titre_fr } : null,
+      extrait: extraitCarte(a.texte_fr),
+    };
+  });
 }
 
 // Un article complet pour le formulaire d'édition ; null si l'identifiant est inconnu (404).
 export async function lireArticleAdmin(id: string): Promise<Article | null> {
   const { data, error } = await client()
     .from("article")
-    .select("id, auteur_id, titre_fr, titre_en, texte_fr, texte_en, slug, lien_produit_id, images, publie_le, cree_le, modifie_le")
+    .select("id, auteur_id, titre_fr, titre_en, texte_fr, texte_en, slug, lien_produit_id, images, publie_le, cree_le, modifie_le, archive_le")
     .eq("id", id)
     .maybeSingle();
   if (error) throw new Error("Lecture de l'article impossible.");

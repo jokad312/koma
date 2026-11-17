@@ -34,6 +34,12 @@ export function dependances(): DependancesBlog {
         : await admin.rpc("depublier_article", { p_auteur: auteur as unknown as Json, p_id: id });
       return { erreur: error ? (error.message.startsWith("KS_") ? error.message : (error.code || "inconnu")) : null };
     },
+    changerArchivage: async ({ auteur, id, archiver }) => {
+      const { error } = archiver
+        ? await admin.rpc("archiver_article", { p_auteur: auteur as unknown as Json, p_id: id })
+        : await admin.rpc("restaurer_article", { p_auteur: auteur as unknown as Json, p_id: id });
+      return { erreur: error ? (error.message.startsWith("KS_") ? error.message : (error.code || "inconnu")) : null };
+    },
     signerEnvoiImage: async ({ objet }) => {
       const { data, error } = await admin.storage.from(BUCKET_ATTENTE).createSignedUploadUrl(objet);
       return { erreur: error ? error.message : null, jeton: data?.token ?? null };

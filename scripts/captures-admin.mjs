@@ -133,6 +133,38 @@ async function compterProduitsTest() {
   return count + (data ?? []).length;
 }
 
+// Story 9.16 g) : vue « blog » remplie de 4 articles TEST_ (publié avec image dessinée ici, publié sans image, brouillon, archivé), TOUS supprimés
+// à la fin, puis comptés (0 attendu).
+const ARTICLES_TEST = ["00000000-0000-4000-8916-00000000ab01", "00000000-0000-4000-8916-00000000ab02", "00000000-0000-4000-8916-00000000ab03", "00000000-0000-4000-8916-00000000ab04"];
+const IMAGE_ARTICLE_TEST = "test-captures-916g/article.jpg";
+const avecArticles = () => VUES.some(([cle]) => cle === "blog");
+const listeArticlesTest = () => ARTICLES_TEST.map((id) => `'${id}'`).join(",");
+
+async function retirerArticlesTest() {
+  sqlBloc(`delete from public.article where id in (${listeArticlesTest()});`);
+  await service.storage.from("produits-public").remove([IMAGE_ARTICLE_TEST]);
+}
+
+async function semerArticlesTest() {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400"><rect width="800" height="400" fill="#4a3f38"/><circle cx="400" cy="200" r="120" fill="#8c514e"/></svg>`;
+  const envoi = await service.storage.from("produits-public").upload(IMAGE_ARTICLE_TEST, await sharp(Buffer.from(svg)).jpeg().toBuffer(), { upsert: true, contentType: "image/jpeg" });
+  if (envoi.error) throw new Error(`image TEST_ : ${envoi.error.message}`);
+  const [a, b, c, d] = ARTICLES_TEST;
+  const texte = `'## Fabriquer une armure en mousse' || chr(10) || chr(10) || '**TEST** : texte de démonstration. ' || repeat('Découpe, chauffe, colle et peins chaque pièce. ', 6)`;
+  sqlBloc(`insert into public.article (id, auteur_id, titre_fr, texte_fr, slug, images, publie_le, archive_le) values
+  ('${a}', '${a}', 'TEST_ Guide de l''armure en mousse', ${texte}, 'test-captures-916g-a', '[{"fichier":"${IMAGE_ARTICLE_TEST}","alt_fr":"TEST_ image de démonstration","alt_en":"TEST_ demo image"}]'::jsonb, now() - interval '3 days', null),
+  ('${b}', '${a}', 'TEST_ Annonce du prochain atelier', ${texte}, 'test-captures-916g-b', '[]'::jsonb, now() - interval '1 day', null),
+  ('${c}', '${a}', 'TEST_ Brouillon de perruque', null, 'test-captures-916g-c', '[]'::jsonb, null, null),
+  ('${d}', '${a}', 'TEST_ Article archivé', ${texte}, 'test-captures-916g-d', '[]'::jsonb, null, now());`);
+}
+
+async function compterArticlesTest() {
+  const { count, error } = await service.from("article").select("id", { count: "exact", head: true }).in("id", ARTICLES_TEST);
+  if (error || count === null) throw new Error(`comptage des articles TEST_ : ${error?.message}`);
+  const { data } = await service.storage.from("produits-public").list("test-captures-916g");
+  return count + (data ?? []).length;
+}
+
 // Compte TEST_ réel avec le rôle demandé ; renvoie les cookies de session à poser dans le navigateur.
 async function sessionTest(role) {
   const email = `${EMAIL_PREFIXE}${role}-${Date.now()}@example.invalid`;
@@ -239,6 +271,10 @@ async function principal() {
       await retirerProduitsTest();
       await semerProduitsTest();
     }
+    if (avecArticles()) {
+      await retirerArticlesTest();
+      await semerArticlesTest();
+    }
     const admin = await sessionTest("admin");
     const assistant = await sessionTest("assistant");
 
@@ -329,6 +365,12 @@ async function principal() {
         const restesProduits = await compterProduitsTest();
         console.log(`Produits et photos TEST_ restants : ${restesProduits}`);
         if (restesProduits !== 0) process.exitCode = 1;
+      }
+      if (avecArticles()) {
+        await retirerArticlesTest();
+        const restesArticles = await compterArticlesTest();
+        console.log(`Articles et images TEST_ restants : ${restesArticles}`);
+        if (restesArticles !== 0) process.exitCode = 1;
       }
     } finally {
       const restes = (await comptesTest()).length;

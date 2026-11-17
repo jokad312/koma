@@ -13,3 +13,16 @@ export function extraireTexte(markdown: string, max = 160): string | null {
   const sansEmphase = sansPuces.replace(/[*_~>#]/g, " ");
   return tronquerDescription(sansEmphase, max);
 }
+
+// Story 9.16 g) (Q28) : extrait de la carte de la liste admin = les 160 premiers caractères du texte sans Markdown (mêmes règles de nettoyage
+// que extraireTexte), suivis de « … » quand le texte est plus long. Compté en caractères réels (un emoji compte pour un). Vide : null.
+export const LONGUEUR_EXTRAIT_CARTE = 160;
+
+export function extraitCarte(markdown: string | null, max = LONGUEUR_EXTRAIT_CARTE): string | null {
+  if (!markdown) return null;
+  const propre = extraireTexte(markdown, Number.MAX_SAFE_INTEGER);
+  if (!propre) return null;
+  const caracteres = Array.from(propre);
+  if (caracteres.length <= max) return propre;
+  return `${caracteres.slice(0, max).join("").trimEnd()}…`;
+}

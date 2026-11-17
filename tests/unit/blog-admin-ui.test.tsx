@@ -7,6 +7,7 @@ import { rendre } from "./aides-dom";
 const faux = vi.hoisted(() => ({
   enregistrerArticleAction: vi.fn(),
   publierArticleAction: vi.fn(),
+  restaurerArticleAction: vi.fn(),
   demanderEnvoiImageArticle: vi.fn(),
   finaliserImageArticle: vi.fn(),
   push: vi.fn(),
@@ -17,6 +18,7 @@ vi.mock("server-only", () => ({}));
 vi.mock("@/modules/blog/actions", () => ({
   enregistrerArticleAction: (...a: unknown[]) => faux.enregistrerArticleAction(...a),
   publierArticleAction: (...a: unknown[]) => faux.publierArticleAction(...a),
+  restaurerArticleAction: (...a: unknown[]) => faux.restaurerArticleAction(...a),
   demanderEnvoiImageArticle: (...a: unknown[]) => faux.demanderEnvoiImageArticle(...a),
   finaliserImageArticle: (...a: unknown[]) => faux.finaliserImageArticle(...a),
   annulerEnvoiImageArticle: vi.fn(),
@@ -59,6 +61,7 @@ const ARTICLE: Article = {
   publieLe: null,
   creeLe: "2026-11-01T10:00:00.000Z",
   modifieLe: "2026-11-01T10:00:00.000Z",
+  archiveLe: null,
 };
 
 describe("FormulaireArticle", () => {
@@ -202,5 +205,17 @@ describe("PublicationArticle", () => {  it("brouillon : publie et annonce le ré
     expect(await screen.findByText(/Il manque encore des éléments pour publier/)).toBeTruthy();
     expect(screen.getByText("Le titre en français")).toBeTruthy();
     expect(faux.refresh).not.toHaveBeenCalled();
+  });
+
+  // Story 9.16 g) : un article archivé se présente comme archivé et propose Restaurer, jamais Publier.
+  it("archivé : statut Archivé, Restaurer (retour en brouillon), aucun Publier", async () => {
+    faux.restaurerArticleAction.mockResolvedValue({ statut: "succes" });
+    rendre(<PublicationArticle articleId={ARTICLE.id} publie={false} archive />);
+    expect(screen.getByText("Archivé")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Publier" })).toBeNull();
+    await userEvent.click(screen.getByRole("button", { name: "Restaurer" }));
+    await waitFor(() => expect(faux.restaurerArticleAction).toHaveBeenCalledWith({ id: ARTICLE.id }));
+    expect(await screen.findByText("Article restauré : il est revenu en brouillon.")).toBeTruthy();
+    expect(faux.publierArticleAction).not.toHaveBeenCalled();
   });
 });
