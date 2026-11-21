@@ -1849,7 +1849,13 @@
           "generique": "Le changement n'a pas pu être enregistré. Réessaie."
         },
         "archiveOk": "Produit archivé.",
-        "restaureOk": "Produit restauré : il est revenu en brouillon."
+        "restaureOk": "Produit restauré : il est revenu en brouillon.",
+        "enCoursCommandes": {
+          "verification": "Vérification des commandes en cours…",
+          "illisible": "Les commandes en cours n'ont pas pu être vérifiées. L'archivage reste possible : les commandes ne changent pas.",
+          "alerte": "Ce produit est dans {nombre, plural, one {# commande} other {# commandes}} en cours. Il sera retiré de la boutique, les commandes ne changent pas.",
+          "nonAutorise": "Tu n'as plus le droit de lire les commandes. Recharge la page ou reconnecte-toi."
+        }
       },
       "zones": {
         "fichiers": "Fichier numérique du Kit",

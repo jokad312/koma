@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { rendre } from "./aides-dom";
 
 const faux = vi.hoisted(() => ({
+  commandesEnCoursProduit: vi.fn<(entree: { id: string }) => Promise<{ ok: boolean; nombre?: number; erreur?: string }>>(async () => ({ ok: true, nombre: 0 })),
   deplacerPhoto: vi.fn(),
   supprimerPhoto: vi.fn(),
   modifierAltPhoto: vi.fn(),
@@ -27,6 +28,8 @@ vi.mock("@/modules/catalogue/actions", () => ({
   depublierProduit: (...a: unknown[]) => faux.depublierProduit(...a),
   restaurerProduit: (...a: unknown[]) => faux.restaurerProduit(...a),
   archiverProduit: (...a: unknown[]) => faux.archiverProduit(...a),
+  // Point 4 : nombre de Commandes en cours lu à l'ouverture de la confirmation (simulé ici : 0 ; 2 dans le test « point 4 » du menu STATUT).
+  commandesEnCoursProduit: (entree: { id: string }) => faux.commandesEnCoursProduit(entree),
   demanderEnvoiPhoto: (...a: unknown[]) => faux.demanderEnvoiPhoto(...a),
   finaliserPhoto: (...a: unknown[]) => faux.finaliserPhoto(...a),
   annulerEnvoiPhoto: (...a: unknown[]) => faux.annulerEnvoiPhoto(...a),
@@ -163,7 +166,7 @@ describe("PublicationProduit (menu STATUT)", () => {
     const alerte = await screen.findByRole("alert");
     expect(alerte.textContent).toContain("Le prix");
     expect(alerte.textContent).toContain("Au moins une photo");
-    expect(screen.getByRole("button", { name: "Statut : Brouillon" })).toBeTruthy();
+    expect(await screen.findByRole("button", { name: "Statut : Brouillon" })).toBeTruthy();
     expect(screen.queryByText("Produit publié.")).toBeNull();
     expect(faux.refresh).not.toHaveBeenCalled();
   });
@@ -214,6 +217,21 @@ describe("PublicationProduit (menu STATUT)", () => {
     rendre(<PublicationProduit produitId={PRODUIT} publie={false} />);
     await choisirStatut(user, "Publié");
     expect((await screen.findByRole("alert")).textContent).toContain("restaure-le avant de le publier");
+  });
+
+  it("point 4 : STATUT → Archivé, produit dans 2 commandes en cours : l'alerte le dit, l'archivage reste possible", async () => {
+    faux.commandesEnCoursProduit.mockResolvedValueOnce({ ok: true, nombre: 2 });
+    faux.archiverProduit.mockResolvedValueOnce({ statut: "succes" });
+    const user = userEvent.setup();
+    rendre(<PublicationProduit produitId={PRODUIT} publie titre="TEST_ Polo" />);
+    await choisirStatut(user, "Archivé");
+    const confirmation = screen.getByRole("dialog", { name: "Archiver « TEST_ Polo » ?" });
+    expect((await within(confirmation).findByRole("alert")).textContent).toBe(
+      "Ce produit est dans 2 commandes en cours. Il sera retiré de la boutique, les commandes ne changent pas.",
+    );
+    expect(faux.commandesEnCoursProduit).toHaveBeenCalledWith({ id: PRODUIT });
+    await user.click(within(confirmation).getByRole("button", { name: "Archiver" }));
+    expect(await screen.findByText("Produit archivé.")).toBeTruthy();
   });
 
   it("STATUT → Archivé : confirmation d'abord (Annuler : rien), puis archivage par l'action de la page 3 et relecture", async () => {

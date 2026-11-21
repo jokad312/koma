@@ -1849,7 +1849,13 @@
           "generique": "The change could not be saved. Try again."
         },
         "archiveOk": "Product archived.",
-        "restaureOk": "Product restored: it is back to draft."
+        "restaureOk": "Product restored: it is back to draft.",
+        "enCoursCommandes": {
+          "verification": "Checking orders in progress…",
+          "illisible": "Orders in progress could not be checked. Archiving is still possible: orders do not change.",
+          "alerte": "This product is in {nombre, plural, one {# order} other {# orders}} in progress. It will be removed from the shop, the orders do not change.",
+          "nonAutorise": "You no longer have the right to read orders. Reload the page or sign in again."
+        }
       },
       "zones": {
         "fichiers": "Kit digital file",

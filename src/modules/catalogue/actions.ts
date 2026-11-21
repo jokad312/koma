@@ -6,6 +6,7 @@ import * as service from "./service";
 import { SOUS_TITRES_EXTRAIT_TAILLE_MAX } from "./types";
 import type { ChampChapitre, EnvoiVideoKit, EtatVideoKit, GenreVideoKit, ResultatMediasKit } from "./types";
 import type { ChampProduit, ChampTranche, ChampUnivers, CodeErreurCatalogue, EntreeKit, EntreeProduit, EntreeTranche, EntreeUnivers, ManquePublication, Taille } from "./types";
+import { lireCommandesEnCoursProduit } from "./commandes-en-cours";
 
 // Résultats rendus aux formulaires : le succès n'existe qu'après la réponse réelle de la base (règle 13).
 // Les écritures passent toujours par ces actions (jamais depuis le navigateur) ; le droit est revérifié dans le service.
@@ -96,6 +97,11 @@ export async function depublierProduit(entree: { id: string }) {
 // Story 9.16 e) : corbeille = archivage (jamais de suppression) ; « Restaurer » ramène en brouillon.
 export async function archiverProduit(entree: { id: string }) {
   return envelopper<object>("archivage", () => service.archiverProduit(dependances(), entree));
+}
+
+// Point 4 (2026-11-21) : nombre de Commandes en cours qui contiennent le produit, lu à l'ouverture de la confirmation d'archivage (lecture seule).
+export async function commandesEnCoursProduit(entree: { id: string }) {
+  return lireCommandesEnCoursProduit(entree?.id);
 }
 
 export async function restaurerProduit(entree: { id: string }) {

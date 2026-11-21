@@ -6,6 +6,7 @@ import { rendre } from "./aides-dom";
 
 // Story 9.16 e) : liste des produits selon la maquette 03-produits (C1 à C17), corbeille = archivage (Q22), compteurs (Q20).
 const faux = vi.hoisted(() => ({
+  commandesEnCoursProduit: vi.fn<(entree: { id: string }) => Promise<{ ok: boolean; nombre?: number; erreur?: string }>>(async () => ({ ok: true, nombre: 0 })),
   archiverProduit: vi.fn(),
   restaurerProduit: vi.fn(),
   publierProduit: vi.fn(),
@@ -15,6 +16,8 @@ const faux = vi.hoisted(() => ({
 vi.mock("server-only", () => ({}));
 vi.mock("@/modules/catalogue/actions", () => ({
   archiverProduit: (...a: unknown[]) => faux.archiverProduit(...a),
+  // Point 4 : nombre de Commandes en cours lu à l'ouverture de la confirmation (simulé ici : 0, puis 2 dans un test dédié).
+  commandesEnCoursProduit: (entree: { id: string }) => faux.commandesEnCoursProduit(entree),
   restaurerProduit: (...a: unknown[]) => faux.restaurerProduit(...a),
   publierProduit: (...a: unknown[]) => faux.publierProduit(...a),
   depublierProduit: (...a: unknown[]) => faux.depublierProduit(...a),
@@ -130,6 +133,36 @@ describe("ListeProduits (9.16 e)", () => {
     // Succès annoncé, focus sur le compteur (élément stable : la carte va quitter la vue).
     expect(screen.getAllByRole("status")[1].textContent).toBe("Produit archivé.");
     await waitFor(() => expect(document.activeElement).toBe(compteur()));
+  });
+
+  it("point 4 : produit dans 2 commandes en cours : l'alerte le dit dans la confirmation, l'archivage reste possible", async () => {
+    const user = userEvent.setup();
+    faux.commandesEnCoursProduit.mockResolvedValueOnce({ ok: true, nombre: 2 });
+    faux.archiverProduit.mockResolvedValue({ statut: "succes" });
+    rendre(<ListeProduits produits={PRODUITS} />);
+    await user.click(within(carte("TEST_Cosplay")).getByRole("button", { name: "Archiver TEST_Cosplay" }));
+    const dialogue = await screen.findByRole("dialog", { name: "Archiver « TEST_Cosplay » ?" });
+    expect(faux.commandesEnCoursProduit).toHaveBeenCalledWith({ id: "TEST_c" });
+    expect((await within(dialogue).findByRole("alert")).textContent).toBe(
+      "Ce produit est dans 2 commandes en cours. Il sera retiré de la boutique, les commandes ne changent pas.",
+    );
+    await user.click(within(dialogue).getByRole("button", { name: "Archiver" }));
+    await waitFor(() => expect(faux.archiverProduit).toHaveBeenCalledWith({ id: "TEST_c" }));
+  });
+
+  it("point 4 : lecture des commandes en cours impossible : on le dit, jamais un faux zéro ; aucune commande : pas d'alerte", async () => {
+    const user = userEvent.setup();
+    faux.commandesEnCoursProduit.mockResolvedValueOnce({ ok: false, erreur: "generique" });
+    rendre(<ListeProduits produits={PRODUITS} />);
+    await user.click(within(carte("TEST_Cosplay")).getByRole("button", { name: "Archiver TEST_Cosplay" }));
+    let dialogue = await screen.findByRole("dialog");
+    expect((await within(dialogue).findByRole("alert")).textContent).toMatch(/n'ont pas pu être vérifiées/);
+    await user.click(within(dialogue).getByRole("button", { name: "Annuler" }));
+    await user.click(within(carte("TEST_Cosplay")).getByRole("button", { name: "Archiver TEST_Cosplay" }));
+    dialogue = await screen.findByRole("dialog");
+    await waitFor(() => expect(within(dialogue).queryByText(/Vérification/)).toBeNull());
+    expect(within(dialogue).queryByRole("alert")).toBeNull();
+    expect(faux.commandesEnCoursProduit).toHaveBeenCalledTimes(2);
   });
 
   it("archivage refusé : message d'erreur, pas de relecture présentée comme un succès", async () => {

@@ -11,6 +11,7 @@ import { useRouter } from "@/i18n/navigation";
 import { archiverProduit, depublierProduit, publierProduit, restaurerProduit, type EtatPhoto } from "@/modules/catalogue/actions";
 import type { ManquePublication } from "@/modules/catalogue/types";
 import { useClassesChamp } from "./ChampTexte";
+import { AlerteCommandesEnCours } from "./AlerteCommandesEnCours";
 
 type Statut = "brouillon" | "publie" | "archive";
 type Action = "publier" | "depublier" | "restaurer" | "archiver";
@@ -205,6 +206,9 @@ export function PublicationProduit({ produitId, publie, archive = false, titre =
         retourFocus={bouton}
       >
         <p className="t-body">{ta("texte")}</p>
+        <div className="mt-4">
+          <AlerteCommandesEnCours produitId={produitId} ouvert={confirmation} />
+        </div>
         <div className="mt-6 flex flex-wrap gap-3">
           <button type="button" className={CLASSES_SECONDAIRE} disabled={enCours} onClick={() => setConfirmation(false)}>
             {ta("annuler")}

@@ -8,6 +8,7 @@ import { CLASSES_SECONDAIRE } from "@/components/ui/classes";
 import { Dialogue } from "@/components/ui/Dialogue";
 import { useRouter } from "@/i18n/navigation";
 import { archiverProduit, restaurerProduit } from "@/modules/catalogue/actions";
+import { AlerteCommandesEnCours } from "./AlerteCommandesEnCours";
 
 const ERREURS_CONNUES = ["produit_introuvable", "non_autorise"];
 
@@ -97,6 +98,9 @@ export function ArchivageProduit({
         retourFocus={corbeille}
       >
         <p className="t-body">{t("texte")}</p>
+        <div className="mt-4">
+          <AlerteCommandesEnCours produitId={produitId} ouvert={ouvert} />
+        </div>
         <div className="mt-6 flex flex-wrap gap-3">
           <button type="button" className={CLASSES_SECONDAIRE} disabled={enCours} onClick={() => setOuvert(false)}>
             {t("annuler")}
