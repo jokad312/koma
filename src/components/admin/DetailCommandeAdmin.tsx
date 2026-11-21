@@ -25,13 +25,13 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
       <Link href="/admin/commandes" className="t-body inline-flex min-h-touch items-center text-text-primary underline">
         {t("retour")}
       </Link>
-      <h1 className="t-h1">{t("detail.titre", { numero: commande.numero })}</h1>
+      <h1 className="t-h1 uppercase">{t("detail.titre", { numero: commande.numero })}</h1>
       <p className="t-small inline-flex w-fit items-center rounded-full border border-border-field px-3 py-1 text-text-primary">{commande.offerte ? t("offerte") : ts(commande.statut)}</p>
 
       {commande.lignes.some((l) => l.taille === "sur_mesure") && numeroWhatsappAbsent ? <MessageEtat type="attention">{t("mesures.numeroAbsent")}</MessageEtat> : null}
 
-      <section aria-labelledby="adm-avancement" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
-        <h2 id="adm-avancement" className="t-h2">
+      <section aria-labelledby="adm-avancement" className="flex flex-col gap-3 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
+        <h2 id="adm-avancement" className="t-label text-[18px] leading-6 uppercase">
           {t("avancement.titre")}
         </h2>
         {commande.numeroSuivi ? <p className="t-body">{t("avancement.suiviEnregistre", { suivi: commande.numeroSuivi })}</p> : null}
@@ -39,8 +39,8 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
       </section>
 
       {commande.demandeAnnulation || commande.remboursement || commande.tropPercus.length > 0 || commande.annulationsPass.length > 0 ? (
-        <section aria-labelledby="adm-argent" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
-          <h2 id="adm-argent" className="t-h2">
+        <section aria-labelledby="adm-argent" className="flex flex-col gap-3 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
+          <h2 id="adm-argent" className="t-label text-[18px] leading-6 uppercase">
             {t("annulation.titre")}
           </h2>
           {commande.demandeAnnulation ? (
@@ -78,8 +78,8 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
       ) : null}
 
       {commande.reclamations.length > 0 ? (
-        <section aria-labelledby="adm-reclamations" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
-          <h2 id="adm-reclamations" className="t-h2">
+        <section aria-labelledby="adm-reclamations" className="flex flex-col gap-3 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
+          <h2 id="adm-reclamations" className="t-label text-[18px] leading-6 uppercase">
             {t("reclamation.titre")}
           </h2>
           <ul className="flex flex-col gap-4">
@@ -95,8 +95,8 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
         </section>
       ) : null}
 
-      <section aria-labelledby="adm-lignes" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
-        <h2 id="adm-lignes" className="t-h2">
+      <section aria-labelledby="adm-lignes" className="flex flex-col gap-3 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
+        <h2 id="adm-lignes" className="t-label text-[18px] leading-6 uppercase">
           {t("detail.lignes")}
         </h2>
         <ul className="flex flex-col gap-3">
@@ -138,8 +138,8 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
         </dl>
       </section>
 
-      <section aria-labelledby="adm-remise" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
-        <h2 id="adm-remise" className="t-h2">
+      <section aria-labelledby="adm-remise" className="flex flex-col gap-3 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
+        <h2 id="adm-remise" className="t-label text-[18px] leading-6 uppercase">
           {t("detail.remise")}
         </h2>
         <dl className="flex flex-col gap-1">
@@ -159,8 +159,8 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
         {commande.modeRemise === "livraison" ? <FormulaireAdresseCommande numero={commande.numero} adresse={commande.adresse ?? ""} /> : null}
       </section>
 
-      <section aria-labelledby="adm-paiement" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
-        <h2 id="adm-paiement" className="t-h2">
+      <section aria-labelledby="adm-paiement" className="flex flex-col gap-3 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
+        <h2 id="adm-paiement" className="t-label text-[18px] leading-6 uppercase">
           {t("paiement.titre")}
         </h2>
         {commande.offerte ? (
