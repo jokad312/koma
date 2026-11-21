@@ -1,4 +1,4 @@
-import { expect, test, type APIRequestContext } from "@playwright/test";
+import { expect, test, type APIRequestContext, type Page } from "@playwright/test";
 import { connecterCompteTest, lireEnv, restesProduit, retirerProduit, semerProduit, service, sqlBloc, type ProduitTest } from "./police-outils";
 
 // Zone admin : un visiteur est envoyé vers la connexion avec le chemin de retour ; un Compte sans rôle voit la 404.
@@ -39,6 +39,15 @@ test.describe("accès admin", () => {
     expect(robots).toContain("Disallow: /en/admin");
   });
 });
+
+// React pose ses propriétés internes sur un nœud du DOM quand il l'hydrate (même repère que connexion.spec.ts et google.spec.ts).
+// Les champs des formulaires admin sont contrôlés : une saisie faite avant l'hydratation n'atteint pas l'état React (compteur à 0).
+async function attendreHydratation(page: Page, selecteur: string) {
+  await page.waitForFunction((sel) => {
+    const noeud = document.querySelector(sel);
+    return noeud !== null && Object.keys(noeud).some((cle) => cle.startsWith("__reactProps"));
+  }, selecteur);
+}
 
 async function boiteJoignable(request: APIRequestContext) {
   if (!BOITE) return false;
@@ -432,6 +441,8 @@ test.describe("fenêtre de l'article et extrait (9.16 h)", () => {
       await expect(fenetre.getByRole("button", { name: "Statut : Publié" })).toBeVisible();
 
       const champ = fenetre.getByLabel("Extrait (résumé court) en français");
+      // Échec en CI (mobile, run 44057184223) : le champ était rempli avant l'hydratation, le compteur restait à « 0 sur 300 ».
+      await attendreHydratation(page, "[data-fenetre-formulaire] [name=extrait_fr]");
       await champ.fill("a".repeat(301));
       await expect(fenetre.getByText("301 sur 300 caractères : trop long, raccourcis l'extrait.")).toBeVisible();
       await fenetre.getByRole("button", { name: "Enregistrer" }).first().click();

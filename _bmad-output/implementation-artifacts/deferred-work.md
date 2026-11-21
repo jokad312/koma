@@ -561,3 +561,6 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-9-16-e-produits.md`
   summary: La carte produit de l'admin en anglais affiche le titre, l'univers et le texte alternatif en français.
   evidence: Revue 9.16 e ; défaut antérieur à la refonte (grille 9.10).
+
+## Saisie avant l'hydratation dans les formulaires admin (noté le 2026-11-21)
+- Les champs des formulaires admin (article, produit…) sont contrôlés par React : un texte tapé avant l'hydratation reste dans le champ mais pas dans l'état (compteur de l'extrait à 0, valeur non envoyée). Vu en CI sur 85132c2 (admin.spec.ts 9.16 h, mobile). Le test attend désormais l'hydratation ; le formulaire lui-même n'a pas été changé (refonte des champs hors de la nuit). Piste : champs non contrôlés (defaultValue) comme FormulaireConnexion, ou relecture des valeurs du DOM au montage.

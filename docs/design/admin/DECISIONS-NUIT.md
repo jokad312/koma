@@ -119,3 +119,4 @@ Consigne de Jonathan (2026-11-17) : enchaîner toutes les pages de la refonte ad
 | Blog | 99378eb | rouge (run 44051577846) : connexion.spec.ts:109 mobile, intermittent | relancé ; puis commit de diagnostic (délai 45 s, traces gardées) |
 | Blog | 99378eb | verte à la relance (run 44051577846, tentative 2) | — |
 | Stabilisation e2e | 10ecc93 | verte (run 44053680947) | — |
+| Formulaire article | 85132c2 | rouge (run 44057184223) : admin.spec.ts 9.16 h mobile, champ rempli avant l'hydratation (compteur à 0) | correctif e2e : attente de l'hydratation (2026-11-21) |
