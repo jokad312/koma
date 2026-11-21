@@ -45,9 +45,9 @@ export function ListePrestataires({ prestataires }: { prestataires: PrestataireA
           const moyens = [...(p.mobileMoney ? [t("moyen.mobile_money")] : []), ...(p.carte ? [t("moyen.carte")] : [])].join(", ");
           const activationImpossible = !p.actif && !p.adaptateurBranche;
           return (
-            <li key={p.code} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
+            <li key={p.code} className="flex flex-col gap-3 rounded-[16px] bg-admin-entete p-4 text-text-primary">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h2 className="t-h2">{p.nom}</h2>
+                <h2 className="t-h3">{p.nom}</h2>
                 <p role="status" className="t-label text-text-primary" data-etat={p.actif ? "actif" : "desactive"}>
                   {p.actif ? t("etat.actif") : t("etat.desactive")}
                 </p>
@@ -92,7 +92,7 @@ export function ListePrestataires({ prestataires }: { prestataires: PrestataireA
           );
         })}
       </ul>
-      <section aria-labelledby="regle-carte" className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4">
+      <section aria-labelledby="regle-carte" className="flex flex-col gap-2 rounded-[16px] bg-admin-entete p-4 text-text-primary">
         <h2 id="regle-carte" className="t-label text-text-primary">
           {t("regleCarte.titre")}
         </h2>
