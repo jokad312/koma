@@ -8,7 +8,7 @@ import { MessageEtat } from "@/components/ui/MessageEtat";
 import { creerUnivers, type EtatUnivers } from "@/modules/catalogue/actions";
 import { CLASSES_PANNEAU, CLASSES_TITRE_PANNEAU } from "./ui/Panneau";
 
-// Story 9.16 (étape 8) : champ sombre de l'admin (comme dans les fenêtres de formulaire), contour gardé pour le contraste.
+// Story 9.16 (étape 8) : champ de l'admin (jeton admin-champ : sombre en thème sombre, crème en thème clair), contour gardé pour le contraste.
 const CHAMP = "t-body min-h-touch w-full rounded-[14px] border border-border-field bg-admin-champ px-4 py-3 text-text-primary";
 
 // Création d'un univers (jamais de renommage ni de suppression). Le succès n'apparaît qu'après la réponse de l'action serveur ;

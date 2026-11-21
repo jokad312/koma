@@ -93,7 +93,10 @@ export function FormulaireEvenement({ evenement, idFormulaire }: { evenement: Ev
   }
   const [etat, setEtat] = useState<EtatEvenement | null>(null);
   const [enCours, demarrer] = useTransition();
-  const { enregistre, source } = useEnregistrementFenetre(enCours);
+  // Après une création réussie, la navigation vers la fiche est en cours : la fenêtre reste occupée (Enregistrer bloqué, Échap ignoré), comme pour les
+  // produits ; sans cela, un second clic pouvait créer un doublon ou Échap renvoyer à la liste avant la fiche.
+  const [redirige, setRedirige] = useState(false);
+  const { enregistre, modifie, source } = useEnregistrementFenetre(enCours || redirige);
   const enVol = useRef(false);
   const refResume = useRef<HTMLDivElement>(null);
 
@@ -106,6 +109,8 @@ export function FormulaireEvenement({ evenement, idFormulaire }: { evenement: Ev
   }
 
   function ajouterType() {
+    // Ajout par bouton (aucun événement de champ) : la saisie est à protéger (« Quitter sans enregistrer ? »).
+    modifie();
     compteur.current += 1;
     setTypes((avant) => [
       ...avant,
@@ -115,7 +120,7 @@ export function FormulaireEvenement({ evenement, idFormulaire }: { evenement: Ev
 
   function surEnvoi(e: FormEvent) {
     e.preventDefault();
-    if (enVol.current) return;
+    if (enVol.current || redirige) return;
     enVol.current = true;
     setEtat(null);
     demarrer(async () => {
@@ -143,6 +148,7 @@ export function FormulaireEvenement({ evenement, idFormulaire }: { evenement: Ev
         });
         if (resultat.statut === "succes") enregistre();
         if (resultat.statut === "succes" && resultat.cree) {
+          setRedirige(true);
           router.push(`/admin/evenements/${resultat.id}?cree=1`);
           return;
         }
@@ -244,7 +250,7 @@ export function FormulaireEvenement({ evenement, idFormulaire }: { evenement: Ev
         {types.length === 0 ? <p className="t-body text-text-secondary">{t("types.vide")}</p> : null}
         <ol className="flex flex-col gap-4">
           {types.map((ligne, i) => (
-            <li key={ligne.cle} className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-4">
+            <li key={ligne.cle} className="flex flex-col gap-4 rounded-[16px] bg-admin-entete p-4 text-text-primary">
               <fieldset className="flex flex-col gap-4">
                 <legend className="t-label">{t("types.numero", { numero: i + 1 })}</legend>
                 <ChampTexte id={`${base}-t${ligne.cle}-nom-fr`} name={`type_nom_fr_${i}`} libelle={t("types.nomFr")} valeur={ligne.nomFr} onChange={(v) => majType(ligne.cle, { nomFr: v })} />
@@ -275,7 +281,10 @@ export function FormulaireEvenement({ evenement, idFormulaire }: { evenement: Ev
               <div>
                 <button
                   type="button"
-                  onClick={() => setTypes((avant) => avant.filter((l) => l.cle !== ligne.cle))}
+                  onClick={() => {
+                    modifie();
+                    setTypes((avant) => avant.filter((l) => l.cle !== ligne.cle));
+                  }}
                   className="inline-flex min-h-touch items-center rounded-full border border-border-field bg-surface px-4 text-danger"
                 >
                   {t("types.retirer", { numero: i + 1 })}
@@ -292,8 +301,8 @@ export function FormulaireEvenement({ evenement, idFormulaire }: { evenement: Ev
       </section>
 
       <div className="flex flex-col gap-3">
-        <Bouton type="submit" enCours={enCours}>
-          {enCours ? t("enCours") : t("enregistrer")}
+        <Bouton type="submit" enCours={enCours || redirige}>
+          {enCours || redirige ? t("enCours") : t("enregistrer")}
         </Bouton>
       </div>
 

@@ -13,7 +13,7 @@ context:
 
 **Problem:** `/admin/commandes/[numero]` garde l'apparence d'avant la refonte ; aucune maquette n'existe pour cette page.
 
-**Approach:** style des pages refaites (consigne de la nuit : « ce qui manque sur la maquette est ajouté dans le même style ») : titre en majuscules, titre en majuscules, chaque partie (avancement, argent, réclamations, lignes, remise) en panneau.
+**Approach:** style des pages refaites (consigne de la nuit : « ce qui manque sur la maquette est ajouté dans le même style ») : titre en majuscules, chaque partie (avancement, paiement, argent, réclamations, lignes, remise) en panneau.
 
 ## Boundaries & Constraints
 

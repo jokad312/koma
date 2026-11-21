@@ -32,6 +32,7 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 import { FormulaireEvenement } from "@/components/admin/FormulaireEvenement";
+import { FenetreFormulaire } from "@/components/admin/ui/FenetreFormulaire";
 import { PublicationEvenement } from "@/components/admin/PublicationEvenement";
 import type { Evenement } from "@/modules/evenements/types";
 
@@ -183,5 +184,42 @@ describe("PublicationEvenement", () => {
     await user.click(screen.getByRole("button", { name: "Publier" }));
     const message = await screen.findByText("Le changement n'a pas pu être enregistré. Réessaie.");
     await waitFor(() => expect(message.closest("[tabindex='-1']")).toBe(document.activeElement));
+  });
+});
+
+// Story 9.16 (étape 8) : création d'un événement dans une fenêtre (Q23).
+describe("FormulaireEvenement en fenêtre", () => {
+  const fenetre = () => (
+    <FenetreFormulaire titre="Nouvel événement" retour="/admin/evenements" idFormulaire="formulaire-evenement">
+      <FormulaireEvenement evenement={null} idFormulaire="formulaire-evenement" />
+    </FenetreFormulaire>
+  );
+
+  it("un seul formulaire, relié à « Enregistrer » de l'en-tête ; après la création, un second clic n'envoie rien et Échap ne quitte pas", async () => {
+    faux.enregistrerEvenementAction.mockResolvedValue({ statut: "succes", id: "TEST_id", cree: true });
+    faux.push.mockImplementation(() => {});
+    const user = userEvent.setup();
+    const { container } = rendre(fenetre());
+    const formulaires = container.querySelectorAll("form");
+    expect(formulaires).toHaveLength(1);
+    expect(formulaires[0].id).toBe("formulaire-evenement");
+    await user.type(screen.getByLabelText("Titre en français"), "TEST_Festival");
+    const enTete = screen.getAllByRole("button", { name: "Enregistrer" })[0];
+    expect(enTete.getAttribute("form")).toBe("formulaire-evenement");
+    await user.click(enTete);
+    await waitFor(() => expect(faux.push).toHaveBeenCalledWith("/admin/evenements/TEST_id?cree=1"));
+    await user.click(enTete);
+    await user.keyboard("{Escape}");
+    expect(faux.enregistrerEvenementAction).toHaveBeenCalledTimes(1);
+    expect(faux.push).not.toHaveBeenCalledWith("/admin/evenements");
+  });
+
+  it("ajouter un Type de pass (bouton seul) est une saisie à protéger : Échap demande « Quitter sans enregistrer ? »", async () => {
+    const user = userEvent.setup();
+    rendre(fenetre());
+    await user.click(screen.getByRole("button", { name: "Ajouter un Type de pass" }));
+    await user.keyboard("{Escape}");
+    expect(await screen.findByRole("dialog", { name: "Quitter sans enregistrer ?" })).toBeTruthy();
+    expect(faux.push).not.toHaveBeenCalled();
   });
 });

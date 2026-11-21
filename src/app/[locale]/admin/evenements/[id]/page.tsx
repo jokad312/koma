@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { Panneau } from "@/components/admin/ui/Panneau";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { FormulaireEvenement } from "@/components/admin/FormulaireEvenement";
 import { PublicationEvenement } from "@/components/admin/PublicationEvenement";
@@ -133,7 +134,9 @@ async function EvenementSelonDroit({
             {verrouLisible ? <SectionVerrou evenementId={evenement.id} verrou={verrou} /> : <MessageEtat type="erreur">{t("verrou.erreurLecture")}</MessageEtat>}
             {candidatures ? <SectionCandidatures candidatures={candidatures} /> : <MessageEtat type="erreur">{t("candidatures.erreurLecture")}</MessageEtat>}
             <SectionGalerie evenementId={evenement.id} lien={evenement.galerieUrl ?? null} />
-            <FormulaireEvenement evenement={evenement} />
+            <Panneau>
+              <FormulaireEvenement evenement={evenement} />
+            </Panneau>
           </>
         ) : (
           <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>
