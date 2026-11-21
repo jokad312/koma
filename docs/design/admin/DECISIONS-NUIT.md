@@ -141,3 +141,4 @@ Consigne de Jonathan (2026-11-17) : enchaîner toutes les pages de la refonte ad
 | PR #4 (cadre) | b8f1532 | verte (run 44885347903) | cause de connexion.spec.ts:109 : route [...rest] sans « instant = false » → badge d'erreur de Next sur « Sign out » (mobile) |
 | Formulaire article | e7e5194 | verte (run 44884617970) | — |
 | Codes promo | 219d9fb (après rebase) | verte (run 44887892612) | — |
+| Étape 8 + connexion | 1c2aacc | verte (run 44890223871) | — |
