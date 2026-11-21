@@ -14,6 +14,7 @@ import type { CodeErreur } from "@/modules/comptes/types";
 type Etape = "email" | "code" | "age" | "questions" | "moins13";
 
 const DELAI_RENVOI_SECONDES = 60;
+// Champ du formulaire de connexion ; « cx-champ » (connexion.css) donne au champ email son fond sombre en thème sombre seulement (story 9.17).
 const CHAMP =
   "t-body min-h-touch w-full rounded-md border border-border-field bg-surface px-4 py-3 text-text-primary";
 const ERREURS_DE_CHAMP: ReadonlySet<CodeErreur> = new Set([
@@ -218,7 +219,8 @@ export function FormulaireConnexion({ etapeInitiale = "email", google = "disponi
       <MessageEtat type="erreur">{t("erreurs.resume")}</MessageEtat>
     )
   ) : null;
-  const classeTitreEtape = "t-h2 outline-none";
+  // shadow-none : le titre reçoit le focus à l'arrivée sur l'étape ; sans lui, le halo de :focus-visible (globals.css) lui donnait un fond.
+  const classeTitreEtape = "t-h2 outline-none shadow-none";
 
   if (etape === "moins13") {
     return (
@@ -394,7 +396,7 @@ export function FormulaireConnexion({ etapeInitiale = "email", google = "disponi
           defaultValue={email}
           aria-invalid={erreurChamp === "email_invalide" || undefined}
           aria-describedby={erreurChamp === "email_invalide" ? idErreur : undefined}
-          className={CHAMP}
+          className={`${CHAMP} cx-champ`}
         />
         {erreurChamp === "email_invalide" ? (
           <p id={idErreur} className="t-small text-danger">

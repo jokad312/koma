@@ -3,7 +3,6 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import Image from "next/image";
 import { Suspense } from "react";
 import { Squelette } from "@/components/ui/Squelette";
 import { routing, type Locale } from "@/i18n/routing";
@@ -18,6 +17,8 @@ import { urlLocalisee } from "@/lib/seo/url";
 import { lireUniversPublics } from "@/modules/catalogue/queries";
 import type { UniversChoix } from "@/modules/catalogue/types";
 import { lirePhotosConnexion } from "@/lib/vitrine/photos-connexion";
+import { DiaporamaConnexion } from "./DiaporamaConnexion";
+import { EnTeteConnexion } from "./EnTeteConnexion";
 import { FormulaireConnexion } from "./FormulaireConnexion";
 import "./connexion.css";
 
@@ -80,29 +81,20 @@ export default async function Connexion({ params, searchParams }: PageProps<"/[l
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Connexion");
-  const [photo] = await lirePhotosConnexion();
+  const photos = await lirePhotosConnexion();
   const tm = await getTranslations("Metadata.connexion");
+  const nomSite = await lireNomSite();
 
   return (
-    // Story 9.16 (page 9, modèle F de la maquette connexion.mp4) : panneau à gauche (~46 %, coins de 10 px) collé à la carte CONNEXION (fond « surface »,
-    // coins de 12 px). Panneau : la première photo de public/images/connexion/ (photos de Jonathan seulement, règle 6), sinon le mot géant « COSPLAY »
-    // de l'accueil aux couleurs du thème (décoratif). Masqué sous 768 px (Q32) : le champ email est visible tout de suite sur téléphone.
-    <section className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-[46fr_54fr]">
-      <div
-        aria-hidden={photo ? undefined : true}
-        data-panneau-connexion=""
-        className="cx-panneau relative hidden min-h-[480px] overflow-hidden rounded-[10px] border border-border bg-surface md:block"
-      >
-        {photo ? (
-          <Image src={photo} alt={t("panneau.photoAlt")} fill sizes="(min-width: 768px) 46vw, 1px" className="object-cover" />
-        ) : (
-          <p data-mot-connexion="" className="absolute inset-x-0 top-1/2 m-0 -translate-y-1/2 text-center cx-mot">
-            {t("panneau.mot")}
-          </p>
-        )}
-      </div>
-      <div className="flex justify-center md:items-center md:justify-start">
-        <div data-carte-connexion="" className="flex w-full max-w-[440px] flex-col items-start gap-6 rounded-[12px] border border-border bg-surface p-6">
+    // Story 9.17 (maquette connexion.mp4, proportions de connexion-reference.png) : en-tête réduit propre à la page (logo, thème, langue, trait),
+    // panneau d'images à gauche (46,3 % de la largeur, coins arrondis, fondu toutes les 3 s ; image fixe si « réduire les animations » ; masqué sous
+    // 768 px, Q32) et carte CONNEXION à droite (38,6 %), centrée verticalement sur le panneau. Mesures et marges : connexion.css. Aucun pied de page :
+    // l'en-tête et le pied du site sont masqués sur cette seule page ([data-page-connexion], globals.css). Sans image dans public/images/connexion/ :
+    // le mot géant « COSPLAY » (décoratif).
+    <div data-page-connexion="" className="cx-page flex flex-col">
+      <EnTeteConnexion nomSite={nomSite} />
+      <section className="cx-rangee">
+        <div data-carte-connexion="" className="cx-carte flex w-full flex-col items-start gap-6 rounded-[12px] border border-border bg-surface p-6">
           <JsonLd
             donnees={{
               "@context": "https://schema.org",
@@ -119,7 +111,21 @@ export default async function Connexion({ params, searchParams }: PageProps<"/[l
             <FormulaireSelonSession locale={locale} searchParams={searchParams} />
           </Suspense>
         </div>
-      </div>
-    </section>
+        {/* Panneau APRÈS la carte dans le DOM (Tab atteint le champ email avant le bouton Pause), à gauche à l'écran (order: -1, connexion.css). */}
+        <div
+          aria-hidden={photos.length > 0 ? undefined : true}
+          data-panneau-connexion=""
+          className="cx-panneau relative hidden overflow-hidden border border-border bg-surface md:block"
+        >
+          {photos.length > 0 ? (
+            <DiaporamaConnexion images={photos} />
+          ) : (
+            <p data-mot-connexion="" className="absolute inset-x-0 top-1/2 m-0 -translate-y-1/2 text-center cx-mot">
+              {t("panneau.mot")}
+            </p>
+          )}
+        </div>
+      </section>
+    </div>
   );
 }

@@ -88,7 +88,8 @@ for (const largeur of [1440, 390]) {
     await expect(page).toHaveURL(/\/fr\/connexion$/);
     const titre = page.getByRole("heading", { level: 1 });
     await expect(titre).toBeVisible();
-    const entete = page.locator("header").first();
+    // Depuis la 9.17, la connexion a son propre en-tête réduit (celui du site y est masqué) : on prend l'en-tête visible.
+    const entete = page.locator("header:visible").first();
     await expect(entete).toBeVisible();
     const logo = await entete.locator("a").first().boundingBox();
     const boite = await titre.boundingBox();

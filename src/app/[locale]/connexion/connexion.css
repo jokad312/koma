@@ -24,3 +24,64 @@
   color: var(--mot);
   user-select: none;
 }
+
+/*
+ * Mise en page de la connexion aux proportions de la capture de référence (docs/references/maquettes-admin/connexion-reference.png, 1108 × 643),
+ * mesurées par Jonathan le 2026-11-21 en % de la largeur de la fenêtre : marge gauche 3,2 % ; panneau 46,3 % ; écart 5,1 % ; carte 38,6 % ;
+ * marge droite 6,8 %. Unités de conteneur (cqw) plutôt que vw : la page occupe toute la largeur de <main> (globals.css), et une barre de
+ * défilement verticale (contenu haut) ne crée jamais de défilement horizontal (100vw compterait la barre).
+ * En-tête réduit de 50 px ; panneau de (en-tête + 16 px) à (bas de la fenêtre − 22 px) ; carte centrée verticalement sur le panneau.
+ */
+.cx-page {
+  container-type: inline-size;
+  --cx-entete: 50px;
+}
+
+.cx-entete {
+  height: var(--cx-entete);
+  padding-inline: var(--spacing-marge);
+}
+
+.cx-rangee {
+  display: flex;
+  flex-direction: column;
+  padding: 16px var(--spacing-marge) 32px;
+}
+
+@media (min-width: 768px) {
+  .cx-entete {
+    padding-left: 3.2cqw;
+    padding-right: 6.8cqw;
+  }
+
+  .cx-rangee {
+    flex-direction: row;
+    /* Le panneau reste collé en haut (16 px sous l'en-tête) même quand la carte est plus haute que lui ; seule la carte est centrée
+       (centre vertical de la carte = centre du panneau : les 16 px du haut et les 22 px du bas sont des marges intérieures de la rangée). */
+    align-items: flex-start;
+    column-gap: 5.1cqw;
+    padding: 16px 6.8cqw 22px 3.2cqw;
+  }
+
+  .cx-carte {
+    /* 38,6 % ; plancher entre 768 et 1023 px pour que « CONTINUER AVEC GOOGLE » tienne sur une ligne dans la carte (le panneau prend alors le
+       reste). La spec proposait 340 px : mesuré à 800 px, le bouton (~340 px) dépassait de la carte (marges intérieures de 24 px) ; 392 px suffit. */
+    flex: 0 0 max(392px, 38.6cqw);
+    min-width: 0;
+    align-self: center;
+  }
+
+  .cx-panneau {
+    /* Le reste de la rangée : exactement 46,3 % dès que la carte vaut 38,6 %. */
+    flex: 1 1 0;
+    min-width: 0;
+    order: -1;
+    height: calc(100dvh - var(--cx-entete) - 38px);
+    border-radius: 14px;
+  }
+}
+
+/* Champ email de la connexion : fond sombre en thème sombre seulement (décision de Jonathan, 2026-11-21) ; en thème clair, le fond crème reste. */
+:root[data-theme="dark"] .cx-champ {
+  background: var(--ks-background);
+}

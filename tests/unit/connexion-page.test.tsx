@@ -94,7 +94,7 @@ describe("page /connexion : univers de la question d'accueil", () => {
   });
 });
 
-// Point 1 (2026-11-21) : panneau de gauche. Sans photo : le mot « COSPLAY », décoratif (aria-hidden). Avec une photo de Jonathan : l'image, avec son
+// Panneau de gauche (point 1 puis 9.17). Sans image : le mot « COSPLAY », décoratif (aria-hidden). Avec des images : le diaporama, avec son
 // texte alternatif, lue par les lecteurs d'écran.
 describe("panneau de la page de connexion", () => {
   function panneau(page: ReactElement): ReactElement {
@@ -118,12 +118,32 @@ describe("panneau de la page de connexion", () => {
     expect((enfant.props as { children: string }).children).toBe("panneau.mot");
   });
 
-  it("avec une photo : l'image et son texte alternatif, panneau lisible (pas d'aria-hidden)", async () => {
-    faux.photos.mockResolvedValueOnce(["/images/connexion/a.jpg"]);
+  it("avec des images (9.17) : le diaporama reçoit toutes les images dans l'ordre ; en-tête réduit ; marqueur qui retire l'en-tête et le pied du site", async () => {
+    faux.photos.mockResolvedValueOnce(["/images/connexion/1-illustration.webp", "/images/connexion/2-illustration.webp"]);
     const page = (await Connexion({ params: Promise.resolve({ locale: "fr" }), searchParams: Promise.resolve({}) } as never)) as ReactElement;
+    expect((page.props as Record<string, unknown>)["data-page-connexion"]).toBe("");
     const p = panneau(page);
     expect((p.props as { "aria-hidden"?: boolean })["aria-hidden"]).toBeUndefined();
-    const image = (p.props as { children: ReactElement }).children;
-    expect(image.props).toMatchObject({ src: "/images/connexion/a.jpg", alt: "panneau.photoAlt" });
+    const diaporama = (p.props as { children: ReactElement }).children;
+    expect((diaporama.type as { name?: string }).name).toBe("DiaporamaConnexion");
+    expect(diaporama.props).toEqual({ images: ["/images/connexion/1-illustration.webp", "/images/connexion/2-illustration.webp"] });
+    const entete = (page.props as { children: ReactElement[] }).children.find((e) => (e?.type as { name?: string })?.name === "EnTeteConnexion");
+    expect(entete?.props).toEqual({ nomSite: "TEST" });
+  });
+
+  it("mise en page aux proportions de la référence (9.17, correction) : classes de connexion.css, carte avant le panneau dans le DOM", async () => {
+    faux.photos.mockResolvedValueOnce(["/images/connexion/1-illustration.webp"]);
+    const page = (await Connexion({ params: Promise.resolve({ locale: "fr" }), searchParams: Promise.resolve({}) } as never)) as ReactElement;
+    expect((page.props as { className: string }).className).toContain("cx-page");
+    // Plus de décalage pour compenser la marge de <main> : <main> n'en a plus sur cette page (globals.css).
+    expect((page.props as { className: string }).className).not.toContain("-mt-8");
+    const rangee = (page.props as { children: ReactElement[] }).children.find((e) => (e?.props as { className?: string })?.className === "cx-rangee")!;
+    const [carte, p] = (rangee.props as { children: ReactElement[] }).children;
+    expect((carte.props as Record<string, unknown>)["data-carte-connexion"]).toBe("");
+    expect((carte.props as { className: string }).className).toContain("cx-carte");
+    expect((p.props as Record<string, unknown>)["data-panneau-connexion"]).toBe("");
+    expect((p.props as { className: string }).className).toContain("cx-panneau");
+    // Hauteur et rayon du panneau : connexion.css (plus de hauteur fixe de 560 px).
+    expect((p.props as { className: string }).className).not.toMatch(/min-h-\[560px\]|rounded-\[10px\]/);
   });
 });

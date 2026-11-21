@@ -34,7 +34,7 @@ Les kits n'ont pas de livraison et se vendent dans tous les pays.
 3. Prix, stock et frais de livraison sont toujours calculés côté serveur, depuis la base.
 4. Les secrets sont dans les variables d'environnement (.env.local, variables d'environnement de l'application Node.js sur Hostinger), jamais dans le code commité. Tenir .env.example à jour. Le dépôt GitHub est public : aucun secret, aucune clé, aucun numéro de marchand, aucune donnée client, aucun export de base dans le dépôt, même dans les tests ou la documentation. Les fichiers .env*, les exports et les sauvegardes restent dans .gitignore.
 5. Honnêteté : aucun avis, chiffre, logo ou témoignage inventé.
-6. Propriété intellectuelle : aucune image ni aucun logo officiel d'une franchise ; seulement les photos du créateur. Aucune police, image ou fichier tiers n'entre dans le dépôt sans licence vérifiée et notée dans docs/licences/.
+6. Propriété intellectuelle : aucune image ni aucun logo officiel d'une franchise ; seulement les photos du créateur. Aucune police, image ou fichier tiers n'entre dans le dépôt sans licence vérifiée et notée dans docs/licences/. Exception décidée par Jonathan le 2026-11-21 : les 3 images de la page de connexion (public/images/connexion/), à remplacer par ses propres photos si un ayant droit le demande.
 7. Mobile d'abord (375 px de large, sans défilement horizontal), contraste suffisant, texte alternatif sur chaque image, navigation au clavier.
 8. SEO : metadata, Open Graph et données structurées JSON-LD sur chaque page publique.
 

@@ -270,7 +270,8 @@
     "court": {
       "fr": "FR",
       "en": "EN"
-    }
+    },
+    "changer": "Changer de langue : {langue}"
   },
   "Pied": {
     "identite": "Fait main à Goma, RDC. NATHANGROUP SARL.",
@@ -413,7 +414,9 @@
     },
     "panneau": {
       "mot": "Cosplay",
-      "photoAlt": "Photo de cosplay"
+      "alt": "Illustration",
+      "pause": "Mettre en pause le défilement des images",
+      "lecture": "Reprendre le défilement des images"
     }
   },
   "Compte": {

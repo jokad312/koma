@@ -8,6 +8,7 @@ import { connecterAvecGoogle } from "@/modules/comptes/actions";
 
 // Bouton « Continuer avec Google » selon les règles de marque de Google : « G » officiel non modifié (public/google/google-g.svg,
 // voir docs/licences/google-connexion.md), fond blanc, trait #747775, texte #1F1F1F. Les couleurs de Google sont fixes dans les deux thèmes.
+// Sur une seule ligne dès 768 px (maquette, carte d'au moins 392 px) ; en dessous, le texte peut passer à la ligne (sinon il élargit la carte à 390 px).
 export function BoutonGoogle({ retour }: { retour?: string }) {
   const t = useTranslations("Connexion");
   const langue = useLocale();
@@ -24,7 +25,7 @@ export function BoutonGoogle({ retour }: { retour?: string }) {
         onClick={(e) => {
           if (enCours) e.preventDefault();
         }}
-        className="t-button inline-flex min-h-touch items-center gap-3 rounded-full border border-[#747775] bg-[#FFFFFF] py-0 pr-5 pl-0 text-[#1F1F1F]"
+        className="t-button inline-flex min-h-touch items-center gap-3 rounded-full md:whitespace-nowrap border border-[#747775] bg-[#FFFFFF] py-0 pr-5 pl-0 text-[#1F1F1F]"
       >
         <Image src="/google/google-g.svg" alt="" width={44} height={44} unoptimized className="size-11 shrink-0" />
         {enCours ? t("google.enCours") : t("google.continuer")}

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Suspense, useId, type ReactNode } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { cheminPublic } from "@/i18n/adresses";
@@ -11,6 +10,7 @@ import { MenuPanneau } from "./MenuPanneau";
 import { MenuBoutique } from "./MenuBoutique";
 import { RUBRIQUES, RUBRIQUES_BOUTIQUE, RUBRIQUES_DIRECTES, type Rubrique } from "./rubriques";
 import { LienConnexion } from "./LienConnexion";
+import { LogoSite } from "./LogoSite";
 import { SelecteurLangue } from "./SelecteurLangue";
 import { ZoneCompte } from "./ZoneCompte";
 import { LienPanier, ZonePanier } from "./ZonePanier";
@@ -78,31 +78,7 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }:
   return (
     <header className="entete-collant verre-fort sticky top-0 z-30 h-entete rounded-none border-x-0 border-t-0">
       <div className="mx-auto flex h-full w-full max-w-7xl items-center justify-between gap-3 px-marge">
-        <Link href="/" className="inline-flex min-h-touch items-center">
-          <span className="relative block aspect-[530/124] w-[156px] overflow-hidden max-[359px]:w-[132px] lg:w-[190px]">
-            {/* Deux fichiers d'origine, jamais recolorés : un seul est affiché (display) selon [data-theme], donc un seul est exposé aux technologies d'assistance. */}
-            <Image
-              src="/logo/logo-principal.svg"
-              alt={nomSite}
-              width={630}
-              height={220}
-              unoptimized
-              priority
-              data-logo="clair"
-              className="logo-clair absolute -left-[9.434%] -top-[37.097%] h-auto w-[118.868%] max-w-none"
-            />
-            <Image
-              src="/logo/logo-principal-inverse.svg"
-              alt={nomSite}
-              width={630}
-              height={220}
-              unoptimized
-              priority
-              data-logo="sombre"
-              className="logo-sombre absolute -left-[9.434%] -top-[37.097%] h-auto w-[118.868%] max-w-none"
-            />
-          </span>
-        </Link>
+        <LogoSite nomSite={nomSite} />
         {/* Liens et réglages dans l'en-tête à partir de 1280 px (xl), menu ☰ en dessous : avec KOMA Chikara et les 16 px (9.16 a), l'en-tête
             d'une personne connectée débordait à 1024 px (décision de Jonathan du 2026-11-16). */}
         <div className="hidden xl:block">{liensOrdinateur}</div>

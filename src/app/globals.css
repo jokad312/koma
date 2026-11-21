@@ -493,6 +493,18 @@ main:has([data-coque-admin]) {
   max-width: none;
   padding: 0;
 }
+/* Connexion (story 9.17, maquette connexion.mp4) : la page a son propre en-tête réduit (logo, thème, langue) et aucun pied de page ; l'en-tête
+   complet et le pied du site sont retirés sur cette seule page (display: none les retire aussi des technologies d'assistance). */
+body:has([data-page-connexion]) .entete-collant,
+body:has([data-page-connexion]) .pied-site {
+  display: none;
+}
+/* Les proportions de la maquette (marges, panneau, carte) se mesurent sur toute la largeur de la fenêtre : <main> sans largeur maximale ni marge
+   intérieure sur cette page (connexion.css). */
+main:has([data-page-connexion]) {
+  max-width: none;
+  padding: 0;
+}
 /* Le bandeau collant ne cache pas un élément qui reçoit le focus au clavier. */
 html:has([data-coque-admin]) {
   scroll-padding-top: 5rem;

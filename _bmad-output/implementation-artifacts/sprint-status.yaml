@@ -147,6 +147,9 @@ development_status:
   # étape 8 : autres pages et détails (9.16 j à r), page 9 : connexion (9.16 s), correctifs avant fusion (points 1 à 5 de Jonathan) ; PR #5
   # fusionnée dans main le 2026-11-21 (09539e1), CI verte sur main (run 44916882238). Choix faits sans Jonathan : docs/design/admin/DECISIONS-NUIT.md.
   9-16-refonte-admin-maquette-et-police: done
+  # Page de connexion selon la maquette (spec-9-17-connexion-maquette et -2 : proportions de la référence, fondu de 3 images, exception règle 6),
+  # corrections du 2026-11-21 (ordre des images, titre de l'âge sans fond, rond de langue = langue actuelle partout).
+  9-17-connexion-selon-la-maquette: done
   9-11-performance-avant-mise-en-ligne: backlog
   9-9-mise-en-ligne: backlog
   epic-9-retrospective: optional

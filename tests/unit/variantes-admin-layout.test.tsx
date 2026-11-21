@@ -41,19 +41,19 @@ describe("variante « rond » de BasculeTheme", () => {
 });
 
 describe("variante « rond » de SelecteurLangue", () => {
-  it("depuis /fr : « EN » visible, nom accessible « English », lien vers la même page en anglais", () => {
+  it("depuis /fr : langue actuelle « FR » visible, nom accessible « Changer de langue : English », lien vers la même page en anglais", () => {
     rendre(<SelecteurLangue variante="rond" />);
-    const lien = screen.getByRole("link", { name: "English" });
-    expect(lien.querySelector('[aria-hidden="true"]')?.textContent).toBe("EN");
+    const lien = screen.getByRole("link", { name: "Changer de langue : English" });
+    expect(lien.textContent).toBe("FR");
     expect(lien.getAttribute("href")).toBe("/en/admin/commandes");
-    expect(lien.getAttribute("lang")).toBe("en");
+    expect(lien.getAttribute("hreflang")).toBe("en");
     expect(lien.className).toContain("size-11");
   });
 
-  it("depuis /en : « FR » visible, nom accessible « Français »", () => {
+  it("depuis /en : langue actuelle « EN » visible, nom accessible « Switch language: Français »", () => {
     rendre(<SelecteurLangue variante="rond" />, "en");
-    const lien = screen.getByRole("link", { name: "Français" });
-    expect(lien.querySelector('[aria-hidden="true"]')?.textContent).toBe("FR");
+    const lien = screen.getByRole("link", { name: "Switch language: Français" });
+    expect(lien.textContent).toBe("EN");
   });
 });
 
