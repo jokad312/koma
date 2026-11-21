@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
+import { ArticleLectureSeule } from "@/components/admin/ArticleLectureSeule";
 import { FormulaireArticle } from "@/components/admin/FormulaireArticle";
 import { FenetreFormulaire } from "@/components/admin/ui/FenetreFormulaire";
 import { MessageEtat } from "@/components/ui/MessageEtat";
@@ -71,10 +72,17 @@ async function ArticleSelonDroit({
     <CoqueAdmin>
       {/* Story 9.16 h (Q23) : la page reste sur sa route, dessinée en fenêtre (maquette 06) ; Échap et la croix ramènent à la liste. */}
       {/* Le menu STATUT (publication, dépublication, archivage, restauration) est dans la fenêtre, après l'image (DA6). */}
-      <FenetreFormulaire titre={t("pageEdition.titre")} retour="/admin/blog" idFormulaire={article && produits ? ID_FORMULAIRE : undefined}>
+      {/* Point 3 (2026-11-21) : l'Assistant voit l'article en lecture seule (l'écriture du blog est réservée à l'Admin en base). */}
+      <FenetreFormulaire
+        titre={peutPublier ? t("pageEdition.titre") : t("lecture.titre")}
+        retour="/admin/blog"
+        idFormulaire={peutPublier && article && produits ? ID_FORMULAIRE : undefined}
+      >
         <div className="flex flex-col gap-6">
           {cree ? <MessageEtat type="succes">{t("pageEdition.cree")}</MessageEtat> : null}
-          {article && produits ? (
+          {article && !peutPublier ? (
+            <ArticleLectureSeule article={article} />
+          ) : article && produits ? (
             <FormulaireArticle
               article={article}
               produits={produits}

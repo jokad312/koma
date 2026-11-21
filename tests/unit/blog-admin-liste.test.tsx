@@ -138,10 +138,12 @@ describe("ListeArticles (9.16 g)", () => {
     await waitFor(() => expect(faux.restaurerArticleAction).toHaveBeenCalledWith({ id: "TEST_a" }));
   });
 
-  it("sans le rôle Admin (Assistant) : crayon seulement, ni Publier, ni Dépublier, ni Archiver, ni Restaurer", async () => {
+  it("sans le rôle Admin (Assistant) : lecture seule (lien « Lire »), ni Écrire, ni Publier, ni Dépublier, ni Archiver, ni Restaurer", async () => {
     const user = userEvent.setup();
     rendre(<ListeArticles articles={ARTICLES} filtreInitial="tous" peutPublier={false} />);
-    expect(within(carte("TEST_Publie")).getByRole("link", { name: "Modifier TEST_Publie" })).toBeTruthy();
+    expect(within(carte("TEST_Publie")).getByRole("link", { name: "Lire l'article TEST_Publie" })).toBeTruthy();
+    expect(within(carte("TEST_Publie")).queryByRole("link", { name: "Modifier TEST_Publie" })).toBeNull();
+    expect(screen.queryByRole("link", { name: /écrire un article/i })).toBeNull();
     expect(within(carte("TEST_Publie")).queryAllByRole("button")).toHaveLength(0);
     expect(within(carte("TEST_Brouillon")).queryAllByRole("button")).toHaveLength(0);
     await user.click(screen.getByRole("button", { name: "Archivés" }));

@@ -972,6 +972,26 @@
           "article_archive": "Cet article est archivé : restaure-le avant de le publier.",
           "generique": "Le changement n'a pas pu être enregistré. Réessaie."
         }
+      },
+      "lecture": {
+        "note": "Lecture seule : la rédaction, la publication et l'archivage du blog sont réservés à l'administrateur.",
+        "vide": "Non renseigné",
+        "statut": "Statut",
+        "titreFr": "Titre en français",
+        "titreEn": "Titre en anglais",
+        "extraitFr": "Extrait en français",
+        "extraitEn": "Extrait en anglais",
+        "texteFr": "Texte en français",
+        "texteEn": "Texte en anglais",
+        "titre": "Lire l'article",
+        "lireSur": "Lire l'article {titre}",
+        "nouveauRefuse": "La rédaction du blog est réservée à l'administrateur.",
+        "adresse": "Adresse de la page",
+        "images": "Images",
+        "imageSansTexte": "Image sans texte alternatif",
+        "produitLie": "Produit lié",
+        "produitOui": "Oui (voir la fiche avec l'administrateur)",
+        "modifieLe": "Modifié le"
       }
     },
     "reglages": {

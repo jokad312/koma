@@ -972,6 +972,26 @@
           "article_archive": "This article is archived: restore it before publishing it.",
           "generique": "The change could not be saved. Try again."
         }
+      },
+      "lecture": {
+        "note": "Read only: writing, publishing and archiving blog posts are reserved for the administrator.",
+        "vide": "Not provided",
+        "statut": "Status",
+        "titreFr": "Title in French",
+        "titreEn": "Title in English",
+        "extraitFr": "Excerpt in French",
+        "extraitEn": "Excerpt in English",
+        "texteFr": "Text in French",
+        "texteEn": "Text in English",
+        "titre": "Read the post",
+        "lireSur": "Read the post {titre}",
+        "nouveauRefuse": "Writing blog posts is reserved for the administrator.",
+        "adresse": "Page address",
+        "images": "Images",
+        "imageSansTexte": "Image without alternative text",
+        "produitLie": "Linked product",
+        "produitOui": "Yes (see the product page with the administrator)",
+        "modifieLe": "Updated on"
       }
     },
     "reglages": {

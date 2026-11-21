@@ -36,8 +36,18 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/admin/bl
 
 // Droit vérifié sur la page elle-même, puis lecture des produits proposés pour le lien.
 async function NouvelArticleSelonDroit({ locale }: { locale: Locale }) {
-  await exigerAdminPage(locale, CHEMIN, "blog.gerer");
+  const { auteur } = await exigerAdminPage(locale, CHEMIN, "blog.gerer");
   const t = await getTranslations("Admin.blog");
+  // Point 3 (2026-11-21) : la création est réservée à l'Admin en base (enregistrer_article) ; l'Assistant n'a pas de formulaire.
+  if (auteur.role !== "admin") {
+    return (
+      <CoqueAdmin>
+        <FenetreFormulaire titre={t("pageNouveau.titre")} retour="/admin/blog">
+          <MessageEtat type="information">{t("lecture.nouveauRefuse")}</MessageEtat>
+        </FenetreFormulaire>
+      </CoqueAdmin>
+    );
+  }
   let produits: ProduitLien[] | null = null;
   try {
     produits = produitsPourLien(await lireProduitsAdmin());

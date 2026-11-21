@@ -1,6 +1,6 @@
 "use client";
 
-import { Archive, Check, ImageIcon, Pencil, PencilLine } from "lucide-react";
+import { Archive, Check, Eye, ImageIcon, Pencil, PencilLine } from "lucide-react";
 import { useFormatter, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { Bouton } from "@/components/ui/Bouton";
@@ -65,7 +65,7 @@ export function ListeArticles({
         <p role="status" className="t-body text-text-secondary">
           {t("vide.texte")}
         </p>
-        <Bouton href="/admin/blog/nouveau">{t("vide.ecrire")}</Bouton>
+        {peutPublier ? <Bouton href="/admin/blog/nouveau">{t("vide.ecrire")}</Bouton> : null}
       </div>
     );
   }
@@ -78,9 +78,12 @@ export function ListeArticles({
         <p role="status" className="t-small mr-auto text-text-secondary">
           {annonce ? t(`archivage.${annonce.action}Ok`) : null}
         </p>
-        <Bouton href="/admin/blog/nouveau" className="uppercase">
-          {t("nouveau")}
-        </Bouton>
+        {/* Point 3 (2026-11-21) : écrire un article est réservé à l'Admin (la base refuse l'Assistant). */}
+        {peutPublier ? (
+          <Bouton href="/admin/blog/nouveau" className="uppercase">
+            {t("nouveau")}
+          </Bouton>
+        ) : null}
       </div>
 
       <Panneau>
@@ -180,10 +183,10 @@ function CarteArticle({
       <div className="mt-auto flex flex-wrap items-center gap-2 border-t-2 border-text-primary pt-3">
         <Link
           href={`/admin/blog/${a.id}`}
-          aria-label={t("grille.modifierSur", { titre: a.titreFr })}
+          aria-label={peutPublier ? t("grille.modifierSur", { titre: a.titreFr }) : t("lecture.lireSur", { titre: a.titreFr })}
           className="inline-flex size-touch shrink-0 items-center justify-center rounded-full text-text-secondary hover:bg-admin-champ"
         >
-          <Pencil aria-hidden="true" className="size-7" />
+          {peutPublier ? <Pencil aria-hidden="true" className="size-7" /> : <Eye aria-hidden="true" className="size-7" />}
         </Link>
         {peutPublier ? (
           <ActionsArticle articleId={a.id} titre={a.titreFr} publie={publie} archive={archive} onCommence={onCommence} onTermine={onTermine} />
