@@ -150,7 +150,8 @@ test.describe("connexion par code email", () => {
     }, { timeout: 25_000 });
 
     await test.step("déconnexion", async () => {
-      // Journal des navigations : un échec intermittent de ce test (adresse inattendue) a été vu une fois en CI, la cause n'est pas élucidée.
+      // Journal des navigations, gardé pour le diagnostic. Cause des échecs intermittents des 16 et 17 novembre 2026 (trouvée le 21) : la 404
+      // attrape-tout levait une erreur en dev, dont le badge de Next.js recouvrait « Sign out » au bas du menu mobile (corrigé dans b8f1532).
       const adresses: string[] = [];
       page.on("framenavigated", (f) => f === page.mainFrame() && adresses.push(`${Date.now() % 100000} ${f.url()}`));
       await (await ouvrirMenu(page)).getByRole("button", { name: "Sign out" }).click();
@@ -159,7 +160,7 @@ test.describe("connexion par code email", () => {
       await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
       await expect((await ouvrirMenu(page)).getByRole("link", { name: "Sign in" })).toBeVisible();
       // 45 s : deux ouvertures du menu (15 s chacune au plus) et deux contrôles d'adresse. À 25 s, le délai de l'étape coupait
-      // avant le message d'erreur détaillé d'ouvrirMenu (échecs intermittents en CI des 16 et 17 novembre 2026, cause non vue).
+      // avant le message d'erreur détaillé d'ouvrirMenu.
     }, { timeout: 45_000 });
   });
 
