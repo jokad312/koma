@@ -1,0 +1,26 @@
+/*
+ * Panneau de la page de connexion (story 9.16, modèle F) sans photo : le mot géant « COSPLAY » de l'accueil, aux couleurs du thème, comme visuel de
+ * remplacement décoratif. Classes « cx- » propres à cette page (CSS simple : les modules CSS ne passent pas par la règle *.css de Turbopack). Couleurs du mot géant du héros (heros-visiteur.css) : #e6dece sur crème ; en sombre, #3a3530 (le panneau est plus clair que le fond de l'accueil).
+ * La taille suit la largeur du panneau (unités de conteneur) : le mot tient toujours dans le panneau, sans déborder.
+ */
+.cx-panneau {
+  container-type: inline-size;
+  --mot: #e6dece;
+}
+
+:root[data-theme="dark"] .cx-panneau {
+  /* Plus clair que sur l'accueil (#1f1d1a) : le panneau est sur « surface » (#211c17), où #1f1d1a ne se voyait pas. */
+  --mot: #3a3530;
+}
+
+.cx-mot {
+  font-family: var(--font-capitales);
+  /* 4,94 = largeur de « Cosplay » en KOMA Chikara divisée par la taille (heros-visiteur.css) : 18cqi × 4,94 ≈ 89 % du panneau. */
+  font-size: 18cqi;
+  line-height: 0.8;
+  letter-spacing: 0.067em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--mot);
+  user-select: none;
+}

@@ -21,8 +21,13 @@ export async function PiedDePage({ nomSite, numeroWhatsapp = null }: { nomSite: 
   // Moyens des Prestataires actifs, lus côté serveur : aucun Prestataire inactif ; sans Prestataire actif, la carte n'est pas affichée.
   const moyensPaiement = await lireMoyensPaiementActifs();
   return (
-    <footer className="pied-site mt-12 px-marge pb-8">
-      <div className="mx-auto grid max-w-7xl gap-ecart-cartes md:grid-cols-2 lg:grid-cols-4">
+    <footer className="pied-site mt-12 pb-8">
+      {/* Même conteneur que <main> (max-w-7xl, marge à l'intérieur) : les cartes s'alignent sur la colonne du contenu. */}
+      {/* Autant de colonnes que de cartes à partir de 1024 px (3 sans la carte Paiement, 4 avec) : les cartes occupent toute la largeur du conteneur. */}
+      {/* De 768 à 1023 px (2 colonnes), avec 3 cartes, la dernière s'étend sur les deux colonnes : jamais une carte seule sur une demi-ligne. */}
+      <div
+        className={`mx-auto grid max-w-7xl gap-ecart-cartes px-marge md:grid-cols-2 ${moyensPaiement.length > 0 ? "lg:grid-cols-4" : "md:[&>section:last-child]:col-span-2 lg:grid-cols-3 lg:[&>section:last-child]:col-span-1"}`}
+      >
         <section aria-labelledby="pied-identite" className="rounded-lg border border-border bg-surface p-5">
           <h2 id="pied-identite" className="t-label text-text-primary">
             {nomSite}

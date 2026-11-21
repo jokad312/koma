@@ -2,7 +2,8 @@
 import { isValidElement, type ReactElement } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const faux = vi.hoisted(() => ({ univers: vi.fn(), etat: "anonyme" as string }));
+const faux = vi.hoisted(() => ({
+  photos: vi.fn(async (): Promise<string[]> => []), univers: vi.fn(), etat: "anonyme" as string }));
 vi.mock("server-only", () => ({}));
 vi.mock("next/headers", () => ({ headers: async () => new Headers({ "user-agent": "TEST" }) }));
 vi.mock("next/navigation", async (importOriginal) => ({
@@ -19,6 +20,7 @@ vi.mock("@/lib/auth/compte", () => ({ lireEtatCompte: async () => faux.etat }));
 vi.mock("@/lib/reglages", () => ({ lireNomSite: async () => "TEST" }));
 vi.mock("@/lib/seo/url", () => ({ urlLocalisee: () => "http://test" }));
 vi.mock("@/modules/catalogue/queries", () => ({ lireUniversPublics: (...a: unknown[]) => faux.univers(...a) }));
+vi.mock("@/lib/vitrine/photos-connexion", () => ({ lirePhotosConnexion: () => faux.photos() }));
 
 import Connexion from "../../src/app/[locale]/connexion/page";
 import { FormulaireConnexion } from "../../src/app/[locale]/connexion/FormulaireConnexion";
@@ -89,5 +91,39 @@ describe("page /connexion : univers de la question d'accueil", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     faux.univers.mockRejectedValue(new Error("TEST_lecture"));
     expect((await formulaire("fr")).univers).toEqual([]);
+  });
+});
+
+// Point 1 (2026-11-21) : panneau de gauche. Sans photo : le mot « COSPLAY », décoratif (aria-hidden). Avec une photo de Jonathan : l'image, avec son
+// texte alternatif, lue par les lecteurs d'écran.
+describe("panneau de la page de connexion", () => {
+  function panneau(page: ReactElement): ReactElement {
+    const chercher = (n: unknown): ReactElement | null => {
+      if (Array.isArray(n)) return n.map(chercher).find(Boolean) ?? null;
+      if (!isValidElement(n)) return null;
+      const props = n.props as Record<string, unknown>;
+      if ("data-panneau-connexion" in props) return n;
+      return chercher(props.children);
+    };
+    return chercher(page)!;
+  }
+
+  it("sans photo : le mot géant, panneau décoratif (aria-hidden)", async () => {
+    faux.photos.mockResolvedValueOnce([]);
+    const page = (await Connexion({ params: Promise.resolve({ locale: "fr" }), searchParams: Promise.resolve({}) } as never)) as ReactElement;
+    const p = panneau(page);
+    expect((p.props as { "aria-hidden"?: boolean })["aria-hidden"]).toBe(true);
+    const enfant = (p.props as { children: ReactElement }).children;
+    expect((enfant.props as Record<string, unknown>)["data-mot-connexion"]).toBe("");
+    expect((enfant.props as { children: string }).children).toBe("panneau.mot");
+  });
+
+  it("avec une photo : l'image et son texte alternatif, panneau lisible (pas d'aria-hidden)", async () => {
+    faux.photos.mockResolvedValueOnce(["/images/connexion/a.jpg"]);
+    const page = (await Connexion({ params: Promise.resolve({ locale: "fr" }), searchParams: Promise.resolve({}) } as never)) as ReactElement;
+    const p = panneau(page);
+    expect((p.props as { "aria-hidden"?: boolean })["aria-hidden"]).toBeUndefined();
+    const image = (p.props as { children: ReactElement }).children;
+    expect(image.props).toMatchObject({ src: "/images/connexion/a.jpg", alt: "panneau.photoAlt" });
   });
 });

@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import Image from "next/image";
 import { Suspense } from "react";
 import { Squelette } from "@/components/ui/Squelette";
 import { routing, type Locale } from "@/i18n/routing";
@@ -16,7 +17,9 @@ import { construireMetadata } from "@/lib/seo/metadata";
 import { urlLocalisee } from "@/lib/seo/url";
 import { lireUniversPublics } from "@/modules/catalogue/queries";
 import type { UniversChoix } from "@/modules/catalogue/types";
+import { lirePhotosConnexion } from "@/lib/vitrine/photos-connexion";
 import { FormulaireConnexion } from "./FormulaireConnexion";
+import "./connexion.css";
 
 const CHEMIN = "/connexion";
 
@@ -77,16 +80,29 @@ export default async function Connexion({ params, searchParams }: PageProps<"/[l
   if (!hasLocale(routing.locales, locale)) notFound();
   setRequestLocale(locale);
   const t = await getTranslations("Connexion");
+  const [photo] = await lirePhotosConnexion();
   const tm = await getTranslations("Metadata.connexion");
 
   return (
-    // Story 9.16 (page 9, modèle F de la maquette connexion.mp4) : panneau d'image à gauche (~46 %, coins de 10 px) et carte CONNEXION (fond « surface »,
-    // coins de 12 px). Aucune photo de connexion n'existe (public/images/connexion/ absent) : le panneau reste vide aux couleurs du site, décoratif,
-    // jamais une image inventée (règles 5 et 6). Masqué sous 768 px (Q32) : le champ email est visible tout de suite sur téléphone.
-    <section className="grid grid-cols-1 items-stretch gap-8 md:grid-cols-[46fr_54fr]">
-      <div aria-hidden="true" data-panneau-connexion="" className="hidden min-h-[480px] rounded-[10px] border border-border bg-admin-panneau md:block" />
-      <div className="flex justify-center md:items-center">
-        <div className="flex w-full max-w-[440px] flex-col items-start gap-6 rounded-[12px] border border-border bg-surface p-6">
+    // Story 9.16 (page 9, modèle F de la maquette connexion.mp4) : panneau à gauche (~46 %, coins de 10 px) collé à la carte CONNEXION (fond « surface »,
+    // coins de 12 px). Panneau : la première photo de public/images/connexion/ (photos de Jonathan seulement, règle 6), sinon le mot géant « COSPLAY »
+    // de l'accueil aux couleurs du thème (décoratif). Masqué sous 768 px (Q32) : le champ email est visible tout de suite sur téléphone.
+    <section className="grid grid-cols-1 items-stretch gap-6 md:grid-cols-[46fr_54fr]">
+      <div
+        aria-hidden={photo ? undefined : true}
+        data-panneau-connexion=""
+        className="cx-panneau relative hidden min-h-[480px] overflow-hidden rounded-[10px] border border-border bg-surface md:block"
+      >
+        {photo ? (
+          <Image src={photo} alt={t("panneau.photoAlt")} fill sizes="(min-width: 768px) 46vw, 1px" className="object-cover" />
+        ) : (
+          <p data-mot-connexion="" className="absolute inset-x-0 top-1/2 m-0 -translate-y-1/2 text-center cx-mot">
+            {t("panneau.mot")}
+          </p>
+        )}
+      </div>
+      <div className="flex justify-center md:items-center md:justify-start">
+        <div data-carte-connexion="" className="flex w-full max-w-[440px] flex-col items-start gap-6 rounded-[12px] border border-border bg-surface p-6">
           <JsonLd
             donnees={{
               "@context": "https://schema.org",

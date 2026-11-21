@@ -410,6 +410,10 @@
       "enCours": "Redirection vers Google…",
       "ou": "ou",
       "integre": "Dans une application (Instagram, Facebook, TikTok, WhatsApp, Snapchat, LinkedIn, X, Telegram…), Google bloque sa connexion. Utilise le code reçu par email, ou ouvre le site dans ton navigateur."
+    },
+    "panneau": {
+      "mot": "Cosplay",
+      "photoAlt": "Photo de cosplay"
     }
   },
   "Compte": {

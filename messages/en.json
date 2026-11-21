@@ -410,6 +410,10 @@
       "enCours": "Redirecting to Google…",
       "ou": "or",
       "integre": "In an app (Instagram, Facebook, TikTok, WhatsApp, Snapchat, LinkedIn, X, Telegram…), Google blocks its sign-in. Use the code sent by email, or open the site in your browser."
+    },
+    "panneau": {
+      "mot": "Cosplay",
+      "photoAlt": "Cosplay photo"
     }
   },
   "Compte": {
