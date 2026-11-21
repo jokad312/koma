@@ -4,6 +4,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { useId, useState } from "react";
 import { formaterDateBoutique } from "@/lib/dates";
 import type { UtilisateurAdmin } from "@/modules/admin/utilisateurs";
+import { ChampRecherche } from "./ui/ChampRecherche";
+import { CLASSES_CARTE_ADMIN } from "./ui/Panneau";
+import { Pastille } from "./ui/Pastille";
 
 const normaliser = (texte: string) => texte.normalize("NFD").replace(/\p{M}/gu, "").toLocaleLowerCase();
 
@@ -14,6 +17,7 @@ function initiales(u: UtilisateurAdmin): string {
   return (mots.length >= 2 ? `${mots[0][0]}${mots[1][0]}` : (mots[0] ?? "").slice(0, 2)).toLocaleUpperCase() || "?";
 }
 
+// Story 9.16 (étape 8) : style de l'admin (recherche en pastille, cartes sombres, avatar carré, rôle en pastille).
 // Utilisateurs en grille de cartes (story 9.10), lecture seule : aucun lien, aucun changement de rôle. Recherche en haut (nom, email masqué, rôle) et compteur annoncé en statut.
 export function GrilleUtilisateurs({ utilisateurs }: { utilisateurs: readonly UtilisateurAdmin[] }) {
   const t = useTranslations("Admin.utilisateurs");
@@ -21,7 +25,7 @@ export function GrilleUtilisateurs({ utilisateurs }: { utilisateurs: readonly Ut
   const id = useId();
   const [recherche, setRecherche] = useState("");
 
-  if (utilisateurs.length === 0) return <p role="status" className="t-body rounded-lg border border-border bg-surface p-5 text-text-secondary">{t("vide")}</p>;
+  if (utilisateurs.length === 0) return <p role="status" className="t-body text-text-secondary">{t("vide")}</p>;
 
   const terme = normaliser(recherche.trim());
   const roleTexte = (u: UtilisateurAdmin) => (u.role ? t(`roles.${u.role}`) : t("roles.aucun"));
@@ -31,32 +35,28 @@ export function GrilleUtilisateurs({ utilisateurs }: { utilisateurs: readonly Ut
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
         <div className="min-w-0 flex-1 basis-64">
-          <label htmlFor={`${id}-recherche`} className="sr-only">
-            {t("recherche")}
-          </label>
-          <input
+          <ChampRecherche
             id={`${id}-recherche`}
-            type="search"
+            libelle={t("recherche")}
             value={recherche}
             onChange={(e) => setRecherche(e.target.value)}
             placeholder={t("recherchePlaceholder")}
             autoComplete="off"
-            className="min-h-touch w-full rounded-md border border-border-field bg-surface px-4 text-text-primary"
           />
         </div>
-        <p role="status" className="t-small text-text-secondary">
+        <p role="status" className="t-label uppercase text-text-primary">
           {t("nombre", { nombre: visibles.length })}
         </p>
       </div>
 
       {visibles.length === 0 ? (
-        <p className="t-body rounded-lg border border-border bg-surface p-5 text-text-secondary">{t("aucunResultat")}</p>
+        <p className="t-body text-text-secondary">{t("aucunResultat")}</p>
       ) : (
-        <ul className="grid grid-cols-1 gap-ecart-cartes sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {visibles.map((u) => (
-            <li key={u.id} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
+            <li key={u.id} className={`flex flex-col gap-3 ${CLASSES_CARTE_ADMIN}`}>
               <div className="flex items-center gap-3">
-                <span aria-hidden="true" className="t-label inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-primary text-on-primary">
+                <span aria-hidden="true" className="t-label inline-flex size-[52px] shrink-0 items-center justify-center rounded-[10px] bg-admin-avatar text-admin-sur-avatar">
                   {initiales(u)}
                 </span>
                 <div className="min-w-0">
@@ -66,9 +66,9 @@ export function GrilleUtilisateurs({ utilisateurs }: { utilisateurs: readonly Ut
               </div>
               <p className="t-small text-text-secondary">{u.inscritLe ? t("inscritLe", { date: formaterDateBoutique(u.inscritLe, locale) ?? u.inscritLe }) : t("inscritInconnu")}</p>
               <div>
-                <span className="t-small rounded-full border border-border px-3 py-1 text-text-primary">{roleTexte(u)}</span>
+                <Pastille>{roleTexte(u)}</Pastille>
               </div>
-              <dl className="t-small grid grid-cols-2 gap-2 border-t border-border pt-3">
+              <dl className="t-small grid grid-cols-2 gap-2 border-t border-border-field pt-3">
                 <div>
                   <dt className="text-text-secondary">{t("commandes")}</dt>
                   <dd className="t-body text-text-primary">{u.commandes}</dd>
