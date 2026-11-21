@@ -116,8 +116,8 @@ export function EditeurTranchesPrix({ tranches }: { tranches: readonly TranchePr
   const erreurDe = (index: number, champ: ChampTranche) => (erreur && erreur.ligne === index + 1 && erreur.champ === champ ? messageErreur : null);
 
   return (
-    <section aria-labelledby={`${base}-titre`} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
-      <h2 id={`${base}-titre`} className="t-h2">
+    <section aria-labelledby={`${base}-titre`} className="flex flex-col gap-3 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
+      <h2 id={`${base}-titre`} className="t-label text-[18px] leading-6 uppercase">
         {t("titre")}
       </h2>
       <p className="t-small text-text-secondary">{enregistrees > 0 ? t("nombreEnregistrees", { nombre: enregistrees }) : t("valeurAFixer")}</p>
@@ -131,7 +131,7 @@ export function EditeurTranchesPrix({ tranches }: { tranches: readonly TranchePr
               const premiere = i === 0;
               const derniere = i === lignes.length - 1;
               return (
-                <li key={l.cle} className="flex flex-col gap-3 rounded-lg border border-border p-4">
+                <li key={l.cle} className="flex flex-col gap-3 rounded-[16px] bg-admin-entete p-4 text-text-primary">
                   <p className="t-label">{t("position", { numero })}</p>
                   <ChampTexte
                     id={`${l.cle}-fr`}

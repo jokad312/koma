@@ -41,30 +41,36 @@ async function ReglagesSelonDroit({ locale }: { locale: Locale }) {
   return (
     <CoqueAdmin>
       <div className="flex flex-col gap-6">
-        <h1 className="t-h1">{t("titre")}</h1>
+        <h1 className="t-h1 uppercase">{t("titre")}</h1>
         <p className="t-body text-text-secondary">{t("intro")}</p>
-        <FormulaireReglage cle="nom_site" valeur={reglages.nomSite} />
-        <FormulaireReglage cle="numero_whatsapp" valeur={reglages.numeroWhatsapp} />
-        <FormulaireReglage cle="forfait_livraison_goma_cents" valeur={reglages.forfaitLivraisonGomaCents} />
-        <FormulaireReglage cle="forfait_livraison_bukavu_cents" valeur={reglages.forfaitLivraisonBukavuCents} />
-        <section aria-labelledby="delais-remise" className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-5">
-          <h2 id="delais-remise" className="t-h2">
-            {t("delais.titre")}
-          </h2>
-          <p className="t-small text-text-secondary">{t("delais.aide")}</p>
-          <ul className="t-body flex flex-col gap-1">
-            <li>{t("delais.goma")}</li>
-            <li>{t("delais.bukavu")}</li>
-          </ul>
-        </section>
-        <FormulaireReglage cle="retrait_goma_fr" valeur={reglages.retraitGomaFr} />
-        <FormulaireReglage cle="retrait_goma_en" valeur={reglages.retraitGomaEn} />
-        <FormulaireReglage cle="plafond_fabrication" valeur={reglages.plafondFabrication} />
-        <FormulaireReglage cle="delai_paiement" valeur={reglages.delaiPaiement} />
-        <FormulaireReglage cle="frais_annulation_pass" valeur={reglages.fraisAnnulationPass} />
-        <FormulaireReglage cle="delai_stand_heures" valeur={reglages.delaiStandHeures} />
-        <FormulaireReglage cle="relances_rythme_jours" valeur={reglages.relancesRythmeJours} />
-        <FormulaireReglage cle="session_inactivite_heures" valeur={reglages.sessionInactiviteHeures} />
+        {/* Story 9.16 (étape 8) : chaque réglage en panneau de l'admin, deux colonnes à partir de 1280 px ; tranches de prix et héros sur toute la largeur. */}
+        <div className="grid grid-cols-1 items-start gap-4 xl:grid-cols-2">
+          <FormulaireReglage cle="nom_site" valeur={reglages.nomSite} />
+          <FormulaireReglage cle="numero_whatsapp" valeur={reglages.numeroWhatsapp} />
+          <FormulaireReglage cle="forfait_livraison_goma_cents" valeur={reglages.forfaitLivraisonGomaCents} />
+          <FormulaireReglage cle="forfait_livraison_bukavu_cents" valeur={reglages.forfaitLivraisonBukavuCents} />
+          <section
+            aria-labelledby="delais-remise"
+            className="flex flex-col gap-2 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary"
+          >
+            <h2 id="delais-remise" className="t-label text-[18px] leading-6 uppercase">
+              {t("delais.titre")}
+            </h2>
+            <p className="t-small text-text-secondary">{t("delais.aide")}</p>
+            <ul className="t-body flex flex-col gap-1">
+              <li>{t("delais.goma")}</li>
+              <li>{t("delais.bukavu")}</li>
+            </ul>
+          </section>
+          <FormulaireReglage cle="retrait_goma_fr" valeur={reglages.retraitGomaFr} />
+          <FormulaireReglage cle="retrait_goma_en" valeur={reglages.retraitGomaEn} />
+          <FormulaireReglage cle="plafond_fabrication" valeur={reglages.plafondFabrication} />
+          <FormulaireReglage cle="delai_paiement" valeur={reglages.delaiPaiement} />
+          <FormulaireReglage cle="frais_annulation_pass" valeur={reglages.fraisAnnulationPass} />
+          <FormulaireReglage cle="delai_stand_heures" valeur={reglages.delaiStandHeures} />
+          <FormulaireReglage cle="relances_rythme_jours" valeur={reglages.relancesRythmeJours} />
+          <FormulaireReglage cle="session_inactivite_heures" valeur={reglages.sessionInactiviteHeures} />
+        </div>
         <EditeurTranchesPrix tranches={tranches} />
         <ReglageHeros heros={heros} />
       </div>

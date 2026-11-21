@@ -64,8 +64,8 @@ export function FormulaireReglage({ cle, valeur }: Props) {
   const erreurDeChamp = erreur === erreurChamp;
 
   return (
-    <section aria-labelledby={`${idChamp}-titre`} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
-      <h2 id={`${idChamp}-titre`} className="t-h2">
+    <section aria-labelledby={`${idChamp}-titre`} className="flex flex-col gap-3 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
+      <h2 id={`${idChamp}-titre`} className="t-label text-[18px] leading-6 uppercase">
         {t(`${texte}.titre`)}
       </h2>
       <p className="t-small text-text-secondary">{courante ? t("valeurActuelle", { valeur: versAffichage(courante) }) : t("valeurAFixer")}</p>

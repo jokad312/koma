@@ -9,9 +9,9 @@ export async function ReglageHeros({ heros }: { heros: HerosAdmin }) {
   const t = await getTranslations("Admin.reglages.heros");
   const { etat } = heros;
   return (
-    <section aria-labelledby="reglage-heros" className="flex flex-col gap-6 rounded-lg border border-border bg-surface p-5">
+    <section aria-labelledby="reglage-heros" className="flex flex-col gap-6 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
       <div className="flex flex-col gap-2">
-        <h2 id="reglage-heros" className="t-h2">
+        <h2 id="reglage-heros" className="t-label text-[18px] leading-6 uppercase">
           {t("titre")}
         </h2>
         <p className="t-small text-text-secondary">{t("intro")}</p>
