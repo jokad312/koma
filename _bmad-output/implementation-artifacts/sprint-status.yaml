@@ -29,7 +29,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 # - Retrospective appends its action items to action_items; the status view surfaces open ones
 generated: 10-21-2026 12:00
-last_updated: 11-16-2026 21:30
+last_updated: 11-21-2026 18:00
 project: KOMA SHOP
 project_key: NOKEY
 tracking_system: file-system
@@ -143,9 +143,10 @@ development_status:
   # Refonte visuelle de l'admin et police unique (docs/design/admin/INVENTAIRE.md) : étape 1 (police KOMA Chikara, planche validée), étape 2 (9.15)
   # et étape 3 a) (spec-9-16-a : KOMA Chikara partout, 16 px minimum, commits f0fe0e6 et ea13030, CI verte sur main le 2026-11-16) faites ;
   # étape 3 b) (spec-9-16-b : cadre A, menu du profil, composants communs de src/components/admin/ui/) : commits b67349f et correctifs de revue
-  # du 2026-11-17, PR #4 ; faite quand la CI de main est verte après la fusion ;
-  # prochaine étape = 4 : les 7 pages des maquettes, une spec et un commit par page (page 1 = tableau de bord).
-  9-16-refonte-admin-maquette-et-police: in-progress
+  # du 2026-11-17, PR #4 (fusionnée le 2026-11-21, CI de b8f1532 correctif de connexion.spec.ts) ; étape 4 : 7 pages des maquettes (9.16 c à i),
+  # étape 8 : autres pages et détails (9.16 j à r), page 9 : connexion (9.16 s), correctifs avant fusion (points 1 à 5 de Jonathan) ; PR #5
+  # fusionnée dans main le 2026-11-21 (09539e1), CI verte sur main (run 44916882238). Choix faits sans Jonathan : docs/design/admin/DECISIONS-NUIT.md.
+  9-16-refonte-admin-maquette-et-police: done
   9-11-performance-avant-mise-en-ligne: backlog
   9-9-mise-en-ligne: backlog
   epic-9-retrospective: optional
