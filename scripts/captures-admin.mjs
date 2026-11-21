@@ -50,6 +50,9 @@ const TOUTES_LES_VUES = [
   ["messages", "Messages", "/fr/admin/messages", null],
   ["prestataires", "Prestataires", "/fr/admin/prestataires", null],
   ["reglages", "Réglages", "/fr/admin/reglages", null],
+  // Point 2 de Jonathan (2026-11-21) : fiche d'un événement TEST_ complet et détail d'une commande TEST_ payée de deux articles (semés ci-dessous).
+  ["fiche-evenement", "Fiche d'un événement TEST_", "/fr/admin/evenements/00000000-0000-4000-8916-00000000ee01", null],
+  ["detail-commande", "Détail d'une commande TEST_ payée", "/fr/admin/commandes/KS-2026-916001", null],
   ["nouveau-code", "Nouveau code promo", "/fr/admin/codes-promo?nouveau=1", "07-codes-promo.png"],
   ["modifier-code", "Modifier un code promo TEST_", "/fr/admin/codes-promo?modifier=00000000-0000-4000-8916-00000000cc01", "07-codes-promo.png"],
 ];
@@ -112,7 +115,7 @@ const PRODUITS_TEST = {
   autre: "00000000-0000-4000-8916-00000000ca04",
 };
 const PHOTO_TEST = "test-captures-916e/cosplay.jpg";
-const avecProduits = () => VUES.some(([cle]) => cle === "produits" || cle.startsWith("modifier-"));
+const avecProduits = () => VUES.some(([cle]) => cle === "produits" || cle.startsWith("modifier-") || cle === "detail-commande");
 
 function sqlBloc(corps) {
   const dossier = mkdtempSync(join(tmpdir(), "captures-916e-"));
@@ -191,6 +194,68 @@ async function compterArticlesTest() {
   if (error || count === null) throw new Error(`comptage des articles TEST_ : ${error?.message}`);
   const { data } = await service.storage.from("produits-public").list("test-captures-916g");
   return count + (data ?? []).length;
+}
+
+// Point 2 (2026-11-21) : événement TEST_ complet (dates, lieu, capacité, deux Types de pass dont un Stand, publié) et Commande TEST_ payée de deux
+// articles (cosplay M et autre article des produits TEST_), au nom d'un Compte client TEST_ (le même sert d'auteur à l'événement : auteur_id n'a pas
+// de clé étrangère). Données de test pour les captures seulement, à la demande de Jonathan (jamais un vrai paiement : aucune tentative, aucun
+// prestataire appelé ; exception à la règle 13 notée dans DECISIONS-NUIT.md). Commande, lignes, événement et types de pass sont supprimés à la fin
+// puis comptés (0) ; le journal d'audit garde, comme pour les autres données TEST_ des captures, la trace de leur création et de leur suppression.
+const EVENEMENT_TEST = "00000000-0000-4000-8916-00000000ee01";
+const COMMANDE_TEST = { id: "00000000-0000-4000-8916-00000000cd01", numero: "KS-2026-916001" };
+const avecEvenement = () => VUES.some(([cle]) => cle === "fiche-evenement");
+const avecCommande = () => VUES.some(([cle]) => cle === "detail-commande");
+
+function retirerEvenementTest() {
+  sqlBloc(`delete from public.type_pass where evenement_id = '${EVENEMENT_TEST}';
+delete from public.evenement where id = '${EVENEMENT_TEST}';`);
+}
+
+function semerEvenementTest(auteurId) {
+  sqlBloc(`insert into public.evenement (id, auteur_id, titre_fr, titre_en, slug, description_fr, description_en, lieu_type, lieu_fr, lieu_en, debut_le, fin_le, capacite, vente_ouvre_le, vente_ferme_le, publie_le)
+  values ('${EVENEMENT_TEST}', '${auteurId}', 'TEST_ Festival cosplay de Goma', 'TEST_ Goma cosplay festival', 'test-captures-916-festival',
+          'TEST_ Concours, défilé et ateliers de fabrication.', 'TEST_ Contest, parade and crafting workshops.', 'salle', 'TEST_ Salle des fêtes, Goma', 'TEST_ Hall, Goma',
+          now() + interval '30 days', now() + interval '30 days 8 hours', 300, now() - interval '1 day', now() + interval '29 days', now() - interval '1 hour');
+insert into public.type_pass (evenement_id, nom_fr, nom_en, prix_cents, quota, est_stand) values
+  ('${EVENEMENT_TEST}', 'TEST_ Entrée', 'TEST_ Entry', 500, 250, false),
+  ('${EVENEMENT_TEST}', 'TEST_ Stand', 'TEST_ Stand', 4000, 10, true);`);
+}
+
+async function compterEvenementTest() {
+  const { count, error } = await service.from("evenement").select("id", { count: "exact", head: true }).eq("id", EVENEMENT_TEST);
+  if (error || count === null) throw new Error(`comptage de l'événement TEST_ : ${error?.message}`);
+  return count;
+}
+
+async function compteClientTest() {
+  const cree = await service.auth.admin.createUser({ email: `${EMAIL_PREFIXE}client-${Date.now()}@example.invalid`, email_confirm: true, user_metadata: { full_name: "TEST Client" } });
+  if (cree.error || !cree.data.user) throw new Error(`création du Compte client TEST_ impossible : ${cree.error?.message}`);
+  return cree.data.user.id;
+}
+
+function retirerCommandeTest() {
+  sqlBloc(`delete from public.ligne_commande where commande_id = '${COMMANDE_TEST.id}';
+delete from public.commande where id = '${COMMANDE_TEST.id}' or numero = '${COMMANDE_TEST.numero}';`);
+}
+
+function semerCommandeTest(compteId) {
+  const p = PRODUITS_TEST;
+  sqlBloc(`insert into public.commande (id, numero, compte_id, type, statut, sous_total_cents, total_cents, forfait_cents, zone, mode_remise, telephone, prestataire, reference_transaction, paye_le)
+  values ('${COMMANDE_TEST.id}', '${COMMANDE_TEST.numero}', '${compteId}', 'produits', 'payee', 5500, 5700, 200, 'goma', 'livraison', '+243990000000', 'pawapay', 'TEST_captures_916', now() - interval '2 hours');
+insert into public.ligne_commande (commande_id, produit_id, variante_id, origine, nombre, prix_cents)
+  select '${COMMANDE_TEST.id}', '${p.cosplay}', v.id, 'stock', 1, 4500 from public.variante v where v.produit_id = '${p.cosplay}' and v.taille = 'M';
+insert into public.ligne_commande (commande_id, produit_id, variante_id, origine, nombre, prix_cents)
+  select '${COMMANDE_TEST.id}', '${p.autre}', v.id, 'stock', 1, 1000 from public.variante v where v.produit_id = '${p.autre}';
+-- Deux lignes exactement (une variante manquante n'insère rien, sans erreur) : sinon la capture montrerait une commande fausse.
+if (select count(*) from public.ligne_commande where commande_id = '${COMMANDE_TEST.id}') <> 2 then
+  raise exception 'Commande TEST_ : 2 lignes attendues';
+end if;`);
+}
+
+async function compterCommandeTest() {
+  const { count, error } = await service.from("commande").select("id", { count: "exact", head: true }).eq("id", COMMANDE_TEST.id);
+  if (error || count === null) throw new Error(`comptage de la commande TEST_ : ${error?.message}`);
+  return count;
 }
 
 // Story 9.16 i) : vue « codes-promo » remplie de 3 Codes promo TEST_ (deux actifs, un inactif), TOUS supprimés à la fin, puis comptés (0 attendu).
@@ -317,6 +382,9 @@ async function principal() {
   const navigateur = await chromium.launch();
   const rapport = { vues: {}, largeurs: {}, assistant: null, admin: null };
   try {
+    // Restes d'un passage interrompu : commande et événement d'abord (la commande référence un Compte et des produits TEST_).
+    if (avecCommande()) retirerCommandeTest();
+    if (avecEvenement()) retirerEvenementTest();
     await nettoyer();
     if (avecProduits()) {
       await retirerProduitsTest();
@@ -330,6 +398,9 @@ async function principal() {
       retirerCodesTest();
       semerCodesTest();
     }
+    const client = avecCommande() || avecEvenement() ? await compteClientTest() : null;
+    if (avecCommande()) semerCommandeTest(client);
+    if (avecEvenement()) semerEvenementTest(client);
     const admin = await sessionTest("admin");
     const assistant = await sessionTest("assistant");
 
@@ -414,6 +485,19 @@ async function principal() {
   } finally {
     await navigateur.close();
     try {
+      // La commande d'abord : elle référence le Compte et les produits TEST_ (suppression refusée sinon).
+      if (avecCommande()) {
+        retirerCommandeTest();
+        const restesCommande = await compterCommandeTest();
+        console.log(`Commande TEST_ restante : ${restesCommande}`);
+        if (restesCommande !== 0) process.exitCode = 1;
+      }
+      if (avecEvenement()) {
+        retirerEvenementTest();
+        const restesEvenement = await compterEvenementTest();
+        console.log(`Événement TEST_ restant : ${restesEvenement}`);
+        if (restesEvenement !== 0) process.exitCode = 1;
+      }
       await nettoyer();
       if (avecProduits()) {
         await retirerProduitsTest();
