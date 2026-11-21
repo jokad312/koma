@@ -54,7 +54,8 @@ async function GalerieSelonDroit({ locale }: { locale: Locale }) {
   return (
     <CoqueAdmin>
       <div className="flex flex-col gap-6">
-        <h1 className="t-h1">{t("titre")}</h1>
+        {/* Story 9.16 (étape 8) : chaque file de photos et le dépôt WhatsApp en panneaux de l'admin. */}
+        <h1 className="t-h1 uppercase">{t("titre")}</h1>
         <p className="t-body text-text-secondary">{t("intro")}</p>
         {lu.ok ? <FilePhotos photos={lu.photos} passOffert={passOffert} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
         <DepotPhotoWhatsapp aujourdhui={aujourdhui} ilYaUnAn={ilYaUnAn} />

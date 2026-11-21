@@ -86,7 +86,7 @@ export function FilePhotos({ photos, passOffert = null }: { photos: PhotoAdmin[]
     const date = formaterDateBoutique(p.creeLe, locale) ?? "";
     const confirmation = aConfirmer?.id === p.id ? aConfirmer.action : null;
     return (
-      <li key={p.id} className="flex flex-wrap items-start gap-4 rounded-lg border border-border bg-surface p-4">
+      <li key={p.id} className="flex flex-wrap items-start gap-4 rounded-[16px] bg-admin-entete p-4 text-text-primary">
         {p.apercu ? (
           // Aperçu signé de courte durée (photo en attente) ou adresse publique : pas d'optimisation d'image.
           // eslint-disable-next-line @next/next/no-img-element
@@ -160,8 +160,8 @@ export function FilePhotos({ photos, passOffert = null }: { photos: PhotoAdmin[]
   };
 
   const section = (id: string, titre: string, vide: string, liste: PhotoAdmin[], actions: Action[]) => (
-    <section aria-labelledby={id} className="flex flex-col gap-3">
-      <h2 id={id} className="t-h2">
+    <section aria-labelledby={id} className="flex flex-col gap-3 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
+      <h2 id={id} className="t-label text-[18px] leading-6 uppercase">
         {titre}
       </h2>
       {liste.length === 0 ? <p className="t-body text-text-secondary">{vide}</p> : <ul className="flex flex-col gap-3">{liste.map((p) => carte(p, actions))}</ul>}

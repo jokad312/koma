@@ -106,8 +106,8 @@ export function DepotPhotoWhatsapp({ aujourdhui, ilYaUnAn }: { aujourdhui: strin
   }
 
   return (
-    <form onSubmit={surEnvoi} noValidate className="flex max-w-2xl flex-col gap-4 rounded-lg border border-border bg-surface p-5">
-      <h2 className="t-h2">{t("titre")}</h2>
+    <form onSubmit={surEnvoi} noValidate className="flex flex-col gap-4 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
+      <h2 className="t-label text-[18px] leading-6 uppercase">{t("titre")}</h2>
       <p className="t-small text-text-secondary">{t("intro")}</p>
 
       <div className="flex flex-col gap-2">
