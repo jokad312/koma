@@ -6,8 +6,10 @@ import { useEffect, useId, useRef, useState, useTransition, type FormEvent } fro
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { creerUnivers, type EtatUnivers } from "@/modules/catalogue/actions";
+import { CLASSES_PANNEAU, CLASSES_TITRE_PANNEAU } from "./ui/Panneau";
 
-const CHAMP = "t-body min-h-touch w-full rounded-md border border-border-field bg-surface px-4 py-3 text-text-primary";
+// Story 9.16 (étape 8) : champ sombre de l'admin (comme dans les fenêtres de formulaire), contour gardé pour le contraste.
+const CHAMP = "t-body min-h-touch w-full rounded-[14px] border border-border-field bg-admin-champ px-4 py-3 text-text-primary";
 
 // Création d'un univers (jamais de renommage ni de suppression). Le succès n'apparaît qu'après la réponse de l'action serveur ;
 // la saisie est conservée après un échec et vidée seulement après un succès réel. La liste est relue par le serveur (router.refresh).
@@ -61,8 +63,8 @@ export function FormulaireUnivers() {
   const erreurDeChamp = erreurFr || erreurEn;
 
   return (
-    <section aria-labelledby={`${idFr}-titre`} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
-      <h2 id={`${idFr}-titre`} className="t-h2">
+    <section aria-labelledby={`${idFr}-titre`} className={`flex flex-col gap-3 ${CLASSES_PANNEAU}`}>
+      <h2 id={`${idFr}-titre`} className={CLASSES_TITRE_PANNEAU}>
         {t("titre")}
       </h2>
       {erreur ? (
