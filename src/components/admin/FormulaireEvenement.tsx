@@ -11,6 +11,7 @@ import { proposerSlug } from "@/modules/catalogue/slug";
 import { enregistrerEvenementAction, type EtatEvenement } from "@/modules/evenements/actions";
 import type { Evenement, EntreeType, ImageEvenement, LieuType } from "@/modules/evenements/types";
 import { ChampTexte, CLASSE_CHAMP } from "./ChampTexte";
+import { useEnregistrementFenetre } from "./ui/FenetreFormulaire";
 import { ImagesEvenement } from "./ImagesEvenement";
 
 type Champ = "titre_fr" | "titre_en" | "slug" | "texte" | "lieu" | "date" | "capacite" | "types";
@@ -62,7 +63,8 @@ function versLigne(t: Evenement["types"][number]): LigneType {
 // Création et modification d'un Événement avec ses Types de pass (FR-52). Rien n'est écrit en dur : tout vient de la saisie.
 // Dates et heures saisies et affichées à l'heure de Goma. Le succès n'apparaît qu'après la réponse réelle du serveur ;
 // la saisie est conservée après un échec. Les photos s'ajoutent après la création, comme pour les Articles.
-export function FormulaireEvenement({ evenement }: { evenement: Evenement | null }) {
+// Story 9.16 (étape 8) : idFormulaire = formulaire soumis par « Enregistrer » de l'en-tête quand la création s'affiche en fenêtre (Q23).
+export function FormulaireEvenement({ evenement, idFormulaire }: { evenement: Evenement | null; idFormulaire?: string }) {
   const t = useTranslations("Admin.evenements.formulaire");
   const router = useRouter();
   const base = useId();
@@ -91,6 +93,7 @@ export function FormulaireEvenement({ evenement }: { evenement: Evenement | null
   }
   const [etat, setEtat] = useState<EtatEvenement | null>(null);
   const [enCours, demarrer] = useTransition();
+  const { enregistre, source } = useEnregistrementFenetre(enCours);
   const enVol = useRef(false);
   const refResume = useRef<HTMLDivElement>(null);
 
@@ -138,6 +141,7 @@ export function FormulaireEvenement({ evenement }: { evenement: Evenement | null
             types: types.map((type) => ({ id: type.id, nomFr: type.nomFr, nomEn: vide(type.nomEn ?? ""), prixUsd: type.prixUsd, quota: vide(type.quota ?? ""), inclusFr: vide(type.inclusFr ?? ""), inclusEn: vide(type.inclusEn ?? ""), estStand: type.estStand })),
           },
         });
+        if (resultat.statut === "succes") enregistre();
         if (resultat.statut === "succes" && resultat.cree) {
           router.push(`/admin/evenements/${resultat.id}?cree=1`);
           return;
@@ -185,6 +189,8 @@ export function FormulaireEvenement({ evenement }: { evenement: Evenement | null
 
   return (
     <form
+      id={idFormulaire}
+      {...source}
       onSubmit={surEnvoi}
       onChange={() => setEtat((avant) => (avant?.statut === "succes" ? null : avant))}
       noValidate

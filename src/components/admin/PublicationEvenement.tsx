@@ -53,8 +53,8 @@ export function PublicationEvenement({ evenementId, publie, manques }: { eveneme
   const liste = (resultat?.type === "erreur" && resultat.manques.length > 0 ? resultat.manques : manques).filter((m) => (MANQUES_PUBLICATION as readonly string[]).includes(m));
 
   return (
-    <section aria-labelledby="publication-evenement-titre" className="flex max-w-2xl flex-col gap-4 rounded-lg border border-border bg-surface p-5">
-      <h2 id="publication-evenement-titre" className="t-h2">
+    <section aria-labelledby="publication-evenement-titre" className="flex flex-col gap-4 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
+      <h2 id="publication-evenement-titre" className="t-label text-[18px] leading-6 uppercase">
         {t("titre")}
       </h2>
       <PastilleStatut publie={publie} libelle={t(publie ? "statutPublie" : "statutBrouillon")} />

@@ -1346,8 +1346,7 @@
         "sansDate": "Date à fixer"
       },
       "pageNouveau": {
-        "titre": "Nouvel événement",
-        "retour": "Retour aux événements"
+        "titre": "Nouvel événement"
       },
       "pageEdition": {
         "titre": "Modifier l'événement",

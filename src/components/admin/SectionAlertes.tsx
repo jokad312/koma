@@ -15,8 +15,8 @@ export async function SectionAlertes({ evenementId, nombres }: Props) {
     [t("desinscrits"), nombres.desinscrits],
   ];
   return (
-    <section aria-labelledby="admin-alertes" className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
-      <h2 id="admin-alertes" className="t-h3">
+    <section aria-labelledby="admin-alertes" className="flex flex-col gap-3 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
+      <h2 id="admin-alertes" className="t-label text-[18px] leading-6 uppercase">
         {t("titre")}
       </h2>
       <p className="t-small text-text-secondary">{t("aide")}</p>

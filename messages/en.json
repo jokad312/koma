@@ -1346,8 +1346,7 @@
         "sansDate": "Date to be set"
       },
       "pageNouveau": {
-        "titre": "New event",
-        "retour": "Back to events"
+        "titre": "New event"
       },
       "pageEdition": {
         "titre": "Edit the event",

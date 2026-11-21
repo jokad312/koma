@@ -115,7 +115,9 @@ async function EvenementSelonDroit({
   return (
     <CoqueAdmin>
       <div className="flex flex-col gap-6">
-        <h1 className="t-h1">{t("pageEdition.titre")}</h1>
+        {/* Story 9.16 (étape 8) : la fiche reste une page (publication, alertes, bénévoles, verrou, candidatures, galerie et formulaire : trop pour la
+            fenêtre de 670 px) ; chaque partie prend l'apparence du panneau de l'admin. */}
+        <h1 className="t-h1 uppercase">{t("pageEdition.titre")}</h1>
         <p>
           <Link href="/admin/evenements" className="t-label inline-flex min-h-touch items-center underline">
             {t("pageEdition.retour")}

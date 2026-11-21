@@ -3,9 +3,11 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { Plus } from "lucide-react";
+import { Panneau } from "@/components/admin/ui/Panneau";
+import { Link } from "@/i18n/navigation";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { ListeEvenements } from "@/components/admin/ListeEvenements";
-import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
 import { routing, type Locale } from "@/i18n/routing";
@@ -45,14 +47,27 @@ async function EvenementsSelonDroit({ locale }: { locale: Locale }) {
   return (
     <CoqueAdmin>
       <div className="flex flex-col gap-6">
-        <h1 className="t-h1">{t("titre")}</h1>
+        {/* Story 9.16 (étape 8) : titre et bouton de création sur une ligne (comme « + NOUVEAU CODE »), liste dans un panneau. */}
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h1 className="t-h1 uppercase">{t("titre")}</h1>
+          {evenements && evenements.length > 0 ? (
+            <Link
+              href="/admin/evenements/nouveau"
+              className="t-label inline-flex min-h-touch items-center gap-2 rounded-full bg-primary px-6 py-3 uppercase text-on-primary no-underline"
+            >
+              <Plus aria-hidden="true" className="size-5" />
+              {t("nouveau")}
+            </Link>
+          ) : null}
+        </div>
         <p className="t-body text-text-secondary">{t("intro")}</p>
-        {evenements && evenements.length > 0 ? (
-          <div>
-            <Bouton href="/admin/evenements/nouveau">{t("nouveau")}</Bouton>
-          </div>
-        ) : null}
-        {evenements ? <ListeEvenements evenements={evenements} locale={locale === "en" ? "en" : "fr"} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
+        {evenements ? (
+          <Panneau>
+            <ListeEvenements evenements={evenements} locale={locale === "en" ? "en" : "fr"} />
+          </Panneau>
+        ) : (
+          <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>
+        )}
       </div>
     </CoqueAdmin>
   );
