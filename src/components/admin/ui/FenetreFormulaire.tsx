@@ -6,6 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useId, useMemo, useR
 import { Dialogue } from "@/components/ui/Dialogue";
 import { CLASSES_PRINCIPAL, CLASSES_SECONDAIRE } from "@/components/ui/classes";
 import { Link, useRouter } from "@/i18n/navigation";
+import { GardeHydratation } from "../GardeHydratation";
 
 // Ce que la fenêtre offre aux formulaires qu'elle contient (story 9.16 f) : style des champs de la maquette (champ sombre, étiquette en majuscules),
 // signal « enregistrement ou envoi en cours » par source (le bouton « Enregistrer » de l'en-tête est occupé et Échap ne quitte pas tant qu'au moins
@@ -201,7 +202,10 @@ export function FenetreFormulaire({
         <div aria-hidden="true" className="mx-4 mt-4 shrink-0 border-b-[3px] border-text-primary md:mx-5" />
         {/* Contenu défilant à l'intérieur de la fenêtre : l'en-tête et « Enregistrer » restent visibles. */}
         <div data-defilement-fenetre="" className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-6 pt-5 md:px-5">
-          <Contexte.Provider value={contexte}>{children}</Contexte.Provider>
+          {/* Point 5 (2026-11-21) : garde aussi dans la fenêtre, hydratée avec son formulaire (celle de la coque peut l'être avant). */}
+          <Contexte.Provider value={contexte}>
+            <GardeHydratation>{children}</GardeHydratation>
+          </Contexte.Provider>
         </div>
       </section>
 

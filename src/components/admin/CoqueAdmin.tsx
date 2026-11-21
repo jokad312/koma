@@ -7,6 +7,7 @@ import { lienWhatsapp } from "@/lib/vitrine/whatsapp";
 import { creerClientService } from "@/lib/supabase/service";
 import { compterMessagesNouveaux } from "@/modules/admin/queries";
 import { BandeauAdmin, type UtilisateurBandeau } from "./BandeauAdmin";
+import { GardeHydratation } from "./GardeHydratation";
 import { NavigationAdmin } from "./NavigationAdmin";
 
 // Initiales : deux premières lettres des deux premiers mots (ou les deux premières lettres du seul mot).
@@ -67,7 +68,7 @@ export async function CoqueAdmin({ children }: { children: ReactNode }) {
       <div className="min-w-0 lg:pl-60">
         <BandeauAdmin utilisateur={utilisateur} estAdmin={estAdmin} lienAide={lienWhatsapp(numeroWhatsapp)} />
         <div id="contenu-admin" tabIndex={-1} className="px-marge py-6 pb-24 outline-none lg:pb-10">
-          {children}
+          <GardeHydratation>{children}</GardeHydratation>
         </div>
       </div>
     </div>
