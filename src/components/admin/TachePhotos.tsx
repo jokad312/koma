@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Link } from "@/i18n/navigation";
 import { creerClientService } from "@/lib/supabase/service";
+import { CLASSES_PANNEAU, CLASSES_TITRE_PANNEAU } from "./ui/Panneau";
 
 // Tâches « Photos à valider » et « Retraits demandés » (story 8.2, AD-21) : compteurs réels lus en base ; lecture impossible : message d'erreur,
 // jamais un faux zéro.
@@ -25,8 +26,8 @@ export async function TachePhotos() {
     return <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>;
   }
   return (
-    <section aria-labelledby="tache-photos" className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-5">
-      <h2 id="tache-photos" className="t-h2">
+    <section aria-labelledby="tache-photos" className={`flex flex-col gap-3 ${CLASSES_PANNEAU}`}>
+      <h2 id="tache-photos" className={CLASSES_TITRE_PANNEAU}>
         {t("titre")}
       </h2>
       <p className="t-label text-text-primary">{t("aValider", { nombre: compte.aValider })}</p>

@@ -40,6 +40,16 @@ const TOUTES_LES_VUES = [
   ["nouvel-article-saisi", "Nouvel article : saisie", "/fr/admin/blog/nouveau", "06-nouvel-article.png", (p) => remplirArticle(p)],
   ["modifier-article", "Modifier un article TEST_", "/fr/admin/blog/00000000-0000-4000-8916-00000000ab01", "06-nouvel-article.png"],
   // Story 9.16 i : fenêtres de création et de modification d'un Code promo (codes TEST_ semés ci-dessous). Rien n'est envoyé.
+  // Étape 8 (story 9.16, pages sans maquette) : maquette null, ni côte à côte ni superposition ; mêmes captures sinon.
+  ["taches", "Tâches", "/fr/admin/taches", null],
+  ["univers", "Univers", "/fr/admin/univers", null],
+  ["utilisateurs", "Utilisateurs", "/fr/admin/utilisateurs", null],
+  ["evenements", "Événements", "/fr/admin/evenements", null],
+  ["nouvel-evenement", "Nouvel événement", "/fr/admin/evenements/nouveau", null],
+  ["galerie", "Galerie", "/fr/admin/galerie", null],
+  ["messages", "Messages", "/fr/admin/messages", null],
+  ["prestataires", "Prestataires", "/fr/admin/prestataires", null],
+  ["reglages", "Réglages", "/fr/admin/reglages", null],
   ["nouveau-code", "Nouveau code promo", "/fr/admin/codes-promo?nouveau=1", "07-codes-promo.png"],
   ["modifier-code", "Modifier un code promo TEST_", "/fr/admin/codes-promo?modifier=00000000-0000-4000-8916-00000000cc01", "07-codes-promo.png"],
 ];
@@ -332,7 +342,7 @@ async function principal() {
       const fichier = join(RACINE, `${cle}-sombre-1366.png`);
       await page.screenshot({ path: fichier });
       await page.screenshot({ path: join(RACINE, `${cle}-sombre-1366-entiere.png`), fullPage: true });
-      await comparer(cle, maquette, fichier);
+      if (maquette) await comparer(cle, maquette, fichier);
       // Fenêtre de formulaire (9.16 f) : le contenu défile à l'intérieur ; suite de la fenêtre, écran par écran (4 au plus).
       const defile = page.locator("[data-defilement-fenetre]");
       if (await defile.count()) {
@@ -437,8 +447,10 @@ async function principal() {
 function ecrirePage() {
   const img = (f, alt) => `<a href="${f}"><img loading="lazy" src="${f}" alt="${alt}"></a>`;
   const sections = VUES.map(
-    ([cle, libelle]) =>
-      `<section id="${cle}"><h2>${libelle} · sombre · 1366 × 768</h2><p>Maquette à gauche, rendu à droite.</p>${img(`${cle}-cote-a-cote.jpg`, `${libelle} : maquette et rendu côte à côte`)}<p>Superposition à 50 % (rendu sur la maquette).</p>${img(`${cle}-superpose.jpg`, `${libelle} : superposition à 50 %`)}<p>Page entière (sombre).</p>${img(`${cle}-sombre-1366-entiere.png`, `${libelle} : page entière`)}</section>`,
+    ([cle, libelle, , maquette]) =>
+      maquette
+        ? `<section id="${cle}"><h2>${libelle} · sombre · 1366 × 768</h2><p>Maquette à gauche, rendu à droite.</p>${img(`${cle}-cote-a-cote.jpg`, `${libelle} : maquette et rendu côte à côte`)}<p>Superposition à 50 % (rendu sur la maquette).</p>${img(`${cle}-superpose.jpg`, `${libelle} : superposition à 50 %`)}<p>Page entière (sombre).</p>${img(`${cle}-sombre-1366-entiere.png`, `${libelle} : page entière`)}</section>`
+        : `<section id="${cle}"><h2>${libelle} · sombre · 1366 × 768 (pas de maquette)</h2>${img(`${cle}-sombre-1366.png`, `${libelle} : écran`)}<p>Page entière (sombre).</p>${img(`${cle}-sombre-1366-entiere.png`, `${libelle} : page entière`)}</section>`,
   );
   const autres = [
     ["menu-profil-sombre-1366.png", "Menu du profil ouvert (sombre, 1366)"],

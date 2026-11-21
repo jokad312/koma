@@ -2379,7 +2379,8 @@
         "lien": "Open the gallery",
         "erreurLecture": "The photos to handle could not be counted.",
         "realisations": "Creations to approve: {nombre}"
-      }
+      },
+      "ouvertes": "{nombre, plural, =0 {Open tasks} one {# open task} other {# open tasks}}"
     },
     "prestataires": {
       "titre": "Payment providers",

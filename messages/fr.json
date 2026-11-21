@@ -2379,7 +2379,8 @@
         "lien": "Ouvrir la galerie",
         "erreurLecture": "Les photos à traiter n'ont pas pu être comptées.",
         "realisations": "Réalisations à valider : {nombre}"
-      }
+      },
+      "ouvertes": "{nombre, plural, =0 {Tâches ouvertes} one {# tâche ouverte} other {# tâches ouvertes}}"
     },
     "prestataires": {
       "titre": "Prestataires de paiement",

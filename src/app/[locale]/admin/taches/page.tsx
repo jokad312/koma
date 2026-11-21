@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { Panneau } from "@/components/admin/ui/Panneau";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { TachesArgent } from "@/components/admin/TachesArgent";
 import { TacheMesuresARecevoir } from "@/components/admin/TacheMesuresARecevoir";
@@ -47,12 +48,21 @@ async function TachesSelonDroit({ locale }: { locale: Locale }) {
   return (
     <CoqueAdmin>
       <div className="flex flex-col gap-6">
-        <h1 className="t-h1">{t("titre")}</h1>
+        <h1 className="t-h1 uppercase">{t("titre")}</h1>
         <p className="t-body text-text-secondary">{t("intro")}</p>
-        <TacheMesuresARecevoir />
-        <TachePhotos />
-        <TachesArgent />
-        {taches ? <ListeTaches taches={taches} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
+        {/* Story 9.16 (étape 8) : les trois suivis en panneaux côte à côte à partir de 1280 px, puis la liste des tâches ouvertes dans un panneau. */}
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+          <TacheMesuresARecevoir />
+          <TachePhotos />
+          <TachesArgent />
+        </div>
+        {taches ? (
+          <Panneau titre={t("ouvertes", { nombre: taches.length })}>
+            <ListeTaches taches={taches} />
+          </Panneau>
+        ) : (
+          <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>
+        )}
       </div>
     </CoqueAdmin>
   );
