@@ -2,10 +2,10 @@
 title: '9.16 i) — Étape 4, page 7 : codes promo selon la maquette'
 type: 'feature'
 created: '2026-11-17'
-status: 'in-progress'
+status: 'done'
 baseline_commit: '85132c29d2749e694a3b3158c527a2b766c6d884'
 route: 'dispatch'
-review_loop_iteration: 0
+review_loop_iteration: 1
 context:
   - '{project-root}/docs/design/admin/INVENTAIRE.md'
   - '{project-root}/docs/design/admin/DECISIONS-NUIT.md'
@@ -66,3 +66,11 @@ context:
 ## Spec Change Log
 
 ## Review Triage Log
+
+Revue BMad du 2026-11-21 (4 relecteurs : Blind Hunter, Edge Case Hunter, Verification Gap, Acceptance Auditor). Corrigé :
+- haut : corbeille et Réactiver renvoyaient les valeurs affichées (écrasement d'une modification faite ailleurs) → `changerEtatCodePromoAction` ne change que l'état, valeurs relues en base côté serveur ; tests du service et de la dépendance ;
+- moyen : annonce dans la ligne (perdue quand la ligne quitte la vue sous ACTIFS) et focus perdu → zone de statut unique (`AnnoncesCodesPromo`), focus au compteur ; plus de zone live par ligne ;
+- moyen : page trop grande gardée dans les liens et le retour → page ramenée partout ;
+- moyen : vérifications manquantes → test du bouton « Enregistrer » de l'en-tête et d'Échap après succès, pluriels ICU réels, e2e réel (route, fenêtre `?nouveau=1`, corbeille, Inactif relu en base, listé sous INACTIFS, 390 px) ;
+- bas : liste rendue derrière la fenêtre, `onTermine` / « Annuler » morts, `dl` des conditions sans rôle, presse-papiers non restauré entre tests, libellé de recherche (code OU influenceur), commentaire `instant`.
+Écarté : recherche faite de seuls signes combinants (improbable), date de création invalide (colonne `not null` en base), annulation dans la fenêtre de 1 ms avant `enCours`, double rendu tableau/cartes (même modèle que les commandes, annonces désormais communes), deux boutons Enregistrer (même choix que produits et articles). Choix non tranchés notés dans DECISIONS-NUIT.md.

@@ -2475,13 +2475,12 @@
       "aides": {
         "code": "3 to 24 characters: unaccented letters, digits, hyphen or underscore. Upper and lower case are the same. It cannot be changed later.",
         "plafond": "Maximum number of uses. Leave empty for 50.",
-        "plafondModif": "Maximum number of uses."
+        "plafondModif": "Maximum number of uses.",
+        "modification": "The code itself cannot be changed. Untick “Active” to deactivate it."
       },
       "boutons": {
         "creer": "Create promo code",
         "enregistrer": "Save",
-        "modifier": "Edit",
-        "fermer": "Cancel",
         "modifierCode": "Edit code {code}"
       },
       "etat": {
@@ -2502,6 +2501,53 @@
         "plafond_invalide": "The usage limit must be a whole number between 1 and 100,000.",
         "introuvable": "This promo code no longer exists. Reload the page.",
         "generique": "The promo code could not be saved. Try again."
+      },
+      "nouveau": "New code",
+      "recherche": {
+        "libelle": "Search by code or influencer",
+        "indication": "Search for a promo code",
+        "lancer": "Search",
+        "effacer": "Clear the search"
+      },
+      "filtres": {
+        "libelle": "Filter by status",
+        "tous": "All",
+        "actifs": "Active",
+        "inactifs": "Inactive"
+      },
+      "nombre": "{nombre, plural, =0 {No codes} one {# code} other {# codes}}",
+      "aucunResultat": "No code matches this search or filter.",
+      "colonnes": {
+        "numero": "No.",
+        "influenceur": "Influencer",
+        "date": "Date",
+        "code": "Code",
+        "etat": "Status",
+        "actions": "Actions"
+      },
+      "carte": {
+        "numero": "No. {numero}",
+        "creeLe": "Created on {date}"
+      },
+      "actions": {
+        "copier": "Copy the code {code}",
+        "copie": "Copied: {code}",
+        "copieImpossible": "The code could not be copied. Select it and copy it by hand.",
+        "desactiver": "Deactivate the code {code}",
+        "desactive": "Code {code} deactivated.",
+        "reactiver": "Reactivate",
+        "reactiverSur": "Reactivate the code {code}",
+        "reactive": "Code {code} reactivated.",
+        "enCours": "One moment…"
+      },
+      "confirmation": {
+        "titre": "Deactivate the code {code}?",
+        "texte": "The code will no longer be accepted. It stays in the list, under Inactive, with its sales, and you can reactivate it at any time.",
+        "annuler": "Cancel",
+        "confirmer": "Deactivate"
+      },
+      "conditions": {
+        "titre": "Terms of the code {code}"
       }
     },
     "commandes": {

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  changerEtatCodePromo,
   creerCodePromo,
   modifierCodePromo,
   validerCodePromo,
@@ -22,6 +23,7 @@ function deps(s: Partial<DependancesCodePromo> = {}): DependancesCodePromo {
     exigerDroit: vi.fn(async () => ({ auteur: "TEST_auteur" })),
     creer: vi.fn(async () => ({ erreur: null })),
     modifier: vi.fn(async () => ({ erreur: null })),
+    lire: vi.fn(async () => ({ affilie: "TEST_Base", reductionPct: 12.5, commissionPct: 3, plafond: 70, actif: true })),
     ...s,
   };
 }
@@ -245,6 +247,41 @@ describe("modifierCodePromo", () => {
     const d = deps({ modifier: vi.fn(async () => Promise.reject(new Error("TEST_secret"))) });
     await expect(modifierCodePromo(d, ID, MODIF)).resolves.toEqual({ ok: false, erreur: "generique" });
     expect(JSON.stringify(spy.mock.calls)).not.toContain("TEST_secret");
+    spy.mockRestore();
+  });
+});
+
+describe("changerEtatCodePromo (9.16 i) : seul l'état change, le reste est relu en base", () => {
+  const ID = "00000000-0000-4000-8000-0000000000d1";
+
+  it("désactive avec les valeurs relues en base au moment de l'action (jamais celles de la page)", async () => {
+    const d = deps();
+    await expect(changerEtatCodePromo(d, ID, false)).resolves.toEqual({ ok: true });
+    expect(d.lire).toHaveBeenCalledWith(ID);
+    expect(d.modifier).toHaveBeenCalledWith("TEST_auteur", ID, { affilie: "TEST_Base", reductionPct: 12.5, commissionPct: 3, plafond: 70, actif: false });
+  });
+
+  it("droit refusé : rien n'est lu ni écrit", async () => {
+    const d = deps({ exigerDroit: vi.fn(async () => null) });
+    await expect(changerEtatCodePromo(d, ID, false)).resolves.toEqual({ ok: false, erreur: "non_autorise" });
+    expect(d.lire).not.toHaveBeenCalled();
+    expect(d.modifier).not.toHaveBeenCalled();
+  });
+
+  it("identifiant invalide ou code disparu : introuvable ; état non booléen : refus générique", async () => {
+    await expect(changerEtatCodePromo(deps(), "1 or 1=1", false)).resolves.toEqual({ ok: false, erreur: "introuvable" });
+    const disparu = deps({ lire: vi.fn(async () => null) });
+    await expect(changerEtatCodePromo(disparu, ID, false)).resolves.toEqual({ ok: false, erreur: "introuvable" });
+    expect(disparu.modifier).not.toHaveBeenCalled();
+    await expect(changerEtatCodePromo(deps(), ID, "false")).resolves.toEqual({ ok: false, erreur: "generique" });
+  });
+
+  it("panne de lecture : erreur générique, rien n'est écrit, aucun détail dans le journal", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const d = deps({ lire: vi.fn(async () => Promise.reject(new Error("TEST_panne"))) });
+    await expect(changerEtatCodePromo(d, ID, true)).resolves.toEqual({ ok: false, erreur: "generique" });
+    expect(d.modifier).not.toHaveBeenCalled();
+    expect(JSON.stringify(spy.mock.calls)).not.toContain("TEST_panne");
     spy.mockRestore();
   });
 });

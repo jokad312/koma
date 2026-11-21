@@ -140,3 +140,28 @@ describe("messages Admin.codesPromo", () => {
     }
   });
 });
+
+describe("dependancesCodePromo.lire (9.16 i)", () => {
+  function table(resultat: { data: unknown; error: unknown }) {
+    const maybeSingle = vi.fn().mockResolvedValue(resultat);
+    const eq = vi.fn(() => ({ maybeSingle }));
+    const select = vi.fn(() => ({ eq }));
+    faux.from.mockReturnValue({ select });
+    return { select, eq };
+  }
+
+  it("relit le code par son identifiant et convertit les pourcentages en nombres", async () => {
+    const { select, eq } = table({ data: { affilie: "TEST_Affilié", reduction_pct: "12.50", commission_pct: "3.00", plafond: 70, actif: false }, error: null });
+    await expect(dependancesCodePromo().lire("id-test")).resolves.toEqual({ affilie: "TEST_Affilié", reductionPct: 12.5, commissionPct: 3, plafond: 70, actif: false });
+    expect(faux.from).toHaveBeenCalledWith("code_promo");
+    expect(select).toHaveBeenCalledWith("affilie, reduction_pct, commission_pct, plafond, actif");
+    expect(eq).toHaveBeenCalledWith("id", "id-test");
+  });
+
+  it("code absent : null ; erreur de lecture : exception (panne, jamais « introuvable »)", async () => {
+    table({ data: null, error: null });
+    await expect(dependancesCodePromo().lire("id-test")).resolves.toBeNull();
+    table({ data: null, error: { message: "TEST_panne" } });
+    await expect(dependancesCodePromo().lire("id-test")).rejects.toThrow();
+  });
+});

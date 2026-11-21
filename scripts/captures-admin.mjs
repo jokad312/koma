@@ -39,6 +39,9 @@ const TOUTES_LES_VUES = [
   // avec image et extrait).
   ["nouvel-article-saisi", "Nouvel article : saisie", "/fr/admin/blog/nouveau", "06-nouvel-article.png", (p) => remplirArticle(p)],
   ["modifier-article", "Modifier un article TEST_", "/fr/admin/blog/00000000-0000-4000-8916-00000000ab01", "06-nouvel-article.png"],
+  // Story 9.16 i : fenêtres de création et de modification d'un Code promo (codes TEST_ semés ci-dessous). Rien n'est envoyé.
+  ["nouveau-code", "Nouveau code promo", "/fr/admin/codes-promo?nouveau=1", "07-codes-promo.png"],
+  ["modifier-code", "Modifier un code promo TEST_", "/fr/admin/codes-promo?modifier=00000000-0000-4000-8916-00000000cc01", "07-codes-promo.png"],
 ];
 
 // Création d'un article : titre, extrait et contenu. Rien n'est envoyé.
@@ -180,6 +183,29 @@ async function compterArticlesTest() {
   return count + (data ?? []).length;
 }
 
+// Story 9.16 i) : vue « codes-promo » remplie de 3 Codes promo TEST_ (deux actifs, un inactif), TOUS supprimés à la fin, puis comptés (0 attendu).
+const CODES_TEST = ["00000000-0000-4000-8916-00000000cc01", "00000000-0000-4000-8916-00000000cc02", "00000000-0000-4000-8916-00000000cc03"];
+const avecCodes = () => VUES.some(([cle]) => cle.endsWith("code") || cle === "codes-promo");
+const listeCodesTest = () => CODES_TEST.map((id) => `'${id}'`).join(",");
+
+function retirerCodesTest() {
+  sqlBloc(`delete from public.code_promo where id in (${listeCodesTest()}) or code like 'TEST\\_%';`);
+}
+
+function semerCodesTest() {
+  const [a, b, c] = CODES_TEST;
+  sqlBloc(`insert into public.code_promo (id, code, affilie, reduction_pct, commission_pct, plafond, actif, cree_le) values
+  ('${a}', 'TEST_GUN10', 'TEST_ Gun', 10, 5, 50, true, now() - interval '20 days'),
+  ('${b}', 'TEST_AKI15', 'TEST_ Aki cosplay', 15, 7.5, 100, true, now() - interval '4 days'),
+  ('${c}', 'TEST_ANCIEN', 'TEST_ Ancien partenaire', 5, 0, 20, false, now() - interval '60 days');`);
+}
+
+async function compterCodesTest() {
+  const { count, error } = await service.from("code_promo").select("id", { count: "exact", head: true }).or(`id.in.(${CODES_TEST.join(",")}),code.like.TEST\\_%`);
+  if (error || count === null) throw new Error(`comptage des codes TEST_ : ${error?.message}`);
+  return count;
+}
+
 // Compte TEST_ réel avec le rôle demandé ; renvoie les cookies de session à poser dans le navigateur.
 async function sessionTest(role) {
   const email = `${EMAIL_PREFIXE}${role}-${Date.now()}@example.invalid`;
@@ -290,6 +316,10 @@ async function principal() {
       await retirerArticlesTest();
       await semerArticlesTest();
     }
+    if (avecCodes()) {
+      retirerCodesTest();
+      semerCodesTest();
+    }
     const admin = await sessionTest("admin");
     const assistant = await sessionTest("assistant");
 
@@ -386,6 +416,12 @@ async function principal() {
         const restesArticles = await compterArticlesTest();
         console.log(`Articles et images TEST_ restants : ${restesArticles}`);
         if (restesArticles !== 0) process.exitCode = 1;
+      }
+      if (avecCodes()) {
+        retirerCodesTest();
+        const restesCodes = await compterCodesTest();
+        console.log(`Codes promo TEST_ restants : ${restesCodes}`);
+        if (restesCodes !== 0) process.exitCode = 1;
       }
     } finally {
       const restes = (await comptesTest()).length;

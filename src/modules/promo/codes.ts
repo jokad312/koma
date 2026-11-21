@@ -130,6 +130,30 @@ export async function creerCodePromo(deps: DependancesCodePromo, entree: unknown
   }
 }
 
+// Story 9.16 i (corbeille = désactiver, Q22 ; Réactiver) : ne change QUE l'état. Les autres valeurs sont relues en base au moment de l'action, jamais
+// reprises de la page (une modification faite ailleurs entre-temps n'est pas écrasée). Même droit et même fonction de base que la modification.
+export async function changerEtatCodePromo(deps: DependancesCodePromo, id: unknown, actif: unknown): Promise<ResultatCodePromo> {
+  let droit: { auteur: unknown } | null;
+  try {
+    droit = await deps.exigerDroit();
+  } catch {
+    console.error("[promo] vérification du droit impossible");
+    return { ok: false, erreur: "generique" };
+  }
+  if (!droit) return { ok: false, erreur: "non_autorise" };
+  if (typeof id !== "string" || !idSchema.safeParse(id).success) return { ok: false, erreur: "introuvable" };
+  if (typeof actif !== "boolean") return { ok: false, erreur: "generique" };
+  try {
+    const actuelles = await deps.lire(id);
+    if (!actuelles) return { ok: false, erreur: "introuvable" };
+    const { erreur } = await deps.modifier(droit.auteur, id, { ...actuelles, actif });
+    return erreur ? { ok: false, erreur: erreurBase(erreur) } : { ok: true };
+  } catch {
+    console.error("[promo] changement d'état d'un code promo impossible");
+    return { ok: false, erreur: "generique" };
+  }
+}
+
 export async function modifierCodePromo(deps: DependancesCodePromo, id: unknown, entree: unknown): Promise<ResultatCodePromo> {
   let droit: { auteur: unknown } | null;
   try {

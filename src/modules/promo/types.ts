@@ -54,4 +54,6 @@ export type DependancesCodePromo = {
   exigerDroit: () => Promise<{ auteur: unknown } | null>;
   creer: (auteur: unknown, code: string, valeurs: ValeursCodePromo) => Promise<{ erreur: string | null }>;
   modifier: (auteur: unknown, id: string, valeurs: ValeursCodePromo) => Promise<{ erreur: string | null }>;
+  // Story 9.16 i : valeurs actuelles d'un code, relues en base (null : code inexistant). Sert à ne changer que son état.
+  lire: (id: string) => Promise<ValeursCodePromo | null>;
 };

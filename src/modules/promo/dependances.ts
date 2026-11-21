@@ -6,8 +6,12 @@ import type { DependancesCodePromo } from "./types";
 
 // Accès réels du module promo. `code_promo` n'est pas encore dans les types générés (fichier non modifiable ici) : le
 // client est décrit localement, comme pour les autres tables récentes. Le droit est revérifié ici, jamais dans le navigateur.
+type LignePromo = { affilie: string; reduction_pct: number | string; commission_pct: number | string; plafond: number; actif: boolean };
 type ClientPromo = {
   rpc: (nom: string, args: Record<string, unknown>) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+  from: (table: string) => {
+    select: (colonnes: string) => { eq: (colonne: string, valeur: string) => { maybeSingle: () => PromiseLike<{ data: LignePromo | null; error: { message: string } | null }> } };
+  };
 };
 
 export function dependancesCodePromo(): DependancesCodePromo {
@@ -44,6 +48,13 @@ export function dependancesCodePromo(): DependancesCodePromo {
         p_actif: valeurs.actif,
       });
       return { erreur: error ? error.message : null };
+    },
+    // Lecture par le client service (table fermée aux rôles anon et authenticated) ; une erreur de lecture est une panne, jamais un « introuvable ».
+    lire: async (id) => {
+      const { data, error } = await client.from("code_promo").select("affilie, reduction_pct, commission_pct, plafond, actif").eq("id", id).maybeSingle();
+      if (error) throw new Error("lecture du code promo impossible");
+      if (!data) return null;
+      return { affilie: data.affilie, reductionPct: Number(data.reduction_pct), commissionPct: Number(data.commission_pct), plafond: data.plafond, actif: data.actif };
     },
   };
 }

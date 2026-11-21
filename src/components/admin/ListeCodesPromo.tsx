@@ -1,79 +1,122 @@
-"use client";
-
-import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
-import { Bouton } from "@/components/ui/Bouton";
+import { useTranslations } from "next-intl";
+import { AvatarInitiale } from "@/components/admin/ui/AvatarInitiale";
+import { CLASSES_TABLEAU_ADMIN, EnTeteTableau } from "@/components/admin/ui/EnTeteTableau";
+import { Pastille } from "@/components/admin/ui/Pastille";
 import type { Locale } from "@/i18n/routing";
 import { formaterUsd } from "@/lib/argent";
+import { FUSEAU_BOUTIQUE } from "@/lib/dates";
+import { adresseCodes, type ParametresCodes } from "@/modules/promo/liste";
 import type { CodePromo } from "@/modules/promo/types";
-import { FormulaireCodePromo } from "./FormulaireCodePromo";
+import { ActionsCodePromo } from "./ActionsCodePromo";
 
-// Liste des Codes promo (story 9.1, FR-46). L'état et les valeurs affichés sont ceux de la base : la liste est relue après
-// chaque réponse réelle du serveur (règle 13). Le code d'un code promo existant ne se modifie jamais.
-export function ListeCodesPromo({ codes }: { codes: CodePromo[] }) {
+const CODE = "t-label inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full bg-admin-champ px-4 text-text-primary";
+// Détails (conditions, ventes) : libellé et valeur côte à côte, les paires passent à la ligne.
+const DETAILS = "flex flex-wrap gap-x-6 gap-y-1";
+
+// Lignes d'une page de Codes promo selon la maquette 07-codes-promo (story 9.16 i, CP5 à CP8) : tableau à partir de 1024 px, cartes en dessous (aucun
+// défilement horizontal à 390 px). Colonnes de la maquette : N° = rang dans la liste filtrée (Q29), INFLUENCEUR, DATE = création à l'heure de Goma (Q29),
+// CODE en pastille sombre, ÉTAT, ACTIONS ; les valeurs existantes (réduction, commission, plafond, ventes de la story 9.3) sont sur une seconde ligne, sous
+// chaque code, sur toute la largeur (sinon le tableau déborde à 1366 px). Chaque code est un <tbody> (ses deux lignes). Valeurs lues en base.
+export function ListeCodesPromo({ codes, debut, parametres, locale }: { codes: readonly CodePromo[]; debut: number; parametres: ParametresCodes; locale: Locale }) {
   const t = useTranslations("Admin.codesPromo");
-  const langue = useLocale();
-  const nombre = new Intl.NumberFormat(langue, { maximumFractionDigits: 2 });
-  const [enEdition, setEnEdition] = useState<string | null>(null);
-
-  if (codes.length === 0) return <p className="t-body text-text-secondary">{t("vide")}</p>;
-
+  const nombre = new Intl.NumberFormat(locale, { maximumFractionDigits: 2 });
+  const pct = (v: number) => t("pourcentage", { valeur: nombre.format(v) });
+  const formatDate = new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-GB", { timeZone: FUSEAU_BOUTIQUE, day: "numeric", month: "short", year: "numeric" });
+  const date = (c: CodePromo) => {
+    const d = new Date(c.creeLe);
+    return Number.isNaN(d.getTime()) ? "" : formatDate.format(d);
+  };
+  const modifier = (c: CodePromo) => adresseCodes(parametres, { modifier: c.id });
+  const etat = (c: CodePromo) => (
+    <span data-etat={c.actif ? "actif" : "inactif"}>
+      <Pastille>{c.actif ? t("etat.actif") : t("etat.inactif")}</Pastille>
+    </span>
+  );
+  const paire = (libelle: string, valeur: string) => (
+    <div className="flex gap-2">
+      <dt className="text-text-secondary">{libelle}</dt>
+      <dd>{valeur}</dd>
+    </div>
+  );
+  const conditions = (c: CodePromo) => (
+    <dl className={DETAILS} role="group" aria-label={t("conditions.titre", { code: c.code })}>
+      {paire(t("champs.reductionPct"), pct(c.reductionPct))}
+      {paire(t("champs.commissionPct"), pct(c.commissionPct))}
+      {paire(t("champs.plafond"), nombre.format(c.plafond))}
+    </dl>
+  );
+  // Story 9.3 : calcul de la vue commission_code_promo ; aucun paiement de commission n'est fait par le site.
+  const ventes = (c: CodePromo) => (
+    <dl className={DETAILS} role="group" aria-label={t("ventes.titre", { code: c.code })}>
+      {paire(t("ventes.nombre"), nombre.format(c.ventes))}
+      {paire(t("ventes.montant"), formaterUsd(c.montantCents, locale))}
+      {paire(t("ventes.commission"), formaterUsd(c.commissionCents, locale))}
+    </dl>
+  );
+  const colonnes = [
+    { cle: "numero", libelle: t("colonnes.numero") },
+    { cle: "influenceur", libelle: t("colonnes.influenceur") },
+    { cle: "date", libelle: t("colonnes.date") },
+    { cle: "code", libelle: t("colonnes.code") },
+    { cle: "etat", libelle: t("colonnes.etat") },
+    { cle: "actions", libelle: t("colonnes.actions") },
+  ];
   return (
-    <ul className="flex flex-col gap-3">
-      {codes.map((c) => (
-        <li key={c.id} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="t-h2">{c.code}</h2>
-            <p className="t-label text-text-primary" data-etat={c.actif ? "actif" : "inactif"}>
-              {c.actif ? t("etat.actif") : t("etat.inactif")}
-            </p>
-          </div>
-          <dl className="flex flex-wrap gap-x-6 gap-y-2">
-            <div className="flex flex-col">
-              <dt className="t-small text-text-secondary">{t("champs.affilie")}</dt>
-              <dd className="t-body text-text-primary">{c.affilie}</dd>
+    <>
+      <div className="hidden lg:block">
+        <table className={`${CLASSES_TABLEAU_ADMIN} t-body text-left text-text-primary`}>
+          <EnTeteTableau colonnes={colonnes} />
+          {codes.map((c, i) => (
+            <tbody key={c.id} data-code-promo={c.code}>
+              <tr>
+                <td className="px-4 pt-4 align-middle">{debut + i + 1}</td>
+                <td className="px-4 pt-4 align-middle">
+                  <span className="flex min-w-0 items-center gap-3">
+                    <AvatarInitiale nom={c.affilie} />
+                    <span className="min-w-0 break-words">{c.affilie}</span>
+                  </span>
+                </td>
+                <td className="whitespace-nowrap px-4 pt-4 align-middle">{date(c)}</td>
+                <td className="px-4 pt-4 align-middle">
+                  <span className={CODE}>{c.code}</span>
+                </td>
+                <td className="px-4 pt-4 align-middle">{etat(c)}</td>
+                <td className="px-2 pt-4 align-middle">
+                  <ActionsCodePromo code={c} modifier={modifier(c)} />
+                </td>
+              </tr>
+              <tr>
+                <td />
+                <td colSpan={5} className="border-b border-border-field px-4 pb-4 pt-3 text-text-primary">
+                  <div className="flex flex-col gap-1">
+                    {conditions(c)}
+                    {ventes(c)}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          ))}
+        </table>
+      </div>
+      <ul className="flex flex-col gap-3 lg:hidden">
+        {codes.map((c, i) => (
+          <li key={c.id} data-code-promo={c.code} className="t-body flex min-w-0 flex-col gap-3 rounded-[16px] bg-admin-entete p-4 text-text-primary">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span className="t-label">{t("carte.numero", { numero: debut + i + 1 })}</span>
+              {etat(c)}
             </div>
-            <div className="flex flex-col">
-              <dt className="t-small text-text-secondary">{t("champs.reductionPct")}</dt>
-              <dd className="t-body text-text-primary">{t("pourcentage", { valeur: nombre.format(c.reductionPct) })}</dd>
-            </div>
-            <div className="flex flex-col">
-              <dt className="t-small text-text-secondary">{t("champs.commissionPct")}</dt>
-              <dd className="t-body text-text-primary">{t("pourcentage", { valeur: nombre.format(c.commissionPct) })}</dd>
-            </div>
-            <div className="flex flex-col">
-              <dt className="t-small text-text-secondary">{t("champs.plafond")}</dt>
-              <dd className="t-body text-text-primary">{nombre.format(c.plafond)}</dd>
-            </div>
-          </dl>
-          {/* Story 9.3 : calcul de la vue commission_code_promo ; aucun paiement de commission n'est fait par le site. */}
-          <dl className="flex flex-wrap gap-x-6 gap-y-2" role="group" aria-label={t("ventes.titre", { code: c.code })}>
-            <div className="flex flex-col">
-              <dt className="t-small text-text-secondary">{t("ventes.nombre")}</dt>
-              <dd className="t-body text-text-primary">{nombre.format(c.ventes)}</dd>
-            </div>
-            <div className="flex flex-col">
-              <dt className="t-small text-text-secondary">{t("ventes.montant")}</dt>
-              <dd className="t-body text-text-primary">{formaterUsd(c.montantCents, langue as Locale)}</dd>
-            </div>
-            <div className="flex flex-col">
-              <dt className="t-small text-text-secondary">{t("ventes.commission")}</dt>
-              <dd className="t-body text-text-primary">{formaterUsd(c.commissionCents, langue as Locale)}</dd>
-            </div>
-          </dl>
-          <div>
-            <Bouton
-              variante="secondaire"
-              onClick={() => setEnEdition(enEdition === c.id ? null : c.id)}
-              aria-label={t("boutons.modifierCode", { code: c.code })}
-              aria-expanded={enEdition === c.id}
-            >
-              {t("boutons.modifier")}
-            </Bouton>
-          </div>
-          {enEdition === c.id ? <FormulaireCodePromo code={c} onTermine={() => setEnEdition(null)} /> : null}
-        </li>
-      ))}
-    </ul>
+            <span className="flex min-w-0 items-center gap-3">
+              <AvatarInitiale nom={c.affilie} />
+              <span className="min-w-0 break-words">{c.affilie}</span>
+            </span>
+            <span className={`${CODE} self-start`}>{c.code}</span>
+            <p className="text-text-secondary">{t("carte.creeLe", { date: date(c) })}</p>
+            {conditions(c)}
+            {ventes(c)}
+            <ActionsCodePromo code={c} modifier={modifier(c)} />
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }

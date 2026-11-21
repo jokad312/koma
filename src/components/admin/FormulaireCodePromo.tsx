@@ -8,6 +8,7 @@ import { MessageEtat } from "@/components/ui/MessageEtat";
 import { creerCodePromoAction, modifierCodePromoAction } from "@/modules/promo/actions";
 import type { CodePromo, ErreurCodePromo, ResultatCodePromo } from "@/modules/promo/types";
 import { ChampTexte } from "./ChampTexte";
+import { useDansFenetre, useEnregistrementFenetre } from "./ui/FenetreFormulaire";
 
 type Champ = "code" | "affilie" | "reductionPct" | "commissionPct" | "plafond";
 
@@ -32,12 +33,13 @@ const SUFFIXE_DU_CHAMP: Record<Champ, string> = {
 type Props = {
   // Absent : création. Présent : modification ; le code n'est alors jamais modifiable.
   code?: CodePromo;
-  onTermine?: () => void;
+  // Story 9.16 i : identifiant du formulaire, soumis par le bouton « Enregistrer » de l'en-tête de la fenêtre.
+  idFormulaire?: string;
 };
 
 // Création et modification d'un Code promo (story 9.1, FR-46). Le succès n'apparaît qu'après la réponse réelle du serveur ;
 // après un échec la saisie est conservée. La liste est relue par le serveur (router.refresh).
-export function FormulaireCodePromo({ code, onTermine }: Props) {
+export function FormulaireCodePromo({ code, idFormulaire }: Props) {
   const t = useTranslations("Admin.codesPromo");
   const router = useRouter();
   const id = useId();
@@ -51,6 +53,9 @@ export function FormulaireCodePromo({ code, onTermine }: Props) {
   const [succes, setSucces] = useState(false);
   const [enCours, demarrer] = useTransition();
   const enVol = useRef(false);
+  // Dans la fenêtre (9.16 i) : le titre est celui de la fenêtre ; un enregistrement réussi n'est plus une saisie à protéger (Échap, ×).
+  const dansFenetre = useDansFenetre();
+  const { enregistre, source } = useEnregistrementFenetre(enCours);
 
   const champ = erreur ? CHAMP_DE_L_ERREUR[erreur] : undefined;
 
@@ -78,6 +83,7 @@ export function FormulaireCodePromo({ code, onTermine }: Props) {
         if (resultat.ok) {
           setSucces(true);
           setErreur(null);
+          enregistre();
           if (!code) {
             setCodeSaisi("");
             setAffilie("");
@@ -112,10 +118,17 @@ export function FormulaireCodePromo({ code, onTermine }: Props) {
   const erreurDe = (c: Champ) => (champ === c ? t(`erreurs.${erreur}`) : null);
 
   return (
-    <section aria-labelledby={`${id}-titre`} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
-      <h2 id={`${id}-titre`} className="t-h2">
-        {code ? t("modification.titre") : t("creation.titre")}
-      </h2>
+    <section
+      aria-labelledby={dansFenetre ? undefined : `${id}-titre`}
+      className={dansFenetre ? "flex flex-col gap-3" : "flex flex-col gap-3 rounded-lg border border-border bg-surface p-5"}
+    >
+      {dansFenetre ? (
+        <p className="t-body text-text-secondary">{code ? t("aides.modification") : t("intro")}</p>
+      ) : (
+        <h2 id={`${id}-titre`} className="t-h2">
+          {code ? t("modification.titre") : t("creation.titre")}
+        </h2>
+      )}
 
       {code ? (
         <p className="t-body text-text-primary">
@@ -123,7 +136,7 @@ export function FormulaireCodePromo({ code, onTermine }: Props) {
         </p>
       ) : null}
 
-      <form onSubmit={surEnvoi} noValidate className="flex flex-col items-start gap-3">
+      <form id={idFormulaire} {...source} onSubmit={surEnvoi} noValidate className="flex flex-col items-start gap-3">
         {code ? null : (
           <ChampTexte
             id={`${id}-code`}
@@ -196,11 +209,6 @@ export function FormulaireCodePromo({ code, onTermine }: Props) {
           <Bouton type="submit" variante="secondaire" enCours={enCours}>
             {code ? t("boutons.enregistrer") : t("boutons.creer")}
           </Bouton>
-          {code && onTermine ? (
-            <Bouton variante="secondaire" onClick={onTermine}>
-              {t("boutons.fermer")}
-            </Bouton>
-          ) : null}
         </div>
       </form>
     </section>

@@ -483,3 +483,61 @@ test.describe("fenêtre de l'article et extrait (9.16 h)", () => {
     }
   });
 });
+
+// Story 9.16 i) : codes promo. Code TEST_ réel et Compte Admin TEST_ réel : la page lit filtre et fenêtre dans l'adresse (route réelle), la corbeille
+// demande une confirmation puis désactive le code ; l'état est relu en base et le code reste listé sous INACTIFS. Tout est supprimé et compté à la fin.
+test.describe("codes promo (9.16 i)", () => {
+  test.describe.configure({ timeout: 120_000 });
+  const CODE = { id: "00000000-0000-4000-8916-0000000000c1", code: "TEST_E2E916I", affilie: "TEST_ Affilié e2e" };
+  const retirer = () => sqlBloc(`delete from public.code_promo where id = '${CODE.id}' or code = '${CODE.code}';`);
+  const restes = async () => {
+    const { count } = await service(env!).from("code_promo").select("id", { count: "exact", head: true }).or(`id.eq.${CODE.id},code.eq.${CODE.code}`);
+    return count;
+  };
+
+  test("fenêtre « nouveau » depuis l'adresse ; corbeille confirmée : Inactif relu en base, listé sous INACTIFS", async ({ page }) => {
+    test.skip(!env, "variables Supabase absentes");
+    retirer();
+    sqlBloc(`insert into public.code_promo (id, code, affilie, reduction_pct, commission_pct, plafond, actif) values
+  ('${CODE.id}', '${CODE.code}', '${CODE.affilie}', 10, 5, 50, true);`);
+    const supprimer = await connecterCompteTest(page, env!, "test-e2e-916i-admin-", "admin");
+    try {
+      await page.setViewportSize({ width: 1366, height: 768 });
+      await page.goto("/fr/admin/codes-promo?nouveau=1");
+      const fenetre = page.locator("[data-fenetre-formulaire]");
+      await expect(fenetre.getByRole("heading", { level: 1, name: "Créer un Code promo" })).toBeVisible();
+      await expect(fenetre.getByLabel("Code", { exact: true })).toBeVisible();
+
+      await page.goto(`/fr/admin/codes-promo?filtre=actifs&q=${CODE.code}`);
+      await expect(page.getByRole("link", { name: "Actifs", exact: true })).toHaveAttribute("aria-current", "true");
+      const ligne = page.locator(`tbody[data-code-promo="${CODE.code}"]`);
+      await expect(ligne).toBeVisible();
+      await attendreHydratation(page, `tbody[data-code-promo="${CODE.code}"] button`);
+      await ligne.getByRole("button", { name: `Désactiver le code ${CODE.code}` }).click();
+      const dialogue = page.getByRole("dialog", { name: `Désactiver le code ${CODE.code} ?` });
+      await dialogue.getByRole("button", { name: "Désactiver" }).click();
+      // Sous ACTIFS, la ligne quitte la liste relue ; l'annonce reste dans la zone de la page.
+      await expect(page.getByText(`Code ${CODE.code} désactivé.`)).toBeVisible();
+      await expect(ligne).toHaveCount(0);
+      const { data } = await service(env!).from("code_promo").select("actif, affilie, reduction_pct").eq("id", CODE.id).single();
+      expect(data).toMatchObject({ actif: false, affilie: CODE.affilie });
+
+      await page.goto(`/fr/admin/codes-promo?filtre=inactifs&q=${CODE.code}`);
+      const inactive = page.locator(`tbody[data-code-promo="${CODE.code}"]`);
+      await expect(inactive.locator("[data-etat]")).toHaveText("Inactif");
+      await expect(inactive.getByRole("button", { name: `Réactiver le code ${CODE.code}` })).toBeVisible();
+
+      // À 390 px : cartes, sans défilement horizontal.
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto("/fr/admin/codes-promo");
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    } finally {
+      try {
+        await supprimer();
+      } finally {
+        retirer();
+        expect(await restes()).toBe(0);
+      }
+    }
+  });
+});

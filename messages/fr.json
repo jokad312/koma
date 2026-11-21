@@ -2475,13 +2475,12 @@
       "aides": {
         "code": "De 3 à 24 caractères : lettres sans accent, chiffres, tiret ou souligné. Majuscules et minuscules sont équivalentes. Il n'est pas modifiable ensuite.",
         "plafond": "Nombre maximal d'utilisations. Laisse vide pour 50.",
-        "plafondModif": "Nombre maximal d'utilisations."
+        "plafondModif": "Nombre maximal d'utilisations.",
+        "modification": "Le code lui-même ne se modifie pas. Décoche « Actif » pour le désactiver."
       },
       "boutons": {
         "creer": "Créer le Code promo",
         "enregistrer": "Enregistrer",
-        "modifier": "Modifier",
-        "fermer": "Annuler",
         "modifierCode": "Modifier le code {code}"
       },
       "etat": {
@@ -2502,6 +2501,53 @@
         "plafond_invalide": "Le plafond doit être un nombre entier entre 1 et 100 000.",
         "introuvable": "Ce Code promo n'existe plus. Recharge la page.",
         "generique": "Le Code promo n'a pas pu être enregistré. Réessaie."
+      },
+      "nouveau": "Nouveau code",
+      "recherche": {
+        "libelle": "Rechercher par code ou par influenceur",
+        "indication": "Recherche d'un code promo",
+        "lancer": "Rechercher",
+        "effacer": "Effacer la recherche"
+      },
+      "filtres": {
+        "libelle": "Filtrer par état",
+        "tous": "Tous",
+        "actifs": "Actifs",
+        "inactifs": "Inactifs"
+      },
+      "nombre": "{nombre, plural, =0 {Aucun code} one {# code} other {# codes}}",
+      "aucunResultat": "Aucun code ne correspond à cette recherche ou à ce filtre.",
+      "colonnes": {
+        "numero": "N°",
+        "influenceur": "Influenceur",
+        "date": "Date",
+        "code": "Code",
+        "etat": "État",
+        "actions": "Actions"
+      },
+      "carte": {
+        "numero": "N° {numero}",
+        "creeLe": "Créé le {date}"
+      },
+      "actions": {
+        "copier": "Copier le code {code}",
+        "copie": "Copié : {code}",
+        "copieImpossible": "Le code n'a pas pu être copié. Sélectionne-le et copie-le à la main.",
+        "desactiver": "Désactiver le code {code}",
+        "desactive": "Code {code} désactivé.",
+        "reactiver": "Réactiver",
+        "reactiverSur": "Réactiver le code {code}",
+        "reactive": "Code {code} réactivé.",
+        "enCours": "Un instant…"
+      },
+      "confirmation": {
+        "titre": "Désactiver le code {code} ?",
+        "texte": "Le code ne sera plus accepté. Il reste dans la liste, sous Inactifs, avec ses ventes, et tu peux le réactiver à tout moment.",
+        "annuler": "Annuler",
+        "confirmer": "Désactiver"
+      },
+      "conditions": {
+        "titre": "Conditions du code {code}"
       }
     },
     "commandes": {
