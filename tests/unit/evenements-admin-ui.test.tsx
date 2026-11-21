@@ -160,12 +160,12 @@ describe("PublicationEvenement", () => {
     faux.publierEvenementAction.mockResolvedValueOnce({ statut: "erreur", erreur: "publication_incomplete", manques: ["date"] });
     const user = userEvent.setup();
     rendre(<PublicationEvenement evenementId={EVENEMENT.id} publie={false} manques={[]} />);
-    await user.click(screen.getByRole("button", { name: "Publier" }));
+    await user.click(await screen.findByRole("button", { name: "Publier" }));
     expect(await screen.findByText("La publication est refusée : des éléments manquent (liste ci-dessus).")).toBeTruthy();
     expect(screen.getByText("la date de début")).toBeTruthy();
     expect(screen.queryByText("Événement publié.")).toBeNull();
     faux.publierEvenementAction.mockResolvedValueOnce({ statut: "succes", id: EVENEMENT.id, cree: false });
-    await user.click(screen.getByRole("button", { name: "Publier" }));
+    await user.click(await screen.findByRole("button", { name: "Publier" }));
     expect(await screen.findByText("Événement publié.")).toBeTruthy();
     expect(faux.refresh).toHaveBeenCalled();
   });
@@ -181,7 +181,7 @@ describe("PublicationEvenement", () => {
     faux.publierEvenementAction.mockResolvedValue({ statut: "erreur", erreur: "generique" });
     const user = userEvent.setup();
     rendre(<PublicationEvenement evenementId={EVENEMENT.id} publie={false} manques={[]} />);
-    await user.click(screen.getByRole("button", { name: "Publier" }));
+    await user.click(await screen.findByRole("button", { name: "Publier" }));
     const message = await screen.findByText("Le changement n'a pas pu être enregistré. Réessaie.");
     await waitFor(() => expect(message.closest("[tabindex='-1']")).toBe(document.activeElement));
   });

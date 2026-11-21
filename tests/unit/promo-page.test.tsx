@@ -185,10 +185,13 @@ describe("contenu de la page /admin/codes-promo", () => {
     await userEvent.click(boutons[0]);
     await waitFor(() => expect(faux.modifier).toHaveBeenCalledWith(CODE.id, expect.objectContaining({ affilie: "TEST_Affiliéx" })));
     await waitFor(() => expect(within(fenetre).getByText(M.succes.modification)).toBeTruthy());
+    // La fenêtre ignore Échap tant qu'elle est occupée (envoi en cours) : on attend la fin, signalée par l'en-tête (« Enregistrer » de nouveau actif).
+    await waitFor(() => expect(boutons[0].getAttribute("aria-disabled")).toBeNull());
     await userEvent.keyboard("{Escape}");
     await waitFor(() => expect(faux.push).toHaveBeenCalledWith("/admin/codes-promo"));
     expect(screen.queryByRole("dialog", { name: fr.Admin.ui.quitter.titre })).toBeNull();
-  });
+    // Saisie et clics réels : jusqu'à 8 s quand toute la suite tourne en parallèle (délai par défaut de 5 s dépassé).
+  }, 20_000);
 
   it("?modifier=<id> : fenêtre de modification préremplie ; identifiant inconnu : message, aucun formulaire", async () => {
     faux.lire.mockResolvedValue([CODE]);

@@ -235,7 +235,8 @@ describe("PublicationArticle (menu STATUT)", () => {
     const alerte = await screen.findByRole("alert");
     expect(alerte.textContent).toContain("Il manque encore des éléments pour publier");
     expect(alerte.textContent).toContain("Le titre en français");
-    expect(screen.getByRole("button", { name: "Statut : Brouillon" })).toBeTruthy();
+    // L'alerte peut paraître avant la fin de la transition (bouton « Un instant… » sous charge) : on attend le statut final.
+    expect(await screen.findByRole("button", { name: "Statut : Brouillon" })).toBeTruthy();
     expect(faux.refresh).not.toHaveBeenCalled();
   });
 
