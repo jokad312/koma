@@ -15,7 +15,7 @@ export async function LangueRepli() {
         href="/"
         locale={cible}
         hrefLang={cible}
-        aria-label={t("changer", { langue: t(`nom.${cible}`) })}
+        aria-label={t("changer", { actuelle: t(`court.${locale}`), langue: t(`nom.${cible}`) })}
         className="t-small inline-flex min-h-touch items-center rounded-full border border-border-field bg-surface px-4 text-text-primary no-underline"
       >
         {t(`court.${locale}`)}

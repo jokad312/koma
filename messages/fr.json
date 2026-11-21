@@ -271,7 +271,7 @@
       "fr": "FR",
       "en": "EN"
     },
-    "changer": "Changer de langue : {langue}"
+    "changer": "{actuelle} – Changer de langue : {langue}"
   },
   "Pied": {
     "identite": "Fait main à Goma, RDC. NATHANGROUP SARL.",

@@ -41,18 +41,18 @@ describe("variante « rond » de BasculeTheme", () => {
 });
 
 describe("variante « rond » de SelecteurLangue", () => {
-  it("depuis /fr : langue actuelle « FR » visible, nom accessible « Changer de langue : English », lien vers la même page en anglais", () => {
+  it("depuis /fr : langue actuelle « FR » visible, nom accessible « FR – Changer de langue : English », lien vers la même page en anglais", () => {
     rendre(<SelecteurLangue variante="rond" />);
-    const lien = screen.getByRole("link", { name: "Changer de langue : English" });
+    const lien = screen.getByRole("link", { name: "FR – Changer de langue : English" });
     expect(lien.textContent).toBe("FR");
     expect(lien.getAttribute("href")).toBe("/en/admin/commandes");
     expect(lien.getAttribute("hreflang")).toBe("en");
     expect(lien.className).toContain("size-11");
   });
 
-  it("depuis /en : langue actuelle « EN » visible, nom accessible « Switch language: Français »", () => {
+  it("depuis /en : langue actuelle « EN » visible, nom accessible « EN – Switch language: Français »", () => {
     rendre(<SelecteurLangue variante="rond" />, "en");
-    const lien = screen.getByRole("link", { name: "Switch language: Français" });
+    const lien = screen.getByRole("link", { name: "EN – Switch language: Français" });
     expect(lien.textContent).toBe("EN");
   });
 });

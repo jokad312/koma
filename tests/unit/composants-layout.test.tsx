@@ -72,7 +72,7 @@ describe("SelecteurLangue", () => {
   it("affiche « FR » (langue actuelle), mène à la même page en anglais depuis /fr et écrit le cookie NEXT_LOCALE", async () => {
     const user = userEvent.setup();
     rendre(<SelecteurLangue />);
-    const lien = screen.getByRole("link", { name: "Changer de langue : English" });
+    const lien = screen.getByRole("link", { name: "FR – Changer de langue : English" });
     expect(lien.textContent).toBe("FR");
     expect((lien).getAttribute("href")).toBe("/en/cosplays/x");
     expect((lien).getAttribute("hreflang")).toBe("en");
@@ -83,7 +83,7 @@ describe("SelecteurLangue", () => {
 
   it("depuis /en : « EN » visible, propose le français", () => {
     rendre(<SelecteurLangue />, "en");
-    expect((screen.getByRole("link", { name: "Switch language: Français" })).getAttribute("hreflang")).toBe("fr");
+    expect((screen.getByRole("link", { name: "EN – Switch language: Français" })).getAttribute("hreflang")).toBe("fr");
   });
 
   it("le cookie dure un an, pour tout le site", () => {

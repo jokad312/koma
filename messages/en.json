@@ -271,7 +271,7 @@
       "fr": "FR",
       "en": "EN"
     },
-    "changer": "Switch language: {langue}"
+    "changer": "{actuelle} – Switch language: {langue}"
   },
   "Pied": {
     "identite": "Handmade in Goma, DRC. NATHANGROUP SARL.",

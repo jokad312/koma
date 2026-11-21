@@ -11,7 +11,7 @@ import { ecrireCookieLangue } from "@/lib/langue-cookie";
 // de l'autre langue (AD-16) ; le choix est mémorisé dans le cookie NEXT_LOCALE. useSearchParams impose un Suspense au parent (EnTete).
 // `sansTraduction` : adresses des Articles français sans version anglaise ; depuis l'un d'eux, le sélecteur mène à la liste /en/blog.
 // Partout (site et admin, décision de Jonathan du 2026-11-21) : le texte visible est le code de la langue ACTUELLE (« FR » sur une page française),
-// le nom accessible dit l'action (« Changer de langue : English »). « rond » : rond à contour de 44 px (barre de l'admin, connexion) ; « pastille » :
+// le nom accessible commence par ce texte puis dit l'action (« FR – Changer de langue : English », WCAG 2.5.3). « rond » : rond à contour de 44 px (barre de l'admin, connexion) ; « pastille » :
 // pastille de l'en-tête du site et du menu mobile de l'admin.
 type Props = { sansTraduction?: readonly string[]; variante?: "pastille" | "rond" };
 
@@ -37,7 +37,7 @@ export function SelecteurLangue({ sansTraduction = [], variante = "pastille" }: 
         href={href}
         locale={cible}
         hrefLang={cible}
-        aria-label={t("changer", { langue: t(`nom.${cible}`) })}
+        aria-label={t("changer", { actuelle: t(`court.${locale}`), langue: t(`nom.${cible}`) })}
         onClick={() => ecrireCookieLangue(cible)}
         className={
           variante === "rond"
