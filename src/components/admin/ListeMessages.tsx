@@ -10,13 +10,13 @@ export async function ListeMessages({ messages }: { messages: readonly MessageCo
   const t = await getTranslations("Admin.messages");
   const format = await getFormatter();
   if (messages.length === 0) {
-    return <p className="t-body rounded-lg border border-border bg-surface p-5 text-text-secondary">{t("vide")}</p>;
+    return <p className="t-body text-text-secondary">{t("vide")}</p>;
   }
   return (
     <ul className="flex flex-col gap-ecart-cartes">
       {messages.map((m) => (
-        <li key={m.id} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
-          <h2 className="t-h2">{m.nom}</h2>
+        <li key={m.id} className="flex flex-col gap-3 rounded-[16px] bg-admin-entete p-4 text-text-primary">
+          <h2 className="t-h3">{m.nom}</h2>
           <p className="t-small text-text-secondary">
             <a href={`mailto:${m.email}`} className="break-all underline">
               {m.email}

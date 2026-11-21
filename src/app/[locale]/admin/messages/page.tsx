@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { Panneau } from "@/components/admin/ui/Panneau";
 import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { ListeMessages } from "@/components/admin/ListeMessages";
 import { MessageEtat } from "@/components/ui/MessageEtat";
@@ -44,9 +45,16 @@ async function MessagesSelonDroit({ locale }: { locale: Locale }) {
   return (
     <CoqueAdmin>
       <div className="flex flex-col gap-6">
-        <h1 className="t-h1">{t("titre")}</h1>
+        <h1 className="t-h1 uppercase">{t("titre")}</h1>
         <p className="t-body text-text-secondary">{t("intro")}</p>
-        {messages ? <ListeMessages messages={messages} /> : <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>}
+        {/* Story 9.16 (étape 8) : liste dans le panneau de l'admin, chaque élément en carte. */}
+        {messages ? (
+          <Panneau>
+            <ListeMessages messages={messages} />
+          </Panneau>
+        ) : (
+          <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>
+        )}
       </div>
     </CoqueAdmin>
   );
