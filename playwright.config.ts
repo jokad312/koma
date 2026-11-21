@@ -11,7 +11,9 @@ export default defineConfig({
     url: "http://localhost:3100",
     // L'accueil lit le réglage nom_site : le serveur lit la base de .env.local (koma-dev) ou des variables déjà définies.
     // Seule l'adresse du site est fixée ici, pour que canonique et hreflang correspondent au port de test.
-    env: { NEXT_PUBLIC_SITE_URL: "http://localhost:3100" },
+    // KS_E2E masque le badge de développement de Next.js (next.config.ts) : fixé en bas à gauche, il recouvrait « Sign out » au bas
+    // du menu mobile (échecs intermittents de connexion.spec.ts en CI, clic intercepté par <nextjs-portal>).
+    env: { NEXT_PUBLIC_SITE_URL: "http://localhost:3100", KS_E2E: "1" },
     reuseExistingServer: !process.env.CI,
     // Les journaux du serveur (ex. « [comptes] envoi du code : … ») apparaissent dans la sortie de la CI.
     stdout: "pipe",

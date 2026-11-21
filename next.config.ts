@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
   // Identifiant du déploiement, inscrit dans le code du navigateur au build : il change l'adresse d'enregistrement du service worker du Scan (story 7.8).
   env: { NEXT_PUBLIC_BUILD_ID: Date.now().toString(36) },
   partialPrefetching: true,
+  // Tests e2e seulement (KS_E2E, posé par playwright.config.ts) : le badge de développement de Next.js, fixé en bas à gauche, recouvrait
+  // le bas du menu mobile (« Sign out ») et interceptait les clics. Le site réel n'a pas ce badge ; les erreurs restent dans le terminal.
+  ...(process.env.KS_E2E === "1" ? { devIndicators: false as const } : {}),
   // Développement seulement : téléphone ou autre appareil du réseau local (hôtes lus dans DEV_ORIGINES_AUTORISEES, .env.local).
   allowedDevOrigins: lireOriginesDev(process.env.DEV_ORIGINES_AUTORISEES),
   images: { remotePatterns: photosAutorisees(process.env.NEXT_PUBLIC_SUPABASE_URL) },
