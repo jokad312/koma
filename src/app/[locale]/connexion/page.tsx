@@ -36,13 +36,7 @@ export async function generateMetadata({ params }: PageProps<"/[locale]/connexio
 }
 
 // Lit la session (donnée de requête) : sous Suspense, le reste de la page reste statique.
-async function FormulaireSelonSession({
-  locale,
-  searchParams,
-}: {
-  locale: Locale;
-  searchParams: PageProps<"/[locale]/connexion">["searchParams"];
-}) {
+async function FormulaireSelonSession({ locale, searchParams }: { locale: Locale; searchParams: PageProps<"/[locale]/connexion">["searchParams"] }) {
   const etat = await lireEtatCompte();
   const { retour, erreur, expiree } = await searchParams;
   if (etat === "complet") {
@@ -86,22 +80,30 @@ export default async function Connexion({ params, searchParams }: PageProps<"/[l
   const tm = await getTranslations("Metadata.connexion");
 
   return (
-    <section className="flex flex-col items-start gap-6">
-      <JsonLd
-        donnees={{
-          "@context": "https://schema.org",
-          "@type": "WebPage",
-          name: tm("titre"),
-          description: tm("description"),
-          url: urlLocalisee(locale, CHEMIN),
-          inLanguage: locale,
-        }}
-      />
-      <h1 className="t-h1">{t("titre")}</h1>
-      {/* useSearchParams (chemin de retour) demande une frontière Suspense. */}
-      <Suspense fallback={<Squelette />}>
-        <FormulaireSelonSession locale={locale} searchParams={searchParams} />
-      </Suspense>
+    // Story 9.16 (page 9, modèle F de la maquette connexion.mp4) : panneau d'image à gauche (~46 %, coins de 10 px) et carte CONNEXION (fond « surface »,
+    // coins de 12 px). Aucune photo de connexion n'existe (public/images/connexion/ absent) : le panneau reste vide aux couleurs du site, décoratif,
+    // jamais une image inventée (règles 5 et 6). Masqué sous 768 px (Q32) : le champ email est visible tout de suite sur téléphone.
+    <section className="grid grid-cols-1 items-stretch gap-8 md:grid-cols-[46fr_54fr]">
+      <div aria-hidden="true" data-panneau-connexion="" className="hidden min-h-[480px] rounded-[10px] border border-border bg-admin-panneau md:block" />
+      <div className="flex justify-center md:items-center">
+        <div className="flex w-full max-w-[440px] flex-col items-start gap-6 rounded-[12px] border border-border bg-surface p-6">
+          <JsonLd
+            donnees={{
+              "@context": "https://schema.org",
+              "@type": "WebPage",
+              name: tm("titre"),
+              description: tm("description"),
+              url: urlLocalisee(locale, CHEMIN),
+              inLanguage: locale,
+            }}
+          />
+          <h1 className="t-h1 uppercase">{t("titre")}</h1>
+          {/* useSearchParams (chemin de retour) demande une frontière Suspense. */}
+          <Suspense fallback={<Squelette />}>
+            <FormulaireSelonSession locale={locale} searchParams={searchParams} />
+          </Suspense>
+        </div>
+      </div>
     </section>
   );
 }
