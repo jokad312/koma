@@ -77,7 +77,14 @@ for (const langue of ["fr", "en"] as const) {
       attentesH2.push(langue === "fr" ? "ILS LE PORTENT" : "THEY WEAR IT");
     }
     await expect(page.locator('footer a[href$="#galerie"]')).toHaveCount(avecMur ? 1 : 0);
-    attentesH2.push(titres.jonathan, titres.faq);
+    attentesH2.push(titres.jonathan);
+    // Bloc 7 « Guides » : n'existe que si un article est publié (contenu réel de la base, absent en CI) ; décidé par la section elle-même.
+    const sectionGuides = page.locator('main section[aria-labelledby="accueil-guides"]');
+    if ((await sectionGuides.count()) === 1) {
+      expect(await sectionGuides.locator("li").count()).toBeGreaterThan(0);
+      attentesH2.push("GUIDES");
+    }
+    attentesH2.push(titres.faq);
     await expect(h2).toHaveText(attentesH2);
     const tuiles = page.locator('section[aria-labelledby="accueil-categories"]');
     await expect(tuiles.locator(`a[href="/${langue}/cosplays"]`)).toBeVisible();
