@@ -221,9 +221,14 @@ test.describe("liste des produits et archivage (9.16 e)", () => {
     titreEn: "TEST_ Polo archive 916e",
     fichier: "test-e2e-916e/polo.jpg",
   };
+  const COMMANDE_EN_COURS = { id: "00000000-0000-4000-8916-0000000000e9", numero: "KS-2026-916009" };
+  const retirerCommandeEnCours = () =>
+    sqlBloc(`delete from public.ligne_commande where commande_id = '${COMMANDE_EN_COURS.id}';
+delete from public.commande where id = '${COMMANDE_EN_COURS.id}' or numero = '${COMMANDE_EN_COURS.numero}';`);
 
   test("l'Admin archive un produit publié (confirmation), le retrouve sous « Archivés », puis le restaure en brouillon", async ({ page }) => {
     test.skip(!env, "variables Supabase absentes");
+    retirerCommandeEnCours();
     await retirerProduit(env!, PRODUIT);
     await semerProduit(env!, PRODUIT);
     const supprimer = await connecterCompteTest(page, env!, "test-e2e-916e-admin-", "admin");
@@ -249,13 +254,26 @@ test.describe("liste des produits et archivage (9.16 e)", () => {
       await expect(carte.getByText("Publié", { exact: true })).toBeVisible();
       await expect(carte.getByRole("link", { name: `Modifier ${PRODUIT.titre}` })).toHaveAttribute("href", `/fr/admin/produits/${PRODUIT.id}`);
 
-      // Archiver : confirmation d'abord.
+      // Point 4 (2026-11-21) : une Commande TEST_ payée (données de test, jamais un vrai paiement) contient le produit. La confirmation lit le
+      // nombre de commandes en cours sur la vraie base : la requête (jointure ligne_commande, filtres) doit être acceptée et compter 1.
+      const { data: comptes } = await base.auth.admin.listUsers({ perPage: 1000 });
+      const compteAdmin = comptes.users.find((u) => (u.email ?? "").startsWith("test-e2e-916e-admin-"))?.id;
+      expect(compteAdmin, "Compte Admin TEST_ introuvable").toBeTruthy();
+      sqlBloc(`insert into public.commande (id, numero, compte_id, type, statut, sous_total_cents, total_cents, forfait_cents, paye_le)
+  values ('${COMMANDE_EN_COURS.id}', '${COMMANDE_EN_COURS.numero}', '${compteAdmin}', 'produits', 'payee', 2500, 2500, 0, now());
+insert into public.ligne_commande (commande_id, produit_id, variante_id, origine, nombre, prix_cents)
+  select '${COMMANDE_EN_COURS.id}', '${PRODUIT.id}', v.id, 'stock', 1, 2500 from public.variante v where v.produit_id = '${PRODUIT.id}';`);
+
+      // Archiver : confirmation d'abord, avec l'alerte des commandes en cours.
       const avant = await lignesJournal();
       await carte.getByRole("button", { name: `Archiver ${PRODUIT.titre}` }).click();
       const dialogue = page.getByRole("dialog", { name: `Archiver « ${PRODUIT.titre} » ?` });
       await expect(dialogue).toBeVisible();
+      await expect(dialogue.getByText("Ce produit est dans 1 commande en cours. Il sera retiré de la boutique, les commandes ne changent pas.")).toBeVisible();
+      await expect(dialogue.getByText(/n'ont pas pu être vérifiées/)).toHaveCount(0);
       await dialogue.getByRole("button", { name: "Archiver", exact: true }).click();
-      await expect(page.getByRole("heading", { level: 2, name: PRODUIT.titre })).toHaveCount(0);
+      // Point 4 : la lecture des commandes en cours (action serveur) passe avant l'archivage ; 20 s en suite complète.
+      await expect(page.getByRole("heading", { level: 2, name: PRODUIT.titre })).toHaveCount(0, { timeout: 20_000 });
       const { data: lu, error } = await base.from("produit").select("publie_le, archive_le").eq("id", PRODUIT.id).single();
       expect(error).toBeNull();
       expect(lu?.publie_le).toBeNull();
@@ -288,11 +306,15 @@ test.describe("liste des produits et archivage (9.16 e)", () => {
       await expect(page.getByRole("heading", { level: 2, name: PRODUIT.titre })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     } finally {
+      // La Commande TEST_ d'abord : elle référence le Compte et le produit (suppression refusée sinon).
+      retirerCommandeEnCours();
       try {
         await supprimer();
       } finally {
         await retirerProduit(env!, PRODUIT);
         expect(await restesProduit(env!, PRODUIT)).toEqual({ produits: 0, variantes: 0, photos: 0, fichiers: 0 });
+        const { count } = await service(env!).from("commande").select("id", { count: "exact", head: true }).eq("id", COMMANDE_EN_COURS.id);
+        expect(count).toBe(0);
       }
     }
   });
@@ -315,7 +337,7 @@ test.describe("liste du blog et archivage (9.16 g)", () => {
 
 **TEST_** texte de démonstration du blog, ' || repeat('otaku ', 60), '${ARTICLE.slug}', '[]'::jsonb, now() - interval '1 hour');`);
 
-  test("l'Assistant voit la liste et le crayon, sans Publier, Dépublier, Archiver ni Restaurer", async ({ page }) => {
+  test("l'Assistant voit la liste en lecture seule (lien « Lire »), sans Écrire, Publier, Dépublier, Archiver ni Restaurer ; la fiche est sans formulaire", async ({ page }) => {
     test.skip(!env, "variables Supabase absentes");
     retirer();
     semer();
@@ -323,8 +345,21 @@ test.describe("liste du blog et archivage (9.16 g)", () => {
     try {
       await page.goto("/fr/admin/blog");
       const carte = page.getByRole("listitem").filter({ has: page.getByRole("heading", { level: 2, name: ARTICLE.titre }) });
-      await expect(carte.getByRole("link", { name: `Modifier ${ARTICLE.titre}` })).toBeVisible();
+      await expect(carte.getByRole("link", { name: `Lire l'article ${ARTICLE.titre}` })).toBeVisible();
       await expect(carte.getByRole("button")).toHaveCount(0);
+      await expect(page.getByRole("link", { name: /écrire un article/i })).toHaveCount(0);
+      // Point 3 (2026-11-21) : fiche en lecture seule, aucun champ, aucun « Enregistrer ».
+      await carte.getByRole("link", { name: `Lire l'article ${ARTICLE.titre}` }).click();
+      const fenetre = page.locator("[data-fenetre-formulaire]");
+      // Première ouverture de la fiche : compilation de la route en mode dev (jusqu'à 20 s en suite complète).
+      await expect(fenetre.locator("[data-article-lecture-seule]")).toBeVisible({ timeout: 30_000 });
+      await expect(fenetre.locator("input, textarea, select")).toHaveCount(0);
+      await expect(fenetre.getByRole("button", { name: "Enregistrer" })).toHaveCount(0);
+      // Adresse de création ouverte directement : message de refus, aucun champ.
+      await page.goto("/fr/admin/blog/nouveau");
+      const creation = page.locator("[data-fenetre-formulaire]");
+      await expect(creation.getByText("La rédaction du blog est réservée à l'administrateur.")).toBeVisible({ timeout: 30_000 });
+      await expect(creation.locator("input, textarea, select")).toHaveCount(0);
     } finally {
       try {
         await supprimer();
@@ -538,6 +573,34 @@ test.describe("codes promo (9.16 i)", () => {
         retirer();
         expect(await restes()).toBe(0);
       }
+    }
+  });
+});
+
+// Point 5 (2026-11-21) : avant l'hydratation, les champs des formulaires admin sont désactivés (aucune saisie perdue) ; ils s'activent ensuite.
+test.describe("garde d'hydratation de l'admin", () => {
+  test.describe.configure({ timeout: 120_000 });
+  test("JavaScript retenu : champ désactivé ; JavaScript libéré : champ actif", async ({ page }) => {
+    test.skip(!env, "variables Supabase absentes");
+    // Libéré aussi en cas d'échec (sinon les fichiers JavaScript retenus bloquent la fin du test jusqu'au délai).
+    let liberer: () => void = () => {};
+    const supprimer = await connecterCompteTest(page, env!, "test-e2e-916-garde-", "admin");
+    try {
+      const pret = new Promise<void>((resolve) => (liberer = resolve));
+      await page.route(/\/_next\/static\/[^?]*\.js/, async (route) => {
+        await pret;
+        await route.continue();
+      });
+      await page.goto("/fr/admin/codes-promo?nouveau=1", { waitUntil: "domcontentloaded" });
+      const champ = page.locator("[data-fenetre-formulaire]").getByLabel("Code", { exact: true });
+      await expect(champ).toBeDisabled();
+      liberer();
+      await expect(champ).toBeEnabled({ timeout: 60_000 });
+      await champ.fill("TEST_GARDE");
+      await expect(champ).toHaveValue("TEST_GARDE");
+    } finally {
+      liberer();
+      await supprimer();
     }
   });
 });
