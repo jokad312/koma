@@ -3,6 +3,7 @@ import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Link } from "@/i18n/navigation";
 import { formaterUsd, PLAFOND_COMMANDES_PAYEES as PLAFOND_COMMANDES } from "@/modules/tableau-de-bord/calculs";
 import type { CommandePayee, Zone } from "@/modules/tableau-de-bord/queries";
+import { nb } from "@/components/ui/Nombre";
 
 const PRESTATAIRES = ["pawapay", "maishapay", "polar"] as const;
 const FAMILLES = ["cosplay", "accessoire", "vetement", "autre", "kit", "pass", "livraison"] as const;
@@ -27,10 +28,11 @@ export async function CommandesPayees({ commandes, septJours }: { commandes: Zon
           {commandes.map((c) => (
             <li key={c.numero} className="flex flex-col gap-1 rounded-[20px] border border-admin-contour bg-admin-carte p-4">
               <Link href={`/admin/commandes/${c.numero}`} className="t-label inline-flex min-h-touch items-center text-text-primary underline">
-                {t("ouvrir", { numero: c.numero })}
+                {t.rich("ouvrir", { numero: c.numero, nb })}
               </Link>
               <p className="t-body text-text-secondary">
-                {t("ligne", {
+                {t.rich("ligne", {
+                  nb,
                   montant: formaterUsd(c.totalCents, locale),
                   prestataire: (PRESTATAIRES as readonly string[]).includes(c.prestataire) ? te(`prestataires.${c.prestataire as (typeof PRESTATAIRES)[number]}`) : c.prestataire,
                   familles: new Intl.ListFormat(locale, { style: "short", type: "unit" }).format(c.familles.map((f) => ((FAMILLES as readonly string[]).includes(f) ? te(`familles.${f as (typeof FAMILLES)[number]}`) : f))),

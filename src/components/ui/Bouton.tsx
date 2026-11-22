@@ -4,7 +4,8 @@ import { CLASSES_DESACTIVE, CLASSES_PRINCIPAL, CLASSES_SECONDAIRE } from "./clas
 
 type Variante = "principal" | "secondaire";
 
-type Etat = { desactive?: false; raison?: string } | { desactive: true; raison: string };
+// raison : un nœud, pour qu'un nombre qui change (compte à rebours) puisse porter translate="no" (A3-bis).
+type Etat = { desactive?: false; raison?: ReactNode } | { desactive: true; raison: ReactNode };
 
 export type PropsBouton = Omit<ComponentPropsWithoutRef<"button">, "disabled" | "children"> &
   Etat & {

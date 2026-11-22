@@ -1,6 +1,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { formaterUsd, formaterUsdCompact, graduations, indicesDates, type PointJour } from "@/modules/tableau-de-bord/calculs";
+import { Nombre } from "@/components/ui/Nombre";
 
 // Graphique des ventes payées par jour (story 9.16 c, maquette E5 et E6, décision Q10) : une barre verticale rouge par jour sur 30 jours,
 // jours sans vente à zéro (zéro réel : la lecture a réussi), axe des montants gradué, une date tous les 5 jours sous l'axe (tous les 10 jours
@@ -35,13 +36,15 @@ export function GraphiqueJours({ points }: { points: readonly PointJour[] | null
         <div className="t-small relative text-right text-text-secondary">
           <div className="invisible h-0 overflow-hidden whitespace-nowrap">
             {libellesAxe.map((l, i) => (
-              <div key={i}>{l}</div>
+              <div key={i}>
+                <Nombre>{l}</Nombre>
+              </div>
             ))}
           </div>
           <div className="relative h-44 xl:h-36">
             {graduation.map((v, i) => (
               <span key={v} className="absolute right-0 translate-y-1/2 whitespace-nowrap" style={{ bottom: hauteur(v) }}>
-                {libellesAxe[i]}
+                <Nombre>{libellesAxe[i]}</Nombre>
               </span>
             ))}
           </div>
@@ -91,7 +94,7 @@ export function GraphiqueJours({ points }: { points: readonly PointJour[] | null
                 <th scope="row" className="t-body border-b border-admin-axe py-2 pr-2 font-normal">
                   {dateLongue(p.jour)}
                 </th>
-                <td className="t-body border-b border-admin-axe py-2 text-right">{formaterUsd(p.montantCents, locale)}</td>
+                <td className="t-body border-b border-admin-axe py-2 text-right"><Nombre>{formaterUsd(p.montantCents, locale)}</Nombre></td>
               </tr>
             ))}
           </tbody>

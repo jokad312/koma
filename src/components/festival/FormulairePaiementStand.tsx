@@ -12,6 +12,7 @@ import type { CodeRefuse } from "@/modules/commande/types";
 import { creerCommandeStandAction, lireRecapitulatifStandAction } from "@/modules/evenements/candidature-actions";
 import { nomValable } from "@/modules/evenements/candidature-nom";
 import type { ErreurPaiementStand, RecapStand } from "@/modules/evenements/candidature-types";
+import { Nombre, nb } from "@/components/ui/Nombre";
 
 const CHAMP = "t-body min-h-touch w-full rounded-md border border-border-field bg-surface px-4 py-3 text-text-primary";
 
@@ -153,7 +154,7 @@ export function FormulairePaiementStand({ candidatureId, slug, nomCompte, recapI
           </div>
         ) : null}
         {messageServeur ? <MessageEtat type="erreur">{messageServeur}</MessageEtat> : null}
-        {totalChange ? <MessageEtat type="attention">{t("totalChange", { ancien: formaterUsd(totalChange.ancien, locale), nouveau: formaterUsd(totalChange.nouveau, locale) })}</MessageEtat> : null}
+        {totalChange ? <MessageEtat type="attention">{t.rich("totalChange", { ancien: formaterUsd(totalChange.ancien, locale), nouveau: formaterUsd(totalChange.nouveau, locale), nb })}</MessageEtat> : null}
       </div>
 
       <MessageEtat type="succes">
@@ -236,7 +237,7 @@ export function FormulairePaiementStand({ candidatureId, slug, nomCompte, recapI
         ) : null}
         {recap.code?.valide ? (
           <p role="status" className="t-small text-text-primary">
-            {tc("applique", { code: recap.code.code, pct: recap.code.reductionPct })}
+            {tc.rich("applique", { code: recap.code.code, pct: recap.code.reductionPct, nb })}
           </p>
         ) : null}
       </section>
@@ -250,17 +251,17 @@ export function FormulairePaiementStand({ candidatureId, slug, nomCompte, recapI
         <dl className="flex flex-col gap-2">
           <div className="flex justify-between gap-4">
             <dt className="t-body text-text-primary">{t("recap.prix")}</dt>
-            <dd className="t-body text-text-primary">{formaterUsd(recap.prixCents, locale)}</dd>
+            <dd className="t-body text-text-primary"><Nombre>{formaterUsd(recap.prixCents, locale)}</Nombre></dd>
           </div>
           {recap.code?.valide && recap.reductionCents > 0 ? (
             <div className="flex justify-between gap-4">
-              <dt className="t-body text-text-primary">{t("recap.reduction", { code: recap.code.code })}</dt>
-              <dd className="t-body text-text-primary">{t("recap.reductionMontant", { montant: formaterUsd(recap.reductionCents, locale) })}</dd>
+              <dt className="t-body text-text-primary">{t.rich("recap.reduction", { code: recap.code.code, nb })}</dt>
+              <dd className="t-body text-text-primary">{t.rich("recap.reductionMontant", { montant: formaterUsd(recap.reductionCents, locale), nb })}</dd>
             </div>
           ) : null}
           <div className="flex justify-between gap-4">
             <dt className="t-h3 text-text-primary">{t("recap.total")}</dt>
-            <dd className="t-price-card text-text-primary">{formaterUsd(recap.totalCents, locale)}</dd>
+            <dd className="t-price-card text-text-primary"><Nombre>{formaterUsd(recap.totalCents, locale)}</Nombre></dd>
           </div>
         </dl>
       </section>

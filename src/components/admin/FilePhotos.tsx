@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { useRouter } from "@/i18n/navigation";
@@ -12,6 +12,7 @@ import type { PhotoAdmin } from "@/modules/communaute/admin-types";
 import type { OptionsPassOffert } from "@/modules/communaute/pass-offert";
 import { AttributionPassOffert } from "./AttributionPassOffert";
 import { ChampTexte } from "./ChampTexte";
+import { nb } from "@/components/ui/Nombre";
 
 type Action = "valider" | "refuser" | "retirer";
 
@@ -159,7 +160,7 @@ export function FilePhotos({ photos, passOffert = null }: { photos: PhotoAdmin[]
     );
   };
 
-  const section = (id: string, titre: string, vide: string, liste: PhotoAdmin[], actions: Action[]) => (
+  const section = (id: string, titre: ReactNode, vide: string, liste: PhotoAdmin[], actions: Action[]) => (
     <section aria-labelledby={id} className="flex flex-col gap-3 rounded-[22px] border border-admin-contour bg-admin-panneau p-5 text-text-primary">
       <h2 id={id} className="t-label text-[18px] leading-6 uppercase">
         {titre}
@@ -173,10 +174,10 @@ export function FilePhotos({ photos, passOffert = null }: { photos: PhotoAdmin[]
       <div role="status" aria-live="polite">
         {retour ? <MessageEtat type={retour.type}>{retour.texte}</MessageEtat> : null}
       </div>
-      {section("galerie-a-valider", t("aValider.titre", { nombre: aValider.length }), t("aValider.vide"), aValider, ["valider", "refuser"])}
-      {section("galerie-realisations", t("realisations.titre", { nombre: realisations.length }), t("realisations.vide"), realisations, ["valider", "refuser"])}
-      {section("galerie-retraits", t("retraits.titre", { nombre: retraits.length }), t("retraits.vide"), retraits, ["retirer"])}
-      {section("galerie-publiees", t("publiees.titre", { nombre: publiees.length }), t("publiees.vide"), publiees, ["retirer"])}
+      {section("galerie-a-valider", t.rich("aValider.titre", { nombre: aValider.length, nb }), t("aValider.vide"), aValider, ["valider", "refuser"])}
+      {section("galerie-realisations", t.rich("realisations.titre", { nombre: realisations.length, nb }), t("realisations.vide"), realisations, ["valider", "refuser"])}
+      {section("galerie-retraits", t.rich("retraits.titre", { nombre: retraits.length, nb }), t("retraits.vide"), retraits, ["retirer"])}
+      {section("galerie-publiees", t.rich("publiees.titre", { nombre: publiees.length, nb }), t("publiees.vide"), publiees, ["retirer"])}
     </div>
   );
 }

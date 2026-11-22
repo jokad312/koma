@@ -12,6 +12,7 @@ import type { Locale } from "@/i18n/routing";
 import { formaterUsd } from "@/lib/argent";
 import { lireHerosPublic, type Disponibilite, type HerosPublic, type VedetteHeros } from "@/modules/accueil/heros-queries";
 import { MediaHeros } from "./MediaHeros";
+import { Nombre } from "@/components/ui/Nombre";
 
 const FOND = { backgroundImage: "linear-gradient(135deg, var(--ks-hero-wash-start), var(--ks-hero-wash-end))" } as const;
 
@@ -103,7 +104,7 @@ async function TuileVedette({ locale }: { locale: Locale }) {
                 {o.titre}
               </Link>
             </p>
-            <p className="t-price-card text-text-primary">{formaterUsd(o.prixCents, locale)}</p>
+            <p className="t-price-card text-text-primary"><Nombre>{formaterUsd(o.prixCents, locale)}</Nombre></p>
             {o.badge ? <BadgeDisponibilite etat={o.badge} /> : null}
             {o.delaiJours !== null ? <p className="t-small text-text-primary">{t("delai", { n: o.delaiJours })}</p> : null}
             {o.id === "fabriquer" ? <p className="t-small text-text-primary">{t("acces")}</p> : null}

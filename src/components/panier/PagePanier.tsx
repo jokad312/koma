@@ -12,6 +12,7 @@ import { modifierLigneParFormulaire, retirerLigneParFormulaire } from "@/modules
 import { lirePanier } from "@/modules/panier/queries";
 import { NOMBRE_MAX_LIGNE } from "@/modules/panier/schemas";
 import type { LignePanier } from "@/modules/panier/types";
+import { Nombre, nb } from "@/components/ui/Nombre";
 
 const CLASSE_NOMBRE = "t-body min-h-touch w-24 rounded-md border border-border-field bg-surface px-4 py-3 text-text-primary";
 const CLASSES_LIEN = "t-body inline-flex min-h-touch items-center text-text-primary underline";
@@ -95,7 +96,7 @@ export async function PagePanier({ locale }: { locale: Locale }) {
                 <>
                   <p className="t-small text-text-primary">{t(`etat.${l.etat}`)}</p>
                   {l.delaiJours !== null ? <p className="t-small text-text-primary">{t("delai", { n: l.delaiJours })}</p> : null}
-                  <p className="t-body text-text-primary">{t("prixUnitaire", { prix: formaterUsd(l.prixCents, locale) })}</p>
+                  <p className="t-body text-text-primary">{t.rich("prixUnitaire", { prix: formaterUsd(l.prixCents, locale), nb })}</p>
                   {l.famille !== "kit" ? (
                     <form action={modifierLigneParFormulaire} className="flex flex-wrap items-end gap-3">
                       <input type="hidden" name="ligne" value={l.id} />
@@ -119,7 +120,7 @@ export async function PagePanier({ locale }: { locale: Locale }) {
                       </Bouton>
                     </form>
                   ) : null}
-                  <p className="t-label text-text-primary">{t("totalLigne", { prix: formaterUsd(l.prixCents * l.nombre, locale) })}</p>
+                  <p className="t-label text-text-primary">{t.rich("totalLigne", { prix: formaterUsd(l.prixCents * l.nombre, locale), nb })}</p>
                 </>
               )}
               <form action={retirerLigneParFormulaire}>
@@ -137,7 +138,7 @@ export async function PagePanier({ locale }: { locale: Locale }) {
         <h2 id="panier-recap" className="t-h2">
           {t("sousTotal")}
         </h2>
-        <p className="t-price-card text-text-primary">{formaterUsd(panier.sousTotalCents, locale)}</p>
+        <p className="t-price-card text-text-primary"><Nombre>{formaterUsd(panier.sousTotalCents, locale)}</Nombre></p>
         <p className="t-small text-text-secondary">{t("sousTotalAide")}</p>
         {aUnePiecePhysique ? <p className="t-small text-text-secondary">{t("delaiLivraison")}</p> : null}
         {panier.bloque ? (

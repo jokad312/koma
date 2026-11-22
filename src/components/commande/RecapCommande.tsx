@@ -7,6 +7,7 @@ import type { Locale } from "@/i18n/routing";
 import { formaterUsd } from "@/lib/argent";
 import type { ModeRemise, ZoneRemise } from "@/modules/commande/schemas";
 import type { Recapitulatif } from "@/modules/commande/types";
+import { Nombre, nb } from "@/components/ui/Nombre";
 
 type Props = { recap: Recapitulatif; zone: ZoneRemise | null; mode: ModeRemise | null; locale: Locale };
 
@@ -39,7 +40,7 @@ export function RecapCommande({ recap, zone, mode, locale }: Props) {
             ) : (
               <>
                 <p className="t-body text-text-primary">
-                  {t("quantitePrix", { nombre: l.nombre, prix: formaterUsd(l.prixCents, locale) })}
+                  {t.rich("quantitePrix", { nombre: l.nombre, prix: formaterUsd(l.prixCents, locale), nb })}
                 </p>
                 {l.famille === "kit" ? (
                   <p className="t-small text-text-secondary">{t("accesImmediat")}</p>
@@ -58,25 +59,25 @@ export function RecapCommande({ recap, zone, mode, locale }: Props) {
       <dl className="flex flex-col gap-2">
         <div className="flex justify-between gap-4">
           <dt className="t-body text-text-primary">{t("sousTotal")}</dt>
-          <dd className="t-body text-text-primary">{formaterUsd(recap.sousTotalCents, locale)}</dd>
+          <dd className="t-body text-text-primary"><Nombre>{formaterUsd(recap.sousTotalCents, locale)}</Nombre></dd>
         </div>
         {recap.code?.valide && recap.reductionCents > 0 ? (
           <div className="flex justify-between gap-4">
-            <dt className="t-body text-text-primary">{t("reduction", { code: recap.code.code })}</dt>
-            <dd className="t-body text-text-primary">{t("reductionMontant", { montant: formaterUsd(recap.reductionCents, locale) })}</dd>
+            <dt className="t-body text-text-primary">{t.rich("reduction", { code: recap.code.code, nb })}</dt>
+            <dd className="t-body text-text-primary">{t.rich("reductionMontant", { montant: formaterUsd(recap.reductionCents, locale), nb })}</dd>
           </div>
         ) : null}
         {recap.physique ? (
           <div className="flex justify-between gap-4">
             <dt className="t-body text-text-primary">{t("forfait")}</dt>
             <dd className="t-body text-text-primary">
-              {recap.remiseManquante ? t("forfaitAChoisir") : recap.forfaitCents === 0 ? t("forfaitGratuit") : formaterUsd(recap.forfaitCents, locale)}
+              {recap.remiseManquante ? t("forfaitAChoisir") : recap.forfaitCents === 0 ? t("forfaitGratuit") : <Nombre>{formaterUsd(recap.forfaitCents, locale)}</Nombre>}
             </dd>
           </div>
         ) : null}
         <div className="flex justify-between gap-4">
           <dt className="t-h3 text-text-primary">{t("total")}</dt>
-          <dd className="t-price-card text-text-primary">{formaterUsd(recap.totalCents, locale)}</dd>
+          <dd className="t-price-card text-text-primary"><Nombre>{formaterUsd(recap.totalCents, locale)}</Nombre></dd>
         </div>
       </dl>
     </section>

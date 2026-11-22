@@ -2,7 +2,7 @@
 import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { rendre } from "./aides-dom";
+import { rendre, texteComplet } from "./aides-dom";
 
 const faux = vi.hoisted(() => ({
   commandesEnCoursProduit: vi.fn<(entree: { id: string }) => Promise<{ ok: boolean; nombre?: number; erreur?: string }>>(async () => ({ ok: true, nombre: 0 })),
@@ -68,7 +68,7 @@ describe("GaleriePhotos", () => {
     expect(screen.getByText("Texte alternatif en anglais : TEST_Back")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Monter la photo 2 : TEST_Dos" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Descendre la photo 2 : TEST_Dos" })).toBeTruthy();
-    expect(screen.getByText("3 photos sur 10")).toBeTruthy();
+    expect(screen.getByText(texteComplet("3 photos sur 10"))).toBeTruthy();
   });
 
   it("en bout de liste : aria-disabled et aucun appel", async () => {
@@ -349,7 +349,9 @@ describe("EnvoiPhoto", () => {
     await remplirAlt(user);
     await choisir(user, new File(["x"], "a.jpg", { type: "image/jpeg" }));
     await envoyer(user);
-    expect((await screen.findAllByText("Envoi en cours : 30 %")).length).toBeGreaterThan(0);
+    const progression = await screen.findByText(texteComplet("Envoi en cours : 30 %"));
+    // A3-bis : seul le pourcentage est exclu de la traduction du navigateur.
+    expect(progression.querySelector('[translate="no"]')?.textContent).toBe("30");
     await user.click(screen.getByRole("button", { name: "Annuler l'envoi" }));
     expect(annuler).toHaveBeenCalled();
     expect(faux.annulerEnvoiPhoto).toHaveBeenCalledWith({ produitId: PRODUIT, objet: `${PRODUIT}/u.jpg` });

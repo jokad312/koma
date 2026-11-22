@@ -14,6 +14,7 @@ import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
 import { lireUniversAdmin } from "@/modules/catalogue/queries";
 import type { UniversAdmin } from "@/modules/catalogue/types";
+import { nb } from "@/components/ui/Nombre";
 
 const CHEMIN = "/admin/univers";
 
@@ -62,7 +63,7 @@ async function UniversSelonDroit({ locale }: { locale: Locale }) {
             ) : (
               <>
                 <p role="status" className="t-label uppercase text-text-primary">
-                  {t("liste.nombre", { nombre: univers.length })}
+                  {t.rich("liste.nombre", { nombre: univers.length, nb })}
                 </p>
                 <ul className="flex flex-wrap gap-2">
                   {univers.map((u) => (

@@ -3,7 +3,7 @@ import { act, fireEvent, screen, waitFor, within } from "@testing-library/react"
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ReactNode } from "react";
-import { rendre } from "./aides-dom";
+import { rendre, texteComplet } from "./aides-dom";
 
 vi.mock("next/navigation", async (importOriginal) => ({ ...(await importOriginal<typeof import("next/navigation")>()), useRouter: () => ({ refresh: vi.fn(), push: vi.fn() }) }));
 vi.mock("@/modules/panier/actions", () => ({ ajouterAuPanier: vi.fn() }));
@@ -262,7 +262,7 @@ describe("ModesRemise", () => {
   it("forfaits et lieu réglés : retrait gratuit, livraison au forfait, délais de remise", () => {
     rendre(<ModesRemise locale="fr" forfaitGoma={500} forfaitBukavu={1200} retraitGoma="TEST_Lieu de retrait" fabrication={null} />);
     expect(screen.getByText("Retrait gratuit : TEST_Lieu de retrait")).toBeTruthy();
-    expect(screen.getAllByText(/Livraison : /).map((e) => e.textContent)).toEqual(expect.arrayContaining([expect.stringContaining("5,00"), expect.stringContaining("12,00")]));
+    expect(screen.getAllByText(texteComplet(/Livraison : /)).map((e) => e.textContent)).toEqual(expect.arrayContaining([expect.stringContaining("5,00"), expect.stringContaining("12,00")]));
     expect(screen.getByText("Délai : remise en moins d'un jour")).toBeTruthy();
     expect(screen.getByText("Délai : remise en un jour au plus")).toBeTruthy();
   });
@@ -277,7 +277,7 @@ describe("ModesRemise", () => {
 
   it("forfait de Goma seul : la ligne Bukavu n'affiche pas de montant", () => {
     rendre(<ModesRemise locale="en" forfaitGoma={0} forfaitBukavu={null} retraitGoma={null} fabrication={null} />, "en");
-    expect(screen.getAllByText(/Delivery: /)).toHaveLength(1);
+    expect(screen.getAllByText(texteComplet(/Delivery: /))).toHaveLength(1);
   });
 
   it("fabrication sans délai fixé : jamais de délai inventé", () => {

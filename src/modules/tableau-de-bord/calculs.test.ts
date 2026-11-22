@@ -163,20 +163,23 @@ describe("cartes de chiffres (story 9.16 c)", () => {
   it("les 4 cartes, dans l'ordre de la maquette, chaque valeur dans la bonne carte", () => {
     const cartes = cartesChiffres(TEST_CHIFFRES, TEST_TEXTES);
     expect(cartes.map((c) => c.cle)).toEqual(["produitsPublies", "commandesTotal", "revenuTotal", "paiementsReussis"]);
-    expect(cartes[0]).toEqual({ cle: "produitsPublies", chiffre: "4", texte: false });
-    expect(cartes[1]).toEqual({ cle: "commandesTotal", chiffre: "7", texte: false });
+    expect(cartes[0]).toEqual({ cle: "produitsPublies", chiffre: "4", texte: false, nombre: true });
+    expect(cartes[1]).toEqual({ cle: "commandesTotal", chiffre: "7", texte: false, nombre: true });
     expect(cartes[2].chiffre).toBe(formaterUsd(12345, "fr"));
     expect(cartes[2].texte).toBe(false);
-    expect(cartes[3]).toEqual({ cle: "paiementsReussis", chiffre: "75 %", texte: false });
+    expect(cartes[2].nombre).toBe(true);
+    expect(cartes[3]).toEqual({ cle: "paiementsReussis", chiffre: "75 %", texte: false, nombre: true });
   });
 
   it("aucune tentative terminée : « Aucune donnée », écrit plus petit (jamais 0 %)", () => {
-    expect(cartesChiffres({ ...TEST_CHIFFRES, tentativesReussies: 0, tentativesTerminees: 0 }, TEST_TEXTES)[3]).toEqual({ cle: "paiementsReussis", chiffre: "Aucune donnée", texte: true });
+    expect(cartesChiffres({ ...TEST_CHIFFRES, tentativesReussies: 0, tentativesTerminees: 0 }, TEST_TEXTES)[3]).toEqual({ cle: "paiementsReussis", chiffre: "Aucune donnée", texte: true, nombre: false });
   });
 
   it("revenu : écrit plus petit à partir de 1 000 USD, selon la valeur et non la longueur du texte", () => {
     expect(cartesChiffres({ ...TEST_CHIFFRES, revenuCents: 99_999 }, TEST_TEXTES)[2].texte).toBe(false);
     expect(cartesChiffres({ ...TEST_CHIFFRES, revenuCents: 100_000 }, TEST_TEXTES)[2].texte).toBe(true);
+    // Écrit plus petit, mais reste un montant : exclu de la traduction du navigateur (A3-bis).
+    expect(cartesChiffres({ ...TEST_CHIFFRES, revenuCents: 100_000 }, TEST_TEXTES)[2].nombre).toBe(true);
     const appels: number[] = [];
     cartesChiffres(TEST_CHIFFRES, { ...TEST_TEXTES, usd: (c) => (appels.push(c), "x") });
     expect(appels).toEqual([12345]);

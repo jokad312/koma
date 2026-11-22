@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 import { formaterUsd } from "@/lib/argent";
+import { nb } from "@/components/ui/Nombre";
 
 type Props = {
   locale: "fr" | "en";
@@ -34,14 +35,14 @@ export function ModesRemise({ locale, forfaitGoma, forfaitBukavu, retraitGoma, f
           <h3 className="t-button">{t("goma")}</h3>
           <ul className="t-small flex flex-col gap-1 text-text-primary">
             {retraitGoma ? <li>{t("retrait", { lieu: retraitGoma })}</li> : null}
-            {forfaitGoma !== null ? <li>{t("livraison", { prix: formaterUsd(forfaitGoma, locale) })}</li> : null}
+            {forfaitGoma !== null ? <li>{t.rich("livraison", { prix: formaterUsd(forfaitGoma, locale), nb })}</li> : null}
             <li>{delai(t("remiseGoma"))}</li>
           </ul>
         </div>
         <div className="flex flex-col gap-1 rounded-lg border border-border bg-surface p-4">
           <h3 className="t-button">{t("bukavu")}</h3>
           <ul className="t-small flex flex-col gap-1 text-text-primary">
-            {forfaitBukavu !== null ? <li>{t("livraison", { prix: formaterUsd(forfaitBukavu, locale) })}</li> : null}
+            {forfaitBukavu !== null ? <li>{t.rich("livraison", { prix: formaterUsd(forfaitBukavu, locale), nb })}</li> : null}
             <li>{delai(t("remiseBukavu"))}</li>
           </ul>
         </div>

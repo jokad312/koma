@@ -17,6 +17,7 @@ import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
 import { lireTachesAdmin } from "@/modules/admin/queries";
 import type { TacheAdmin } from "@/modules/admin/types";
+import { nb } from "@/components/ui/Nombre";
 
 const CHEMIN = "/admin/taches";
 
@@ -57,7 +58,7 @@ async function TachesSelonDroit({ locale }: { locale: Locale }) {
           <TachesArgent />
         </div>
         {taches ? (
-          <Panneau titre={t("ouvertes", { nombre: taches.length })}>
+          <Panneau titre={t.rich("ouvertes", { nombre: taches.length, nb })}>
             <ListeTaches taches={taches} />
           </Panneau>
         ) : (

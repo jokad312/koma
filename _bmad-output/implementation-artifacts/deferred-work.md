@@ -582,5 +582,18 @@
   evidence: revue d'A4 (2026-11-22), défaut antérieur à A4 (FormulaireConnexion.tsx, `renvoyerCode`) ; peu probable (l'adresse a déjà été acceptée au premier envoi). Piste : revenir à l'étape email avec l'erreur, ou erreur générale à l'étape du code.
 
 - source_spec: `_bmad-output/implementation-artifacts/spec-bug-a3-traduction-navigateur-dom.md`
+  statut: traité en A3-bis (décision de Jonathan du 2026-11-22 : translate="no" sur les seuls nombres qui changent, composant `src/components/ui/Nombre.tsx` ; spec `spec-a3-bis-nombres-non-traduits.md`, e2e `tests/e2e/panier-traduit.spec.ts`)
   summary: Page traduite par le navigateur : une mise à jour de texte faite par React (prix, total du Panier, stock, message d'état) n'apparaît plus, car le <font> du traducteur garde l'ancien texte ; à trancher par Jonathan (par exemple translate="no" local sur les montants, alors que la spec A3 l'exclut au niveau de la page).
   evidence: revue d'A3 (2026-11-22), non vérifié en navigateur (medium) ; limite connue de la traduction de Chrome, antérieure à A3 (la garde ne touche que removeChild/insertBefore). À trancher par un essai Chrome : traduire /fr/panier, changer une quantité, lire le total affiché.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-a3-bis-nombres-non-traduits.md`
+  summary: Tests instables (décision de Jonathan du 2026-11-22) — `tests/e2e/admin.spec.ts:229` et `tests/e2e/admin.spec.ts:373` (projet mobile, « Restaurer » après archivage) échouent en local contre koma-dev et sont verts en CI ; `tests/unit/blog-admin-liste.test.tsx` (« annonce… focus inchangé après Dépublier ») a échoué une fois sur main en CI.
+  evidence: e2e admin : échecs locaux contre koma-dev (`--linked`), verts en CI (`--local`). Test unitaire du blog : rouge une fois sur main en CI le 2026-11-22 (run 45049866106), 6/6 verts en local. À stabiliser, pas à relancer en boucle.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-a3-bis-nombres-non-traduits.md`
+  summary: Nombres qui changent côté client mais HORS de la liste de Jonathan (non marqués translate="no", donc figés sur une page traduite) : progression de l'envoi de photo côté client (EnvoiPhotoClient), temps du lecteur vidéo de kit (LecteurVideoKit `duree`), dates et heures, délais de fabrication. (Compte à rebours de la connexion et progression des envois admin : ajoutés à A3-bis le 2026-11-22.)
+  evidence: revue d'A3-bis (2026-11-22) ; exclus par la décision « UNIQUEMENT sur les nombres qui changent : prix, totaux… » ; à trancher par Jonathan s'il veut élargir la liste.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-a3-bis-nombres-non-traduits.md`
+  summary: Limites connues sur page traduite : les mots autour d'un nombre (pluriel « 1 jour » → « 2 jours », statuts de SuiviPaiement) restent figés, et un passage texte → montant (RecapCommande « à choisir » → montant, ListeCommandes « offert », PerformanceJour « au moins ») laisse le texte traduit affiché à côté du nouveau montant (garde removeChild d'A3).
+  evidence: revue d'A3-bis (2026-11-22), mécanisme du traducteur (les <font> remplacent les nœuds que React met à jour) ; non vérifié dans un vrai Chrome (medium) : traduire /fr/commande, changer de zone, lire le récapitulatif.

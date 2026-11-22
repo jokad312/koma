@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { AvatarInitiale } from "@/components/admin/ui/AvatarInitiale";
 import { CLASSES_TABLEAU_ADMIN, EnTeteTableau } from "@/components/admin/ui/EnTeteTableau";
@@ -8,6 +9,7 @@ import { FUSEAU_BOUTIQUE } from "@/lib/dates";
 import { adresseCodes, type ParametresCodes } from "@/modules/promo/liste";
 import type { CodePromo } from "@/modules/promo/types";
 import { ActionsCodePromo } from "./ActionsCodePromo";
+import { Nombre, nb } from "@/components/ui/Nombre";
 
 const CODE = "t-label inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full bg-admin-champ px-4 text-text-primary";
 // Détails (conditions, ventes) : libellé et valeur côte à côte, les paires passent à la ligne.
@@ -32,7 +34,7 @@ export function ListeCodesPromo({ codes, debut, parametres, locale }: { codes: r
       <Pastille>{c.actif ? t("etat.actif") : t("etat.inactif")}</Pastille>
     </span>
   );
-  const paire = (libelle: string, valeur: string) => (
+  const paire = (libelle: string, valeur: ReactNode) => (
     <div className="flex gap-2">
       <dt className="text-text-secondary">{libelle}</dt>
       <dd>{valeur}</dd>
@@ -48,9 +50,9 @@ export function ListeCodesPromo({ codes, debut, parametres, locale }: { codes: r
   // Story 9.3 : calcul de la vue commission_code_promo ; aucun paiement de commission n'est fait par le site.
   const ventes = (c: CodePromo) => (
     <dl className={DETAILS} role="group" aria-label={t("ventes.titre", { code: c.code })}>
-      {paire(t("ventes.nombre"), nombre.format(c.ventes))}
-      {paire(t("ventes.montant"), formaterUsd(c.montantCents, locale))}
-      {paire(t("ventes.commission"), formaterUsd(c.commissionCents, locale))}
+      {paire(t("ventes.nombre"), <Nombre>{nombre.format(c.ventes)}</Nombre>)}
+      {paire(t("ventes.montant"), <Nombre>{formaterUsd(c.montantCents, locale)}</Nombre>)}
+      {paire(t("ventes.commission"), <Nombre>{formaterUsd(c.commissionCents, locale)}</Nombre>)}
     </dl>
   );
   const colonnes = [
@@ -78,7 +80,7 @@ export function ListeCodesPromo({ codes, debut, parametres, locale }: { codes: r
                 </td>
                 <td className="whitespace-nowrap px-4 pt-4 align-middle">{date(c)}</td>
                 <td className="px-4 pt-4 align-middle">
-                  <span className={CODE}>{c.code}</span>
+                  <span className={CODE}><Nombre>{c.code}</Nombre></span>
                 </td>
                 <td className="px-4 pt-4 align-middle">{etat(c)}</td>
                 <td className="px-2 pt-4 align-middle">
@@ -102,14 +104,14 @@ export function ListeCodesPromo({ codes, debut, parametres, locale }: { codes: r
         {codes.map((c, i) => (
           <li key={c.id} data-code-promo={c.code} className="t-body flex min-w-0 flex-col gap-3 rounded-[16px] bg-admin-entete p-4 text-text-primary">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <span className="t-label">{t("carte.numero", { numero: debut + i + 1 })}</span>
+              <span className="t-label">{t.rich("carte.numero", { numero: debut + i + 1, nb })}</span>
               {etat(c)}
             </div>
             <span className="flex min-w-0 items-center gap-3">
               <AvatarInitiale nom={c.affilie} />
               <span className="min-w-0 break-words">{c.affilie}</span>
             </span>
-            <span className={`${CODE} self-start`}>{c.code}</span>
+            <span className={`${CODE} self-start`}><Nombre>{c.code}</Nombre></span>
             <p className="text-text-secondary">{t("carte.creeLe", { date: date(c) })}</p>
             {conditions(c)}
             {ventes(c)}

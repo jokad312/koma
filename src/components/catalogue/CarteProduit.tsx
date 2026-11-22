@@ -7,6 +7,7 @@ import { formaterUsd } from "@/lib/argent";
 import { DOSSIER_PAR_FAMILLE, type CarteProduit as Donnees } from "@/modules/catalogue/types";
 import { BadgeDisponibilite } from "./BadgeDisponibilite";
 import { BadgeNiveau } from "./BadgeNiveau";
+import { Nombre } from "@/components/ui/Nombre";
 
 const DOSSIER = DOSSIER_PAR_FAMILLE;
 
@@ -32,7 +33,7 @@ export function CarteProduit({ produit, niveau = 3 }: { produit: Donnees; niveau
             {produit.titre}
           </Link>
         </Balise>
-        <p className="t-price-card text-text-primary">{formaterUsd(produit.prixCents, locale)}</p>
+        <p className="t-price-card text-text-primary"><Nombre>{formaterUsd(produit.prixCents, locale)}</Nombre></p>
         {produit.famille === "kit" ? (produit.niveau ? <BadgeNiveau niveau={produit.niveau} /> : null) : <BadgeDisponibilite etat={produit.disponibilite} />}
       </div>
     </article>

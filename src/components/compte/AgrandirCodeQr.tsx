@@ -6,6 +6,7 @@ import { Dialogue } from "@/components/ui/Dialogue";
 import { CLASSES_SECONDAIRE } from "@/components/ui/classes";
 import type { CodeQr } from "@/modules/evenements/pass-qr";
 import { CodeQrPass } from "./CodeQrPass";
+import { nb } from "@/components/ui/Nombre";
 
 // Bouton « Agrandir » d'une Carte Pass (story 7.5) : le Code QR s'ouvre en grand, avec le conseil d'augmenter la luminosité de l'écran
 // et le code court en texte. Le dessin du Code QR est calculé côté serveur et reçu tel quel.
@@ -22,7 +23,7 @@ export function AgrandirCodeQr({ qr, alt, nom, codeCourt }: { qr: CodeQr; alt: s
       <Dialogue ouvert={ouvert} onFermer={() => setOuvert(false)} titre={t("titre", { nom })} retourFocus={bouton}>
         <div className="flex flex-col items-center gap-4">
           <CodeQrPass qr={qr} alt={alt} className="aspect-square w-full max-w-sm" />
-          <p className="t-label text-text-primary">{t("code", { code: codeCourt })}</p>
+          <p className="t-label text-text-primary">{t.rich("code", { code: codeCourt, nb })}</p>
           <p className="t-small text-text-secondary">{t("luminosite")}</p>
         </div>
       </Dialogue>

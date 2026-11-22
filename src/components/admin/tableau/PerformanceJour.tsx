@@ -1,5 +1,6 @@
 import { useLocale, useTranslations } from "next-intl";
 import { MessageEtat } from "@/components/ui/MessageEtat";
+import { Nombre, nb } from "@/components/ui/Nombre";
 import { formaterUsd, PLAFOND_COMMANDES_PAYEES, ventesDuJour } from "@/modules/tableau-de-bord/calculs";
 import { FUSEAU_GOMA } from "@/modules/tableau-de-bord/periode";
 import type { CommandePayee, Zone } from "@/modules/tableau-de-bord/queries";
@@ -13,7 +14,7 @@ export function PerformanceJour({ commandes, maintenant }: { commandes: Zone<Com
   if (commandes === null) return <MessageEtat type="erreur">{t("erreurLecture")}</MessageEtat>;
   const { nombre, montantCents, auMoins } = ventesDuJour(commandes, PLAFOND_COMMANDES_PAYEES);
   const date = new Intl.DateTimeFormat(locale, { day: "2-digit", month: "2-digit", year: "numeric", timeZone: FUSEAU_GOMA }).format(maintenant);
-  const valeur = (texte: string) => (auMoins ? t("jour.auMoins", { valeur: texte }) : texte);
+  const valeur = (texte: string) => (auMoins ? t.rich("jour.auMoins", { valeur: texte, nb }) : <Nombre>{texte}</Nombre>);
   return (
     <div className="flex flex-col gap-4">
       <p className="t-label">{t("jour.date", { date })}</p>

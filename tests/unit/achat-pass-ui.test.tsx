@@ -5,7 +5,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import fr from "../../messages/fr.json";
-import { rendre } from "./aides-dom";
+import { rendre, sansBalises, texteComplet } from "./aides-dom";
 
 const faux = vi.hoisted(() => ({ recap: vi.fn(), creer: vi.fn(), push: vi.fn() }));
 vi.mock("server-only", () => ({}));
@@ -140,7 +140,7 @@ describe("Récapitulatif et confirmation", () => {
     await versRecap();
     expect(faux.recap).toHaveBeenCalledTimes(1);
     expect(faux.recap.mock.calls[0][0]).toMatchObject({ evenementId: EVENEMENT, pourMoi: true, lignes: [{ typePassId: TYPES[0].id, titulaires: ["TEST_Alice", "TEST_Bob"] }] });
-    expect(screen.getByText(A.recap.ligne.replace("{nombre}", "2").replace("{nom}", "TEST_Simple"))).toBeTruthy();
+    expect(screen.getByText(texteComplet(sansBalises(A.recap.ligne).replace("{nombre}", "2").replace("{nom}", "TEST_Simple")))).toBeTruthy();
     expect(screen.getByText(A.recap.noms.replace("{noms}", "TEST_Alice, TEST_Bob"))).toBeTruthy();
     expect(screen.getAllByText(/30,00[\s ]\$US/).length).toBeGreaterThanOrEqual(2);
   });

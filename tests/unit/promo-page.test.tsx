@@ -3,7 +3,7 @@ import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import fr from "../../messages/fr.json";
-import { rendre } from "./aides-dom";
+import { rendre, texteComplet } from "./aides-dom";
 
 const faux = vi.hoisted(() => ({ exigerAdminPage: vi.fn(), lire: vi.fn(), modifier: vi.fn(), push: vi.fn() }));
 vi.mock("server-only", () => ({}));
@@ -120,7 +120,7 @@ describe("contenu de la page /admin/codes-promo", () => {
     rendre(await page({ page: "2" }));
     expect(numeros()).toEqual(["21", "22", "23", "24", "25"]);
     expect(within(tableau()).getByText("TEST_C21")).toBeTruthy();
-    expect(screen.getByText("Page 2 / 2")).toBeTruthy();
+    expect(screen.getByText(texteComplet("Page 2 / 2"))).toBeTruthy();
   });
 
   it("page au-delà de la dernière (adresse modifiée) : la dernière page est affichée", async () => {

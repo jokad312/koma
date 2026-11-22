@@ -11,6 +11,7 @@ import { formaterUsd } from "@/lib/argent";
 import { formaterDateHeureBoutique } from "@/lib/dates";
 import { demarrerTentativeAction } from "@/modules/paiement/actions";
 import { DELAI_VERIFICATION_SECONDES, INTERVALLE_SONDAGE_MS, type EtatPaiement } from "@/modules/paiement/etat";
+import { Nombre } from "@/components/ui/Nombre";
 
 type Props = { numero: string; etatInitial: EtatPaiement; numeroWhatsapp: string | null };
 
@@ -152,7 +153,7 @@ export function SuiviPaiement({ numero, etatInitial, numeroWhatsapp }: Props) {
           <dl className="flex flex-col gap-1">
             <div className="flex justify-between gap-4">
               <dt className="t-small text-text-secondary">{t("attente.montant")}</dt>
-              <dd className="t-body text-text-primary">{formaterUsd(etat.montantCents, locale)}</dd>
+              <dd className="t-body text-text-primary"><Nombre>{formaterUsd(etat.montantCents, locale)}</Nombre></dd>
             </div>
             {etat.attente?.telephoneMasque ? (
               <div className="flex justify-between gap-4">

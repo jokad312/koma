@@ -4,7 +4,7 @@
 // Données de test nommées TEST_ : jamais utilisées hors des tests.
 import { screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { rendre } from "./aides-dom";
+import { rendre, texteComplet } from "./aides-dom";
 
 const faux = vi.hoisted(() => ({ rpc: vi.fn() }));
 vi.mock("server-only", () => ({}));
@@ -180,7 +180,7 @@ describe("ListeCommandesAdmin (9.16 d)", () => {
   it("45 commandes : « Page 1 / 3 », ‹ désactivé sur la première, › vers la page 2 avec les filtres", () => {
     rendre(<ListeCommandesAdmin liste={liste()} filtres={{ statut: "payee" }} revenu={undefined} locale="fr" />);
     const nav = screen.getByRole("navigation", { name: "Pagination" });
-    expect(within(nav).getByText("Page 1 / 3")).toBeTruthy();
+    expect(within(nav).getByText(texteComplet("Page 1 / 3"))).toBeTruthy();
     expect(within(nav).getByRole("link", { name: "Page précédente" }).getAttribute("aria-disabled")).toBe("true");
     expect(within(nav).getByRole("link", { name: "Page suivante" }).getAttribute("href")).toBe("/admin/commandes?statut=payee&page=2");
   });

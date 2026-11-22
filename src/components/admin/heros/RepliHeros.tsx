@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { nb } from "@/components/ui/Nombre";
 import Image from "next/image";
 import { useId, useRef, useState, type FormEvent } from "react";
 import { Bouton } from "@/components/ui/Bouton";
@@ -211,8 +212,8 @@ export function RepliHeros({ url, altFr: altFrActuel, altEn: altEnActuel }: Prop
         <div role="status" className="flex flex-col gap-2">
           {phase === "envoi" ? (
             <>
-              <progress value={pourcentage} max={100} aria-label={t("repli.progression", { pourcentage })} className="h-3 w-full" />
-              <p className="t-small text-text-primary">{t("repli.progression", { pourcentage })}</p>
+              <progress value={pourcentage} max={100} aria-label={t.markup("repli.progression", { pourcentage, nb: (m) => m })} className="h-3 w-full" />
+              <p className="t-small text-text-primary">{t.rich("repli.progression", { pourcentage, nb })}</p>
               {reprise ? <p className="t-small text-text-secondary">{t("repli.reprise")}</p> : null}
             </>
           ) : null}

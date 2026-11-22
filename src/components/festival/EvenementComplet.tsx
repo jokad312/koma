@@ -15,6 +15,7 @@ import { evenementJsonLd, filArianeJsonLd } from "@/lib/seo/jsonld";
 import { urlLocalisee } from "@/lib/seo/url";
 import { extraireTexte } from "@/modules/blog/texte";
 import type { EvenementPublic } from "@/modules/evenements/types";
+import { Nombre } from "@/components/ui/Nombre";
 
 const SEPARATEUR_FIL = "›";
 
@@ -130,7 +131,7 @@ export async function EvenementComplet({ evenement, locale }: Props) {
             {evenement.types.map((type) => (
               <li key={type.id} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
                 <h3 className="t-h3">{type.nom}</h3>
-                <p className="t-price-card">{formaterUsd(type.prixCents, locale)}</p>
+                <p className="t-price-card"><Nombre>{formaterUsd(type.prixCents, locale)}</Nombre></p>
                 {type.inclus ? (
                   <ul className="t-small flex list-disc flex-col gap-1 pl-5 text-text-secondary">
                     {type.inclus

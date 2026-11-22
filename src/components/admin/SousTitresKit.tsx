@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { nb } from "@/components/ui/Nombre";
 import { useEffect, useId, useRef, useState, type FormEvent } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { CLASSES_SECONDAIRE } from "@/components/ui/classes";
@@ -223,8 +224,8 @@ function SousTitresLangue({ produitId, langue, sousTitre }: { produitId: string;
         </div>
         {phase === "envoi" ? (
           <div className="flex flex-col gap-2" aria-live="off">
-            <progress value={pourcentage} max={100} aria-label={t("progression", { pourcentage })} className="h-3 w-full" />
-            <p className="t-small text-text-primary">{t("progression", { pourcentage })}</p>
+            <progress value={pourcentage} max={100} aria-label={t.markup("progression", { pourcentage, nb: (m) => m })} className="h-3 w-full" />
+            <p className="t-small text-text-primary">{t.rich("progression", { pourcentage, nb })}</p>
             {reprise ? <p className="t-small text-text-secondary">{t("reprise")}</p> : null}
           </div>
         ) : null}

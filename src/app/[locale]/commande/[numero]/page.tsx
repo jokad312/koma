@@ -8,6 +8,7 @@ import { Squelette } from "@/components/ui/Squelette";
 import { routing } from "@/i18n/routing";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
+import { nb } from "@/components/ui/Nombre";
 
 // Adresse dynamique propre à chaque client (numéro de commande, session) : rendue à la demande, jamais préparée à l'avance.
 export const instant = false;
@@ -41,7 +42,7 @@ export default async function DetailCommande({ params }: PageProps<"/[locale]/co
   const t = await getTranslations("Commande");
   return (
     <section className="flex flex-col items-stretch gap-6">
-      <h1 className="t-h1">{t("detail.titre", { numero })}</h1>
+      <h1 className="t-h1">{t.rich("detail.titre", { numero, nb })}</h1>
       <Suspense fallback={<Squelette />}>
         <Contenu locale={locale} params={params} />
       </Suspense>

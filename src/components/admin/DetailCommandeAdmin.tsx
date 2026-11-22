@@ -11,6 +11,7 @@ import { BoutonMesuresRecues } from "./BoutonMesuresRecues";
 import { DecisionDemande, FormulaireRemboursement } from "./DemandeEtRemboursement";
 import { EtapesReclamation } from "./EtapesReclamation";
 import { FormulaireAdresseCommande } from "./FormulaireAdresseCommande";
+import { Nombre, nb } from "@/components/ui/Nombre";
 
 // Détail d'une Commande pour l'admin (story 6.2). Le bloc Paiement est en lecture seule : aucun champ, aucun bouton ne permet de poser « payée » (règle 2).
 export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: { commande: CommandeAdminDetail; locale: "fr" | "en"; numeroWhatsappAbsent: boolean }) {
@@ -25,7 +26,7 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
       <Link href="/admin/commandes" className="t-body inline-flex min-h-touch items-center text-text-primary underline">
         {t("retour")}
       </Link>
-      <h1 className="t-h1 uppercase">{t("detail.titre", { numero: commande.numero })}</h1>
+      <h1 className="t-h1 uppercase">{t.rich("detail.titre", { numero: commande.numero, nb })}</h1>
       <p className="t-small inline-flex w-fit items-center rounded-full border border-border-field px-3 py-1 text-text-primary">{commande.offerte ? t("offerte") : ts(commande.statut)}</p>
 
       {commande.lignes.some((l) => l.taille === "sur_mesure") && numeroWhatsappAbsent ? <MessageEtat type="attention">{t("mesures.numeroAbsent")}</MessageEtat> : null}
@@ -51,7 +52,7 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
           ) : null}
           {commande.remboursement ? (
             <div className="flex flex-col gap-2">
-              <p className="t-body">{t("remboursement.montant", { montant: formaterUsd(commande.remboursement.montantCents, locale) })}</p>
+              <p className="t-body">{t.rich("remboursement.montant", { montant: formaterUsd(commande.remboursement.montantCents, locale), nb })}</p>
               {commande.remboursement.valide ? <p className="t-label">{t("remboursement.confirme")}</p> : commande.statut === "annulee" ? <FormulaireRemboursement cibleType="commande" cibleId={commande.id} /> : null}
             </div>
           ) : null}
@@ -62,7 +63,7 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
               {a.statut === "ouverte" ? <DecisionDemande demandeId={a.demandeId} /> : null}
               {a.remboursement ? (
                 <>
-                  <p className="t-body">{t("annulationPass.montant", { montant: formaterUsd(a.remboursement.montantCents, locale) })}</p>
+                  <p className="t-body">{t.rich("annulationPass.montant", { montant: formaterUsd(a.remboursement.montantCents, locale), nb })}</p>
                   {a.remboursement.valide ? <p className="t-label">{t("remboursement.confirme")}</p> : <FormulaireRemboursement cibleType="pass" cibleId={a.passId} />}
                 </>
               ) : null}
@@ -70,7 +71,7 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
           ))}
           {commande.tropPercus.map((p) => (
             <div key={p.id} className="flex flex-col gap-2 border-t border-border pt-3">
-              <p className="t-body">{t("remboursement.tropPercu", { montant: `${p.montantRecu} ${p.devise}`, motif: t(`remboursement.motifs.${["montant_superieur", "deja_payee", "expiree", "annulee", "reservations_liberees"].includes(p.motif) ? p.motif : "autre"}`) })}</p>
+              <p className="t-body">{t.rich("remboursement.tropPercu", { nb, montant: `${p.montantRecu} ${p.devise}`, motif: t(`remboursement.motifs.${["montant_superieur", "deja_payee", "expiree", "annulee", "reservations_liberees"].includes(p.motif) ? p.motif : "autre"}`) })}</p>
               <FormulaireRemboursement cibleType="trop_percu" cibleId={p.id} />
             </div>
           ))}
@@ -104,7 +105,7 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
             <li key={`${l.titre}-${i}`} className="flex flex-col gap-1">
               <p className="t-label text-text-primary">{l.titre}</p>
               {l.famille !== "kit" ? <p className="t-small text-text-secondary"><LibelleVariante espace="Commande.recap" taille={l.taille} couleur={l.couleur} /></p> : null}
-              <p className="t-body text-text-primary">{tr("quantitePrix", { nombre: l.nombre, prix: formaterUsd(l.prixCents, locale) })}</p>
+              <p className="t-body text-text-primary">{tr.rich("quantitePrix", { nombre: l.nombre, prix: formaterUsd(l.prixCents, locale), nb })}</p>
               {l.origine ? <p className="t-small text-text-secondary">{t(`origines.${l.origine === "fabrication" ? "fabrication" : "stock"}`)}</p> : null}
               {l.taille === "sur_mesure" ? (
                 l.mesuresRecuesLe ? (
@@ -123,8 +124,8 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
           </div>
           {commande.codePromo && commande.codePromo.reductionCents > 0 ? (
             <div className="flex justify-between gap-4">
-              <dt className="t-body">{tr("reduction", { code: commande.codePromo.code })}</dt>
-              <dd className="t-body">{tr("reductionMontant", { montant: formaterUsd(commande.codePromo.reductionCents, locale) })}</dd>
+              <dt className="t-body">{tr.rich("reduction", { code: commande.codePromo.code, nb })}</dt>
+              <dd className="t-body">{tr.rich("reductionMontant", { montant: formaterUsd(commande.codePromo.reductionCents, locale), nb })}</dd>
             </div>
           ) : null}
           <div className="flex justify-between gap-4">
@@ -182,7 +183,8 @@ export function DetailCommandeAdmin({ commande, locale, numeroWhatsappAbsent }: 
             <div>
               <dt className="t-small text-text-secondary">{t("paiement.montant")}</dt>
               <dd className="t-body">
-                {`${formaterUsd(commande.totalCents, locale)} (${commande.devise})`}
+                <Nombre>{formaterUsd(commande.totalCents, locale)}</Nombre>
+                {` (${commande.devise})`}
               </dd>
             </div>
             <div>

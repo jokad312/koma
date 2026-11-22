@@ -12,7 +12,9 @@ export function useAnnonceCodesPromo(): Annoncer {
   return useContext(Contexte) ?? (() => {});
 }
 
-export function AnnoncesCodesPromo({ compteur, apresCompteur, children }: { compteur: string; apresCompteur?: ReactNode; children: ReactNode }) {
+// compteur : texte du compteur (sert aussi à savoir quand la liste a été relue) ; affichage : le même compteur avec son nombre dans <Nombre>
+// (exclu de la traduction du navigateur, A3-bis), affiché à sa place s'il est donné.
+export function AnnoncesCodesPromo({ compteur, affichage, apresCompteur, children }: { compteur: string; affichage?: ReactNode; apresCompteur?: ReactNode; children: ReactNode }) {
   const [annonce, setAnnonce] = useState<{ message: string; focus: boolean; n: number } | null>(null);
   const refCompteur = useRef<HTMLParagraphElement>(null);
   // Après le rendu de la liste relue (router.refresh), le focus va au compteur ; une même annonce répétée est relue (n change la clé).
@@ -25,7 +27,7 @@ export function AnnoncesCodesPromo({ compteur, apresCompteur, children }: { comp
     <Contexte.Provider value={valeur}>
       <div className="flex flex-wrap items-center gap-4">
         <p ref={refCompteur} tabIndex={-1} role="status" className="t-label uppercase text-text-primary">
-          {compteur}
+          {affichage ?? compteur}
         </p>
         {apresCompteur}
       </div>

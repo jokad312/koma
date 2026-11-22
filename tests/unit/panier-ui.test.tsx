@@ -2,7 +2,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { rendre } from "./aides-dom";
+import { rendre, texteComplet } from "./aides-dom";
 
 const faux = vi.hoisted(() => ({
   ajouterAuPanier: vi.fn(),
@@ -137,7 +137,7 @@ describe("PagePanier", () => {
     const liste = screen.getByRole("list", { name: "Articles du panier" });
     const cosplay = within(liste).getAllByRole("listitem")[0];
     expect(within(cosplay).getByText("Fabrication sur commande")).toBeTruthy();
-    expect(within(cosplay).getByText("Délai de fabrication : 14 jours")).toBeTruthy();
+    expect(within(cosplay).getByText(texteComplet("Délai de fabrication : 14 jours"))).toBeTruthy();
     expect(within(cosplay).getByLabelText("Quantité")).toBeTruthy();
     expect(within(cosplay).getByRole("button", { name: "Retirer TEST_Cosplay du panier" })).toBeTruthy();
     const kit = within(liste).getAllByRole("listitem")[1];

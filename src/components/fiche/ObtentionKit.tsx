@@ -13,6 +13,7 @@ import type { EtatKit } from "@/modules/bibliotheque/types";
 import { obtenirKitGratuit } from "@/modules/commande/actions";
 import type { CodeErreurCommande } from "@/modules/commande/types";
 import { mesurer } from "@/modules/mesure/client";
+import { nb } from "@/components/ui/Nombre";
 
 // Chemin de la bibliothèque du client (la page arrive à la story 3.6).
 export const CHEMIN_BIBLIOTHEQUE = "/compte/bibliotheque";
@@ -89,7 +90,7 @@ export function ObtentionKit({ produitId, prixCents }: Props) {
       <div className="flex flex-col items-start gap-3">
         {numero ? (
           <div ref={succesRef} tabIndex={-1} className="outline-none focus-visible:outline-2">
-            <MessageEtat type="succes">{t("succes", { numero })}</MessageEtat>
+            <MessageEtat type="succes">{t.rich("succes", { numero, nb })}</MessageEtat>
           </div>
         ) : null}
         <Bouton href={CHEMIN_BIBLIOTHEQUE}>{t("ouvrir")}</Bouton>

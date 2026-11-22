@@ -20,6 +20,7 @@ import {
   NOMBRE_PHOTOS_CANDIDATURE,
   PHOTO_CANDIDATURE_TAILLE_MAX,
 } from "@/modules/evenements/candidature-types";
+import { Nombre } from "@/components/ui/Nombre";
 
 export type TypeStand = { id: string; nom: string; prixCents: number; inclus: string | null; complet: boolean };
 
@@ -176,12 +177,18 @@ export function FormulaireCandidature({ evenementId, slug, types }: { evenementI
           {ouverts.map((x) => (
             <label key={x.id} className="flex min-h-touch cursor-pointer items-center gap-3">
               <input type="radio" name={`${base}-type`} value={x.id} checked={typeId === x.id} onChange={() => setTypeId(x.id)} className="size-6 shrink-0" />
-              <span className="t-body text-text-primary">{`${x.nom} · ${formaterUsd(x.prixCents, locale)}`}</span>
+              <span className="t-body text-text-primary">
+                {`${x.nom} · `}
+                <Nombre>{formaterUsd(x.prixCents, locale)}</Nombre>
+              </span>
             </label>
           ))}
         </fieldset>
       ) : (
-        <p className="t-body text-text-primary">{`${ouverts[0].nom} · ${formaterUsd(ouverts[0].prixCents, locale)}`}</p>
+        <p className="t-body text-text-primary">
+          {`${ouverts[0].nom} · `}
+          <Nombre>{formaterUsd(ouverts[0].prixCents, locale)}</Nombre>
+        </p>
       )}
 
       <div className="flex flex-col gap-1">

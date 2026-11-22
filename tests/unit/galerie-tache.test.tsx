@@ -4,6 +4,7 @@ import { render, screen } from "@testing-library/react";
 import { NextIntlClientProvider } from "next-intl";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import fr from "../../messages/fr.json";
+import { sansBalises, texteComplet } from "./aides-dom";
 
 const faux = vi.hoisted(() => ({ rpc: vi.fn() }));
 vi.mock("server-only", () => ({}));
@@ -29,9 +30,9 @@ describe("TachePhotos", () => {
     faux.rpc.mockResolvedValue({ data: { a_valider: 3, realisations: 2, retraits: 1 }, error: null });
     await afficher();
     expect(faux.rpc).toHaveBeenCalledWith("compter_photos_a_traiter");
-    expect(screen.getByText(P.aValider.replace("{nombre}", "3"))).toBeTruthy();
-    expect(screen.getByText(P.realisations.replace("{nombre}", "2"))).toBeTruthy();
-    expect(screen.getByText(P.retraits.replace("{nombre}", "1"))).toBeTruthy();
+    expect(screen.getByText(texteComplet(sansBalises(P.aValider).replace("{nombre}", "3")))).toBeTruthy();
+    expect(screen.getByText(texteComplet(sansBalises(P.realisations).replace("{nombre}", "2")))).toBeTruthy();
+    expect(screen.getByText(texteComplet(sansBalises(P.retraits).replace("{nombre}", "1")))).toBeTruthy();
   });
 
   it("erreur ou réponse sans les deux nombres : message d'erreur, aucun zéro", async () => {

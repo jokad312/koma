@@ -2,7 +2,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { rendre } from "./aides-dom";
+import { finDeTexte, rendre } from "./aides-dom";
 
 const faux = vi.hoisted(() => ({
   creerCommande: vi.fn(),
@@ -163,7 +163,7 @@ describe("FormulaireCommande", () => {
     rendre(<FormulaireCommande {...props} />);
     await remplir();
     await userEvent.click(await screen.findByRole("button", { name: "Confirmer la commande" }));
-    await screen.findByText(`Le total a changé : ${formaterUsd(10000, "fr")} → ${formaterUsd(11000, "fr")}. Vérifie le récapitulatif, puis confirme à nouveau.`);
+    await screen.findByText(finDeTexte(`Le total a changé : ${formaterUsd(10000, "fr")} → ${formaterUsd(11000, "fr")}. Vérifie le récapitulatif, puis confirme à nouveau.`));
     expect(faux.push).not.toHaveBeenCalled();
     await userEvent.click(await screen.findByRole("button", { name: "Confirmer la commande" }));
     await waitFor(() => expect(faux.push).toHaveBeenCalledWith("/commande/KS-2026-000043"));

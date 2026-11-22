@@ -2,6 +2,7 @@
 
 import { CloudUpload, FileText } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { nb } from "@/components/ui/Nombre";
 import { useId, useRef, useState, type ChangeEvent, type DragEvent, type FormEvent } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
@@ -340,8 +341,8 @@ export function EnvoiFichierKit({ produitId, fichier, onSucces, onFermer }: Prop
       {/* Progression : valeur en texte (jamais la barre seule) ; les mises à jour de pourcentage ne sont pas des états annonçables. */}
       {phase === "envoi" ? (
         <div className="flex flex-col gap-2" aria-live="off">
-          <progress value={pourcentage} max={100} aria-label={t("ajout.progression", { pourcentage })} className="h-3 w-full" />
-          <p className="t-small text-text-primary">{t("ajout.progression", { pourcentage })}</p>
+          <progress value={pourcentage} max={100} aria-label={t.markup("ajout.progression", { pourcentage, nb: (m) => m })} className="h-3 w-full" />
+          <p className="t-small text-text-primary">{t.rich("ajout.progression", { pourcentage, nb })}</p>
           {reprise ? <p className="t-small text-text-secondary">{t("ajout.reprise")}</p> : null}
         </div>
       ) : null}

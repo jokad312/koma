@@ -3,6 +3,7 @@ import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Link } from "@/i18n/navigation";
 import { creerClientService } from "@/lib/supabase/service";
 import { CLASSES_PANNEAU, CLASSES_TITRE_PANNEAU } from "./ui/Panneau";
+import { nb } from "@/components/ui/Nombre";
 
 // Tâches « Photos à valider » et « Retraits demandés » (story 8.2, AD-21) : compteurs réels lus en base ; lecture impossible : message d'erreur,
 // jamais un faux zéro.
@@ -30,9 +31,9 @@ export async function TachePhotos() {
       <h2 id="tache-photos" className={CLASSES_TITRE_PANNEAU}>
         {t("titre")}
       </h2>
-      <p className="t-label text-text-primary">{t("aValider", { nombre: compte.aValider })}</p>
-      <p className="t-label text-text-primary">{t("realisations", { nombre: compte.realisations })}</p>
-      <p className="t-label text-text-primary">{t("retraits", { nombre: compte.retraits })}</p>
+      <p className="t-label text-text-primary">{t.rich("aValider", { nombre: compte.aValider, nb })}</p>
+      <p className="t-label text-text-primary">{t.rich("realisations", { nombre: compte.realisations, nb })}</p>
+      <p className="t-label text-text-primary">{t.rich("retraits", { nombre: compte.retraits, nb })}</p>
       <Link href="/admin/galerie" className="t-body inline-flex min-h-touch items-center text-text-primary underline">
         {t("lien")}
       </Link>

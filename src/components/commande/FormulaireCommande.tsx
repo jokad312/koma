@@ -13,6 +13,7 @@ import type { ModeRemise, ZoneRemise } from "@/modules/commande/schemas";
 import { CODES_REFUSES } from "@/modules/commande/types";
 import type { CodeErreurCommande, CodeRefuse, Recapitulatif } from "@/modules/commande/types";
 import { RecapCommande } from "./RecapCommande";
+import { nb } from "@/components/ui/Nombre";
 
 type Props = {
   recapInitial: Recapitulatif;
@@ -208,7 +209,7 @@ export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, te
         {messageServeur ? <MessageEtat type="erreur">{messageServeur}</MessageEtat> : null}
         {totalChange ? (
           <MessageEtat type="attention">
-            {t("totalChange", { ancien: formaterUsd(totalChange.ancien, locale), nouveau: formaterUsd(totalChange.nouveau, locale) })}
+            {t.rich("totalChange", { ancien: formaterUsd(totalChange.ancien, locale), nouveau: formaterUsd(totalChange.nouveau, locale), nb })}
           </MessageEtat>
         ) : null}
       </div>
@@ -336,7 +337,7 @@ export function FormulaireCommande({ recapInitial, zoneInitiale, modeInitial, te
         ) : null}
         {recap.code?.valide ? (
           <p role="status" className="t-small text-text-primary">
-            {tc("applique", { code: recap.code.code, pct: recap.code.reductionPct })}
+            {tc.rich("applique", { code: recap.code.code, pct: recap.code.reductionPct, nb })}
           </p>
         ) : null}
       </section>

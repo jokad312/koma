@@ -16,7 +16,7 @@ export function Panneau({
   children,
   className = "",
 }: {
-  titre?: string;
+  titre?: ReactNode;
   niveau?: 2 | 3;
   action?: ReactNode;
   children: ReactNode;

@@ -9,6 +9,7 @@ import { formaterUsd } from "@/lib/argent";
 import { formaterDateBoutique } from "@/lib/dates";
 import { listerCommandes, TAILLE_PAGE_COMMANDES } from "@/modules/commande/queries";
 import { versConnexion } from "./PageCommande";
+import { Nombre, nb } from "@/components/ui/Nombre";
 
 const CLASSES_LIEN = "t-body inline-flex min-h-touch items-center text-text-primary underline";
 
@@ -45,12 +46,12 @@ export async function ListeCommandes({ locale, nombre }: { locale: Locale; nombr
         {lue.commandes.map((c) => (
           <li key={c.numero} className="rounded-lg border border-border bg-surface p-4">
             <Link href={`${cheminPublic(locale, "/commande")}/${c.numero}`} className="t-label inline-flex min-h-touch items-center text-text-primary underline">
-              {t("liste.commande", { numero: c.numero })}
+              {t.rich("liste.commande", { numero: c.numero, nb })}
             </Link>
             <p className="t-small text-text-secondary">{formaterDateBoutique(c.creeLe, locale)}</p>
             <p className="t-body text-text-primary">{t("detail.statut", { statut: t(`detail.statuts.${c.statut}`) })}</p>
             {c.reclamation ? <p className="t-small text-text-secondary">{t("reclamation.etatListe", { etat: t(`reclamation.statuts.${["ouverte", "acceptee", "refusee", "article_rendu", "remplacement_remis"].includes(c.reclamation) ? c.reclamation : "ouverte"}`) })}</p> : null}
-            <p className="t-body text-text-primary">{c.offerte ? t("liste.offert") : formaterUsd(c.totalCents, locale)}</p>
+            <p className="t-body text-text-primary">{c.offerte ? t("liste.offert") : <Nombre>{formaterUsd(c.totalCents, locale)}</Nombre>}</p>
           </li>
         ))}
       </ul>

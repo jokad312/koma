@@ -6,7 +6,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import fr from "../../messages/fr.json";
-import { rendre } from "./aides-dom";
+import { rendre, texteComplet } from "./aides-dom";
 
 const routeur = vi.hoisted(() => ({ push: vi.fn() }));
 vi.mock("@/i18n/navigation", () => ({
@@ -149,7 +149,7 @@ describe("composants communs de l'admin (9.16 b)", () => {
       const nav = screen.getByRole("navigation", { name: "Pagination" });
       expect(within(nav).getByRole("link", { name: "Page précédente" }).getAttribute("href")).toBe("/admin/commandes?page=1");
       expect(within(nav).getByRole("link", { name: "Page suivante" }).getAttribute("href")).toBe("/admin/commandes?page=3");
-      expect(within(nav).getByText("Page 2 / 5")).toBeTruthy();
+      expect(within(nav).getByText(texteComplet("Page 2 / 5"))).toBeTruthy();
     });
 
     it("première et dernière page : la flèche du bord est inactive (sans adresse, annoncée désactivée)", () => {
@@ -164,14 +164,14 @@ describe("composants communs de l'admin (9.16 b)", () => {
 
     it("valeurs non numériques ou décimales lues dans l'adresse : ramenées à des entiers", () => {
       rendre(<Pagination page={Number.NaN} total={3.7} adresse={adresse} />);
-      expect(screen.getByText("Page 1 / 3")).toBeTruthy();
+      expect(screen.getByText(texteComplet("Page 1 / 3"))).toBeTruthy();
       const { container } = rendre(<Pagination page={2} total={Number.NaN} adresse={adresse} />);
       expect(container.firstElementChild).toBeNull();
     });
 
     it("page hors limites ramenée dans [1, total] ; une seule page : rien", () => {
       rendre(<Pagination page={9} total={4} adresse={adresse} />);
-      expect(screen.getByText("Page 4 / 4")).toBeTruthy();
+      expect(screen.getByText(texteComplet("Page 4 / 4"))).toBeTruthy();
       const { container } = rendre(<Pagination page={1} total={1} adresse={adresse} />);
       expect(container.firstElementChild).toBeNull();
     });

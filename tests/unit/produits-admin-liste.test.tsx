@@ -2,7 +2,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { rendre } from "./aides-dom";
+import { rendre, texteComplet } from "./aides-dom";
 
 // Story 9.16 e) : liste des produits selon la maquette 03-produits (C1 à C17), corbeille = archivage (Q22), compteurs (Q20).
 const faux = vi.hoisted(() => ({
@@ -66,7 +66,7 @@ describe("ListeProduits (9.16 e)", () => {
   it("pastilles selon la famille : VENDUS pour un physique, TÉLÉCHARGEMENTS pour un Kit ; prix, Gratuit, Prix à fixer ; univers, type, stock", () => {
     rendre(<ListeProduits produits={PRODUITS} />);
     const cosplay = carte("TEST_Cosplay");
-    expect(within(cosplay).getByText("Vendus : 3")).toBeTruthy();
+    expect(within(cosplay).getByText(texteComplet("Vendus : 3"))).toBeTruthy();
     expect(within(cosplay).queryByText(/Téléchargements/)).toBeNull();
     expect(within(cosplay).getByText((_, el) => el?.tagName === "SPAN" && texte(el as HTMLElement) === "Prix : 49,90 $US")).toBeTruthy();
     expect(within(cosplay).getByText("Univers : TEST_Univers")).toBeTruthy();
@@ -74,13 +74,13 @@ describe("ListeProduits (9.16 e)", () => {
     expect(within(cosplay).getByText("En stock")).toBeTruthy();
     expect(within(cosplay).getByRole("img", { name: "TEST_alt" }).getAttribute("src")).toBe("https://test.invalid/c.jpg");
     const kit = carte("TEST_Kit");
-    expect(within(kit).getByText("Téléchargements : 2")).toBeTruthy();
+    expect(within(kit).getByText(texteComplet("Téléchargements : 2"))).toBeTruthy();
     expect(within(kit).queryByText(/Vendus/)).toBeNull();
     expect(within(kit).getByText("Prix : Gratuit")).toBeTruthy();
     expect(within(kit).getByText("Univers : aucun")).toBeTruthy();
     expect(within(kit).getByText("Numérique")).toBeTruthy();
     const polo = carte("TEST_Polo");
-    expect(within(polo).getByText("Vendus : 0")).toBeTruthy();
+    expect(within(polo).getByText(texteComplet("Vendus : 0"))).toBeTruthy();
     expect(within(polo).getByText("Prix à fixer")).toBeTruthy();
     expect(within(polo).getByText("Vêtement")).toBeTruthy();
     // Sans photo : icône et texte, jamais une image inventée.
@@ -219,7 +219,7 @@ describe("ListeProduits (9.16 e)", () => {
 
   it("anglais : Downloads / Sold", () => {
     rendre(<ListeProduits produits={PRODUITS} />, "en");
-    expect(within(carte("TEST_Kit")).getByText("Downloads: 2")).toBeTruthy();
-    expect(within(carte("TEST_Cosplay")).getByText("Sold: 3")).toBeTruthy();
+    expect(within(carte("TEST_Kit")).getByText(texteComplet("Downloads: 2"))).toBeTruthy();
+    expect(within(carte("TEST_Cosplay")).getByText(texteComplet("Sold: 3"))).toBeTruthy();
   });
 });
