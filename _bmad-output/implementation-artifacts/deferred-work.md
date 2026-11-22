@@ -576,3 +576,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-bug-a2-filtre-univers.md`
   summary: e2e catalogue : vider l'étiquette de cache `catalogue` après le semis et le nettoyage SQL directs, pour qu'un serveur de dev déjà ouvert ne garde pas les univers TEST_ dans le filtre.
   evidence: revue 2 d'A2 (2026-11-22) : `lireUniversPublics` est en cache `catalogue`, que le SQL direct n'invalide pas.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-bug-a4-champ-email-non-controle.md`
+  summary: Connexion, étape du code : si le renvoi du code répond `email_invalide`, `renvoyerCode` donne le focus à `refEmail` (absent à cette étape) et le message « Saisis une adresse email valide. » s'affiche sous le champ du code (`aria-invalid` sur ce champ).
+  evidence: revue d'A4 (2026-11-22), défaut antérieur à A4 (FormulaireConnexion.tsx, `renvoyerCode`) ; peu probable (l'adresse a déjà été acceptée au premier envoi). Piste : revenir à l'étape email avec l'erreur, ou erreur générale à l'étape du code.

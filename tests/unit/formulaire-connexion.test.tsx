@@ -374,3 +374,92 @@ describe("FormulaireConnexion", () => {
     expect(age.getAttribute("aria-describedby")?.split(" ")).toContain(message.id);
   });
 });
+
+// Bug A4 : chaque étape monte son propre arbre ; un champ du DOM ne sert jamais à deux saisies (email puis code, ou l'inverse).
+describe("FormulaireConnexion : un champ par étape (bug A4)", () => {
+  function espionnerConsole() {
+    // Espion sans remplacement : chaque appel part aussi vers la vraie console, aucune autre erreur n'est tue.
+    const espion = vi.spyOn(console, "error");
+    const avertissementsControle = () =>
+      espion.mock.calls
+        .map((a) => a.map(String).join(" "))
+        .filter((m) => /input to be (un)?controlled|both value and defaultValue/i.test(m));
+    return { espion, avertissementsControle };
+  }
+
+  it("email → code : nouveau champ code vide, distinct de l'ancien champ email, aucun avertissement", async () => {
+    const { espion, avertissementsControle } = espionnerConsole();
+    try {
+      const user = userEvent.setup();
+      rendre(<FormulaireConnexion />);
+      const champEmail = screen.getByLabelText("Adresse email");
+      await allerAuCode(user);
+      const champCode = screen.getByLabelText("Code à 6 chiffres") as HTMLInputElement;
+      expect(champCode).not.toBe(champEmail);
+      expect(champCode.getAttribute("name")).toBe("code");
+      expect(champCode.value).toBe("");
+      expect(champEmail.isConnected).toBe(false);
+      expect(avertissementsControle()).toEqual([]);
+    } finally {
+      espion.mockRestore();
+    }
+  });
+
+  it("code → email par « Changer d'adresse » : nouveau champ email prérempli, aucun avertissement", async () => {
+    const { espion, avertissementsControle } = espionnerConsole();
+    try {
+      const user = userEvent.setup();
+      rendre(<FormulaireConnexion />);
+      await allerAuCode(user);
+      const champCode = screen.getByLabelText("Code à 6 chiffres");
+      await user.type(champCode, "123");
+      await user.click(screen.getByText("Je n'ai pas reçu l'email"));
+      await user.click(screen.getByRole("button", { name: "Changer d'adresse email" }));
+      const champEmail = (await screen.findByLabelText("Adresse email")) as HTMLInputElement;
+      expect(champEmail).not.toBe(champCode);
+      expect(champEmail.getAttribute("name")).toBe("email");
+      expect(champEmail.value).toBe("moi@example.com");
+      await waitFor(() => expect(document.activeElement).toBe(champEmail));
+      expect(avertissementsControle()).toEqual([]);
+    } finally {
+      espion.mockRestore();
+    }
+  });
+
+  it("garde de non-régression : email invalide, même champ email, saisie conservée, focus et message sous le champ, aucun avertissement", async () => {
+    const { espion, avertissementsControle } = espionnerConsole();
+    try {
+      const user = userEvent.setup();
+      demanderCodeParFormulaire.mockResolvedValueOnce({ ok: false, erreur: "email_invalide", email: "pas-une-adresse" });
+      rendre(<FormulaireConnexion />);
+      const champ = screen.getByLabelText("Adresse email") as HTMLInputElement;
+      await user.type(champ, "pas-une-adresse");
+      await user.click(screen.getByRole("button", { name: "Recevoir un code" }));
+      const message = await screen.findByText("Saisis une adresse email valide.");
+      expect(screen.getByLabelText("Adresse email")).toBe(champ);
+      expect(champ.value).toBe("pas-une-adresse");
+      expect(champ.getAttribute("aria-describedby")).toBe(message.id);
+      await waitFor(() => expect(document.activeElement).toBe(champ));
+      expect(avertissementsControle()).toEqual([]);
+    } finally {
+      espion.mockRestore();
+    }
+  });
+
+  it("garde de non-régression : code → âge, champ âge vide, aucun avertissement", async () => {
+    const { espion, avertissementsControle } = espionnerConsole();
+    try {
+      const user = userEvent.setup();
+      rendre(<FormulaireConnexion />);
+      await allerAuCode(user);
+      verifierCode.mockResolvedValue({ ok: true, etape: "age", retour: "/fr/cosplays" });
+      await user.type(screen.getByLabelText("Code à 6 chiffres"), "123456");
+      await user.click(screen.getByRole("button", { name: "Valider le code" }));
+      const age = (await screen.findByLabelText("Âge")) as HTMLInputElement;
+      expect(age.value).toBe("");
+      expect(avertissementsControle()).toEqual([]);
+    } finally {
+      espion.mockRestore();
+    }
+  });
+});
