@@ -2,7 +2,7 @@
 import { act, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { rendre } from "./aides-dom";
+import { rendre, texteComplet } from "./aides-dom";
 
 const faux = vi.hoisted(() => ({
   enregistrerKit: vi.fn(),
@@ -289,7 +289,7 @@ describe("FichiersKit", () => {
     expect(lignes[0].textContent).toContain("TEST_Patron");
     expect(lignes[0].textContent).toContain("PDF A4 · 2,9 Mo · version 2");
     expect(lignes[1].textContent).toContain("SVG · 2 Ko · version 1");
-    expect(screen.getByText("2 fichiers")).toBeTruthy();
+    expect(screen.getByText(texteComplet("2 fichiers"))).toBeTruthy();
   });
 
   it("le formulaire d'ajout est présent : un fichier peut être déposé", () => {
@@ -499,7 +499,9 @@ describe("EnvoiFichierKit", () => {
     rendre(<EnvoiFichierKit produitId={KIT} />);
     await choisir(user, pdf());
     await ajouter(user);
-    expect((await screen.findAllByText("Envoi en cours : 30 %")).length).toBeGreaterThan(0);
+    const progression = await screen.findByText(texteComplet("Envoi en cours : 30 %"));
+    // A3-bis : seul le pourcentage est exclu de la traduction du navigateur.
+    expect(progression.querySelector('[translate="no"]')?.textContent).toBe("30");
     await user.click(screen.getByRole("button", { name: "Annuler l'envoi" }));
     expect(annuler).toHaveBeenCalled();
     expect(faux.annulerEnvoiFichierKit).toHaveBeenCalledWith({ produitId: KIT, objet: `${KIT}/u.pdf` });

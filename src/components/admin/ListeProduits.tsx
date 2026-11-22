@@ -13,6 +13,7 @@ import { ChampRecherche } from "./ui/ChampRecherche";
 import { Panneau } from "./ui/Panneau";
 import { Pastille } from "./ui/Pastille";
 import { PastilleFiltre } from "./ui/PastilleFiltre";
+import { nb } from "@/components/ui/Nombre";
 
 // Minuscules sans accents : la recherche ne tient compte ni de la casse ni des accents.
 const normaliser = (texte: string) => texte.normalize("NFD").replace(/\p{M}/gu, "").toLocaleLowerCase();
@@ -64,7 +65,7 @@ export function ListeProduits({ produits }: { produits: readonly ProduitListe[] 
           autoComplete="off"
         />
         <p ref={compteur} tabIndex={-1} role="status" className="t-label uppercase text-text-primary">
-          {t("nombre", { nombre: visibles.length })}
+          {t.rich("nombre", { nombre: visibles.length, nb })}
         </p>
         <p role="status" className="t-small text-text-secondary">
           {annonce ? t(annonce.action === "archive" ? "archivage.archiveOk" : "archivage.restaureOk") : null}
@@ -112,7 +113,8 @@ function CarteProduit({ produit: p, locale, onTermine }: { produit: ProduitListe
   const publie = p.publieLe !== null;
   const statut = archive ? "archive" : publie ? "publie" : "brouillon";
   const IconeStatut = archive ? Archive : publie ? Check : PencilLine;
-  const prix = p.prixCents === null ? t("prixAFixer") : t("grille.prix", { valeur: p.prixCents === 0 ? t("grille.gratuit") : formaterUsd(p.prixCents, locale) });
+  // « Gratuit » est un mot (traduisible) ; seul un montant est exclu de la traduction du navigateur.
+  const prix = p.prixCents === null ? t("prixAFixer") : t.rich("grille.prix", { valeur: p.prixCents === 0 ? t("grille.gratuit") : formaterUsd(p.prixCents, locale), nb: p.prixCents === 0 ? (mot) => mot : nb });
   const nombre = new Intl.NumberFormat(locale).format(p.compteur);
 
   return (
@@ -137,7 +139,7 @@ function CarteProduit({ produit: p, locale, onTermine }: { produit: ProduitListe
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Pastille>{p.famille === "kit" ? t("grille.telechargements", { nombre }) : t("grille.vendus", { nombre })}</Pastille>
+        <Pastille>{p.famille === "kit" ? t.rich("grille.telechargements", { nombre, nb }) : t.rich("grille.vendus", { nombre, nb })}</Pastille>
         <Pastille>{t("grille.universPastille", { nom: p.universFr ?? t("grille.universAucun") })}</Pastille>
         <Pastille>{t(`famille.${p.famille}`)}</Pastille>
         <span className="t-label inline-flex min-h-9 items-center rounded-full border border-border-field px-4 py-1">{t(`grille.stock.${p.stock}`)}</span>

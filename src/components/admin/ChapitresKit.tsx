@@ -12,6 +12,7 @@ import { formaterInstant, lireInstant } from "@/modules/catalogue/sous-titres";
 import { CHAPITRES_MAX } from "@/modules/catalogue/types";
 import type { ChampChapitre, ChapitreAdmin } from "@/modules/catalogue/types";
 import { ChampTexte, useClassesChamp } from "./ChampTexte";
+import { nb } from "@/components/ui/Nombre";
 
 const BOUTON =
   "inline-flex min-h-touch min-w-touch items-center justify-center rounded-full border border-border-field bg-surface px-3 text-text-primary aria-disabled:cursor-not-allowed aria-disabled:text-text-secondary";
@@ -190,7 +191,7 @@ export function ChapitresKit({ produitId, chapitres, dureeSecondes }: { produitI
       </h2>
       <p className="t-body text-text-secondary">{t("intro", { max: CHAPITRES_MAX })}</p>
       {dureeSecondes === null ? <p className="t-body text-text-secondary">{t("sansVideo")}</p> : null}
-      <p className="t-small text-text-secondary">{t("nombre", { nombre: chapitres.length })}</p>
+      <p className="t-small text-text-secondary">{t.rich("nombre", { nombre: chapitres.length, nb })}</p>
       {chapitres.length === 0 ? <p className="t-body text-text-secondary">{t("vide")}</p> : null}
       {chapitres.length > 0 ? (
         <ol aria-label={t("legende")} className="flex flex-col gap-3">

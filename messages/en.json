@@ -161,7 +161,7 @@
       "cartes": "Shop selection",
       "carteCosplay": "Worn cosplay",
       "carteAccessoire": "Accessory",
-      "carteNom": "{etiquette}: {titre}, {prix}",
+      "carteNom": "{etiquette}: {titre}, <nb>{prix}</nb>",
       "kitDuMois": "Kit of the month",
       "kitPhrase": "PDF patterns + chaptered video. Instant access.",
       "voirKit": "See the kit",
@@ -328,7 +328,7 @@
       "verificationEnCours": "Checking…",
       "renvoyer": "Resend the code",
       "renvoiEnCours": "Sending the code…",
-      "delaiRenvoi": "You can resend the code in {secondes} seconds.",
+      "delaiRenvoi": "You can resend the code in <nb>{secondes}</nb> seconds.",
       "raisonRenvoi": "You can resend 60 seconds after the previous send."
     },
     "aide": {
@@ -576,8 +576,8 @@
         "videSept": "No orders paid in the last 7 days.",
         "lienSept": "See the last 7 days",
         "lienAujourdhui": "Back to today",
-        "ligne": "{montant} · {prestataire} · {familles}",
-        "ouvrir": "Open order {numero}",
+        "ligne": "<nb>{montant}</nb> · {prestataire} · {familles}",
+        "ouvrir": "Open order <nb>{numero}</nb>",
         "plafond": "Only the {nombre} most recent are shown."
       },
       "graphiques": {
@@ -637,20 +637,20 @@
         "smc5": "SM-C5 · Reminder unsubscribes",
         "smc6": "SM-C6 · Hero loaded in more than 2.5 s",
         "smc7": "SM-C7 · Drop-offs at the “create an account” step",
-        "valeurSm1": "{montant} ({detail})",
-        "detailFamille": "{famille} {montant} ({commandes, plural, one {# order} other {# orders}})",
-        "valeurSm2": "{part}% of sessions with the hero loaded clicked ({clics} of {chargements})",
-        "valeurSm2SansPart": "{clics, plural, one {# click} other {# clicks}}, no hero load recorded",
+        "valeurSm1": "<nb>{montant}</nb> (<detail></detail>)",
+        "detailFamille": "{famille} <nb>{montant}</nb> ({commandes, plural, one {<nb>#</nb> order} other {<nb>#</nb> orders}})",
+        "valeurSm2": "<nb>{part}</nb>% of sessions with the hero loaded clicked (<nb>{clics}</nb> of <nb>{chargements}</nb>)",
+        "valeurSm2SansPart": "{clics, plural, one {<nb>#</nb> click} other {<nb>#</nb> clicks}}, no hero load recorded",
         "nonMesureRaison": "Not measured yet: {raison}",
-        "valeurNombre": "{nombre}",
-        "valeurSm7": "{libelle}: {montant} ({commandes, plural, one {# order} other {# orders}})",
-        "valeurCode": "{code}: {montant}, discount {reduction} ({commandes, plural, one {# order} other {# orders}})",
-        "valeurSm9": "{part}% ({deux} of {payants, plural, one {# paying customer} other {# paying customers}})",
-        "valeurSm10": "{fiche} → {panier} → {commande} → {payee} → {livree}",
+        "valeurNombre": "<nb>{nombre}</nb>",
+        "valeurSm7": "{libelle}: <nb>{montant}</nb> ({commandes, plural, one {<nb>#</nb> order} other {<nb>#</nb> orders}})",
+        "valeurCode": "<nb>{code}</nb>: <nb>{montant}</nb>, discount <nb>{reduction}</nb> ({commandes, plural, one {<nb>#</nb> order} other {<nb>#</nb> orders}})",
+        "valeurSm9": "<nb>{part}</nb>% (<nb>{deux}</nb> of {payants, plural, one {<nb>#</nb> paying customer} other {<nb>#</nb> paying customers}})",
+        "valeurSm10": "<nb>{fiche}</nb> → <nb>{panier}</nb> → <nb>{commande}</nb> → <nb>{payee}</nb> → <nb>{livree}</nb>",
         "valeurSm10Sessions": "Pages and carts are counted in sessions per day: a returning visitor counts again. Orders, paid and delivered are counted on their own date. “Delivered”: the announced lead time is not measured.",
-        "valeurSmc2": "{prestataire}: {taux}% ({echouees, plural, one {# failure} other {# failures}} of {terminees})",
-        "valeurSmc3": "{heures} h on average ({recues, plural, one {# received} other {# received}}, {attente} waiting)",
-        "valeurSmc3Aucune": "No measurements received ({attente} waiting)",
+        "valeurSmc2": "{prestataire}: <nb>{taux}</nb>% ({echouees, plural, one {<nb>#</nb> failure} other {<nb>#</nb> failures}} of <nb>{terminees}</nb>)",
+        "valeurSmc3": "<nb>{heures}</nb> h on average ({recues, plural, one {<nb>#</nb> received} other {<nb>#</nb> received}}, <nb>{attente}</nb> waiting)",
+        "valeurSmc3Aucune": "No measurements received (<nb>{attente}</nb> waiting)",
         "raisonSm5": "There is no aggregated count of photos and Creations yet.",
         "raisonSm6Passage": "Moving on to a paid Kit is not measured yet.",
         "raisonSm8": "Watching a Kit video happens in the Account area, which audience measurement excludes.",
@@ -659,7 +659,7 @@
         "raisonSmc6": "The hero loading time is not recorded.",
         "raisonSmc7": "Account creation at the payment step is not measured.",
         "tous": "All indicators",
-        "valeurSm4": "{evenements, plural, one {# upcoming event} other {# upcoming events}}, {pass, plural, one {# Pass sold} other {# Passes sold}}",
+        "valeurSm4": "{evenements, plural, one {<nb>#</nb> upcoming event} other {<nb>#</nb> upcoming events}}, {pass, plural, one {<nb>#</nb> Pass sold} other {<nb>#</nb> Passes sold}}",
         "raisonSm4Alertes": "Event alert sign-ups are not counted yet."
       },
       "chiffres": {
@@ -685,7 +685,7 @@
         "date": "Sales on {date}:",
         "nombre": "Number of sales:",
         "montant": "Amount:",
-        "auMoins": "at least {valeur}"
+        "auMoins": "at least <nb>{valeur}</nb>"
       },
       "apercu": {
         "voirPlus": "See more",
@@ -693,9 +693,9 @@
         "voirPlusIndicateurs": "(all indicators)",
         "sm1": "Paid sales (SM-1)",
         "evenementsPass": "Events and Passes sold",
-        "evenements": "Upcoming events: {nombre}",
-        "pass7": "Passes sold (7 days): {nombre}",
-        "pass30": "Passes sold (30 days): {nombre}"
+        "evenements": "Upcoming events: <nb>{nombre}</nb>",
+        "pass7": "Passes sold (7 days): <nb>{nombre}</nb>",
+        "pass30": "Passes sold (30 days): <nb>{nombre}</nb>"
       }
     },
     "utilisateurs": {
@@ -703,7 +703,7 @@
       "intro": "The site's Accounts, read-only: no role is changed here. Email addresses are partly hidden.",
       "recherche": "Search for a user",
       "recherchePlaceholder": "Search for a user…",
-      "nombre": "{nombre, plural, =0 {No users} one {# user} other {# users}}",
+      "nombre": "{nombre, plural, =0 {No users} one {<nb>#</nb> user} other {<nb>#</nb> users}}",
       "aucunResultat": "No user matches your search.",
       "vide": "No Account yet.",
       "erreurLecture": "The users could not be read. Reload the page.",
@@ -777,7 +777,7 @@
       "intro": "Blog articles: making guides and announcements. An article stays invisible on the site until it is published.",
       "nouveau": "Write an article",
       "erreurLecture": "The articles could not be read. Reload the page.",
-      "nombre": "{nombre, plural, =0 {No articles} one {# article} other {# articles}}",
+      "nombre": "{nombre, plural, =0 {No articles} one {<nb>#</nb> article} other {<nb>#</nb> articles}}",
       "vide": {
         "texte": "No articles yet.",
         "ecrire": "Write the first article"
@@ -889,7 +889,7 @@
           },
           "ajouter": "Add the image",
           "annuler": "Cancel upload",
-          "progression": "Upload: {pourcentage}%",
+          "progression": "Upload: <nb>{pourcentage}</nb>%",
           "reprise": "The upload resumes after a break.",
           "traitement": "Checking the image…",
           "succes": "Image added. It will be saved with the article.",
@@ -1132,7 +1132,7 @@
           "envoyer": "Upload the video",
           "remplacer": "Replace the video",
           "annuler": "Cancel the upload",
-          "progression": "Uploading: {pourcentage}%",
+          "progression": "Uploading: <nb>{pourcentage}</nb>%",
           "reprise": "Connection lost: the upload will resume by itself.",
           "finalisation": "Saving the video…",
           "envoyee": "Video uploaded. Encoding can take a few minutes.",
@@ -1159,7 +1159,7 @@
           "remplacer": "Replace the photo",
           "corrigerTextes": "Correct the alternative texts",
           "annuler": "Cancel the upload",
-          "progression": "Uploading: {pourcentage}%",
+          "progression": "Uploading: <nb>{pourcentage}</nb>%",
           "reprise": "Connection lost: the upload will resume by itself.",
           "traitement": "Processing the photo…",
           "succes": "Fallback photo saved.",
@@ -1359,7 +1359,7 @@
       "intro": "Create your events, their Pass Types and their Stands. Nothing is shown to the public until you publish.",
       "nouveau": "New event",
       "erreurLecture": "The events could not be read. Try again in a moment.",
-      "nombre": "{nombre, plural, one {# event} other {# events}}",
+      "nombre": "{nombre, plural, one {<nb>#</nb> event} other {<nb>#</nb> events}}",
       "vide": {
         "texte": "No events yet.",
         "creer": "Create an event"
@@ -1545,7 +1545,7 @@
           },
           "ajouter": "Add the photo",
           "annuler": "Cancel the upload",
-          "progression": "Uploading: {pourcentage}%",
+          "progression": "Uploading: <nb>{pourcentage}</nb>%",
           "reprise": "The upload resumes after an interruption.",
           "traitement": "Checking the image…",
           "succes": "Photo added. It will be saved with the event.",
@@ -1580,7 +1580,7 @@
       "titre": "Products",
       "intro": "Your cosplays, accessories, clothing, other items and kits. A product created here stays a draft: nobody sees it on the site.",
       "nouveauPlus": "+ New product",
-      "nombre": "{nombre, plural, =0 {No products} one {# product} other {# products}}",
+      "nombre": "{nombre, plural, =0 {No products} one {<nb>#</nb> product} other {<nb>#</nb> products}}",
       "erreurLecture": "The products could not be loaded. Reload the page.",
       "vide": {
         "texte": "No products yet. Create the first one: it stays a draft until it is published.",
@@ -1607,10 +1607,10 @@
         },
         "aucunActif": "No product outside the archive. Archived products are under “Archived”.",
         "aucunArchive": "No archived product.",
-        "prix": "Price: {valeur}",
+        "prix": "Price: <nb>{valeur}</nb>",
         "gratuit": "Free",
-        "telechargements": "Downloads: {nombre}",
-        "vendus": "Sold: {nombre}",
+        "telechargements": "Downloads: <nb>{nombre}</nb>",
+        "vendus": "Sold: <nb>{nombre}</nb>",
         "universPastille": "Universe: {nom}",
         "universAucun": "none",
         "modifierSur": "Edit {titre}"
@@ -1751,7 +1751,7 @@
         "titre": "Photos",
         "intro": "From 1 to 10 photos in JPEG, PNG or WebP format, 15 MB at most each. The first one is the main photo. The GPS position and other metadata are removed before the photo is saved.",
         "vide": "No photo yet. You need at least one to publish.",
-        "nombre": "{nombre, plural, one {# photo out of 10} other {# photos out of 10}}",
+        "nombre": "{nombre, plural, one {<nb>#</nb> photo out of 10} other {<nb>#</nb> photos out of 10}}",
         "legende": "Product photos, in display order",
         "position": "Photo {numero}",
         "texteFr": "Alternative text in French: {texte}",
@@ -1794,7 +1794,7 @@
           },
           "ajouter": "Add the photo",
           "annuler": "Cancel the upload",
-          "progression": "Uploading: {pourcentage}%",
+          "progression": "Uploading: <nb>{pourcentage}</nb>%",
           "traitement": "Processing the photo…",
           "reprise": "Connection lost: the upload will resume by itself.",
           "succes": "Photo added.",
@@ -1896,7 +1896,7 @@
       "intro": "Universes classify your products and feed a question asked to new Accounts. None exists at the start. A universe created here cannot be renamed or deleted for now.",
       "liste": {
         "titre": "Existing universes",
-        "nombre": "{nombre, plural, =0 {No universes} one {# universe} other {# universes}}",
+        "nombre": "{nombre, plural, =0 {No universes} one {<nb>#</nb> universe} other {<nb>#</nb> universes}}",
         "vide": "No universes yet.",
         "noms": "{en} (French: {fr})"
       },
@@ -2012,7 +2012,7 @@
         "titre": "Files",
         "intro": "Accepted formats: PDF (A4 or US Letter), SVG, STL and text transcription (.txt). {max} MB at most per file, {maxTranscription} MB for a transcription. Files are stored privately: no direct address opens them.",
         "vide": "No files yet.",
-        "nombre": "{nombre, plural, =0 {No files} one {# file} other {# files}}",
+        "nombre": "{nombre, plural, =0 {No files} one {<nb>#</nb> file} other {<nb>#</nb> files}}",
         "legende": "Kit files, in the order they were added",
         "version": "Version {version}",
         "details": "{format} · {taille} · version {version}",
@@ -2061,7 +2061,7 @@
           },
           "ajouter": "Add the file",
           "annuler": "Cancel the upload",
-          "progression": "Uploading: {pourcentage}%",
+          "progression": "Uploading: <nb>{pourcentage}</nb>%",
           "traitement": "Checking the file…",
           "reprise": "Connection lost: the upload will resume by itself.",
           "succes": "File added.",
@@ -2115,7 +2115,7 @@
         "envoyer": "Upload the video",
         "remplacer": "Replace the video",
         "annuler": "Cancel upload",
-        "progression": "Uploading: {pourcentage}%",
+        "progression": "Uploading: <nb>{pourcentage}</nb>%",
         "reprise": "Connection lost: the upload will resume on its own.",
         "envoyee": "Video uploaded. Encoding at Bunny can take several minutes.",
         "verification": "Checking the encoding…",
@@ -2148,7 +2148,7 @@
         "envoyer": "Upload the preview",
         "remplacer": "Replace the preview",
         "annuler": "Cancel upload",
-        "progression": "Uploading: {pourcentage}%",
+        "progression": "Uploading: <nb>{pourcentage}</nb>%",
         "reprise": "Connection lost: the upload will resume on its own.",
         "envoyee": "Preview uploaded. Encoding at Bunny can take a few minutes.",
         "verification": "Checking the encoding…",
@@ -2190,7 +2190,7 @@
         "intro": "Split the tutorial into chapters: French and English title, start time (mm:ss or h:mm:ss). {max} chapters at most. The order is up to you: use Move up and Move down.",
         "sansVideo": "Upload the full video first: each chapter must start before its end.",
         "vide": "No chapters yet.",
-        "nombre": "{nombre, plural, =0 {No chapters} one {# chapter} other {# chapters}}",
+        "nombre": "{nombre, plural, =0 {No chapters} one {<nb>#</nb> chapter} other {<nb>#</nb> chapters}}",
         "legende": "Video chapters, in order",
         "ligne": "{numero}. {debut} · {titre}",
         "titreEnLigne": "In English: {titre}",
@@ -2265,7 +2265,7 @@
         "envoyer": "Upload the {langue} subtitles",
         "remplacer": "Replace the {langue} subtitles",
         "annuler": "Cancel upload",
-        "progression": "Uploading: {pourcentage}%",
+        "progression": "Uploading: <nb>{pourcentage}</nb>%",
         "reprise": "Connection lost: the upload will resume on its own.",
         "traitement": "Checking the file…",
         "envoyes": "Subtitles saved.",
@@ -2388,31 +2388,31 @@
       },
       "mesures": {
         "titre": "Measurements to receive",
-        "compteur": "{nombre, plural, =0 {No line waiting for measurements} one {# line waiting for measurements} other {# lines waiting for measurements}}",
-        "commande": "Order {numero} ({nombre, plural, one {# line} other {# lines}})",
+        "compteur": "{nombre, plural, =0 {No line waiting for measurements} one {<nb>#</nb> line waiting for measurements} other {<nb>#</nb> lines waiting for measurements}}",
+        "commande": "Order <nb>{numero}</nb> ({nombre, plural, one {<nb>#</nb> line} other {<nb>#</nb> lines}})",
         "erreurLecture": "The measurements to receive could not be read."
       },
       "argent": {
         "titre": "Money to handle",
-        "demande": "Cancellation request: order {numero}",
-        "remboursement": "Refund to confirm: order {numero}",
-        "trop_percu": "Overpayment to refund: order {numero}",
+        "demande": "Cancellation request: order <nb>{numero}</nb>",
+        "remboursement": "Refund to confirm: order <nb>{numero}</nb>",
+        "trop_percu": "Overpayment to refund: order <nb>{numero}</nb>",
         "vide": "No request or refund is waiting.",
         "erreurLecture": "The requests and refunds could not be read.",
-        "reclamation": "Claim to handle: order {numero}",
-        "stock": "Check the stock: order {numero}",
-        "demande_pass": "Pass cancellation request: order {numero}",
-        "remboursement_pass": "Pass refund to confirm: order {numero}"
+        "reclamation": "Claim to handle: order <nb>{numero}</nb>",
+        "stock": "Check the stock: order <nb>{numero}</nb>",
+        "demande_pass": "Pass cancellation request: order <nb>{numero}</nb>",
+        "remboursement_pass": "Pass refund to confirm: order <nb>{numero}</nb>"
       },
       "photos": {
         "titre": "Photos",
-        "aValider": "Photos to approve: {nombre}",
-        "retraits": "Removals requested: {nombre}",
+        "aValider": "Photos to approve: <nb>{nombre}</nb>",
+        "retraits": "Removals requested: <nb>{nombre}</nb>",
         "lien": "Open the gallery",
         "erreurLecture": "The photos to handle could not be counted.",
-        "realisations": "Creations to approve: {nombre}"
+        "realisations": "Creations to approve: <nb>{nombre}</nb>"
       },
-      "ouvertes": "{nombre, plural, =0 {Open tasks} one {# open task} other {# open tasks}}"
+      "ouvertes": "{nombre, plural, =0 {Open tasks} one {<nb>#</nb> open task} other {<nb>#</nb> open tasks}}"
     },
     "prestataires": {
       "titre": "Payment providers",
@@ -2548,7 +2548,7 @@
         "actifs": "Active",
         "inactifs": "Inactive"
       },
-      "nombre": "{nombre, plural, =0 {No codes} one {# code} other {# codes}}",
+      "nombre": "{nombre, plural, =0 {No codes} one {<nb>#</nb> code} other {<nb>#</nb> codes}}",
       "aucunResultat": "No code matches this search or filter.",
       "colonnes": {
         "numero": "No.",
@@ -2559,7 +2559,7 @@
         "actions": "Actions"
       },
       "carte": {
-        "numero": "No. {numero}",
+        "numero": "No. <nb>{numero}</nb>",
         "creeLe": "Created on {date}"
       },
       "actions": {
@@ -2599,7 +2599,7 @@
       "toutes": "All",
       "appliquer": "Filter",
       "effacer": "Clear filters",
-      "resultats": "{nombre, plural, =0 {No orders} one {# order} other {# orders}}",
+      "resultats": "{nombre, plural, =0 {No orders} one {<nb>#</nb> order} other {<nb>#</nb> orders}}",
       "vide": "No order matches these filters or this search.",
       "retour": "Back to orders",
       "offerte": "Free",
@@ -2635,7 +2635,7 @@
         "remise": "Delivery"
       },
       "detail": {
-        "titre": "Order {numero}",
+        "titre": "Order <nb>{numero}</nb>",
         "lignes": "Lines",
         "remise": "Delivery",
         "zoneMode": "Zone and mode",
@@ -2703,7 +2703,7 @@
       "annulationPass": {
         "titre": "Pass cancellations",
         "ligne": "{nom}'s Pass",
-        "montant": "Amount to return: {montant} (cancellation fee already kept).",
+        "montant": "Amount to return: <nb>{montant}</nb> (cancellation fee already kept).",
         "statuts": {
           "ouverte": "The customer asks to cancel this Pass.",
           "acceptee": "Cancellation accepted: the Pass no longer gives entry. Refund to confirm.",
@@ -2738,9 +2738,9 @@
         }
       },
       "remboursement": {
-        "montant": "Amount to return: {montant}",
+        "montant": "Amount to return: <nb>{montant}</nb>",
         "confirme": "Refund confirmed.",
-        "tropPercu": "Overpayment to refund: {montant} ({motif})",
+        "tropPercu": "Overpayment to refund: <nb>{montant}</nb> ({motif})",
         "preuve": "Refund proof (provider or bank transfer reference)",
         "aide": "Required. Refunds are made by hand: no money is returned automatically.",
         "confirmer": "I returned the money",
@@ -2828,11 +2828,11 @@
       "captureJointe": "Consent screenshot attached (private storage)",
       "retraitDemande": "Removal requested by the customer",
       "aValider": {
-        "titre": "To approve ({nombre})",
+        "titre": "To approve (<nb>{nombre}</nb>)",
         "vide": "No photo to approve."
       },
       "publiees": {
-        "titre": "Published ({nombre})",
+        "titre": "Published (<nb>{nombre}</nb>)",
         "vide": "No published photo."
       },
       "actions": {
@@ -2886,7 +2886,7 @@
         "succes": "Photo added: it is in the “To approve” list."
       },
       "retraits": {
-        "titre": "Removals requested ({nombre})",
+        "titre": "Removals requested (<nb>{nombre}</nb>)",
         "vide": "No removal requested."
       },
       "confirmation": {
@@ -2905,7 +2905,7 @@
         "rang": "Approved Creation no. {rang}"
       },
       "realisations": {
-        "titre": "Creations to approve ({nombre})",
+        "titre": "Creations to approve (<nb>{nombre}</nb>)",
         "vide": "No Creation to approve."
       },
       "passOffert": {
@@ -2947,7 +2947,7 @@
     "ui": {
       "precedente": "Previous page",
       "suivante": "Next page",
-      "page": "Page {page} / {total}",
+      "page": "Page <nb>{page}</nb> / <nb>{total}</nb>",
       "pagination": "Pagination",
       "enregistrer": "Save",
       "fermer": "Close and go back to the list",
@@ -3233,12 +3233,12 @@
       "recap": {
         "titre": "Summary",
         "liste": "Chosen Passes",
-        "ligne": "{nombre} × {nom}",
-        "prixUnite": "{prix} per Pass",
+        "ligne": "<nb>{nombre}</nb> × {nom}",
+        "prixUnite": "<nb>{prix}</nb> per Pass",
         "noms": "Names: {noms}",
         "sousTotal": "Subtotal",
-        "reduction": "Discount ({code})",
-        "reductionMontant": "−{montant}",
+        "reduction": "Discount (<nb>{code}</nb>)",
+        "reductionMontant": "−<nb>{montant}</nb>",
         "total": "Total"
       },
       "mention": {
@@ -3247,7 +3247,7 @@
       },
       "confirmer": "Confirm and choose how to pay",
       "confirmerEnCours": "Creating the order…",
-      "totalChange": "The total has changed: it was {ancien}, it is now {nouveau}. Check the summary before confirming.",
+      "totalChange": "The total has changed: it was <nb>{ancien}</nb>, it is now <nb>{nouveau}</nb>. Check the summary before confirming.",
       "resume": "Some fields need your attention.",
       "champs": {
         "aucun": "Choose at least one Pass.",
@@ -3415,8 +3415,8 @@
         "ligne": "Stand: {nom}",
         "deuxPass": "Two named Passes included.",
         "prix": "Stand price",
-        "reduction": "Discount ({code})",
-        "reductionMontant": "−{montant}",
+        "reduction": "Discount (<nb>{code}</nb>)",
+        "reductionMontant": "−<nb>{montant}</nb>",
         "total": "Total"
       },
       "mention": {
@@ -3425,7 +3425,7 @@
       },
       "confirmer": "Confirm and choose how to pay",
       "confirmerEnCours": "Creating the order…",
-      "totalChange": "The total has changed: it was {ancien}, it is now {nouveau}. Check the summary before confirming.",
+      "totalChange": "The total has changed: it was <nb>{ancien}</nb>, it is now <nb>{nouveau}</nb>. Check the summary before confirming.",
       "aideProvisoire": "Stand helper",
       "erreurs": {
         "non_connecte": "Sign in to pay for your stand.",
@@ -3486,7 +3486,7 @@
       "goma": "Goma",
       "bukavu": "Bukavu",
       "retrait": "Free pickup: {lieu}",
-      "livraison": "Delivery: {prix}",
+      "livraison": "Delivery: <nb>{prix}</nb>",
       "remiseGoma": "handover in under a day",
       "remiseBukavu": "handover within a day",
       "delaiSimple": "Time: {remise}",
@@ -3585,7 +3585,7 @@
       "ouvrir": "Open in my library",
       "licenceCase": "I accept the kit licence: personal use only, no sharing or reselling of the files.",
       "raisonLicence": "Tick the Kit license box first.",
-      "succes": "Your kit is open. Order {numero}.",
+      "succes": "Your kit is open. Order <nb>{numero}</nb>.",
       "erreurs": {
         "licence": "Tick the Kit license box first.",
         "non_connecte": "Sign in to get the kit.",
@@ -3629,8 +3629,8 @@
     "mettreAJour": "Update",
     "retirer": "Remove",
     "retirerNom": "Remove {titre} from the cart",
-    "prixUnitaire": "{prix} each",
-    "totalLigne": "Line total: {prix}",
+    "prixUnitaire": "<nb>{prix}</nb> each",
+    "totalLigne": "Line total: <nb>{prix}</nb>",
     "etat": {
       "disponible": "In stock",
       "dernieres_pieces": "Last pieces",
@@ -3657,12 +3657,12 @@
       "liste": "Order items",
       "taille": "Size: {taille}",
       "tailleSurMesure": "Size: made to measure",
-      "quantitePrix": "{nombre} × {prix}",
+      "quantitePrix": "<nb>{nombre}</nb> × <nb>{prix}</nb>",
       "forfait": "Delivery fee",
       "forfaitGratuit": "Free pickup",
       "forfaitAChoisir": "To choose above",
-      "reduction": "Discount ({code})",
-      "reductionMontant": "−{montant}",
+      "reduction": "Discount (<nb>{code}</nb>)",
+      "reductionMontant": "−<nb>{montant}</nb>",
       "sousTotal": "Subtotal",
       "total": "Total",
       "accesImmediat": "Digital kit: instant access after payment.",
@@ -3691,7 +3691,7 @@
       "aide": "Valid for a first purchase only. One code per purchase.",
       "appliquer": "Apply",
       "retirer": "Remove code",
-      "applique": "Code {code} applied: {pct, number}% off your items, delivery excluded.",
+      "applique": "Code <nb>{code}</nb> applied: <nb>{pct, number}</nb>% off your items, delivery excluded.",
       "erreurs": {
         "code_inconnu": "This code does not exist. Check the spelling.",
         "code_inactif": "This code is no longer active.",
@@ -3723,7 +3723,7 @@
     "confirmer": "Confirm the order",
     "enCours": "Creating the order…",
     "raisonBloque": "Remove the items that are no longer available from your cart first.",
-    "totalChange": "The total has changed: {ancien} → {nouveau}. Check the summary, then confirm again.",
+    "totalChange": "The total has changed: <nb>{ancien}</nb> → <nb>{nouveau}</nb>. Check the summary, then confirm again.",
     "resumeErreurs": "Fix the following:",
     "champs": {
       "telephone": "Enter your phone number, with the country code.",
@@ -3755,7 +3755,7 @@
     },
     "retourPanier": "Back to the cart",
     "detail": {
-      "titre": "Order {numero}",
+      "titre": "Order <nb>{numero}</nb>",
       "statut": "Status: {statut}",
       "statuts": {
         "en_attente": "Waiting for payment",
@@ -3780,7 +3780,7 @@
       "titre": "My orders",
       "vide": "No orders yet.",
       "versCatalogues": "Browse the cosplays",
-      "commande": "Order {numero}",
+      "commande": "Order <nb>{numero}</nb>",
       "offert": "Free",
       "voirPlus": "Show more"
     },
@@ -4252,7 +4252,7 @@
         "rembourse": "Refunded"
       },
       "offert": "Free",
-      "codeCourt": "Short code: {code}",
+      "codeCourt": "Short code: <nb>{code}</nb>",
       "qrAlt": "QR code of the {type} Pass of {nom}, {evenement}",
       "sansCode": "The QR code is no longer shown for this Pass.",
       "annulation": {
@@ -4293,7 +4293,7 @@
       "bouton": "Enlarge",
       "pour": "the QR code of {nom}'s Pass",
       "titre": "QR code of {nom}",
-      "code": "Short code: {code}",
+      "code": "Short code: <nb>{code}</nb>",
       "luminosite": "Turn up your screen brightness so the QR code is easier to read."
     }
   },

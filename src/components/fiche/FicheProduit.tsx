@@ -15,6 +15,7 @@ import { BoutonPartager } from "./BoutonPartager";
 import { GaleriePhotos } from "./GaleriePhotos";
 import { DoubleOption } from "./DoubleOption";
 import { ZoneAchat } from "./ZoneAchat";
+import { Nombre } from "@/components/ui/Nombre";
 
 // Dossier interne de chaque famille (l'adresse de chaque langue vient de src/i18n/adresses.ts).
 export const DOSSIERS_FICHE: Record<Donnees["famille"], string> = DOSSIER_PAR_FAMILLE;
@@ -82,7 +83,7 @@ export async function FicheProduit({ fiche, locale, forfaitGoma, forfaitBukavu, 
         <GaleriePhotos photos={fiche.photos} />
         <div className="flex min-w-0 flex-col gap-6">
           <TitreVitrine niveau={1} donnee>{fiche.titre}</TitreVitrine>
-          <p className="t-price-card text-text-primary">{formaterUsd(fiche.prixCents, locale)}</p>
+          <p className="t-price-card text-text-primary"><Nombre>{formaterUsd(fiche.prixCents, locale)}</Nombre></p>
           {description ? <p className="t-body whitespace-pre-line text-text-primary">{description}</p> : null}
           <BoutonPartager titre={fiche.titre} url={urlFiche} />
           {fiche.kitLie ? (

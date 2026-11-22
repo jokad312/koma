@@ -10,6 +10,7 @@ import { SelecteurLangue } from "@/components/layout/SelecteurLangue";
 import { Dialogue } from "@/components/ui/Dialogue";
 
 import { entreesVisibles, estCourante, PRINCIPALES } from "./navigation-entrees";
+import { Nombre } from "@/components/ui/Nombre";
 
 // « Voir le site » : un vrai lien (rechargement complet), pas une navigation interne. La mise en page de l'admin (9.10) masque l'en-tête du site
 // tant que la coque admin est dans la page ; après une navigation interne, Next.js garde la page admin cachée en mémoire et l'en-tête resterait masqué.
@@ -73,7 +74,7 @@ export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = f
         {cle === "messages" && compteur ? (
           <>
             <span aria-hidden="true" className="t-small ml-2 inline-flex min-w-6 items-center justify-center rounded-full bg-primary px-2 tracking-normal text-on-primary">
-              {compteur}
+              <Nombre>{compteur}</Nombre>
             </span>
             <span className="sr-only">{t("messagesNouveaux", { nombre: compteur })}</span>
           </>

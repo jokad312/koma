@@ -12,6 +12,7 @@ import { supprimerFichierKit } from "@/modules/catalogue/actions";
 import { TAILLE_MAX_FICHIER_KIT, TAILLE_MAX_TRANSCRIPTION, tailleLisible } from "@/modules/catalogue/fichiers-kit";
 import type { FichierKitAdmin } from "@/modules/catalogue/types";
 import { EnvoiFichierKit } from "./EnvoiFichierKit";
+import { nb } from "@/components/ui/Nombre";
 
 const BOUTON =
   "inline-flex min-h-touch min-w-touch items-center justify-center rounded-full border border-border-field bg-surface px-3 text-text-primary aria-disabled:cursor-not-allowed aria-disabled:text-text-secondary";
@@ -86,7 +87,7 @@ export function FichiersKit({ produitId, fichiers, ajout = true }: { produitId: 
   return (
     <div className="flex flex-col gap-4">
       <p className="t-body text-text-secondary">{t("intro", PARAMS_TAILLE)}</p>
-      <p className="t-small text-text-secondary">{t("nombre", { nombre: fichiers.length })}</p>
+      <p className="t-small text-text-secondary">{t.rich("nombre", { nombre: fichiers.length, nb })}</p>
       {fichiers.length === 0 ? (
         <p ref={refVide} tabIndex={-1} className="t-body text-text-secondary">
           {t("vide")}

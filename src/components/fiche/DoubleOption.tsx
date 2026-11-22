@@ -9,6 +9,7 @@ import { BandeauZone } from "./BandeauZone";
 import { OPTION } from "./SelecteurTaille";
 import { ZoneAchat } from "./ZoneAchat";
 import type { KitLieFiche, TailleFiche } from "@/modules/catalogue/types";
+import { Nombre } from "@/components/ui/Nombre";
 
 type Props = {
   produitId: string;
@@ -92,7 +93,7 @@ export function DoubleOption({
             </h2>
             <p className="t-body text-text-primary">{kit.titre}</p>
             <p className="t-price-card text-text-primary">
-              {formaterUsd(kit.prixCents, locale)}
+              <Nombre>{formaterUsd(kit.prixCents, locale)}</Nombre>
             </p>
             <p className="t-small text-text-secondary">{t("acces")}</p>
             <Link

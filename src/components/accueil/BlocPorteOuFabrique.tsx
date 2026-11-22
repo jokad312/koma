@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { formaterUsd } from "@/lib/argent";
 import type { VedetteHeros } from "@/modules/accueil/heros-queries";
+import { Nombre } from "@/components/ui/Nombre";
 
 // Bloc 1 « Porte-le ou fabrique-le » (FR-2) : le Cosplay vedette porté (prix, délai) et le Kit lié fabriqué (prix).
 // Seul si le Cosplay vedette a un Kit lié publié ; un bloc sans contenu reste masqué (aucun titre, aucun texte, aucun espace).
@@ -28,7 +29,7 @@ export async function BlocPorteOuFabrique({ locale, niveau = 2 }: { locale: Loca
               {vedette.titre}
             </Link>
           </p>
-          <p className="t-price-card text-text-primary">{formaterUsd(vedette.prixCents, locale)}</p>
+          <p className="t-price-card text-text-primary"><Nombre>{formaterUsd(vedette.prixCents, locale)}</Nombre></p>
           {vedette.delaiJours !== null ? <p className="t-small text-text-primary">{t("heros.delai", { n: vedette.delaiJours })}</p> : null}
         </article>
         <article className="verre-fort relative overflow-hidden rounded-xl border border-border bg-surface p-5">
@@ -38,7 +39,7 @@ export async function BlocPorteOuFabrique({ locale, niveau = 2 }: { locale: Loca
               {vedette.titreKit}
             </Link>
           </p>
-          <p className="t-price-card text-text-primary">{formaterUsd(vedette.prixCentsKit ?? 0, locale)}</p>
+          <p className="t-price-card text-text-primary"><Nombre>{formaterUsd(vedette.prixCentsKit ?? 0, locale)}</Nombre></p>
           <p className="t-small text-text-primary">{t("heros.acces")}</p>
         </article>
       </div>

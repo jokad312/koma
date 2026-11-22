@@ -17,6 +17,7 @@ import { calculerCodeQr, chargeQr } from "@/modules/evenements/pass-qr";
 import type { PassLu } from "@/modules/evenements/pass-types";
 import { BlocEspace, CLASSES_CARTE, CLASSES_GRILLE, CLASSES_LIEN, VideEspace } from "./BlocEspace";
 import { lirePassEspace } from "./lectures";
+import { Nombre, nb } from "@/components/ui/Nombre";
 
 // Blocs b à f de l'espace personnel (story 9.12). Chaque bloc lit ses données côté serveur, pour le seul Compte de la session (identifiant
 // passé par la page après vérification), à chaque requête. Une lecture en erreur n'affiche que le message de son bloc ; les autres restent.
@@ -54,10 +55,10 @@ export async function BlocCommandesEspace({ compteId, locale }: PropsBloc) {
             <li key={c.numero} className={CLASSES_CARTE}>
               {/* Lien sur le numéro, étendu à toute la carte. */}
               <Link href={`${cheminPublic(locale, "/commande")}/${c.numero}`} className="t-label text-text-primary underline underline-offset-4 after:absolute after:inset-0">
-                {tc("liste.commande", { numero: c.numero })}
+                {tc.rich("liste.commande", { numero: c.numero, nb })}
               </Link>
               <p className="t-small text-text-secondary">{formaterDateBoutique(c.creeLe, locale)}</p>
-              <p className="t-body text-text-primary">{c.offerte ? tc("liste.offert") : formaterUsd(c.totalCents, locale)}</p>
+              <p className="t-body text-text-primary">{c.offerte ? tc("liste.offert") : <Nombre>{formaterUsd(c.totalCents, locale)}</Nombre>}</p>
               <p className="t-small text-text-primary">{tc("detail.statut", { statut: tc(`detail.statuts.${c.statut}`) })}</p>
             </li>
           ))}

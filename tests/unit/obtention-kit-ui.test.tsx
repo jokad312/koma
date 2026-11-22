@@ -2,7 +2,7 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { rendre } from "./aides-dom";
+import { finDeTexte, rendre } from "./aides-dom";
 
 const faux = vi.hoisted(() => ({
   lireEtatKit: vi.fn(),
@@ -54,7 +54,7 @@ describe("ObtentionKit", () => {
     await userEvent.click(await screen.findByRole("checkbox"));
     await userEvent.click(screen.getByRole("button", { name: "Obtenir le kit gratuit" }));
     await waitFor(() => expect(screen.getByRole("link", { name: "Ouvrir dans ma bibliothèque" })).toBeTruthy());
-    expect(screen.getByText("Ton kit est ouvert. Commande KS-2026-000042.")).toBeTruthy();
+    expect(screen.getByText(finDeTexte("Ton kit est ouvert. Commande KS-2026-000042."))).toBeTruthy();
     expect(faux.obtenirKitGratuit).toHaveBeenCalledTimes(1);
     expect(faux.obtenirKitGratuit).toHaveBeenCalledWith({ produitId: KIT, licenceAcceptee: true, cleIdempotence: expect.any(String) });
   });
@@ -124,7 +124,7 @@ describe("ObtentionKit : cas limites de la revue", () => {
     rendre(<ObtentionKit produitId={KIT} prixCents={0} />);
     await userEvent.click(await screen.findByRole("checkbox"));
     await userEvent.click(screen.getByRole("button", { name: "Obtenir le kit gratuit" }));
-    const message = await screen.findByText("Ton kit est ouvert. Commande KS-2026-000042.");
+    const message = await screen.findByText(finDeTexte("Ton kit est ouvert. Commande KS-2026-000042."));
     await waitFor(() => expect(document.activeElement).toBe(message.closest("[tabindex='-1']")));
   });
 });

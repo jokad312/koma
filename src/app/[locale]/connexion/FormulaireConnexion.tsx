@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useActionState, useEffect, useId, useRef, useState, useTransition, type ChangeEvent, type ClipboardEvent, type FormEvent } from "react";
 import { Bouton } from "@/components/ui/Bouton";
 import { MessageEtat } from "@/components/ui/MessageEtat";
+import { nb } from "@/components/ui/Nombre";
 import { BoutonGoogle } from "./BoutonGoogle";
 import { QuestionsAccueil } from "./QuestionsAccueil";
 import { declarerAge, demanderCode, demanderCodeParFormulaire, verifierCode } from "@/modules/comptes/actions";
@@ -304,7 +305,7 @@ export function FormulaireConnexion({ etapeInitiale = "email", google = "disponi
     const renvoiEnCours = enCours && action === "renvoyer";
     const boutonRenvoi =
       secondes > 0 ? (
-        <Bouton variante="secondaire" desactive raison={t("code.delaiRenvoi", { secondes })}>
+        <Bouton variante="secondaire" desactive raison={t.rich("code.delaiRenvoi", { secondes, nb })}>
           {t("code.renvoyer")}
         </Bouton>
       ) : (

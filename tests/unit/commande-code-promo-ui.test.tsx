@@ -2,7 +2,7 @@
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { rendre } from "./aides-dom";
+import { rendre, sansBalises, texteComplet } from "./aides-dom";
 
 const faux = vi.hoisted(() => ({
   creerCommande: vi.fn(),
@@ -101,11 +101,11 @@ describe("Code promo à l'étape de commande (story 9.2)", () => {
     await userEvent.type(screen.getByLabelText(TC.label), " promo10 ");
     await userEvent.click(screen.getByRole("button", { name: TC.appliquer }));
     await waitFor(() => expect(faux.lireRecapitulatif).toHaveBeenLastCalledWith({ zone: "goma", mode: "retrait", code: "promo10" }, "fr"));
-    await screen.findByText("Réduction (PROMO10)");
-    const ligneReduction = (screen.getByText("Réduction (PROMO10)").parentElement?.textContent ?? "").replace(/[  ]/g, " ");
+    await screen.findByText(texteComplet("Réduction (PROMO10)"));
+    const ligneReduction = (screen.getByText(texteComplet("Réduction (PROMO10)")).parentElement?.textContent ?? "").replace(/[  ]/g, " ");
     expect(ligneReduction.endsWith(formaterUsd(1000, "fr"))).toBe(true);
-    expect(ligneReduction).toContain(frMessages.Commande.recap.reductionMontant.replace("{montant}", ""));
-    expect(screen.getByText("Réduction (PROMO10)")).toBeTruthy();
+    expect(ligneReduction).toContain(sansBalises(frMessages.Commande.recap.reductionMontant).replace("{montant}", ""));
+    expect(screen.getByText(texteComplet("Réduction (PROMO10)"))).toBeTruthy();
     expect(screen.getByText(formaterUsd(9000, "fr"))).toBeTruthy();
     expect(screen.getByRole("status").textContent).toContain("PROMO10");
     await userEvent.click(screen.getAllByRole("checkbox")[0]);
@@ -159,10 +159,10 @@ describe("Code promo à l'étape de commande (story 9.2)", () => {
     rendre(<FormulaireCommande {...props} />);
     await userEvent.type(screen.getByLabelText(TC.label), "PROMO10");
     await userEvent.click(screen.getByRole("button", { name: TC.appliquer }));
-    await screen.findByText("Réduction (PROMO10)");
+    await screen.findByText(texteComplet("Réduction (PROMO10)"));
     await userEvent.click(screen.getByRole("radio", { name: "Bukavu" }));
     await waitFor(() => expect(faux.lireRecapitulatif).toHaveBeenLastCalledWith({ zone: "bukavu", mode: "livraison", code: "PROMO10" }, "fr"));
-    expect(screen.getByText("Réduction (PROMO10)")).toBeTruthy();
+    expect(screen.getByText(texteComplet("Réduction (PROMO10)"))).toBeTruthy();
   });
 
   it("le pourcentage est mis en forme selon la langue (12,5 % en français)", async () => {

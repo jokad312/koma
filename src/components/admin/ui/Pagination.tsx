@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { nb } from "@/components/ui/Nombre";
 
 // Pagination de l'admin (story 9.16 b, maquettes B10 et CP9 ; décision Q18) : ‹ › et « page X / Y ». La page donne l'adresse de chaque page (paramètre de
 // son adresse) ; aucune lecture en base ici. Première ou dernière page : la flèche correspondante est inactive (ni lien ni clic), annoncée comme telle.
@@ -35,7 +36,7 @@ export function Pagination({ page, total, adresse }: { page: number; total: numb
   return (
     <nav aria-label={t("pagination")} className="flex items-center justify-center gap-4 text-text-primary">
       {fleche("precedente")}
-      <p className="t-small">{t("page", { page: courante, total: totalPages })}</p>
+      <p className="t-small">{t.rich("page", { page: courante, total: totalPages, nb })}</p>
       {fleche("suivante")}
     </nav>
   );

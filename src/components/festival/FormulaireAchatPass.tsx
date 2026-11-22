@@ -12,6 +12,7 @@ import type { CodeRefuse } from "@/modules/commande/types";
 import { creerCommandePassAction, lireRecapitulatifPassAction } from "@/modules/evenements/achat-actions";
 import { MAX_PASS_PAR_COMMANDE, NOM_TITULAIRE_MAX, NOM_TITULAIRE_MIN } from "@/modules/evenements/achat-types";
 import type { CodeErreurAchat, RecapPass } from "@/modules/evenements/achat-types";
+import { Nombre, nb } from "@/components/ui/Nombre";
 
 export type TypeAchetable = { id: string; nom: string; prixCents: number; inclus: string | null; complet: boolean };
 
@@ -213,7 +214,7 @@ export function FormulaireAchatPass({ evenementId, slug, nomCompte, types }: Pro
         ) : null}
         {messageServeur ? <MessageEtat type="erreur">{messageServeur}</MessageEtat> : null}
         {totalChange ? (
-          <MessageEtat type="attention">{t("totalChange", { ancien: formaterUsd(totalChange.ancien, locale), nouveau: formaterUsd(totalChange.nouveau, locale) })}</MessageEtat>
+          <MessageEtat type="attention">{t.rich("totalChange", { ancien: formaterUsd(totalChange.ancien, locale), nouveau: formaterUsd(totalChange.nouveau, locale), nb })}</MessageEtat>
         ) : null}
       </div>
 
@@ -231,7 +232,7 @@ export function FormulaireAchatPass({ evenementId, slug, nomCompte, types }: Pro
                   <li key={type.id} className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-4">
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <h3 className="t-h3">{type.nom}</h3>
-                      <p className="t-price-card">{formaterUsd(type.prixCents, locale)}</p>
+                      <p className="t-price-card"><Nombre>{formaterUsd(type.prixCents, locale)}</Nombre></p>
                     </div>
                     {type.inclus ? (
                       <ul className="t-small flex list-disc flex-col gap-1 pl-5 text-text-secondary">
@@ -252,7 +253,7 @@ export function FormulaireAchatPass({ evenementId, slug, nomCompte, types }: Pro
                           <span aria-hidden="true">{"−"}</span>
                         </button>
                         <output aria-live="polite" className="t-h3 min-w-8 text-center text-text-primary">
-                          {n}
+                          <Nombre>{n}</Nombre>
                         </output>
                         <button type="button" className={BOUTON_COMPTEUR} onClick={() => changerQuantite(type, 1)} disabled={total >= MAX_PASS_PAR_COMMANDE} aria-label={t("ajouter", { nom: type.nom })}>
                           <span aria-hidden="true">{"+"}</span>
@@ -365,7 +366,7 @@ export function FormulaireAchatPass({ evenementId, slug, nomCompte, types }: Pro
             ) : null}
             {recap.code?.valide ? (
               <p role="status" className="t-small text-text-primary">
-                {tc("applique", { code: recap.code.code, pct: recap.code.reductionPct })}
+                {tc.rich("applique", { code: recap.code.code, pct: recap.code.reductionPct, nb })}
               </p>
             ) : null}
           </section>
@@ -377,8 +378,8 @@ export function FormulaireAchatPass({ evenementId, slug, nomCompte, types }: Pro
             <ul aria-label={t("recap.liste")} className="flex flex-col gap-3">
               {recap.lignes.map((l) => (
                 <li key={l.typePassId} className="flex flex-col gap-1 border-b border-border pb-3 last:border-b-0 last:pb-0">
-                  <p className="t-label text-text-primary">{t("recap.ligne", { nombre: l.nombre, nom: l.nom })}</p>
-                  <p className="t-body text-text-primary">{t("recap.prixUnite", { prix: formaterUsd(l.prixCents, locale) })}</p>
+                  <p className="t-label text-text-primary">{t.rich("recap.ligne", { nombre: l.nombre, nom: l.nom, nb })}</p>
+                  <p className="t-body text-text-primary">{t.rich("recap.prixUnite", { prix: formaterUsd(l.prixCents, locale), nb })}</p>
                   <p className="t-small text-text-secondary">{t("recap.noms", { noms: l.titulaires.join(", ") })}</p>
                 </li>
               ))}
@@ -386,17 +387,17 @@ export function FormulaireAchatPass({ evenementId, slug, nomCompte, types }: Pro
             <dl className="flex flex-col gap-2">
               <div className="flex justify-between gap-4">
                 <dt className="t-body text-text-primary">{t("recap.sousTotal")}</dt>
-                <dd className="t-body text-text-primary">{formaterUsd(recap.sousTotalCents, locale)}</dd>
+                <dd className="t-body text-text-primary"><Nombre>{formaterUsd(recap.sousTotalCents, locale)}</Nombre></dd>
               </div>
               {recap.code?.valide && recap.reductionCents > 0 ? (
                 <div className="flex justify-between gap-4">
-                  <dt className="t-body text-text-primary">{t("recap.reduction", { code: recap.code.code })}</dt>
-                  <dd className="t-body text-text-primary">{t("recap.reductionMontant", { montant: formaterUsd(recap.reductionCents, locale) })}</dd>
+                  <dt className="t-body text-text-primary">{t.rich("recap.reduction", { code: recap.code.code, nb })}</dt>
+                  <dd className="t-body text-text-primary">{t.rich("recap.reductionMontant", { montant: formaterUsd(recap.reductionCents, locale), nb })}</dd>
                 </div>
               ) : null}
               <div className="flex justify-between gap-4">
                 <dt className="t-h3 text-text-primary">{t("recap.total")}</dt>
-                <dd className="t-price-card text-text-primary">{formaterUsd(recap.totalCents, locale)}</dd>
+                <dd className="t-price-card text-text-primary"><Nombre>{formaterUsd(recap.totalCents, locale)}</Nombre></dd>
               </div>
             </dl>
           </section>

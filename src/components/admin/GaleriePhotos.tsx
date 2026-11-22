@@ -13,6 +13,7 @@ import { deplacerPhoto, modifierAltPhoto, supprimerPhoto } from "@/modules/catal
 import { PHOTOS_MAX } from "@/modules/catalogue/types";
 import type { PhotoAdmin } from "@/modules/catalogue/types";
 import { ChampTexte, useClassesChamp } from "./ChampTexte";
+import { nb } from "@/components/ui/Nombre";
 
 const BOUTON =
   "inline-flex min-h-touch min-w-touch items-center justify-center rounded-full border border-border-field bg-surface px-3 text-text-primary aria-disabled:cursor-not-allowed aria-disabled:text-text-secondary";
@@ -163,7 +164,7 @@ export function GaleriePhotos({ photos }: { photos: readonly PhotoAdmin[] }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <p className="t-small text-text-secondary">{t("nombre", { nombre: photos.length })}</p>
+      <p className="t-small text-text-secondary">{t.rich("nombre", { nombre: photos.length, nb })}</p>
       {photos.length === 0 ? (
         <p ref={repereVide} tabIndex={-1} className="t-body text-text-secondary">
           {t("vide")}

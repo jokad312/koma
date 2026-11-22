@@ -145,7 +145,8 @@ export function tauxReussite(reussies: number, terminees: number): number | null
 export const SEUIL_REVENU_PETIT_CENTS = 100_000;
 
 export type CleChiffre = "produitsPublies" | "commandesTotal" | "revenuTotal" | "paiementsReussis";
-export type CarteChiffreDonnee = { cle: CleChiffre; chiffre: string; texte: boolean };
+// nombre : le chiffre est un nombre ou un montant (exclu de la traduction du navigateur), pas une phrase comme « Aucune donnée ».
+export type CarteChiffreDonnee = { cle: CleChiffre; chiffre: string; texte: boolean; nombre: boolean };
 
 // Les 4 cartes de chiffres du tableau de bord (maquette E1 à E4), dans l'ordre de la maquette. Les textes viennent de la page (traductions).
 export function cartesChiffres(
@@ -154,9 +155,9 @@ export function cartesChiffres(
 ): CarteChiffreDonnee[] {
   const taux = tauxReussite(c.tentativesReussies, c.tentativesTerminees);
   return [
-    { cle: "produitsPublies", chiffre: String(c.produitsPublies), texte: false },
-    { cle: "commandesTotal", chiffre: String(c.commandesPayees), texte: false },
-    { cle: "revenuTotal", chiffre: textes.usd(c.revenuCents), texte: c.revenuCents >= SEUIL_REVENU_PETIT_CENTS },
-    { cle: "paiementsReussis", chiffre: taux === null ? textes.aucuneDonnee : textes.taux(taux), texte: taux === null },
+    { cle: "produitsPublies", chiffre: String(c.produitsPublies), texte: false, nombre: true },
+    { cle: "commandesTotal", chiffre: String(c.commandesPayees), texte: false, nombre: true },
+    { cle: "revenuTotal", chiffre: textes.usd(c.revenuCents), texte: c.revenuCents >= SEUIL_REVENU_PETIT_CENTS, nombre: true },
+    { cle: "paiementsReussis", chiffre: taux === null ? textes.aucuneDonnee : textes.taux(taux), texte: taux === null, nombre: taux !== null },
   ];
 }

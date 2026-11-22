@@ -6,7 +6,7 @@ import { screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import en from "../../messages/en.json";
 import fr from "../../messages/fr.json";
-import { rendre } from "./aides-dom";
+import { rendre, texteComplet } from "./aides-dom";
 
 vi.mock("server-only", () => ({}));
 vi.mock("next-intl/server", async () => {
@@ -28,7 +28,7 @@ import { ApercuTaches, CartesTaches } from "@/components/admin/tableau/CartesTac
 import { GraphiqueJours } from "@/components/admin/tableau/GraphiqueJours";
 import { ApercuIndicateurs, Indicateurs } from "@/components/admin/tableau/Indicateurs";
 import { PerformanceJour } from "@/components/admin/tableau/PerformanceJour";
-import { serieParJour } from "@/modules/tableau-de-bord/calculs";
+import { formaterUsd, serieParJour } from "@/modules/tableau-de-bord/calculs";
 import { joursFenetre } from "@/modules/tableau-de-bord/periode";
 import type { CarteTache, DonneesTableau } from "@/modules/tableau-de-bord/queries";
 
@@ -173,9 +173,9 @@ describe("À faire et Indicateurs de la maquette (Q12, Q13, décisions 2 et 3)",
     const section = screen.getByRole("region", { name: "Indicateurs" });
     expect(within(section).getByRole("heading", { name: "Ventes payées (SM-1)" })).toBeTruthy();
     expect(section.textContent).toMatch(/7 jours65,00/);
-    expect(within(section).getByText("Événements à venir : 2")).toBeTruthy();
-    expect(within(section).getByText("Pass vendus (7 jours) : 1")).toBeTruthy();
-    expect(within(section).getByText("Pass vendus (30 jours) : 5")).toBeTruthy();
+    expect(within(section).getByText(texteComplet("Événements à venir : 2"))).toBeTruthy();
+    expect(within(section).getByText(texteComplet("Pass vendus (7 jours) : 1"))).toBeTruthy();
+    expect(within(section).getByText(texteComplet("Pass vendus (30 jours) : 5"))).toBeTruthy();
     expect(within(section).getByRole("link", { name: "Voir plus (tous les indicateurs)" }).getAttribute("href")).toBe("#indicateurs");
   });
 
@@ -200,5 +200,28 @@ describe("À faire et Indicateurs de la maquette (Q12, Q13, décisions 2 et 3)",
     expect(sm4.textContent).toContain("2 événements à venir, 5 Pass vendus");
     expect(sm4.textContent).toContain("Les inscriptions aux alertes événement ne sont pas encore comptées.");
     expect((fr.Admin.tableau.indicateurs as Record<string, string>).raisonSm4).toBeUndefined();
+  });
+
+  // A3-bis : les valeurs sont des nœuds React (montants dans <Nombre>) ; la liste garde ses séparateurs et son ordre (formatToParts),
+  // et le détail par famille de SM-1 est bien placé dans la balise <detail></detail> du message.
+  it("SM-1 et SM-C2 : texte complet (montants, détail par famille, séparateurs, ordre), nombres seuls exclus de la traduction", async () => {
+    const echecs = [
+      { prestataire: "pawapay", moyen: "mobile_money", tentatives: 4, reussies: 3, echouees_client: 0, echouees_prestataire: 1, abandonnees: 0, en_cours: 0 },
+      { prestataire: "maishapay", moyen: "carte", tentatives: 2, reussies: 2, echouees_client: 0, echouees_prestataire: 0, abandonnees: 0, en_cours: 0 },
+    ];
+    rendre(await Indicateurs({ donnees: donnees({ echecs7: echecs, echecs30: echecs }), maintenant: TEST_MAINTENANT }));
+    const espaces = (t: string | null | undefined) => (t ?? "").replace(/\s+/g, " ").trim();
+    const usd = (c: number) => espaces(formaterUsd(c, "fr"));
+    const liste = (elements: string[]) => espaces(new Intl.ListFormat("fr", { style: "short", type: "unit" }).format(elements));
+    const valeurs = (titre: RegExp) => Array.from((screen.getByRole("heading", { name: titre }).closest("li") as HTMLElement).querySelectorAll("dd"));
+
+    const sm1 = valeurs(/^SM-1 ·/);
+    const detail = liste([`Cosplay ${usd(5500)} (1 commande)`, `Kit ${usd(1000)} (1 commande)`]);
+    expect(espaces(sm1[0].textContent)).toBe(`${usd(6500)} (${detail})`);
+    expect(espaces(sm1[1].textContent)).toBe(`${usd(6500)} (${detail})`);
+    expect(Array.from(sm1[0].querySelectorAll('[translate="no"]')).map((e) => espaces(e.textContent))).toEqual([usd(6500), usd(5500), "1", usd(1000), "1"]);
+
+    const smc2 = valeurs(/^SM-C2 ·/);
+    expect(espaces(smc2[0].textContent)).toBe(liste(["MaishaPay : 0 % (0 échec sur 2)", "PawaPay : 25 % (1 échec sur 4)"]));
   });
 });

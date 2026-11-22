@@ -3,6 +3,7 @@ import { cheminPublic } from "@/i18n/adresses";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { compterPanier } from "@/modules/panier/queries";
+import { Nombre } from "@/components/ui/Nombre";
 
 const CLASSES = "t-small relative inline-flex min-h-touch min-w-touch items-center justify-center gap-2 rounded-full border border-border-field bg-surface px-3 text-text-primary no-underline";
 
@@ -23,7 +24,7 @@ export async function LienPanier({ nombre }: { nombre: number | null }) {
   return (
     <Link href={cheminPublic(locale, "/panier")} className={CLASSES} aria-label={nombre === null ? t("lien") : t("libelle", { count: nombre })}>
       <IconePanier />
-      {nombre !== null && nombre > 0 ? <span aria-hidden="true">{nombre}</span> : null}
+      {nombre !== null && nombre > 0 ? <span aria-hidden="true"><Nombre>{nombre}</Nombre></span> : null}
     </Link>
   );
 }

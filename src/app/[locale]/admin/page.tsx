@@ -81,7 +81,7 @@ async function TableauSelonDroit({ locale, recherche }: { locale: Locale; recher
             <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {cartesChiffres(chiffres, { usd, taux: (taux) => t("chiffres.taux", { taux }), aucuneDonnee: t("chiffres.aucuneDonnee") }).map((c) => (
                 <li key={c.cle} className="grid">
-                  <CarteChiffre icone={ICONES_CHIFFRES[c.cle]} chiffre={c.chiffre} texte={c.texte} libelle={t(`chiffres.${c.cle}`)} />
+                  <CarteChiffre icone={ICONES_CHIFFRES[c.cle]} chiffre={c.chiffre} texte={c.texte} nombre={c.nombre} libelle={t(`chiffres.${c.cle}`)} />
                 </li>
               ))}
             </ul>

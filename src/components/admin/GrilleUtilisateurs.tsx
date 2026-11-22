@@ -7,6 +7,7 @@ import type { UtilisateurAdmin } from "@/modules/admin/utilisateurs";
 import { ChampRecherche } from "./ui/ChampRecherche";
 import { CLASSES_CARTE_ADMIN } from "./ui/Panneau";
 import { Pastille } from "./ui/Pastille";
+import { nb } from "@/components/ui/Nombre";
 
 const normaliser = (texte: string) => texte.normalize("NFD").replace(/\p{M}/gu, "").toLocaleLowerCase();
 
@@ -45,7 +46,7 @@ export function GrilleUtilisateurs({ utilisateurs }: { utilisateurs: readonly Ut
           />
         </div>
         <p role="status" className="t-label uppercase text-text-primary">
-          {t("nombre", { nombre: visibles.length })}
+          {t.rich("nombre", { nombre: visibles.length, nb })}
         </p>
       </div>
 

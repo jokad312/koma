@@ -22,6 +22,7 @@ import {
   type FiltresCommandes,
   type PageCommandesAdmin,
 } from "@/modules/commande/admin-queries";
+import { Nombre, nb } from "@/components/ui/Nombre";
 
 const ID_FORMULAIRE = "filtres-commandes";
 const CHAMP = "t-body min-h-touch rounded-full border border-border-field bg-admin-entete px-4 text-text-primary";
@@ -105,6 +106,7 @@ export function ListeCommandesAdmin({
             icone: DollarSign,
             chiffre: revenu === null ? t("chiffres.illisible") : formaterUsd(revenu, locale),
             texte: true,
+            nombre: revenu !== null,
           },
         ]),
     {
@@ -146,7 +148,7 @@ export function ListeCommandesAdmin({
         <ul className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${cartes.length === 4 ? "xl:grid-cols-4" : "xl:grid-cols-3"}`}>
           {cartes.map((c) => (
             <li key={c.cle} className="grid">
-              <CarteChiffre icone={c.icone} chiffre={c.chiffre} texte={c.texte} libelle={t(`chiffres.${c.cle}`)} />
+              <CarteChiffre icone={c.icone} chiffre={c.chiffre} texte={c.texte} {...("nombre" in c ? { nombre: c.nombre } : {})} libelle={t(`chiffres.${c.cle}`)} />
             </li>
           ))}
         </ul>
@@ -229,7 +231,7 @@ export function ListeCommandesAdmin({
           </form>
 
           <p role="status" className="t-label text-text-primary">
-            {t("resultats", { nombre: total })}
+            {t.rich("resultats", { nombre: total, nb })}
           </p>
 
           {commandes.length === 0 ? (
@@ -245,7 +247,7 @@ export function ListeCommandesAdmin({
                       <tr key={c.numero}>
                         <th scope="row" className="border-b border-admin-bord px-4 py-3 text-left font-normal">
                           <Link href={`/admin/commandes/${c.numero}`} className="t-label inline-flex min-h-touch items-center text-text-primary underline">
-                            {c.numero}
+                            <Nombre>{c.numero}</Nombre>
                           </Link>
                         </th>
                         <td className="t-body border-b border-admin-bord px-4 py-3">
@@ -253,7 +255,7 @@ export function ListeCommandesAdmin({
                         </td>
                         <td className="t-small border-b border-admin-bord px-4 py-3">{formaterDateHeureBoutique(c.creeLe, locale)}</td>
                         <td className="t-body border-b border-admin-bord px-4 py-3">{paiement(c)}</td>
-                        <td className="t-body border-b border-admin-bord px-4 py-3 text-right">{formaterUsd(c.totalCents, locale)}</td>
+                        <td className="t-body border-b border-admin-bord px-4 py-3 text-right"><Nombre>{formaterUsd(c.totalCents, locale)}</Nombre></td>
                         <td className="border-b border-admin-bord px-4 py-3">
                           <Pastille>{ts(c.statut)}</Pastille>
                         </td>
@@ -268,7 +270,7 @@ export function ListeCommandesAdmin({
                   <li key={c.numero} className="flex min-w-0 flex-col gap-2 rounded-[16px] border border-admin-contour bg-admin-carte p-4 text-text-primary">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <Link href={`/admin/commandes/${c.numero}`} className="t-label inline-flex min-h-touch items-center text-text-primary underline">
-                        {c.numero}
+                        <Nombre>{c.numero}</Nombre>
                       </Link>
                       <Pastille>{ts(c.statut)}</Pastille>
                     </div>
@@ -276,7 +278,10 @@ export function ListeCommandesAdmin({
                       <Client client={c.client} absent={t("clientAbsent")} />
                     </div>
                     <p className="t-small text-text-secondary">{formaterDateHeureBoutique(c.creeLe, locale)}</p>
-                    <p className="t-body">{`${paiement(c)} · ${formaterUsd(c.totalCents, locale)}`}</p>
+                    <p className="t-body">
+                      {`${paiement(c)} · `}
+                      <Nombre>{formaterUsd(c.totalCents, locale)}</Nombre>
+                    </p>
                     <p className="t-small text-text-secondary">{remise(c)}</p>
                   </li>
                 ))}

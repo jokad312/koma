@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { formaterDateHeureBoutique } from "@/lib/dates";
 import type { EvenementListe } from "@/modules/evenements/types";
 import { PastilleStatut } from "./PastilleStatut";
+import { nb } from "@/components/ui/Nombre";
 
 // Story 9.16 (étape 8) : cartes de l'admin (fond « en-tête »), deux colonnes à partir de 1280 px, dans le panneau de la page.
 // Liste des Événements : cartes empilées (mobile d'abord), nombre annoncé en statut, état vide avec bouton de création.
@@ -23,7 +24,7 @@ export async function ListeEvenements({ evenements, locale }: { evenements: read
   return (
     <div className="flex flex-col gap-4">
       <p role="status" className="t-label uppercase text-text-primary">
-        {t("nombre", { nombre: evenements.length })}
+        {t.rich("nombre", { nombre: evenements.length, nb })}
       </p>
       <ul className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         {evenements.map((e) => (

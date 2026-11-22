@@ -3,6 +3,7 @@ import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Link } from "@/i18n/navigation";
 import { lireMesuresARecevoir, type MesuresARecevoir } from "@/modules/commande/admin-queries";
 import { CLASSES_PANNEAU, CLASSES_TITRE_PANNEAU } from "./ui/Panneau";
+import { nb } from "@/components/ui/Nombre";
 
 // Tâche « Mesures à recevoir » (story 6.5) : compteur réel et lien vers chaque Commande. Lecture impossible : message d'erreur, jamais un faux zéro.
 export async function TacheMesuresARecevoir() {
@@ -20,14 +21,14 @@ export async function TacheMesuresARecevoir() {
         {t("titre")}
       </h2>
       <p role="status" className="t-h3 text-text-primary">
-        {t("compteur", { nombre: lue.total })}
+        {t.rich("compteur", { nombre: lue.total, nb })}
       </p>
       {lue.commandes.length > 0 ? (
         <ul className="flex flex-col gap-1">
           {lue.commandes.map((c) => (
             <li key={c.numero}>
               <Link href={`/admin/commandes/${c.numero}`} className="t-body inline-flex min-h-touch items-center text-text-primary underline">
-                {t("commande", { numero: c.numero, nombre: c.lignes })}
+                {t.rich("commande", { numero: c.numero, nombre: c.lignes, nb })}
               </Link>
             </li>
           ))}

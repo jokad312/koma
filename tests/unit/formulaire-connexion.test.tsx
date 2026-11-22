@@ -5,7 +5,7 @@ import { renderToString } from "react-dom/server";
 import fr from "../../messages/fr.json";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { rendre } from "./aides-dom";
+import { rendre, texteComplet } from "./aides-dom";
 
 const remplacer = vi.fn();
 const rafraichir = vi.fn();
@@ -136,7 +136,9 @@ describe("FormulaireConnexion", () => {
     expect(champ.value).toBe("123456");
     expect(verifierCode).not.toHaveBeenCalled();
     expect(screen.getByText("Le code est valable 10 minutes.")).toBeTruthy();
-    expect(screen.getByText(/Tu pourras renvoyer le code dans \d+ secondes/)).toBeTruthy();
+    const delai = screen.getByText(texteComplet(/Tu pourras renvoyer le code dans \d+ secondes/));
+    // A3-bis : seul le nombre de secondes est exclu de la traduction du navigateur.
+    expect(delai.querySelector('[translate="no"]')?.textContent).toMatch(/^\d+$/);
   });
 
   it("code faux : message relié au champ, saisie modifiable", async () => {

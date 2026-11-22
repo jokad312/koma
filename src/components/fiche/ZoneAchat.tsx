@@ -12,6 +12,7 @@ import { SelecteurTaille, StatutTaille } from "./SelecteurTaille";
 import { cheminPublic } from "@/i18n/adresses";
 import { Link } from "@/i18n/navigation";
 import { formaterUsd } from "@/lib/argent";
+import { Nombre } from "@/components/ui/Nombre";
 
 type Props = {
   produitId: string;
@@ -76,7 +77,7 @@ export function ZoneAchat({ produitId, locale, tailles, forfaitGoma, forfaitBuka
               <h2 id="zone-kit-titre" className="t-h2">
                 {tOption("option.kitTitre")}
               </h2>
-              <p className="t-price-card text-text-primary">{formaterUsd(kit.prixCents, locale)}</p>
+              <p className="t-price-card text-text-primary"><Nombre>{formaterUsd(kit.prixCents, locale)}</Nombre></p>
               <p className="t-small text-text-secondary">{tOption("option.acces")}</p>
               <Link href={cheminPublic(locale, `/kits/${kit.slug}`)} className="t-button text-text-primary underline">
                 {tOption("option.voirLeKit")}

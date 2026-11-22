@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import fr from "../../messages/fr.json";
 import en from "../../messages/en.json";
-import { rendre } from "./aides-dom";
+import { rendre, sansBalises } from "./aides-dom";
 
 const faux = vi.hoisted(() => ({ valider: vi.fn(), refuser: vi.fn(), retirer: vi.fn(), refresh: vi.fn() }));
 vi.mock("server-only", () => ({}));
@@ -93,7 +93,7 @@ describe("FilePhotos", () => {
     rendre(<FilePhotos photos={[photo({ statut: "publiee", retraitDemande: true, source: "whatsapp", accordWhatsappLe: "2026-11-08", capture: true })]} />);
     expect(screen.getByText(G.retraitDemande)).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Valider/ })).toBeNull();
-    expect(screen.getByRole("heading", { name: G.retraits.titre.replace("{nombre}", "1") })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: sansBalises(G.retraits.titre).replace("{nombre}", "1") })).toBeTruthy();
     // Irréversible : une confirmation est demandée avant tout appel au serveur.
     await userEvent.click(screen.getByRole("button", { name: /Retirer du mur la photo/ }));
     expect(faux.retirer).not.toHaveBeenCalled();
@@ -113,8 +113,8 @@ describe("FilePhotos", () => {
 
   it("story 8.4 : une Réalisation est listée à part, avec son Kit déclaré et sa preuve d'achat", () => {
     rendre(<FilePhotos photos={[photo({ realisation: { kitFr: "TEST_Kit", kitEn: null, commande: "KS-2026-000042", payeLe: "2026-11-05T10:00:00Z", rang: null } })]} />);
-    expect(screen.getByRole("heading", { name: G.realisations.titre.replace("{nombre}", "1") })).toBeTruthy();
-    expect(screen.getByRole("heading", { name: G.aValider.titre.replace("{nombre}", "0") })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: sansBalises(G.realisations.titre).replace("{nombre}", "1") })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: sansBalises(G.aValider.titre).replace("{nombre}", "0") })).toBeTruthy();
     expect(screen.getByText(G.realisation.kit.replace("{kit}", "TEST_Kit"))).toBeTruthy();
     expect(screen.getByText(/KS-2026-000042/)).toBeTruthy();
   });

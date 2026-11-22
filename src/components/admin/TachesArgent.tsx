@@ -4,6 +4,7 @@ import { Link } from "@/i18n/navigation";
 import { BoutonStockVerifie } from "./BoutonStockVerifie";
 import { lireTachesRemboursement, type TacheRemboursement } from "@/modules/commande/admin-queries";
 import { CLASSES_CARTE_ADMIN, CLASSES_PANNEAU, CLASSES_TITRE_PANNEAU } from "./ui/Panneau";
+import { nb } from "@/components/ui/Nombre";
 
 // Tâches d'argent (story 6.6) : demandes d'annulation ouvertes, remboursements à confirmer, Trop-perçus à rembourser. Chaque ligne mène à la Commande.
 // Lecture impossible : message d'erreur, jamais une liste vide qui laisserait croire qu'il n'y a rien à faire.
@@ -28,7 +29,7 @@ export async function TachesArgent() {
           {taches.map((x) => (
             <li key={`${x.type}-${x.cibleId}`} className={`flex flex-wrap items-center gap-3 ${CLASSES_CARTE_ADMIN}`}>
               <Link href={`/admin/commandes/${x.numero}`} className="t-body inline-flex min-h-touch items-center text-text-primary underline">
-                {t(x.type, { numero: x.numero })}
+                {t.rich(x.type, { numero: x.numero, nb })}
               </Link>
               {x.type === "stock" ? <BoutonStockVerifie commandeId={x.cibleId} /> : null}
             </li>

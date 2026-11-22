@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import { cheminPublic } from "@/i18n/adresses";
 import { Link } from "@/i18n/navigation";
@@ -12,6 +12,7 @@ import { lireHeros } from "./HerosAccueil";
 import { MediaHeros } from "./MediaHeros";
 import { PleineLargeur } from "./PleineLargeur";
 import "./heros-visiteur.css";
+import { nb } from "@/components/ui/Nombre";
 
 // Haut de l'accueil du visiteur non connecté : maquette docs/design/maquette-accueil/fusion.html (variantes claire et sombre), à 1440 px :
 // titre à gauche, deux blocs « Fait main à Goma » / « Kits à fabriquer » à droite, mot géant en fond qui déborde à gauche, photo détourée du
@@ -36,7 +37,7 @@ async function Media({ locale }: { locale: Locale }) {
   );
 }
 
-function CarteProduitHeros({ produit, etiquette, nom, locale }: { produit: CarteProduit; etiquette: string; nom: string; locale: Locale }) {
+function CarteProduitHeros({ produit, etiquette, nom, locale }: { produit: CarteProduit; etiquette: string; nom: ReactNode; locale: Locale }) {
   return (
     // L'étiquette visible ouvre le nom accessible (WCAG 2.5.3), suivie du nom et du prix. Le lien couvre toute la carte.
     <li className="hv-carte">
@@ -67,7 +68,7 @@ export async function CartesVue({ locale, cartes }: { locale: Locale; cartes: Ca
           <CarteProduitHeros
             produit={cosplay}
             etiquette={t("carteCosplay")}
-            nom={t("carteNom", { etiquette: t("carteCosplay"), titre: cosplay.titre, prix: formaterUsd(cosplay.prixCents, locale) })}
+            nom={t.rich("carteNom", { etiquette: t("carteCosplay"), titre: cosplay.titre, prix: formaterUsd(cosplay.prixCents, locale), nb })}
             locale={locale}
           />
         ) : null}
@@ -75,7 +76,7 @@ export async function CartesVue({ locale, cartes }: { locale: Locale; cartes: Ca
           <CarteProduitHeros
             produit={accessoire}
             etiquette={t("carteAccessoire")}
-            nom={t("carteNom", { etiquette: t("carteAccessoire"), titre: accessoire.titre, prix: formaterUsd(accessoire.prixCents, locale) })}
+            nom={t.rich("carteNom", { etiquette: t("carteAccessoire"), titre: accessoire.titre, prix: formaterUsd(accessoire.prixCents, locale), nb })}
             locale={locale}
           />
         ) : null}

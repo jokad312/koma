@@ -24,6 +24,7 @@ import { MoyensPaiement } from "./MoyensPaiement";
 import { SignalerProbleme } from "./SignalerProbleme";
 import { SuiviPaiement } from "./SuiviPaiement";
 import { retourVersCommande, versConnexion } from "./PageCommande";
+import { Nombre, nb } from "@/components/ui/Nombre";
 
 const CLASSES_LIEN = "t-body inline-flex min-h-touch items-center text-text-primary underline";
 
@@ -84,7 +85,7 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
       {pass ? null : <FriseStatuts etapes={etapes} retraitGoma={retraitGoma} locale={locale} />}
       {commande.numeroSuivi ? (
         <p className="t-body text-text-primary">
-          {t("detail.numeroSuivi")} <span>{commande.numeroSuivi}</span>
+          {t("detail.numeroSuivi")} <Nombre>{commande.numeroSuivi}</Nombre>
         </p>
       ) : null}
       {commande.statut === "en_attente" && heure ? <p className="t-body text-text-primary">{t("detail.aPayerAvant", { heure })}</p> : null}
@@ -143,7 +144,7 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
                 </>
               ) : null}
               {l.famille !== "kit" && !l.pass ? <p className="t-small text-text-secondary"><LibelleVariante espace="Commande.recap" taille={l.taille} couleur={l.couleur} /></p> : null}
-              <p className="t-body text-text-primary">{t("recap.quantitePrix", { nombre: l.nombre, prix: formaterUsd(l.prixCents, locale) })}</p>
+              <p className="t-body text-text-primary">{t.rich("recap.quantitePrix", { nombre: l.nombre, prix: formaterUsd(l.prixCents, locale), nb })}</p>
               {l.origine === "fabrication" && l.delaiFabricationJours !== null ? (
                 <p className="t-small text-text-secondary">
                   {t(l.taille === "sur_mesure" ? "recap.delaiFabricationSurMesure" : "recap.delaiFabrication", {
@@ -158,23 +159,23 @@ export async function PageDetailCommande({ locale, numero }: { locale: Locale; n
         <dl className="flex flex-col gap-2">
           <div className="flex justify-between gap-4">
             <dt className="t-body text-text-primary">{t("recap.sousTotal")}</dt>
-            <dd className="t-body text-text-primary">{formaterUsd(commande.sousTotalCents, locale)}</dd>
+            <dd className="t-body text-text-primary"><Nombre>{formaterUsd(commande.sousTotalCents, locale)}</Nombre></dd>
           </div>
           {commande.codePromo && commande.codePromo.reductionCents > 0 ? (
             <div className="flex justify-between gap-4">
-              <dt className="t-body text-text-primary">{t("recap.reduction", { code: commande.codePromo.code })}</dt>
-              <dd className="t-body text-text-primary">{t("recap.reductionMontant", { montant: formaterUsd(commande.codePromo.reductionCents, locale) })}</dd>
+              <dt className="t-body text-text-primary">{t.rich("recap.reduction", { code: commande.codePromo.code, nb })}</dt>
+              <dd className="t-body text-text-primary">{t.rich("recap.reductionMontant", { montant: formaterUsd(commande.codePromo.reductionCents, locale), nb })}</dd>
             </div>
           ) : null}
           {commande.zone ? (
             <div className="flex justify-between gap-4">
               <dt className="t-body text-text-primary">{t("recap.forfait")}</dt>
-              <dd className="t-body text-text-primary">{commande.forfaitCents === 0 ? t("recap.forfaitGratuit") : formaterUsd(commande.forfaitCents, locale)}</dd>
+              <dd className="t-body text-text-primary">{commande.forfaitCents === 0 ? t("recap.forfaitGratuit") : <Nombre>{formaterUsd(commande.forfaitCents, locale)}</Nombre>}</dd>
             </div>
           ) : null}
           <div className="flex justify-between gap-4">
             <dt className="t-h3 text-text-primary">{t("recap.total")}</dt>
-            <dd className="t-price-card text-text-primary">{formaterUsd(commande.totalCents, locale)}</dd>
+            <dd className="t-price-card text-text-primary"><Nombre>{formaterUsd(commande.totalCents, locale)}</Nombre></dd>
           </div>
         </dl>
       </section>

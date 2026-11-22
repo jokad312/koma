@@ -161,7 +161,7 @@
       "cartes": "Sélection de la boutique",
       "carteCosplay": "Cosplay porté",
       "carteAccessoire": "Accessoire",
-      "carteNom": "{etiquette} : {titre}, {prix}",
+      "carteNom": "{etiquette} : {titre}, <nb>{prix}</nb>",
       "kitDuMois": "Kit du mois",
       "kitPhrase": "Patrons PDF + vidéo en chapitres. Accès immédiat.",
       "voirKit": "Voir le kit",
@@ -328,7 +328,7 @@
       "verificationEnCours": "Vérification…",
       "renvoyer": "Renvoyer le code",
       "renvoiEnCours": "Envoi du code…",
-      "delaiRenvoi": "Tu pourras renvoyer le code dans {secondes} secondes.",
+      "delaiRenvoi": "Tu pourras renvoyer le code dans <nb>{secondes}</nb> secondes.",
       "raisonRenvoi": "Le renvoi est possible 60 secondes après l'envoi précédent."
     },
     "aide": {
@@ -576,8 +576,8 @@
         "videSept": "Aucune commande payée ces 7 derniers jours.",
         "lienSept": "Voir les 7 derniers jours",
         "lienAujourdhui": "Revenir à aujourd'hui",
-        "ligne": "{montant} · {prestataire} · {familles}",
-        "ouvrir": "Ouvrir la commande {numero}",
+        "ligne": "<nb>{montant}</nb> · {prestataire} · {familles}",
+        "ouvrir": "Ouvrir la commande <nb>{numero}</nb>",
         "plafond": "Seules les {nombre} plus récentes sont affichées."
       },
       "graphiques": {
@@ -637,20 +637,20 @@
         "smc5": "SM-C5 · Désinscriptions des Relances",
         "smc6": "SM-C6 · Héros chargé en plus de 2,5 s",
         "smc7": "SM-C7 · Abandons à l'étape « créer un compte »",
-        "valeurSm1": "{montant} ({detail})",
-        "detailFamille": "{famille} {montant} ({commandes, plural, one {# commande} other {# commandes}})",
-        "valeurSm2": "{part} % des sessions avec le héros chargé ont cliqué ({clics} sur {chargements})",
-        "valeurSm2SansPart": "{clics, plural, one {# clic} other {# clics}}, aucun chargement du héros enregistré",
+        "valeurSm1": "<nb>{montant}</nb> (<detail></detail>)",
+        "detailFamille": "{famille} <nb>{montant}</nb> ({commandes, plural, one {<nb>#</nb> commande} other {<nb>#</nb> commandes}})",
+        "valeurSm2": "<nb>{part}</nb> % des sessions avec le héros chargé ont cliqué (<nb>{clics}</nb> sur <nb>{chargements}</nb>)",
+        "valeurSm2SansPart": "{clics, plural, one {<nb>#</nb> clic} other {<nb>#</nb> clics}}, aucun chargement du héros enregistré",
         "nonMesureRaison": "Pas encore mesuré : {raison}",
-        "valeurNombre": "{nombre}",
-        "valeurSm7": "{libelle} : {montant} ({commandes, plural, one {# commande} other {# commandes}})",
-        "valeurCode": "{code} : {montant}, réduction {reduction} ({commandes, plural, one {# commande} other {# commandes}})",
-        "valeurSm9": "{part} % ({deux} sur {payants, plural, one {# client payant} other {# clients payants}})",
-        "valeurSm10": "{fiche} → {panier} → {commande} → {payee} → {livree}",
+        "valeurNombre": "<nb>{nombre}</nb>",
+        "valeurSm7": "{libelle} : <nb>{montant}</nb> ({commandes, plural, one {<nb>#</nb> commande} other {<nb>#</nb> commandes}})",
+        "valeurCode": "<nb>{code}</nb> : <nb>{montant}</nb>, réduction <nb>{reduction}</nb> ({commandes, plural, one {<nb>#</nb> commande} other {<nb>#</nb> commandes}})",
+        "valeurSm9": "<nb>{part}</nb> % (<nb>{deux}</nb> sur {payants, plural, one {<nb>#</nb> client payant} other {<nb>#</nb> clients payants}})",
+        "valeurSm10": "<nb>{fiche}</nb> → <nb>{panier}</nb> → <nb>{commande}</nb> → <nb>{payee}</nb> → <nb>{livree}</nb>",
         "valeurSm10Sessions": "Fiches et paniers comptés en sessions par jour : un visiteur qui revient compte à nouveau. Commandes, payées et livrées comptées à leur date. « Livrée » : le délai annoncé n'est pas mesuré.",
-        "valeurSmc2": "{prestataire} : {taux} % ({echouees, plural, one {# échec} other {# échecs}} sur {terminees})",
-        "valeurSmc3": "{heures} h en moyenne ({recues, plural, one {# reçue} other {# reçues}}, {attente} en attente)",
-        "valeurSmc3Aucune": "Aucune mesure reçue ({attente} en attente)",
+        "valeurSmc2": "{prestataire} : <nb>{taux}</nb> % ({echouees, plural, one {<nb>#</nb> échec} other {<nb>#</nb> échecs}} sur <nb>{terminees}</nb>)",
+        "valeurSmc3": "<nb>{heures}</nb> h en moyenne ({recues, plural, one {<nb>#</nb> reçue} other {<nb>#</nb> reçues}}, <nb>{attente}</nb> en attente)",
+        "valeurSmc3Aucune": "Aucune mesure reçue (<nb>{attente}</nb> en attente)",
         "raisonSm5": "Pas de comptage agrégé des photos et Réalisations pour l'instant.",
         "raisonSm6Passage": "Le passage à un Kit payant n'est pas encore mesuré.",
         "raisonSm8": "La lecture d'une Vidéo de kit se passe dans l'espace Compte, que la mesure d'audience exclut.",
@@ -659,7 +659,7 @@
         "raisonSmc6": "La durée de chargement du héros n'est pas enregistrée.",
         "raisonSmc7": "La création de compte à l'étape de paiement n'est pas mesurée.",
         "tous": "Tous les indicateurs",
-        "valeurSm4": "{evenements, plural, one {# événement à venir} other {# événements à venir}}, {pass, plural, one {# Pass vendu} other {# Pass vendus}}",
+        "valeurSm4": "{evenements, plural, one {<nb>#</nb> événement à venir} other {<nb>#</nb> événements à venir}}, {pass, plural, one {<nb>#</nb> Pass vendu} other {<nb>#</nb> Pass vendus}}",
         "raisonSm4Alertes": "Les inscriptions aux alertes événement ne sont pas encore comptées."
       },
       "chiffres": {
@@ -685,7 +685,7 @@
         "date": "Ventes du {date} :",
         "nombre": "Nombre de ventes :",
         "montant": "Montant :",
-        "auMoins": "au moins {valeur}"
+        "auMoins": "au moins <nb>{valeur}</nb>"
       },
       "apercu": {
         "voirPlus": "Voir plus",
@@ -693,9 +693,9 @@
         "voirPlusIndicateurs": "(tous les indicateurs)",
         "sm1": "Ventes payées (SM-1)",
         "evenementsPass": "Événements et Pass vendus",
-        "evenements": "Événements à venir : {nombre}",
-        "pass7": "Pass vendus (7 jours) : {nombre}",
-        "pass30": "Pass vendus (30 jours) : {nombre}"
+        "evenements": "Événements à venir : <nb>{nombre}</nb>",
+        "pass7": "Pass vendus (7 jours) : <nb>{nombre}</nb>",
+        "pass30": "Pass vendus (30 jours) : <nb>{nombre}</nb>"
       }
     },
     "utilisateurs": {
@@ -703,7 +703,7 @@
       "intro": "Les Comptes du site, en lecture seule : aucun rôle ne se change ici. Les adresses email sont partiellement masquées.",
       "recherche": "Rechercher un utilisateur",
       "recherchePlaceholder": "Rechercher un utilisateur…",
-      "nombre": "{nombre, plural, =0 {Aucun utilisateur} one {# utilisateur} other {# utilisateurs}}",
+      "nombre": "{nombre, plural, =0 {Aucun utilisateur} one {<nb>#</nb> utilisateur} other {<nb>#</nb> utilisateurs}}",
       "aucunResultat": "Aucun utilisateur ne correspond à ta recherche.",
       "vide": "Aucun Compte pour le moment.",
       "erreurLecture": "Les utilisateurs n'ont pas pu être lus. Recharge la page.",
@@ -777,7 +777,7 @@
       "intro": "Les articles du blog : guides de fabrication et annonces. Un article reste invisible sur le site tant qu'il n'est pas publié.",
       "nouveau": "Écrire un article",
       "erreurLecture": "Les articles n'ont pas pu être lus. Recharge la page.",
-      "nombre": "{nombre, plural, =0 {Aucun article} one {# article} other {# articles}}",
+      "nombre": "{nombre, plural, =0 {Aucun article} one {<nb>#</nb> article} other {<nb>#</nb> articles}}",
       "vide": {
         "texte": "Aucun article pour le moment.",
         "ecrire": "Écrire le premier article"
@@ -889,7 +889,7 @@
           },
           "ajouter": "Ajouter l'image",
           "annuler": "Annuler l'envoi",
-          "progression": "Envoi : {pourcentage} %",
+          "progression": "Envoi : <nb>{pourcentage}</nb> %",
           "reprise": "L'envoi reprend après une coupure.",
           "traitement": "Vérification de l'image…",
           "succes": "Image ajoutée. Elle sera enregistrée avec l'article.",
@@ -1132,7 +1132,7 @@
           "envoyer": "Envoyer la vidéo",
           "remplacer": "Remplacer la vidéo",
           "annuler": "Annuler l'envoi",
-          "progression": "Envoi en cours : {pourcentage} %",
+          "progression": "Envoi en cours : <nb>{pourcentage}</nb> %",
           "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
           "finalisation": "Enregistrement de la vidéo…",
           "envoyee": "Vidéo envoyée. L'encodage peut prendre quelques minutes.",
@@ -1159,7 +1159,7 @@
           "remplacer": "Remplacer la photo",
           "corrigerTextes": "Corriger les textes alternatifs",
           "annuler": "Annuler l'envoi",
-          "progression": "Envoi en cours : {pourcentage} %",
+          "progression": "Envoi en cours : <nb>{pourcentage}</nb> %",
           "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
           "traitement": "Traitement de la photo…",
           "succes": "Photo de repli enregistrée.",
@@ -1359,7 +1359,7 @@
       "intro": "Crée tes événements, leurs Types de pass et leurs Stands. Rien n'est affiché au public avant la publication.",
       "nouveau": "Nouvel événement",
       "erreurLecture": "Les événements n'ont pas pu être lus. Réessaie dans un instant.",
-      "nombre": "{nombre, plural, one {# événement} other {# événements}}",
+      "nombre": "{nombre, plural, one {<nb>#</nb> événement} other {<nb>#</nb> événements}}",
       "vide": {
         "texte": "Aucun événement pour le moment.",
         "creer": "Créer un événement"
@@ -1545,7 +1545,7 @@
           },
           "ajouter": "Ajouter la photo",
           "annuler": "Annuler l'envoi",
-          "progression": "Envoi : {pourcentage} %",
+          "progression": "Envoi : <nb>{pourcentage}</nb> %",
           "reprise": "L'envoi reprend après une coupure.",
           "traitement": "Vérification de l'image…",
           "succes": "Photo ajoutée. Elle sera enregistrée avec l'événement.",
@@ -1580,7 +1580,7 @@
       "titre": "Produits",
       "intro": "Tes cosplays, accessoires, vêtements, autres articles et kits. Un produit créé ici reste un brouillon : personne ne le voit sur le site.",
       "nouveauPlus": "+ Nouveau produit",
-      "nombre": "{nombre, plural, =0 {Aucun produit} one {# produit} other {# produits}}",
+      "nombre": "{nombre, plural, =0 {Aucun produit} one {<nb>#</nb> produit} other {<nb>#</nb> produits}}",
       "erreurLecture": "Les produits n'ont pas pu être lus. Recharge la page.",
       "vide": {
         "texte": "Aucun produit pour le moment. Crée le premier : il restera un brouillon tant qu'il n'est pas publié.",
@@ -1607,10 +1607,10 @@
         },
         "aucunActif": "Aucun produit hors archives. Les produits archivés sont sous « Archivés ».",
         "aucunArchive": "Aucun produit archivé.",
-        "prix": "Prix : {valeur}",
+        "prix": "Prix : <nb>{valeur}</nb>",
         "gratuit": "Gratuit",
-        "telechargements": "Téléchargements : {nombre}",
-        "vendus": "Vendus : {nombre}",
+        "telechargements": "Téléchargements : <nb>{nombre}</nb>",
+        "vendus": "Vendus : <nb>{nombre}</nb>",
         "universPastille": "Univers : {nom}",
         "universAucun": "aucun",
         "modifierSur": "Modifier {titre}"
@@ -1751,7 +1751,7 @@
         "titre": "Photos",
         "intro": "De 1 à 10 photos au format JPEG, PNG ou WebP, 15 Mo au plus chacune. La première est la photo principale. La position GPS et les autres métadonnées sont supprimées avant que la photo soit enregistrée.",
         "vide": "Aucune photo pour le moment. Il en faut au moins une pour publier.",
-        "nombre": "{nombre, plural, one {# photo sur 10} other {# photos sur 10}}",
+        "nombre": "{nombre, plural, one {<nb>#</nb> photo sur 10} other {<nb>#</nb> photos sur 10}}",
         "legende": "Photos du produit, dans l'ordre d'affichage",
         "position": "Photo {numero}",
         "texteFr": "Texte alternatif en français : {texte}",
@@ -1794,7 +1794,7 @@
           },
           "ajouter": "Ajouter la photo",
           "annuler": "Annuler l'envoi",
-          "progression": "Envoi en cours : {pourcentage} %",
+          "progression": "Envoi en cours : <nb>{pourcentage}</nb> %",
           "traitement": "Traitement de la photo…",
           "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
           "succes": "Photo ajoutée.",
@@ -1896,7 +1896,7 @@
       "intro": "Les univers servent à classer tes produits et à poser une question aux nouveaux Comptes. Aucun n'existe au départ. Un univers créé ici ne peut pas être renommé ni supprimé pour le moment.",
       "liste": {
         "titre": "Univers existants",
-        "nombre": "{nombre, plural, =0 {Aucun univers} one {# univers} other {# univers}}",
+        "nombre": "{nombre, plural, =0 {Aucun univers} one {<nb>#</nb> univers} other {<nb>#</nb> univers}}",
         "vide": "Aucun univers pour le moment.",
         "noms": "{fr} (anglais : {en})"
       },
@@ -2012,7 +2012,7 @@
         "titre": "Fichiers",
         "intro": "Formats acceptés : PDF (A4 ou US Letter), SVG, STL et transcription texte (.txt). {max} Mo au plus par fichier, {maxTranscription} Mo pour une transcription. Les fichiers sont stockés en privé : aucune adresse directe ne les ouvre.",
         "vide": "Aucun fichier pour le moment.",
-        "nombre": "{nombre, plural, =0 {Aucun fichier} one {# fichier} other {# fichiers}}",
+        "nombre": "{nombre, plural, =0 {Aucun fichier} one {<nb>#</nb> fichier} other {<nb>#</nb> fichiers}}",
         "legende": "Fichiers du Kit, dans l'ordre d'ajout",
         "version": "Version {version}",
         "details": "{format} · {taille} · version {version}",
@@ -2061,7 +2061,7 @@
           },
           "ajouter": "Ajouter le fichier",
           "annuler": "Annuler l'envoi",
-          "progression": "Envoi en cours : {pourcentage} %",
+          "progression": "Envoi en cours : <nb>{pourcentage}</nb> %",
           "traitement": "Vérification du fichier…",
           "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
           "succes": "Fichier ajouté.",
@@ -2115,7 +2115,7 @@
         "envoyer": "Envoyer la vidéo",
         "remplacer": "Remplacer la vidéo",
         "annuler": "Annuler l'envoi",
-        "progression": "Envoi en cours : {pourcentage} %",
+        "progression": "Envoi en cours : <nb>{pourcentage}</nb> %",
         "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
         "envoyee": "Vidéo envoyée. L'encodage chez Bunny peut prendre plusieurs minutes.",
         "verification": "Vérification de l'encodage…",
@@ -2148,7 +2148,7 @@
         "envoyer": "Envoyer l'extrait",
         "remplacer": "Remplacer l'extrait",
         "annuler": "Annuler l'envoi",
-        "progression": "Envoi en cours : {pourcentage} %",
+        "progression": "Envoi en cours : <nb>{pourcentage}</nb> %",
         "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
         "envoyee": "Extrait envoyé. L'encodage chez Bunny peut prendre quelques minutes.",
         "verification": "Vérification de l'encodage…",
@@ -2190,7 +2190,7 @@
         "intro": "Découpe le tutoriel en chapitres : titre en français et en anglais, instant de début (mm:ss ou h:mm:ss). {max} chapitres au plus. L'ordre est libre : utilise Monter et Descendre.",
         "sansVideo": "Envoie d'abord la vidéo complète : l'instant de chaque chapitre doit se situer avant sa fin.",
         "vide": "Aucun chapitre pour le moment.",
-        "nombre": "{nombre, plural, =0 {Aucun chapitre} one {# chapitre} other {# chapitres}}",
+        "nombre": "{nombre, plural, =0 {Aucun chapitre} one {<nb>#</nb> chapitre} other {<nb>#</nb> chapitres}}",
         "legende": "Chapitres de la vidéo, dans l'ordre",
         "ligne": "{numero}. {debut} · {titre}",
         "titreEnLigne": "En anglais : {titre}",
@@ -2265,7 +2265,7 @@
         "envoyer": "Envoyer les sous-titres en {langue}",
         "remplacer": "Remplacer les sous-titres en {langue}",
         "annuler": "Annuler l'envoi",
-        "progression": "Envoi en cours : {pourcentage} %",
+        "progression": "Envoi en cours : <nb>{pourcentage}</nb> %",
         "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
         "traitement": "Vérification du fichier…",
         "envoyes": "Sous-titres enregistrés.",
@@ -2388,31 +2388,31 @@
       },
       "mesures": {
         "titre": "Mesures à recevoir",
-        "compteur": "{nombre, plural, =0 {Aucune ligne en attente de mesures} one {# ligne en attente de mesures} other {# lignes en attente de mesures}}",
-        "commande": "Commande {numero} ({nombre, plural, one {# ligne} other {# lignes}})",
+        "compteur": "{nombre, plural, =0 {Aucune ligne en attente de mesures} one {<nb>#</nb> ligne en attente de mesures} other {<nb>#</nb> lignes en attente de mesures}}",
+        "commande": "Commande <nb>{numero}</nb> ({nombre, plural, one {<nb>#</nb> ligne} other {<nb>#</nb> lignes}})",
         "erreurLecture": "Les mesures à recevoir n'ont pas pu être lues."
       },
       "argent": {
         "titre": "Argent à traiter",
-        "demande": "Demande d'annulation : commande {numero}",
-        "remboursement": "Remboursement à confirmer : commande {numero}",
-        "trop_percu": "Trop-perçu à rembourser : commande {numero}",
+        "demande": "Demande d'annulation : commande <nb>{numero}</nb>",
+        "remboursement": "Remboursement à confirmer : commande <nb>{numero}</nb>",
+        "trop_percu": "Trop-perçu à rembourser : commande <nb>{numero}</nb>",
         "vide": "Aucune demande ni remboursement en attente.",
         "erreurLecture": "Les demandes et remboursements n'ont pas pu être lus.",
-        "reclamation": "Réclamation à traiter : commande {numero}",
-        "stock": "Vérifier le stock : commande {numero}",
-        "demande_pass": "Demande d'annulation d'un Pass : commande {numero}",
-        "remboursement_pass": "Remboursement de Pass à confirmer : commande {numero}"
+        "reclamation": "Réclamation à traiter : commande <nb>{numero}</nb>",
+        "stock": "Vérifier le stock : commande <nb>{numero}</nb>",
+        "demande_pass": "Demande d'annulation d'un Pass : commande <nb>{numero}</nb>",
+        "remboursement_pass": "Remboursement de Pass à confirmer : commande <nb>{numero}</nb>"
       },
       "photos": {
         "titre": "Photos",
-        "aValider": "Photos à valider : {nombre}",
-        "retraits": "Retraits demandés : {nombre}",
+        "aValider": "Photos à valider : <nb>{nombre}</nb>",
+        "retraits": "Retraits demandés : <nb>{nombre}</nb>",
         "lien": "Ouvrir la galerie",
         "erreurLecture": "Les photos à traiter n'ont pas pu être comptées.",
-        "realisations": "Réalisations à valider : {nombre}"
+        "realisations": "Réalisations à valider : <nb>{nombre}</nb>"
       },
-      "ouvertes": "{nombre, plural, =0 {Tâches ouvertes} one {# tâche ouverte} other {# tâches ouvertes}}"
+      "ouvertes": "{nombre, plural, =0 {Tâches ouvertes} one {<nb>#</nb> tâche ouverte} other {<nb>#</nb> tâches ouvertes}}"
     },
     "prestataires": {
       "titre": "Prestataires de paiement",
@@ -2548,7 +2548,7 @@
         "actifs": "Actifs",
         "inactifs": "Inactifs"
       },
-      "nombre": "{nombre, plural, =0 {Aucun code} one {# code} other {# codes}}",
+      "nombre": "{nombre, plural, =0 {Aucun code} one {<nb>#</nb> code} other {<nb>#</nb> codes}}",
       "aucunResultat": "Aucun code ne correspond à cette recherche ou à ce filtre.",
       "colonnes": {
         "numero": "N°",
@@ -2559,7 +2559,7 @@
         "actions": "Actions"
       },
       "carte": {
-        "numero": "N° {numero}",
+        "numero": "N° <nb>{numero}</nb>",
         "creeLe": "Créé le {date}"
       },
       "actions": {
@@ -2599,7 +2599,7 @@
       "toutes": "Toutes",
       "appliquer": "Filtrer",
       "effacer": "Effacer les filtres",
-      "resultats": "{nombre, plural, =0 {Aucune commande} one {# commande} other {# commandes}}",
+      "resultats": "{nombre, plural, =0 {Aucune commande} one {<nb>#</nb> commande} other {<nb>#</nb> commandes}}",
       "vide": "Aucune commande ne correspond à ces filtres ou à cette recherche.",
       "retour": "Retour aux commandes",
       "offerte": "Offerte",
@@ -2635,7 +2635,7 @@
         "remise": "Remise"
       },
       "detail": {
-        "titre": "Commande {numero}",
+        "titre": "Commande <nb>{numero}</nb>",
         "lignes": "Lignes",
         "remise": "Remise",
         "zoneMode": "Zone et mode",
@@ -2703,7 +2703,7 @@
       "annulationPass": {
         "titre": "Annulations de Pass",
         "ligne": "Pass de {nom}",
-        "montant": "Montant à rendre : {montant} (frais d'annulation déjà retenus).",
+        "montant": "Montant à rendre : <nb>{montant}</nb> (frais d'annulation déjà retenus).",
         "statuts": {
           "ouverte": "Le client demande l'annulation de ce Pass.",
           "acceptee": "Annulation acceptée : le Pass n'ouvre plus l'entrée. Remboursement à confirmer.",
@@ -2738,9 +2738,9 @@
         }
       },
       "remboursement": {
-        "montant": "Montant à rendre : {montant}",
+        "montant": "Montant à rendre : <nb>{montant}</nb>",
         "confirme": "Remboursement confirmé.",
-        "tropPercu": "Trop-perçu à rembourser : {montant} ({motif})",
+        "tropPercu": "Trop-perçu à rembourser : <nb>{montant}</nb> ({motif})",
         "preuve": "Preuve du remboursement (référence du prestataire ou du virement)",
         "aide": "Obligatoire. Le remboursement se fait à la main : aucun argent n'est rendu automatiquement.",
         "confirmer": "J'ai rendu l'argent",
@@ -2828,11 +2828,11 @@
       "captureJointe": "Capture de l'accord jointe (stockage privé)",
       "retraitDemande": "Retrait demandé par le client",
       "aValider": {
-        "titre": "À valider ({nombre})",
+        "titre": "À valider (<nb>{nombre}</nb>)",
         "vide": "Aucune photo à valider."
       },
       "publiees": {
-        "titre": "Publiées ({nombre})",
+        "titre": "Publiées (<nb>{nombre}</nb>)",
         "vide": "Aucune photo publiée."
       },
       "actions": {
@@ -2886,7 +2886,7 @@
         "succes": "Photo déposée : elle est dans la liste « À valider »."
       },
       "retraits": {
-        "titre": "Retraits demandés ({nombre})",
+        "titre": "Retraits demandés (<nb>{nombre}</nb>)",
         "vide": "Aucun retrait demandé."
       },
       "confirmation": {
@@ -2905,7 +2905,7 @@
         "rang": "Réalisation validée n° {rang}"
       },
       "realisations": {
-        "titre": "Réalisations à valider ({nombre})",
+        "titre": "Réalisations à valider (<nb>{nombre}</nb>)",
         "vide": "Aucune Réalisation à valider."
       },
       "passOffert": {
@@ -2947,7 +2947,7 @@
     "ui": {
       "precedente": "Page précédente",
       "suivante": "Page suivante",
-      "page": "Page {page} / {total}",
+      "page": "Page <nb>{page}</nb> / <nb>{total}</nb>",
       "pagination": "Pagination",
       "enregistrer": "Enregistrer",
       "fermer": "Fermer et revenir à la liste",
@@ -3233,12 +3233,12 @@
       "recap": {
         "titre": "Récapitulatif",
         "liste": "Pass choisis",
-        "ligne": "{nombre} × {nom}",
-        "prixUnite": "{prix} par Pass",
+        "ligne": "<nb>{nombre}</nb> × {nom}",
+        "prixUnite": "<nb>{prix}</nb> par Pass",
         "noms": "Noms : {noms}",
         "sousTotal": "Sous-total",
-        "reduction": "Réduction ({code})",
-        "reductionMontant": "−{montant}",
+        "reduction": "Réduction (<nb>{code}</nb>)",
+        "reductionMontant": "−<nb>{montant}</nb>",
         "total": "Total"
       },
       "mention": {
@@ -3247,7 +3247,7 @@
       },
       "confirmer": "Confirmer et choisir le moyen de paiement",
       "confirmerEnCours": "Création de la commande…",
-      "totalChange": "Le total a changé : il était de {ancien}, il est maintenant de {nouveau}. Vérifie le récapitulatif avant de confirmer.",
+      "totalChange": "Le total a changé : il était de <nb>{ancien}</nb>, il est maintenant de <nb>{nouveau}</nb>. Vérifie le récapitulatif avant de confirmer.",
       "resume": "Il y a des erreurs à corriger.",
       "champs": {
         "aucun": "Choisis au moins un Pass.",
@@ -3415,8 +3415,8 @@
         "ligne": "Stand : {nom}",
         "deuxPass": "Deux Pass nominatifs inclus.",
         "prix": "Prix du stand",
-        "reduction": "Réduction ({code})",
-        "reductionMontant": "−{montant}",
+        "reduction": "Réduction (<nb>{code}</nb>)",
+        "reductionMontant": "−<nb>{montant}</nb>",
         "total": "Total"
       },
       "mention": {
@@ -3425,7 +3425,7 @@
       },
       "confirmer": "Confirmer et choisir le moyen de paiement",
       "confirmerEnCours": "Création de la commande…",
-      "totalChange": "Le total a changé : il était de {ancien}, il est maintenant de {nouveau}. Vérifie le récapitulatif avant de confirmer.",
+      "totalChange": "Le total a changé : il était de <nb>{ancien}</nb>, il est maintenant de <nb>{nouveau}</nb>. Vérifie le récapitulatif avant de confirmer.",
       "aideProvisoire": "Aide du stand",
       "erreurs": {
         "non_connecte": "Connecte-toi pour payer ton stand.",
@@ -3486,7 +3486,7 @@
       "goma": "Goma",
       "bukavu": "Bukavu",
       "retrait": "Retrait gratuit : {lieu}",
-      "livraison": "Livraison : {prix}",
+      "livraison": "Livraison : <nb>{prix}</nb>",
       "remiseGoma": "remise en moins d'un jour",
       "remiseBukavu": "remise en un jour au plus",
       "delaiSimple": "Délai : {remise}",
@@ -3585,7 +3585,7 @@
       "ouvrir": "Ouvrir dans ma bibliothèque",
       "licenceCase": "J'accepte la licence des kits : usage personnel, sans partage ni revente des fichiers.",
       "raisonLicence": "Coche d'abord la case de la Licence de kit.",
-      "succes": "Ton kit est ouvert. Commande {numero}.",
+      "succes": "Ton kit est ouvert. Commande <nb>{numero}</nb>.",
       "erreurs": {
         "licence": "Coche d'abord la case de la Licence de kit.",
         "non_connecte": "Connecte-toi pour obtenir le kit.",
@@ -3629,8 +3629,8 @@
     "mettreAJour": "Mettre à jour",
     "retirer": "Retirer",
     "retirerNom": "Retirer {titre} du panier",
-    "prixUnitaire": "{prix} l'unité",
-    "totalLigne": "Total de la ligne : {prix}",
+    "prixUnitaire": "<nb>{prix}</nb> l'unité",
+    "totalLigne": "Total de la ligne : <nb>{prix}</nb>",
     "etat": {
       "disponible": "En stock",
       "dernieres_pieces": "Dernières pièces",
@@ -3657,12 +3657,12 @@
       "liste": "Articles de la commande",
       "taille": "Taille : {taille}",
       "tailleSurMesure": "Taille : sur mesure",
-      "quantitePrix": "{nombre} × {prix}",
+      "quantitePrix": "<nb>{nombre}</nb> × <nb>{prix}</nb>",
       "forfait": "Forfait de livraison",
       "forfaitGratuit": "Retrait gratuit",
       "forfaitAChoisir": "À choisir ci-dessus",
-      "reduction": "Réduction ({code})",
-      "reductionMontant": "−{montant}",
+      "reduction": "Réduction (<nb>{code}</nb>)",
+      "reductionMontant": "−<nb>{montant}</nb>",
       "sousTotal": "Sous-total",
       "total": "Total",
       "accesImmediat": "Kit numérique : accès immédiat après le paiement.",
@@ -3691,7 +3691,7 @@
       "aide": "Réservé à un premier achat. Un seul code par achat.",
       "appliquer": "Appliquer",
       "retirer": "Retirer le code",
-      "applique": "Code {code} appliqué : {pct, number} % de réduction sur tes articles, hors livraison.",
+      "applique": "Code <nb>{code}</nb> appliqué : <nb>{pct, number}</nb> % de réduction sur tes articles, hors livraison.",
       "erreurs": {
         "code_inconnu": "Ce code n'existe pas. Vérifie l'orthographe.",
         "code_inactif": "Ce code n'est plus actif.",
@@ -3723,7 +3723,7 @@
     "confirmer": "Confirmer la commande",
     "enCours": "Création de la commande…",
     "raisonBloque": "Retire d'abord de ton panier les articles qui ne sont plus disponibles.",
-    "totalChange": "Le total a changé : {ancien} → {nouveau}. Vérifie le récapitulatif, puis confirme à nouveau.",
+    "totalChange": "Le total a changé : <nb>{ancien}</nb> → <nb>{nouveau}</nb>. Vérifie le récapitulatif, puis confirme à nouveau.",
     "resumeErreurs": "Corrige les points suivants :",
     "champs": {
       "telephone": "Indique ton numéro de téléphone, avec l'indicatif du pays.",
@@ -3755,7 +3755,7 @@
     },
     "retourPanier": "Retour au panier",
     "detail": {
-      "titre": "Commande {numero}",
+      "titre": "Commande <nb>{numero}</nb>",
       "statut": "Statut : {statut}",
       "statuts": {
         "en_attente": "En attente de paiement",
@@ -3780,7 +3780,7 @@
       "titre": "Mes commandes",
       "vide": "Aucune commande pour le moment.",
       "versCatalogues": "Voir les cosplays",
-      "commande": "Commande {numero}",
+      "commande": "Commande <nb>{numero}</nb>",
       "offert": "Offert",
       "voirPlus": "Voir plus"
     },
@@ -4252,7 +4252,7 @@
         "rembourse": "Remboursé"
       },
       "offert": "Offert",
-      "codeCourt": "Code court : {code}",
+      "codeCourt": "Code court : <nb>{code}</nb>",
       "qrAlt": "Code QR du Pass {type} de {nom}, {evenement}",
       "sansCode": "Le Code QR n'est plus affiché pour ce Pass.",
       "annulation": {
@@ -4293,7 +4293,7 @@
       "bouton": "Agrandir",
       "pour": "le Code QR du Pass de {nom}",
       "titre": "Code QR de {nom}",
-      "code": "Code court : {code}",
+      "code": "Code court : <nb>{code}</nb>",
       "luminosite": "Augmente la luminosité de ton écran pour que le Code QR soit lu plus facilement."
     }
   },

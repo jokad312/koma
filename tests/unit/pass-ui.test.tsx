@@ -3,7 +3,7 @@
 import userEvent from "@testing-library/user-event";
 import { screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { rendre } from "./aides-dom";
+import { rendre, texteComplet } from "./aides-dom";
 import type { PassLu } from "@/modules/evenements/pass-types";
 
 vi.mock("server-only", () => ({}));
@@ -66,7 +66,7 @@ describe("Carte Pass", () => {
     expect(screen.getByText(/heure de Goma/)).toBeTruthy();
     expect(screen.getByText("Valide")).toBeTruthy();
     expect(screen.getByRole("img", { name: "Code QR du Pass TEST_VIP de TEST_Alice, TEST_Festival" })).toBeTruthy();
-    expect(screen.getByText("Code court : ABCD2345")).toBeTruthy();
+    expect(screen.getByText(texteComplet("Code court : ABCD2345"))).toBeTruthy();
   });
 
   it("dessine le Code QR sur fond blanc pur, 200 pixels au moins, sans jamais écrire le jeton dans la page", () => {
@@ -114,7 +114,7 @@ describe("Carte Pass", () => {
     const dialogue = await screen.findByRole("dialog", { name: "Code QR de TEST_Alice" });
     expect(within(dialogue).getByRole("img", { name: /Code QR du Pass TEST_VIP/ })).toBeTruthy();
     expect(within(dialogue).getByText(/Augmente la luminosité de ton écran/)).toBeTruthy();
-    expect(within(dialogue).getByText("Code court : ABCD2345")).toBeTruthy();
+    expect(within(dialogue).getByText(texteComplet("Code court : ABCD2345"))).toBeTruthy();
     await utilisateur.click(within(dialogue).getByRole("button", { name: "Fermer" }));
     expect(screen.queryByRole("dialog")).toBeNull();
   });

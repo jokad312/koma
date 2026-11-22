@@ -10,6 +10,7 @@ import { ActionsArticle, type FinAction } from "./ActionsArticle";
 import { Panneau } from "./ui/Panneau";
 import { Pastille } from "./ui/Pastille";
 import { PastilleFiltre } from "./ui/PastilleFiltre";
+import { nb } from "@/components/ui/Nombre";
 
 const FUSEAU_BOUTIQUE = "Africa/Lubumbashi";
 
@@ -89,7 +90,7 @@ export function ListeArticles({
       <Panneau>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <p ref={compteur} tabIndex={-1} role="status" className="t-label uppercase text-text-primary">
-            {t("nombre", { nombre: visibles.length })}
+            {t.rich("nombre", { nombre: visibles.length, nb })}
           </p>
           <ul aria-label={t("filtres.libelle")} className="flex flex-wrap gap-3">
             {FILTRES_ARTICLES.map((v) => (

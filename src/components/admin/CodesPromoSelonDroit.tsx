@@ -27,6 +27,7 @@ import { CoqueAdmin } from "./CoqueAdmin";
 import { AnnoncesCodesPromo } from "./AnnoncesCodesPromo";
 import { FormulaireCodePromo } from "./FormulaireCodePromo";
 import { ListeCodesPromo } from "./ListeCodesPromo";
+import { nb } from "@/components/ui/Nombre";
 
 const ID_FORMULAIRE = "formulaire-code-promo";
 
@@ -124,7 +125,8 @@ export async function CodesPromoSelonDroit({
                 </ul>
               </div>
               <AnnoncesCodesPromo
-                compteur={t("nombre", { nombre: filtres.length })}
+                compteur={t.markup("nombre", { nombre: filtres.length, nb: (n) => n })}
+                affichage={t.rich("nombre", { nombre: filtres.length, nb })}
                 apresCompteur={
                   avecRecherche ? (
                     <Link

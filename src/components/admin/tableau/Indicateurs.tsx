@@ -1,5 +1,7 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { Fragment, type ReactNode } from "react";
 import { MessageEtat } from "@/components/ui/MessageEtat";
+import { Nombre, nb } from "@/components/ui/Nombre";
 import { VoirPlus } from "./CartesTaches";
 import { commandesParFamille, echecsParPrestataire, formaterUsd, pourcentage, sommeMontants, sommeVue, totalPar, type LigneEchec, type LignePaiement } from "@/modules/tableau-de-bord/calculs";
 import { joursFenetre } from "@/modules/tableau-de-bord/periode";
@@ -9,7 +11,8 @@ const PRESTATAIRES = ["pawapay", "maishapay", "polar"] as const;
 const FAMILLES = ["cosplay", "accessoire", "vetement", "autre", "kit", "pass", "livraison"] as const;
 
 // Une valeur affichée : du texte, « aucune donnée » (zone lue mais vide) ou « illisible » (lecture en échec).
-type Valeur = { texte: string } | { aucune: true } | { illisible: true };
+// Les nombres du texte sont dans des <Nombre> (exclus de la traduction automatique du navigateur, A3-bis) : le texte est un ReactNode.
+type Valeur = { texte: ReactNode } | { aucune: true } | { illisible: true };
 type Ligne = { cle: string; titre: string; valeurs?: [Valeur, Valeur]; cumul?: Valeur; raison?: string; note?: string };
 
 // Tous les indicateurs (ancre #indicateurs, cible du « Voir plus » de la maquette, Q12) : SM-1 à SM-10 et SM-C1 à SM-C7 (PRD §7) sur 7 et 30 jours. Un indicateur sans source est écrit « Pas encore mesuré »
@@ -23,7 +26,11 @@ export async function Indicateurs({ donnees, maintenant }: { donnees: DonneesTab
   const nomPrestataire = (p: string) => ((PRESTATAIRES as readonly string[]).includes(p) ? te(`prestataires.${p as (typeof PRESTATAIRES)[number]}`) : p);
   const nomFamille = (f: string) => ((FAMILLES as readonly string[]).includes(f) ? te(`familles.${f as (typeof FAMILLES)[number]}`) : f);
   // Listes écrites par la langue de l'écran (séparateurs compris), jamais par des caractères en dur.
-  const liste = (elements: string[]) => new Intl.ListFormat(locale, { style: "short", type: "unit" }).format(elements);
+  // Chaque élément peut porter des <Nombre> : les séparateurs viennent de formatToParts, les éléments restent des nœuds React.
+  const liste = (elements: ReactNode[]) =>
+    new Intl.ListFormat(locale, { style: "short", type: "unit" })
+      .formatToParts(elements.map((_, i) => String(i)))
+      .map((p, i) => <Fragment key={i}>{p.type === "element" ? elements[Number(p.value)] : p.value}</Fragment>);
   const deux = (f: (n: 7 | 30) => Valeur): [Valeur, Valeur] => [f(7), f(30)];
   const ILLISIBLE: Valeur = { illisible: true };
   const AUCUNE: Valeur = { aucune: true };
@@ -35,9 +42,9 @@ export async function Indicateurs({ donnees, maintenant }: { donnees: DonneesTab
       const total = sommeMontants(paiements, jours);
       if (total === 0 && !paiements.some((l) => jours.has(l.jour))) return AUCUNE;
       const parFamille = totalPar(paiements, "famille", jours);
-      const nb = commandesParFamille(paiements, jours);
-      const detail = liste(parFamille.map((f) => t("detailFamille", { famille: nomFamille(f.cle), montant: usd(f.montantCents), commandes: nb[f.cle] ?? 0 })));
-      return { texte: t("valeurSm1", { montant: usd(total), detail }) };
+      const parFamilleNb = commandesParFamille(paiements, jours);
+      const detail = liste(parFamille.map((f) => t.rich("detailFamille", { famille: nomFamille(f.cle), montant: usd(f.montantCents), commandes: parFamilleNb[f.cle] ?? 0, nb })));
+      return { texte: t.rich("valeurSm1", { montant: usd(total), nb, detail: () => detail }) };
     });
 
   const visites = donnees.visites;
@@ -49,15 +56,15 @@ export async function Indicateurs({ donnees, maintenant }: { donnees: DonneesTab
     const chargements = sessionsAction("chargement_heros", n);
     const clics = sessionsAction("clic_heros", n);
     const part = pourcentage(clics, chargements);
-    if (part !== null) return { texte: t("valeurSm2", { part, clics, chargements }) };
-    return clics > 0 ? { texte: t("valeurSm2SansPart", { clics }) } : AUCUNE;
+    if (part !== null) return { texte: t.rich("valeurSm2", { part, clics, chargements, nb }) };
+    return clics > 0 ? { texte: t.rich("valeurSm2SansPart", { clics, nb }) } : AUCUNE;
   });
   const nombreAction = (action: string) =>
     deux((n) => {
       if (!visites) return ILLISIBLE;
       // Aucune ligne de mesure sur 30 jours : la mesure n'a rien reçu, ce n'est pas un zéro constaté.
       if (visites.length === 0) return AUCUNE;
-      return { texte: t("valeurNombre", { nombre: compterAction(action, n) }) };
+      return { texte: t.rich("valeurNombre", { nombre: compterAction(action, n), nb }) };
     });
 
   const origines = donnees.origines;
@@ -77,7 +84,7 @@ export async function Indicateurs({ donnees, maintenant }: { donnees: DonneesTab
     const texte = liste(
       [...par.entries()]
         .sort((a, b) => b[1].montant - a[1].montant)
-        .map(([o, a]) => t("valeurSm7", { libelle: o === "" ? t("acces") : o, montant: usd(a.montant), commandes: a.commandes })),
+        .map(([o, a]) => t.rich("valeurSm7", { libelle: o === "" ? t("acces") : o, montant: usd(a.montant), commandes: a.commandes, nb })),
     );
     return { texte };
   });
@@ -91,7 +98,7 @@ export async function Indicateurs({ donnees, maintenant }: { donnees: DonneesTab
           texte: liste(
             codes
               .filter((c) => c.commandesPayees > 0)
-              .map((c) => t("valeurCode", { code: c.code, montant: usd(c.montantPayeCents), reduction: usd(c.reductionCents), commandes: c.commandesPayees })),
+              .map((c) => t.rich("valeurCode", { code: c.code, montant: usd(c.montantPayeCents), reduction: usd(c.reductionCents), commandes: c.commandesPayees, nb })),
           ),
         };
 
@@ -100,7 +107,7 @@ export async function Indicateurs({ donnees, maintenant }: { donnees: DonneesTab
     ? ILLISIBLE
     : (() => {
         const part = pourcentage(d2.clientsDeuxAchats, d2.clientsPayants);
-        return part === null ? AUCUNE : { texte: t("valeurSm9", { part, deux: d2.clientsDeuxAchats, payants: d2.clientsPayants }) };
+        return part === null ? AUCUNE : { texte: t.rich("valeurSm9", { part, deux: d2.clientsDeuxAchats, payants: d2.clientsPayants, nb }) };
       })();
 
   const entonnoir = donnees.entonnoir;
@@ -109,29 +116,29 @@ export async function Indicateurs({ donnees, maintenant }: { donnees: DonneesTab
     const jours = fenetres[n];
     const somme = (etape: string, col: "sessions" | "commandes") => sommeVue(entonnoir, (l) => l[col], jours, (l) => l.etape === etape);
     const v = { fiche: somme("fiche", "sessions"), panier: somme("panier", "sessions"), commande: somme("commande", "commandes"), payee: somme("payee", "commandes"), livree: somme("livree", "commandes") };
-    return Object.values(v).every((x) => x === 0) ? AUCUNE : { texte: t("valeurSm10", v) };
+    return Object.values(v).every((x) => x === 0) ? AUCUNE : { texte: t.rich("valeurSm10", { ...v, nb }) };
   });
 
   const echecs = (zone: Zone<LigneEchec[]>): Valeur => {
     if (!zone) return ILLISIBLE;
     const lignes = echecsParPrestataire(zone).filter((e) => e.taux !== null);
     if (lignes.length === 0) return AUCUNE;
-    return { texte: liste(lignes.map((e) => t("valeurSmc2", { prestataire: nomPrestataire(e.prestataire), taux: e.taux ?? 0, echouees: e.echouees, terminees: e.terminees }))) };
+    return { texte: liste(lignes.map((e) => t.rich("valeurSmc2", { prestataire: nomPrestataire(e.prestataire), taux: e.taux ?? 0, echouees: e.echouees, terminees: e.terminees, nb }))) };
   };
 
   const delai = (zone: Zone<DelaiMesures>): Valeur => {
     if (!zone) return ILLISIBLE;
     if (zone.lignesRecues === 0 && zone.lignesEnAttente === 0) return AUCUNE;
-    if (zone.delaiMoyenHeures === null) return { texte: t("valeurSmc3Aucune", { attente: zone.lignesEnAttente }) };
-    return { texte: t("valeurSmc3", { heures: zone.delaiMoyenHeures, recues: zone.lignesRecues, attente: zone.lignesEnAttente }) };
+    if (zone.delaiMoyenHeures === null) return { texte: t.rich("valeurSmc3Aucune", { attente: zone.lignesEnAttente, nb }) };
+    return { texte: t.rich("valeurSmc3", { heures: zone.delaiMoyenHeures, recues: zone.lignesRecues, attente: zone.lignesEnAttente, nb }) };
   };
 
   // SM-4 (décision 2 du 2026-11-17) : mêmes chiffres que la carte « Événements et Pass vendus » (tableau_chiffres).
   const sm4 = (chiffres: DonneesTableau["chiffres"]) =>
-    deux((n) => (chiffres ? { texte: t("valeurSm4", { evenements: chiffres.evenementsAVenir, pass: n === 7 ? chiffres.pass7 : chiffres.pass30 }) } : ILLISIBLE));
+    deux((n) => (chiffres ? { texte: t.rich("valeurSm4", { evenements: chiffres.evenementsAVenir, pass: n === 7 ? chiffres.pass7 : chiffres.pass30, nb }) } : ILLISIBLE));
 
   const desinscriptions = donnees.desinscriptions;
-  const smc5 = deux((n) => (desinscriptions ? { texte: t("valeurNombre", { nombre: sommeVue(desinscriptions, (l) => l.desinscriptions, fenetres[n]) }) } : ILLISIBLE));
+  const smc5 = deux((n) => (desinscriptions ? { texte: t.rich("valeurNombre", { nombre: sommeVue(desinscriptions, (l) => l.desinscriptions, fenetres[n]), nb }) } : ILLISIBLE));
 
   const lignes: Ligne[] = [
     { cle: "sm1", titre: t("sm1"), valeurs: sm1(donnees.paiements) },
@@ -209,7 +216,7 @@ export async function ApercuIndicateurs({ donnees, maintenant }: { donnees: Donn
     if (!paiements) return null;
     const jours = new Set(joursFenetre(n, maintenant));
     if (!paiements.some((l) => jours.has(l.jour))) return t("aucuneDonnee");
-    return formaterUsd(sommeMontants(paiements, jours), locale);
+    return <Nombre>{formaterUsd(sommeMontants(paiements, jours), locale)}</Nombre>;
   };
   const carte = "flex flex-col gap-2 rounded-[20px] border border-admin-contour bg-admin-carte p-4 text-text-primary";
   return (
@@ -239,9 +246,9 @@ export async function ApercuIndicateurs({ donnees, maintenant }: { donnees: Donn
             <MessageEtat type="erreur">{te("erreurLecture")}</MessageEtat>
           ) : (
             <ul className="t-body flex flex-col gap-1">
-              <li>{ta("evenements", { nombre: chiffres.evenementsAVenir })}</li>
-              <li>{ta("pass7", { nombre: chiffres.pass7 })}</li>
-              <li>{ta("pass30", { nombre: chiffres.pass30 })}</li>
+              <li>{ta.rich("evenements", { nombre: chiffres.evenementsAVenir, nb })}</li>
+              <li>{ta.rich("pass7", { nombre: chiffres.pass7, nb })}</li>
+              <li>{ta.rich("pass30", { nombre: chiffres.pass30, nb })}</li>
             </ul>
           )}
         </li>

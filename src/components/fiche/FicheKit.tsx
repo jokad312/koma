@@ -18,6 +18,7 @@ import { BoutonPartager } from "./BoutonPartager";
 import { GaleriePhotos } from "./GaleriePhotos";
 import { LecteurExtrait } from "./LecteurExtrait";
 import { ObtentionKit } from "./ObtentionKit";
+import { Nombre } from "@/components/ui/Nombre";
 
 export const DOSSIER_KITS = "/kits";
 const SEPARATEUR_FIL = "›";
@@ -101,7 +102,7 @@ export async function FicheKit({ fiche, locale, hoteCdn }: Props) {
         <GaleriePhotos photos={fiche.photos} />
         <div className="flex min-w-0 flex-col gap-6">
           <TitreVitrine niveau={1} donnee>{fiche.titre}</TitreVitrine>
-          <p className="t-price-card text-text-primary">{formaterUsd(fiche.prixCents, locale)}</p>
+          <p className="t-price-card text-text-primary"><Nombre>{formaterUsd(fiche.prixCents, locale)}</Nombre></p>
           {fiche.niveau ? <p className="t-body text-text-primary">{t("niveauLibelle", { niveau: t(`niveau.${fiche.niveau}`) })}</p> : null}
           {description ? <p className="t-body whitespace-pre-line text-text-primary">{description}</p> : null}
           <ObtentionKit produitId={fiche.id} prixCents={fiche.prixCents} />
