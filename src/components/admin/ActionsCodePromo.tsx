@@ -85,8 +85,9 @@ export function ActionsCodePromo({ code, modifier }: { code: CodePromo; modifier
         </button>
       ) : (
         <Bouton variante="secondaire" onClick={() => changerEtat(true)} enCours={enCours} aria-label={t("actions.reactiverSur", { code: code.code })}>
-          {enCours ? null : <RotateCcw aria-hidden="true" className="size-5" />}
-          {enCours ? t("actions.enCours") : t("actions.reactiver")}
+          {/* Icône toujours rendue (masquée en cours) et libellé dans son élément : jamais d'insertion à côté d'un texte nu (traduction du navigateur). */}
+          <RotateCcw aria-hidden="true" className={enCours ? "hidden" : "size-5"} />
+          <span>{enCours ? t("actions.enCours") : t("actions.reactiver")}</span>
         </Bouton>
       )}
       {erreur ? (

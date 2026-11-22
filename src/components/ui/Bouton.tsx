@@ -31,9 +31,16 @@ export function Bouton({
   const idRaison = useId();
   const base = desactive ? CLASSES_DESACTIVE : variante === "principal" ? CLASSES_PRINCIPAL : CLASSES_SECONDAIRE;
   const classes = className ? `${base} ${className}` : base;
-  const indicateur = enCours ? (
-    <span aria-hidden="true" className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-  ) : null;
+  // Indicateur toujours présent dans le DOM, masqué (display: none) hors « en cours » : jamais inséré ni retiré à côté du libellé.
+  // Sinon, quand la traduction automatique du navigateur (ou une extension) a remplacé le texte du libellé par ses propres nœuds
+  // (<font>…), React ne retrouve plus le nœud de référence et plante (« Failed to execute 'insertBefore' on 'Node' »).
+  const indicateur = (
+    <span
+      aria-hidden="true"
+      data-indicateur-en-cours=""
+      className={enCours ? "size-4 animate-spin rounded-full border-2 border-current border-t-transparent motion-reduce:animate-none" : "hidden"}
+    />
+  );
 
   const bloque = desactive || enCours;
 
@@ -41,7 +48,7 @@ export function Bouton({
     const aria = Object.fromEntries(Object.entries(reste).filter(([cle]) => cle.startsWith("aria-")));
     return (
       <Link href={href} className={classes} onClick={onClick as unknown as MouseEventHandler<HTMLAnchorElement>} {...aria}>
-        {children}
+        <span className="contents">{children}</span>
       </Link>
     );
   }
@@ -59,13 +66,16 @@ export function Bouton({
         className={classes}
       >
         {indicateur}
-        {children}
-      </button>
-      {desactive && raison ? (
-        <span id={idRaison} className="t-small mt-2 block text-text-secondary">
-          {raison}
+        {/* Libellé dans son propre élément (display: contents : mise en page flex inchangée), pour la même raison. La clé change avec
+            « en cours » : React remplace l'élément entier au lieu de modifier un nœud texte que la traduction aurait détaché (libellé figé). */}
+        <span key={enCours ? "en-cours" : "repos"} className="contents">
+          {children}
         </span>
-      ) : null}
+      </button>
+      {/* Toujours rendu (masqué sans raison) : jamais inséré ni retiré à côté d'un texte de l'appelant, pour la même raison. */}
+      <span id={idRaison} className={desactive && raison ? "t-small mt-2 block text-text-secondary" : "hidden"}>
+        {desactive && raison ? raison : null}
+      </span>
     </>
   );
 }

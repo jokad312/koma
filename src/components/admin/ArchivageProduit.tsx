@@ -69,8 +69,9 @@ export function ArchivageProduit({
     return (
       <>
         <Bouton variante="secondaire" onClick={() => lancer(false)} enCours={enCours} aria-label={t("restaurerSur", { titre })}>
-          {enCours ? null : <RotateCcw aria-hidden="true" className="size-5" />}
-          {enCours ? t("enCours") : t("restaurer")}
+          {/* Icône toujours rendue (masquée en cours) et libellé dans son élément : jamais d'insertion à côté d'un texte nu (traduction du navigateur). */}
+          <RotateCcw aria-hidden="true" className={enCours ? "hidden" : "size-5"} />
+          <span>{enCours ? t("enCours") : t("restaurer")}</span>
         </Bouton>
         {message}
       </>
