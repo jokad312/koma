@@ -13,12 +13,20 @@ vi.mock("@/lib/supabase/public", () => ({
       faux.appels.push({ nom, args });
       return Promise.resolve(faux.resultat);
     },
+    from: (table: string) => ({
+      select: () => ({
+        order: () => {
+          faux.appels.push({ nom: table, args: {} });
+          return Promise.resolve(faux.resultat);
+        },
+      }),
+    }),
   }),
 }));
 vi.mock("@/lib/supabase/service", () => ({ creerClientService: () => ({}) }));
 
 import { analyserRequete, decoderCurseur } from "@/modules/catalogue/adresse";
-import { listerCatalogue } from "@/modules/catalogue/queries";
+import { listerCatalogue, lireTranchesPrix, lireUniversPublics } from "@/modules/catalogue/queries";
 import { chargerPlusProduits } from "@/modules/catalogue/voir-plus";
 
 const PARAMS_DEFAUT = analyserRequete({});
@@ -156,9 +164,34 @@ describe("listerCatalogue", () => {
     await expect(listerCatalogue("cosplay", PARAMS_DEFAUT, "fr")).rejects.toThrow();
   });
 
-  it("état de disponibilité inconnu : refusé", async () => {
+  // Bug A2 : les trois lectures de la page gardent l'erreur Supabase en cause (le journal dit pourquoi), sans changer leur message.
+  it.each([
+    ["produits", "Lecture du catalogue impossible.", () => listerCatalogue("cosplay", PARAMS_DEFAUT, "fr")],
+    ["univers", "Lecture des univers impossible.", () => lireUniversPublics("fr")],
+    ["tranches", "Lecture des tranches de prix impossible.", () => lireTranchesPrix()],
+  ] as const)("lecture %s en erreur : cause assainie (code et message), jamais details ni hint", async (_lecture, message, lire) => {
+    const supabase = {
+      code: "22P02",
+      message: 'invalid input syntax for type uuid: "TEST_ valeur"',
+      details: "TEST_ détail test-a2@example.invalid",
+      hint: "TEST_ indice",
+    };
+    faux.resultat = { data: null, error: supabase };
+    const e = await lire().catch((x: unknown) => x);
+    expect(e).toBeInstanceOf(Error);
+    expect((e as Error).message).toBe(message);
+    expect((e as Error).cause).toEqual({ code: "22P02", message: 'invalid input syntax for type uuid: "…"' });
+    expect(JSON.stringify((e as Error).cause)).not.toMatch(/details|hint|TEST_/);
+  });
+
+  it("réponse non tableau sans erreur : message propre", async () => {
+    faux.resultat = { data: null, error: null };
+    await expect(listerCatalogue("cosplay", PARAMS_DEFAUT, "fr")).rejects.toThrow("Lecture du catalogue impossible : réponse inattendue.");
+  });
+
+  it("état de disponibilité inconnu : refusé, avec son propre message", async () => {
     faux.resultat = { data: [ligne(1, { disponibilite: "etat_inconnu" })], error: null };
-    await expect(listerCatalogue("cosplay", PARAMS_DEFAUT, "fr")).rejects.toThrow();
+    await expect(listerCatalogue("cosplay", PARAMS_DEFAUT, "fr")).rejects.toThrow("Lecture du catalogue impossible : disponibilité inconnue.");
   });
 });
 
@@ -182,10 +215,13 @@ describe("chargerPlusProduits (Server Action « Voir plus »)", () => {
     expect((await chargerPlusProduits("accessoire", "tri=hasard&curseur=!!!&univers=x", "en")).ok).toBe(true);
   });
 
-  it("base indisponible : { ok: false }, pas d'exception", async () => {
-    faux.resultat = { data: null, error: { message: "TEST" } };
+  it("base indisponible : { ok: false }, pas d'exception ; journal complet avec le code Supabase", async () => {
+    faux.resultat = { data: null, error: { code: "PGRST000", message: "TEST_ base indisponible", details: "TEST_ détail", hint: "TEST_ indice" } };
     const erreur = vi.spyOn(console, "error").mockImplementation(() => {});
-    expect(await chargerPlusProduits("cosplay", "", "fr")).toEqual({ ok: false });
+    expect(await chargerPlusProduits("cosplay", "univers=00000000-0000-4000-8000-000000000007", "fr")).toEqual({ ok: false });
+    expect(erreur.mock.calls).toEqual([
+      ["[catalogue] voir plus : lecture impossible (produits) : Error: Lecture du catalogue impossible. (code=PGRST000 message=TEST_ base indisponible)"],
+    ]);
     erreur.mockRestore();
   });
 });

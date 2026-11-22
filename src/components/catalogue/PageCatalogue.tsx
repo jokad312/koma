@@ -17,6 +17,7 @@ import { listerCatalogue, lireTranchesPrix, lireUniversPublics } from "@/modules
 import { DOSSIER_PAR_FAMILLE, type FamilleProduit } from "@/modules/catalogue/types";
 import { FiltresCatalogue } from "./FiltresCatalogue";
 import { GrilleProduits } from "./GrilleProduits";
+import { journaliserLectureImpossible, lectureNommee } from "@/modules/catalogue/journal";
 
 // Dossier interne de chaque catalogue (l'adresse de chaque langue vient de src/i18n/adresses.ts) et clé des textes de métadonnées.
 const CLES_META = { cosplay: "cosplays", accessoire: "accessoires", vetement: "vetements", autre: "autresArticles", kit: "kits" } as const;
@@ -103,17 +104,17 @@ async function ContenuCatalogue({ famille, locale, searchParams }: Props) {
   let servis = params;
   try {
     [page, univers, tranches] = await Promise.all([
-      listerCatalogue(famille, params, locale, { cumul: true }),
-      lireUniversPublics(locale),
-      lireTranchesPrix(),
+      lectureNommee("produits", listerCatalogue(famille, params, locale, { cumul: true })),
+      lectureNommee("univers", lireUniversPublics(locale)),
+      lectureNommee("tranches", lireTranchesPrix()),
     ]);
     if (page.produits.length === 0 && params.curseur) {
       servis = { ...params, curseur: null };
-      page = await listerCatalogue(famille, servis, locale);
+      page = await lectureNommee("produits", listerCatalogue(famille, servis, locale));
     }
-  } catch {
-    // Jamais une liste vide inventée : message sobre, rien d'autre sur la page.
-    console.error("[catalogue] lecture impossible");
+  } catch (e) {
+    // Jamais une liste vide inventée : message sobre, rien d'autre sur la page. Le journal nomme la lecture et sa cause (bug A2).
+    journaliserLectureImpossible("lecture impossible", e);
     return <MessageEtat type="erreur">{t("erreur")}</MessageEtat>;
   }
 

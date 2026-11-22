@@ -564,3 +564,15 @@
 
 ## Saisie avant l'hydratation dans les formulaires admin (noté le 2026-11-21)
 - Les champs des formulaires admin (article, produit…) sont contrôlés par React : un texte tapé avant l'hydratation reste dans le champ mais pas dans l'état (compteur de l'extrait à 0, valeur non envoyée). Vu en CI sur 85132c2 (admin.spec.ts 9.16 h, mobile). Le test attend désormais l'hydratation ; le formulaire lui-même n'a pas été changé (refonte des champs hors de la nuit). Piste : champs non contrôlés (defaultValue) comme FormulaireConnexion, ou relecture des valeurs du DOM au montage.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-bug-a2-filtre-univers.md`
+  summary: e2e du filtre univers par le contrôle visible (choix à la souris et au clavier, liste des univers à jour malgré le cache `catalogue`), en `/en`, et combiné à une tranche de prix ou une taille.
+  evidence: revue A2 (2026-11-22) : l'e2e A2 ne passe que `?univers=` dans l'adresse ; `lireUniversPublics` est en cache `catalogue`, qu'un semis SQL direct ne vide pas.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-bug-a2-filtre-univers.md`
+  summary: journal A2 : garder le code système d'un échec réseau (ECONNRESET, ENOTFOUND, délai) quand Supabase renvoie « fetch failed », sans jamais journaliser `details`.
+  evidence: revue 2 d'A2 (2026-11-22), non vérifié (medium) : à trancher en provoquant une coupure réseau vers Supabase et en lisant l'erreur renvoyée par supabase-js.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-bug-a2-filtre-univers.md`
+  summary: e2e catalogue : vider l'étiquette de cache `catalogue` après le semis et le nettoyage SQL directs, pour qu'un serveur de dev déjà ouvert ne garde pas les univers TEST_ dans le filtre.
+  evidence: revue 2 d'A2 (2026-11-22) : `lireUniversPublics` est en cache `catalogue`, que le SQL direct n'invalide pas.
