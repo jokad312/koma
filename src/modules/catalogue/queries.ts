@@ -2,6 +2,7 @@ import "server-only";
 import type { AuteurCompte } from "@/lib/auth/auteur";
 import { cacheTag } from "next/cache";
 import { ETIQUETTES } from "@/lib/cache/etiquettes";
+import { causeSure } from "@/lib/journal-cause";
 import { creerClientPublic } from "@/lib/supabase/public";
 import { creerClientService } from "@/lib/supabase/service";
 import { urlPhotoPublique } from "@/lib/supabase/stockage";
@@ -288,7 +289,7 @@ export async function lireUniversPublics(locale: "fr" | "en"): Promise<UniversCh
   cacheTag(ETIQUETTES.catalogue);
   const colonne = locale === "fr" ? "nom_fr" : "nom_en";
   const { data, error } = await creerClientPublic().from("univers").select(`id, ${colonne}`).order(colonne, { ascending: true });
-  if (error) throw new Error("Lecture des univers impossible.");
+  if (error) throw new Error("Lecture des univers impossible.", { cause: causeSure(error) });
   return ((data ?? []) as unknown as Array<Record<string, string>>).map((u) => ({ id: u.id, nom: u[colonne] }));
 }
 
@@ -307,7 +308,7 @@ export async function lireTranchesPrix(): Promise<TranchePrix[]> {
     .from("tranche_prix")
     .select("ordre, libelle_fr, libelle_en, bas_cents, haut_cents")
     .order("ordre", { ascending: true });
-  if (error) throw new Error("Lecture des tranches de prix impossible.");
+  if (error) throw new Error("Lecture des tranches de prix impossible.", { cause: causeSure(error) });
   return versTranches(data);
 }
 
@@ -356,11 +357,13 @@ export async function listerCatalogue(
     p_limite: taille + 1,
     p_niveau: params.niveau ?? undefined,
   });
-  if (error || !Array.isArray(data)) throw new Error("Lecture du catalogue impossible.");
+  // Cause assainie (code et message, jamais details ni hint : Next journalise lui-même la cause en production) : le journal dit pourquoi (bug A2).
+  if (error) throw new Error("Lecture du catalogue impossible.", { cause: causeSure(error) });
+  if (!Array.isArray(data)) throw new Error("Lecture du catalogue impossible : réponse inattendue.");
 
   const lignes = data.slice(0, taille);
   const produits: CarteProduit[] = lignes.map((l) => {
-    if (!DISPONIBILITES_CONNUES.includes(l.disponibilite)) throw new Error("Lecture du catalogue impossible.");
+    if (!DISPONIBILITES_CONNUES.includes(l.disponibilite)) throw new Error("Lecture du catalogue impossible : disponibilité inconnue.");
     return {
       id: l.id,
       slug: l.slug,

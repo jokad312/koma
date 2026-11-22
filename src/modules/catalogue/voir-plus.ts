@@ -1,6 +1,7 @@
 "use server";
 
 import { analyserRequete } from "./adresse";
+import { journaliserLectureImpossible, lectureNommee } from "./journal";
 import { listerCatalogue } from "./queries";
 import { FAMILLES_PRODUIT } from "./types";
 import type { CarteProduit, FamilleProduit } from "./types";
@@ -14,11 +15,11 @@ export async function chargerPlusProduits(famille: string, requete: string, loca
   if (locale !== "fr" && locale !== "en") return { ok: false };
   if (typeof requete !== "string" || requete.length > 1000) return { ok: false };
   try {
-    const page = await listerCatalogue(famille as FamilleProduit, analyserRequete(new URLSearchParams(requete)), locale);
+    const page = await lectureNommee("produits", listerCatalogue(famille as FamilleProduit, analyserRequete(new URLSearchParams(requete)), locale));
     return { ok: true, produits: page.produits, suite: page.suite };
-  } catch {
-    // Jamais une liste vide inventée : l'interface affiche une erreur et garde le lien « Voir plus ».
-    console.error("[catalogue] voir plus : lecture impossible");
+  } catch (e) {
+    // Jamais une liste vide inventée : l'interface affiche une erreur et garde le lien « Voir plus ». Cause journalisée (bug A2).
+    journaliserLectureImpossible("voir plus : lecture impossible", e);
     return { ok: false };
   }
 }

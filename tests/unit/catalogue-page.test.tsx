@@ -127,6 +127,24 @@ describe("PageCatalogue", () => {
     expect(page).not.toContain("Aucun produit");
   });
 
+  // Bug A2 : le journal nomme la lecture en échec et sa cause, jamais l'adresse ni les paramètres de la requête.
+  it.each([
+    ["produits", () => faux.lister.mockRejectedValue(new Error("Lecture du catalogue impossible."))],
+    ["univers", () => faux.univers.mockRejectedValue(new Error("Lecture des univers impossible."))],
+    ["tranches", () => faux.tranches.mockRejectedValue(new TypeError("fetch failed"))],
+  ] as const)("lecture %s en échec : message habituel au visiteur, journal qui nomme la lecture et la cause", async (lecture, echouer) => {
+    faux.lister.mockResolvedValue({ produits: [carte(1)], suite: null });
+    echouer();
+    const page = await rendre({ univers: ID(7) });
+    expect(page).toContain("Le catalogue est indisponible pour le moment");
+    const lignes = vi.mocked(console.error).mock.calls.map((c) => c.join(" "));
+    const ligne = lignes.find((l) => l.startsWith(`[catalogue] lecture impossible (${lecture}) : `));
+    expect(ligne, lignes.join("\n")).toBeDefined();
+    expect(ligne).toMatch(/: (Error|TypeError): /);
+    expect(ligne).not.toContain(ID(7));
+    expect(ligne).not.toContain("univers=");
+  });
+
   const CURSEUR = Buffer.from(JSON.stringify(["nouveautes", "2026-10-26 10:00:00+00", ID(9), 12]), "utf8").toString("base64url");
 
   it("page à curseur : liste cumulée (lecture en cumul depuis le début), lien suivant et liste complète", async () => {
@@ -146,6 +164,21 @@ describe("PageCatalogue", () => {
     expect(faux.lister).toHaveBeenCalledTimes(2);
     expect(faux.lister.mock.calls[1][1].curseur).toBeNull();
     expect(page).toContain("TEST_Titre 1");
+  });
+
+  it("curseur périmé dont la seconde lecture échoue : message habituel, journal (produits) avec la cause Supabase", async () => {
+    faux.lister
+      .mockResolvedValueOnce({ produits: [], suite: null })
+      .mockRejectedValueOnce(new Error("Lecture du catalogue impossible.", { cause: { code: "57014", message: "canceling statement due to statement timeout" } }));
+    const page = await rendre({ curseur: CURSEUR, univers: ID(7) });
+    expect(faux.lister).toHaveBeenCalledTimes(2);
+    expect(page).toContain("Le catalogue est indisponible pour le moment");
+    expect(page).not.toContain("Aucun produit");
+    const lignes = vi.mocked(console.error).mock.calls.map((c) => c.join(" "));
+    expect(lignes).toContain(
+      "[catalogue] lecture impossible (produits) : Error: Lecture du catalogue impossible. (code=57014 message=canceling statement due to statement timeout)",
+    );
+    expect(lignes.join("\n")).not.toContain(ID(7));
   });
 
   it("catalogue réellement vide avec un curseur périmé : phrase « vide », pas « aucun résultat pour ces filtres »", async () => {

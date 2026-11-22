@@ -1,6 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { lireSessionVerifiee } from "@/lib/auth/compte";
+import { messageSur } from "@/lib/journal-cause";
 import { DUREE_COOKIE_PANIER_S, lireSecretPanier, NOM_COOKIE_PANIER } from "@/lib/panier/cookie";
 import { creerClientService } from "@/lib/supabase/service";
 import type { DependancesPanier, LigneBrute } from "./types";
@@ -64,10 +65,9 @@ export function dependances(): DependancesPanier {
     fusionner: async ({ auteur, compteId, panierId }) => {
       const { data, error } = await base().rpc("fusionner_panier", { p_auteur: auteur as never, p_compte: compteId, p_panier: panierId as never });
       // Cause journalisée par le service : code et message de Supabase seulement (jamais details ni hint, qui peuvent citer des valeurs).
-      // Valeur citée après « : » (ex. invalid input syntax for type uuid: "…") masquée, sauts de ligne retirés.
+      // Message assaini par la règle commune à tout le site (src/lib/journal-cause.ts) : valeurs citées, UUID et adresses masqués, une ligne.
       if (error) {
-        const message = (error.message ?? "").replace(/[\r\n]+/g, " ").replace(/:\s*"[^"]*"/g, ': "…"').slice(0, 200);
-        return { erreur: `code=${error.code || "?"} message=${message}` };
+        return { erreur: `code=${error.code || "?"} message=${messageSur(error.message ?? "")}` };
       }
       if (!data || typeof data !== "object" || Array.isArray(data)) return { erreur: "code=? message=réponse inattendue de fusionner_panier" };
       const id = (data as Record<string, unknown>).panier_id;
