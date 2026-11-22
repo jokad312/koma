@@ -76,6 +76,22 @@ for (const langue of ["fr", "en"] as const) {
     await page.goto(`/${langue}`, { waitUntil: "domcontentloaded" });
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
   });
+
+  test(`/${langue} sans JavaScript de l'application : la garde contre la traduction du navigateur est installée par le script inline (bug A3)`, async ({ page }) => {
+    // Scripts de Next bloqués : seul le script inline de <head> (sortie réelle du build) peut installer la garde.
+    await page.route("**/_next/static/**", (route) => route.abort());
+    await page.goto(`/${langue}`, { waitUntil: "domcontentloaded" });
+    const etat = await page.evaluate(() => {
+      const installee = (Node.prototype.removeChild as unknown as { gardeTraduction?: boolean }).gardeTraduction === true;
+      try {
+        document.body.removeChild(document.createElement("b"));
+        return { installee, erreur: null };
+      } catch (e) {
+        return { installee, erreur: String(e) };
+      }
+    });
+    expect(etat).toEqual({ installee: true, erreur: null });
+  });
 }
 
 for (const langue of ["fr", "en"] as const) {
