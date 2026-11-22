@@ -63,7 +63,13 @@ export function dependances(): DependancesPanier {
     },
     fusionner: async ({ auteur, compteId, panierId }) => {
       const { data, error } = await base().rpc("fusionner_panier", { p_auteur: auteur as never, p_compte: compteId, p_panier: panierId as never });
-      if (error || !data || typeof data !== "object" || Array.isArray(data)) return { erreur: error?.message ?? "fusionner_panier" };
+      // Cause journalisée par le service : code et message de Supabase seulement (jamais details ni hint, qui peuvent citer des valeurs).
+      // Valeur citée après « : » (ex. invalid input syntax for type uuid: "…") masquée, sauts de ligne retirés.
+      if (error) {
+        const message = (error.message ?? "").replace(/[\r\n]+/g, " ").replace(/:\s*"[^"]*"/g, ': "…"').slice(0, 200);
+        return { erreur: `code=${error.code || "?"} message=${message}` };
+      }
+      if (!data || typeof data !== "object" || Array.isArray(data)) return { erreur: "code=? message=réponse inattendue de fusionner_panier" };
       const id = (data as Record<string, unknown>).panier_id;
       return { panierId: typeof id === "string" ? id : null };
     },

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const etat = vi.hoisted(() => ({ appels: [] as { nom: string; args: Record<string, unknown> }[] }));
+const etat = vi.hoisted(() => ({ appels: [] as { nom: string; args: Record<string, unknown> }[], reponse: null as null | { data: unknown; error: unknown } }));
 vi.mock("server-only", () => ({}));
 vi.mock("next/headers", () => ({ cookies: async () => ({ get: () => undefined, set: vi.fn(), delete: vi.fn() }) }));
 vi.mock("@/lib/auth/compte", () => ({ lireSessionVerifiee: async () => null }));
@@ -8,7 +8,7 @@ vi.mock("@/lib/supabase/service", () => ({
   creerClientService: () => ({
     rpc: async (nom: string, args: Record<string, unknown>) => {
       etat.appels.push({ nom, args });
-      return { data: null, error: null };
+      return etat.reponse ?? { data: null, error: null };
     },
   }),
 }));
@@ -19,6 +19,33 @@ const ID = "00000000-0000-4000-8000-0000000000aa";
 
 beforeEach(() => {
   etat.appels = [];
+  etat.reponse = null;
+});
+
+// Bug A1 (2026-11-22) : la cause d'un échec de fusion est rendue au service (code et message), jamais details ni hint.
+describe("fusionner : cause de l'échec", () => {
+  it("erreur Supabase : code et message seulement", async () => {
+    etat.reponse = {
+      data: null,
+      error: { code: "55000", message: 'record "v_source" is not assigned yet', details: "TEST_ détail test-a1@example.invalid", hint: "TEST_ indice" },
+    };
+    const r = await dependances().fusionner({ auteur: { type: "visiteur" }, compteId: ID, panierId: null });
+    expect(r).toEqual({ erreur: 'code=55000 message=record "v_source" is not assigned yet' });
+    expect(JSON.stringify(r)).not.toContain("example.invalid");
+    expect(JSON.stringify(r)).not.toContain("TEST_ indice");
+  });
+  it("valeur citée et saut de ligne : masqués ; code vide : « ? »", async () => {
+    etat.reponse = { data: null, error: { code: "", message: 'invalid input syntax for type uuid: "TEST_ valeur"\nligne 2' } };
+    expect(await dependances().fusionner({ auteur: { type: "visiteur" }, compteId: ID, panierId: null })).toEqual({
+      erreur: 'code=? message=invalid input syntax for type uuid: "…" ligne 2',
+    });
+  });
+  it("réponse vide sans erreur : cause explicite", async () => {
+    etat.reponse = { data: null, error: null };
+    expect(await dependances().fusionner({ auteur: { type: "visiteur" }, compteId: ID, panierId: null })).toEqual({
+      erreur: "code=? message=réponse inattendue de fusionner_panier",
+    });
+  });
 });
 
 // PostgREST retire les clés « undefined » du JSON : une fonction SQL sans valeur par défaut ne serait alors plus trouvée.

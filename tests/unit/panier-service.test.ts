@@ -270,6 +270,18 @@ describe("fusionner (connexion)", () => {
     expect(etat.poses).toEqual([]);
   });
 
+  it("erreur : la cause (code et message) est journalisée", async () => {
+    const journal = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    etat.cookie = signerPanier(PANIER, SECRET);
+    await fusionner(faux({ fusionner: vi.fn(async () => ({ erreur: "code=55000 message=TEST_ cause" })) }), COMPTE);
+    await fusionner(faux({ fusionner: vi.fn(async () => { throw new TypeError("TEST_ x"); }) }), COMPTE);
+    expect(journal.mock.calls.map((c) => c.join(" "))).toEqual([
+      "[panier] fusion du Panier impossible : code=55000 message=TEST_ cause",
+      "[panier] fusion : exception TypeError",
+    ]);
+    journal.mockRestore();
+  });
+
   it("erreur ou exception : rien n'est posé et rien ne remonte", async () => {
     etat.cookie = signerPanier(PANIER, SECRET);
     await expect(fusionner(faux({ fusionner: vi.fn(async () => ({ erreur: "x" })) }), COMPTE)).resolves.toBeUndefined();

@@ -42,6 +42,11 @@ describe("fusion du Panier à la connexion", () => {
     });
     await expect(verifierCode(deps, code)).resolves.toEqual({ ok: true, etape: "termine", retour: "/fr" });
     await expect(terminerGoogle(deps, { code: "TEST_code", langue: "fr", retour: "/fr" })).resolves.toMatchObject({ ok: true });
+    // Bug A1 : la cause est journalisée (nom de l'erreur), jamais son message ni l'email.
+    const journal = vi.mocked(console.error).mock.calls.map((c) => c.join(" "));
+    expect(journal).toContain("[comptes] fusion du Panier impossible : Error");
+    expect(journal.join(" ")).not.toContain("a@b.cd");
+    expect(journal.join(" ")).not.toContain("base indisponible");
   });
 
   it("sans fusion fournie, la connexion se fait comme avant", async () => {

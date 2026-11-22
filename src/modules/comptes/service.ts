@@ -27,8 +27,8 @@ async function garantirProfil(deps: DependancesComptes, compteId: string, langue
 async function fusionnerPanier(deps: DependancesComptes, compteId: string) {
   try {
     await deps.fusionnerPanier?.(compteId);
-  } catch {
-    console.error("[comptes] fusion du Panier impossible");
+  } catch (e) {
+    journaliser("fusion du Panier impossible", e);
   }
 }
 

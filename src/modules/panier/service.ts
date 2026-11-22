@@ -5,7 +5,8 @@ import { ajoutSchema, modificationSchema, retraitSchema } from "./schemas";
 import type { EntreeAjout } from "./schemas";
 import type { CodeErreurPanier, DependancesPanier, EtatLigne, LigneBrute, LignePanier, PanierLu, ResultatPanier } from "./types";
 
-// Seul le code de l'erreur est journalisé : ni identifiant de Panier ni de Compte.
+// Journal : contexte et cause technique (code et message Supabase, valeurs citées masquées par dependances.ts) ; jamais d'identifiant
+// de Panier ni de Compte, jamais details ni hint.
 function journaliser(contexte: string) {
   console.error(`[panier] ${contexte}`);
 }
@@ -220,13 +221,13 @@ export async function fusionner(deps: DependancesPanier, compteId: string): Prom
     const courant = await panierSigne(deps);
     const r = await deps.fusionner({ auteur: construireAuteur(compteId), compteId, panierId: courant });
     if ("erreur" in r) {
-      journaliser("fusion du Panier impossible");
+      journaliser(`fusion du Panier impossible : ${r.erreur}`);
       return;
     }
     if (r.panierId && r.panierId !== courant) await deps.poserCookie(signerPanier(r.panierId, deps.secret()));
     else if (!r.panierId && courant) await deps.effacerCookie();
-  } catch {
-    journaliser("fusion : exception");
+  } catch (e) {
+    journaliser(`fusion : exception ${e instanceof Error ? e.name : "inconnue"}`);
   }
 }
 

@@ -45,6 +45,14 @@ jobs:
       - run: npm run test:e2e:prod
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+      # Captures voulues par les e2e (test-results/captures/), publiées même quand tout passe, gardées 7 jours.
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: captures-e2e
+          path: test-results/captures/
+          retention-days: 7
+          if-no-files-found: ignore
       # Traces des e2e en échec (captures, contexte d'erreur), gardées 7 jours pour le diagnostic.
       - if: failure()
         uses: actions/upload-artifact@v4
