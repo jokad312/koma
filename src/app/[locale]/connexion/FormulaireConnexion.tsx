@@ -222,9 +222,10 @@ export function FormulaireConnexion({ etapeInitiale = "email", google = "disponi
   // shadow-none : le titre reçoit le focus à l'arrivée sur l'étape ; sans lui, le halo de :focus-visible (globals.css) lui donnait un fond.
   const classeTitreEtape = "t-h2 outline-none shadow-none";
 
+  // Une clé par étape sur l'élément racine : sans elle, React réutilisait le même <input> pour l'email puis le code (bug A4) ; règle : un champ du DOM ne sert jamais à deux saisies.
   if (etape === "moins13") {
     return (
-      <section className="flex flex-col items-start gap-4" aria-labelledby={`${idErreur}-t`}>
+      <section key="moins13" className="flex flex-col items-start gap-4" aria-labelledby={`${idErreur}-t`}>
         <h2 id={`${idErreur}-t`} ref={refTitreMoins13} tabIndex={-1} className={classeTitreEtape}>
           {t("moins13.titre")}
         </h2>
@@ -237,6 +238,7 @@ export function FormulaireConnexion({ etapeInitiale = "email", google = "disponi
   if (etape === "questions") {
     return (
       <QuestionsAccueil
+        key="questions"
         ref={refTitreQuestions}
         retour={retour}
         univers={univers}
@@ -251,7 +253,7 @@ export function FormulaireConnexion({ etapeInitiale = "email", google = "disponi
 
   if (etape === "age") {
     return (
-      <form onSubmit={surAge} noValidate className="flex max-w-md flex-col items-start gap-4">
+      <form key="age" onSubmit={surAge} noValidate className="flex max-w-md flex-col items-start gap-4">
         <h2 ref={refTitreAge} tabIndex={-1} className={classeTitreEtape}>
           {t("age.titre")}
         </h2>
@@ -316,7 +318,8 @@ export function FormulaireConnexion({ etapeInitiale = "email", google = "disponi
       );
 
     return (
-      <div className="flex max-w-md flex-col items-start gap-4">
+      // key : bug A4, ne pas retirer (voir plus haut).
+      <div key="code"className="flex max-w-md flex-col items-start gap-4">
         <form onSubmit={surCode} noValidate className="flex w-full flex-col items-start gap-4">
           <h2 ref={refTitreCode} tabIndex={-1} className={classeTitreEtape}>
             {t("code.titre")}
@@ -377,7 +380,8 @@ export function FormulaireConnexion({ etapeInitiale = "email", google = "disponi
   }
 
   return (
-    <div className="flex max-w-md flex-col items-start gap-6">
+    // key : bug A4, ne pas retirer (voir plus haut).
+    <div key="email"className="flex max-w-md flex-col items-start gap-6">
     <form action={actionEnvoi} noValidate className="flex w-full flex-col items-start gap-4">
       <input type="hidden" name="langue" value={langue} />
       <p>{t("intro")}</p>
