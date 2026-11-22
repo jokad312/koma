@@ -580,3 +580,7 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-bug-a4-champ-email-non-controle.md`
   summary: Connexion, étape du code : si le renvoi du code répond `email_invalide`, `renvoyerCode` donne le focus à `refEmail` (absent à cette étape) et le message « Saisis une adresse email valide. » s'affiche sous le champ du code (`aria-invalid` sur ce champ).
   evidence: revue d'A4 (2026-11-22), défaut antérieur à A4 (FormulaireConnexion.tsx, `renvoyerCode`) ; peu probable (l'adresse a déjà été acceptée au premier envoi). Piste : revenir à l'étape email avec l'erreur, ou erreur générale à l'étape du code.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-bug-a3-traduction-navigateur-dom.md`
+  summary: Page traduite par le navigateur : une mise à jour de texte faite par React (prix, total du Panier, stock, message d'état) n'apparaît plus, car le <font> du traducteur garde l'ancien texte ; à trancher par Jonathan (par exemple translate="no" local sur les montants, alors que la spec A3 l'exclut au niveau de la page).
+  evidence: revue d'A3 (2026-11-22), non vérifié en navigateur (medium) ; limite connue de la traduction de Chrome, antérieure à A3 (la garde ne touche que removeChild/insertBefore). À trancher par un essai Chrome : traduire /fr/panier, changer une quantité, lire le total affiché.

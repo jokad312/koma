@@ -5,26 +5,12 @@ import { RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Bouton } from "@/components/ui/Bouton";
-import { rendre } from "./aides-dom";
+import { rendre, traduireCommeLeNavigateur } from "./aides-dom";
 
 // Bug du 2026-11-22 (/fr/connexion, « Recevoir un code ») : la traduction automatique du navigateur remplace le nœud texte du libellé
 // par ses propres éléments <font>. React insérait ensuite l'indicateur « en cours » devant ce nœud texte disparu :
-// « NotFoundError: Failed to execute 'insertBefore' on 'Node' ». Le test simule cette traduction, comme le fait Google Traduction.
+// « NotFoundError: Failed to execute 'insertBefore' on 'Node' ». Le test simule cette traduction (aides-dom), comme le fait Google Traduction.
 // Vérifié : sur l'ancien Bouton, le premier cas échoue avec « NotFoundError: The child can not be found in the parent ».
-
-function traduireCommeLeNavigateur(racine: HTMLElement) {
-  const parcours = document.createTreeWalker(racine, NodeFilter.SHOW_TEXT);
-  const textes: Text[] = [];
-  while (parcours.nextNode()) textes.push(parcours.currentNode as Text);
-  for (const texte of textes) {
-    const exterieur = document.createElement("font");
-    const interieur = document.createElement("font");
-    interieur.textContent = `[traduit] ${texte.data}`;
-    exterieur.appendChild(interieur);
-    texte.replaceWith(exterieur);
-  }
-  return textes.length;
-}
 
 // Même forme que FormulaireConnexion : le clic passe le bouton « en cours » et change son libellé ; un second bouton le remet au repos.
 function BoutonEnvoi() {

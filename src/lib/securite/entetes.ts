@@ -11,7 +11,8 @@ type Options = {
 };
 
 // CSP en mode Report-Only (story 1.4) : elle ne bloque rien, elle laisse le navigateur signaler. 'unsafe-inline' couvre le script
-// du thème et les scripts de Next ; la story 9.9 passe en mode strict (nonce si nécessaire).
+// du thème, la garde contre la traduction du navigateur (bug A3, même <script> de <head> : SCRIPT_TETE) et les scripts de Next ;
+// la story 9.9 passe en mode strict (nonce si nécessaire) : ce script de <head> fait partie de ceux qui recevront le nonce.
 export function politiqueContenu({ adresseSupabase, hoteVideoPublic, production, scan = false }: Pick<Options, "adresseSupabase" | "hoteVideoPublic" | "production" | "scan">): string {
   const cdnPublic = hoteVideoPublic ? `https://${hoteVideoPublic}` : null;
   // L'envoi TUS de la vidéo du héros part du navigateur vers l'API de Bunny (admin seulement). L'extrait d'un Kit (story 3.3) est lu en HLS
