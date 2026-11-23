@@ -50,13 +50,17 @@ const DELAI_MS = 15000;
 const demander = (adresse, suivre = false) => fetch(base + adresse, { redirect: suivre ? "follow" : "manual", signal: AbortSignal.timeout(DELAI_MS) });
 
 const ATTENDUS = [
-  // [adresse, statut attendu, suivre une redirection]
+  // [adresse, statut attendu, suivre une redirection, cible attendue d'une redirection 308]
+  // Site en français uniquement (B, 2026-11-22) : toute adresse /en… redirige en 308 vers la page française équivalente.
   ["/fr", 200],
   ["/fr/cosplays", 200],
   ["/fr/contact", 200],
-  ["/en/accessoires", 308],
+  ["/en/accessories", 308, false, "/fr/accessoires"],
+  ["/EN/accessories", 308, false, "/fr/accessoires"],
+  ["/en", 308, false, "/fr"],
   ["/fr/zzz", 404],
-  ["/en/zzz", 404],
+  ["/en/zzz", 308, false, "/fr/zzz"],
+  ["/en/zzz", 404, true], // après la redirection : la 404 française
   ["/fr/zzz/aaa", 404],
   ["/zzz", 404],
   ["/fr/cosplays/test-inexistant", 404],
@@ -64,8 +68,9 @@ const ATTENDUS = [
   ["/fr/cosplays/Test-Inexistant", 404],
   ["/fr/cosplays/test-inexistant/", 404, true], // une redirection au plus (barre finale), puis 404 final
   ["/fr/introuvable", 404],
-  ["/en/cosplays/test-inexistant", 404],
-  ["/en/accessories/test-inexistant", 404],
+  ["/en/cosplays/test-inexistant", 308, false, "/fr/cosplays/test-inexistant"],
+  ["/en/accessories/test-inexistant", 308, false, "/fr/accessoires/test-inexistant"],
+  ["/en/accessories/test-inexistant", 404, true],
 ];
 
 let echecs = 0;
@@ -82,14 +87,15 @@ try {
   }
   if (!pret) throw new Error(`next start ne répond pas :\n${journal}`);
 
-  for (const [adresse, attendu, suivre] of ATTENDUS) {
+  for (const [adresse, attendu, suivre, cible] of ATTENDUS) {
     const r = await demander(adresse, suivre);
     let ok = r.status === attendu;
     let detail = "";
     // « /zzz » (hors langue) sert la 404 par défaut de Next : seul le statut est vérifié.
     if (attendu === 404 && (adresse.startsWith("/fr/") || adresse.startsWith("/en/"))) {
       const html = await r.text();
-      const m = messagesNonTrouve(adresse.startsWith("/en") ? "en" : "fr");
+      // Seul le français est servi : une adresse /en suivie jusqu'au bout finit sur la 404 française.
+      const m = messagesNonTrouve("fr");
       // La page « introuvable » garde son titre traduit, son noindex et son lien vers l'accueil.
       if (!html.includes(m.titre)) {
         ok = false;
@@ -104,7 +110,7 @@ try {
         detail += " lien accueil absent";
       }
     }
-    if (attendu === 308 && !(r.headers.get("location") ?? "").endsWith("/en/accessories")) {
+    if (attendu === 308 && new URL(r.headers.get("location") ?? "", base).pathname !== cible) {
       ok = false;
       detail += " mauvaise cible";
     }
