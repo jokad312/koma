@@ -33,7 +33,8 @@ function FormulaireAlt({ photo, numero, onSucces }: { photo: PhotoAdmin; numero:
   const router = useRouter();
   const base = useId();
   const [altFr, setAltFr] = useState(photo.altFr);
-  const [altEn, setAltEn] = useState(photo.altEn);
+  // Texte anglais sans champ (site en français uniquement) : la valeur enregistrée repart telle quelle.
+  const [altEn] = useState(photo.altEn);
   const [erreur, setErreur] = useState<{ code: string; champ: "fr" | "en" | "tous" | null } | null>(null);
   const [enCours, setEnCours] = useState(false);
   const enVol = useRef(false);
@@ -47,7 +48,6 @@ function FormulaireAlt({ photo, numero, onSucces }: { photo: PhotoAdmin; numero:
     if (enVol.current) return;
     setErreur(null);
     if (altFr.trim() === "" || altFr.trim().length > 200) return setErreur({ code: "alt_invalide", champ: "fr" });
-    if (altEn.trim() === "" || altEn.trim().length > 200) return setErreur({ code: "alt_invalide", champ: "en" });
     enVol.current = true;
     setEnCours(true);
     try {
@@ -73,8 +73,7 @@ function FormulaireAlt({ photo, numero, onSucces }: { photo: PhotoAdmin; numero:
         {t("alt.titre", { numero })}
       </h4>
       {erreurGenerale ? <MessageEtat type="erreur">{erreurGenerale}</MessageEtat> : null}
-      <ChampTexte id={`${base}-fr`} name="alt_fr" libelle={t("alt.altFr")} aide={t("alt.aide")} valeur={altFr} onChange={setAltFr} erreur={erreurDe("fr")} />
-      <ChampTexte id={`${base}-en`} name="alt_en" libelle={t("alt.altEn")} valeur={altEn} onChange={setAltEn} erreur={erreurDe("en")} />
+      <ChampTexte id={`${base}-fr`} name="alt_fr" libelle={t("alt.altFr")} aide={t("alt.aide")} valeur={altFr} onChange={setAltFr} erreur={erreurDe("fr") ?? erreurDe("en")} />
       <div>
         <Bouton type="submit" variante="secondaire" enCours={enCours}>
           {enCours ? t("alt.enCours") : t("alt.enregistrer")}
@@ -190,7 +189,6 @@ export function GaleriePhotos({ photos }: { photos: readonly PhotoAdmin[] }) {
                     {t("position", { numero: i + 1 })}
                   </p>
                   <p className="t-small break-words text-text-secondary">{t("texteFr", { texte: p.altFr })}</p>
-                  <p className="t-small break-words text-text-secondary">{t("texteEn", { texte: p.altEn })}</p>
                 </div>
                 <div className="flex gap-2">
                   <button

@@ -3,6 +3,7 @@ import { BasculeTheme } from "@/components/layout/BasculeTheme";
 import { LangueRepli } from "@/components/layout/LangueRepli";
 import { LogoSite } from "@/components/layout/LogoSite";
 import { SelecteurLangue } from "@/components/layout/SelecteurLangue";
+import { PLUSIEURS_LANGUES } from "@/i18n/routing";
 
 // En-tête réduit de la page de connexion (story 9.17, maquette connexion.mp4, F1) : logo à gauche, bouton thème et langue à droite, trait fin
 // dessous sur toute la largeur ; 50 px de haut, mêmes marges que la page dès 768 px (connexion.css). Ni menu, ni « Se connecter », ni panier : l'en-tête complet du site est masqué sur cette page (globals.css, [data-page-connexion]).
@@ -13,9 +14,12 @@ export function EnTeteConnexion({ nomSite }: { nomSite: string }) {
       <div className="flex items-center gap-2">
         {/* Ronds de la maquette (F1 : soleil dans un rond blanc, langue dans un rond à contour), comme la barre du haut de l'admin : tiennent à 390 px. */}
         <BasculeTheme variante="rond" />
-        <Suspense fallback={<LangueRepli />}>
-          <SelecteurLangue variante="rond" />
-        </Suspense>
+        {/* Sélecteur de langue : seulement si plusieurs langues sont actives (site en français uniquement depuis le 2026-11-22). */}
+        {PLUSIEURS_LANGUES ? (
+          <Suspense fallback={<LangueRepli />}>
+            <SelecteurLangue variante="rond" />
+          </Suspense>
+        ) : null}
       </div>
     </header>
   );

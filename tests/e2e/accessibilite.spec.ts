@@ -1,11 +1,11 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
 
-// UX-DR48 (version allégée) : axe-core, 320 px, zoom 200 %, mouvement réduit, couleurs forcées, sur /fr et /en,
+// UX-DR48 (version allégée) : axe-core, 320 px, zoom 200 %, mouvement réduit, couleurs forcées, sur /fr (site en français uniquement depuis le 2026-11-22),
 // en thème crème et en thème sombre.
 // Seule exception : la règle color-contrast est désactivée dans le test « couleurs forcées » (voir plus bas).
 
-const langues = ["fr", "en"] as const;
+const langues = ["fr"] as const;
 const themes = ["light", "dark"] as const;
 
 async function ouvrir(page: Page, langue: string, theme: string) {

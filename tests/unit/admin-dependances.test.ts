@@ -6,11 +6,12 @@ const faux = vi.hoisted(() => ({
   updateTag: vi.fn(),
   rpc: vi.fn(),
   deleteUser: vi.fn(),
+  from: vi.fn(),
 }));
 vi.mock("next/cache", () => ({ updateTag: faux.updateTag }));
 vi.mock("@/lib/auth/droits", () => ({ exigerDroit: vi.fn() }));
 vi.mock("@/lib/supabase/service", () => ({
-  creerClientService: () => ({ rpc: faux.rpc, auth: { admin: { deleteUser: faux.deleteUser } } }),
+  creerClientService: () => ({ rpc: faux.rpc, from: faux.from, auth: { admin: { deleteUser: faux.deleteUser } } }),
 }));
 
 import { dependances } from "@/modules/admin/dependances";
@@ -36,6 +37,18 @@ describe("câblage réel de modules/admin", () => {
   it("ecrireReglage renvoie le message d'erreur de la base", async () => {
     faux.rpc.mockResolvedValue({ error: { message: "KS_DROIT_REFUSE" } });
     expect(await dependances().ecrireReglage({ auteur: AUTEUR, cle: "nom_site", valeur: "x" })).toEqual({ erreur: "KS_DROIT_REFUSE" });
+  });
+
+  it("lireReglage lit reglage.valeur de la clé demandée (copie du retrait anglais, spec B)", async () => {
+    const eq = vi.fn(() => ({ maybeSingle: async () => ({ data: { valeur: "TEST_Place" }, error: null }) }));
+    const select = vi.fn(() => ({ eq }));
+    faux.from.mockReturnValue({ select });
+    expect(await dependances().lireReglage("retrait_goma_en")).toEqual({ valeur: "TEST_Place", erreur: null });
+    expect(faux.from).toHaveBeenCalledWith("reglage");
+    expect(select).toHaveBeenCalledWith("valeur");
+    expect(eq).toHaveBeenCalledWith("cle", "retrait_goma_en");
+    eq.mockReturnValueOnce({ maybeSingle: async () => ({ data: null, error: { message: "TEST_panne" } }) } as never);
+    expect(await dependances().lireReglage("retrait_goma_en")).toEqual({ valeur: null, erreur: "TEST_panne" });
   });
 
   it("corrigerAge : data === true devient supprimer", async () => {

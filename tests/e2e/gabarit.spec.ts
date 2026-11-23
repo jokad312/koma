@@ -21,15 +21,16 @@ test("Tab atteint « Aller au contenu » en premier, Entrée met le focus sur <m
   await expect(page.locator("main#contenu")).toBeFocused();
 });
 
-test("en anglais, le lien d'évitement et les repères sont traduits", async ({ page }) => {
+test("/en mène à la page française : lien d'évitement et repères en français (site en français uniquement)", async ({ page }) => {
   await page.goto("/en");
-  await expect(page.getByRole("link", { name: "Skip to content" })).toBeAttached();
+  expect(new URL(page.url()).pathname).toBe("/fr");
+  await expect(page.locator("html")).toHaveAttribute("lang", "fr");
+  await expect(page.getByRole("link", { name: "Aller au contenu" })).toBeAttached();
   await expect(page.locator("header")).toHaveCount(1);
   await expect(page.locator("footer")).toHaveCount(1);
-  await expect(page.locator("footer")).toContainText("Handmade in Goma, DRC. NATHANGROUP SARL.");
 });
 
-for (const langue of ["fr", "en"]) {
+for (const langue of ["fr"]) {
   test(`/${langue} à 375 px : pas de défilement horizontal, logo avec texte alternatif, pied de page`, async ({ page }) => {
     await page.goto(`/${langue}`);
     const deborde = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
@@ -46,7 +47,7 @@ for (const theme of ["light", "dark"] as const) {
     await page.addInitScript((t) => {
       if (t === "dark") window.localStorage.setItem("ks-theme", "dark");
     }, theme);
-    await page.goto("/en", { waitUntil: "networkidle" });
+    await page.goto("/fr", { waitUntil: "networkidle" });
     const visible = page.locator(theme === "dark" ? 'header img[src$="/logo/logo-principal-inverse.svg"]' : 'header img[src$="/logo/logo-principal.svg"]');
     const cache = page.locator(theme === "dark" ? 'header img[src$="/logo/logo-principal.svg"]' : 'header img[src$="/logo/logo-principal-inverse.svg"]');
     await expect(visible).toBeVisible();
@@ -55,11 +56,11 @@ for (const theme of ["light", "dark"] as const) {
     await expect(page.locator("header").getByRole("img")).toHaveCount(1);
     const nomSite = (await page.locator("#pied-identite").innerText()).trim();
     expect(await visible.getAttribute("alt")).toBe(nomSite);
-    await expect(page.locator("header").getByRole("link", { name: nomSite })).toHaveAttribute("href", "/en");
+    await expect(page.locator("header").getByRole("link", { name: nomSite })).toHaveAttribute("href", "/fr");
   });
 }
 
-for (const langue of ["fr", "en"] as const) {
+for (const langue of ["fr"] as const) {
   test(`/${langue} : le script de thème est dans le HTML du serveur (donc exécuté avant le premier rendu)`, async ({ request }) => {
     const reponse = await request.get(`/${langue}`);
     expect(reponse.status()).toBe(200);
@@ -94,7 +95,7 @@ for (const langue of ["fr", "en"] as const) {
   });
 }
 
-for (const langue of ["fr", "en"] as const) {
+for (const langue of ["fr"] as const) {
   test(`/${langue}/zzz en thème sombre : thème posé avant la première peinture, aucun avertissement « script tag »`, async ({ page }) => {
     const messages: string[] = [];
     page.on("console", (m) => messages.push(m.text()));
@@ -179,14 +180,10 @@ test("sans JavaScript : contenu visible et thème crème", async ({ browser, bas
   await contexte.close();
 });
 
-test("le sélecteur de langue garde la page et écrit le cookie NEXT_LOCALE", async ({ page, context }) => {
+test("aucun sélecteur de langue dans le menu (site en français uniquement)", async ({ page }) => {
   await page.goto("/fr/zzz");
   const dialogue = await ouvrirMenu(page);
-  await dialogue.getByRole("link", { name: "English" }).click();
-  await page.waitForURL("**/en/zzz");
-  await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  const cookies = await context.cookies();
-  expect(cookies.find((c) => c.name === "NEXT_LOCALE")?.value).toBe("en");
+  await expect(dialogue.getByRole("link", { name: /English/ })).toHaveCount(0);
 });
 
 test("contraste forcé : le verre de l'en-tête devient Canvas, sans flou", async ({ page }) => {
@@ -294,11 +291,11 @@ test("mouvement réduit : les animations sont coupées", async ({ page }) => {
 test.describe("ordinateur 1280 px", () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
-  test("bascule de thème et langue dans l'en-tête, pas de bouton ☰, pas de débordement", async ({ page }) => {
+  test("bascule de thème dans l'en-tête, aucun sélecteur de langue, pas de bouton ☰, pas de débordement", async ({ page }) => {
     // Sur l'accueil visiteur, thème et langue passent dans le bouton rond « compte » (story 9.12) : on vérifie l'en-tête commun ailleurs.
     await page.goto("/fr/cosplays");
     await expect(page.locator("header").getByRole("button", { name: "Thème sombre" })).toBeVisible();
-    await expect(page.locator("header").getByRole("link", { name: "English" })).toBeVisible();
+    await expect(page.locator("header").getByRole("link", { name: /English/ })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Menu", exact: true })).toBeHidden();
     const deborde = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
     expect(deborde).toBe(false);

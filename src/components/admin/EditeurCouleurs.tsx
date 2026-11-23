@@ -91,7 +91,6 @@ export function EditeurCouleurs({ couleurs, suggestions, onAjouter, onRetirer, o
               erreur={erreurCouleur}
               onChange={(v) => changerNomFr(c, v)}
             />
-            <ChampTexte id={`${base}-${c.cle}-en`} name={`couleur_en_${i}`} libelle={t("couleurs.nomEn")} aide={t("couleurs.nomEnAide")} valeur={c.en} onChange={(v) => onChangerCouleur(c.cle, { en: v })} />
             <ChampTexte id={`${base}-${c.cle}-hex`} name={`couleur_hex_${i}`} libelle={t("couleurs.hex")} aide={t("couleurs.hexAide")} valeur={c.hex} onChange={(v) => onChangerCouleur(c.cle, { hex: v })} />
             {locale === "sansTaille" ? (
               <p role="alert" className="t-small text-danger">

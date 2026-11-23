@@ -28,7 +28,7 @@ async function verifier(page: Page, chemin: string) {
 test.describe("police unique KOMA Chikara, 16 px minimum", () => {
   test.describe.configure({ timeout: 120_000 });
 
-  for (const chemin of ["/fr", "/en/kits", "/fr/connexion"]) {
+  for (const chemin of ["/fr", "/fr/kits", "/fr/connexion"]) {
     test(`${chemin} : KOMA Chikara, aucun texte sous 16 px, 320 px, axe`, async ({ page }) => {
       await verifier(page, chemin);
     });

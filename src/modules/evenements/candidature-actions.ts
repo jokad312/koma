@@ -3,6 +3,7 @@
 import { annulerEnvoiCandidature, demanderEnvoiCandidature, finaliserCandidature } from "./candidature";
 import { dependancesCandidature, dependancesNommerAide, dependancesPaiementStand } from "./candidature-dependances";
 import { creerCommandeStand, lireRecapitulatifStand, nommerAide } from "./candidature-paiement";
+import { langueServie } from "@/i18n/routing";
 
 // Server Actions de la candidature Stand : chaque entrée est vérifiée à l'exécution par le service (jamais crue sur parole).
 export async function demanderEnvoiCandidatureAction(entree: unknown) {
@@ -18,11 +19,11 @@ export async function annulerEnvoiCandidatureAction(entree: unknown) {
 }
 
 export async function lireRecapitulatifStandAction(entree: unknown, langue: "fr" | "en") {
-  return lireRecapitulatifStand(dependancesPaiementStand(), entree, langue === "en" ? "en" : "fr");
+  return lireRecapitulatifStand(dependancesPaiementStand(), entree, langueServie(langue));
 }
 
 export async function creerCommandeStandAction(entree: unknown, langue: "fr" | "en") {
-  return creerCommandeStand(dependancesPaiementStand(), entree, langue === "en" ? "en" : "fr");
+  return creerCommandeStand(dependancesPaiementStand(), entree, langueServie(langue));
 }
 
 export async function nommerAideAction(entree: unknown) {

@@ -1,23 +1,29 @@
 import type { MetadataRoute } from "next";
-import { routing } from "@/i18n/routing";
+import { estLangueActive, LANGUES_ACTIVES } from "@/i18n/routing";
 import { alternatives, urlLocalisee } from "@/lib/seo/url";
 import { PAGES_LEGALES } from "@/lib/vitrine/pages-legales";
 import { lireSlugsArticlesPublies } from "@/modules/blog/queries";
 import { lireSlugsPublies } from "@/modules/catalogue/queries";
 import { DOSSIER_PAR_FAMILLE, FAMILLES_PRODUIT } from "@/modules/catalogue/types";
 
-// Pages publiques existantes, en deux langues. Admin, compte et /api n'y figurent jamais.
+// Pages publiques existantes, dans chaque langue active (français seulement depuis le 2026-11-22 : aucune adresse /en). Admin, compte et /api n'y figurent jamais.
 // Les catalogues sont donnés par leur dossier interne : l'adresse de chaque langue vient de src/i18n/adresses.ts.
 const PAGES_PUBLIQUES = ["", ...FAMILLES_PRODUIT.map((f) => DOSSIER_PAR_FAMILLE[f]), "/blog", "/a-propos", "/faq", "/contact", ...PAGES_LEGALES.map((p) => p.chemin)];
 
 // Fiches des produits publiés : toutes les familles (story 3.3, story 9.15), dossiers de DOSSIER_PAR_FAMILLE.
 const DOSSIER_FICHE = DOSSIER_PAR_FAMILLE;
 
+// hreflang seulement quand plusieurs versions sont servies (aucun avec une seule langue active).
+function alternatesDe(chemin: string, langues?: readonly ("fr" | "en")[]): Pick<MetadataRoute.Sitemap[number], "alternates"> {
+  const languages = langues ? alternatives(chemin, "", langues) : alternatives(chemin);
+  return Object.keys(languages).length > 0 ? { alternates: { languages } } : {};
+}
+
 function entrees(chemins: readonly string[]): MetadataRoute.Sitemap {
   return chemins.flatMap((chemin) =>
-    routing.locales.map((locale) => ({
+    LANGUES_ACTIVES.map((locale) => ({
       url: urlLocalisee(locale, chemin),
-      alternates: { languages: alternatives(chemin) },
+      ...alternatesDe(chemin),
     })),
   );
 }
@@ -28,10 +34,10 @@ function entreesArticles(articles: ReadonlyArray<{ slug: string; versionAnglaise
   return articles.flatMap((article) => {
     const chemin = `/blog/${article.slug}`;
     const langues = article.versionAnglaise ? (["fr", "en"] as const) : (["fr"] as const);
-    const alternates = { languages: alternatives(chemin, "", langues) };
+    const alternates = alternatesDe(chemin, langues);
     return [
-      { url: urlLocalisee("fr", chemin), alternates },
-      ...(article.versionAnglaise ? [{ url: urlLocalisee("en", chemin), alternates }] : []),
+      { url: urlLocalisee("fr", chemin), ...alternates },
+      ...(article.versionAnglaise && estLangueActive("en") ? [{ url: urlLocalisee("en", chemin), ...alternates }] : []),
     ];
   });
 }

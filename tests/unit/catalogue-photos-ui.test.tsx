@@ -62,10 +62,11 @@ const PHOTOS: PhotoAdmin[] = [
 ];
 
 describe("GaleriePhotos", () => {
-  it("miniatures avec texte alternatif, textes FR et EN, boutons au nom complet", () => {
+  it("miniatures avec texte alternatif, aucun texte anglais (site en français uniquement), boutons au nom complet", () => {
     rendre(<GaleriePhotos photos={PHOTOS} />);
     expect(screen.getByAltText("TEST_Dos")).toBeTruthy();
-    expect(screen.getByText("Texte alternatif en anglais : TEST_Back")).toBeTruthy();
+    expect(screen.queryByText("Texte alternatif en anglais : TEST_Back")).toBeNull();
+    expect(screen.queryByLabelText("Texte alternatif en anglais")).toBeNull();
     expect(screen.getByRole("button", { name: "Monter la photo 2 : TEST_Dos" })).toBeTruthy();
     expect(screen.getByRole("button", { name: "Descendre la photo 2 : TEST_Dos" })).toBeTruthy();
     expect(screen.getByText(texteComplet("3 photos sur 10"))).toBeTruthy();
@@ -271,8 +272,7 @@ describe("PublicationProduit (menu STATUT)", () => {
 describe("EnvoiPhoto", () => {
   const choisir = async (user: ReturnType<typeof userEvent.setup>, fichier: File) => user.upload(screen.getByLabelText("Choisir une image"), fichier);
   const remplirAlt = async (user: ReturnType<typeof userEvent.setup>) => {
-    await user.type(screen.getByLabelText("Texte alternatif en français"), "Face");
-    await user.type(screen.getByLabelText("Texte alternatif en anglais"), "Front");
+    await user.type(screen.getByLabelText("Texte alternatif"), "Face");
   };
   const envoyer = (user: ReturnType<typeof userEvent.setup>) => user.click(screen.getByRole("button", { name: "Ajouter la photo" }));
 
@@ -305,9 +305,9 @@ describe("EnvoiPhoto", () => {
     const user = userEvent.setup({ applyAccept: false });
     rendre(<EnvoiPhoto produitId={PRODUIT} />);
     await choisir(user, new File(["x"], "a.jpg", { type: "image/jpeg" }));
-    await user.type(screen.getByLabelText("Texte alternatif en anglais"), "Front");
+    expect(screen.queryByLabelText("Texte alternatif en anglais")).toBeNull();
     await envoyer(user);
-    const champ = screen.getByLabelText("Texte alternatif en français");
+    const champ = screen.getByLabelText("Texte alternatif");
     expect(champ.getAttribute("aria-invalid")).toBe("true");
     expect(document.getElementById(champ.getAttribute("aria-describedby")!.split(" ").pop()!)!.textContent).toContain("texte alternatif");
     expect(faux.demanderEnvoiPhoto).not.toHaveBeenCalled();
@@ -326,14 +326,14 @@ describe("EnvoiPhoto", () => {
     await remplirAlt(user);
     await choisir(user, new File(["x"], "a.jpg", { type: "image/jpeg" }));
     await envoyer(user);
-    expect(faux.demanderEnvoiPhoto).toHaveBeenCalledWith({ produitId: PRODUIT, type: "image/jpeg", taille: 1, altFr: "Face", altEn: "Front" });
+    expect(faux.demanderEnvoiPhoto).toHaveBeenCalledWith({ produitId: PRODUIT, type: "image/jpeg", taille: 1, altFr: "Face", altEn: "" });
     expect(await screen.findByText("Traitement de la photo…")).toBeTruthy();
     expect(screen.queryByText("Photo ajoutée.")).toBeNull();
     await act(async () => finir({ statut: "succes", id: "TEST_photo" }));
     expect(await screen.findByText("Photo ajoutée.")).toBeTruthy();
-    expect(faux.finaliserPhoto).toHaveBeenCalledWith({ produitId: PRODUIT, objet: `${PRODUIT}/u.jpg`, altFr: "Face", altEn: "Front" });
+    expect(faux.finaliserPhoto).toHaveBeenCalledWith({ produitId: PRODUIT, objet: `${PRODUIT}/u.jpg`, altFr: "Face", altEn: "" });
     expect(faux.refresh).toHaveBeenCalled();
-    expect((screen.getByLabelText("Texte alternatif en français") as HTMLInputElement).value).toBe("");
+    expect((screen.getByLabelText("Texte alternatif") as HTMLInputElement).value).toBe("");
   });
 
   it("progression annoncée en texte avec sa valeur, « Annuler l'envoi » arrête et efface", async () => {

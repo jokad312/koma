@@ -77,7 +77,8 @@ export async function validerPhoto(deps: DependancesGalerie, entree: unknown): P
   if (!lu.success) return { ok: false, erreur: "introuvable" };
   const saisie = entree as { altFr?: unknown; altEn?: unknown };
   const altFr = altValide(saisie.altFr);
-  const altEn = altValide(saisie.altEn);
+  // Texte anglais facultatif (site en français uniquement, Q5) : absent, il reçoit la copie du français.
+  const altEn = typeof saisie.altEn === "string" && saisie.altEn.trim() !== "" ? altValide(saisie.altEn) : altFr;
   let fichier: string | null = null;
   try {
     const d = await droit(deps);

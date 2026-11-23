@@ -101,7 +101,6 @@ export function FichiersKit({ produitId, fichiers, ajout = true }: { produitId: 
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <p className="t-label break-words">{nomDe(f)}</p>
                   <p className="t-small break-words text-text-secondary">{t("nomFr", { nom: f.nomFr })}</p>
-                  <p className="t-small break-words text-text-secondary">{t("nomEn", { nom: f.nomEn })}</p>
                   <p className="t-small text-text-secondary">{t("details", { format: t(`formats.${f.format}`), taille: taille(f.tailleOctets), version: f.version })}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">

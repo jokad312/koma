@@ -12,9 +12,7 @@ describe("manquesPublication", () => {
     expect(manquesPublication({ prixCents: null, titreEn: null, descriptionFr: null, descriptionEn: null, nbPhotos: 0, nbVariantes: 0 })).toEqual([
       "prix",
       "photo",
-      "titre_en",
       "description_fr",
-      "description_en",
       "variante",
     ]);
   });
@@ -22,12 +20,14 @@ describe("manquesPublication", () => {
   it.each([
     [{ prixCents: null }, ["prix"]],
     [{ nbPhotos: 0 }, ["photo"]],
-    [{ titreEn: "   " }, ["titre_en"]],
     [{ descriptionFr: "" }, ["description_fr"]],
-    [{ descriptionEn: null }, ["description_en"]],
     [{ nbVariantes: 0 }, ["variante"]],
   ])("un seul manque %#", (partiel, attendu) => {
     expect(manquesPublication({ ...complet, ...partiel })).toEqual(attendu);
+  });
+
+  it("site en français uniquement (2026-11-22) : aucun texte anglais n'est exigé", () => {
+    expect(manquesPublication({ ...complet, titreEn: null, descriptionEn: null, nbCouleursSansAnglais: 2 })).toEqual([]);
   });
 });
 
@@ -60,11 +60,11 @@ describe("manquesPublication d'un Kit (story 3.2)", () => {
   it("Kit vide : tous les manques du Kit, dans l'ordre d'affichage", () => {
     expect(
       manquesPublication({ famille: "kit", prixCents: null, titreFr: " ", titreEn: null, descriptionFr: null, descriptionEn: null, nbPhotos: 0, nbVariantes: 0 }),
-    ).toEqual(["prix", "photo", "titre_fr", "titre_en", "description_fr", "description_en", "materiel_fr", "materiel_en", "niveau", "fichier", "video", "sous_titres_fr"]);
+    ).toEqual(["prix", "photo", "titre_fr", "description_fr", "materiel_fr", "niveau", "fichier", "video", "sous_titres_fr"]);
   });
 
   it.each([
-    [{ materielEn: "" }, ["materiel_en"]],
+    [{ materielEn: "", titreEn: null, descriptionEn: null }, []],
     [{ niveau: null }, ["niveau"]],
     [{ nbFichiers: 0 }, ["fichier"]],
     [{ nbPhotos: 0 }, ["photo"]],

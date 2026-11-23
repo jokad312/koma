@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import createIntlMiddleware from "next-intl/middleware";
 import { NextResponse, type NextRequest } from "next/server";
 import { lireEnvPublique } from "@/lib/env";
+import { versLangueActive } from "@/i18n/adresses";
 import { choisirLangue } from "@/i18n/detection";
 import { NOM_COOKIE_LANGUE, routing } from "@/i18n/routing";
 import { heureConnexion, lienSession, lireActiviteSignee, lireSecretActivite, signerActivite } from "@/lib/auth/activite-signee";
@@ -19,8 +20,16 @@ function estCheminLocalise(chemin: string) {
 }
 
 // Enchaîne la session Supabase puis la langue. Ne redirige jamais une page publique vers la connexion ;
-// seule exception décidée le 2026-10-21 : « / » mène à /fr ou /en.
+// seule exception décidée le 2026-10-21 : « / » mène à la langue détectée (toujours /fr depuis le 2026-11-22 : site en français uniquement).
 export async function proxy(request: NextRequest) {
+  // Langue désactivée (/en…, décision de Jonathan du 2026-11-22) : redirection permanente vers la page française équivalente, avant la session
+  // et la langue (rien n'est lu en base pour une adresse qui n'est plus servie ; la requête suivante rafraîchit la session).
+  const versActive = versLangueActive(request.nextUrl.pathname);
+  if (versActive !== null) {
+    const cible = request.nextUrl.clone();
+    cible.pathname = versActive;
+    return NextResponse.redirect(cible, 308);
+  }
   let reponseSession = NextResponse.next({ request });
   const env = lireEnvPublique();
 

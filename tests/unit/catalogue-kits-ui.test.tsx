@@ -107,8 +107,8 @@ describe("FormulaireProduit : famille Kit", () => {
     expect(screen.queryByText("Tailles et stock")).toBeNull();
     expect(screen.queryByLabelText("Stock")).toBeNull();
     expect(screen.queryAllByRole("checkbox")).toHaveLength(0);
-    expect(screen.getByLabelText("Matériel nécessaire en français")).toBeTruthy();
-    expect(screen.getByLabelText("Matériel nécessaire en anglais")).toBeTruthy();
+    expect(screen.getByLabelText("Matériel nécessaire")).toBeTruthy();
+    expect(screen.queryByLabelText("Matériel nécessaire en anglais")).toBeNull();
     expect(faux.enregistrerKit).not.toHaveBeenCalled();
     expect(faux.enregistrerProduit).not.toHaveBeenCalled();
   });
@@ -124,13 +124,16 @@ describe("FormulaireProduit : famille Kit", () => {
 
 describe("FormulaireKit", () => {
   const remplirMinimum = async (user: ReturnType<typeof userEvent.setup>) => {
-    await user.type(screen.getByLabelText("Titre en français"), "Kit de test");
+    await user.type(screen.getByLabelText("Titre"), "Kit de test");
   };
 
-  it("champs : titre, description, matériel FR et EN, univers, prix, niveau en cases natives, lien", () => {
+  it("champs : titre, description, matériel en français, univers, prix, niveau en cases natives, lien ; aucun champ anglais", () => {
     rendre(<FormulaireKit univers={UNIVERS} liables={LIABLES} />);
-    for (const libelle of ["Titre en français", "Titre en anglais", "Description en français", "Description en anglais", "Matériel nécessaire en français", "Matériel nécessaire en anglais", "Univers", "Prix en dollars US (USD)", "Cosplay ou accessoire lié"]) {
+    for (const libelle of ["Titre", "Description", "Matériel nécessaire", "Univers", "Prix en dollars US (USD)", "Cosplay ou accessoire lié"]) {
       expect(screen.getByLabelText(libelle)).toBeTruthy();
+    }
+    for (const libelle of ["Titre en anglais", "Description en anglais", "Matériel nécessaire en anglais"]) {
+      expect(screen.queryByLabelText(libelle)).toBeNull();
     }
     expect(screen.getAllByRole("radio").map((r) => (r as HTMLInputElement).value)).toEqual(["debutant", "intermediaire", "avance"]);
     expect(screen.getByText("Débutant")).toBeTruthy();
@@ -158,7 +161,7 @@ describe("FormulaireKit", () => {
     const user = userEvent.setup();
     rendre(<FormulaireKit univers={UNIVERS} liables={LIABLES} />);
     await remplirMinimum(user);
-    await user.type(screen.getByLabelText("Matériel nécessaire en français"), "Mousse EVA");
+    await user.type(screen.getByLabelText("Matériel nécessaire"), "Mousse EVA");
     await user.type(screen.getByLabelText("Prix en dollars US (USD)"), "0");
     await user.click(screen.getByRole("radio", { name: "Avancé" }));
     await user.selectOptions(screen.getByLabelText("Cosplay ou accessoire lié"), "TEST_cosplay-1");
@@ -216,7 +219,7 @@ describe("FormulaireKit", () => {
     const lie = screen.getByLabelText("Cosplay ou accessoire lié");
     expect(lie.getAttribute("aria-invalid")).toBe("true");
     expect(document.getElementById(lie.getAttribute("aria-describedby")!.split(" ").pop()!)!.textContent).toContain("a déjà un Kit");
-    expect((screen.getByLabelText("Titre en français") as HTMLInputElement).value).toBe("Kit de test");
+    expect((screen.getByLabelText("Titre") as HTMLInputElement).value).toBe("Kit de test");
     expect((lie as HTMLSelectElement).value).toBe("TEST_cosplay-1");
     expect(screen.queryByText("Kit enregistré.")).toBeNull();
   });
@@ -250,7 +253,7 @@ describe("FormulaireKit", () => {
     await remplirMinimum(user);
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
     expect(await screen.findByText(/n'a pas pu être enregistré/)).toBeTruthy();
-    expect((screen.getByLabelText("Titre en français") as HTMLInputElement).value).toBe("Kit de test");
+    expect((screen.getByLabelText("Titre") as HTMLInputElement).value).toBe("Kit de test");
     expect(screen.queryByText("Kit enregistré.")).toBeNull();
   });
 
@@ -423,19 +426,17 @@ describe("EnvoiFichierKit", () => {
     expect(faux.demanderEnvoiFichierKit).not.toHaveBeenCalled();
   });
 
-  it("les noms sont proposés d'après le fichier ; un nom vide est refusé sous son champ", async () => {
+  it("le nom est proposé d'après le fichier ; un nom vide est refusé sous son champ ; aucun champ anglais", async () => {
     const user = userEvent.setup({ applyAccept: false });
     rendre(<EnvoiFichierKit produitId={KIT} />);
     await choisir(user, pdf("Patron casque.pdf"));
-    expect((screen.getByLabelText("Nom en français") as HTMLInputElement).value).toBe("Patron casque");
-    expect((screen.getByLabelText("Nom en anglais") as HTMLInputElement).value).toBe("Patron casque");
-    await user.clear(screen.getByLabelText("Nom en anglais"));
+    expect((screen.getByLabelText("Nom") as HTMLInputElement).value).toBe("Patron casque");
+    expect(screen.queryByLabelText("Nom en anglais")).toBeNull();
+    await user.clear(screen.getByLabelText("Nom"));
     await ajouter(user);
-    const champ = screen.getByLabelText("Nom en français");
-    expect(champ.getAttribute("aria-invalid")).toBeNull();
-    const en = screen.getByLabelText("Nom en anglais");
-    expect(en.getAttribute("aria-invalid")).toBe("true");
-    expect(document.getElementById(en.getAttribute("aria-describedby")!.split(" ").pop()!)!.textContent).toContain("1 à 120 caractères");
+    const champ = screen.getByLabelText("Nom");
+    expect(champ.getAttribute("aria-invalid")).toBe("true");
+    expect(document.getElementById(champ.getAttribute("aria-describedby")!.split(" ").pop()!)!.textContent).toContain("1 à 120 caractères");
     expect(faux.demanderEnvoiFichierKit).not.toHaveBeenCalled();
   });
 
@@ -463,10 +464,8 @@ describe("EnvoiFichierKit", () => {
     rendre(<EnvoiFichierKit produitId={KIT} onSucces={succes} />);
     await choisir(user, pdf());
     await user.click(screen.getByRole("radio", { name: "PDF US Letter" }));
-    await user.clear(screen.getByLabelText("Nom en français"));
-    await user.type(screen.getByLabelText("Nom en français"), "Patron");
-    await user.clear(screen.getByLabelText("Nom en anglais"));
-    await user.type(screen.getByLabelText("Nom en anglais"), "Pattern");
+    await user.clear(screen.getByLabelText("Nom"));
+    await user.type(screen.getByLabelText("Nom"), "Patron");
     await ajouter(user);
     expect(faux.demanderEnvoiFichierKit).toHaveBeenCalledWith({ produitId: KIT, nomFichier: "patron.pdf", format: "pdf_letter", taille: 8, fichierId: undefined });
     expect(await screen.findByText("Vérification du fichier…")).toBeTruthy();
@@ -475,10 +474,10 @@ describe("EnvoiFichierKit", () => {
     expect(succes).not.toHaveBeenCalled();
     await act(async () => finir({ statut: "succes", id: "TEST_f" }));
     expect(await screen.findByText("Fichier ajouté.")).toBeTruthy();
-    expect(faux.finaliserFichierKit).toHaveBeenCalledWith({ produitId: KIT, objet: `${KIT}/u.pdf`, format: "pdf_letter", taille: 8, nomFr: "Patron", nomEn: "Pattern", fichierId: undefined });
+    expect(faux.finaliserFichierKit).toHaveBeenCalledWith({ produitId: KIT, objet: `${KIT}/u.pdf`, format: "pdf_letter", taille: 8, nomFr: "Patron", nomEn: "", fichierId: undefined });
     expect(faux.refresh).toHaveBeenCalled();
     expect(succes).toHaveBeenCalledWith("Fichier ajouté.");
-    expect((screen.getByLabelText("Nom en français") as HTMLInputElement).value).toBe("");
+    expect((screen.getByLabelText("Nom") as HTMLInputElement).value).toBe("");
   });
 
   it("progression annoncée en texte avec sa valeur ; « Annuler l'envoi » arrête et efface", async () => {
@@ -601,7 +600,7 @@ describe("EnvoiFichierKit", () => {
       const user = userEvent.setup({ applyAccept: false });
       const succes = vi.fn();
       rendre(<EnvoiFichierKit produitId={KIT} fichier={fichier} onSucces={succes} />);
-      expect(screen.queryByLabelText("Nom en français")).toBeNull();
+      expect(screen.queryByLabelText("Nom")).toBeNull();
       await choisir(user, pdf("v2.pdf"), "Nouveau fichier");
       expect(screen.queryByRole("radio", { name: "PDF US Letter" })).toBeNull();
       await user.click(screen.getByRole("button", { name: "Remplacer le fichier" }));

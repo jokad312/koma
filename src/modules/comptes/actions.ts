@@ -7,10 +7,10 @@ import { NOM_COOKIE_PANIER } from "@/lib/panier/cookie";
 import { adresseSite } from "@/lib/seo/url";
 import { COOKIE_RETOUR_GOOGLE, DUREE_RETOUR_GOOGLE_S } from "./google";
 import { dependances } from "./dependances";
-import { langueSchema } from "./schemas";
 import type { DeclarationAge, DemandeCode, QuestionsAccueil, VerificationCode } from "./schemas";
 import * as service from "./service";
 import type { CodeErreur } from "./types";
+import { langueServie } from "@/i18n/routing";
 
 export async function demanderCode(entree: DemandeCode) {
   return service.demanderCode(await dependances(), entree);
@@ -23,7 +23,7 @@ export type EtatEnvoi = { ok: true; email: string; envoyeLe: number } | { ok: fa
 // partant avec le formulaire. Le moment d'envoi n'est écrit qu'après la réponse réelle de Supabase (règle 13).
 export async function demanderCodeParFormulaire(_etat: EtatEnvoi | null, formData: FormData): Promise<EtatEnvoi> {
   const email = String(formData.get("email") ?? "");
-  const langue = langueSchema.catch("fr").parse(formData.get("langue"));
+  const langue = langueServie(formData.get("langue"));
   const resultat = await service.demanderCode(await dependances(), { email, langue });
   if (!resultat.ok) return { ok: false, erreur: resultat.erreur, email };
   return { ok: true, email: resultat.email, envoyeLe: Date.now() };
@@ -36,7 +36,7 @@ async function avecArrivee<R extends { ok: boolean }>(resultat: R): Promise<R> {
   // Étape suivante de la connexion (âge, questions) : la destination sera choisie à la dernière étape.
   if ("etape" in resultat && resultat.etape !== "termine") return resultat;
   // Langue tirée du retour validé (toujours « /fr… » ou « /en… »), pas de l'entrée du navigateur.
-  const locale = resultat.retour.startsWith("/en") ? "en" : "fr";
+  const locale = langueServie(resultat.retour.startsWith("/en") ? "en" : "fr");
   return { ...resultat, retour: await destinationApresConnexion(resultat.retour, locale) };
 }
 
@@ -56,7 +56,7 @@ export type EtatDeconnexion = { erreur: boolean };
 
 // Ferme la session puis ramène à l'accueil de la langue ; en cas d'échec, l'interface affiche un message.
 export async function deconnecter(_etat: EtatDeconnexion, formData: FormData): Promise<EtatDeconnexion> {
-  const langue = langueSchema.catch("fr").parse(formData.get("langue"));
+  const langue = langueServie(formData.get("langue"));
   const resultat = await service.fermerSession(await dependances());
   if (!resultat.ok) return { erreur: true };
   // Le Panier d'un Compte ne reste pas sur l'appareil après la déconnexion (appareil partagé).
@@ -69,7 +69,7 @@ export type EtatGoogle = { erreur: CodeErreur } | null;
 // Bouton « Continuer avec Google » (<form action>, marche avant l'hydratation). L'agent est relu côté serveur : un navigateur intégré est refusé.
 // La langue et le retour validés sont gardés dans un cookie court (le retour de Google n'a pas de paramètres, l'adresse de redirection reste fixe).
 export async function connecterAvecGoogle(_etat: EtatGoogle, formData: FormData): Promise<EtatGoogle> {
-  const langue = langueSchema.catch("fr").parse(formData.get("langue"));
+  const langue = langueServie(formData.get("langue"));
   const retour = formData.get("retour");
   const agent = (await headers()).get("user-agent");
   const resultat = await service.demarrerGoogle(

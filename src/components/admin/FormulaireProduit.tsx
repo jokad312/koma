@@ -247,17 +247,9 @@ export function FormulaireProduit({ univers, liables = [], produit = null, coule
           libelle={t("titreFr.libelle")}
           valeur={titreFr}
           onChange={changerTitreFr}
-          erreur={erreurDe("titre_fr")}
+          erreur={erreurDe("titre_fr") ?? erreurDe("titre_en")}
         />
-        <ChampTexte
-          id={`${base}-titre-en`}
-          name="titre_en"
-          libelle={t("titreEn.libelle")}
-          aide={t("titreEn.aide")}
-          valeur={titreEn}
-          onChange={setTitreEn}
-          erreur={erreurDe("titre_en")}
-        />
+        {/* Champs anglais retirés (site en français uniquement, 2026-11-22) : la valeur anglaise déjà enregistrée repart telle quelle. */}
         <ChampTexte
           id={`${base}-description-fr`}
           name="description_fr"
@@ -266,17 +258,7 @@ export function FormulaireProduit({ univers, liables = [], produit = null, coule
           valeur={descriptionFr}
           onChange={setDescriptionFr}
           multiligne
-          erreur={erreurDe("description_fr")}
-        />
-        <ChampTexte
-          id={`${base}-description-en`}
-          name="description_en"
-          libelle={t("descriptionEn.libelle")}
-          aide={t("descriptionEn.aide")}
-          valeur={descriptionEn}
-          onChange={setDescriptionEn}
-          multiligne
-          erreur={erreurDe("description_en")}
+          erreur={erreurDe("description_fr") ?? erreurDe("description_en")}
         />
 
         <div className="grid gap-6 sm:grid-cols-2">

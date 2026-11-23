@@ -61,7 +61,7 @@ grant select on ks_ids to public;
 select is(public.manques_publication((select p from ks_ids)), array['photo'], 'P : seule la photo manque');
 select is(
   public.manques_publication((select v from ks_ids)),
-  array['prix', 'photo', 'titre_en', 'description_fr', 'description_en', 'variante'],
+  array['prix', 'photo', 'description_fr', 'variante'],
   'V : tout manque, dans l''ordre'
 );
 select is(public.manques_publication('00000000-0000-0000-0000-00000000ffff'), null, 'produit inconnu : null');

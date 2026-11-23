@@ -36,7 +36,7 @@ describe("EditeurTranchesPrix", () => {
   it("tranches existantes : champs remplis en USD", () => {
     rendre(<EditeurTranchesPrix tranches={DEUX} />);
     expect(screen.getByText("Tranches enregistrées : 2")).toBeTruthy();
-    expect((screen.getByRole("textbox", { name: "Tranche 1 : libellé en français" }) as HTMLInputElement).value).toBe("Petit");
+    expect((screen.getByRole("textbox", { name: "Tranche 1 : libellé" }) as HTMLInputElement).value).toBe("Petit");
     expect((screen.getByRole("textbox", { name: "Tranche 1 : borne haute (USD)" }) as HTMLInputElement).value).toBe("20");
     expect((screen.getByRole("textbox", { name: "Tranche 2 : borne haute (USD)" }) as HTMLInputElement).value).toBe("");
   });
@@ -48,7 +48,7 @@ describe("EditeurTranchesPrix", () => {
     expect(screen.getByRole("button", { name: "Descendre la tranche 2" }).getAttribute("aria-disabled")).toBe("true");
     expect(screen.getByRole("button", { name: "Monter la tranche 2" }).getAttribute("aria-disabled")).toBeNull();
     await user.click(screen.getByRole("button", { name: "Monter la tranche 2" }));
-    expect((screen.getByRole("textbox", { name: "Tranche 1 : libellé en français" }) as HTMLInputElement).value).toBe("Grand");
+    expect((screen.getByRole("textbox", { name: "Tranche 1 : libellé" }) as HTMLInputElement).value).toBe("Grand");
     expect(screen.getByRole("status").textContent).toBe("Tranche déplacée à la position 1.");
   });
 
@@ -83,6 +83,17 @@ describe("EditeurTranchesPrix", () => {
     expect(await screen.findByText("Tranches enregistrées.")).toBeTruthy();
   });
 
+  it("site en français uniquement : une erreur visant le libellé anglais (sans champ) est montrée sous le libellé français", async () => {
+    enregistrerTranchesPrix.mockResolvedValue({ statut: "erreur", erreur: "tranche_libelle_invalide", ligne: 1, champ: "libelle_en" });
+    const user = userEvent.setup();
+    rendre(<EditeurTranchesPrix tranches={DEUX} />);
+    await user.click(screen.getByRole("button", { name: "Enregistrer les tranches" }));
+    await screen.findByRole("alert");
+    const champ = screen.getAllByRole("textbox")[0] as HTMLInputElement;
+    expect(champ.value).toBe("Petit");
+    expect(champ.getAttribute("aria-invalid")).toBe("true");
+  });
+
   it("erreur de tranche : résumé role=alert, champ marqué et relié, saisie conservée, aucun succès", async () => {
     enregistrerTranchesPrix.mockResolvedValue({ statut: "erreur", erreur: "tranche_bornes_invalides", ligne: 2, champ: "bas" });
     const user = userEvent.setup();
@@ -104,14 +115,14 @@ describe("EditeurTranchesPrix", () => {
     rendre(<EditeurTranchesPrix tranches={DEUX} />);
     await user.click(screen.getByRole("button", { name: "Enregistrer les tranches" }));
     expect((await screen.findByRole("alert")).textContent).toMatch(/n'ont pas pu être enregistrées/);
-    expect((screen.getByRole("textbox", { name: "Tranche 1 : libellé en français" }) as HTMLInputElement).value).toBe("Petit");
+    expect((screen.getByRole("textbox", { name: "Tranche 1 : libellé" }) as HTMLInputElement).value).toBe("Petit");
   });
 
   it("focus : Ajouter va au premier champ de la nouvelle ligne ; Retirer va à la ligne suivante, sinon à Ajouter", async () => {
     const user = userEvent.setup();
     rendre(<EditeurTranchesPrix tranches={DEUX} />);
     await user.click(screen.getByRole("button", { name: "Ajouter une tranche" }));
-    expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "Tranche 3 : libellé en français" }));
+    expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "Tranche 3 : libellé" }));
     await user.click(screen.getByRole("button", { name: "Retirer la tranche 1" }));
     // La ligne suivante prend le rang 1 : c'est son bouton Retirer qui reçoit le focus.
     expect(document.activeElement).toBe(screen.getByRole("button", { name: "Retirer la tranche 1" }));
@@ -185,7 +196,7 @@ describe("FormulaireReglage : forfait, retrait, plafond", () => {
         <FormulaireReglage cle="plafond_fabrication" valeur="40" />
       </>,
     );
-    const retrait = screen.getByRole("textbox", { name: "Lieu de retrait gratuit à Goma, en français" });
+    const retrait = screen.getByRole("textbox", { name: "Lieu de retrait gratuit à Goma" });
     expect(retrait.tagName).toBe("TEXTAREA");
     expect((retrait as HTMLTextAreaElement).value).toBe("Texte de test");
     expect(screen.getByRole("textbox", { name: "Plafond de fabrication (pièces)" }).getAttribute("inputmode")).toBe("numeric");

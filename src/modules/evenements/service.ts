@@ -104,7 +104,7 @@ export async function enregistrerEvenement(
     vente_ouvre_le: versInstant(e.venteOuvre),
     vente_ferme_le: versInstant(e.venteFerme),
     capacite: e.capacite ?? null,
-    images: e.images.map((image) => ({ fichier: image.fichier, alt_fr: image.altFr, alt_en: image.altEn })),
+    images: e.images.map((image) => ({ fichier: image.fichier, alt_fr: image.altFr, alt_en: image.altEn || image.altFr })),
   };
   try {
     // Les images déjà enregistrées sont lues AVANT l'écriture : celles retirées seront effacées après la sauvegarde.
@@ -183,8 +183,9 @@ export async function finaliserImage(
   await deps.exigerDroit("evenements.gerer");
   if (!CHEMIN_IMAGE_EVENEMENT.test(entree.objet)) return { ok: false, erreur: "format_invalide" };
   const altFr = entree.altFr.trim();
-  const altEn = entree.altEn.trim();
-  if (altFr === "" || altFr.length > 200 || altEn === "" || altEn.length > 200) return { ok: false, erreur: "alt_invalide" };
+  // Anglais facultatif (site en français uniquement, 2026-11-22) : vide, il reçoit la copie du français (exigé en base à la publication).
+  const altEn = (entree.altEn ?? "").trim() || altFr;
+  if (altFr === "" || altFr.length > 200 || altEn.length > 200) return { ok: false, erreur: "alt_invalide" };
 
   let objetPublic: string | null = null;
   try {

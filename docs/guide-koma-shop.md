@@ -33,7 +33,7 @@ Chaque costume existe en deux versions : prêt à porter, fabriqué et expédié
 **Décisions prises (brief produit du 16 octobre 2026) :**
 
 - Nom et domaine : KOMA SHOP, komashop.com (disponibilité à vérifier avant l'achat).
-- Langues : français et anglais, via /fr et /en.
+- Langues : site en français uniquement ; anglais désactivé mais conservé pour un éventuel lancement international (décision du 2026-11-22). Le site est servi sous /fr ; les adresses /en redirigent vers la page française.
 - Livraison des pièces physiques au lancement : Goma et Bukavu uniquement, un forfait par ville fixé dans l'admin. Bukavu, de l'autre côté du lac Kivu, est livrée en moins d'un jour.
 - Délai de fabrication : trop variable pour un chiffre unique ; saisi pour chaque produit ou variante et affiché avant le paiement.
 - Prix : fixés librement par l'admin, produit par produit. Le prix des kits reste ouvert : le lancement est un test.
@@ -225,7 +225,7 @@ Le référencement se construit dès la première ligne de code : une page par p
 - [ ] Image et texte de partage (Open Graph) pour chaque page : l'aperçu est soigné sur WhatsApp, Facebook et X.
 - [ ] Données structurées schema.org : Product avec Offer (prix, devise, disponibilité, livraison) sur chaque fiche, BreadcrumbList, Organization, FAQPage, VideoObject pour l'extrait vidéo.
 - [ ] sitemap.xml et robots.txt générés automatiquement ; adresse canonique sur chaque page.
-- [ ] Site bilingue : /fr et /en, balises hreflang.
+- [ ] Site en français (/fr) ; anglais désactivé mais conservé pour un éventuel lancement international (/en redirigé vers /fr, aucun hreflang tant qu'une seule langue est active).
 - [ ] Texte alternatif sur chaque image, une seule balise H1 par page.
 - [ ] Vitesse : image du héros prioritaire, images compressées, scores Core Web Vitals au vert sur mobile.
 
@@ -292,7 +292,7 @@ Next.js (App Router, TypeScript, Server Components par défaut), Tailwind CSS, S
 Référence design : [LIEN DU DÉPÔT DE RÉFÉRENCE]. Photos : [DOSSIER OU LIEN DES PHOTOS].
 
 ## Langues
-Français et anglais, via /fr et /en. Aucun texte visible en dur hors des fichiers de traduction.
+Site en français uniquement ; anglais désactivé mais conservé pour un éventuel lancement international (décision du 2026-11-22). Le site est servi sous /fr ; les adresses /en redirigent (308) vers la page française. Aucun texte visible en dur hors des fichiers de traduction.
 
 ## Prix et livraison
 Prix en USD, identique dans tous les pays, toujours affiché en USD. Chaque prix est fixé par l'admin, produit par produit.

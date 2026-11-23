@@ -6,9 +6,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 const INCONNUES = [
   "/fr/cosplays/ks-test-inconnu",
-  "/en/cosplays/ks-test-inconnu",
   "/fr/accessoires/ks-test-inconnu",
-  "/en/accessories/ks-test-inconnu",
 ] as const;
 
 async function violationsGraves(page: Page) {
@@ -35,9 +33,11 @@ for (const url of INCONNUES) {
   });
 }
 
-test("l'adresse française d'accessoire en anglais redirige vers l'adresse anglaise propre", async ({ page }) => {
-  await page.goto("/en/accessoires/ks-test-inconnu", { waitUntil: "networkidle" });
-  expect(new URL(page.url()).pathname).toBe("/en/accessories/ks-test-inconnu");
+test("une adresse anglaise de fiche redirige vers la fiche française (site en français uniquement)", async ({ page }) => {
+  for (const adresse of ["/en/accessoires/ks-test-inconnu", "/en/accessories/ks-test-inconnu"]) {
+    await page.goto(adresse, { waitUntil: "networkidle" });
+    expect(new URL(page.url()).pathname).toBe("/fr/accessoires/ks-test-inconnu");
+  }
 });
 
 test("plan du site : pages statiques et catalogues présents", async ({ request }) => {
@@ -45,7 +45,8 @@ test("plan du site : pages statiques et catalogues présents", async ({ request 
   expect(reponse.status()).toBe(200);
   const xml = await reponse.text();
   expect(xml).toContain("/fr/cosplays</loc>");
-  expect(xml).toContain("/en/accessories</loc>");
+  expect(xml).toContain("/fr/accessoires</loc>");
+  expect(xml).not.toContain("/en/");
 });
 
 // Première fiche publiée trouvée dans le catalogue, ou null (aucun produit publié dans la base lue).
@@ -58,14 +59,13 @@ async function ouvrirPremiereFiche(page: Page, catalogue: string): Promise<boole
   return true;
 }
 
-for (const catalogue of ["/fr/cosplays", "/en/accessories"] as const) {
+for (const catalogue of ["/fr/cosplays", "/fr/accessoires"] as const) {
   test.describe(`fiche depuis ${catalogue}`, () => {
     test("structure, métadonnées, JSON-LD, bandeau avant la zone d'achat, 375 px, axe", async ({ page }) => {
       test.skip(!(await ouvrirPremiereFiche(page, catalogue)), "aucun produit publié dans la base lue");
       await expect(page.locator("h1")).toHaveCount(1);
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", new RegExp(`${new URL(page.url()).pathname}$`));
-      await expect(page.locator('link[rel="alternate"][hreflang="fr"]')).toHaveCount(1);
-      await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveCount(1);
+      await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
       await expect(page.locator('meta[property="og:image"]')).toHaveCount(1);
       await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute("content", "summary_large_image");
       const jsonld = (await page.locator('script[type="application/ld+json"]').allTextContents()).join("\n");

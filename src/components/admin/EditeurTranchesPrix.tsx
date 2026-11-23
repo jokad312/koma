@@ -139,15 +139,7 @@ export function EditeurTranchesPrix({ tranches }: { tranches: readonly TranchePr
                     libelle={t("libelleFr", { numero })}
                     valeur={l.libelleFr}
                     onChange={(v) => modifier(l.cle, "libelleFr", v)}
-                    erreur={erreurDe(i, "libelle_fr")}
-                  />
-                  <ChampTexte
-                    id={`${l.cle}-en`}
-                    name={`libelle_en_${numero}`}
-                    libelle={t("libelleEn", { numero })}
-                    valeur={l.libelleEn}
-                    onChange={(v) => modifier(l.cle, "libelleEn", v)}
-                    erreur={erreurDe(i, "libelle_en")}
+                    erreur={erreurDe(i, "libelle_fr") ?? erreurDe(i, "libelle_en")}
                   />
                   <ChampTexte
                     id={`${l.cle}-bas`}

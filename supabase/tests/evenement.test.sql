@@ -61,12 +61,12 @@ select is(
 );
 select is(
   (select array_to_string(public.manques_publication_evenement(id), ',') from public.evenement where slug = 'test-evt'),
-  'titre_en,description_fr,description_en,lieu,photo,types_incomplets',
+  'description_fr,lieu,photo,types_incomplets',
   'la liste des manques est celle de la base'
 );
 select throws_ok(
   $$select public.publier_evenement('{"type":"compte","id":"00000000-0000-0000-0000-0000000000e1","role":"admin"}'::jsonb, (select id from public.evenement where slug = 'test-evt'))$$,
-  'P0001', 'KS_PUBLICATION_INCOMPLETE:titre_en,description_fr,description_en,lieu,photo,types_incomplets',
+  'P0001', 'KS_PUBLICATION_INCOMPLETE:description_fr,lieu,photo,types_incomplets',
   'publication refusée avec la liste des manques'
 );
 

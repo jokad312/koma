@@ -12,8 +12,8 @@ test.describe("page de connexion selon la maquette (9.17)", () => {
     await expect(entete).toBeVisible();
     await expect(entete.getByRole("link", { name: /.+/ }).first()).toHaveAttribute("href", "/fr");
     await expect(entete.getByRole("button", { name: /Thème/ })).toBeVisible();
-    // Seul moyen de changer de langue sur cette page : il garde la requête (retour).
-    await expect(entete.getByRole("link", { name: "English" })).toHaveAttribute("href", /\/en\/connexion\?retour=/);
+    // Site en français uniquement (2026-11-22) : aucun sélecteur de langue.
+    await expect(entete.getByRole("link", { name: /English/ })).toHaveCount(0);
     // Ni menu, ni « Se connecter », ni panier, ni pied de page (l'en-tête et le pied du site sont retirés).
     await expect(page.getByRole("button", { name: "Boutique" })).toHaveCount(0);
     await expect(page.getByRole("link", { name: "Blog", exact: true })).toHaveCount(0);
@@ -274,10 +274,10 @@ test.describe("connexion : même mise en page dans tous les cas (9.17, correctio
     verifierProportions(await panneauEtCarte(page));
   });
 
-  test("/en/connexion : même mise en page", async ({ page }) => {
+  test("/en/connexion : redirigée vers la connexion française, même mise en page", async ({ page }) => {
     await page.goto("/en/connexion", { waitUntil: "networkidle" });
-    await expect(page.getByRole("heading", { level: 1, name: "Sign in" })).toBeVisible();
-    await expect(page.getByLabel("Email address")).toBeVisible();
+    expect(new URL(page.url()).pathname).toBe("/fr/connexion");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveCount(1);
     verifierProportions(await panneauEtCarte(page));
   });
 

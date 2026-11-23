@@ -65,7 +65,6 @@ function FormulaireChapitre({
     setErreur(null);
     // Contrôles avant l'envoi (la base revérifie).
     if (titreFr.trim() === "" || titreFr.trim().length > 120) return setErreur({ code: "titre_invalide", champ: "titre_fr" });
-    if (titreEn.trim() === "" || titreEn.trim().length > 120) return setErreur({ code: "titre_invalide", champ: "titre_en" });
     const secondes = lireInstant(debut);
     if (secondes === null) return setErreur({ code: "instant_invalide", champ: "debut" });
     if (secondes >= dureeSecondes) return setErreur({ code: "chapitre_invalide", champ: "debut" });
@@ -101,8 +100,7 @@ function FormulaireChapitre({
         {chapitre ? t("formulaire.modificationTitre", { numero: numero ?? 0 }) : t("formulaire.ajoutTitre")}
       </h3>
       {erreurGenerale ? <MessageEtat type="erreur">{erreurGenerale}</MessageEtat> : null}
-      <ChampTexte id={`${base}-fr`} name="titre_fr" libelle={t("formulaire.titreFr")} aide={t("formulaire.titreAide")} valeur={titreFr} onChange={setTitreFr} erreur={erreurDe("titre_fr")} />
-      <ChampTexte id={`${base}-en`} name="titre_en" libelle={t("formulaire.titreEn")} aide={t("formulaire.titreAide")} valeur={titreEn} onChange={setTitreEn} erreur={erreurDe("titre_en")} />
+      <ChampTexte id={`${base}-fr`} name="titre_fr" libelle={t("formulaire.titreFr")} aide={t("formulaire.titreAide")} valeur={titreFr} onChange={setTitreFr} erreur={erreurDe("titre_fr") ?? erreurDe("titre_en")} />
       <ChampTexte
         id={`${base}-debut`}
         name="debut"
@@ -204,7 +202,6 @@ export function ChapitresKit({ produitId, chapitres, dureeSecondes }: { produitI
               <li key={c.id} className={`flex flex-wrap items-center gap-4 ${classes.bloc} p-3`}>
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <p className="t-label break-words">{t("ligne", { numero, debut: formaterInstant(c.debutSecondes), titre })}</p>
-                  <p className="t-small break-words text-text-secondary">{locale === "en" ? t("titreFrLigne", { titre: c.titreFr }) : t("titreEnLigne", { titre: c.titreEn })}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <button

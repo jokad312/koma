@@ -1,7 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 
 // Story 7.2 : pages Festival. Aucune donnée de test n'est créée en base : le test s'adapte aux Événements publiés (ou à leur absence).
-const LANGUES = ["fr", "en"] as const;
+// Site en français uniquement (2026-11-22) : /en est redirigé vers /fr (tests/e2e/langue-francaise.spec.ts).
+const LANGUES = ["fr"] as const;
 
 const sansDebordement = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
 

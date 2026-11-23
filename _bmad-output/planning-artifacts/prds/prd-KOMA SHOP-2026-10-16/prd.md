@@ -476,7 +476,8 @@ Le système mesure au moins : origine de la visite et de la vente (réseau socia
 ### 4.14 Langues, SEO et partage
 
 #### FR-55 : Français et anglais
-Toutes les pages publiques existent en français et en anglais, sous /fr et /en, sauf les Articles du Blog (FR-43). Aucun texte visible n'est écrit en dur hors des fichiers de traduction. Les emails partent dans la langue choisie par le client.
+**Décision du 2026-11-22 : site en français uniquement ; anglais désactivé mais conservé pour un éventuel lancement international.** Toutes les pages publiques sont servies en français sous /fr ; toute adresse /en… redirige (308) vers la page française équivalente ; aucun sélecteur de langue ; tous les emails partent en français. L'anglais (traductions, adresses, colonnes `_en`) reste en place pour être réactivé.
+Avant cette décision (comportement d'une réactivation) : toutes les pages publiques existent en français et en anglais, sous /fr et /en, sauf les Articles du Blog (FR-43). Aucun texte visible n'est écrit en dur hors des fichiers de traduction. Les emails partent dans la langue choisie par le client.
 
 #### FR-56 : Référencement
 Chaque page publique a un titre et une description uniques, une URL lisible, Open Graph et des données structurées JSON-LD (Product et Offer, Event, Article, BreadcrumbList, Organization, FAQPage, VideoObject selon la page), un plan du site, un fichier robots.txt, une URL canonique, les balises hreflang entre /fr et /en, et un seul titre H1 par page (règle 8).

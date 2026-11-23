@@ -280,6 +280,12 @@ describe("finaliserFichierKit", () => {
     expect(appels.fichiersKit[0].chemin).not.toBe(OBJET_PDF);
   });
 
+  it("site en français uniquement (Q5) : ajout sans nom anglais, la ligne enregistrée reçoit la copie du nom français", async () => {
+    const { deps, appels } = creer({ objetKit: objetPresent() });
+    expect(await finaliserFichierKit(deps, fin({ nomFr: " Patron A4 ", nomEn: "" }))).toEqual({ ok: true, id: "TEST_fichier-0001" });
+    expect(appels.fichiersKit[0]).toMatchObject({ nomFr: "Patron A4", nomEn: "Patron A4" });
+  });
+
   it("double finalisation du même objet (déjà enregistré) : refus clair, rien n'est lu, déplacé ni effacé", async () => {
     const { deps, appels } = creer({ objetKit: objetPresent(), cheminEnregistre: true });
     expect(await finaliserFichierKit(deps, fin())).toEqual({ ok: false, erreur: "fichier_deja_enregistre" });
@@ -513,7 +519,7 @@ describe("publication d'un Kit", () => {
     expect(await publierProduit(deps, { id: TEST_KIT_ID })).toEqual({
       ok: false,
       erreur: "publication_incomplete",
-      manques: ["prix", "photo", "titre_en", "description_fr", "description_en", "materiel_fr", "materiel_en", "niveau", "fichier", "video", "sous_titres_fr"],
+      manques: ["prix", "photo", "description_fr", "materiel_fr", "niveau", "fichier", "video", "sous_titres_fr"],
     });
   });
 

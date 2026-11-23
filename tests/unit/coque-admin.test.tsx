@@ -147,7 +147,7 @@ describe("CoqueAdmin : disposition en L", () => {
     expect(within(nav).queryByText("Besoin d'aide ?")).toBeNull();
   });
 
-  it("bandeau : sur-titre sur une ligne, titre de la section courante, thème et langue en ronds, nom et rôle, avatar qui ouvre le menu du profil", async () => {
+  it("bandeau : sur-titre sur une ligne, titre de la section courante, thème en rond (aucun choix de langue), nom et rôle, avatar qui ouvre le menu du profil", async () => {
     chemin.courant = "/admin/produits/TEST_id";
     rendre(await coque("x"));
     const bandeau = screen.getByRole("banner");
@@ -159,8 +159,10 @@ describe("CoqueAdmin : disposition en L", () => {
     expect(avatar.textContent).toBe("AT");
     expect(avatar.className).toContain("bg-primary");
     expect(avatar.getAttribute("aria-expanded")).toBe("false");
-    // Thème et langue restent dans la barre (l'en-tête du site est masqué) ; la déconnexion passe dans le menu du profil, fermé au départ.
-    for (const nom of ["Thème", "Langue"]) expect(within(bandeau).getByRole("button", { name: nom })).toBeTruthy();
+    // Le thème reste dans la barre (l'en-tête du site est masqué) ; site en français uniquement (2026-11-22) : aucun sélecteur de langue.
+    // La déconnexion passe dans le menu du profil, fermé au départ.
+    expect(within(bandeau).getByRole("button", { name: "Thème" })).toBeTruthy();
+    expect(within(bandeau).queryByRole("button", { name: "Langue" })).toBeNull();
     expect(within(bandeau).queryByRole("button", { name: "Se déconnecter" })).toBeNull();
   });
 

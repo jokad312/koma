@@ -8,7 +8,7 @@ import { CoqueAdmin } from "@/components/admin/CoqueAdmin";
 import { FormulaireUnivers } from "@/components/admin/FormulaireUnivers";
 import { MessageEtat } from "@/components/ui/MessageEtat";
 import { Squelette } from "@/components/ui/Squelette";
-import { routing, type Locale } from "@/i18n/routing";
+import { PLUSIEURS_LANGUES, routing, type Locale } from "@/i18n/routing";
 import { exigerAdminPage } from "@/lib/auth/droits";
 import { lireNomSite } from "@/lib/reglages";
 import { construireMetadata } from "@/lib/seo/metadata";
@@ -68,7 +68,8 @@ async function UniversSelonDroit({ locale }: { locale: Locale }) {
                 <ul className="flex flex-wrap gap-2">
                   {univers.map((u) => (
                     <li key={u.id} className="t-body max-w-full rounded-full bg-admin-univers px-4 py-2 text-admin-sur-univers break-words">
-                      {t("liste.noms", { fr: u.nomFr, en: u.nomEn })}
+                      {/* Site en français uniquement (2026-11-22) : le nom français seul ; les deux noms reviennent avec l'anglais. */}
+                      {PLUSIEURS_LANGUES ? t("liste.noms", { fr: u.nomFr, en: u.nomEn }) : u.nomFr}
                     </li>
                   ))}
                 </ul>

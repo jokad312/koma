@@ -1,6 +1,8 @@
 // Story 9.12 : après la connexion, un retour qui n'est que l'accueil de la langue devient l'arrivée par défaut ; un retour précis et les
 // étapes intermédiaires (âge, questions) sont inchangés. Service et arrivée remplacés par des doubles de test (règle 13).
 import { beforeEach, describe, expect, it, vi } from "vitest";
+// Anglais désactivé mais conservé (2026-11-22) : ce test vérifie le comportement bilingue, celui d'une réactivation de l'anglais.
+vi.mock("@/i18n/langues-actives", () => import("../doubles/TEST_langues-fr-en"));
 
 vi.mock("server-only", () => ({}));
 vi.mock("next/headers", () => ({ cookies: async () => ({}), headers: async () => new Headers() }));

@@ -22,7 +22,7 @@ sources:
 - **Forme** : site web responsive, **mobile d'abord à 375 px**, sans défilement horizontal ; pensé d'abord pour le navigateur intégré d'Instagram (NFR-1). Ordinateur en second. Admin utilisable sur téléphone et ordinateur (FR-49).
 - **Pile** : Next.js (App Router, Server Components par défaut) + Tailwind CSS. **Aucun système d'interface tiers** (ni shadcn, ni MUI) n'est nommé par les sources : les composants sont propres au projet et suivent `DESIGN.md`.
 - **Thèmes** : crème par défaut (`{colors.background}`), sombre par bascule (`{colors.background-dark}`), choix mémorisé, appliqué avant le premier rendu (pas de flash de thème).
-- **Langues** : `/fr` et `/en`, même structure.
+- **Langues** : site en français uniquement ; anglais désactivé mais conservé pour un éventuel lancement international (décision du 2026-11-22) : le site est servi sous `/fr`, `/en` redirige vers la page française, aucun sélecteur de langue. Ce qui suit décrit le fonctionnement bilingue, celui d'une réactivation de l'anglais : `/fr` et `/en`, même structure.
   - Aucun texte visible en dur hors des fichiers de traduction (FR-55). Emails dans la langue choisie par le client.
   - Articles : FR obligatoire, EN facultatif ; sans traduction, absents de `/en` (FR-43). `hreflang` entre `/fr` et `/en` (FR-56).
   - `lang` sur `<html>` selon la route ; `lang="en"` sur tout passage anglais d'une page `/fr` (et inversement) ; `lang="ja"` sur tout mot japonais exposé.
@@ -79,7 +79,7 @@ Toutes les pages publiques existent sous `/fr` et `/en` (sauf Articles sans vers
 - **Pied de page** : quatre cartes — Aide (FAQ, Contact, WhatsApp), Infos légales, Paiement, identité KOMA SHOP ; liens Galerie et réseaux ajoutés seulement quand ils existent.
 - **Compte** : mobile = page « Mon compte » (Navigation du compte) ; ordinateur = Navigation du compte en colonne gauche, contenu à droite ; l'icône compte de l'en-tête est marquée page courante (décision memlog).
 - **Admin** : ordinateur = **Barre latérale admin** (Tableau de bord, Commandes, Produits, Événements, Galerie, Blog, Codes promo, Prestataires, Réglages) ; mobile = **Barre d'onglets admin** (Tableau de bord, Commandes, Mesures et tâches, Scan) + ☰ pour le reste (décision memlog). Les règles « pas de barre latérale » et « pas de barre d'onglets en bas » ne visent que la vitrine.
-- **Bilingue** : le sélecteur de langue garde la page courante (équivalent `/fr` ↔ `/en`) ; un Article sans version anglaise renvoie vers la liste du Blog `/en` [HYPOTHÈSE].
+- **Bilingue** (désactivé depuis le 2026-11-22 : site en français uniquement, aucun sélecteur) : le sélecteur de langue garde la page courante (équivalent `/fr` ↔ `/en`) ; un Article sans version anglaise renvoie vers la liste du Blog `/en` [HYPOTHÈSE].
 
 ### Accueil — ordre des blocs (FR-2)
 

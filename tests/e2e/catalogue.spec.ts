@@ -27,18 +27,17 @@ async function ouvrirMenu(page: Page) {
 }
 
 for (const c of CATALOGUES) {
-  for (const langue of ["fr", "en"] as const) {
+  // Site en français uniquement (2026-11-22) : seules les adresses françaises sont servies.
+  for (const langue of ["fr"] as const) {
     const url = c[langue];
     test.describe(url, () => {
-      test("un seul H1, canonique propre à la langue, hreflang des deux langues, BreadcrumbList, aucune erreur serveur", async ({ page }) => {
+      test("un seul H1, canonique propre, aucun hreflang, BreadcrumbList, aucune erreur serveur", async ({ page }) => {
         const reponse = await page.goto(url, { waitUntil: "networkidle" });
         expect(reponse?.status()).toBe(200);
         await expect(page.locator("h1")).toHaveCount(1);
         await expect(page.locator("h1")).toHaveText(c.titre[langue]);
         await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", new RegExp(`${url}$`));
-        await expect(page.locator('link[rel="alternate"][hreflang="fr"]')).toHaveAttribute("href", new RegExp(`${c.fr}$`));
-        await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute("href", new RegExp(`${c.en}$`));
-        await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveCount(1);
+        await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
         await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
         await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(0);
         const jsonld = (await page.locator('script[type="application/ld+json"]').allTextContents()).join("\n");
@@ -96,37 +95,29 @@ for (const c of CATALOGUES) {
   }
 }
 
-test("la rubrique Cosplays et la rubrique Accessoires pointent vers l'adresse de chaque langue", async ({ page }) => {
+test("la rubrique Cosplays et la rubrique Accessoires pointent vers l'adresse française", async ({ page }) => {
   await page.goto("/fr", { waitUntil: "networkidle" });
-  let menu = await ouvrirMenu(page);
+  const menu = await ouvrirMenu(page);
   await expect(menu.getByRole("link", { name: "Cosplays" })).toHaveAttribute("href", "/fr/cosplays");
   await expect(menu.getByRole("link", { name: "Accessoires" })).toHaveAttribute("href", "/fr/accessoires");
-  await page.keyboard.press("Escape");
-
-  await page.goto("/en", { waitUntil: "networkidle" });
-  menu = await ouvrirMenu(page);
-  await expect(menu.getByRole("link", { name: "Cosplays" })).toHaveAttribute("href", "/en/cosplays");
-  await expect(menu.getByRole("link", { name: "Accessories" })).toHaveAttribute("href", "/en/accessories");
 });
 
-test("l'adresse de l'autre langue redirige en 308 vers la bonne, requête comprise", async ({ request }) => {
+test("une adresse anglaise redirige en 308 vers la page française, requête comprise ; l'ancienne adresse redirige vers la bonne", async ({ request }) => {
   const en = await request.get("/en/accessoires?tri=prix_asc", { maxRedirects: 0 });
   expect(en.status()).toBe(308);
   expect(new URL(en.headers()["location"], "http://localhost:3100").pathname + new URL(en.headers()["location"], "http://localhost:3100").search).toBe(
-    "/en/accessories?tri=prix_asc",
+    "/fr/accessoires?tri=prix_asc",
   );
   const fr = await request.get("/fr/accessories", { maxRedirects: 0 });
   expect(fr.status()).toBe(308);
   expect(new URL(fr.headers()["location"], "http://localhost:3100").pathname).toBe("/fr/accessoires");
 });
 
-test("le sélecteur de langue garde la requête et mène à l'adresse propre de l'autre langue", async ({ page }) => {
+test("aucun sélecteur de langue dans le menu (site en français uniquement)", async ({ page }) => {
   await page.goto("/fr/accessoires?tri=prix_asc&dispo=en_stock", { waitUntil: "networkidle" });
   const menu = await ouvrirMenu(page);
-  await menu.getByRole("link", { name: "English" }).click();
-  await page.waitForURL("**/en/accessories?tri=prix_asc&dispo=en_stock");
-  await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Accessories");
+  await expect(menu.getByRole("link", { name: /English/ })).toHaveCount(0);
+  await expect(menu.getByRole("group", { name: "Langue" })).toHaveCount(0);
 });
 
 test("paramètres inconnus ou mal formés et curseur invalide : jamais d'erreur, première page", async ({ page }) => {
@@ -161,9 +152,9 @@ test("une page de catalogue filtrée affiche « Effacer les filtres » qui ramè
   await expect(page.getByRole("link", { name: "En stock" }).first()).toHaveAttribute("aria-current", "true");
 });
 
-test("plan du site : les deux catalogues dans les deux langues avec leur adresse propre", async ({ request }) => {
+test("plan du site : les deux catalogues en français, aucune adresse /en", async ({ request }) => {
   const corps = await (await request.get("/sitemap.xml")).text();
-  for (const adresse of ["/fr/cosplays", "/en/cosplays", "/fr/accessoires", "/en/accessories"]) expect(corps).toContain(`${adresse}</loc>`);
-  expect(corps).not.toContain("/en/accessoires<");
+  for (const adresse of ["/fr/cosplays", "/fr/accessoires"]) expect(corps).toContain(`${adresse}</loc>`);
+  expect(corps).not.toContain("/en/");
   expect(corps).not.toContain("/fr/accessories<");
 });

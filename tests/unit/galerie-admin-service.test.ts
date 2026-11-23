@@ -65,6 +65,12 @@ function faux(s: Partial<DependancesGalerie> = {}) {
 }
 
 describe("validerPhoto", () => {
+  it("site en français uniquement (Q5) : sans texte anglais, la base reçoit la copie du français", async () => {
+    const { deps } = faux();
+    expect(await validerPhoto(deps, { id: ID, altFr: "TEST_Cosplay", altEn: "" })).toEqual({ ok: true });
+    expect(deps.valider).toHaveBeenCalledWith(AUTEUR, ID, expect.stringMatching(/^galerie\//), { altFr: "TEST_Cosplay", altEn: "TEST_Cosplay" });
+  });
+
   it("la photo publiée n'a plus de métadonnées (position GPS comprise) ; original effacé ; cache invalidé", async () => {
     expect((await sharp(Buffer.from(JPEG_GPS)).metadata()).exif).toBeDefined();
     const { deps, publics, effaces } = faux();

@@ -69,14 +69,15 @@ export function FormulaireEvenement({ evenement, idFormulaire }: { evenement: Ev
   const router = useRouter();
   const base = useId();
   const [titreFr, setTitreFr] = useState(evenement?.titreFr ?? "");
-  const [titreEn, setTitreEn] = useState(evenement?.titreEn ?? "");
+  // Valeurs anglaises sans champ (site en français uniquement, 2026-11-22) : gardées telles quelles et renvoyées à l'enregistrement.
+  const [titreEn] = useState(evenement?.titreEn ?? "");
   const [slug, setSlug] = useState(evenement?.slug ?? "");
   const [slugModifie, setSlugModifie] = useState(evenement !== null);
   const [descriptionFr, setDescriptionFr] = useState(evenement?.descriptionFr ?? "");
-  const [descriptionEn, setDescriptionEn] = useState(evenement?.descriptionEn ?? "");
+  const [descriptionEn] = useState(evenement?.descriptionEn ?? "");
   const [lieuType, setLieuType] = useState<LieuType | "">(evenement?.lieuType ?? "");
   const [lieuFr, setLieuFr] = useState(evenement?.lieuFr ?? "");
-  const [lieuEn, setLieuEn] = useState(evenement?.lieuEn ?? "");
+  const [lieuEn] = useState(evenement?.lieuEn ?? "");
   const [debut, setDebut] = useState(versSaisieBoutique(evenement?.debutLe));
   const [fin, setFin] = useState(versSaisieBoutique(evenement?.finLe));
   const [venteOuvre, setVenteOuvre] = useState(versSaisieBoutique(evenement?.venteOuvreLe));
@@ -210,10 +211,8 @@ export function FormulaireEvenement({ evenement, idFormulaire }: { evenement: Ev
       {etat?.statut === "succes" ? <MessageEtat type="succes">{t("succes")}</MessageEtat> : null}
 
       <ChampTexte id={`${base}-titre-fr`} name="titre_fr" libelle={t("titreFr.libelle")} aide={t("titreFr.aide")} valeur={titreFr} onChange={(v) => { setTitreFr(v); if (!slugModifie) setSlug(proposerSlug(v)); }} erreur={erreurDe("titre_fr")} />
-      <ChampTexte id={`${base}-titre-en`} name="titre_en" libelle={t("titreEn.libelle")} aide={t("titreEn.aide")} valeur={titreEn} onChange={setTitreEn} erreur={erreurDe("titre_en")} />
       <ChampTexte id={`${base}-slug`} name="slug" libelle={t("slug.libelle")} aide={t("slug.aide")} valeur={slug} onChange={(v) => { setSlugModifie(true); setSlug(v); }} erreur={erreurDe("slug")} />
       <ChampTexte id={`${base}-description-fr`} name="description_fr" libelle={t("descriptionFr.libelle")} aide={t("descriptionFr.aide")} valeur={descriptionFr} onChange={setDescriptionFr} erreur={erreurDe("texte")} multiligne />
-      <ChampTexte id={`${base}-description-en`} name="description_en" libelle={t("descriptionEn.libelle")} aide={t("descriptionEn.aide")} valeur={descriptionEn} onChange={setDescriptionEn} multiligne />
 
       <fieldset className="flex flex-col gap-4 border-t border-border pt-6">
         <legend className="t-h3">{t("lieu.titre")}</legend>
@@ -228,7 +227,6 @@ export function FormulaireEvenement({ evenement, idFormulaire }: { evenement: Ev
           </select>
         </div>
         <ChampTexte id={`${base}-lieu-fr`} name="lieu_fr" libelle={t("lieu.fr.libelle")} aide={t("lieu.fr.aide")} valeur={lieuFr} onChange={setLieuFr} erreur={erreurDe("lieu")} />
-        <ChampTexte id={`${base}-lieu-en`} name="lieu_en" libelle={t("lieu.en.libelle")} valeur={lieuEn} onChange={setLieuEn} />
       </fieldset>
 
       <fieldset className="flex flex-col gap-4 border-t border-border pt-6">
@@ -254,11 +252,9 @@ export function FormulaireEvenement({ evenement, idFormulaire }: { evenement: Ev
               <fieldset className="flex flex-col gap-4">
                 <legend className="t-label">{t("types.numero", { numero: i + 1 })}</legend>
                 <ChampTexte id={`${base}-t${ligne.cle}-nom-fr`} name={`type_nom_fr_${i}`} libelle={t("types.nomFr")} valeur={ligne.nomFr} onChange={(v) => majType(ligne.cle, { nomFr: v })} />
-                <ChampTexte id={`${base}-t${ligne.cle}-nom-en`} name={`type_nom_en_${i}`} libelle={t("types.nomEn")} valeur={ligne.nomEn ?? ""} onChange={(v) => majType(ligne.cle, { nomEn: v })} />
                 <ChampTexte id={`${base}-t${ligne.cle}-prix`} name={`type_prix_${i}`} libelle={t("types.prix")} aide={t("types.prixAide")} valeur={ligne.prixUsd} onChange={(v) => majType(ligne.cle, { prixUsd: v })} inputMode="decimal" />
                 <ChampTexte id={`${base}-t${ligne.cle}-quota`} name={`type_quota_${i}`} libelle={ligne.estStand ? t("types.quotaStand") : t("types.quota")} aide={ligne.estStand ? t("types.quotaStandAide") : t("types.quotaAide")} valeur={ligne.quota ?? ""} onChange={(v) => majType(ligne.cle, { quota: v })} inputMode="numeric" />
                 <ChampTexte id={`${base}-t${ligne.cle}-inclus-fr`} name={`type_inclus_fr_${i}`} libelle={t("types.inclusFr")} valeur={ligne.inclusFr ?? ""} onChange={(v) => majType(ligne.cle, { inclusFr: v })} multiligne />
-                <ChampTexte id={`${base}-t${ligne.cle}-inclus-en`} name={`type_inclus_en_${i}`} libelle={t("types.inclusEn")} valeur={ligne.inclusEn ?? ""} onChange={(v) => majType(ligne.cle, { inclusEn: v })} multiligne />
                 <div className="flex items-start gap-3">
                   <input
                     id={`${base}-t${ligne.cle}-stand`}

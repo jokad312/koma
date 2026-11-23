@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { Locale } from "@/i18n/routing";
-import { routing } from "@/i18n/routing";
+import { LANGUES_ACTIVES, routing } from "@/i18n/routing";
 import { adresseSite, alternatives, urlLocalisee } from "./url";
 
 type Entree = {
@@ -28,11 +28,16 @@ const LOCALE_OG: Record<Locale, string> = { fr: "fr_FR", en: "en_US" };
 export function construireMetadata({ locale, chemin = "", titre, description, nomSite, indexable = true, suivreLesLiens = false, requete = "", languesDisponibles = routing.locales, sansCanonique = false, image }: Entree): Metadata {
   const titreComplet = `${titre} | ${nomSite}`;
   const url = urlLocalisee(locale, chemin, requete);
+  // hreflang et alternateLocale : langues actives seulement (aucun en tant que le site est en français uniquement).
+  const langues = alternatives(chemin, requete, languesDisponibles);
+  const autresLocales = routing.locales
+    .filter((l) => l !== locale && languesDisponibles.includes(l) && (LANGUES_ACTIVES as readonly Locale[]).includes(l))
+    .map((l) => LOCALE_OG[l]);
   return {
     metadataBase: new URL(adresseSite()),
     title: titreComplet,
     description,
-    alternates: sansCanonique ? undefined : { canonical: url, languages: alternatives(chemin, requete, languesDisponibles) },
+    alternates: sansCanonique ? undefined : { canonical: url, ...(Object.keys(langues).length > 0 ? { languages: langues } : {}) },
     openGraph: {
       type: "website",
       title: titreComplet,
@@ -40,7 +45,7 @@ export function construireMetadata({ locale, chemin = "", titre, description, no
       url,
       siteName: nomSite,
       locale: LOCALE_OG[locale],
-      alternateLocale: routing.locales.filter((l) => l !== locale && languesDisponibles.includes(l)).map((l) => LOCALE_OG[l]),
+      ...(autresLocales.length > 0 ? { alternateLocale: autresLocales } : {}),
       ...(image ? { images: [{ url: image.url, alt: image.alt }] } : {}),
     },
     ...(image ? { twitter: { card: "summary_large_image" as const, title: titreComplet, description, images: [{ url: image.url, alt: image.alt }] } } : {}),

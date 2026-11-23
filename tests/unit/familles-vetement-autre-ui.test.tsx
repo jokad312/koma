@@ -35,7 +35,7 @@ beforeEach(() => {
 });
 
 describe("FormulaireProduit : Vêtement", () => {
-  it("grille tailles × couleurs : nom FR/EN, pastille, suggestions, et chaque couleur envoie ses tailles", async () => {
+  it("grille tailles × couleurs : nom français, pastille, suggestions, et chaque couleur envoie ses tailles", async () => {
     const user = userEvent.setup();
     rendre(<FormulaireProduit univers={[]} couleursUtilisees={[{ fr: "Noir", en: "Black", hex: "#1B1713" }]} />);
     await user.click(screen.getByRole("radio", { name: /Vêtement/ }));
@@ -44,17 +44,17 @@ describe("FormulaireProduit : Vêtement", () => {
     expect(screen.getByRole("checkbox", { name: "Proposer la taille XXL" })).toBeTruthy();
 
     await user.click(screen.getByRole("button", { name: "Ajouter une couleur" }));
-    const nomFr = screen.getByRole("combobox", { name: "Nom de la couleur en français" });
-    // Couleur déjà utilisée : son nom anglais et sa pastille sont repris.
+    const nomFr = screen.getByRole("combobox", { name: "Nom de la couleur" });
+    // Couleur déjà utilisée : sa pastille est reprise, et son nom anglais (sans champ depuis le 2026-11-22) part avec elle.
     await user.type(nomFr, "Noir");
-    expect((screen.getByLabelText("Nom de la couleur en anglais") as HTMLInputElement).value).toBe("Black");
+    expect(screen.queryByLabelText("Nom de la couleur en anglais")).toBeNull();
     expect((screen.getByLabelText("Pastille (code #RRGGBB), facultative") as HTMLInputElement).value).toBe("#1B1713");
     const groupe = screen.getByRole("group", { name: "Tailles et stock : Noir" });
     await user.click(within(groupe).getByRole("checkbox", { name: "Proposer la taille M" }));
     await user.clear(within(groupe).getByLabelText("Stock"));
     await user.type(within(groupe).getByLabelText("Stock"), "2");
 
-    await user.type(screen.getByLabelText("Titre en français"), "TEST_Polo");
+    await user.type(screen.getByLabelText("Titre"), "TEST_Polo");
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
     expect(faux.enregistrerProduit).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -69,9 +69,9 @@ describe("FormulaireProduit : Vêtement", () => {
     rendre(<FormulaireProduit univers={[]} />);
     await user.click(screen.getByRole("radio", { name: /Vêtement/ }));
     await user.click(screen.getByRole("button", { name: "Ajouter une couleur" }));
-    await user.type(screen.getByLabelText("Nom de la couleur en français"), "Blanc");
+    await user.type(screen.getByLabelText("Nom de la couleur"), "Blanc");
     await user.click(screen.getByRole("button", { name: "Retirer la couleur Blanc" }));
-    expect(screen.queryByLabelText("Nom de la couleur en français")).toBeNull();
+    expect(screen.queryByLabelText("Nom de la couleur")).toBeNull();
     expect(screen.getByRole("checkbox", { name: "Proposer la taille M" })).toBeTruthy();
   });
 });
@@ -83,7 +83,7 @@ describe("FormulaireProduit : Autre article", () => {
     await user.click(screen.getByRole("radio", { name: /Autre article/ }));
     expect(screen.getByRole("group", { name: "Taille unique" })).toBeTruthy();
     expect(screen.queryAllByRole("checkbox", { name: /Proposer la taille/ })).toHaveLength(0);
-    await user.type(screen.getByLabelText("Titre en français"), "TEST_Objet");
+    await user.type(screen.getByLabelText("Titre"), "TEST_Objet");
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
     expect(faux.enregistrerProduit).toHaveBeenCalledWith(expect.objectContaining({ famille: "autre", variantes: [{ taille: "unique", stock: "0", surCommande: false, delai: "" }] }));
   });
@@ -178,13 +178,13 @@ describe("FormulaireProduit : couleurs jamais perdues en silence", () => {
     const user = userEvent.setup();
     rendre(<FormulaireProduit univers={[]} />);
     await user.click(screen.getByRole("radio", { name: /Vêtement/ }));
-    await user.type(screen.getByLabelText("Titre en français"), "TEST_Polo");
+    await user.type(screen.getByLabelText("Titre"), "TEST_Polo");
     await user.click(screen.getByRole("button", { name: "Ajouter une couleur" }));
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
     expect(faux.enregistrerProduit).not.toHaveBeenCalled();
     expect(screen.getByText("Donne un nom français à cette couleur, ou retire-la.")).toBeTruthy();
 
-    await user.type(screen.getByLabelText("Nom de la couleur en français"), "Gris");
+    await user.type(screen.getByLabelText("Nom de la couleur"), "Gris");
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
     expect(faux.enregistrerProduit).not.toHaveBeenCalled();
     expect(screen.getByText("Coche au moins une taille pour cette couleur, ou retire-la.")).toBeTruthy();
@@ -222,7 +222,7 @@ describe("FormulaireProduit : couleurs jamais perdues en silence", () => {
       sousTitres: [],
     };
     rendre(<FormulaireProduit univers={[]} produit={produit} />);
-    const nom = screen.getByLabelText("Nom de la couleur en français");
+    const nom = screen.getByLabelText("Nom de la couleur");
     await user.clear(nom);
     await user.type(nom, "Anthracite");
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));

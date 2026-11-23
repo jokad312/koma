@@ -59,17 +59,17 @@ const TOUTES_LES_VUES = [
 
 // Création d'un article : titre, extrait et contenu. Rien n'est envoyé.
 async function remplirArticle(page) {
-  await page.getByLabel("Titre en français").fill("TEST_ Guide de l'armure en mousse");
-  await page.getByLabel("Extrait (résumé court) en français").fill("TEST_ Découpe, chauffe et assemble une armure légère en mousse EVA.");
-  await page.getByLabel("Texte en français").fill("## Matériel\n\n**TEST_** mousse EVA, colle contact, pistolet à chaleur.");
+  await page.getByLabel("Titre", { exact: true }).fill("TEST_ Guide de l'armure en mousse");
+  await page.getByLabel("Extrait (résumé court)", { exact: true }).fill("TEST_ Découpe, chauffe et assemble une armure légère en mousse EVA.");
+  await page.getByLabel("Texte", { exact: true }).fill("## Matériel\n\n**TEST_** mousse EVA, colle contact, pistolet à chaleur.");
   await page.waitForTimeout(200);
   await page.locator("[data-defilement-fenetre]").evaluate((e) => e.scrollTo(0, 0));
 }
 
 // Création d'un produit : nom, description, prix, puis la famille (placée après les champs de la maquette). Rien n'est envoyé.
 async function remplirCreation(page, famille, titre) {
-  await page.getByLabel("Titre en français").fill(titre);
-  await page.getByLabel("Description en français").fill("TEST_ description de démonstration");
+  await page.getByLabel("Titre", { exact: true }).fill(titre);
+  await page.getByLabel("Description", { exact: true }).fill("TEST_ description de démonstration");
   await page.getByLabel("Prix en dollars US (USD)").fill("25");
   await page.getByRole("radio", { name: famille }).check({ force: true });
   await page.waitForTimeout(200);

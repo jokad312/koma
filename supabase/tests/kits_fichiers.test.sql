@@ -353,11 +353,11 @@ select lives_ok(
 -- Publication refusée : un Kit sans fichier, sans vidéo ni sous-titres n'est pas publiable (manques d'un Kit : story 3.2).
 select is(
   public.manques_publication((select k from ks_kits)),
-  array['photo', 'titre_en', 'description_fr', 'description_en', 'materiel_fr', 'materiel_en', 'niveau', 'fichier', 'video', 'sous_titres_fr'],
+  array['photo', 'description_fr', 'materiel_fr', 'niveau', 'fichier', 'video', 'sous_titres_fr'],
   'manques_publication d''un Kit : liste des manques du Kit'
 );
 select is(public.manques_publication('00000000-0000-0000-0000-00000000ffff'), null, 'manques_publication d''un produit inconnu : null');
-select is(public.manques_publication((select cos from ks_ids)), array['prix', 'photo', 'titre_en', 'description_fr', 'description_en', 'variante'], 'manques_publication d''un cosplay est inchangée');
+select is(public.manques_publication((select cos from ks_ids)), array['prix', 'photo', 'description_fr', 'variante'], 'manques_publication d''un cosplay est inchangée');
 insert into public.produit_photo (produit_id, fichier, alt_fr, alt_en, position) values ((select k from ks_kits), (select k from ks_kits)::text || '/a.jpg', 'Alt', 'Alt', 1);
 select throws_ok(
   $$select public.publier_produit(pg_temp.adm(), (select k from ks_kits))$$,

@@ -87,6 +87,29 @@ const ERREUR_PAR_CLE: Record<CleReglage, CodeErreurAdmin> = {
   session_inactivite_heures: "session_inactivite_invalide",
 };
 
+// Site en français uniquement (Q5 du 2026-11-22) : le lieu de retrait anglais n'a plus de champ, mais la base l'exige pour proposer le retrait.
+// Absent, il reçoit la copie du français ; une valeur anglaise déjà enregistrée n'est jamais écrasée. Si la lecture ou la copie échoue, l'admin
+// reçoit une erreur (le retrait à Goma ne serait pas proposé au paiement) : réenregistrer le français relance la copie.
+async function copierRetraitAnglais(deps: DependancesAdmin, auteur: AuteurCompte, valeurFr: string): Promise<boolean> {
+  try {
+    const actuel = await deps.lireReglage("retrait_goma_en");
+    if (actuel.erreur) {
+      journaliser("lecture du retrait anglais", actuel.erreur);
+      return false;
+    }
+    if ((actuel.valeur ?? "").trim() !== "") return true;
+    const { erreur } = await deps.ecrireReglage({ auteur, cle: "retrait_goma_en", valeur: valeurFr });
+    if (erreur) {
+      journaliser("copie du retrait anglais refusée", erreur);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    journaliser("copie du retrait anglais", e);
+    return false;
+  }
+}
+
 // Droit, validation, écriture, puis invalidation du cache : « ok » n'est renvoyé qu'après la réponse réelle de la base (règle 13).
 export async function enregistrerReglage(deps: DependancesAdmin, entree: EntreeReglage): Promise<ResultatAdmin<{ valeur: string | null }>> {
   const droit = await verifierDroit(deps, "reglages.modifier");
@@ -108,7 +131,9 @@ export async function enregistrerReglage(deps: DependancesAdmin, entree: EntreeR
       if (erreur.includes("KS_REGLAGE_INVALIDE")) return { ok: false, erreur: ERREUR_PAR_CLE[lu.data.cle] };
       return { ok: false, erreur: codeDepuisBase(erreur, "generique") };
     }
+    const copie = lu.data.cle === "retrait_goma_fr" && normalise.valeur !== null ? await copierRetraitAnglais(deps, droit.auteur, normalise.valeur) : true;
     deps.invalider();
+    if (!copie) return { ok: false, erreur: "generique" };
     return { ok: true, valeur: normalise.valeur };
   } catch (e) {
     journaliser("réglage", e);

@@ -197,9 +197,7 @@ test.describe("story 9.15 : Vêtement et Autre article", () => {
 
   for (const [adresse, titre] of [
     ["/fr/vetements", TITRE.polo],
-    ["/en/clothing", TITRE.poloEn],
     ["/fr/autres-articles", TITRE.objet],
-    ["/en/other-items", TITRE.objetEn],
   ] as const) {
     test(`${adresse} liste le produit TEST_`, async ({ page }) => {
       const reponse = await page.goto(adresse, { waitUntil: "networkidle" });

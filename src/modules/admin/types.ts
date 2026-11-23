@@ -44,6 +44,8 @@ export type DependancesAdmin = {
   // Refuse (lève) si le Compte connecté n'a pas le droit ; renvoie l'auteur construit depuis la session vérifiée.
   exigerDroit(droit: Droit): Promise<{ auteur: AuteurCompte }>;
   ecrireReglage(args: { auteur: AuteurCompte; cle: CleReglage; valeur: string | null }): Promise<{ erreur: string | null }>;
+  // Valeur enregistrée d'un réglage (null si absente) : sert à la copie du lieu de retrait français vers l'anglais (Q5 du 2026-11-22).
+  lireReglage(cle: CleReglage): Promise<{ valeur: string | null; erreur: string | null }>;
   // Vide l'étiquette de cache `reglages` (updateTag) : appelé seulement après la réponse de la base.
   invalider(): void;
   corrigerAge(args: { auteur: AuteurCompte; compteId: string; age: number; raison: string }): Promise<{ erreur: string | null; supprimer: boolean }>;

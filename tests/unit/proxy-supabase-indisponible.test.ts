@@ -1,5 +1,7 @@
 import { NextRequest } from "next/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+// Anglais désactivé mais conservé (2026-11-22) : ce test vérifie le comportement bilingue, celui d'une réactivation de l'anglais.
+vi.mock("@/i18n/langues-actives", () => import("../doubles/TEST_langues-fr-en"));
 
 // Faux client Supabase de test (règle 13 : tests uniquement). Le message contient un faux secret
 // pour prouver qu'il n'est jamais journalisé.

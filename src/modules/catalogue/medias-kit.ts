@@ -294,7 +294,8 @@ type EntreeChapitre = { titreFr: string; titreEn: string; debut: string };
 // Titres de 1 à 120 caractères après rognage ; instant « mm:ss » ou « h:mm:ss ». La base revérifie (et contrôle la durée de la vidéo).
 function lireChapitre(entree: EntreeChapitre): { ok: true; titreFr: string; titreEn: string; debut: number } | { ok: false; erreur: CodeErreurCatalogue; champ: ChampChapitre } {
   const titreFr = entree.titreFr.trim();
-  const titreEn = entree.titreEn.trim();
+  // Titre anglais sans champ (site en français uniquement, Q5) : vide, il reçoit la copie du français ; une valeur renvoyée est gardée.
+  const titreEn = (entree.titreEn ?? "").trim() || titreFr;
   if (titreFr.length < 1 || titreFr.length > 120) return { ok: false, erreur: "titre_invalide", champ: "titre_fr" };
   if (titreEn.length < 1 || titreEn.length > 120) return { ok: false, erreur: "titre_invalide", champ: "titre_en" };
   const debut = lireInstant(entree.debut);
