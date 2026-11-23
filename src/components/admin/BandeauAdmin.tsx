@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Suspense } from "react";
 import { BasculeTheme } from "@/components/layout/BasculeTheme";
 import { SelecteurLangue } from "@/components/layout/SelecteurLangue";
+import { PLUSIEURS_LANGUES } from "@/i18n/routing";
 import { usePathname } from "@/i18n/navigation";
 import { MenuProfil } from "./MenuProfil";
 import { entreesVisibles, estCourante } from "./navigation-entrees";
@@ -34,9 +35,11 @@ export function BandeauAdmin({ utilisateur, estAdmin, lienAide = null }: { utili
         {/* Sous 768 px, le thème et la langue sont dans le panneau « Plus » (NavigationAdmin) : la barre reste sur une ligne. */}
         <div className="hidden items-center gap-3 md:flex">
           <BasculeTheme variante="rond" />
-          <Suspense fallback={null}>
-            <SelecteurLangue sansTraduction={[]} variante="rond" />
-          </Suspense>
+          {PLUSIEURS_LANGUES ? (
+            <Suspense fallback={null}>
+              <SelecteurLangue sansTraduction={[]} variante="rond" />
+            </Suspense>
+          ) : null}
         </div>
         {utilisateur && role ? (
           <div className="hidden max-w-56 text-right xl:block">

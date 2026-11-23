@@ -1,6 +1,6 @@
 // Story 9.15 : familles « Vêtement » et « Autre article ». Données de test nommées TEST_ ; aucun appel réel.
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { cheminAutreLangue, cheminPublic, redirectionsAdresses } from "@/i18n/adresses";
+import { cheminAutreLangue, cheminPublic, redirectionsAdresses, versLangueActive } from "@/i18n/adresses";
 import { construireAuteur } from "@/lib/auth/auteur";
 import { couleursDistinctes, taillesPourCouleur } from "@/modules/catalogue/fiche";
 import { analyserAdresseFiche } from "@/modules/catalogue/existence";
@@ -50,7 +50,9 @@ describe("familles : seul le Kit est numérique", () => {
     expect(cheminPublic("en", "/vetements/polo-test")).toBe("/clothing/polo-test");
     expect(cheminPublic("en", "/autres-articles")).toBe("/other-items");
     expect(cheminAutreLangue("/clothing/x", "en", "fr")).toBe("/vetements/x");
-    expect(redirectionsAdresses()).toContainEqual({ source: "/en/vetements/:chemin*", destination: "/en/clothing/:chemin*", permanent: true });
+    // Anglais désactivé (2026-11-22) : aucune règle /en dans next.config.ts, le proxy redirige toute l'adresse anglaise vers le français.
+    expect(redirectionsAdresses()).toContainEqual({ source: "/fr/clothing/:chemin*", destination: "/fr/vetements/:chemin*", permanent: true });
+    expect(versLangueActive("/en/clothing/polo-test")).toBe("/fr/vetements/polo-test");
   });
 
   it("existence des fiches : l'adresse propre de chaque langue est reconnue", () => {
@@ -146,9 +148,9 @@ describe("lireProduit : Vêtement et Autre article", () => {
 
 describe("manques à la publication", () => {
   const base = { prixCents: 2000, titreEn: "t", descriptionFr: "d", descriptionEn: "e", nbPhotos: 1, nbVariantes: 2, famille: "vetement" as const };
-  it("au moins une variante ; chaque couleur nommée en anglais", () => {
+  it("au moins une variante ; le nom anglais d'une couleur n'est plus exigé (site en français uniquement)", () => {
     expect(manquesPublication({ ...base, nbCouleursSansAnglais: 0 })).toEqual([]);
-    expect(manquesPublication({ ...base, nbCouleursSansAnglais: 1 })).toEqual(["couleurs"]);
+    expect(manquesPublication({ ...base, nbCouleursSansAnglais: 1 })).toEqual([]);
     expect(manquesPublication({ ...base, nbVariantes: 0 })).toEqual(["variante"]);
     expect(manquesPublication({ ...base, famille: "autre", nbVariantes: 1 })).toEqual([]);
   });

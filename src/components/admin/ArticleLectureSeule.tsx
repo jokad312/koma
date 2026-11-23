@@ -23,11 +23,8 @@ export async function ArticleLectureSeule({ article }: { article: Article }) {
       <dl className="flex flex-col gap-4">
         {bloc(t("statut"), ts(statut))}
         {bloc(t("titreFr"), article.titreFr)}
-        {bloc(t("titreEn"), article.titreEn)}
         {bloc(t("extraitFr"), article.extraitFr)}
-        {bloc(t("extraitEn"), article.extraitEn)}
         {bloc(t("texteFr"), article.texteFr)}
-        {bloc(t("texteEn"), article.texteEn)}
         {bloc(t("adresse"), article.slug)}
         {bloc(t("produitLie"), article.lienProduitId ? t("produitOui") : null)}
         {bloc(t("modifieLe"), format.dateTime(new Date(article.modifieLe), { dateStyle: "long", timeStyle: "short", timeZone: "Africa/Lubumbashi" }))}

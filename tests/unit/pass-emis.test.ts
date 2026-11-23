@@ -1,6 +1,8 @@
 // Story 7.5 : email « pass_emis ». Gabarit FR/EN (tous les Pass, Code QR joint et affiché, code court en texte, lien vers Mes Pass), rendu relu en base
 // (jamais pour une Commande non payée ni sans Pass valide), pièces jointes transmises à Resend. Faux client Supabase et faux Resend nommés TEST.
 import { beforeEach, describe, expect, it, vi } from "vitest";
+// Anglais désactivé mais conservé (2026-11-22) : ce test vérifie le comportement bilingue, celui d'une réactivation de l'anglais.
+vi.mock("@/i18n/langues-actives", () => import("../doubles/TEST_langues-fr-en"));
 
 const etat = vi.hoisted(() => ({ commande: null as unknown, pass: [] as unknown[], erreurPass: null as unknown, envoyes: [] as unknown[] }));
 vi.mock("server-only", () => ({}));

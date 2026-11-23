@@ -15,7 +15,8 @@ const PAGES = [
   { chemin: "confidentialite", h1: { fr: "Politique de confidentialité", en: "Privacy policy" } },
   { chemin: "charte-galerie", h1: { fr: "Charte de la galerie « Ils le portent »", en: "Gallery charter" } },
 ] as const;
-const LANGUES = ["fr", "en"] as const;
+// Site en français uniquement (2026-11-22) : /en est redirigé vers /fr (tests/e2e/langue-francaise.spec.ts).
+const LANGUES = ["fr"] as const;
 
 async function violationsGraves(page: Page) {
   const resultat = await new AxeBuilder({ page }).analyze();
@@ -35,12 +36,12 @@ for (const langue of LANGUES) {
   for (const { chemin, h1 } of PAGES) {
     const url = `/${langue}/${chemin}`;
     test.describe(url, () => {
-      test("un seul H1, métadonnées, canonique, hreflang et JSON-LD", async ({ page }) => {
+      test("un seul H1, métadonnées, canonique, aucun hreflang, JSON-LD", async ({ page }) => {
         await ouvrir(page, url);
         await expect(page.locator("h1")).toHaveCount(1);
         await expect(page.locator("h1")).toHaveText(h1[langue]);
         await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", new RegExp(`/${langue}/${chemin}$`));
-        for (const hreflang of ["fr", "en", "x-default"]) await expect(page.locator(`link[rel="alternate"][hreflang="${hreflang}"]`)).toHaveCount(1);
+        await expect(page.locator("link[rel=\"alternate\"][hreflang]")).toHaveCount(0);
         await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
         const jsonld = (await page.locator('script[type="application/ld+json"]').allTextContents()).join("\n");
         // La FAQ a de vraies paires de questions : FAQPage (les paires au marqueur en seraient exclues).
@@ -199,9 +200,9 @@ test("pied : carte Infos légales vers les quatre pages, clavier, 375 px", async
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });
 
-test("contact : lien Politique de confidentialité dans la langue de la route", async ({ page }) => {
-  await ouvrir(page, "/en/contact");
-  const lien = page.getByRole("main").getByRole("link", { name: "Privacy policy" });
-  await expect(lien).toHaveAttribute("href", "/en/confidentialite");
+test("contact : lien Politique de confidentialité vers la page française", async ({ page }) => {
+  await ouvrir(page, "/fr/contact");
+  const lien = page.getByRole("main").getByRole("link", { name: "Politique de confidentialité" });
+  await expect(lien).toHaveAttribute("href", "/fr/confidentialite");
   expect((await lien.boundingBox())!.height).toBeGreaterThanOrEqual(44);
 });

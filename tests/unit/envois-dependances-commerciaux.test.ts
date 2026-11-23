@@ -1,6 +1,8 @@
 // Story 9.6 : rendu réel des emails ciblés (creerDependancesEnvois().rendre) avec un faux client Supabase : un email dont le sujet n'est plus
 // vrai n'est jamais envoyé ; chapitre, liens et désinscription.
 import { beforeEach, describe, expect, it, vi } from "vitest";
+// Anglais désactivé mais conservé (2026-11-22) : ce test vérifie le comportement bilingue, celui d'une réactivation de l'anglais.
+vi.mock("@/i18n/langues-actives", () => import("../doubles/TEST_langues-fr-en"));
 
 type Tables = Record<string, unknown>;
 const etat = vi.hoisted(() => ({ tables: {} as Record<string, unknown>, chapitres: 0, envois: [] as unknown[] }));

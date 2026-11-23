@@ -26,7 +26,9 @@ export function RepliHeros({ url, altFr: altFrActuel, altEn: altEnActuel }: Prop
   const base = useId();
   const refFichier = useRef<HTMLInputElement>(null);
   const [altFr, setAltFr] = useState(altFrActuel ?? "");
-  const [altEn, setAltEn] = useState(altEnActuel ?? "");
+  // Texte anglais sans champ (site en français uniquement) : il repart tel quel seulement quand l'image ne change pas (correction des textes) ;
+  // une nouvelle image envoie un anglais vide et le serveur y copie le nouveau texte français (Q5 : copie à la création).
+  const [altEn] = useState(altEnActuel ?? "");
   const [phase, setPhase] = useState<Phase>("repos");
   const [pourcentage, setPourcentage] = useState(0);
   const [reprise, setReprise] = useState(false);
@@ -52,7 +54,6 @@ export function RepliHeros({ url, altFr: altFrActuel, altEn: altEnActuel }: Prop
     if (!Object.hasOwn(FORMATS_PHOTO, fichier.type)) return setErreur({ code: "format_invalide", champ: "fichier" });
     if (fichier.size > PHOTO_TAILLE_MAX) return setErreur({ code: "fichier_trop_lourd", champ: "fichier" });
     if (altFr.trim() === "" || altFr.trim().length > 200) return setErreur({ code: "alt_invalide", champ: "alt_fr" });
-    if (altEn.trim() === "" || altEn.trim().length > 200) return setErreur({ code: "alt_invalide", champ: "alt_en" });
 
     enVol.current = true;
     annule.current = false;
@@ -60,7 +61,7 @@ export function RepliHeros({ url, altFr: altFrActuel, altEn: altEnActuel }: Prop
     setReprise(false);
     setPhase("envoi");
     try {
-      const autorisation = await demanderEnvoiRepli({ type: fichier.type, taille: fichier.size, altFr, altEn });
+      const autorisation = await demanderEnvoiRepli({ type: fichier.type, taille: fichier.size, altFr, altEn: "" });
       if (autorisation.statut === "erreur") return setErreur({ code: autorisation.erreur, champ: champDe(autorisation.erreur) });
       objetEnCours.current = autorisation.objet;
       if (annule.current) {
@@ -97,7 +98,7 @@ export function RepliHeros({ url, altFr: altFrActuel, altEn: altEnActuel }: Prop
       if (annule.current) return;
 
       setPhase("traitement");
-      const fini = await finaliserRepli({ objet: autorisation.objet, altFr, altEn });
+      const fini = await finaliserRepli({ objet: autorisation.objet, altFr, altEn: "" });
       if (fini.statut === "erreur") return setErreur({ code: fini.erreur, champ: champDe(fini.erreur) });
       setMessage(t("repli.succes"));
       if (refFichier.current) refFichier.current.value = "";
@@ -192,8 +193,7 @@ export function RepliHeros({ url, altFr: altFrActuel, altEn: altEnActuel }: Prop
             </p>
           ) : null}
         </div>
-        <ChampTexte id={`${base}-alt-fr`} name="alt_fr" libelle={t("repli.altFr.libelle")} aide={t("repli.altFr.aide")} valeur={altFr} onChange={setAltFr} erreur={erreurDe("alt_fr")} />
-        <ChampTexte id={`${base}-alt-en`} name="alt_en" libelle={t("repli.altEn.libelle")} aide={t("repli.altEn.aide")} valeur={altEn} onChange={setAltEn} erreur={erreurDe("alt_en")} />
+        <ChampTexte id={`${base}-alt-fr`} name="alt_fr" libelle={t("repli.altFr.libelle")} aide={t("repli.altFr.aide")} valeur={altFr} onChange={setAltFr} erreur={erreurDe("alt_fr") ?? erreurDe("alt_en")} />
         <div className="flex flex-wrap items-center gap-3">
           <Bouton type="submit" enCours={phase !== "repos"}>
             {url ? t("repli.remplacer") : t("repli.envoyer")}

@@ -56,14 +56,15 @@ export function FormulaireKit({ univers, liables, produit = null, choixFamille, 
   const idForm = idFormulaire ?? `${base}-formulaire`;
 
   const [titreFr, setTitreFr] = useState(produit?.titreFr ?? initial?.titreFr ?? "");
-  const [titreEn, setTitreEn] = useState(produit?.titreEn ?? initial?.titreEn ?? "");
+  // Valeurs anglaises sans champ (site en français uniquement) : gardées telles quelles et renvoyées à l'enregistrement.
+  const [titreEn] = useState(produit?.titreEn ?? initial?.titreEn ?? "");
   const [slug, setSlug] = useState(produit?.slug ?? initial?.slug ?? "");
   // Tant que l'adresse n'a pas été modifiée à la main, elle suit le titre français ; une adresse déjà enregistrée n'est jamais recalculée.
   const [slugModifie, setSlugModifie] = useState(produit !== null || (initial?.slugModifie ?? false));
   const [descriptionFr, setDescriptionFr] = useState(produit?.descriptionFr ?? initial?.descriptionFr ?? "");
-  const [descriptionEn, setDescriptionEn] = useState(produit?.descriptionEn ?? initial?.descriptionEn ?? "");
+  const [descriptionEn] = useState(produit?.descriptionEn ?? initial?.descriptionEn ?? "");
   const [materielFr, setMaterielFr] = useState(produit?.materielFr ?? "");
-  const [materielEn, setMaterielEn] = useState(produit?.materielEn ?? "");
+  const [materielEn] = useState(produit?.materielEn ?? "");
   const [universId, setUniversId] = useState(produit?.universId ?? initial?.universId ?? "");
   const [prix, setPrix] = useState(produit ? prixPourSaisie(produit.prixCents) : (initial?.prix ?? prixPourSaisie(null)));
   const [niveau, setNiveau] = useState<string>(produit?.niveau ?? "");
@@ -169,10 +170,9 @@ export function FormulaireKit({ univers, liables, produit = null, choixFamille, 
         ) : null}
         {etat?.statut === "succes" ? <MessageEtat type="succes">{t("succes")}</MessageEtat> : null}
 
-        <ChampTexte id={`${base}-titre-fr`} name="titre_fr" libelle={t("titreFr.libelle")} valeur={titreFr} onChange={changerTitreFr} erreur={erreurDe("titre_fr")} />
-        <ChampTexte id={`${base}-titre-en`} name="titre_en" libelle={t("titreEn.libelle")} aide={t("titreEn.aide")} valeur={titreEn} onChange={setTitreEn} erreur={erreurDe("titre_en")} />
-        <ChampTexte id={`${base}-description-fr`} name="description_fr" libelle={t("descriptionFr.libelle")} aide={t("descriptionFr.aide")} valeur={descriptionFr} onChange={setDescriptionFr} multiligne erreur={erreurDe("description_fr")} />
-        <ChampTexte id={`${base}-description-en`} name="description_en" libelle={t("descriptionEn.libelle")} aide={t("descriptionEn.aide")} valeur={descriptionEn} onChange={setDescriptionEn} multiligne erreur={erreurDe("description_en")} />
+        <ChampTexte id={`${base}-titre-fr`} name="titre_fr" libelle={t("titreFr.libelle")} valeur={titreFr} onChange={changerTitreFr} erreur={erreurDe("titre_fr") ?? erreurDe("titre_en")} />
+        {/* Champs anglais retirés (site en français uniquement, 2026-11-22) : la valeur anglaise déjà enregistrée repart telle quelle. */}
+        <ChampTexte id={`${base}-description-fr`} name="description_fr" libelle={t("descriptionFr.libelle")} aide={t("descriptionFr.aide")} valeur={descriptionFr} onChange={setDescriptionFr} multiligne erreur={erreurDe("description_fr") ?? erreurDe("description_en")} />
         <div className="grid gap-6 sm:grid-cols-2">
           <ChampTexte id={`${base}-prix`} name="prix" libelle={t("prix.libelle")} aide={t("prix.aide")} valeur={prix} inputMode="decimal" onChange={setPrix} erreur={erreurDe("prix")} />
 
@@ -256,8 +256,7 @@ export function FormulaireKit({ univers, liables, produit = null, choixFamille, 
             ) : null
           }
         />
-        <ChampTexte id={`${base}-materiel-fr`} name="materiel_fr" libelle={t("materielFr.libelle")} aide={t("materielFr.aide")} valeur={materielFr} onChange={setMaterielFr} multiligne erreur={erreurDe("materiel_fr")} />
-        <ChampTexte id={`${base}-materiel-en`} name="materiel_en" libelle={t("materielEn.libelle")} aide={t("materielEn.aide")} valeur={materielEn} onChange={setMaterielEn} multiligne erreur={erreurDe("materiel_en")} />
+        <ChampTexte id={`${base}-materiel-fr`} name="materiel_fr" libelle={t("materielFr.libelle")} aide={t("materielFr.aide")} valeur={materielFr} onChange={setMaterielFr} multiligne erreur={erreurDe("materiel_fr") ?? erreurDe("materiel_en")} />
 
         <fieldset className="flex flex-col gap-2" aria-describedby={`${base}-niveau-aide${erreurDe("niveau") ? ` ${base}-niveau-erreur` : ""}`}>
           <legend className={`${classes.etiquette} mb-2`}>{t("niveau.libelle")}</legend>

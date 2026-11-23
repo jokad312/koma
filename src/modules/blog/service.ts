@@ -64,7 +64,7 @@ export async function enregistrerArticle(
     slug,
     lien_produit_id: lu.data.lienProduitId ?? null,
   };
-  const images = lu.data.images.map((image) => ({ fichier: image.fichier, alt_fr: image.altFr, alt_en: image.altEn }));
+  const images = lu.data.images.map((image) => ({ fichier: image.fichier, alt_fr: image.altFr, alt_en: image.altEn || image.altFr }));
   try {
     // Les images déjà enregistrées sont lues AVANT l'écriture : celles retirées seront effacées après la sauvegarde.
     const anciennes = entree.id !== null ? await deps.lireImagesArticle(entree.id).catch(() => []) : [];
@@ -174,8 +174,9 @@ export async function finaliserImage(
   await deps.exigerDroit("blog.gerer");
   if (!CHEMIN_IMAGE_ARTICLE.test(entree.objet)) return { ok: false, erreur: "format_invalide" };
   const altFr = entree.altFr.trim();
-  const altEn = entree.altEn.trim();
-  if (altFr === "" || altFr.length > 200 || altEn === "" || altEn.length > 200) return { ok: false, erreur: "alt_invalide" };
+  // Anglais facultatif (site en français uniquement, 2026-11-22) : vide, il reçoit la copie du français (exigé en base à la publication).
+  const altEn = (entree.altEn ?? "").trim() || altFr;
+  if (altFr === "" || altFr.length > 200 || altEn.length > 200) return { ok: false, erreur: "alt_invalide" };
 
   let objetPublic: string | null = null;
   try {

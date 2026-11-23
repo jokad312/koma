@@ -17,17 +17,13 @@ export function FormulaireUnivers() {
   const t = useTranslations("Admin.univers.formulaire");
   const router = useRouter();
   const [nomFr, setNomFr] = useState("");
-  const [nomEn, setNomEn] = useState("");
   const [etat, setEtat] = useState<EtatUnivers | null>(null);
   const [enCours, demarrer] = useTransition();
   const enVol = useRef(false);
   const refResume = useRef<HTMLDivElement>(null);
   const idFr = useId();
-  const idEn = useId();
   const idAideFr = useId();
-  const idAideEn = useId();
   const idErreurFr = useId();
-  const idErreurEn = useId();
 
   // Après un échec, le focus va au résumé d'erreur (annoncé en alerte).
   useEffect(() => {
@@ -41,11 +37,11 @@ export function FormulaireUnivers() {
     setEtat(null);
     demarrer(async () => {
       try {
-        const resultat = await creerUnivers({ nomFr, nomEn });
+        // Nom anglais sans champ (site en français uniquement, 2026-11-22) : le serveur y copie le nom français.
+        const resultat = await creerUnivers({ nomFr, nomEn: "" });
         setEtat(resultat);
         if (resultat.statut === "succes") {
           setNomFr("");
-          setNomEn("");
           router.refresh();
         }
       } catch {
@@ -58,9 +54,9 @@ export function FormulaireUnivers() {
   }
 
   const erreur = etat?.statut === "erreur" ? etat : null;
-  const erreurFr = erreur?.champ === "nom_fr";
-  const erreurEn = erreur?.champ === "nom_en";
-  const erreurDeChamp = erreurFr || erreurEn;
+  // Champ anglais retiré (site en français uniquement) : une erreur visant le nom anglais (copie du français) est montrée sous le français.
+  const erreurFr = erreur?.champ === "nom_fr" || erreur?.champ === "nom_en";
+  const erreurDeChamp = erreurFr;
 
   return (
     <section aria-labelledby={`${idFr}-titre`} className={`flex flex-col gap-3 ${CLASSES_PANNEAU}`}>
@@ -92,29 +88,6 @@ export function FormulaireUnivers() {
         />
         {erreurFr ? (
           <p id={idErreurFr} className="t-small text-danger">
-            {t("erreurs.nom_invalide")}
-          </p>
-        ) : null}
-
-        <label htmlFor={idEn} className="t-label text-text-primary">
-          {t("nomEn.libelle")}
-        </label>
-        <p id={idAideEn} className="t-small text-text-secondary">
-          {t("nomEn.aide")}
-        </p>
-        <input
-          id={idEn}
-          name="nom_en"
-          type="text"
-          autoComplete="off"
-          value={nomEn}
-          onChange={(e) => setNomEn(e.target.value)}
-          aria-invalid={erreurEn || undefined}
-          aria-describedby={erreurEn ? `${idAideEn} ${idErreurEn}` : idAideEn}
-          className={CHAMP}
-        />
-        {erreurEn ? (
-          <p id={idErreurEn} className="t-small text-danger">
             {t("erreurs.nom_invalide")}
           </p>
         ) : null}

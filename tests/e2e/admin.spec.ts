@@ -12,22 +12,27 @@ test.describe("accès admin", () => {
   for (const [chemin, retour] of [
     ["/fr/admin", "%2Ffr%2Fadmin"],
     ["/fr/admin/reglages", "%2Ffr%2Fadmin%2Freglages"],
-    ["/en/admin/reglages", "%2Fen%2Fadmin%2Freglages"],
+    // /en redirigé vers /fr (site en français uniquement, 2026-11-22), puis vers la connexion française.
+    ["/en/admin/reglages", "%2Ffr%2Fadmin%2Freglages"],
     ["/fr/admin/messages", "%2Ffr%2Fadmin%2Fmessages"],
-    ["/en/admin/messages", "%2Fen%2Fadmin%2Fmessages"],
+    // /en redirigé vers /fr (site en français uniquement, 2026-11-22), puis vers la connexion française.
+    ["/en/admin/messages", "%2Ffr%2Fadmin%2Fmessages"],
     ["/fr/admin/taches", "%2Ffr%2Fadmin%2Ftaches"],
-    ["/en/admin/taches", "%2Fen%2Fadmin%2Ftaches"],
+    // /en redirigé vers /fr (site en français uniquement, 2026-11-22), puis vers la connexion française.
+    ["/en/admin/taches", "%2Ffr%2Fadmin%2Ftaches"],
     ["/fr/admin/produits", "%2Ffr%2Fadmin%2Fproduits"],
-    ["/en/admin/produits", "%2Fen%2Fadmin%2Fproduits"],
+    // /en redirigé vers /fr (site en français uniquement, 2026-11-22), puis vers la connexion française.
+    ["/en/admin/produits", "%2Ffr%2Fadmin%2Fproduits"],
     ["/fr/admin/produits/nouveau", "%2Ffr%2Fadmin%2Fproduits%2Fnouveau"],
     ["/fr/admin/produits/00000000-0000-4000-8000-000000000000", "%2Ffr%2Fadmin%2Fproduits%2F00000000-0000-4000-8000-000000000000"],
     ["/fr/admin/univers", "%2Ffr%2Fadmin%2Funivers"],
-    ["/en/admin/univers", "%2Fen%2Fadmin%2Funivers"],
+    // /en redirigé vers /fr (site en français uniquement, 2026-11-22), puis vers la connexion française.
+    ["/en/admin/univers", "%2Ffr%2Fadmin%2Funivers"],
     ["/fr/admin/commandes", "%2Ffr%2Fadmin%2Fcommandes"],
   ] as const) {
     test(`visiteur sur ${chemin} : envoyé vers la connexion avec retour`, async ({ page }) => {
       await page.goto(chemin);
-      await expect(page).toHaveURL(new RegExp(`/${chemin.slice(1, 3)}/connexion\\?retour=${retour}$`));
+      await expect(page).toHaveURL(new RegExp(`/fr/connexion\\?retour=${retour}$`));
       // Aucune navigation admin n'a été montrée.
       await expect(page.getByRole("navigation", { name: "Administration" })).toHaveCount(0);
     });
@@ -475,7 +480,7 @@ test.describe("fenêtre de l'article et extrait (9.16 h)", () => {
       await expect(fenetre.getByRole("heading", { level: 1, name: "Modifier l'article" })).toBeVisible();
       await expect(fenetre.getByRole("button", { name: "Statut : Publié" })).toBeVisible();
 
-      const champ = fenetre.getByLabel("Extrait (résumé court) en français");
+      const champ = fenetre.getByLabel("Extrait (résumé court)", { exact: true });
       // Échec en CI (mobile, run 44057184223) : le champ était rempli avant l'hydratation, le compteur restait à « 0 sur 300 ».
       await attendreHydratation(page, "[data-fenetre-formulaire] [name=extrait_fr]");
       await champ.fill("a".repeat(301));
@@ -506,7 +511,7 @@ test.describe("fenêtre de l'article et extrait (9.16 h)", () => {
       // À 390 px : la fenêtre occupe la largeur, sans défilement horizontal.
       await page.setViewportSize({ width: 390, height: 844 });
       await page.goto(`/fr/admin/blog/${ARTICLE.id}`);
-      await expect(page.locator("[data-fenetre-formulaire]").getByLabel("Extrait (résumé court) en français")).toHaveValue(EXTRAIT);
+      await expect(page.locator("[data-fenetre-formulaire]").getByLabel("Extrait (résumé court)", { exact: true })).toHaveValue(EXTRAIT);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     } finally {
       try {

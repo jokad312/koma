@@ -108,45 +108,46 @@ test.describe("connexion par code email", () => {
 
   test("crée un Compte, déclare l'âge, revient à la page quittée et se déconnecte", async ({ page, request }) => {
     const email = emailDeTest();
-    // Le retour part d'une page localisée qui n'est pas l'accueil (/en/page-quittee : la 404 localisée, seule autre page existante).
-    await page.goto("/en/connexion?retour=/en/page-quittee");
-    await envoyerLeCode(page, { libelle: "Email address", bouton: "Get a code", email, message: `A code was sent to ${email}.` });
+    // Le retour part d'une page localisée qui n'est pas l'accueil (/fr/page-quittee : la 404 localisée, seule autre page existante).
+    // Site en français uniquement (2026-11-22) : tout le parcours est en français.
+    await page.goto("/fr/connexion?retour=/fr/page-quittee");
+    await envoyerLeCode(page, { libelle: "Adresse email", bouton: "Recevoir un code", email, message: `Un code a été envoyé à ${email}.` });
 
     // Un code faux est refusé et relié au champ.
     await test.step("code faux", async () => {
-      await page.getByLabel("6-digit code").fill("000000");
-      await page.getByRole("button", { name: "Confirm the code" }).click();
-      await expect(page.getByText("This code is not correct. Check it or ask for a new code.")).toBeVisible();
+      await page.getByLabel("Code à 6 chiffres").fill("000000");
+      await page.getByRole("button", { name: "Valider le code" }).click();
+      await expect(page.getByText("Ce code n'est pas le bon. Vérifie-le ou demande un nouveau code.")).toBeVisible();
     }, { timeout: 25_000 });
 
     await test.step("bon code", async () => {
-      await page.getByLabel("6-digit code").fill(await lireCode(request, email));
-      await page.getByRole("button", { name: "Confirm the code" }).click();
+      await page.getByLabel("Code à 6 chiffres").fill(await lireCode(request, email));
+      await page.getByRole("button", { name: "Valider le code" }).click();
     }, { timeout: 25_000 });
 
     await test.step("âge", async () => {
-      await page.getByLabel("Age", { exact: true }).fill("25");
-      await page.getByRole("button", { name: "Continue" }).click();
+      await page.getByLabel("Âge", { exact: true }).fill("25");
+      await page.getByRole("button", { name: "Continuer" }).click();
     }, { timeout: 25_000 });
 
     // Les questions d'accueil s'affichent une seule fois, après l'âge ; répondre ramène exactement à la page quittée.
     // (Aucun Panier ni catalogue n'existe encore : la page quittée est la 404 localisée. Un article au Panier s'ajoutera avec l'epic 4.)
     await test.step("questions d'accueil", async () => {
-      await expect(page.getByRole("heading", { name: "A few questions" })).toBeVisible();
-      await expect(page).toHaveURL(/\/en\/connexion/);
-      await page.getByLabel("How did you hear about us?").selectOption("ami");
+      await expect(page.getByRole("heading", { name: "Quelques questions" })).toBeVisible();
+      await expect(page).toHaveURL(/\/fr\/connexion/);
+      await page.getByLabel("Comment nous as-tu connus ?").selectOption("ami");
       // Le radio natif est masqué visuellement : on clique son étiquette, comme le ferait le visiteur.
-      await page.locator("label", { hasText: "Making" }).click();
-      await expect(page.getByRole("radio", { name: "Making" })).toBeChecked();
+      await page.locator("label", { hasText: "Fabriquer" }).click();
+      await expect(page.getByRole("radio", { name: "Fabriquer" })).toBeChecked();
       // Choisir ne change pas de page.
-      await expect(page).toHaveURL(/\/en\/connexion/);
-      await page.getByRole("button", { name: "Continue" }).click();
-      await expect(page).toHaveURL(/\/en\/page-quittee$/);
+      await expect(page).toHaveURL(/\/fr\/connexion/);
+      await page.getByRole("button", { name: "Continuer" }).click();
+      await expect(page).toHaveURL(/\/fr\/page-quittee$/);
     }, { timeout: 25_000 });
 
     await test.step("questions déjà vues : /connexion renvoie à la page, sans les reposer", async () => {
-      await page.goto("/en/connexion?retour=/en/page-quittee");
-      await expect(page).toHaveURL(/\/en\/page-quittee$/);
+      await page.goto("/fr/connexion?retour=/fr/page-quittee");
+      await expect(page).toHaveURL(/\/fr\/page-quittee$/);
     }, { timeout: 25_000 });
 
     await test.step("déconnexion", async () => {
@@ -154,11 +155,11 @@ test.describe("connexion par code email", () => {
       // attrape-tout levait une erreur en dev, dont le badge de Next.js recouvrait « Sign out » au bas du menu mobile (corrigé dans b8f1532).
       const adresses: string[] = [];
       page.on("framenavigated", (f) => f === page.mainFrame() && adresses.push(`${Date.now() % 100000} ${f.url()}`));
-      await (await ouvrirMenu(page)).getByRole("button", { name: "Sign out" }).click();
-      await expect(page, `navigations : ${JSON.stringify(adresses)}`).toHaveURL(/\/en$/);
-      // Après la déconnexion, le menu est fermé ; rouvert, il propose « Sign in ».
+      await (await ouvrirMenu(page)).getByRole("button", { name: "Se déconnecter" }).click();
+      await expect(page, `navigations : ${JSON.stringify(adresses)}`).toHaveURL(/\/fr$/);
+      // Après la déconnexion, le menu est fermé ; rouvert, il propose « Se connecter ».
       await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
-      await expect((await ouvrirMenu(page)).getByRole("link", { name: "Sign in" })).toBeVisible();
+      await expect((await ouvrirMenu(page)).getByRole("link", { name: "Se connecter" })).toBeVisible();
       // 45 s : deux ouvertures du menu (15 s chacune au plus) et deux contrôles d'adresse. À 25 s, le délai de l'étape coupait
       // avant le message d'erreur détaillé d'ouvrirMenu.
     }, { timeout: 45_000 });
@@ -190,7 +191,7 @@ test.describe("connexion par code email", () => {
     expect(await lireCode(request, email)).toMatch(/^\d{6}$/);
   });
 
-  test("connecté, /fr et /en s'affichent sans erreur de préparation à l'avance", async ({ page, request }) => {
+  test("connecté, /fr s'affiche sans erreur de préparation à l'avance ; /en redirige vers /fr", async ({ page, request }) => {
     const email = emailDeTest();
     const erreurs: string[] = [];
     page.on("pageerror", (e) => erreurs.push(e.message));
@@ -207,19 +208,21 @@ test.describe("connexion par code email", () => {
     // Sans retour précis, un client arrive sur l'accueil de sa langue (option A du 2026-11-13).
     await expect(page).toHaveURL(/\/fr$/);
 
-    for (const [chemin, deconnexion] of [["/fr", "Se déconnecter"], ["/en", "Sign out"]] as const) {
+    // Site en français uniquement (2026-11-22) : /en mène à /fr, en français.
+    for (const [chemin, deconnexion] of [["/fr", "Se déconnecter"], ["/en", "Se déconnecter"]] as const) {
       const reponse = await page.goto(chemin);
       expect(reponse?.status()).toBe(200);
+      expect(new URL(page.url()).pathname).toBe("/fr");
       await expect((await ouvrirMenu(page)).getByRole("button", { name: deconnexion })).toBeVisible();
       await expect(page.getByText(/unstable value|blocking-prerender-current-time/)).toHaveCount(0);
     }
     expect(erreurs.filter((e) => /Date\.now|prerender/i.test(e))).toEqual([]);
 
-    // Déconnexion depuis la page même où l'on est (/en reste /en) : le menu se ferme aussi.
+    // Déconnexion depuis la page même où l'on est (/fr reste /fr) : le menu se ferme aussi.
     const dialogue = await ouvrirMenu(page);
-    await dialogue.getByRole("button", { name: "Sign out" }).click();
+    await dialogue.getByRole("button", { name: "Se déconnecter" }).click();
     await expect(page.getByRole("dialog", { name: "Menu" })).toBeHidden();
-    await expect(page).toHaveURL(/\/en$/);
+    await expect(page).toHaveURL(/\/fr$/);
   });
 
   test("« Passer » ramène à la page quittée, sans réponse, et ne revient pas", async ({ page, request }) => {

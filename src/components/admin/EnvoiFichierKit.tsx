@@ -62,7 +62,6 @@ export function EnvoiFichierKit({ produitId, fichier, onSucces, onFermer }: Prop
   const [formatPdf, setFormatPdf] = useState<"pdf_a4" | "pdf_letter">("pdf_a4");
   const [choisi, setChoisi] = useState<FormatFichierKit | null>(null);
   const [nomFr, setNomFr] = useState("");
-  const [nomEn, setNomEn] = useState("");
   const [phase, setPhase] = useState<Phase>("repos");
   const [pourcentage, setPourcentage] = useState(0);
   const [reprise, setReprise] = useState(false);
@@ -99,7 +98,6 @@ export function EnvoiFichierKit({ produitId, fichier, onSucces, onFermer }: Prop
     if (!remplacement) {
       const nom = nomDepuisFichier(f.name);
       setNomFr((avant) => (avant.trim() === "" ? nom : avant));
-      setNomEn((avant) => (avant.trim() === "" ? nom : avant));
     }
   }
 
@@ -120,7 +118,6 @@ export function EnvoiFichierKit({ produitId, fichier, onSucces, onFermer }: Prop
     if (f.size > tailleMaxFormat(format)) return setErreur({ code: "fichier_trop_lourd", champ: "fichier" });
     if (!remplacement) {
       if (nomFr.trim() === "" || nomFr.trim().length > 120) return setErreur({ code: "nom_invalide", champ: "nom_fr" });
-      if (nomEn.trim() === "" || nomEn.trim().length > 120) return setErreur({ code: "nom_invalide", champ: "nom_en" });
     }
 
     enVol.current = true;
@@ -167,7 +164,8 @@ export function EnvoiFichierKit({ produitId, fichier, onSucces, onFermer }: Prop
         format,
         taille: f.size,
         nomFr,
-        nomEn,
+        // Nom anglais sans champ (site en français uniquement) : le serveur y copie le nom français.
+        nomEn: "",
         fichierId: fichier?.id,
       });
       if (fini.statut === "erreur") {
@@ -179,7 +177,6 @@ export function EnvoiFichierKit({ produitId, fichier, onSucces, onFermer }: Prop
       const succes = t(remplacement ? "remplacement.succes" : "ajout.succes");
       setMessage(succes);
       setNomFr("");
-      setNomEn("");
       setChoisi(null);
       setNomChoisi(null);
       if (refFichier.current) refFichier.current.value = "";
@@ -311,8 +308,7 @@ export function EnvoiFichierKit({ produitId, fichier, onSucces, onFermer }: Prop
 
       {remplacement ? null : (
         <>
-          <ChampTexte id={`${base}-nom-fr`} name="nom_fr" libelle={t("ajout.nomFr.libelle")} aide={t("ajout.nomFr.aide")} valeur={nomFr} onChange={setNomFr} erreur={erreurDe("nom_fr")} />
-          <ChampTexte id={`${base}-nom-en`} name="nom_en" libelle={t("ajout.nomEn.libelle")} aide={t("ajout.nomEn.aide")} valeur={nomEn} onChange={setNomEn} erreur={erreurDe("nom_en")} />
+          <ChampTexte id={`${base}-nom-fr`} name="nom_fr" libelle={t("ajout.nomFr.libelle")} aide={t("ajout.nomFr.aide")} valeur={nomFr} onChange={setNomFr} erreur={erreurDe("nom_fr") ?? erreurDe("nom_en")} />
         </>
       )}
 

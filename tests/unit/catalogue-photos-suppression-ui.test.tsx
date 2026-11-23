@@ -154,11 +154,11 @@ describe("suppression d'une photo", () => {
 describe("texte alternatif modifiable", () => {
   const formulaire = (n: number) => screen.getByRole("form", { name: `Modifier le texte alternatif de la photo ${n}` });
 
-  it("un formulaire par photo, champs FR et EN préremplis avec libellés visibles", () => {
+  it("un formulaire par photo, champ français prérempli avec libellé visible, aucun champ anglais (site en français uniquement)", () => {
     render(avecMessages(<GaleriePhotos photos={PHOTOS} />));
     const f = within(formulaire(2));
-    expect((f.getByLabelText("Texte alternatif en français") as HTMLInputElement).value).toBe("TEST_Dos");
-    expect((f.getByLabelText("Texte alternatif en anglais") as HTMLInputElement).value).toBe("TEST_Back");
+    expect((f.getByLabelText("Texte alternatif") as HTMLInputElement).value).toBe("TEST_Dos");
+    expect(f.queryByLabelText("Texte alternatif en anglais")).toBeNull();
   });
 
   it("enregistre ; la confirmation n'apparaît qu'après la réponse réelle, puis la liste est relue", async () => {
@@ -167,7 +167,7 @@ describe("texte alternatif modifiable", () => {
     const user = userEvent.setup();
     render(avecMessages(<GaleriePhotos photos={PHOTOS} />));
     const f = within(formulaire(2));
-    const champ = f.getByLabelText("Texte alternatif en français");
+    const champ = f.getByLabelText("Texte alternatif");
     await user.clear(champ);
     await user.type(champ, "Dos corrigé");
     await user.click(f.getByRole("button", { name: "Enregistrer le texte alternatif" }));
@@ -183,7 +183,7 @@ describe("texte alternatif modifiable", () => {
     const user = userEvent.setup();
     render(avecMessages(<GaleriePhotos photos={PHOTOS} />));
     const f = within(formulaire(1));
-    const champ = f.getByLabelText("Texte alternatif en français");
+    const champ = f.getByLabelText("Texte alternatif");
     await user.clear(champ);
     await user.click(f.getByRole("button", { name: "Enregistrer le texte alternatif" }));
     expect(faux.modifierAltPhoto).not.toHaveBeenCalled();
@@ -192,23 +192,13 @@ describe("texte alternatif modifiable", () => {
     expect(champ.getAttribute("aria-describedby")).toContain(message.id);
   });
 
-  it("anglais vidé : l'erreur est sous le champ anglais", async () => {
-    const user = userEvent.setup();
-    render(avecMessages(<GaleriePhotos photos={PHOTOS} />));
-    const f = within(formulaire(1));
-    const champ = f.getByLabelText("Texte alternatif en anglais");
-    await user.clear(champ);
-    await user.click(f.getByRole("button", { name: "Enregistrer le texte alternatif" }));
-    expect(champ.getAttribute("aria-invalid")).toBe("true");
-    expect(f.getByLabelText("Texte alternatif en français").getAttribute("aria-invalid")).toBeNull();
-  });
 
   it("échec du serveur : message d'erreur, saisie conservée, aucune confirmation", async () => {
     faux.modifierAltPhoto.mockResolvedValueOnce({ statut: "erreur", erreur: "generique" });
     const user = userEvent.setup();
     render(avecMessages(<GaleriePhotos photos={PHOTOS} />));
     const f = within(formulaire(3));
-    const champ = f.getByLabelText("Texte alternatif en français") as HTMLInputElement;
+    const champ = f.getByLabelText("Texte alternatif") as HTMLInputElement;
     await user.clear(champ);
     await user.type(champ, "Saisie à garder");
     await user.click(f.getByRole("button", { name: "Enregistrer le texte alternatif" }));
@@ -218,19 +208,18 @@ describe("texte alternatif modifiable", () => {
     expect(faux.refresh).not.toHaveBeenCalled();
   });
 
-  it("refus alt_invalide du serveur : message sous les deux champs, pas d'office sous le français", async () => {
+  it("refus alt_invalide du serveur : message sous le champ français", async () => {
     faux.modifierAltPhoto.mockResolvedValueOnce({ statut: "erreur", erreur: "alt_invalide" });
     const user = userEvent.setup();
     render(avecMessages(<GaleriePhotos photos={PHOTOS} />));
     const f = within(formulaire(1));
     await user.click(f.getByRole("button", { name: "Enregistrer le texte alternatif" }));
-    expect(f.getByLabelText("Texte alternatif en français").getAttribute("aria-invalid")).toBe("true");
-    expect(f.getByLabelText("Texte alternatif en anglais").getAttribute("aria-invalid")).toBe("true");
+    expect(f.getByLabelText("Texte alternatif").getAttribute("aria-invalid")).toBe("true");
   });
 
   it("se resynchronise sur les valeurs relues après rafraîchissement", () => {
     const { rerender } = render(avecMessages(<GaleriePhotos photos={PHOTOS} />));
     rerender(avecMessages(<GaleriePhotos photos={[{ ...PHOTOS[0], altFr: "TEST_Relu" }, PHOTOS[1], PHOTOS[2]]} />));
-    expect((within(formulaire(1)).getByLabelText("Texte alternatif en français") as HTMLInputElement).value).toBe("TEST_Relu");
+    expect((within(formulaire(1)).getByLabelText("Texte alternatif") as HTMLInputElement).value).toBe("TEST_Relu");
   });
 });

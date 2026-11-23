@@ -1,5 +1,7 @@
 // Story 9.6 : gabarits des emails ciblés : textes validés par Jonathan, lien de désinscription dans chaque email, deux langues.
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+// Anglais désactivé mais conservé (2026-11-22) : ce test vérifie le comportement bilingue, celui d'une réactivation de l'anglais.
+vi.mock("@/i18n/langues-actives", () => import("../doubles/TEST_langues-fr-en"));
 import { rendreNouveauProduit, rendrePanierAbandonne, rendreRappelKit } from "@/modules/envois/modeles/commerciaux";
 import fr from "../../messages/fr.json";
 import en from "../../messages/en.json";

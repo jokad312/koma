@@ -7,6 +7,7 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { BasculeTheme } from "@/components/layout/BasculeTheme";
 import { BoutonDeconnexion } from "@/components/layout/BoutonDeconnexion";
 import { SelecteurLangue } from "@/components/layout/SelecteurLangue";
+import { PLUSIEURS_LANGUES } from "@/i18n/routing";
 import { Dialogue } from "@/components/ui/Dialogue";
 
 import { entreesVisibles, estCourante, PRINCIPALES } from "./navigation-entrees";
@@ -174,9 +175,11 @@ export function NavigationAdmin({ compteurMessages = null, nomSite, estAdmin = f
           {/* Réglages du site repris ici en dessous de lg (la barre du haut reste sur une ligne ; l'en-tête du site est masqué dans l'admin). */}
           <li className="flex flex-wrap items-center gap-2 px-4 py-3">
             <BasculeTheme />
-            <Suspense fallback={null}>
-              <SelecteurLangue sansTraduction={[]} />
-            </Suspense>
+            {PLUSIEURS_LANGUES ? (
+              <Suspense fallback={null}>
+                <SelecteurLangue sansTraduction={[]} />
+              </Suspense>
+            ) : null}
             <BoutonDeconnexion />
           </li>
         </ul>

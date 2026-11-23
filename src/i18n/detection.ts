@@ -1,11 +1,17 @@
-import { routing, type Locale } from "./routing";
+import { estLangueActive, routing, type Locale } from "./routing";
+
+// Langue de « / » : cookie valide d'abord ; sinon fr* vers fr, toute autre langue vers en ; absent ou illisible vers fr.
+// Seules les langues actives sont choisies (site en français uniquement depuis le 2026-11-22) : une langue désactivée mène à la langue par défaut.
+export function choisirLangue(cookie: string | undefined | null, acceptLanguage: string | undefined | null): Locale {
+  const detectee = detecterLangue(cookie, acceptLanguage);
+  return estLangueActive(detectee) ? detectee : routing.defaultLocale;
+}
 
 function estLocale(valeur: string | undefined | null): valeur is Locale {
   return !!valeur && (routing.locales as readonly string[]).includes(valeur);
 }
 
-// Langue de « / » : cookie valide d'abord ; sinon fr* vers fr, toute autre langue vers en ; absent ou illisible vers fr.
-export function choisirLangue(cookie: string | undefined | null, acceptLanguage: string | undefined | null): Locale {
+function detecterLangue(cookie: string | undefined | null, acceptLanguage: string | undefined | null): Locale {
   if (estLocale(cookie)) return cookie;
 
   const premiere = (acceptLanguage ?? "")

@@ -77,9 +77,9 @@ update public.variante set stock = 1 where produit_id = (select objet from vp);
 insert into public.produit_photo (produit_id, fichier, alt_fr, alt_en, position)
   select id, id::text || '/a.jpg', 'Alt', 'Alt en', 1 from public.produit where slug in ('va-polo', 'va-objet');
 
--- 3. Publication : couleurs nommées en anglais.
+-- 3. Publication : le nom anglais d'une couleur n'est plus exigé (site en français uniquement, 2026-11-22).
 update public.variante set couleur_en = null where produit_id = (select polo from vp) and couleur_fr = 'Blanc';
-select ok('couleurs' = any (public.manques_publication((select polo from vp))), 'une couleur sans nom anglais manque pour publier');
+select ok(not ('couleurs' = any (public.manques_publication((select polo from vp)))), 'une couleur sans nom anglais ne bloque plus la publication');
 update public.variante set couleur_en = 'White' where produit_id = (select polo from vp) and couleur_fr = 'Blanc';
 select is(public.manques_publication((select polo from vp)), '{}'::text[], 'Vêtement complet');
 select is(public.manques_publication((select objet from vp)), '{}'::text[], 'Autre article complet avec sa Taille unique');

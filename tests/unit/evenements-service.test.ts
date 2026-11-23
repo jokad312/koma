@@ -47,6 +47,12 @@ describe("enregistrerEvenement", () => {
     expect(appels.ordre).not.toContain("lireImages");
   });
 
+  it("site en français uniquement (Q5) : une image sans texte alternatif anglais part avec alt_en = alt_fr", async () => {
+    const { deps, appels } = creerTestDependancesEvenements();
+    await enregistrerEvenement(deps, { id: null, evenement: { ...EVENEMENT, images: [{ fichier: OBJET, altFr: "Face", altEn: "" }] } });
+    expect(appels.evenements[0].evenement).toMatchObject({ images: [{ fichier: OBJET, alt_fr: "Face", alt_en: "Face" }] });
+  });
+
   it("rien n'est écrit en dur : aucun Type de pass, aucune date, aucune capacité n'est ajouté par le service", async () => {
     const { deps, appels } = creerTestDependancesEvenements();
     await enregistrerEvenement(deps, { id: null, evenement: EVENEMENT });
@@ -173,8 +179,9 @@ describe("changerPublication", () => {
   });
 
   it("refus de publication : la liste des manques de la base est rendue, seules les clés connues passent", async () => {
-    const { deps, appels } = creerTestDependancesEvenements({ erreurPublication: "KS_PUBLICATION_INCOMPLETE:titre_en,photo,type_pass,inconnue" });
-    expect(await changerPublication(deps, { id: UUID, publier: true })).toEqual({ ok: false, erreur: "publication_incomplete", manques: ["titre_en", "photo", "type_pass"] });
+    const { deps, appels } = creerTestDependancesEvenements({ erreurPublication: "KS_PUBLICATION_INCOMPLETE:titre_fr,photo,type_pass,titre_en,inconnue" });
+    // titre_en n'est plus une clé connue (site en français uniquement) : il ne passe pas.
+    expect(await changerPublication(deps, { id: UUID, publier: true })).toEqual({ ok: false, erreur: "publication_incomplete", manques: ["titre_fr", "photo", "type_pass"] });
     expect(appels.invalidations).toBe(0);
   });
 
@@ -193,6 +200,11 @@ describe("images", () => {
     expect(await demanderEnvoiImage(deps, { type: "image/gif", taille: 1000 })).toEqual({ ok: false, erreur: "format_invalide" });
     expect(await demanderEnvoiImage(deps, { type: "image/png", taille: 16 * 1024 * 1024 })).toEqual({ ok: false, erreur: "fichier_trop_lourd" });
     expect(await demanderEnvoiImage(deps, { type: "constructor", taille: 10 })).toEqual({ ok: false, erreur: "format_invalide" });
+  });
+
+  it("site en français uniquement (Q5) : finaliserImage sans texte anglais rend la copie du français", async () => {
+    const { deps } = creerTestDependancesEvenements({ octetsAttente: await jpeg() });
+    expect(await finaliserImage(deps, { objet: OBJET, altFr: "Face", altEn: "" })).toMatchObject({ ok: true, altFr: "Face", altEn: "Face" });
   });
 
   it("finaliserImage : image valide copiée en public, original d'attente effacé", async () => {

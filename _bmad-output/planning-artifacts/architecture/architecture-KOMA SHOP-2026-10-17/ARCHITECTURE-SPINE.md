@@ -183,6 +183,7 @@ Une Commande `produits` 100 % numérique passe `payee` puis `livree` dans la tra
 
 - **Binds:** FR-43, FR-50, FR-55, FR-56 ; CLAUDE.md « Langues »
 - **Prevents:** un texte d'interface en dur ; un contenu traduit stocké de plusieurs façons.
+- **Décision du 2026-11-22 :** site en français uniquement ; anglais désactivé mais conservé pour un éventuel lancement international. `LANGUES_ACTIVES` (`src/i18n/langues-actives.ts`, aujourd'hui `["fr"]`) commande le sélecteur, les hreflang, le plan du site, la langue des emails et la redirection 308 des adresses `/en…` (proxy, avant next-intl) ; `routing.locales` garde `fr` et `en`. Publication : aucun texte `_en` n'est exigé (migration `20270126100000`) ; une colonne `_en` obligatoire reçoit la copie du français à la création, une valeur `_en` existante n'est jamais écrasée.
 - **Rule:** routes sous `/fr` et `/en` via next-intl ; libellés d'interface uniquement dans `messages/fr.json` et `messages/en.json`. Contenus saisis dans l'admin : colonnes `*_fr` et `*_en` (Produit, Événement, Type de pass : les deux obligatoires à la publication ; Article : `*_en` facultatif, et un Article sans version anglaise n'existe pas sous `/en`). Sous-titres d'une Vidéo de kit : un fichier WebVTT par langue, `fr` obligatoire, `en` facultatif au lancement ; sous `/en`, la fiche d'un Kit sans sous-titres anglais l'indique. `profil.langue` choisit la langue des emails.
 
 ### AD-17 — Rendu, cache et SEO [ADOPTED]

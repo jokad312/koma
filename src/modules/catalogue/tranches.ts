@@ -12,7 +12,8 @@ export function lireTranches(entree: readonly EntreeTranche[]): { ok: true; tran
     const ligne = i + 1;
     if (!t || typeof t !== "object") return { ok: false, erreur: "generique" };
     const libelleFr = String(t.libelleFr ?? "").trim();
-    const libelleEn = String(t.libelleEn ?? "").trim();
+    // Libellé anglais sans champ (site en français uniquement, Q5) : vide, il reçoit la copie du français ; une valeur renvoyée est gardée.
+    const libelleEn = String(t.libelleEn ?? "").trim() || libelleFr;
     if (libelleFr.length < 1 || libelleFr.length > 40) return { ok: false, erreur: "tranche_libelle_invalide", ligne, champTranche: "libelle_fr" };
     if (libelleEn.length < 1 || libelleEn.length > 40) return { ok: false, erreur: "tranche_libelle_invalide", ligne, champTranche: "libelle_en" };
     const bas = analyserMontantUsd(String(t.bas ?? ""), PRIX_MAX_CENTS);

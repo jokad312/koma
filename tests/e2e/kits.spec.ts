@@ -21,16 +21,15 @@ async function violationsGraves(page: Page) {
     .map((v) => `${v.id} (${v.impact}) : ${v.nodes.map((n) => n.target.join(" ")).join(" | ")}`);
 }
 
-for (const langue of ["fr", "en"] as const) {
+for (const langue of ["fr"] as const) {
   const url = `/${langue}/kits`;
   test.describe(url, () => {
-    test("un seul H1, canonique, hreflang, BreadcrumbList, 375 px, état vide ou grille, axe", async ({ page }) => {
+    test("un seul H1, canonique, aucun hreflang, BreadcrumbList, 375 px, état vide ou grille, axe", async ({ page }) => {
       const reponse = await page.goto(url, { waitUntil: "networkidle" });
       expect(reponse?.status()).toBe(200);
       await expect(page.locator("h1")).toHaveText("Kits");
       await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", new RegExp(`${url}$`));
-      await expect(page.locator('link[rel="alternate"][hreflang="fr"]')).toHaveAttribute("href", /\/fr\/kits$/);
-      await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute("href", /\/en\/kits$/);
+      await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
       const jsonld = (await page.locator('script[type="application/ld+json"]').allTextContents()).join("\n");
       expect(jsonld).toContain('"BreadcrumbList"');
       expect(jsonld).not.toMatch(/rating|review|aggregate/i);
@@ -63,8 +62,8 @@ for (const langue of ["fr", "en"] as const) {
   });
 }
 
-test("la rubrique Kits est dans l'en-tête ou le menu, dans les deux langues", async ({ page }) => {
-  for (const langue of ["fr", "en"] as const) {
+test("la rubrique Kits est dans l'en-tête ou le menu", async ({ page }) => {
+  for (const langue of ["fr"] as const) {
     await page.goto(`/${langue}`, { waitUntil: "networkidle" });
     const bouton = page.getByRole("button", { name: "Menu", exact: true });
     const dialogue = page.getByRole("dialog", { name: "Menu" });
@@ -77,10 +76,10 @@ test("la rubrique Kits est dans l'en-tête ou le menu, dans les deux langues", a
   }
 });
 
-test("plan du site : /kits dans les deux langues", async ({ request }) => {
+test("plan du site : /fr/kits, aucune adresse /en", async ({ request }) => {
   const xml = await (await request.get("/sitemap.xml")).text();
   expect(xml).toContain("/fr/kits</loc>");
-  expect(xml).toContain("/en/kits</loc>");
+  expect(xml).not.toContain("/en/kits</loc>");
 });
 
 test("fiche d'un Kit publié : métadonnées, JSON-LD, HTML sans élément privé, 375 px, axe", async ({ page }) => {

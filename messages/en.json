@@ -1500,9 +1500,7 @@
         "incompletPublie": "This event is published but is no longer complete. Missing:",
         "manques": {
           "titre_fr": "the title in French",
-          "titre_en": "the title in English",
           "description_fr": "the programme in French",
-          "description_en": "the programme in English",
           "date": "the start date",
           "lieu": "the venue (type, French and English)",
           "photo": "at least one photo, each with its alternative texts",

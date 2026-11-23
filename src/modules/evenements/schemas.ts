@@ -14,10 +14,11 @@ const dateSaisie = z.preprocess(
     .nullish(),
 );
 
+// Texte alternatif EN facultatif (site en français uniquement, 2026-11-22) : vide, il reçoit la copie du français à l'écriture.
 const imageSchema = z.object({
   fichier: z.string().regex(CHEMIN_IMAGE_EVENEMENT, "evenement_invalide"),
   altFr: z.string().trim().min(1, "alt_invalide").max(200, "alt_invalide"),
-  altEn: z.string().trim().min(1, "alt_invalide").max(200, "alt_invalide"),
+  altEn: z.string().trim().max(200, "alt_invalide").default(""),
 });
 
 const entierOptionnel = (max: number, code: CodeErreurEvenement) =>

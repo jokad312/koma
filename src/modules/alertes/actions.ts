@@ -3,6 +3,7 @@
 import { dependancesAlertes } from "./dependances";
 import * as service from "./service";
 import type { ChampAlerte, CodeChampAlerte, CodeErreurAlerte } from "./types";
+import { langueServie } from "@/i18n/routing";
 
 // Résultat rendu au formulaire : le succès n'existe qu'après la réponse réelle de la base. La saisie revient toujours en cas d'échec.
 export type EtatAlerte =
@@ -25,7 +26,7 @@ export async function inscrireAlerteAction(_etat: EtatAlerte | null, formData: F
   try {
     const resultat = await service.inscrireAlerte(dependancesAlertes(), {
       evenementId: formData.get("evenementId"),
-      langue: formData.get("langue"),
+      langue: langueServie(formData.get("langue")),
       ...valeurs,
     });
     if (resultat.ok) return { statut: "succes" };

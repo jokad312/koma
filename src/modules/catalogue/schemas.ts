@@ -9,10 +9,17 @@ export const idSchema = z.uuid();
 // Univers : noms de 1 à 60 caractères, rognés.
 const nomUniversSchema = z.string().trim().min(1).max(60);
 
+// Texte anglais obligatoire en base mais sans champ dans l'admin (site en français uniquement, décision Q5 du 2026-11-22) :
+// vide, il reçoit la copie du français ; une valeur anglaise saisie (ou renvoyée telle quelle) est gardée.
+export function anglaisOuCopie(en: string | null | undefined, fr: string): string {
+  const saisi = (en ?? "").trim();
+  return saisi === "" ? fr : saisi;
+}
+
 export function lireUnivers(entree: EntreeUnivers): { ok: true; nomFr: string; nomEn: string } | { ok: false; champ: ChampUnivers } {
   const fr = nomUniversSchema.safeParse(entree.nomFr);
   if (!fr.success) return { ok: false, champ: "nom_fr" };
-  const en = nomUniversSchema.safeParse(entree.nomEn);
+  const en = nomUniversSchema.safeParse(anglaisOuCopie(entree.nomEn, fr.data));
   if (!en.success) return { ok: false, champ: "nom_en" };
   return { ok: true, nomFr: fr.data, nomEn: en.data };
 }
@@ -241,12 +248,12 @@ export function lireKit(entree: EntreeKit): { ok: true; id: string | null; kit: 
   };
 }
 
-// Texte alternatif d'une photo : 1 à 200 caractères, rogné, dans chaque langue.
+// Texte alternatif d'une photo : 1 à 200 caractères, rogné, dans chaque langue. Anglais vide : copie du français (Q5).
 const altSchema = z.string().trim().min(1).max(200);
 
 export function lireAlt(altFr: string, altEn: string): { ok: true; altFr: string; altEn: string } | { ok: false } {
   const fr = altSchema.safeParse(altFr);
-  const en = altSchema.safeParse(altEn);
+  const en = altSchema.safeParse(anglaisOuCopie(altEn, (altFr ?? "").trim()));
   return fr.success && en.success ? { ok: true, altFr: fr.data, altEn: en.data } : { ok: false };
 }
 

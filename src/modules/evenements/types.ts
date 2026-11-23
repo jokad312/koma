@@ -69,7 +69,9 @@ export type Evenement = {
 export type EvenementListe = { id: string; titreFr: string; debutLe: string | null; publieLe: string | null; modifieLe: string };
 
 // Codes de manques_publication_evenement : ce qui empêche la publication.
-export const MANQUES_PUBLICATION = ["titre_fr", "titre_en", "description_fr", "description_en", "date", "lieu", "photo", "type_pass", "types_incomplets"] as const;
+// Site en français uniquement (2026-11-22) : la base ne renvoie plus titre_en ni description_en (20270126100000) ; une réactivation de
+// l'anglais les remettra ici, dans messages/*.json et dans une nouvelle migration.
+export const MANQUES_PUBLICATION = ["titre_fr", "description_fr", "date", "lieu", "photo", "type_pass", "types_incomplets"] as const;
 
 export const IMAGES_EVENEMENT_MAX = 10;
 export const IMAGE_EVENEMENT_TAILLE_MAX = 15 * 1024 * 1024;

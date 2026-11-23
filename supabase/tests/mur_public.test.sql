@@ -62,7 +62,7 @@ grant select on ph to public;
 
 -- Texte alternatif exigé à la validation.
 select throws_ok($$select public.valider_photo(pg_temp.c('d2'), (select a from ph), pg_temp.pub(1), '  ', 'TEST_alt')$$, 'P0001', 'KS_ALT_INVALIDE', 'alt français vide : validation refusée');
-select throws_ok($$select public.valider_photo(pg_temp.c('d2'), (select a from ph), pg_temp.pub(1), 'TEST_alt', null)$$, 'P0001', 'KS_ALT_INVALIDE', 'alt anglais absent : validation refusée');
+select throws_ok($$select public.valider_photo(pg_temp.c('d2'), (select a from ph), pg_temp.pub(1), null, 'TEST_alt')$$, 'P0001', 'KS_ALT_INVALIDE', 'alt français absent (anglais seul) : validation refusée');
 select throws_ok($$select public.valider_photo(pg_temp.c('d2'), (select a from ph), pg_temp.pub(1), repeat('x', 201), 'TEST_alt')$$, 'P0001', 'KS_ALT_INVALIDE', 'alt de plus de 200 caractères : refusé');
 select throws_ok($$select public.valider_photo(pg_temp.c('d2'), (select a from ph), pg_temp.pub(1), 'TEST' || chr(8203) || 'alt', 'TEST_alt')$$, 'P0001', 'KS_ALT_INVALIDE', 'alt avec un caractère invisible (espace sans chasse) : refusé');
 select throws_ok($$select public.valider_photo(pg_temp.c('d2'), (select a from ph), pg_temp.pub(1), chr(160) || chr(12288), 'TEST_alt')$$, 'P0001', 'KS_ALT_INVALIDE', 'alt fait seulement d''espaces Unicode : refusé');

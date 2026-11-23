@@ -49,8 +49,8 @@ test.describe("Instagram Android", () => {
   test.use({ userAgent: INSTAGRAM_ANDROID, viewport: { width: 375, height: 812 } });
 
   test("le bouton « Ouvrir dans mon navigateur » mène vers Chrome", async ({ page }) => {
-    await page.goto("/en/connexion");
-    const lien = page.getByRole("link", { name: "Open in my browser" });
+    await page.goto("/fr/connexion");
+    const lien = page.getByRole("link", { name: "Ouvrir dans mon navigateur" });
     await expect(lien).toHaveAttribute("href", /^intent:\/\/.*package=com\.android\.chrome/);
     await expect(page.getByRole("button", { name: /Google/ })).toHaveCount(0);
   });

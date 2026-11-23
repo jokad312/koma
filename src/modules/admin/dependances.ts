@@ -14,6 +14,10 @@ export function dependances(): DependancesAdmin {
       const { error } = await admin.rpc("enregistrer_reglage", { p_auteur: auteur as never, p_cle: cle, p_valeur: valeur as never });
       return { erreur: error ? error.message : null };
     },
+    lireReglage: async (cle) => {
+      const { data, error } = await admin.from("reglage").select("valeur").eq("cle", cle).maybeSingle();
+      return { valeur: data?.valeur ?? null, erreur: error ? error.message : null };
+    },
     invalider: () => updateTag(ETIQUETTES.reglages),
     corrigerAge: async ({ auteur, compteId, age, raison }) => {
       const { data, error } = await admin.rpc("corriger_age", { p_auteur: auteur as never, p_compte: compteId, p_age: age, p_raison: raison });

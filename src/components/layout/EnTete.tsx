@@ -12,6 +12,7 @@ import { RUBRIQUES, RUBRIQUES_BOUTIQUE, RUBRIQUES_DIRECTES, type Rubrique } from
 import { LienConnexion } from "./LienConnexion";
 import { LogoSite } from "./LogoSite";
 import { SelecteurLangue } from "./SelecteurLangue";
+import { PLUSIEURS_LANGUES } from "@/i18n/routing";
 import { ZoneCompte } from "./ZoneCompte";
 import { LienPanier, ZonePanier } from "./ZonePanier";
 
@@ -85,9 +86,12 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }:
         <div className="flex items-center gap-2">
           <div className="hidden items-center gap-2 xl:flex">
             <BasculeTheme />
-            <Suspense fallback={<LangueRepli />}>
-              <SelecteurLangue sansTraduction={sansTraduction} />
-            </Suspense>
+            {/* Sélecteur de langue : seulement si plusieurs langues sont actives (site en français uniquement depuis le 2026-11-22). */}
+            {PLUSIEURS_LANGUES ? (
+              <Suspense fallback={<LangueRepli />}>
+                <SelecteurLangue sansTraduction={sansTraduction} />
+              </Suspense>
+            ) : null}
             <Suspense fallback={<LienConnexion />}>
               <ZoneCompte />
             </Suspense>
@@ -108,9 +112,11 @@ export async function EnTete({ nomSite, rubriques = RUBRIQUES, sansTraduction }:
                 </ul>
               ) : null}
               <BasculeTheme />
-              <Suspense fallback={<LangueRepli />}>
-                <SelecteurLangue sansTraduction={sansTraduction} />
-              </Suspense>
+              {PLUSIEURS_LANGUES ? (
+                <Suspense fallback={<LangueRepli />}>
+                  <SelecteurLangue sansTraduction={sansTraduction} />
+                </Suspense>
+              ) : null}
               <Suspense fallback={<LienConnexion />}>
                 <ZoneCompte />
               </Suspense>

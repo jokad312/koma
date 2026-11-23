@@ -60,7 +60,6 @@ export function EnvoiPhoto({ produitId, vignette = null }: { produitId: string; 
     if (!Object.hasOwn(FORMATS_PHOTO, fichier.type)) return setErreur({ code: "format_invalide", champ: "fichier" });
     if (fichier.size > PHOTO_TAILLE_MAX) return setErreur({ code: "fichier_trop_lourd", champ: "fichier" });
     if (altFr.trim() === "" || altFr.trim().length > 200) return setErreur({ code: "alt_invalide", champ: "alt_fr" });
-    if (altEn.trim() === "" || altEn.trim().length > 200) return setErreur({ code: "alt_invalide", champ: "alt_en" });
 
     enVol.current = true;
     annule.current = false;
@@ -217,8 +216,7 @@ export function EnvoiPhoto({ produitId, vignette = null }: { produitId: string; 
         ) : null}
       </div>
 
-      <ChampTexte id={`${base}-alt-fr`} name="alt_fr" libelle={t("ajout.altFr.libelle")} aide={t("ajout.altFr.aide")} valeur={altFr} onChange={setAltFr} erreur={erreurDe("alt_fr")} />
-      <ChampTexte id={`${base}-alt-en`} name="alt_en" libelle={t("ajout.altEn.libelle")} aide={t("ajout.altEn.aide")} valeur={altEn} onChange={setAltEn} erreur={erreurDe("alt_en")} />
+      <ChampTexte id={`${base}-alt-fr`} name="alt_fr" libelle={t("ajout.altFr.libelle")} aide={t("ajout.altFr.aide")} valeur={altFr} onChange={setAltFr} erreur={erreurDe("alt_fr") ?? erreurDe("alt_en")} />
 
       <div className="flex flex-wrap items-center gap-3">
         <Bouton type="submit" enCours={occupe}>

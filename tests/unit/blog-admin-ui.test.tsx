@@ -73,7 +73,7 @@ const ARTICLE: Article = {
 describe("FormulaireArticle", () => {
   it("l'aperçu nettoie le HTML brut, les scripts et les liens javascript:", async () => {
     const { container } = rendre(<FormulaireArticle article={null} produits={[]} />);
-    const texte = screen.getByLabelText("Texte en français");
+    const texte = screen.getByLabelText("Texte");
     await userEvent.click(texte);
     await userEvent.paste("<script>alert(1)</script>\n\n[piege](javascript:alert(1))");
     const apercu = () => container.querySelector("[data-apercu]");
@@ -86,8 +86,8 @@ describe("FormulaireArticle", () => {
   it("création : envoie la saisie puis ouvre la fiche d'édition", async () => {
     faux.enregistrerArticleAction.mockResolvedValue({ statut: "succes", id: ARTICLE.id, cree: true });
     rendre(<FormulaireArticle article={null} produits={[]} />);
-    await userEvent.type(screen.getByLabelText("Titre en français"), "Nouvel article");
-    await userEvent.type(screen.getByLabelText("Texte en français"), "Un texte");
+    await userEvent.type(screen.getByLabelText("Titre"), "Nouvel article");
+    await userEvent.type(screen.getByLabelText("Texte"), "Un texte");
     await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
     await waitFor(() => expect(faux.enregistrerArticleAction).toHaveBeenCalledTimes(1));
     expect(faux.enregistrerArticleAction).toHaveBeenCalledWith({
@@ -100,10 +100,10 @@ describe("FormulaireArticle", () => {
   it("échec serveur : message affiché, saisie conservée, aucun succès", async () => {
     faux.enregistrerArticleAction.mockResolvedValue({ statut: "erreur", erreur: "titre_invalide" });
     rendre(<FormulaireArticle article={null} produits={[]} />);
-    await userEvent.type(screen.getByLabelText("Titre en français"), "Titre");
+    await userEvent.type(screen.getByLabelText("Titre"), "Titre");
     await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
     expect(await screen.findByText("Le titre doit avoir de 1 à 120 caractères.")).toBeTruthy();
-    expect((screen.getByLabelText("Titre en français") as HTMLInputElement).value).toBe("Titre");
+    expect((screen.getByLabelText("Titre") as HTMLInputElement).value).toBe("Titre");
     expect(faux.refresh).not.toHaveBeenCalled();
   });
 });
@@ -120,7 +120,7 @@ describe("ImagesArticle", () => {
         onChange={onChange}
       />,
     );
-    expect(screen.getByText("Texte alternatif en français : Face du costume")).toBeTruthy();
+    expect(screen.getByText("Texte alternatif : Face du costume")).toBeTruthy();
     await userEvent.click(screen.getByRole("button", { name: "Retirer l'image 1" }));
     expect(onChange).toHaveBeenCalledWith([{ fichier: "articles/22222222-2222-4222-8222-222222222222.jpg", altFr: "Dos du costume", altEn: "Costume back" }]);
   });
@@ -140,7 +140,7 @@ describe("ImagesArticle dans le formulaire de l'article (pas de <form> imbriqué
 
   it("Entrée dans un champ de l'ajout n'enregistre pas l'article", async () => {
     rendre(<FormulaireArticle article={ARTICLE} produits={[]} />);
-    await userEvent.type(screen.getByLabelText("Texte alternatif en français"), "Une description{Enter}");
+    await userEvent.type(screen.getByLabelText("Texte alternatif"), "Une description{Enter}");
     expect(faux.enregistrerArticleAction).not.toHaveBeenCalled();
     // Entrée sans fichier : l'ajout est refusé avec son message, toujours sans enregistrer l'article.
     expect(await screen.findByText("Ce fichier n'est pas une image JPEG, PNG ou WebP valide.")).toBeTruthy();
@@ -164,13 +164,12 @@ describe("ImagesArticle dans le formulaire de l'article (pas de <form> imbriqué
 
     // Ajout complet : fichier, deux textes alternatifs, bouton « Ajouter l'image ».
     await userEvent.upload(screen.getByLabelText("Choisir une image"), new File(["x"], "face.jpg", { type: "image/jpeg" }));
-    await userEvent.type(screen.getByLabelText("Texte alternatif en français"), "Face");
-    await userEvent.type(screen.getByLabelText("Texte alternatif en anglais"), "Front");
+    await userEvent.type(screen.getByLabelText("Texte alternatif"), "Face");
     await userEvent.click(screen.getByRole("button", { name: "Ajouter l'image" }));
     expect(await screen.findByText("Image ajoutée. Elle sera enregistrée avec l'article.")).toBeTruthy();
-    expect(faux.finaliserImageArticle).toHaveBeenCalledWith({ objet: "attente/x.jpg", altFr: "Face", altEn: "Front" });
+    expect(faux.finaliserImageArticle).toHaveBeenCalledWith({ objet: "attente/x.jpg", altFr: "Face", altEn: "" });
     expect(faux.enregistrerArticleAction).not.toHaveBeenCalled();
-    expect(screen.getByText("Texte alternatif en français : Face")).toBeTruthy();
+    expect(screen.getByText("Texte alternatif : Face")).toBeTruthy();
 
     // Enregistrer envoie l'article avec l'image, une seule fois, sans relancer d'ajout.
     await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
@@ -180,7 +179,7 @@ describe("ImagesArticle dans le formulaire de l'article (pas de <form> imbriqué
 
     // Retrait : l'image sort de la liste puis de l'envoi suivant.
     await userEvent.click(screen.getByRole("button", { name: "Retirer l'image 1" }));
-    expect(screen.queryByText("Texte alternatif en français : Face")).toBeNull();
+    expect(screen.queryByText("Texte alternatif : Face")).toBeNull();
     await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
     await waitFor(() => expect(faux.enregistrerArticleAction).toHaveBeenCalledTimes(2));
     expect(faux.enregistrerArticleAction.mock.calls[1][0].article.images).toEqual([]);
@@ -234,7 +233,7 @@ describe("PublicationArticle (menu STATUT)", () => {
     await choisirStatut(user, "Publié");
     const alerte = await screen.findByRole("alert");
     expect(alerte.textContent).toContain("Il manque encore des éléments pour publier");
-    expect(alerte.textContent).toContain("Le titre en français");
+    expect(alerte.textContent).toContain("Le titre");
     // L'alerte peut paraître avant la fin de la transition (bouton « Un instant… » sous charge) : on attend le statut final.
     expect(await screen.findByRole("button", { name: "Statut : Brouillon" })).toBeTruthy();
     expect(faux.refresh).not.toHaveBeenCalled();
@@ -294,12 +293,9 @@ describe("FormulaireArticle en fenêtre (9.16 h)", () => {
       </FenetreFormulaire>,
     );
     const ordre = [
-      screen.getByLabelText("Titre en français"),
-      screen.getByLabelText("Titre en anglais"),
-      screen.getByLabelText("Extrait (résumé court) en français"),
-      screen.getByLabelText("Extrait (résumé court) en anglais"),
-      screen.getByLabelText("Texte en français"),
-      screen.getByLabelText("Texte en anglais"),
+      screen.getByLabelText("Titre"),
+      screen.getByLabelText("Extrait (résumé court)"),
+      screen.getByLabelText("Texte"),
       screen.getByRole("heading", { level: 2, name: "Image" }),
       screen.getByLabelText("Choisir une image"),
       screen.getByRole("button", { name: "Statut : Brouillon" }),
@@ -333,18 +329,18 @@ describe("FormulaireArticle en fenêtre (9.16 h)", () => {
       </FenetreFormulaire>,
     );
     expect(screen.getAllByText("6 sur 300 caractères")).toHaveLength(1);
-    await user.type(screen.getByLabelText("Extrait (résumé court) en anglais"), "Summary");
-    expect(screen.getByText("7 sur 300 caractères")).toBeTruthy();
+    await user.type(screen.getByLabelText("Extrait (résumé court)"), " court");
+    expect(screen.getByText("12 sur 300 caractères")).toBeTruthy();
     // Deux boutons « Enregistrer » : celui de l'en-tête (le premier) et celui du bas du formulaire.
     await user.click(screen.getAllByRole("button", { name: "Enregistrer" })[0]);
     await waitFor(() => expect(faux.enregistrerArticleAction).toHaveBeenCalledTimes(1));
-    expect(faux.enregistrerArticleAction.mock.calls[0][0].article).toMatchObject({ extraitFr: "Résumé", extraitEn: "Summary" });
+    expect(faux.enregistrerArticleAction.mock.calls[0][0].article).toMatchObject({ extraitFr: "Résumé court", extraitEn: null });
   });
 
   it("extrait de 301 caractères : le compteur le signale, le serveur refuse et l'erreur est reliée au champ", async () => {
     faux.enregistrerArticleAction.mockResolvedValue({ statut: "erreur", erreur: "extrait_invalide" });
     rendre(<FormulaireArticle article={ARTICLE} produits={[]} statut={STATUT} />);
-    const champ = screen.getByLabelText("Extrait (résumé court) en français");
+    const champ = screen.getByLabelText("Extrait (résumé court)");
     fireEvent.change(champ, { target: { value: "a".repeat(301) } });
     expect(screen.getByText("301 sur 300 caractères : trop long, raccourcis l'extrait.")).toBeTruthy();
     // Le navigateur n'empêche pas l'envoi : c'est le serveur qui refuse.
@@ -356,14 +352,14 @@ describe("FormulaireArticle en fenêtre (9.16 h)", () => {
     expect(faux.refresh).not.toHaveBeenCalled();
   });
 
-  it("extrait anglais trop long : l'erreur va au champ anglais", async () => {
-    faux.enregistrerArticleAction.mockResolvedValue({ statut: "erreur", erreur: "extrait_invalide" });
-    rendre(<FormulaireArticle article={ARTICLE} produits={[]} statut={STATUT} />);
-    fireEvent.change(screen.getByLabelText("Extrait (résumé court) en anglais"), { target: { value: "b".repeat(301) } });
+  it("site en français uniquement (2026-11-22) : aucun champ anglais ; les textes anglais déjà enregistrés repartent tels quels", async () => {
+    faux.enregistrerArticleAction.mockResolvedValue({ statut: "succes", id: ARTICLE.id, cree: false });
+    rendre(<FormulaireArticle article={{ ...ARTICLE, titreEn: "TEST_Title", texteEn: "TEST_Text", extraitEn: "TEST_Summary" }} produits={[]} statut={STATUT} />);
+    for (const libelle of ["Titre en anglais", "Extrait (résumé court) en anglais", "Texte en anglais"]) expect(screen.queryByLabelText(libelle)).toBeNull();
+    fireEvent.change(screen.getByLabelText("Titre"), { target: { value: "TEST_Titre modifié" } });
     await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
-    await screen.findByText("L'extrait ne doit pas dépasser 300 caractères.");
-    expect(screen.getByLabelText("Extrait (résumé court) en anglais").getAttribute("aria-invalid")).toBe("true");
-    expect(screen.getByLabelText("Extrait (résumé court) en français").getAttribute("aria-invalid")).toBeNull();
+    await waitFor(() => expect(faux.enregistrerArticleAction).toHaveBeenCalledTimes(1));
+    expect(faux.enregistrerArticleAction.mock.calls[0][0].article).toMatchObject({ titreFr: "TEST_Titre modifié", titreEn: "TEST_Title", texteEn: "TEST_Text", extraitEn: "TEST_Summary" });
   });
 
   it("vignette de la zone image : première image de l'article", () => {
@@ -374,20 +370,16 @@ describe("FormulaireArticle en fenêtre (9.16 h)", () => {
     expect(document.querySelectorAll('img[alt=""]').length).toBeGreaterThanOrEqual(1);
   });
 
-  it("deux extraits trop longs : les deux champs marqués ; la saisie après la réponse ne déplace pas l'erreur", async () => {
+  it("extrait trop long : la saisie après la réponse ne déplace pas l'erreur", async () => {
     faux.enregistrerArticleAction.mockResolvedValue({ statut: "erreur", erreur: "extrait_invalide" });
     rendre(<FormulaireArticle article={ARTICLE} produits={[]} statut={STATUT} />);
-    const fr = screen.getByLabelText("Extrait (résumé court) en français");
-    const en = screen.getByLabelText("Extrait (résumé court) en anglais");
+    const fr = screen.getByLabelText("Extrait (résumé court)");
     fireEvent.change(fr, { target: { value: "a".repeat(301) } });
-    fireEvent.change(en, { target: { value: "b".repeat(301) } });
     await userEvent.click(screen.getByRole("button", { name: "Enregistrer" }));
     await waitFor(() => expect(fr.getAttribute("aria-invalid")).toBe("true"));
-    expect(en.getAttribute("aria-invalid")).toBe("true");
-    // Raccourcir le français après la réponse : l'erreur reste figée sur les champs envoyés.
+    // Raccourcir le français après la réponse : l'erreur reste figée sur le champ envoyé.
     fireEvent.change(fr, { target: { value: "court" } });
     expect(fr.getAttribute("aria-invalid")).toBe("true");
-    expect(en.getAttribute("aria-invalid")).toBe("true");
   });
 
   it("avec statut, choisir « Publié » publie sans jamais enregistrer le formulaire", async () => {
@@ -409,7 +401,7 @@ describe("FormulaireArticle en fenêtre (9.16 h)", () => {
     faux.enregistrerArticleAction.mockResolvedValue({ statut: "succes", id: ARTICLE.id, cree: true });
     const user = userEvent.setup();
     rendre(<FormulaireArticle article={null} produits={[]} />);
-    await user.type(screen.getByLabelText("Titre en français"), "Nouvel article");
+    await user.type(screen.getByLabelText("Titre"), "Nouvel article");
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
     await waitFor(() => expect(faux.push).toHaveBeenCalledTimes(1));
     await user.click(screen.getByRole("button", { name: /Enregistre/ }));
@@ -432,7 +424,7 @@ describe("FormulaireArticle dans la fenêtre : sortie protégée (9.16 h)", () =
     faux.enregistrerArticleAction.mockResolvedValue({ statut: "succes", id: ARTICLE.id, cree: false });
     const user = userEvent.setup();
     fenetre();
-    await user.type(screen.getByLabelText("Titre en anglais"), "TEST_en");
+    await user.type(screen.getByLabelText("Titre"), "TEST_fr");
     await user.keyboard("{Escape}");
     const confirmation = screen.getByRole("dialog", { name: "Quitter sans enregistrer ?" });
     await user.click(within(confirmation).getByRole("button", { name: "Continuer la saisie" }));
@@ -483,8 +475,7 @@ describe("FormulaireArticle dans la fenêtre : sortie protégée (9.16 h)", () =
     const user = userEvent.setup();
     fenetre({ ...ARTICLE, images: [IMAGE] });
     await user.upload(screen.getByLabelText("Choisir une image"), new File(["x"], "face.jpg", { type: "image/jpeg" }));
-    await user.type(screen.getByLabelText("Texte alternatif en français"), "Face");
-    await user.type(screen.getByLabelText("Texte alternatif en anglais"), "Front");
+    await user.type(screen.getByLabelText("Texte alternatif"), "Face");
     await user.click(screen.getByRole("button", { name: "Ajouter l'image" }));
     await waitFor(() => expect(faux.finaliserImageArticle).toHaveBeenCalled());
     expect((screen.getByRole("button", { name: "Retirer l'image 1" }) as HTMLButtonElement).disabled).toBe(true);
@@ -520,8 +511,7 @@ describe("ImagesArticle : retrait pendant un envoi", () => {
     const user = userEvent.setup();
     rendre(<Banc />);
     await user.upload(screen.getByLabelText("Choisir une image"), new File(["x"], "face.jpg", { type: "image/jpeg" }));
-    await user.type(screen.getByLabelText("Texte alternatif en français"), "Face");
-    await user.type(screen.getByLabelText("Texte alternatif en anglais"), "Front");
+    await user.type(screen.getByLabelText("Texte alternatif"), "Face");
     await user.click(screen.getByRole("button", { name: "Ajouter l'image" }));
     await waitFor(() => expect(faux.finaliserImageArticle).toHaveBeenCalled());
     await user.click(screen.getByRole("button", { name: "TEST_retirer" }));

@@ -14,3 +14,6 @@ export const routing = defineRouting({
 export type Locale = (typeof routing.locales)[number];
 
 export const NOM_COOKIE_LANGUE = "NEXT_LOCALE";
+
+// Langues réellement servies (sous-ensemble de routing.locales, qui garde fr et en pour les types et les messages).
+export { LANGUES_ACTIVES, PLUSIEURS_LANGUES, estLangueActive, langueServie, type LangueActive } from "./langues-actives";

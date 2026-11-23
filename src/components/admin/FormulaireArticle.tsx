@@ -23,14 +23,13 @@ const longueur = (texte: string) => Array.from(texte.trim()).length;
 // Code d'erreur serveur → champs du formulaire concernés (vide : message général). L'extrait trop long est rattaché au(x) champ(s) qui
 // dépassaient AU MOMENT de l'envoi (les deux si besoin, le français si aucun ne dépasse ici) : le serveur reste seul juge, le navigateur ne fait
 // qu'aider à placer le message, et la saisie faite après la réponse ne le déplace pas.
-function champsDe(erreur: EtatArticle, extraitFr: string, extraitEn: string): Champ[] {
+function champsDe(erreur: EtatArticle, extraitFr: string): Champ[] {
   if (erreur.statut !== "erreur") return [];
   if (erreur.erreur === "titre_invalide") return ["titre_fr"];
   if (erreur.erreur === "texte_invalide") return ["texte_fr"];
   if (erreur.erreur === "extrait_invalide") {
     const fautifs: Champ[] = [];
     if (longueur(extraitFr) > EXTRAIT_ARTICLE_MAX) fautifs.push("extrait_fr");
-    if (longueur(extraitEn) > EXTRAIT_ARTICLE_MAX) fautifs.push("extrait_en");
     return fautifs.length > 0 ? fautifs : ["extrait_fr"];
   }
   if (erreur.erreur === "slug_invalide" || erreur.erreur === "slug_pris" || erreur.erreur === "slug_publie") return ["slug"];
@@ -66,11 +65,12 @@ export function FormulaireArticle({
   const base = useId();
   const idForm = idFormulaire ?? `${base}-formulaire`;
   const [titreFr, setTitreFr] = useState(article?.titreFr ?? "");
-  const [titreEn, setTitreEn] = useState(article?.titreEn ?? "");
+  // Valeurs anglaises sans champ (site en français uniquement, 2026-11-22) : gardées telles quelles et renvoyées à l'enregistrement.
+  const [titreEn] = useState(article?.titreEn ?? "");
   const [extraitFr, setExtraitFr] = useState(article?.extraitFr ?? "");
-  const [extraitEn, setExtraitEn] = useState(article?.extraitEn ?? "");
+  const [extraitEn] = useState(article?.extraitEn ?? "");
   const [texteFr, setTexteFr] = useState(article?.texteFr ?? "");
-  const [texteEn, setTexteEn] = useState(article?.texteEn ?? "");
+  const [texteEn] = useState(article?.texteEn ?? "");
   const [slug, setSlug] = useState(article?.slug ?? "");
   // Tant que l'adresse n'a pas été modifiée à la main, elle suit le titre français ; une adresse déjà
   // enregistrée n'est jamais recalculée (elle sert d'adresse publique).
@@ -135,7 +135,7 @@ export function FormulaireArticle({
           return;
         }
         setEtat(resultat);
-        setFautifs(champsDe(resultat, envoyes.extraitFr, envoyes.extraitEn));
+        setFautifs(champsDe(resultat, envoyes.extraitFr));
         if (resultat.statut === "succes") {
           // Saisie enregistrée : la fenêtre ne demande plus « Quitter sans enregistrer ? ».
           enregistre();
@@ -183,7 +183,6 @@ export function FormulaireArticle({
 
       {/* TITRE (DA2) */}
       <ChampTexte id={`${base}-titre-fr`} name="titre_fr" libelle={t("titreFr.libelle")} aide={t("titreFr.aide")} valeur={titreFr} onChange={(valeur) => { setTitreFr(valeur); if (!slugModifie) setSlug(proposerSlug(valeur)); }} erreur={erreurDe("titre_fr")} />
-      <ChampTexte id={`${base}-titre-en`} name="titre_en" libelle={t("titreEn.libelle")} aide={t("titreEn.aide")} valeur={titreEn} onChange={setTitreEn} erreur={erreurDe("titre_en")} />
 
       {/* EXTRAIT (RÉSUMÉ COURT) (DA3, Q28) : facultatif, 300 caractères au plus, compteur. */}
       <ChampTexte
@@ -197,21 +196,9 @@ export function FormulaireArticle({
         multiligne
         sousLeChamp={compteur(`${base}-extrait-fr`, extraitFr)}
       />
-      <ChampTexte
-        id={`${base}-extrait-en`}
-        name="extrait_en"
-        libelle={t("extraitEn.libelle")}
-        aide={t("extraitEn.aide", { max: EXTRAIT_ARTICLE_MAX })}
-        valeur={extraitEn}
-        onChange={setExtraitEn}
-        erreur={erreurDe("extrait_en")}
-        multiligne
-        sousLeChamp={compteur(`${base}-extrait-en`, extraitEn)}
-      />
 
       {/* CONTENU (DA4) : Markdown, aperçu plus bas. */}
       <ChampTexte id={`${base}-texte-fr`} name="texte_fr" libelle={t("texteFr.libelle")} aide={t("texteFr.aide")} valeur={texteFr} onChange={setTexteFr} erreur={erreurDe("texte_fr")} multiligne />
-      <ChampTexte id={`${base}-texte-en`} name="texte_en" libelle={t("texteEn.libelle")} aide={t("texteEn.aide")} valeur={texteEn} onChange={setTexteEn} erreur={erreurDe("texte_en")} multiligne />
       <p className="t-small text-text-secondary">{t("markdown")}</p>
 
       {/* Image (DA5) : zone d'ajout avec vignette ; avant le premier enregistrement, un texte le dit (comme avant la refonte). */}

@@ -1,10 +1,12 @@
 import en from "../../../../messages/en.json";
 import fr from "../../../../messages/fr.json";
 import type { LangueEmail, MessageEmail } from "../types";
+import { estLangueActive } from "@/i18n/langues-actives";
 
 // Textes des emails : messages/*.json (espace « Emails »), jamais en dur ici. Interpolation simple {variable}.
 export type TextesEmails = typeof fr.Emails;
-export const TEXTES: Record<LangueEmail, TextesEmails> = { fr: fr.Emails, en: en.Emails };
+// Une langue désactivée (anglais depuis le 2026-11-22, site en français uniquement) se replie sur le français.
+export const TEXTES: Record<LangueEmail, TextesEmails> = { fr: fr.Emails, en: estLangueActive("en") ? en.Emails : fr.Emails };
 
 export function remplir(modele: string, valeurs: Record<string, string | number>): string {
   return modele.replace(/\{(\w+)\}/g, (tout, cle: string) => (cle in valeurs ? String(valeurs[cle]) : tout));

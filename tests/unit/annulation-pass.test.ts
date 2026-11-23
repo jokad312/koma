@@ -1,6 +1,8 @@
 // Story 7.9 : demande d'annulation d'un Pass (service), emails « pass_annule » et « pass_rembourse » (gabarits et rendu relu en base).
 // Faux accès nommés TEST ; aucun vrai paiement ni vrai email.
 import { beforeEach, describe, expect, it, vi } from "vitest";
+// Anglais désactivé mais conservé (2026-11-22) : ce test vérifie le comportement bilingue, celui d'une réactivation de l'anglais.
+vi.mock("@/i18n/langues-actives", () => import("../doubles/TEST_langues-fr-en"));
 
 const etat = vi.hoisted(() => ({ commande: null as unknown, pass: null as unknown, remboursement: null as unknown }));
 vi.mock("server-only", () => ({}));

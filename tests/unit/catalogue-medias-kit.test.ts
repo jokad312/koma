@@ -247,6 +247,12 @@ describe("chapitres", () => {
     ]);
   });
 
+  it("site en français uniquement (Q5) : sans titre anglais, la copie du titre français est transmise", async () => {
+    const { deps, appels } = creerTestDependancesMediasKit();
+    expect(await ajouterChapitreKit(deps, chapitre({ titreEn: "" }))).toEqual({ ok: true, id: "TEST_chapitre-0001" });
+    expect(appels.chapitres).toEqual([{ auteur: AUTEUR, produitId: TEST_KIT_ID, titreFr: "Coupe", titreEn: "Coupe", debut: 150 }]);
+  });
+
   it.each([
     [{ titreFr: "  " }, "titre_invalide", "titre_fr"],
     [{ titreEn: "x".repeat(121) }, "titre_invalide", "titre_en"],

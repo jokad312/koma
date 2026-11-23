@@ -20,6 +20,7 @@ import { rendreNouveauProduit, rendrePanierAbandonne, rendreRappelKit, rendreRel
 import { rendreAlerte } from "@/modules/alertes/rendu";
 import { MODELES_COMMERCIAUX } from "./types";
 import type { DependancesEnvois, EnvoiLie, EnvoiReserve, LangueEmail, ResultatRendu } from "./types";
+import { langueServie } from "@/i18n/routing";
 
 type ClientService = ReturnType<typeof creerClientService>;
 
@@ -457,7 +458,8 @@ export function creerDependancesEnvois(config: { cleResend: string; expediteur: 
           id: e.id,
           modele: e.modele,
           compteId: e.compte_id,
-          langue: e.langue === "en" ? "en" : "fr",
+          // Langue désactivée (anglais depuis le 2026-11-22) : email en français.
+          langue: langueServie(e.langue),
           donnees: (e.donnees ?? {}) as Record<string, string>,
           tentatives: e.tentatives,
         })),

@@ -796,11 +796,11 @@
       },
       "formulaire": {
         "titreFr": {
-          "libelle": "Titre en français",
+          "libelle": "Titre",
           "aide": "De 1 à 120 caractères. Il apparaît en tête de l'article."
         },
         "texteFr": {
-          "libelle": "Texte en français",
+          "libelle": "Texte",
           "aide": "Markdown simple : titres avec #, listes avec -, gras avec **, liens avec [texte](adresse). 5000 caractères au plus."
         },
         "titreEn": {
@@ -808,7 +808,7 @@
           "aide": "Facultatif. Sans version anglaise, l'article n'apparaît pas sous /en."
         },
         "extraitFr": {
-          "libelle": "Extrait (résumé court) en français",
+          "libelle": "Extrait (résumé court)",
           "aide": "Facultatif, {max} caractères au plus. Affiché sur la carte de la liste du blog et en description de la page. Vide : début du texte."
         },
         "extraitEn": {
@@ -834,7 +834,7 @@
         },
         "markdown": "Le texte est écrit en Markdown simple. Le HTML brut n'est pas interprété.",
         "imagesTitre": "Images de l'article",
-        "imagesAide": "Chaque image exige un texte alternatif en français et en anglais. Les fichiers sont nettoyés de leurs métadonnées.",
+        "imagesAide": "Chaque image exige un texte alternatif. Les fichiers sont nettoyés de leurs métadonnées.",
         "imagesApresCreation": "Enregistre d'abord l'article : tu pourras ensuite ajouter des images.",
         "enregistrer": "Enregistrer",
         "enCours": "Enregistrement…",
@@ -856,7 +856,7 @@
           "produit_inexistant": "Ce produit n'existe plus. Choisis-en un autre ou aucun.",
           "article_introuvable": "Cet article n'existe plus. Retourne à la liste des articles.",
           "non_autorise": "Tu n'as plus le droit de gérer le blog. Recharge la page ou reconnecte-toi.",
-          "publication_incomplete": "Cet article est publié : son titre, son texte français et les textes alternatifs de ses images sont obligatoires. Dépublie-le d'abord pour le vider.",
+          "publication_incomplete": "Cet article est publié : son titre, son texte et les textes alternatifs de ses images sont obligatoires. Dépublie-le d'abord pour le vider.",
           "generique": "L'article n'a pas pu être enregistré. Réessaie."
         }
       },
@@ -869,7 +869,7 @@
         "vide": "Aucune image pour le moment.",
         "legende": "Images de l'article",
         "image": "Image {numero}",
-        "texteFr": "Texte alternatif en français : {texte}",
+        "texteFr": "Texte alternatif : {texte}",
         "texteEn": "Texte alternatif en anglais : {texte}",
         "retirer": "Retirer l'image {numero}",
         "ajout": {
@@ -880,7 +880,7 @@
             "choisi": "Image choisie : {nom}"
           },
           "altFr": {
-            "libelle": "Texte alternatif en français",
+            "libelle": "Texte alternatif",
             "aide": "Décris l'image en une phrase, pour les personnes qui ne la voient pas."
           },
           "altEn": {
@@ -915,9 +915,9 @@
         "depublieOk": "Article dépublié : il n'est plus visible sur le site.",
         "incomplet": "Il manque encore des éléments pour publier :",
         "manques": {
-          "titre_fr": "Le titre en français",
-          "texte_fr": "Le texte en français",
-          "alt": "Un texte alternatif français et anglais pour chaque image"
+          "titre_fr": "Le titre",
+          "texte_fr": "Le texte",
+          "alt": "Un texte alternatif pour chaque image"
         },
         "erreurs": {
           "publication_incomplete": "Il manque des éléments pour publier. Vérifie le titre, le texte et les textes alternatifs des images.",
@@ -984,11 +984,11 @@
         "note": "Lecture seule : la rédaction, la publication et l'archivage du blog sont réservés à l'administrateur.",
         "vide": "Non renseigné",
         "statut": "Statut",
-        "titreFr": "Titre en français",
+        "titreFr": "Titre",
         "titreEn": "Titre en anglais",
-        "extraitFr": "Extrait en français",
+        "extraitFr": "Extrait",
         "extraitEn": "Extrait en anglais",
-        "texteFr": "Texte en français",
+        "texteFr": "Texte",
         "texteEn": "Texte en anglais",
         "titre": "Lire l'article",
         "lireSur": "Lire l'article {titre}",
@@ -1037,7 +1037,7 @@
       },
       "retraitFr": {
         "titre": "Retrait à Goma (français)",
-        "libelle": "Lieu de retrait gratuit à Goma, en français",
+        "libelle": "Lieu de retrait gratuit à Goma",
         "aide": "De 1 à 500 caractères : l'adresse ou les indications que le client verra. Laisse vide pour l'effacer."
       },
       "retraitEn": {
@@ -1055,7 +1055,7 @@
         "numero_invalide": "Le numéro doit commencer par + et contenir de 8 à 15 chiffres.",
         "forfait_goma_invalide": "Le forfait de Goma doit être un montant en USD de 0 à 1000, avec deux décimales au plus.",
         "forfait_bukavu_invalide": "Le forfait de Bukavu doit être un montant en USD de 0 à 1000, avec deux décimales au plus.",
-        "retrait_fr_invalide": "Le lieu de retrait en français doit avoir au plus 500 caractères.",
+        "retrait_fr_invalide": "Le lieu de retrait doit avoir au plus 500 caractères.",
         "retrait_en_invalide": "Le lieu de retrait en anglais doit avoir au plus 500 caractères.",
         "plafond_invalide": "Le plafond doit être un nombre entier de 1 à 10000.",
         "non_autorise": "Tu n'as plus le droit de modifier ce réglage. Recharge la page ou reconnecte-toi.",
@@ -1074,7 +1074,7 @@
         "vide": "Aucune tranche pour le moment.",
         "legende": "Tranches de prix",
         "position": "Tranche {numero}",
-        "libelleFr": "Tranche {numero} : libellé en français",
+        "libelleFr": "Tranche {numero} : libellé",
         "libelleEn": "Tranche {numero} : libellé en anglais",
         "bas": "Tranche {numero} : borne basse (USD)",
         "haut": "Tranche {numero} : borne haute (USD)",
@@ -1148,7 +1148,7 @@
             "aide": "JPEG, PNG ou WebP, 15 Mo au plus."
           },
           "altFr": {
-            "libelle": "Texte alternatif en français",
+            "libelle": "Texte alternatif",
             "aide": "Décris la photo pour les personnes qui ne la voient pas, de 1 à 200 caractères."
           },
           "altEn": {
@@ -1157,13 +1157,13 @@
           },
           "envoyer": "Envoyer la photo",
           "remplacer": "Remplacer la photo",
-          "corrigerTextes": "Corriger les textes alternatifs",
+          "corrigerTextes": "Corriger le texte alternatif",
           "annuler": "Annuler l'envoi",
           "progression": "Envoi en cours : <nb>{pourcentage}</nb> %",
           "reprise": "Connexion perdue : l'envoi reprendra tout seul.",
           "traitement": "Traitement de la photo…",
           "succes": "Photo de repli enregistrée.",
-          "altSucces": "Textes alternatifs enregistrés.",
+          "altSucces": "Texte alternatif enregistré.",
           "annule": "Envoi annulé."
         },
         "erreurs": {
@@ -1386,7 +1386,7 @@
         "enCours": "Enregistrement…",
         "enregistrer": "Enregistrer l'événement",
         "titreFr": {
-          "libelle": "Titre en français",
+          "libelle": "Titre",
           "aide": "Obligatoire. 120 caractères au plus."
         },
         "titreEn": {
@@ -1395,10 +1395,10 @@
         },
         "slug": {
           "libelle": "Adresse de la page",
-          "aide": "Lettres minuscules, chiffres et tirets. Proposée à partir du titre français ; elle ne change plus une fois choisie."
+          "aide": "Lettres minuscules, chiffres et tirets. Proposée à partir du titre ; elle ne change plus une fois choisie."
         },
         "descriptionFr": {
-          "libelle": "Programme en français",
+          "libelle": "Programme",
           "aide": "Texte simple, 5 000 caractères au plus. Obligatoire pour publier."
         },
         "descriptionEn": {
@@ -1412,7 +1412,7 @@
           "salle": "Salle",
           "pleinAir": "Plein air",
           "fr": {
-            "libelle": "Lieu en français",
+            "libelle": "Lieu",
             "aide": "Par exemple le nom de l'endroit et la ville."
           },
           "en": {
@@ -1448,7 +1448,7 @@
           "aide": "Crée autant de Types que tu veux. Pour un Stand, coche la case « Stand » : le quota est alors le nombre de Stands disponibles.",
           "vide": "Aucun Type de pass pour le moment.",
           "numero": "Type de pass {numero}",
-          "nomFr": "Nom en français",
+          "nomFr": "Nom",
           "nomEn": "Nom en anglais",
           "prix": "Prix (USD)",
           "prixAide": "Par exemple 15 ou 15,50. Zéro pour un Pass offert.",
@@ -1456,7 +1456,7 @@
           "quotaAide": "Facultatif. Vide : pas de limite pour ce Type.",
           "quotaStand": "Nombre de Stands disponibles",
           "quotaStandAide": "Facultatif. Vide : pas de limite.",
-          "inclusFr": "Ce qui est inclus, en français",
+          "inclusFr": "Ce qui est inclus",
           "inclusEn": "Ce qui est inclus, en anglais",
           "stand": "Stand",
           "standAide": "Un Stand donne deux Pass nominatifs (le titulaire et son aide). Il ne s'achète que sur candidature validée.",
@@ -1464,7 +1464,7 @@
           "ajouter": "Ajouter un Type de pass"
         },
         "imagesTitre": "Photos",
-        "imagesAide": "Obligatoires pour publier, avec un texte alternatif en français et en anglais.",
+        "imagesAide": "Obligatoires pour publier, avec un texte alternatif.",
         "imagesApresCreation": "Les photos s'ajoutent une fois l'événement créé.",
         "erreurs": {
           "evenement_invalide": "L'événement n'est pas valide. Vérifie les champs.",
@@ -1481,7 +1481,7 @@
           "evenement_introuvable": "Cet événement n'existe plus.",
           "type_pass_introuvable": "Un Type de pass n'appartient pas à cet événement. Recharge la page.",
           "type_pass_vendu": "Ce Type de pass a déjà été commandé : il ne peut plus être retiré. Tu peux le renommer ou modifier ses avantages.",
-          "publication_incomplete": "Cet événement est publié : il doit rester complet (textes anglais, photo avec ses textes alternatifs, Type de pass payant). Complète-le ou dépublie-le d'abord.",
+          "publication_incomplete": "Cet événement est publié : il doit rester complet (textes, photo avec son texte alternatif, Type de pass payant). Complète-le ou dépublie-le d'abord.",
           "non_autorise": "Tu n'as plus le droit de gérer les événements. Recharge la page ou reconnecte-toi.",
           "format_invalide": "Ce fichier n'est pas une image JPEG, PNG ou WebP valide.",
           "fichier_trop_lourd": "L'image dépasse 15 Mo.",
@@ -1499,15 +1499,13 @@
         "incomplet": "Pour publier, il manque :",
         "incompletPublie": "Cet événement est publié mais il n'est plus complet. Il manque :",
         "manques": {
-          "titre_fr": "le titre en français",
-          "titre_en": "le titre en anglais",
-          "description_fr": "le programme en français",
-          "description_en": "le programme en anglais",
+          "titre_fr": "le titre",
+          "description_fr": "le programme",
           "date": "la date de début",
-          "lieu": "le lieu (type, français et anglais)",
-          "photo": "au moins une photo, chacune avec ses textes alternatifs",
+          "lieu": "le lieu (type et nom)",
+          "photo": "au moins une photo, chacune avec son texte alternatif",
           "type_pass": "au moins un Type de pass avec un prix",
-          "types_incomplets": "le nom anglais et ce qui est inclus (français et anglais) de chaque Type de pass"
+          "types_incomplets": "ce qui est inclus dans chaque Type de pass"
         },
         "publieOk": "Événement publié.",
         "depublieOk": "Événement retiré du public.",
@@ -1526,7 +1524,7 @@
         "vide": "Aucune photo pour le moment.",
         "legende": "Photos de l'événement",
         "image": "Photo {numero}",
-        "texteFr": "Texte alternatif en français : {texte}",
+        "texteFr": "Texte alternatif : {texte}",
         "texteEn": "Texte alternatif en anglais : {texte}",
         "retirer": "Retirer la photo {numero}",
         "ajout": {
@@ -1536,7 +1534,7 @@
             "aide": "JPEG, PNG ou WebP, 15 Mo au plus."
           },
           "altFr": {
-            "libelle": "Texte alternatif en français",
+            "libelle": "Texte alternatif",
             "aide": "Décris la photo en une phrase, pour les personnes qui ne la voient pas."
           },
           "altEn": {
@@ -1630,7 +1628,7 @@
       "prixAFixer": "Prix à fixer",
       "pageNouveau": {
         "titre": "Nouveau produit",
-        "intro": "Un brouillon peut rester incomplet : seuls la famille, le titre français et l'adresse sont obligatoires."
+        "intro": "Un brouillon peut rester incomplet : seuls la famille, le titre et l'adresse sont obligatoires."
       },
       "pageEdition": {
         "titre": "Modifier le produit",
@@ -1650,7 +1648,7 @@
           "fixe": "La famille d'un produit existant ne peut plus changer."
         },
         "titreFr": {
-          "libelle": "Titre en français"
+          "libelle": "Titre"
         },
         "titreEn": {
           "libelle": "Titre en anglais",
@@ -1658,11 +1656,11 @@
         },
         "slug": {
           "libelle": "Adresse du produit",
-          "aide": "Lettres minuscules sans accent, chiffres et tirets. Proposée depuis le titre français ; tu peux la modifier.",
+          "aide": "Lettres minuscules sans accent, chiffres et tirets. Proposée depuis le titre ; tu peux la modifier.",
           "utiliser": "Utiliser {adresse}"
         },
         "descriptionFr": {
-          "libelle": "Description en français",
+          "libelle": "Description",
           "aide": "Facultatif pour un brouillon. 5 000 caractères au plus."
         },
         "descriptionEn": {
@@ -1725,13 +1723,13 @@
           "generique": "Le produit n'a pas pu être enregistré. Ta saisie est conservée : réessaie.",
           "produit_publie_verrouille": "Ce produit est publié : son adresse et sa famille ne peuvent plus changer. Dépublie-le d'abord si tu dois les modifier.",
           "publication_incomplete": "Ce produit est publié : il doit rester complet (prix, photo, textes, taille). Dépublie-le d'abord pour retirer cet élément.",
-          "couleur_invalide": "Chaque couleur a un nom français de 1 à 40 caractères, un nom anglais de 40 caractères au plus et une pastille au format #RRGGBB. Deux couleurs ne portent jamais le même nom ; toutes les tailles ont une couleur, ou aucune.",
+          "couleur_invalide": "Chaque couleur a un nom de 1 à 40 caractères et une pastille au format #RRGGBB. Deux couleurs ne portent jamais le même nom ; toutes les tailles ont une couleur, ou aucune.",
           "variante_commandee": "Cette taille ou cette couleur a déjà été commandée : elle ne peut pas être retirée. Garde-la, ou mets son stock à 0."
         },
         "couleurs": {
           "titre": "Couleurs",
-          "aide": "Ajoute les couleurs proposées : aucune, une ou plusieurs. Chaque couleur a ses tailles et son stock. Le nom anglais est obligatoire pour publier ; la pastille est facultative et ne remplace jamais le nom.",
-          "nomFr": "Nom de la couleur en français",
+          "aide": "Ajoute les couleurs proposées : aucune, une ou plusieurs. Chaque couleur a ses tailles et son stock. La pastille est facultative et ne remplace jamais le nom.",
+          "nomFr": "Nom de la couleur",
           "nomFrAide": "De 1 à 40 caractères. Les couleurs déjà utilisées sont proposées.",
           "nomEn": "Nom de la couleur en anglais",
           "nomEnAide": "Obligatoire pour publier. 40 caractères au plus.",
@@ -1754,7 +1752,7 @@
         "nombre": "{nombre, plural, one {<nb>#</nb> photo sur 10} other {<nb>#</nb> photos sur 10}}",
         "legende": "Photos du produit, dans l'ordre d'affichage",
         "position": "Photo {numero}",
-        "texteFr": "Texte alternatif en français : {texte}",
+        "texteFr": "Texte alternatif : {texte}",
         "texteEn": "Texte alternatif en anglais : {texte}",
         "monter": "Monter la photo {numero} : {texte}",
         "descendre": "Descendre la photo {numero} : {texte}",
@@ -1770,7 +1768,7 @@
         },
         "alt": {
           "titre": "Modifier le texte alternatif de la photo {numero}",
-          "altFr": "Texte alternatif en français",
+          "altFr": "Texte alternatif",
           "altEn": "Texte alternatif en anglais",
           "aide": "De 1 à 200 caractères.",
           "enregistrer": "Enregistrer le texte alternatif",
@@ -1785,7 +1783,7 @@
             "choisi": "Image choisie : {nom}"
           },
           "altFr": {
-            "libelle": "Texte alternatif en français",
+            "libelle": "Texte alternatif",
             "aide": "Décris la photo pour les personnes qui ne la voient pas, de 1 à 200 caractères."
           },
           "altEn": {
@@ -1834,11 +1832,11 @@
         "manques": {
           "prix": "Le prix",
           "photo": "Au moins une photo",
-          "titre_fr": "Le titre en français",
+          "titre_fr": "Le titre",
           "titre_en": "Le titre en anglais",
-          "description_fr": "La description en français",
+          "description_fr": "La description",
           "description_en": "La description en anglais",
-          "materiel_fr": "Le matériel nécessaire en français",
+          "materiel_fr": "Le matériel nécessaire",
           "materiel_en": "Le matériel nécessaire en anglais",
           "niveau": "Le niveau",
           "variante": "Au moins une taille",
@@ -1905,7 +1903,7 @@
         "titre": "Créer un univers",
         "resume": "Il y a une erreur à corriger. Ta saisie est conservée.",
         "nomFr": {
-          "libelle": "Nom en français",
+          "libelle": "Nom",
           "aide": "De 1 à 60 caractères."
         },
         "nomEn": {
@@ -1917,7 +1915,7 @@
         "succes": "Univers créé.",
         "erreurs": {
           "nom_invalide": "Le nom doit avoir de 1 à 60 caractères.",
-          "univers_existe": "Un univers porte déjà ce nom, en français ou en anglais.",
+          "univers_existe": "Un univers porte déjà ce nom.",
           "non_autorise": "Tu n'as plus le droit de créer des univers. Recharge la page ou reconnecte-toi.",
           "generique": "L'univers n'a pas pu être créé. Ta saisie est conservée : réessaie."
         }
@@ -1930,7 +1928,7 @@
       "formulaire": {
         "resume": "Il y a des erreurs à corriger. Ta saisie est conservée.",
         "titreFr": {
-          "libelle": "Titre en français"
+          "libelle": "Titre"
         },
         "titreEn": {
           "libelle": "Titre en anglais",
@@ -1938,11 +1936,11 @@
         },
         "slug": {
           "libelle": "Adresse du Kit",
-          "aide": "Lettres minuscules sans accent, chiffres et tirets. Proposée depuis le titre français ; tu peux la modifier.",
+          "aide": "Lettres minuscules sans accent, chiffres et tirets. Proposée depuis le titre ; tu peux la modifier.",
           "utiliser": "Utiliser {adresse}"
         },
         "descriptionFr": {
-          "libelle": "Description en français",
+          "libelle": "Description",
           "aide": "Facultatif pour un brouillon. 5 000 caractères au plus."
         },
         "descriptionEn": {
@@ -1950,7 +1948,7 @@
           "aide": "Facultatif pour un brouillon. 5 000 caractères au plus."
         },
         "materielFr": {
-          "libelle": "Matériel nécessaire en français",
+          "libelle": "Matériel nécessaire",
           "aide": "Ce qu'il faut se procurer pour fabriquer le costume ou l'accessoire. Facultatif pour un brouillon. 5 000 caractères au plus."
         },
         "materielEn": {
@@ -2016,7 +2014,7 @@
         "legende": "Fichiers du Kit, dans l'ordre d'ajout",
         "version": "Version {version}",
         "details": "{format} · {taille} · version {version}",
-        "nomFr": "Nom en français : {nom}",
+        "nomFr": "Nom : {nom}",
         "nomEn": "Nom en anglais : {nom}",
         "taille": {
           "octets": "{valeur} o",
@@ -2052,7 +2050,7 @@
           },
           "formatDetecte": "Format : {format}",
           "nomFr": {
-            "libelle": "Nom en français",
+            "libelle": "Nom",
             "aide": "Le nom que verra le client, de 1 à 120 caractères."
           },
           "nomEn": {
@@ -2082,7 +2080,7 @@
           "fichier_manquant": "Choisis un fichier à envoyer.",
           "format_invalide": "Ce fichier n'est pas accepté. Formats acceptés : PDF (A4 ou US Letter), SVG, STL ou transcription texte (.txt), avec un contenu qui correspond à l'extension.",
           "fichier_trop_lourd": "Ce fichier est trop lourd : {max} Mo au plus, {maxTranscription} Mo pour une transcription.",
-          "nom_invalide": "Écris le nom du fichier en français et en anglais, de 1 à 120 caractères.",
+          "nom_invalide": "Écris le nom du fichier, de 1 à 120 caractères.",
           "envoi_incomplet": "Le fichier n'est pas arrivé en entier. Réessaie l'envoi.",
           "envoi_echec": "L'envoi a échoué. Vérifie ta connexion puis réessaie.",
           "fichier_introuvable": "Ce fichier n'existe plus. Recharge la page.",
@@ -2187,7 +2185,7 @@
       },
       "chapitres": {
         "titre": "Chapitres",
-        "intro": "Découpe le tutoriel en chapitres : titre en français et en anglais, instant de début (mm:ss ou h:mm:ss). {max} chapitres au plus. L'ordre est libre : utilise Monter et Descendre.",
+        "intro": "Découpe le tutoriel en chapitres : titre, instant de début (mm:ss ou h:mm:ss). {max} chapitres au plus. L'ordre est libre : utilise Monter et Descendre.",
         "sansVideo": "Envoie d'abord la vidéo complète : l'instant de chaque chapitre doit se situer avant sa fin.",
         "vide": "Aucun chapitre pour le moment.",
         "nombre": "{nombre, plural, =0 {Aucun chapitre} one {<nb>#</nb> chapitre} other {<nb>#</nb> chapitres}}",
@@ -2207,7 +2205,7 @@
         "formulaire": {
           "ajoutTitre": "Ajouter un chapitre",
           "modificationTitre": "Modifier le chapitre {numero}",
-          "titreFr": "Titre en français",
+          "titreFr": "Titre",
           "titreEn": "Titre en anglais",
           "titreAide": "De 1 à 120 caractères.",
           "debut": "Instant de début",
@@ -2229,7 +2227,7 @@
           "non_autorise": "Tu n'as plus le droit de modifier les produits. Recharge la page ou reconnecte-toi.",
           "produit_introuvable": "Ce Kit n'existe plus. Retourne à la liste des produits.",
           "famille_invalide": "Ce produit n'est pas un Kit. Retourne à la liste des produits.",
-          "titre_invalide": "Écris le titre du chapitre en français et en anglais, de 1 à 120 caractères.",
+          "titre_invalide": "Écris le titre du chapitre, de 1 à 120 caractères.",
           "instant_invalide": "Écris l'instant sous la forme mm:ss ou h:mm:ss, par exemple 2:30.",
           "chapitre_invalide": "Le chapitre doit commencer avant la fin de la vidéo ({duree}).",
           "chapitre_debut_pris": "Un autre chapitre commence déjà à cet instant.",
@@ -2863,7 +2861,7 @@
         "envoi_echec": "L'envoi a échoué. Vérifie la connexion et réessaie.",
         "generique": "L'action n'a pas pu être enregistrée. Réessaie.",
         "photo_illisible": "Cette photo ne peut pas être lue : refuse-la.",
-        "alt_invalide": "Écris le texte alternatif en français et en anglais (200 caractères au plus) avant de publier."
+        "alt_invalide": "Écris le texte alternatif (200 caractères au plus) avant de publier."
       },
       "depot": {
         "titre": "Déposer une photo reçue par WhatsApp",
@@ -2935,7 +2933,7 @@
       },
       "altSaisie": {
         "fr": {
-          "libelle": "Texte alternatif en français",
+          "libelle": "Texte alternatif",
           "aide": "Décris la photo en une phrase, pour les personnes qui ne la voient pas (200 caractères au plus)."
         },
         "en": {

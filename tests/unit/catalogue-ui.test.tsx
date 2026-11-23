@@ -49,9 +49,13 @@ const UNIVERS = [
 
 describe("FormulaireUnivers", () => {
   async function remplir(user: ReturnType<typeof userEvent.setup>) {
-    await user.type(screen.getByLabelText("Nom en français"), "Univers FR");
-    await user.type(screen.getByLabelText("Nom en anglais"), "Universe EN");
+    await user.type(screen.getByLabelText("Nom"), "Univers FR");
   }
+
+  it("site en français uniquement (2026-11-22) : aucun champ anglais", () => {
+    rendre(<FormulaireUnivers />);
+    expect(screen.queryByLabelText("Nom en anglais")).toBeNull();
+  });
 
   it("le succès n'apparaît qu'après la réponse réelle ; la liste est relue puis les champs vidés", async () => {
     let repondre: (v: unknown) => void = () => {};
@@ -63,16 +67,16 @@ describe("FormulaireUnivers", () => {
 
     expect(await screen.findByRole("button", { name: "Création…" })).toBeTruthy();
     expect(screen.queryByText("Univers créé.")).toBeNull();
-    expect(faux.creerUnivers).toHaveBeenCalledWith({ nomFr: "Univers FR", nomEn: "Universe EN" });
+    expect(faux.creerUnivers).toHaveBeenCalledWith({ nomFr: "Univers FR", nomEn: "" });
 
     await act(async () => repondre({ statut: "succes" }));
     expect(await screen.findByText("Univers créé.")).toBeTruthy();
     expect(faux.refresh).toHaveBeenCalled();
-    expect((screen.getByLabelText("Nom en français") as HTMLInputElement).value).toBe("");
+    expect((screen.getByLabelText("Nom") as HTMLInputElement).value).toBe("");
   });
 
   it("erreur de champ : message sous le champ relié par aria-describedby, saisie conservée, focus sur le résumé, aucun succès", async () => {
-    faux.creerUnivers.mockResolvedValue({ statut: "erreur", erreur: "nom_invalide", champ: "nom_en" });
+    faux.creerUnivers.mockResolvedValue({ statut: "erreur", erreur: "nom_invalide", champ: "nom_fr" });
     const user = userEvent.setup();
     rendre(<FormulaireUnivers />);
     await remplir(user);
@@ -80,14 +84,25 @@ describe("FormulaireUnivers", () => {
 
     const alertes = await screen.findAllByRole("alert");
     expect(alertes[0].textContent).toContain("Il y a une erreur à corriger");
-    const champ = screen.getByLabelText("Nom en anglais") as HTMLInputElement;
+    const champ = screen.getByLabelText("Nom") as HTMLInputElement;
     expect(champ.getAttribute("aria-invalid")).toBe("true");
     const erreur = screen.getByText("Le nom doit avoir de 1 à 60 caractères.");
     expect(champ.getAttribute("aria-describedby")).toContain(erreur.id);
-    expect(champ.value).toBe("Universe EN");
-    expect((screen.getByLabelText("Nom en français") as HTMLInputElement).value).toBe("Univers FR");
+    expect(champ.value).toBe("Univers FR");
     expect(screen.queryByText("Univers créé.")).toBeNull();
     expect(faux.refresh).not.toHaveBeenCalled();
+  });
+
+  it("erreur visant le nom anglais (sans champ, copie du français) : montrée sous le nom français", async () => {
+    faux.creerUnivers.mockResolvedValue({ statut: "erreur", erreur: "nom_invalide", champ: "nom_en" });
+    const user = userEvent.setup();
+    rendre(<FormulaireUnivers />);
+    await remplir(user);
+    await user.click(screen.getByRole("button", { name: "Créer l'univers" }));
+    await screen.findAllByRole("alert");
+    const champ = screen.getByLabelText(/^Nom/) as HTMLInputElement;
+    expect(champ.getAttribute("aria-invalid")).toBe("true");
+    expect(champ.getAttribute("aria-describedby")).toContain(screen.getByText("Le nom doit avoir de 1 à 60 caractères.").id);
   });
 
   it("nom_invalide sans champ : message propre, pas le message générique", async () => {
@@ -111,7 +126,7 @@ describe("FormulaireUnivers", () => {
     faux.creerUnivers.mockRejectedValueOnce(new Error("TEST_reseau"));
     await user.click(screen.getByRole("button", { name: "Créer l'univers" }));
     expect(await screen.findByText(/n'a pas pu être créé/, undefined, { timeout: 8000 })).toBeTruthy();
-    expect((screen.getByLabelText("Nom en français") as HTMLInputElement).value).toBe("Univers FR");
+    expect((screen.getByLabelText("Nom") as HTMLInputElement).value).toBe("Univers FR");
     expect(screen.queryByText("Univers créé.")).toBeNull();
   });
 });
@@ -145,18 +160,18 @@ describe("FormulaireProduit", () => {
     const user = userEvent.setup();
     rendre(<FormulaireProduit univers={UNIVERS} />);
     const slug = screen.getByLabelText("Adresse du produit") as HTMLInputElement;
-    await user.type(screen.getByLabelText("Titre en français"), "Costume d'Été");
+    await user.type(screen.getByLabelText("Titre"), "Costume d'Été");
     expect(slug.value).toBe("costume-d-ete");
     await user.clear(slug);
     await user.type(slug, "mon-adresse");
-    await user.type(screen.getByLabelText("Titre en français"), " bis");
+    await user.type(screen.getByLabelText("Titre"), " bis");
     expect(slug.value).toBe("mon-adresse");
   });
 
   it("modification : l'adresse enregistrée n'est jamais recalculée", async () => {
     const user = userEvent.setup();
     rendre(<FormulaireProduit univers={UNIVERS} produit={brouillon} />);
-    await user.type(screen.getByLabelText("Titre en français"), " bis");
+    await user.type(screen.getByLabelText("Titre"), " bis");
     expect((screen.getByLabelText("Adresse du produit") as HTMLInputElement).value).toBe("test-cosplay");
     expect((screen.getByLabelText("Prix en dollars US (USD)") as HTMLInputElement).value).toBe("49.90");
     expect((screen.getByLabelText("Stock") as HTMLInputElement).value).toBe("2");
@@ -197,7 +212,7 @@ describe("FormulaireProduit", () => {
     const user = userEvent.setup();
     rendre(<FormulaireProduit univers={UNIVERS} />);
     await user.click(screen.getByRole("radio", { name: /Cosplay/ }));
-    await user.type(screen.getByLabelText("Titre en français"), "Mon cosplay");
+    await user.type(screen.getByLabelText("Titre"), "Mon cosplay");
     await user.type(screen.getByLabelText("Prix en dollars US (USD)"), "49,90");
     await user.click(screen.getByRole("checkbox", { name: "Proposer la taille M" }));
     await user.clear(screen.getByLabelText("Stock"));
@@ -259,7 +274,7 @@ describe("FormulaireProduit", () => {
     rendre(<FormulaireProduit univers={UNIVERS} produit={brouillon} />);
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
     expect(await screen.findByText("Produit enregistré.")).toBeTruthy();
-    await user.type(screen.getByLabelText("Titre en français"), "x");
+    await user.type(screen.getByLabelText("Titre"), "x");
     expect(screen.queryByText("Produit enregistré.")).toBeNull();
   });
 
@@ -308,7 +323,7 @@ describe("FormulaireProduit", () => {
     rendre(<FormulaireProduit univers={UNIVERS} produit={brouillon} />);
     await user.click(screen.getByRole("button", { name: "Enregistrer" }));
     expect(await screen.findByText(/n'a pas pu être enregistré/)).toBeTruthy();
-    expect((screen.getByLabelText("Titre en français") as HTMLInputElement).value).toBe("TEST_Cosplay");
+    expect((screen.getByLabelText("Titre") as HTMLInputElement).value).toBe("TEST_Cosplay");
     expect(screen.queryByText("Produit enregistré.")).toBeNull();
     expect(faux.push).not.toHaveBeenCalled();
   });

@@ -31,6 +31,13 @@ describe("enregistrerArticle", () => {
     expect(appels.ordre).not.toContain("lireImages");
   });
 
+  it("site en français uniquement (Q5) : une image sans texte alternatif anglais part avec alt_en = alt_fr", async () => {
+    const { deps, appels } = creerTestDependancesBlog();
+    const image = { fichier: `articles/${UUID}.jpg`, altFr: "Face", altEn: "" };
+    expect(await enregistrerArticle(deps, { id: null, article: { ...ARTICLE, images: [image] } })).toMatchObject({ ok: true });
+    expect(appels.articles[0].images).toEqual([{ fichier: `articles/${UUID}.jpg`, alt_fr: "Face", alt_en: "Face" }]);
+  });
+
   it("adresse vide : déduite du titre français, sans accents", async () => {
     const { deps, appels } = creerTestDependancesBlog();
     const article = { ...ARTICLE, titreFr: "Premier article : mon atelier", slug: null };
@@ -236,6 +243,11 @@ describe("finaliserImage", () => {
     const { deps, appels } = creerTestDependancesBlog();
     expect(await finaliserImage(deps, { objet, altFr: "A", altEn: "B" })).toEqual({ ok: false, erreur: "format_invalide" });
     expect(appels.ecritsPublics).toEqual([]);
+  });
+
+  it("site en français uniquement (Q5) : texte alternatif anglais vide, la copie du français est rendue", async () => {
+    const { deps } = creerTestDependancesBlog({ octetsAttente: await jpeg() });
+    expect(await finaliserImage(deps, { objet: OBJET, altFr: "Face", altEn: "" })).toMatchObject({ ok: true, altFr: "Face", altEn: "Face" });
   });
 
   it("texte alternatif vide : alt_invalide", async () => {

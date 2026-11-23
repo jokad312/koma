@@ -247,13 +247,13 @@ otp_expiry = 600
 # sender_name = "Admin"
 
 # Code de connexion (story 1.4) : « magic_link » pour un Compte existant, « confirmation » pour un nouveau Compte.
-# Un seul message pour les deux langues : la langue par utilisateur n'est pas confirmée par la documentation (règle 15).
+# Message en français seul (site en français uniquement depuis le 2026-11-22). À recopier dans koma-dev : Authentication › Email Templates.
 [auth.email.template.magic_link]
-subject = "Code de connexion / Sign-in code"
+subject = "Code de connexion"
 content_path = "./supabase/templates/code-connexion.html"
 
 [auth.email.template.confirmation]
-subject = "Code de connexion / Sign-in code"
+subject = "Code de connexion"
 content_path = "./supabase/templates/code-connexion.html"
 
 # Uncomment to customize email template

@@ -597,3 +597,11 @@
 - source_spec: `_bmad-output/implementation-artifacts/spec-a3-bis-nombres-non-traduits.md`
   summary: Limites connues sur page traduite : les mots autour d'un nombre (pluriel « 1 jour » → « 2 jours », statuts de SuiviPaiement) restent figés, et un passage texte → montant (RecapCommande « à choisir » → montant, ListeCommandes « offert », PerformanceJour « au moins ») laisse le texte traduit affiché à côté du nouveau montant (garde removeChild d'A3).
   evidence: revue d'A3-bis (2026-11-22), mécanisme du traducteur (les <font> remplacent les nœuds que React met à jour) ; non vérifié dans un vrai Chrome (medium) : traduire /fr/commande, changer de zone, lire le récapitulatif.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-b-site-francais-uniquement.md`
+  summary: Documents (CLAUDE.md, ARCHITECTURE-SPINE AD-16) : préciser que réactiver l'anglais demande aussi une nouvelle migration (rétablir les exigences `_en` de manques_publication / manques_publication_evenement), le retour des champs anglais dans les formulaires, et la relecture des valeurs `_en` copiées du français.
+  evidence: revue de B (2026-11-22) ; les documents disent seulement « remettre en dans LANGUES_ACTIVES et rétablir les champs » (le commentaire de langues-actives.ts est corrigé dans B).
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-b-site-francais-uniquement.md`
+  summary: Mise en ligne (9.9) : recopier `supabase/templates/code-connexion.html` (français seul) et le sujet « Code de connexion » sur le projet Supabase de PRODUCTION, sinon l'ancien email bilingue partira.
+  evidence: revue de B (2026-11-22) ; le modèle n'est appliqué au projet distant qu'à la main (Authentication › Email Templates).

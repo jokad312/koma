@@ -38,6 +38,12 @@ describe("creerUnivers", () => {
     expect(appels.univers).toEqual([{ auteur: { type: "compte", id: TEST_ADMIN_ID, role: "admin" }, nomFr: "Nom FR", nomEn: "Nom EN" }]);
   });
 
+  it("site en français uniquement (Q5) : sans nom anglais, la base reçoit la copie du nom français", async () => {
+    const { deps, appels } = creerTestDependancesCatalogue();
+    expect(await creerUnivers(deps, { nomFr: " Nom FR ", nomEn: "" })).toEqual({ ok: true, id: "TEST_univers-0001" });
+    expect(appels.univers).toEqual([{ auteur: { type: "compte", id: TEST_ADMIN_ID, role: "admin" }, nomFr: "Nom FR", nomEn: "Nom FR" }]);
+  });
+
   it("univers refusé par la base : le cache n'est pas vidé", async () => {
     const { deps, appels } = creerTestDependancesCatalogue({ erreurUnivers: "KS_UNIVERS_EXISTE" });
     expect(await creerUnivers(deps, { nomFr: "a", nomEn: "b" })).toEqual({ ok: false, erreur: "univers_existe" });
@@ -53,7 +59,6 @@ describe("creerUnivers", () => {
 
   it.each([
     [{ nomFr: "   ", nomEn: "x" }, "nom_fr"],
-    [{ nomFr: "x", nomEn: "" }, "nom_en"],
     [{ nomFr: "x".repeat(61), nomEn: "x" }, "nom_fr"],
     [{ nomFr: "x", nomEn: "x".repeat(61) }, "nom_en"],
   ])("nom invalide %#: refusé sur le bon champ, rien n'est écrit", async (saisie, champ) => {

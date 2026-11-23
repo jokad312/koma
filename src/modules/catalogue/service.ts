@@ -560,7 +560,8 @@ export async function finaliserFichierKit(
     if (!Number.isInteger(entree.taille) || entree.taille < 1) return { ok: false, erreur: "format_invalide" };
     if (entree.taille > tailleMaxFormat(format)) return { ok: false, erreur: "fichier_trop_lourd" };
     const nomFr = nomAffiche(entree.nomFr);
-    const nomEn = nomAffiche(entree.nomEn);
+    // Nom anglais sans champ (site en français uniquement, Q5) : vide, il reçoit la copie du français.
+    const nomEn = (entree.nomEn ?? "").trim() === "" ? nomFr : nomAffiche(entree.nomEn);
     if (fichierId === null && (!nomFr || !nomEn)) return { ok: false, erreur: "nom_invalide" };
 
     const lu = await deps.lireObjetKit({ objet: entree.objet, octets: octetsAVerifier(format, entree.taille) });

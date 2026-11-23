@@ -41,7 +41,8 @@ export function FilePhotos({ photos, passOffert = null }: { photos: PhotoAdmin[]
     const alt = altDe(id);
     if (action === "valider") {
       const invalide = (v: string) => v.trim() === "" || [...v.trim()].length > 200;
-      const champ = invalide(alt.fr) ? "fr" : invalide(alt.en) ? "en" : null;
+      // Texte anglais sans champ (site en français uniquement, 2026-11-22) : le serveur y copie le français.
+      const champ = invalide(alt.fr) ? "fr" : null;
       if (champ) {
         setAltManquant({ id, champ });
         document.getElementById(`galerie-alt-${champ}-${id}`)?.focus();
@@ -113,7 +114,7 @@ export function FilePhotos({ photos, passOffert = null }: { photos: PhotoAdmin[]
           {p.retraitDemande ? <p className="t-label text-text-primary">{t("retraitDemande")}</p> : null}
           {actions.includes("valider") ? (
             <div className="mt-2 flex flex-col gap-3">
-              {(["fr", "en"] as const).map((champ) => (
+              {(["fr"] as const).map((champ) => (
                 <ChampTexte
                   key={champ}
                   id={`galerie-alt-${champ}-${p.id}`}

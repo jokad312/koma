@@ -1,6 +1,6 @@
 import { lireEnvPublique } from "@/lib/env";
 import { cheminPublic } from "@/i18n/adresses";
-import { routing, type Locale } from "@/i18n/routing";
+import { LANGUES_ACTIVES, PLUSIEURS_LANGUES, routing, type Locale } from "@/i18n/routing";
 
 // Adresse du site : NEXT_PUBLIC_SITE_URL seulement, sans barre finale.
 export function adresseSite(): string {
@@ -19,9 +19,11 @@ export function urlLocalisee(locale: Locale, chemin = "", requete = ""): string 
   return `${adresseSite()}${cheminLocalise(locale, chemin)}${requete ? `?${requete}` : ""}`;
 }
 
-// hreflang : une entrée par langue disponible, x-default vers la langue par défaut quand elle fait partie des versions servies.
+// hreflang : une entrée par langue disponible et active, x-default vers la langue par défaut quand elle fait partie des versions servies.
+// Une seule langue active (site en français uniquement depuis le 2026-11-22) : aucun hreflang, objet vide.
 export function alternatives(chemin = "", requete = "", langues: readonly Locale[] = routing.locales): Record<string, string> {
-  const servies = routing.locales.filter((l) => langues.includes(l));
+  if (!PLUSIEURS_LANGUES) return {};
+  const servies = routing.locales.filter((l) => langues.includes(l) && (LANGUES_ACTIVES as readonly Locale[]).includes(l));
   const entrees = Object.fromEntries(servies.map((l) => [l, urlLocalisee(l, chemin, requete)]));
   if (!servies.includes(routing.defaultLocale)) return entrees;
   return { ...entrees, "x-default": urlLocalisee(routing.defaultLocale, chemin, requete) };

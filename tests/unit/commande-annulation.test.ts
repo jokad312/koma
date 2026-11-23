@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
+// Anglais désactivé mais conservé (2026-11-22) : ce test vérifie le comportement bilingue, celui d'une réactivation de l'anglais.
+vi.mock("@/i18n/langues-actives", () => import("../doubles/TEST_langues-fr-en"));
 import { demanderAnnulation, type DependancesAnnulation } from "@/modules/commande/annulation";
 import { rendreCommandeAnnulee, rendreCommandeRemboursee } from "@/modules/envois/modeles/statut-commande";
 

@@ -144,8 +144,8 @@ describe("FenetreFormulaire : fond plein écran (9.16 f)", () => {
 describe("FormulaireProduit dans la fenêtre (9.16 f)", () => {
   it("ordre de la maquette : nom, description, prix, univers, image, statut, puis la famille et les autres champs ; champs sombres, étiquettes en majuscules", () => {
     dansFenetre(<FormulaireProduit univers={UNIVERS} idFormulaire={ID} />);
-    const titre = screen.getByLabelText("Titre en français");
-    const description = screen.getByLabelText("Description en français");
+    const titre = screen.getByLabelText("Titre");
+    const description = screen.getByLabelText("Description");
     const prix = screen.getByLabelText("Prix en dollars US (USD)");
     const univers = screen.getByRole("combobox", { name: "Univers" });
     const image = screen.getByRole("heading", { level: 2, name: "Image" });
@@ -164,7 +164,7 @@ describe("FormulaireProduit dans la fenêtre (9.16 f)", () => {
       expect(avant(a, b)).toBe(true);
     }
     expect(titre.className).toContain("bg-admin-champ");
-    expect(screen.getByText("Titre en français").className).toContain("uppercase");
+    expect(screen.getByText("Titre").className).toContain("uppercase");
     // « Enregistrer » de l'en-tête soumet le formulaire principal, qui porte les premiers champs.
     expect(screen.getAllByRole("button", { name: "Enregistrer" })[0].getAttribute("form")).toBe(ID);
     expect(titre.closest("form")?.id).toBe(ID);
@@ -182,7 +182,7 @@ describe("FormulaireProduit dans la fenêtre (9.16 f)", () => {
     for (const taille of ["XS", "S", "M", "L", "XL", "XXL"]) expect(screen.getByRole("checkbox", { name: `Proposer la taille ${taille}` })).toBeTruthy();
     expect(screen.queryByRole("checkbox", { name: "Proposer la taille Sur mesure" })).toBeNull();
     await user.click(screen.getByRole("button", { name: "Ajouter une couleur" }));
-    await user.type(screen.getByLabelText("Nom de la couleur en français"), "TEST_Noir");
+    await user.type(screen.getByLabelText("Nom de la couleur"), "TEST_Noir");
     const groupe = screen.getByRole("group", { name: "Tailles et stock : TEST_Noir" });
     await user.click(within(groupe).getByRole("checkbox", { name: "Proposer la taille L" }));
     expect(within(groupe).getByLabelText("Stock")).toBeTruthy();
@@ -192,10 +192,10 @@ describe("FormulaireProduit dans la fenêtre (9.16 f)", () => {
   it("Kit : la saisie déjà faite est gardée, type de fichier en lecture seule, zone des fichiers ; retour à Cosplay sans perte", async () => {
     const user = userEvent.setup();
     dansFenetre(<FormulaireProduit univers={UNIVERS} idFormulaire={ID} />);
-    await user.type(screen.getByLabelText("Titre en français"), "TEST_Kit Itachi");
+    await user.type(screen.getByLabelText("Titre"), "TEST_Kit Itachi");
     await user.type(screen.getByLabelText("Prix en dollars US (USD)"), "12");
     await user.click(screen.getByRole("radio", { name: /^Kit/ }));
-    expect((screen.getByLabelText("Titre en français") as HTMLInputElement).value).toBe("TEST_Kit Itachi");
+    expect((screen.getByLabelText("Titre") as HTMLInputElement).value).toBe("TEST_Kit Itachi");
     expect((screen.getByLabelText("Prix en dollars US (USD)") as HTMLInputElement).value).toBe("12");
     expect((screen.getByLabelText("Adresse du Kit") as HTMLInputElement).value).toBe("test-kit-itachi");
     expect(screen.getByText("Type de fichier")).toBeTruthy();
@@ -204,10 +204,10 @@ describe("FormulaireProduit dans la fenêtre (9.16 f)", () => {
     expect(screen.getByText(/Les fichiers du Kit .* s'ajoutent après le premier enregistrement/)).toBeTruthy();
     // Sections du Kit.
     expect(screen.getByRole("group", { name: "Niveau" })).toBeTruthy();
-    expect(screen.getByLabelText("Matériel nécessaire en français")).toBeTruthy();
-    await user.type(screen.getByLabelText("Titre en français"), " bis");
+    expect(screen.getByLabelText("Matériel nécessaire")).toBeTruthy();
+    await user.type(screen.getByLabelText("Titre"), " bis");
     await user.click(screen.getByRole("radio", { name: /^Cosplay/ }));
-    expect((screen.getByLabelText("Titre en français") as HTMLInputElement).value).toBe("TEST_Kit Itachi bis");
+    expect((screen.getByLabelText("Titre") as HTMLInputElement).value).toBe("TEST_Kit Itachi bis");
     expect(screen.queryByText("Type de fichier")).toBeNull();
   });
 
@@ -215,13 +215,13 @@ describe("FormulaireProduit dans la fenêtre (9.16 f)", () => {
     const user = userEvent.setup();
     const produit: ProduitAdmin = { ...KIT, famille: "cosplay", fichiers: [], video: null };
     dansFenetre(<FormulaireProduit univers={UNIVERS} produit={produit} idFormulaire={ID} milieu={<p>TEST_zones</p>} />);
-    await user.type(screen.getByLabelText("Titre en anglais"), "TEST_en");
+    await user.type(screen.getByLabelText("Titre"), "TEST_fr");
     await user.keyboard("{Escape}");
     const confirmation = screen.getByRole("dialog", { name: "Quitter sans enregistrer ?" });
     await user.click(within(confirmation).getByRole("button", { name: "Continuer la saisie" }));
     // « Enregistrer » de l'en-tête soumet le formulaire principal.
     await user.click(screen.getAllByRole("button", { name: "Enregistrer" })[0]);
-    expect(faux.enregistrerProduit).toHaveBeenCalledWith(expect.objectContaining({ titreEn: "TEST_en", famille: "cosplay" }));
+    expect(faux.enregistrerProduit).toHaveBeenCalledWith(expect.objectContaining({ titreFr: "TEST_KitTEST_fr", titreEn: "", famille: "cosplay" }));
     expect(await screen.findByText("Produit enregistré.")).toBeTruthy();
     // Le bouton de l'en-tête n'est plus occupé : la fenêtre sait que l'enregistrement est fini.
     await waitFor(() => expect(screen.getAllByRole("button", { name: "Enregistrer" })[0].getAttribute("aria-disabled")).toBeNull());
@@ -258,7 +258,7 @@ describe("Saisie suivie par source (9.16 f, revue)", () => {
     const user = userEvent.setup();
     const produit: ProduitAdmin = { ...KIT, famille: "cosplay", fichiers: [], video: null };
     dansFenetre(<FormulaireProduit univers={UNIVERS} produit={produit} idFormulaire={ID} milieu={<ZonesEnTete produit={enTete()} kit={false} />} />);
-    await user.type(screen.getByLabelText("Texte alternatif en français"), "TEST_alt");
+    await user.type(screen.getByLabelText("Texte alternatif"), "TEST_alt");
     await user.click(enregistrerEnTete());
     expect(await screen.findByText("Produit enregistré.")).toBeTruthy();
     await waitFor(() => expect(enregistrerEnTete().getAttribute("aria-disabled")).toBeNull());
@@ -275,8 +275,7 @@ describe("Saisie suivie par source (9.16 f, revue)", () => {
     const user = userEvent.setup({ applyAccept: false });
     const produit: ProduitAdmin = { ...KIT, famille: "cosplay", fichiers: [], video: null };
     dansFenetre(<FormulaireProduit univers={UNIVERS} produit={produit} idFormulaire={ID} milieu={<ZonesEnTete produit={enTete()} kit={false} />} />);
-    await user.type(screen.getByLabelText("Texte alternatif en français"), "Face");
-    await user.type(screen.getByLabelText("Texte alternatif en anglais"), "Front");
+    await user.type(screen.getByLabelText("Texte alternatif"), "Face");
     await user.upload(screen.getByLabelText("Choisir une image"), new File(["x"], "a.jpg", { type: "image/jpeg" }));
     await user.click(screen.getByRole("button", { name: "Ajouter la photo" }));
     expect(await screen.findByText("Traitement de la photo…")).toBeTruthy();
@@ -305,7 +304,7 @@ describe("Choix de la famille pendant une création en cours", () => {
     const user = userEvent.setup();
     dansFenetre(<FormulaireProduit univers={UNIVERS} idFormulaire={ID} />);
     await user.click(screen.getByRole("radio", { name: /^Cosplay/ }));
-    await user.type(screen.getByLabelText("Titre en français"), "TEST_Cos");
+    await user.type(screen.getByLabelText("Titre"), "TEST_Cos");
     await user.click(enregistrerEnTete());
     await waitFor(() => expect((screen.getByRole("radio", { name: /^Kit/ }) as HTMLInputElement).matches(":disabled")).toBe(true));
     await act(async () => liberer({ statut: "erreur", erreur: "generique" }));
@@ -318,7 +317,7 @@ describe("Choix de la famille pendant une création en cours", () => {
     const user = userEvent.setup();
     dansFenetre(<FormulaireProduit univers={UNIVERS} idFormulaire={ID} />);
     await user.click(screen.getByRole("radio", { name: /^Kit/ }));
-    await user.type(screen.getByLabelText("Titre en français"), "TEST_Kit");
+    await user.type(screen.getByLabelText("Titre"), "TEST_Kit");
     await user.click(enregistrerEnTete());
     expect(faux.enregistrerKit).toHaveBeenCalledTimes(1);
     await waitFor(() => expect((screen.getByRole("radio", { name: /^Cosplay/ }) as HTMLInputElement).matches(":disabled")).toBe(true));
@@ -332,7 +331,7 @@ describe("ENREGISTRER de l'en-tête pour un Kit", () => {
     const user = userEvent.setup();
     dansFenetre(<FormulaireProduit univers={UNIVERS} idFormulaire={ID} />);
     await user.click(screen.getByRole("radio", { name: /^Kit/ }));
-    await user.type(screen.getByLabelText("Titre en français"), "TEST_Kit");
+    await user.type(screen.getByLabelText("Titre"), "TEST_Kit");
     await user.click(enregistrerEnTete());
     expect(faux.enregistrerKit).toHaveBeenCalledWith(expect.objectContaining({ titreFr: "TEST_Kit", id: "" }));
     await waitFor(() => expect(faux.push).toHaveBeenCalledWith("/admin/produits/TEST_kit-id?cree=1"));
@@ -342,9 +341,9 @@ describe("ENREGISTRER de l'en-tête pour un Kit", () => {
     faux.enregistrerKit.mockResolvedValueOnce({ statut: "succes", id: KIT.id, cree: false });
     const user = userEvent.setup();
     dansFenetre(<FormulaireKit univers={UNIVERS} liables={[]} produit={KIT} idFormulaire={ID} milieu={<p>TEST_zones</p>} />);
-    await user.type(screen.getByLabelText("Titre en anglais"), "TEST_en");
+    await user.type(screen.getByLabelText("Titre"), "TEST_fr");
     await user.click(enregistrerEnTete());
-    expect(faux.enregistrerKit).toHaveBeenCalledWith(expect.objectContaining({ id: KIT.id, titreEn: "TEST_en" }));
+    expect(faux.enregistrerKit).toHaveBeenCalledWith(expect.objectContaining({ id: KIT.id, titreFr: "TEST_KitTEST_fr", titreEn: "" }));
     await waitFor(() => expect(enregistrerEnTete().getAttribute("aria-disabled")).toBeNull());
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("dialog")).toBeNull();

@@ -1,6 +1,8 @@
 // Story 9.5 : Relances après achat. Rendu réel (creerDependancesEnvois().rendre) avec un faux client Supabase : un seul sujet, relu en base ; route
 // /api/cron/relances (CRON_SECRET, POST seulement) ; réglage du rythme et textes FR/EN. Faux accès nommés TEST ; rien de réel.
 import { beforeEach, describe, expect, it, vi } from "vitest";
+// Anglais désactivé mais conservé (2026-11-22) : ce test vérifie le comportement bilingue, celui d'une réactivation de l'anglais.
+vi.mock("@/i18n/langues-actives", () => import("../doubles/TEST_langues-fr-en"));
 
 const etat = vi.hoisted(() => ({
   tables: {} as Record<string, unknown>,

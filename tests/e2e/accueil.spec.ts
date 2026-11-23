@@ -10,16 +10,17 @@ test("l'accueil répond sans défilement horizontal à 375 px", async ({ page })
 test("« / » suit la redirection jusqu'à une page de langue", async ({ page }) => {
   const reponse = await page.goto("/");
   expect(reponse?.status()).toBe(200);
-  expect(new URL(page.url()).pathname).toMatch(/^\/(fr|en)$/);
+  expect(new URL(page.url()).pathname).toBe("/fr");
 });
 
 test.describe("redirection de /", () => {
   const cas = [
-    { nom: "cookie en, navigateur fr", cookie: "en", langue: "fr", attendu: "/en" },
+    // Site en français uniquement (2026-11-22) : « / » mène toujours à /fr, même avec un navigateur ou un cookie anglais.
+    { nom: "cookie en, navigateur fr", cookie: "en", langue: "fr", attendu: "/fr" },
     { nom: "navigateur fr-CD", cookie: undefined, langue: "fr-CD", attendu: "/fr" },
-    { nom: "navigateur en-US", cookie: undefined, langue: "en-US", attendu: "/en" },
-    { nom: "navigateur de", cookie: undefined, langue: "de", attendu: "/en" },
-    { nom: "cookie invalide", cookie: "xx", langue: "en-US", attendu: "/en" },
+    { nom: "navigateur en-US", cookie: undefined, langue: "en-US", attendu: "/fr" },
+    { nom: "navigateur de", cookie: undefined, langue: "de", attendu: "/fr" },
+    { nom: "cookie invalide", cookie: "xx", langue: "en-US", attendu: "/fr" },
     { nom: "en-tête absent", cookie: undefined, langue: undefined, attendu: "/fr" },
   ];
   for (const c of cas) {
@@ -36,16 +37,15 @@ test.describe("redirection de /", () => {
   }
 });
 
-for (const langue of ["fr", "en"] as const) {
-  test(`/${langue} : lang, H1 unique, canonique et hreflang`, async ({ page }) => {
+for (const langue of ["fr"] as const) {
+  test(`/${langue} : lang, H1 unique, canonique, aucun hreflang`, async ({ page }) => {
     await page.goto(`/${langue}`);
     await expect(page.locator("html")).toHaveAttribute("lang", langue);
     await expect(page.locator("h1")).toHaveCount(1);
     const base = new URL(page.url()).origin;
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", `${base}/${langue}`);
-    await expect(page.locator('link[rel="alternate"][hreflang="fr"]')).toHaveAttribute("href", `${base}/fr`);
-    await expect(page.locator('link[rel="alternate"][hreflang="en"]')).toHaveAttribute("href", `${base}/en`);
-    await expect(page.locator('link[rel="alternate"][hreflang="x-default"]')).toHaveAttribute("href", `${base}/fr`);
+    // Une seule langue servie : aucune adresse alternative.
+    await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
   });
 
   test(`/${langue}/ : blocs dans l'ordre, tuiles vers les catalogues, FAQ courte, un seul H1`, async ({ page }) => {
@@ -130,7 +130,7 @@ for (const langue of ["fr", "en"] as const) {
 // Visiteur : accroche de la maquette « fusion » (deux lignes) ; la personne connectée garde « Deviens ton personnage. » (accueil-connecte).
 const ACCROCHES = { fr: "Porte ton personnage.Ou fabrique-le.", en: "Wear your character.Or make it." } as const;
 
-for (const langue of ["fr", "en"] as const) {
+for (const langue of ["fr"] as const) {
   test(`/${langue} : l'accroche du héros est le H1, en texte réel`, async ({ page }) => {
     await page.goto(`/${langue}`);
     await expect(page.locator("h1")).toHaveText(ACCROCHES[langue], { ignoreCase: true });

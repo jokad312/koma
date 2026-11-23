@@ -176,8 +176,8 @@ describe("ChapitresKit", () => {
 
   it("instant mal formé ou hors durée : erreur sous le champ, rien n'est envoyé", async () => {
     rendre(<ChapitresKit produitId={KIT} chapitres={[]} dureeSecondes={600} />);
-    await userEvent.type(screen.getByLabelText("Titre en français"), "Fin");
-    await userEvent.type(screen.getByLabelText("Titre en anglais"), "End");
+    await userEvent.type(screen.getByLabelText("Titre"), "Fin");
+    expect(screen.queryByLabelText("Titre en anglais")).toBeNull();
     await userEvent.type(screen.getByLabelText("Instant de début"), "150");
     await userEvent.click(screen.getByRole("button", { name: "Ajouter le chapitre" }));
     expect(screen.getByLabelText("Instant de début").getAttribute("aria-invalid")).toBe("true");
@@ -192,12 +192,12 @@ describe("ChapitresKit", () => {
   it("ajout : succès annoncé après la réponse réelle", async () => {
     faux.ajouterChapitreKit.mockResolvedValue({ statut: "succes", id: "TEST_c" });
     rendre(<ChapitresKit produitId={KIT} chapitres={[]} dureeSecondes={600} />);
-    await userEvent.type(screen.getByLabelText("Titre en français"), "Fin");
-    await userEvent.type(screen.getByLabelText("Titre en anglais"), "End");
+    await userEvent.type(screen.getByLabelText("Titre"), "Fin");
+    expect(screen.queryByLabelText("Titre en anglais")).toBeNull();
     await userEvent.type(screen.getByLabelText("Instant de début"), "9:59");
     await userEvent.click(screen.getByRole("button", { name: "Ajouter le chapitre" }));
     await waitFor(() => expect(screen.getByText("Chapitre ajouté.")).toBeTruthy());
-    expect(faux.ajouterChapitreKit).toHaveBeenCalledWith({ produitId: KIT, titreFr: "Fin", titreEn: "End", debut: "9:59" });
+    expect(faux.ajouterChapitreKit).toHaveBeenCalledWith({ produitId: KIT, titreFr: "Fin", titreEn: "", debut: "9:59" });
   });
 
   it("sans vidéo : aucun formulaire d'ajout", () => {

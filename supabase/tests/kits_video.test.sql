@@ -102,7 +102,7 @@ select public.ajouter_fichier_kit(pg_temp.adm(), (select k from ks_k), 'Patron',
 -- Manques d'un Kit.
 select is(
   public.manques_publication((select k2 from ks_k)),
-  array['prix', 'photo', 'titre_en', 'description_fr', 'description_en', 'materiel_fr', 'materiel_en', 'niveau', 'fichier', 'video', 'sous_titres_fr'],
+  array['prix', 'photo', 'description_fr', 'materiel_fr', 'niveau', 'fichier', 'video', 'sous_titres_fr'],
   'manques d''un Kit vide, dans l''ordre d''affichage'
 );
 select is(public.manques_publication((select k from ks_k)), array['video', 'sous_titres_fr'], 'Kit sans vidéo ni sous-titres FR : video, sous_titres_fr');
@@ -113,7 +113,7 @@ select throws_ok(
 select is((select publie_le is null from public.produit where id = (select k from ks_k)), true, 'le refus ne publie rien');
 select is(
   public.manques_publication((select c from ks_k)),
-  array['prix', 'photo', 'titre_en', 'description_fr', 'description_en', 'variante'],
+  array['prix', 'photo', 'description_fr', 'variante'],
   'manques d''un cosplay inchangés'
 );
 

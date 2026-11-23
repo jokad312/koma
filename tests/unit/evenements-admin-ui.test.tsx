@@ -110,9 +110,9 @@ describe("FormulaireEvenement", () => {
     faux.enregistrerEvenementAction.mockResolvedValue({ statut: "succes", id: "TEST_id", cree: true });
     const user = userEvent.setup();
     rendre(<FormulaireEvenement evenement={null} />);
-    await user.type(screen.getByLabelText("Titre en français"), "TEST_Mon festival");
+    await user.type(screen.getByLabelText("Titre"), "TEST_Mon festival");
     await user.click(screen.getByRole("button", { name: "Ajouter un Type de pass" }));
-    await user.type(screen.getByLabelText("Nom en français"), "TEST_Stand");
+    await user.type(screen.getByLabelText("Nom"), "TEST_Stand");
     await user.type(screen.getByLabelText("Prix (USD)"), "120");
     await user.click(screen.getByRole("checkbox", { name: "Stand" }));
     await user.type(screen.getByLabelText("Nombre de Stands disponibles"), "10");
@@ -133,7 +133,7 @@ describe("FormulaireEvenement", () => {
     rendre(<FormulaireEvenement evenement={EVENEMENT} />);
     await user.click(screen.getByRole("button", { name: "Enregistrer l'événement" }));
     expect(await screen.findByText("Cette adresse est déjà utilisée par un autre événement.")).toBeTruthy();
-    expect((screen.getByLabelText("Titre en français") as HTMLInputElement).value).toBe("TEST_Festival");
+    expect((screen.getByLabelText("Titre") as HTMLInputElement).value).toBe("TEST_Festival");
     expect(screen.queryByText("Événement enregistré.")).toBeNull();
   });
 
@@ -151,9 +151,9 @@ describe("FormulaireEvenement", () => {
 
 describe("PublicationEvenement", () => {
   it("brouillon incomplet : liste de ce qui manque, lue en base", () => {
-    rendre(<PublicationEvenement evenementId={EVENEMENT.id} publie={false} manques={["titre_en", "photo"]} />);
+    rendre(<PublicationEvenement evenementId={EVENEMENT.id} publie={false} manques={["titre_fr", "photo"]} />);
     const liste = screen.getByText("Pour publier, il manque :").parentElement!;
-    expect(within(liste).getAllByRole("listitem").map((l) => l.textContent)).toEqual(["le titre en anglais", "au moins une photo, chacune avec ses textes alternatifs"]);
+    expect(within(liste).getAllByRole("listitem").map((l) => l.textContent)).toEqual(["le titre", "au moins une photo, chacune avec son texte alternatif"]);
   });
 
   it("publication : succès affiché seulement après la réponse ; refus : liste du serveur et message", async () => {
@@ -203,7 +203,7 @@ describe("FormulaireEvenement en fenêtre", () => {
     const formulaires = container.querySelectorAll("form");
     expect(formulaires).toHaveLength(1);
     expect(formulaires[0].id).toBe("formulaire-evenement");
-    await user.type(screen.getByLabelText("Titre en français"), "TEST_Festival");
+    await user.type(screen.getByLabelText("Titre"), "TEST_Festival");
     const enTete = screen.getAllByRole("button", { name: "Enregistrer" })[0];
     expect(enTete.getAttribute("form")).toBe("formulaire-evenement");
     await user.click(enTete);

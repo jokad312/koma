@@ -1,5 +1,7 @@
 // Story 9.15 : lectures et rendus serveur avec les nouvelles familles (faux client nommé TEST_, aucun appel réel).
 import { beforeEach, describe, expect, it, vi } from "vitest";
+// Anglais désactivé mais conservé (2026-11-22) : ce test vérifie le comportement bilingue, celui d'une réactivation de l'anglais.
+vi.mock("@/i18n/langues-actives", () => import("../doubles/TEST_langues-fr-en"));
 
 const faux = vi.hoisted(() => ({ commande: null as unknown }));
 vi.mock("server-only", () => ({}));

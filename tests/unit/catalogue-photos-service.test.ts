@@ -135,7 +135,7 @@ describe("finaliserPhoto", () => {
 
   it("texte alternatif vide : alt_invalide, original d'attente effacé", async () => {
     const { deps, appels } = creerTestDependancesCatalogue({ octetsAttente: await jpeg() });
-    expect(await finaliserPhoto(deps, entree({ altEn: "" }))).toEqual({ ok: false, erreur: "alt_invalide" });
+    expect(await finaliserPhoto(deps, entree({ altFr: "" }))).toEqual({ ok: false, erreur: "alt_invalide" });
     expect(appels.ordre).toEqual(["droit", "supprimer:galerie-attente"]);
   });
 

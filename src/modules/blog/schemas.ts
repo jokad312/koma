@@ -1,11 +1,12 @@
 import { z } from "zod";
 import { CHEMIN_IMAGE_ARTICLE, EXTRAIT_ARTICLE_MAX, type CodeErreurBlog } from "./types";
 
-// Une image d'article vient du circuit d'envoi : chemin public contrôlé, textes alternatifs FR et EN obligatoires.
+// Une image d'article vient du circuit d'envoi : chemin public contrôlé, texte alternatif FR obligatoire ; EN facultatif
+// (site en français uniquement, 2026-11-22), vide il reçoit la copie du français à l'écriture.
 const imageSchema = z.object({
   fichier: z.string().regex(CHEMIN_IMAGE_ARTICLE, "article_invalide"),
   altFr: z.string().trim().min(1, "alt_invalide").max(200, "alt_invalide"),
-  altEn: z.string().trim().min(1, "alt_invalide").max(200, "alt_invalide"),
+  altEn: z.string().trim().max(200, "alt_invalide").default(""),
 });
 
 // Une saisie vide vaut « pas de valeur » : jamais une chaîne vide là où la base attend NULL.

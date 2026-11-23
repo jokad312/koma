@@ -18,6 +18,11 @@ type Reglages = {
   supprimer?: boolean;
   suppressionEchoue?: boolean;
   erreurMessage?: string | null;
+  // Valeur relue de retrait_goma_en (copie du français, spec B) : par défaut déjà renseignée, donc aucune copie.
+  retraitEn?: string | null;
+  erreurLecture?: string | null;
+  // Erreur d'écriture propre à retrait_goma_en (la copie), sans toucher aux autres écritures.
+  erreurCopie?: string | null;
 };
 
 export function creerTestDependancesAdmin(r: Reglages = {}) {
@@ -39,8 +44,10 @@ export function creerTestDependancesAdmin(r: Reglages = {}) {
     ecrireReglage: vi.fn(async (args) => {
       appels.ordre.push("ecriture");
       appels.reglages.push(args);
+      if (args.cle === "retrait_goma_en" && r.erreurCopie) return { erreur: r.erreurCopie };
       return { erreur: r.erreurEcriture ?? null };
     }),
+    lireReglage: vi.fn(async () => ({ valeur: r.retraitEn === undefined ? "TEST_Place" : r.retraitEn, erreur: r.erreurLecture ?? null })),
     invalider: vi.fn(() => {
       appels.ordre.push("invalidation");
     }),

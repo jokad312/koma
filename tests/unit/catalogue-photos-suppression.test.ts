@@ -92,9 +92,14 @@ describe("modifierAltPhoto (service)", () => {
     expect(appels.alts).toEqual([{ auteur: AUTEUR, photoId: PHOTO, altFr: "Face", altEn: "Front" }]);
   });
 
+  it("site en français uniquement (Q5) : sans texte anglais, la copie du français est écrite", async () => {
+    const { deps, appels } = creerTestDependancesCatalogue();
+    expect(await modifierAltPhoto(deps, { photoId: PHOTO, altFr: "Face", altEn: "" })).toEqual({ ok: true });
+    expect(appels.alts).toEqual([{ auteur: AUTEUR, photoId: PHOTO, altFr: "Face", altEn: "Face" }]);
+  });
+
   it.each([
     ["français vide", "  ", "Front"],
-    ["anglais vide", "Face", ""],
     ["201 caractères", "x".repeat(201), "Front"],
   ])("%s : alt_invalide, rien d'écrit", async (_nom, altFr, altEn) => {
     const { deps, appels } = creerTestDependancesCatalogue();

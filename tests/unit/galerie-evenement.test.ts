@@ -1,6 +1,8 @@
 // Story 7.10 : Galerie d'événement. Service d'enregistrement du lien (droit, format, erreurs de la base), route planifiée /api/cron/galerie-evenement
 // (CRON_SECRET), gabarit et rendu de l'email « galerie_evenement » relu en base. Faux accès nommés TEST ; aucun vrai email.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+// Anglais désactivé mais conservé (2026-11-22) : ce test vérifie le comportement bilingue, celui d'une réactivation de l'anglais.
+vi.mock("@/i18n/langues-actives", () => import("../doubles/TEST_langues-fr-en"));
 
 const etat = vi.hoisted(() => ({
   rpc: vi.fn(),
